@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -29,6 +29,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - reason:remove-subscriber Will be removed, stock handling will be performed in `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber`. Use `\Shopware\Core\Content\Product\Stock\StockStorage` for extending.
  */
 #[Package('core')]
 class StockUpdater implements EventSubscriberInterface
@@ -61,6 +63,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function triggerChangeSet(PreWriteValidationEvent $event): void
     {
+        if ($this->isDisabled()) {
+            return;
+        }
+
         if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
@@ -69,7 +75,7 @@ class StockUpdater implements EventSubscriberInterface
             if (!$command instanceof ChangeSetAware) {
                 continue;
             }
-            /** @var ChangeSetAware&WriteCommand $command */
+
             if ($command->getDefinition()->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
                 continue;
             }
@@ -78,7 +84,7 @@ class StockUpdater implements EventSubscriberInterface
 
                 continue;
             }
-            /** @var WriteCommand&ChangeSetAware $command */
+
             if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
                 $command->requestChangeSet();
             }
@@ -87,6 +93,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function orderPlaced(CheckoutOrderPlacedEvent $event): void
     {
+        if ($this->isDisabled()) {
+            return;
+        }
+
         $ids = [];
         foreach ($event->getOrder()->getLineItems() ?? [] as $lineItem) {
             if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
@@ -131,6 +141,10 @@ class StockUpdater implements EventSubscriberInterface
      */
     public function lineItemWritten(EntityWrittenEvent $event): void
     {
+        if ($this->isDisabled()) {
+            return;
+        }
+
         $ids = [];
 
         // we don't want to trigger to `update` method when we are inside the order process
@@ -166,6 +180,7 @@ class StockUpdater implements EventSubscriberInterface
             $ids[] = $changeSet->getAfter('referenced_id');
         }
 
+        /** @var list<string> $ids */
         $ids = array_filter(array_unique($ids));
 
         if (empty($ids)) {
@@ -177,6 +192,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function stateChanged(StateMachineTransitionEvent $event): void
     {
+        if ($this->isDisabled()) {
+            return;
+        }
+
         if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
@@ -217,6 +236,10 @@ class StockUpdater implements EventSubscriberInterface
      */
     public function update(array $ids, Context $context): void
     {
+        if ($this->isDisabled()) {
+            return;
+        }
+
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
@@ -226,6 +249,11 @@ class StockUpdater implements EventSubscriberInterface
         $this->updateAvailableStockAndSales($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
+    }
+
+    private function isDisabled(): bool
+    {
+        return Feature::isActive('STOCK_HANDLING');
     }
 
     /**
@@ -394,6 +422,6 @@ GROUP BY product_id;
 
         $filteredIds = $this->stockUpdateFilter->filterProductIdsForStockUpdates(\array_column($result, 'referenced_id'), $context);
 
-        return \array_filter($result, static fn (array $item) => \in_array($item['referenced_id'], $filteredIds, true));
+        return array_values(\array_filter($result, static fn (array $item) => \in_array($item['referenced_id'], $filteredIds, true)));
     }
 }

@@ -157,6 +157,30 @@
             <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <argument>%shopware.stock.enable_stock_management%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber">
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -371,6 +395,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
@@ -425,11 +450,9 @@
             <argument type="tagged_iterator" tag="shopware.product.stock_filter"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
+        <service id="Shopware\Core\Content\Product\Stock\StockStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
@@ -479,6 +502,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" decoration-priority="-1000" public="true">

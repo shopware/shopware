@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
+namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -49,8 +51,15 @@ class AvailableCombinationLoaderTest extends TestCase
         ]);
     }
 
-    public function testCombinationsAreInResult(): void
+    /**
+     * @deprecated tag:v6.6.0.0 - Method will be removed. Use `loadCombinations` instead.
+     */
+    public function testCombinationsAreInResultDeprecated(): void
     {
+        if (Feature::isActive('v6.6.0.0')) {
+            static::markTestSkipped('The load method has been deprecated and will be removed in v6.6.0.0');
+        }
+
         $context = Context::createDefaultContext();
         $productId = $this->createProduct($context);
         $result = $this->loader->load($productId, $context, TestDefaults::SALES_CHANNEL);
@@ -63,6 +72,71 @@ class AvailableCombinationLoaderTest extends TestCase
             }
 
             static::assertTrue(\in_array($combinationHash, $result->getHashes(), true));
+        }
+    }
+
+    public function testCombinationsAreInResult(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $productId = $this->createProduct($context);
+        $result = $this->loader->loadCombinations($productId, $salesChanelContext);
+
+        foreach ($result->getCombinations() as $combinationHash => $combination) {
+            static::assertTrue($result->hasCombination($combination));
+
+            foreach ($combination as $optionId) {
+                static::assertTrue($result->hasOptionId($optionId));
+            }
+
+            static::assertTrue(\in_array($combinationHash, $result->getHashes(), true));
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.6.0.0 - Method will be removed. Use `loadCombinations` instead.
+     *
+     * @dataProvider availabilityProvider
+     */
+    public function testCombinationAvailabilityDeprecated(
+        int $stock,
+        bool $expected,
+        ?bool $parentCloseout,
+        ?bool $isCloseout,
+        int $minPurchase,
+        bool $differentChannel = false
+    ): void {
+        if (Feature::isActive('v6.6.0.0')) {
+            static::markTestSkipped('The load method has been deprecated and will be removed in v6.6.0.0');
+        }
+
+        $products = (new ProductBuilder($this->ids, 'a.0'))
+            ->manufacturer('m1')
+            ->name('test')
+            ->price(10)
+            ->visibility(TestDefaults::SALES_CHANNEL)
+            ->configuratorSetting('red', 'color')
+            ->configuratorSetting('xl', 'size')
+            ->stock(10)
+            ->closeout($parentCloseout)
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.1'))
+                    ->visibility($differentChannel ? $this->ids->get('sales-channel') : TestDefaults::SALES_CHANNEL)
+                    ->option('red', 'color')
+                    ->option('xl', 'size')
+                    ->stock($stock)
+                    ->closeout($isCloseout)
+                    ->add('minPurchase', $minPurchase)
+                    ->build()
+            )
+            ->build();
+
+        $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
+
+        $result = $this->loader->load($this->ids->get('a.0'), Context::createDefaultContext(), TestDefaults::SALES_CHANNEL);
+
+        foreach ($result->getCombinations() as $combination) {
+            static::assertEquals($expected, $result->isAvailable($combination));
         }
     }
 
@@ -100,14 +174,19 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
 
-        $result = $this->loader->load($this->ids->get('a.0'), Context::createDefaultContext(), TestDefaults::SALES_CHANNEL);
+        $context = Context::createDefaultContext();
+        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $result = $this->loader->loadCombinations($this->ids->get('a.0'), $salesChanelContext);
 
         foreach ($result->getCombinations() as $combination) {
             static::assertEquals($expected, $result->isAvailable($combination));
         }
     }
 
-    public static function availabilityProvider(): iterable
+    /**
+     * @return \Generator<string, array{0:int, 1:bool, 2:bool|null, 3:bool|null, 4:int, 5?:bool}>
+     */
+    public static function availabilityProvider(): \Generator
     {
         yield 'test parentCloseout = true and isCloseout = true and stock = 0 and minPurchase = 1' => [0, false, true, true, 1];
         yield 'test parentCloseout = true and isCloseout = false and stock = 0 and minPurchase = 1' => [0, true, true, false, 1];
@@ -150,7 +229,10 @@ class AvailableCombinationLoaderTest extends TestCase
         yield 'test parentCloseout = true and isCloseout = null and stock = 1 and minPurchase = 1 and differentChannel = true' => [1, false, null, null, 1, true];
     }
 
-    private static function ashuffle(array &$a)
+    /**
+     * @param array<mixed> $a
+     */
+    private static function ashuffle(array &$a): void
     {
         $keys = array_keys($a);
         shuffle($keys);
@@ -159,15 +241,10 @@ class AvailableCombinationLoaderTest extends TestCase
             $shuffled[$key] = $a[$key];
         }
         $a = $shuffled;
-
-        return true;
     }
 
-    private function createProduct(
-        Context $context,
-        array $productOverrides = [],
-        array $variantOverrides = []
-    ): string {
+    private function createProduct(Context $context): string
+    {
         // create product with property groups and 1 variant and get its configurator settings
         $productId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
@@ -228,8 +305,6 @@ class AvailableCombinationLoaderTest extends TestCase
             ],
         ];
 
-        $product = \array_replace_recursive($product, $productOverrides);
-
         $variant = [
             'id' => $variantId,
             'productNumber' => 'variant',
@@ -238,8 +313,6 @@ class AvailableCombinationLoaderTest extends TestCase
             'parentId' => $productId,
             'options' => array_map(static fn (array $group) => ['id' => $group[0]], $optionIds),
         ];
-
-        $variant = \array_replace_recursive($variant, $variantOverrides);
 
         $this->productRepository->create([$product, $variant], $context);
 

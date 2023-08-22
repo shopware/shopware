@@ -571,11 +571,6 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Subscriber/CustomerBeforeDeleteSubscriber.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php
@@ -1081,61 +1076,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/LineItem/LineItemQuantitySplitterTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$deliveries\\-\\>first\\(\\)\\-\\>getShippingMethod\\(\\)\\-\\>getPrices\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$firstPriceRule\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$secondPriceRule\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getCalculatedTaxes\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getShippingCosts\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 7
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getShippingMethod\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Offset 'promotionId' might not exist on array\\<string, mixed\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\LineItem\\\\\\\\LineItem' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Processor/DiscountProcessorTest.php
@@ -1439,16 +1379,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/SalesChannel/SendPasswordRecoveryMailRouteTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\CustomerEntity' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerBeforeDeleteSubscriberTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\Event\\\\\\\\CustomerDeletedEvent' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerDeletedEvent will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerBeforeDeleteSubscriberTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Subscriber\\\\CustomerRemoteAddressSubscriberTest\\:\\:fetchCustomerById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -3716,21 +3646,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\StockUpdater\\:\\:getProductsOfOrder\\(\\) should return list\\<array\\{referenced_id\\: string, quantity\\: string\\}\\> but returns array\\<int\\<0, max\\>, array\\{referenced_id\\: string, quantity\\: string\\}\\>\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/StockUpdater.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\ChangeSetAware&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\ChangeSetAware\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/StockUpdater.php
-
-		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\StockUpdater\\:\\:update\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, mixed\\> given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/StockUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
@@ -5599,36 +5514,6 @@ parameters:
 			message: "#^Cannot call method getTotal\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CrossSellingElement\\|null\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:ashuffle\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:ashuffle\\(\\) has parameter \\$a with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:availabilityProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:createProduct\\(\\) has parameter \\$productOverrides with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:createProduct\\(\\) has parameter \\$variantOverrides with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$product of method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductConfiguratorLoader\\:\\:load\\(\\) expects Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/ProductConfiguratorOrderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Fixture\\\\ListingTestData\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7726,16 +7611,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntitySearcher.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/CustomFieldsAccessorBuilder.php
@@ -9096,16 +8971,6 @@ parameters:
 			path: src/Core/Framework/Event/FlowLogEvent.php
 
 		-
-			message: "#^Strict comparison using \\!\\=\\= between non\\-falsy\\-string and '' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between non\\-falsy\\-string and '0' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Increment/AbstractIncrementer.php
@@ -10369,26 +10234,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\EntityForeignKeyResolverTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityForeignKeyResolverTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$changeSetForProduct1\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$changeSetForProduct2\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\EntityWriteGatewayTest\\:\\:getChangeSets\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$customFields has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -15678,11 +15523,6 @@ parameters:
 			path: tests/unit/Core/Content/Cms/DataResolver/Element/ElementDataCollectionTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Content/Cms/Subscriber/CmsPageDefaultChangeSubscriberTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Flow\\\\\\\\Api\\\\\\\\FlowActionCollectorResponse' and Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionCollectorResponse will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
@@ -15908,11 +15748,6 @@ parameters:
 			path: tests/unit/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\Detail\\\\\\\\AvailableCombinationResult' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationResult will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\Detail\\\\\\\\ProductDetailRouteResponse' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductDetailRouteResponse will always evaluate to true\\.$#"
 			count: 3
 			path: tests/unit/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php
@@ -15931,11 +15766,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SalesChannel\\\\\\\\NoContentResponse' and Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceContainer is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Product/Subscriber/ProductSubscriberTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult is not allowed\\. The object is very basic and can be constructed$#"

@@ -111,6 +111,11 @@ class Feature
         self::isActive($flagName) && $closure();
     }
 
+    public static function ifNotActive(string $flagName, \Closure $closure): void
+    {
+        !self::isActive($flagName) && $closure();
+    }
+
     public static function callSilentIfInactive(string $flagName, \Closure $closure): void
     {
         $before = isset(self::$silent[$flagName]);
@@ -308,10 +313,7 @@ class Feature
 
     private static function isTrue(string $value): bool
     {
-        return $value
-            && $value !== 'false'
-            && $value !== '0'
-            && $value !== '';
+        return $value && $value !== 'false';
     }
 
     private static function denormalize(string $name): string

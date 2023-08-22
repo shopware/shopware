@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,6 +28,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +38,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway
  */
 class EntityWriteGatewayTest extends TestCase
 {
@@ -287,7 +293,7 @@ class EntityWriteGatewayTest extends TestCase
         /** @var CountryEntity $country */
         $country = $countryRepo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
-        /** @var array $customFields */
+        /** @var array<mixed> $customFields */
         $customFields = $country->getCustomFields();
 
         static::assertIsInt($customFields['a']);
@@ -309,127 +315,126 @@ class EntityWriteGatewayTest extends TestCase
         static::assertSame($customFields['g'], 'test');
     }
 
-    public function testBeforeDeleteEventNotDispatched(): void
+    /**
+     * @return array<array<class-string>>
+     */
+    public static function eventClasses(): array
+    {
+        if (Feature::isActive('v6.6.0.0')) {
+            return [
+                [EntityDeleteEvent::class],
+            ];
+        }
+
+        return [
+            [BeforeDeleteEvent::class],
+            [EntityDeleteEvent::class],
+        ];
+    }
+
+    /**
+     * @dataProvider eventClasses
+     */
+    public function testEntityDeleteEventNotDispatched(string $eventClass): void
     {
         $id = $this->ids->get('product');
 
         $update = ['id' => $id, 'stock' => 1];
 
-        $isDispatched = false;
+        $spy = $this->eventListenerCalledSpy();
 
-        $this->getContainer()->get('event_dispatcher')
-            ->addListener(BeforeDeleteEvent::class, function (BeforeDeleteEvent $event) use (&$isDispatched): void {
-                $isDispatched = true;
-            });
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $this->productRepository->update([$update], Context::createDefaultContext());
 
-        static::assertFalse($isDispatched);
+        static::assertNull($spy->event);
     }
 
-    public function testBeforeDeleteEventDispatched(): void
+    /**
+     * @dataProvider eventClasses
+     *
+     * @param class-string $eventClass
+     */
+    public function testEntityDeleteEventDispatched(string $eventClass): void
     {
         $id1 = $this->ids->get('product');
         $id2 = $this->ids->get('product-2');
 
         $delete = [['id' => $id1], ['id' => $id2]];
 
-        $eventDispatched = null;
+        $spy = $this->eventListenerCalledSpy();
 
-        $this->getContainer()->get('event_dispatcher')
-            ->addListener(BeforeDeleteEvent::class, function (BeforeDeleteEvent $event) use (&$eventDispatched): void {
-                $eventDispatched = $event;
-            });
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
-        static::assertInstanceOf(BeforeDeleteEvent::class, $eventDispatched);
-        static::assertTrue($eventDispatched->filled());
-        static::assertCount(2, $eventDispatched->getIds('product'));
-        static::assertContains($id1, $eventDispatched->getIds('product'));
-        static::assertEquals([$id1, $id2], $eventDispatched->getIds('product'));
+        /** @var EntityDeleteEvent $event */
+        $event = $spy->event;
+        static::assertInstanceOf($eventClass, $event);
+        static::assertTrue($event->filled());
+        static::assertEquals([$id1, $id2], $event->getIds('product'));
     }
 
-    public function testBeforeDeleteEventSuccessCallbacksCalled(): void
+    /**
+     * @dataProvider eventClasses
+     */
+    public function testEntityDeleteEventSuccessCallbacksCalled(string $eventClass): void
     {
         $id1 = $this->ids->get('product');
 
         $delete = [['id' => $id1]];
 
-        $successCalled = false;
-        $errorCalled = false;
-        $beforeDeleteEvent = null;
+        $successSpy = $this->callbackSpy();
+        $errorSpy = $this->callbackSpy();
 
-        $listenerClosure = function (BeforeDeleteEvent $event) use (&$successCalled, &$beforeDeleteEvent, &$errorCalled): void {
-            $beforeDeleteEvent = $event;
-            $event->addSuccess(function () use (&$successCalled): void {
-                $successCalled = true;
-            });
+        $spy = $this->eventListenerCalledSpy(function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
+            $event->addSuccess($successSpy(...));
+            $event->addError($errorSpy(...));
+        });
 
-            $event->addError(function () use (&$errorCalled): void {
-                $errorCalled = true;
-            });
-        };
-
-        $this->getContainer()->get('event_dispatcher')->addListener(BeforeDeleteEvent::class, $listenerClosure);
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
-        static::assertTrue($successCalled);
-        static::assertFalse($errorCalled);
-        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
-        static::assertContains($id1, $beforeDeleteEvent->getIds('product'));
+        static::assertTrue($successSpy->called);
+        static::assertFalse($errorSpy->called);
 
-        $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure);
+        $this->getContainer()->get('event_dispatcher')->removeListener($eventClass, $spy);
     }
 
-    public function testMultipleCallbacksAreCalledOnTheSameEvent(): void
+    /**
+     * @dataProvider eventClasses
+     */
+    public function testMultipleCallbacksAreCalledOnTheSameEntityDeleteEvent(string $eventClass): void
     {
         $id = $this->ids->get('product');
 
         $delete = [['id' => $id]];
 
-        $successCalled1 = false;
-        $successCalled2 = false;
+        $successSpy1 = $this->callbackSpy();
+        $successSpy2 = $this->callbackSpy();
 
-        $beforeDeleteEvent1 = null;
-        $beforeDeleteEvent2 = null;
+        $eventSpy1 = $this->eventListenerCalledSpy(fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy1(...)));
+        $eventSpy2 = $this->eventListenerCalledSpy(fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy2(...)));
 
-        $listenerClosure1 = function (BeforeDeleteEvent $event) use (&$successCalled1, &$beforeDeleteEvent1): void {
-            $beforeDeleteEvent1 = $event;
-            $event->addSuccess(function () use (&$successCalled1): void {
-                $successCalled1 = true;
-            });
-        };
-
-        $listenerClosure2 = function (BeforeDeleteEvent $event) use (&$successCalled2, &$beforeDeleteEvent2): void {
-            $beforeDeleteEvent2 = $event;
-            $event->addSuccess(function () use (&$successCalled2): void {
-                $successCalled2 = true;
-            });
-        };
-
-        $this->getContainer()->get('event_dispatcher')->addListener(BeforeDeleteEvent::class, $listenerClosure1);
-        $this->getContainer()->get('event_dispatcher')->addListener(BeforeDeleteEvent::class, $listenerClosure2);
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $eventSpy1);
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $eventSpy2);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
-        static::assertTrue($successCalled1);
-        static::assertTrue($successCalled2);
-        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent1);
-        static::assertEquals($beforeDeleteEvent1, $beforeDeleteEvent2);
-        static::assertContains($id, $beforeDeleteEvent1->getIds('product'));
-        $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure1);
-        $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure2);
+        static::assertTrue($successSpy1->called);
+        static::assertTrue($successSpy2->called);
+
+        $this->getContainer()->get('event_dispatcher')->removeListener($eventClass, $eventSpy1);
+        $this->getContainer()->get('event_dispatcher')->removeListener($eventClass, $eventSpy2);
     }
 
-    public function testBeforeDeleteEventErrorCallbacksCalled(): void
+    /**
+     * @dataProvider eventClasses
+     */
+    public function testEntityDeleteEventErrorCallbacksCalled(string $eventClass): void
     {
         $delete = [['id' => Uuid::randomHex()]];
-
-        $errorCalled = false;
-        $successCalled = false;
-        $beforeDeleteEvent = null;
 
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -450,19 +455,15 @@ class EntityWriteGatewayTest extends TestCase
 
         $connection->method('delete')->willThrowException(new Exception('test'));
 
-        $listenerClosure = function (BeforeDeleteEvent $event) use (&$errorCalled, &$beforeDeleteEvent, &$successCalled): void {
-            $beforeDeleteEvent = $event;
-            $event->addError(function () use (&$errorCalled): void {
-                $errorCalled = true;
-            });
+        $successSpy = $this->callbackSpy();
+        $errorSpy = $this->callbackSpy();
 
-            $event->addSuccess(function () use (&$successCalled): void {
-                $successCalled = true;
-            });
-        };
+        $spy = $this->eventListenerCalledSpy(function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
+            $event->addSuccess($successSpy(...));
+            $event->addError($errorSpy(...));
+        });
 
-        $this->getContainer()->get('event_dispatcher')
-            ->addListener(BeforeDeleteEvent::class, $listenerClosure);
+        $this->getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -493,19 +494,226 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(Exception::class, $exceptionThrown);
         static::assertEquals('test', $exceptionThrown->getMessage());
 
-        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
-        static::assertEquals($exceptionThrown, $beforeDeleteEvent->getWriteContext()->getExceptions()->getExceptions()[0]);
-        static::assertTrue($errorCalled);
-        static::assertFalse($successCalled);
+        static::assertTrue($errorSpy->called);
+        static::assertFalse($successSpy->called);
 
-        $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure);
+        $this->getContainer()->get('event_dispatcher')->removeListener($eventClass, $spy);
     }
 
-    private function createProduct(?string $id = null): string
+    /**
+     * @dataProvider methodProvider
+     *
+     * @param 'delete'|'upsert'|'update'|'create' $method
+     */
+    public function testEntityWriteEventDispatched(string $method): void
+    {
+        $id1 = $this->ids->get('p-1');
+        $id2 = $this->ids->get('p-2');
+
+        $p1Data = $this->getProductData($id1);
+        $p2Data = $this->getProductData($id2);
+
+        if ($method !== 'create') {
+            $this->productRepository->create([$p1Data, $p2Data], Context::createDefaultContext());
+        }
+
+        $ids = [['id' => $id1], ['id' => $id2]];
+
+        $spy = $this->eventListenerCalledSpy();
+
+        $this->getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $spy);
+
+        match ($method) {
+            'delete' => $this->productRepository->delete($ids, Context::createDefaultContext()),
+            'upsert' => $this->productRepository->upsert($ids, Context::createDefaultContext()),
+            'update' => $this->productRepository->update($ids, Context::createDefaultContext()),
+            'create' => $this->productRepository->create([$p1Data, $p2Data], Context::createDefaultContext()),
+        };
+
+        static::assertInstanceOf(EntityWriteEvent::class, $spy->event);
+        static::assertEquals([$id1, $id2], $spy->event->getIds('product'));
+    }
+
+    /**
+     * @return array<array<string>>
+     */
+    public static function methodProvider(): array
+    {
+        return [
+            ['create'],
+            ['upsert'],
+            ['update'],
+            ['delete'],
+        ];
+    }
+
+    public function testEntityWriteEventSuccessCallbacksCalled(): void
+    {
+        $id1 = $this->ids->get('product');
+
+        $delete = [['id' => $id1]];
+
+        $successSpy = $this->callbackSpy();
+        $errorSpy = $this->callbackSpy();
+
+        $spy = $this->eventListenerCalledSpy(function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
+            $event->addSuccess($successSpy);
+            $event->addError($errorSpy);
+        });
+
+        $this->getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $spy);
+
+        $this->productRepository->delete($delete, Context::createDefaultContext());
+
+        static::assertTrue($successSpy->called);
+        static::assertFalse($errorSpy->called);
+
+        $this->getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $spy);
+    }
+
+    public function testMultipleCallbacksAreCalledOnTheSameEntityWriteEvent(): void
+    {
+        $id = $this->ids->get('product');
+
+        $delete = [['id' => $id]];
+
+        $successSpy1 = $this->callbackSpy();
+        $successSpy2 = $this->callbackSpy();
+
+        $eventSpy1 = $this->eventListenerCalledSpy(fn (EntityWriteEvent $event) => $event->addSuccess($successSpy1));
+        $eventSpy2 = $this->eventListenerCalledSpy(fn (EntityWriteEvent $event) => $event->addSuccess($successSpy2));
+
+        $this->getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $eventSpy1);
+        $this->getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $eventSpy2);
+
+        $this->productRepository->delete($delete, Context::createDefaultContext());
+
+        static::assertTrue($successSpy1->called);
+        static::assertTrue($successSpy2->called);
+
+        $this->getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy1);
+        $this->getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy2);
+    }
+
+    public function testEntityWriteEventErrorCallbacksCalled(): void
+    {
+        $delete = [['id' => Uuid::randomHex()]];
+
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([
+                array_merge(
+                    $connection->getParams(),
+                    [
+                        'url' => $_SERVER['DATABASE_URL'],
+                        'dbname' => $connection->getDatabase(),
+                    ]
+                ),
+                $connection->getDriver(),
+                $connection->getConfiguration(),
+            ])
+            ->onlyMethods(['delete'])
+            ->getMock();
+
+        $connection->method('delete')->willThrowException(new Exception('test'));
+
+        $successSpy = $this->callbackSpy();
+        $errorSpy = $this->callbackSpy();
+
+        $spy = $this->eventListenerCalledSpy(function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
+            $event->addSuccess($successSpy);
+            $event->addError($errorSpy);
+        });
+
+        $this->getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $spy);
+
+        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+
+        $gateway = new EntityWriteGateway(
+            1,
+            $connection,
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(ExceptionHandlerRegistry::class),
+            $definitionRegistry
+        );
+
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
+
+        $command = new DeleteCommand(
+            $definitionRegistry->getByEntityName('product'),
+            $delete[0],
+            new EntityExistence('product', $delete[0], true, true, true, [])
+        );
+
+        $exceptionThrown = null;
+
+        try {
+            $gateway->execute([$command], $writeContext);
+        } catch (Exception $exception) {
+            $exceptionThrown = $exception;
+        }
+
+        static::assertInstanceOf(Exception::class, $exceptionThrown);
+        static::assertEquals('test', $exceptionThrown->getMessage());
+
+        static::assertTrue($errorSpy->called);
+        static::assertFalse($successSpy->called);
+
+        $this->getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $spy);
+    }
+
+    /**
+     * @return callable(mixed...): void&object{called: bool}
+     */
+    private function callbackSpy(): callable
+    {
+        return new class() {
+            public bool $called = false;
+
+            public function __invoke(): void
+            {
+                $this->called = true;
+            }
+        };
+    }
+
+    /**
+     * @return callable(ShopwareEvent): void&object{event: ?ShopwareEvent}
+     */
+    private function eventListenerCalledSpy(?\Closure $callback = null): callable
+    {
+        return new class($callback) {
+            public ?ShopwareEvent $event = null;
+
+            public function __construct(private ?\Closure $callback = null)
+            {
+            }
+
+            public function __invoke(ShopwareEvent $event): void
+            {
+                $this->event = $event;
+
+                if ($this->callback) {
+                    ($this->callback)($event);
+                }
+            }
+        };
+    }
+
+    private function createProduct(string $id): void
+    {
+        $this->productRepository->create([$this->getProductData($id)], Context::createDefaultContext());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getProductData(?string $id = null): array
     {
         $id ??= Uuid::randomHex();
 
-        $data = [
+        return [
             'id' => $id,
             'name' => 'test',
             'productNumber' => Uuid::randomHex(),
@@ -522,10 +730,6 @@ class EntityWriteGatewayTest extends TestCase
                 ['id' => $id, 'salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
-
-        $this->productRepository->create([$data], Context::createDefaultContext());
-
-        return $id;
     }
 
     private function getChangeSet(string $entity, EntityWrittenContainerEvent $result): ChangeSet
@@ -540,6 +744,9 @@ class EntityWriteGatewayTest extends TestCase
         return $changeSet;
     }
 
+    /**
+     * @return array<ChangeSet>
+     */
     private function getChangeSets(string $entity, EntityWrittenContainerEvent $result, int $expectedSize): array
     {
         $event = $result->getEventByEntityName($entity);

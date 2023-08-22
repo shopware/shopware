@@ -73,6 +73,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\ProductReviewCountService"/>
 
             <tag name="shopware.demodata_generator" option-name="reviews" option-default="20"/>
         </service>

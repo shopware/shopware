@@ -445,7 +445,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $productProperties = [];
         foreach ($properties as $options) {
-            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, 3));
+            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, min(\count($options), 3)));
         }
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));

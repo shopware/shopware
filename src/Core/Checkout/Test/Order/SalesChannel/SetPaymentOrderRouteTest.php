@@ -68,17 +68,17 @@ class SetPaymentOrderRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer('shopware1234', $email);
+        $customerId = $this->createCustomer($email);
 
         $this->ids->set('order-1', $this->createOrder($customerId));
-        $this->ids->set('order-2', $this->createOrder($this->createCustomer('test1234', 'test-other@test.de')));
+        $this->ids->set('order-2', $this->createOrder($this->createCustomer('test-other@test.de')));
 
         $this->browser->request(
             'POST',
             '/store-api/account/login',
             [
                 'email' => $email,
-                'password' => 'shopware1234',
+                'password' => 'shopware',
             ]
         );
         $response = $this->browser->getResponse();

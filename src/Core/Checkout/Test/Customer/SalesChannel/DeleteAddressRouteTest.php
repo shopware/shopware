@@ -35,7 +35,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -201,7 +201,7 @@ class DeleteAddressRouteTest extends TestCase
 
     public function testDeleteNewCreatedAddressGuest(): void
     {
-        $customerId = $this->createCustomer(null, null, true);
+        $customerId = $this->createCustomer(null, true);
         $context = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $context);
 

@@ -69,8 +69,7 @@ class LogoutRouteTest extends TestCase
     public function testValidLogout(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -78,7 +77,7 @@ class LogoutRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -128,8 +127,7 @@ class LogoutRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -137,7 +135,7 @@ class LogoutRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -178,8 +176,7 @@ class LogoutRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -187,7 +184,7 @@ class LogoutRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -221,8 +218,7 @@ class LogoutRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $contextToken = Random::getAlphanumericString(32);
 
@@ -232,7 +228,7 @@ class LogoutRouteTest extends TestCase
             []
         );
 
-        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+        $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
         $loginResponse = $this->getContainer()->get(LoginRoute::class)->login($request, $salesChannelContext);
 
         $customerId = $this->createCustomer();
@@ -262,14 +258,13 @@ class LogoutRouteTest extends TestCase
         $config->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+        $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
         $login = $this->getContainer()
             ->get(LoginRoute::class)
             ->login($request, $context);
@@ -302,8 +297,7 @@ class LogoutRouteTest extends TestCase
     public function testValidLogoutAsGuest(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email, true);
+        $customerId = $this->createCustomer($email, true);
         $this->browser->setServerParameter(
             'HTTP_SW_CONTEXT_TOKEN',
             $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'))

@@ -51,7 +51,7 @@ class ChangePaymentMethodRouteTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -113,7 +113,7 @@ class ChangePaymentMethodRouteTest extends TestCase
         static::assertSame($this->ids->get('payment2'), $customer['defaultPaymentMethodId']);
     }
 
-    private function createCustomer(string $password, ?string $email = null): string
+    private function createCustomer(?string $email = null): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -136,7 +136,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 'defaultPaymentMethodId' => $this->ids->get('payment'),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

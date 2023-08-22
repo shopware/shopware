@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Service\UserValidationService;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -48,7 +49,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => TestDefaults::HASHED_PASSWORD,
             ],
         ], $context);
 
@@ -74,7 +75,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => TestDefaults::HASHED_PASSWORD,
             ],
         ], $context);
 
@@ -98,7 +99,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => TestDefaults::HASHED_PASSWORD,
             ],
         ], $context);
 
@@ -123,7 +124,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => TestDefaults::HASHED_PASSWORD,
             ],
         ], $context);
 

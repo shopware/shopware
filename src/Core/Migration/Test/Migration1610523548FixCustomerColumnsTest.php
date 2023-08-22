@@ -148,7 +148,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

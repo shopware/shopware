@@ -293,8 +293,6 @@
             "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
         ],
         "build:js": [
-            "@php bin/console bundle:dump",
-            "@php bin/console feature:dump",
             "@build:js:admin",
             "@build:js:storefront"
         ],
@@ -309,9 +307,11 @@
             "@npm:component-library run generate"
         ],
         "build:js:storefront": [
+            "@php bin/console bundle:dump",
             "@php bin/console feature:dump",
             "@npm:storefront run production",
-            "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
+            "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
+            "@php bin/console theme:compile"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "e2e:cypress": [
@@ -471,7 +471,6 @@
         "reset": [
             "@init:db",
             "@build:js",
-            "@php bin/console theme:compile",
             "@php bin/console theme:change --all Storefront",
             "@php bin/console assets:install"
         ],
@@ -482,7 +481,6 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:compile",
             "@php bin/console theme:change --all Storefront",
             "@php bin/console assets:install"
         ],

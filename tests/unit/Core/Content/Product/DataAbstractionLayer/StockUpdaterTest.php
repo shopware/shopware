@@ -11,20 +11,29 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\AbstractStockUpdateFilter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpdate\TestStockUpdateFilter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -32,6 +41,10 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater
+ *
+ * @deprecated tag:v6.6.0.0 - Will be removed.
+ *
+ * @DisabledFeatures("STOCK_HANDLING", "v6.6.0.0")
  */
 class StockUpdaterTest extends TestCase
 {
@@ -54,6 +67,177 @@ class StockUpdaterTest extends TestCase
         static::assertArrayHasKey(PreWriteValidationEvent::class, $events);
         static::assertArrayHasKey(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, $events);
         static::assertArrayHasKey(OrderEvents::ORDER_LINE_ITEM_DELETED_EVENT, $events);
+    }
+
+    public function testTriggerChangeSetWithNonLiveVersion(): void
+    {
+        $definition = new OrderLineItemDefinition();
+        $primaryKey = ['id' => 'some_id'];
+        $existence = new EntityExistence('order_line_item', [], false, false, false, []);
+        $path = 'order_line_items';
+
+        $commands = [new UpdateCommand(
+            $definition,
+            ['referenced_id' => 'new_referenced_id'],
+            $primaryKey,
+            $existence,
+            $path
+        )];
+
+        $stockSubscriber = new StockUpdater(
+            $this->getConnectionMock(),
+            $this->dispatcher,
+            new StockUpdateFilterProvider([]),
+        );
+
+        $writeContextMock = $this->getMockBuilder(WriteContext::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $event = new PreWriteValidationEvent($writeContextMock, $commands);
+        $stockSubscriber->triggerChangeSet($event);
+
+        static::assertFalse($commands[0]->requiresChangeSet());
+    }
+
+    public function testTriggerChangeSetWithNonChangeSetAwareCommand(): void
+    {
+        $nonChangeSetAwareCommand = $this->createMock(WriteCommand::class);
+
+        $commands = [$nonChangeSetAwareCommand];
+
+        $writeContextMock = $this->getMockBuilder(WriteContext::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $context = Context::createDefaultContext();
+        $writeContextMock->method('getContext')->willReturn($context);
+
+        $event = new PreWriteValidationEvent($writeContextMock, $commands);
+
+        $stockSubscriber = new StockUpdater(
+            $this->getConnectionMock(),
+            $this->dispatcher,
+            new StockUpdateFilterProvider([]),
+        );
+
+        $stockSubscriber->triggerChangeSet($event);
+
+        static::assertNotInstanceOf(ChangeSetAware::class, $commands[0]);
+    }
+
+    public function testTriggerChangeSetWithDeleteCommand(): void
+    {
+        $definition = new OrderLineItemDefinition();
+        $primaryKey = ['id' => 'some_id'];
+        $existence = new EntityExistence('order_line_item', [], false, false, false, []);
+
+        $commands = [
+            new DeleteCommand(
+                $definition,
+                $primaryKey,
+                $existence
+            ),
+        ];
+
+        $writeContextMock = $this->getMockBuilder(WriteContext::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $context = Context::createDefaultContext();
+        $writeContextMock->method('getContext')->willReturn($context);
+
+        $event = new PreWriteValidationEvent($writeContextMock, $commands);
+
+        $stockSubscriber = new StockUpdater(
+            $this->getConnectionMock(),
+            $this->dispatcher,
+            new StockUpdateFilterProvider([]),
+        );
+
+        $stockSubscriber->triggerChangeSet($event);
+
+        static::assertTrue($commands[0]->requiresChangeSet());
+    }
+
+    public function testTriggerChangeSetWithFields(): void
+    {
+        $definition = new OrderLineItemDefinition();
+        $primaryKey = ['id' => 'some_id'];
+        $existence = new EntityExistence('order_line_item', [], false, false, false, []);
+        $path = 'order_line_items';
+
+        $updateCommand = new UpdateCommand(
+            $definition,
+            [
+                'referenced_id' => 'new_referenced_id',
+                'product_id' => 'new_product_id',
+                'quantity' => 2,
+            ],
+            $primaryKey,
+            $existence,
+            $path
+        );
+
+        $commands = [$updateCommand];
+
+        $context = Context::createDefaultContext();
+
+        $writeContextMock = $this->getMockBuilder(WriteContext::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $writeContextMock->method('getContext')->willReturn($context);
+
+        $event = new PreWriteValidationEvent($writeContextMock, $commands);
+
+        $stockSubscriber = new StockUpdater(
+            $this->getConnectionMock(),
+            $this->dispatcher,
+            new StockUpdateFilterProvider([]),
+        );
+
+        $stockSubscriber->triggerChangeSet($event);
+
+        static::assertTrue($updateCommand->requiresChangeSet());
+    }
+
+    public function testTriggerChangeSetWithNotOrderLineItemDefinition(): void
+    {
+        $definition = new CategoryDefinition();
+        $primaryKey = ['id' => 'some_id'];
+        $existence = new EntityExistence('other_entity', [], false, false, false, []);
+        $path = 'other_entities';
+
+        $updateCommand = new UpdateCommand(
+            $definition,
+            ['some_field' => 'some_value'],
+            $primaryKey,
+            $existence,
+            $path
+        );
+
+        $commands = [$updateCommand];
+
+        $context = Context::createDefaultContext();
+
+        $writeContextMock = $this->getMockBuilder(WriteContext::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $writeContextMock->method('getContext')->willReturn($context);
+
+        $event = new PreWriteValidationEvent($writeContextMock, $commands);
+
+        $stockSubscriber = new StockUpdater(
+            $this->getConnectionMock(),
+            $this->dispatcher,
+            new StockUpdateFilterProvider([]),
+        );
+
+        $stockSubscriber->triggerChangeSet($event);
+
+        static::assertFalse($updateCommand->requiresChangeSet());
     }
 
     public function testStockUpdateFilterOnOrderPlaced(): void
@@ -143,15 +327,17 @@ class StockUpdaterTest extends TestCase
     public function getStockUpdateFilterMock(array $ids): MockObject
     {
         $filter = $this->createMock(TestStockUpdateFilter::class);
-        $filter->expects(static::once())->method('filter')->with($ids);
+        $filter->expects(static::once())->method('filter')->with($ids)->willReturn($ids);
 
         return $filter;
     }
 
     /**
+     * @param array<string, int> $initialStock
+     *
      * @return MockObject&Connection
      */
-    private function getConnectionMock(): MockObject
+    private function getConnectionMock(array $initialStock = []): MockObject
     {
         $statement = $this->createMock(Statement::class);
         $statement->method('execute')->willReturn($this->createMock(Result::class));
@@ -159,6 +345,28 @@ class StockUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('prepare')->willReturn($statement);
+
+        // Handle fetching the updated available_stock values
+        $connection->method('fetchOne')
+            ->willReturnCallback(function (string $query, array $params) use (&$initialStock) {
+                $productId = $params['productId'] ?? null;
+
+                return [
+                    'available_stock' => $initialStock[$productId] ?? 0,
+                ];
+            });
+
+        $statement->method('executeStatement')
+            ->willReturnCallback(function (array $params) use (&$initialStock) {
+                $productId = Uuid::fromBytesToHex($params['id'] ?? '');
+                $quantity = $params['quantity'] ?? 0;
+
+                if ($productId && \array_key_exists($productId, $initialStock)) {
+                    $initialStock[$productId] -= $quantity;
+                }
+
+                return 1;
+            });
 
         return $connection;
     }

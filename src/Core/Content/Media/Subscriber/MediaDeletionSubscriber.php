@@ -16,7 +16,7 @@ use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -56,7 +56,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeDeleteEvent::class => 'beforeDelete',
+            EntityDeleteEvent::class => 'beforeDelete',
             EntitySearchedEvent::class => 'securePrivateFolders',
         ];
     }
@@ -91,7 +91,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function beforeDelete(BeforeDeleteEvent $event): void
+    public function beforeDelete(EntityDeleteEvent $event): void
     {
         /** @var list<string> $affected */
         $affected = array_values($event->getIds(MediaThumbnailDefinition::ENTITY_NAME));
@@ -200,7 +200,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     /**
      * @param list<string> $affected
      */
-    private function handleThumbnailDeletion(BeforeDeleteEvent $event, array $affected, Context $context): void
+    private function handleThumbnailDeletion(EntityDeleteEvent $event, array $affected, Context $context): void
     {
         $privatePaths = [];
         $publicPaths = [];

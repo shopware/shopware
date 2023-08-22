@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -54,6 +56,7 @@ class ProductIndexer extends EntityIndexer
         private readonly SearchKeywordUpdater $searchKeywordUpdater,
         private readonly ChildCountUpdater $childCountUpdater,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly AbstractStockStorage $stockStorage,
         private readonly StockUpdater $stockUpdater,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
@@ -98,7 +101,11 @@ class ProductIndexer extends EntityIndexer
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
-            $this->stockUpdater->update(array_values($stocks), $event->getContext());
+            if (Feature::isActive('STOCK_HANDLING')) {
+                $this->stockStorage->index(array_values($stocks), $event->getContext());
+            } else {
+                $this->stockUpdater->update(array_values($stocks), $event->getContext());
+            }
         });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
@@ -150,7 +157,11 @@ class ProductIndexer extends EntityIndexer
 
         if ($message->allow(self::STOCK_UPDATER)) {
             Profiler::trace('product:indexer:stock', function () use ($ids, $context): void {
-                $this->stockUpdater->update($ids, $context);
+                if (!Feature::isActive('STOCK_HANDLING')) {
+                    $this->stockUpdater->update($ids, $context);
+                } else {
+                    $this->stockStorage->index($ids, $context);
+                }
             });
         }
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -44,7 +45,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(AbstractPropertyGroupSorter::class),
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
-            $config
+            $config,
         );
 
         $event = new EntityLoadedEvent(
@@ -69,7 +70,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(AbstractPropertyGroupSorter::class),
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
-            $config
+            $config,
         );
 
         $event = new SalesChannelEntityLoadedEvent(
@@ -86,37 +87,37 @@ class ProductSubscriberTest extends TestCase
     public static function resolveCmsPageIdProviderWithLoadedEventProvider(): \Generator
     {
         yield 'It does not set cms page id if already given' => [
-            (new ProductEntity())->assign(['cmsPageId' => 'own-id']),
+            (new ProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'own-id',
         ];
 
         yield 'It does not set if no default is given' => [
-            (new ProductEntity())->assign(['cmsPageId' => null]),
+            (new ProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService(),
             null,
         ];
 
         yield 'It sets cms page id if none is given and default is provided' => [
-            (new ProductEntity())->assign(['cmsPageId' => null]),
+            (new ProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'config-id',
         ];
 
         yield 'It does not set cms page id if already given with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => 'own-id']),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'own-id',
         ];
 
         yield 'It does not set if no default is given with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService(),
             null,
         ];
 
         yield 'It sets cms page id if none is given and default is provided with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'config-id',
         ];
@@ -125,37 +126,37 @@ class ProductSubscriberTest extends TestCase
     public static function resolveCmsPageIdProviderWithSalesChannelLoadedEventProvider(): \Generator
     {
         yield 'It does not set cms page id if already given' => [
-            (new SalesChannelProductEntity())->assign(['cmsPageId' => 'own-id']),
+            (new SalesChannelProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'own-id',
         ];
 
         yield 'It does not set if no default is given' => [
-            (new SalesChannelProductEntity())->assign(['cmsPageId' => null]),
+            (new SalesChannelProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService(),
             null,
         ];
 
         yield 'It sets cms page id if none is given and default is provided' => [
-            (new SalesChannelProductEntity())->assign(['cmsPageId' => null]),
+            (new SalesChannelProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'config-id',
         ];
 
         yield 'It does not set cms page id if already given with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => 'own-id']),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'own-id',
         ];
 
         yield 'It does not set if no default is given with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService(),
             null,
         ];
 
         yield 'It sets cms page id if none is given and default is provided with partial entity' => [
-            (new PartialEntity())->assign(['cmsPageId' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => null]),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),
             'config-id',
         ];
@@ -184,20 +185,21 @@ class ProductSubscriberTest extends TestCase
             $propertyGroupSorter,
             $maxPurchaseCalculator,
             $isNewDetector,
-            $this->createMock(SystemConfigService::class)
+            $this->createMock(SystemConfigService::class),
         );
 
-        $cheapestPrice = $this->createMock(CheapestPriceContainer::class);
-        $cheapestPrice->expects(static::once())->method('resolve');
+        $cheapestPrice = new CheapestPriceContainer([]);
+
+        $entity = (new PartialEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'properties' => new EntityCollection(),
+            'cheapestPrice' => $cheapestPrice,
+        ]);
 
         $subscriber->salesChannelLoaded(
             new SalesChannelEntityLoadedEvent(
                 $this->createMock(ProductDefinition::class),
-                [
-                    (new PartialEntity())->assign([
-                        'properties' => new EntityCollection(),
-                        'cheapestPrice' => $cheapestPrice,
-                    ]), ],
+                [$entity],
                 $this->createMock(SalesChannelContext::class)
             )
         );

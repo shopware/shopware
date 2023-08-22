@@ -200,9 +200,7 @@ class CacheInvalidationSubscriber
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        /** @var list<string> $ids */
-        $ids = array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds());
-        $this->cacheInvalidator->invalidate($ids);
+        $this->cacheInvalidator->invalidate(array_map(CachedCategoryRoute::buildName(...), $event->getIds()));
     }
 
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
@@ -292,9 +290,16 @@ class CacheInvalidationSubscriber
 
     public function invalidateDetailRoute(ProductChangedEventInterface $event): void
     {
+        /** @var list<string> $parentIds */
+        $parentIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT(LOWER(HEX(parent_id))) FROM product WHERE id IN (:ids) AND parent_id IS NOT NULL AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
         // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
-            array_map([CachedProductDetailRoute::class, 'buildName'], $event->getIds())
+            array_map(CachedProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
         );
     }
 

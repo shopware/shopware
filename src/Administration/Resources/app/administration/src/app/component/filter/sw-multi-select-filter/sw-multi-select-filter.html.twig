@@ -20,7 +20,7 @@
         :entity-collection="values"
         :display-variants="filter.displayVariants"
         {% if VUE3 %}
-        @update:entityCollection="changeValue"
+        @update:entity-collection="changeValue"
         {% else %}
         @change="changeValue"
         {% endif %}

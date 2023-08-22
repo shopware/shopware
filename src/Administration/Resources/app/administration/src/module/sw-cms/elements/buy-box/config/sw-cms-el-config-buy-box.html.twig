@@ -77,8 +77,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_buy_box_config_product_select_result_item %}
                     <template #result-item="{ item, index }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             v-bind="{ item, index }"
                         >
 
@@ -90,8 +89,7 @@
                                 </sw-product-variant-info>
                             </span>
                             {% endblock %}
-
-                        </li>
+                        </sw-select-result>
                     </template>
                     {% endblock %}
 

@@ -151,10 +151,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_last_name %}
                 <template #column-lastName="{ item }">
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="customerEditMode"
+                        role="link"
+                        tabindex="0"
                         @click="onEditAddress(item.id)"
+                        @keydown.enter="onEditAddress(item.id)"
                     >
                         {{ item.lastName }}
                     </a>

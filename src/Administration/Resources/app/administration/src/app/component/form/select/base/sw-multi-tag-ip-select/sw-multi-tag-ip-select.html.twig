@@ -12,7 +12,7 @@
 {% block sw_multi_tag_select_validation_invalid %}
 {% parent %}
 
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <div
     v-for="knownIp of validUnselectedKnownIps"
     :key="knownIp.value"

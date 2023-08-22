@@ -47,12 +47,14 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         v-for="(column, columnIndex) in columns"
                         :key="columnIndex"
                         :class="[{ 'sw-grid-column': true, 'is--sortable': column.sortable, 'is--sorted': sort === column.dataIndex }, `sw-grid-column--${column.align}`]"
+                        role="gridcell"
+                        tabindex="0"
                         @click="onGridCellClick($event, column)"
+                        @keydown.enter="onGridCellClick($event, column)"
                     >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

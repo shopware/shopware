@@ -32,11 +32,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_bulk_selected_actions %}
             <span class="sw-data-grid__bulk-selected bulk-link">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
                     v-if="hasInvisibleSelection"
                     class="link link-warning bulk-deselect-all"
+                    role="button"
+                    tabindex="0"
                     @click="resetSelection"
+                    @keydown.enter="resetSelection"
                 >
                     {{ $tc('global.sw-data-grid.labelDeSelectAll') }}
                 </a>
@@ -132,8 +134,8 @@
                                 {% block sw_data_grid_header_columns_icon %}
                                 <sw-icon
                                     v-if="column.iconLabel && column.iconTooltip"
-                                    :name="column.iconLabel"
                                     v-tooltip="column.iconTooltip"
+                                    :name="column.iconLabel"
                                 >
                                     {{ $te(column.label) ? $tc(column.label) : column.label }}
                                 </sw-icon>
@@ -213,6 +215,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_columns_resize %}
+                        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                         <span
                             v-if="column.allowResize"
                             class="sw-data-grid__cell-resize"
@@ -340,6 +343,7 @@
                         :key="`${item.id}-${columnIndex}`"
                         class="sw-data-grid__cell"
                         :class="getCellClasses(column)"
+                        role="gridcell"
                         @dblclick="onDbClickCell(item)"
                     >
 
@@ -493,7 +497,7 @@
                                 <slot
                                     name="actions"
                                     :item="item"
-                                    :itemIndex="itemIndex"
+                                    :item-index="itemIndex"
                                 >
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_slot_actions %}{% endblock %}

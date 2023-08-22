@@ -34,8 +34,7 @@
                 name="result-item"
                 v-bind="{ item, index }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-bind="{ item, index }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -46,7 +45,7 @@
                         </sw-product-variant-info>
                     </span>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
         </template>
     </sw-entity-single-select>

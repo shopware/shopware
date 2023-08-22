@@ -27,10 +27,12 @@
                 @page-change="onPageChange"
             >
                 <template #column-name="{ item }">
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-flow-list-my-flows__content__update-flow-template-link"
+                        role="link"
+                        tabindex="0"
                         @click="onEditFlow(item)"
+                        @keydown.enter="onEditFlow(item)"
                     >
                         {{ item.name }}
                     </a>

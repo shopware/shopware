@@ -37,10 +37,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_modal_header_view_toggle %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-layout-modal__actions-mode"
+                role="button"
+                tabindex="0"
                 @click="toggleListMode"
+                @keydown.enter="toggleListMode"
             >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -164,8 +166,12 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                <div @click="selectItem(item)">
+                <div
+                    role="button"
+                    tabindex="0"
+                    @click="selectItem(item)"
+                    @keydown.enter="selectItem(item)"
+                >
                     {{ item.translated.name }}
                 </div>
             </template>

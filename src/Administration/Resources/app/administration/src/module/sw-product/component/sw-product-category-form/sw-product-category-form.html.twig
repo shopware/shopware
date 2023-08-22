@@ -86,12 +86,14 @@
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="hasSelectedVisibilities && showModeSetting"
             class="sw-card__quick-link advanced-visibility"
             style="text-align: right; display: block"
+            role="button"
+            tabindex="0"
             @click="displayAdvancedVisibility"
+            @keydown.enter="displayAdvancedVisibility"
         >
             {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
                 name="regular-long-arrow-right"

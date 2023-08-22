@@ -132,7 +132,7 @@ module.exports = {
                         'renderError',
                     ],
                 }],
-                // Reenable this rule with vue 3
+                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
                 'vue/no-deprecated-destroyed-lifecycle': 'off',
                 'vue/no-deprecated-events-api': 'off',
                 'vue/require-slots-as-functions': 'off',
@@ -140,13 +140,14 @@ module.exports = {
             },
         }, {
             extends: [
+                'plugin:vue/vue3-recommended',
                 'plugin:vue/essential',
                 'plugin:vue/recommended',
                 'eslint:recommended',
                 'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
-            files: ['**/*.html.twig'],
+            files: ['src/**/*.html.twig'],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
@@ -155,9 +156,7 @@ module.exports = {
                 'vue/html-indent': ['error', 4, {
                     baseIndent: 0,
                 }],
-                'eol-last': 'off', // no newline required at the end of file
                 'no-multiple-empty-lines': ['error', { max: 1 }],
-                'max-len': 'off',
                 'vue/attribute-hyphenation': 'error',
                 'vue/multiline-html-element-content-newline': 'off', // allow more spacy templates
                 'vue/html-self-closing': ['error', {
@@ -169,11 +168,6 @@ module.exports = {
                     svg: 'always',
                     math: 'always',
                 }],
-                'vue/no-multiple-template-root': 'off',
-                'vue/no-unused-vars': 'off',
-                'vue/no-template-shadow': 'off',
-                'vue/no-v-html': 'off',
-                'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
                     'nested-comment': false,
                 }],
@@ -187,6 +181,24 @@ module.exports = {
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
                 'vue/no-useless-template-attributes': 'error',
                 'vue/no-lone-template': 'error',
+
+                // Disabled rules
+                'eol-last': 'off', // no newline required at the end of file
+                'max-len': 'off',
+                'vue/no-multiple-template-root': 'off',
+                'vue/no-unused-vars': 'off',
+                'vue/no-template-shadow': 'off',
+                'vue/no-v-html': 'off',
+                'vue/valid-template-root': 'off',
+                'vue/no-v-model-argument': 'off',
+                'vue/no-v-for-template-key': 'error',
+                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
+                'vue/html-closing-bracket-newline': 'off',
+                'vue/no-v-for-template-key-on-child': 'off',
+                'vue/no-deprecated-filter': 'off',
+                'vue/no-deprecated-dollar-listeners-api': 'off',
+                'vue/no-deprecated-dollar-scopedslots-api': 'off',
+                'vue/no-deprecated-v-on-native-modifier': 'off',
             },
         }, {
             files: ['**/*.spec.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],

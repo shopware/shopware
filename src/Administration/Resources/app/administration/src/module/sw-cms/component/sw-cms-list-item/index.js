@@ -101,12 +101,16 @@ export default {
             this.$emit('preview-image-change', page);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will emit hypernated event only.
+         */
         onElementClick() {
             if (this.disabled) {
                 return;
             }
 
             this.$emit('onItemClick', this.page);
+            this.$emit('on-item-click', this.page);
         },
 
         onItemClick(page) {

@@ -25,7 +25,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || isUserLoading || !acl.can('user.update_profile')"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

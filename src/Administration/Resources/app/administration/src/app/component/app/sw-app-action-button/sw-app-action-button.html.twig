@@ -1,6 +1,5 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_connect_action_button %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     v-tooltip.left="{
         message: $tc('sw-privileges.tooltip.warning'),
@@ -12,7 +11,10 @@
         'sw-context-menu-item--icon': !!action.icon,
         'sw-context-menu-item--disabled': !acl.can(`app.${action.app}`)
     }"
+    role="button"
+    tabindex="0"
     @click="runAction"
+    @keydown.enter="runAction"
 >
     <sw-extension-icon
         v-if="action.icon"

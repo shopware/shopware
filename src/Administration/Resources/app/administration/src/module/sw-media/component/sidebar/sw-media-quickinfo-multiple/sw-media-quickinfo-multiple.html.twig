@@ -15,11 +15,13 @@
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
 
                     <sw-icon
@@ -33,12 +35,14 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!isPrivate"
                     class="is--danger"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
 
                     <sw-icon
@@ -52,12 +56,14 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!hasMedia"
                     class="quickaction--dissolve"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderDissolve"
+                    @keydown.enter="openFolderDissolve"
                 >
 
                     <sw-icon

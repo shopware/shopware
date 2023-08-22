@@ -79,8 +79,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_result_item %}
                     <template #result-item="{ item, index }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             v-bind="{ item, index }"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -91,7 +90,7 @@
                                 </sw-product-variant-info>
                             </span>
                             {% endblock %}
-                        </li>
+                        </sw-select-result>
                     </template>
                     {% endblock %}
                 </sw-entity-single-select>

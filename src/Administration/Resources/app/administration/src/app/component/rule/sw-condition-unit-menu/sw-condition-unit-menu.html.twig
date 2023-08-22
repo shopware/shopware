@@ -31,6 +31,8 @@
         <div
             v-click-outside="() => showMenu = false"
             class="sw-condition-unit-menu__menu"
+            role="menu"
+            tabindex="0"
             @mouseover="hoveringOverMenu = true"
             @mouseout="hoveringOverMenu = false"
         >
@@ -38,6 +40,8 @@
                 <div
                     :key="item.value"
                     class="sw-condition-unit-menu__menu-item"
+                    role="menuitem"
+                    tabindex="0"
                     @click="onUnitChange(item.value)"
                     @keyup.enter="onUnitChange(item.value)"
                 >

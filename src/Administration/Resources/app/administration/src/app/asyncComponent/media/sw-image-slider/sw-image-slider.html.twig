@@ -32,12 +32,14 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_image_slider_image_images_container %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     class="sw-image-slider__element-container"
                     :class="elementClasses(index)"
                     :style="elementStyles(image, index)"
+                    role="button"
+                    tabindex="0"
                     @click="onSetCurrentItem(index)"
+                    @keydown.enter="onSetCurrentItem(index)"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -74,10 +76,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_slider_image_container_arrow_left %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-image-slider__arrow arrow-left"
+                role="button"
+                tabindex="0"
                 @click="goToPreviousImage"
+                @keydown.enter="goToPreviousImage"
             >
                 <sw-icon name="regular-chevron-left" />
             </div>
@@ -85,10 +89,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_slider_image_container_arrow_right %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-image-slider__arrow arrow-right"
+                role="button"
+                tabindex="0"
                 @click="goToNextImage"
+                @keydown.enter="goToNextImage"
             >
                 <sw-icon name="regular-chevron-right" />
             </div>

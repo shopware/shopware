@@ -56,7 +56,7 @@
                 :process-success="isCreatedSuccessful"
                 :disabled="disabled"
                 {% if VUE3 %}
-                @update:processSuccess="emitClose"
+                @update:process-success="emitClose"
                 {% else %}
                 @process-finish="emitClose"
                 {% endif %}

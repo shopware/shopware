@@ -71,10 +71,12 @@
     >
         <template #before-item-list>
             <ul class="sw-select-result__item-list">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-select-result sw-select-result__add-new-address"
+                    role="button"
+                    tabindex="0"
                     @click="onCreateNewAddress"
+                    @keydown.enter="onCreateNewAddress"
                 >
                     {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
                 </li>
@@ -82,8 +84,7 @@
         </template>
 
         <template #result-item="{ item, index, labelProperty, isSelected }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 :selected="isSelected(item)"
                 v-bind="{ item, index }"
                 :class="{'sw-order-address-selection__order-address': isSelected(item)}"
@@ -103,7 +104,7 @@
                         {{ $tc('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>
-            </li>
+            </sw-select-result>
         </template>
     </sw-single-select>
     {% endblock %}

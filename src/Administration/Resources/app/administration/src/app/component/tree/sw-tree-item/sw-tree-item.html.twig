@@ -23,11 +23,13 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_toggle %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-else
             class="sw-tree-item__toggle"
+            role="button"
+            tabindex="0"
             @click="openTreeItem(); getTreeItemChildren(item)"
+            @keydown.enter="openTreeItem(); getTreeItemChildren(item)"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -151,14 +153,14 @@
             <slot
                 name="actions"
                 :item="item"
-                :openTreeItem="openTreeItem"
-                :addElement="addElement"
-                :addSubElement="addSubElement"
-                :onDuplicate="onDuplicate"
-                :onChangeRoute="onChangeRoute"
-                :deleteElement="deleteElement"
-                :toolTip="toolTip"
-                :isDisabled="isDisabled"
+                :open-tree-item="openTreeItem"
+                :add-element="addElement"
+                :add-sub-element="addSubElement"
+                :on-duplicate="onDuplicate"
+                :on-change-route="onChangeRoute"
+                :delete-element="deleteElement"
+                :tool-tip="toolTip"
+                :is-disabled="isDisabled"
             >
                 <sw-context-button
                     v-tooltip="toolTip"

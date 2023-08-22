@@ -101,10 +101,12 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_actions_mode %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <div
                             class="sw-cms-list__actions-mode"
+                            role="button"
+                            tabindex="0"
                             @click="onListModeChange"
+                            @keydown.enter="onListModeChange"
                         >
                             <sw-icon
                                 v-if="listMode === 'grid'"
@@ -523,8 +525,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_delete_modal_confirm_delete_text %}
                 <div class="sw_tree__confirm-delete-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0,
-                           { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
                 </div>
                 {% endblock %}
 

@@ -130,11 +130,13 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_discount_type_advanced_prices_link %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <a
         v-if="showAdvancedPricesLink"
         class="sw-promotion-v2-settings-discount-type__advanced-prices"
+        role="button"
+        tabindex="0"
         @click="onClickAdvancedPrices"
+        @keydown.enter="onClickAdvancedPrices"
     >
         {{ $tc('sw-promotion-v2.detail.discounts.pricesModal.linkAdvancedPrices') }}
         <sw-icon

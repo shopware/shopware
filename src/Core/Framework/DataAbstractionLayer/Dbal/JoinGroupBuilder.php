@@ -36,8 +36,8 @@ class JoinGroupBuilder
      * - A `JoinGroup` is generated when a to-many association is filtered by more than one `multi-filter`
      * - An "empty" filter will not lead to a join group (example `new EqualsFilter('product.tags.id', null)`)
      *
-     * @param list<Filter> $filters
-     * @param list<string> $additionalFields
+     * @param Filter[] $filters
+     * @param string[] $additionalFields
      *
      * @return list<Filter>
      */
@@ -69,6 +69,10 @@ class JoinGroupBuilder
                     continue;
                 }
 
+                if (!\is_string($operator)) {
+                    continue;
+                }
+
                 $new[] = new JoinGroup($filters, $path, '_' . $level, $operator);
                 ++$level;
             }
@@ -78,7 +82,7 @@ class JoinGroupBuilder
     }
 
     /**
-     * @param list<Filter> $filters
+     * @param Filter[] $filters
      *
      * @return array<string, mixed>
      */
@@ -183,9 +187,9 @@ class JoinGroupBuilder
 
     /**
      * @param array<string, mixed> $mapped
-     * @param list<string> $fields
+     * @param string[] $fields
      *
-     * @return list<string>
+     * @return string[]
      */
     private function getDuplicates(array $mapped, array $fields): array
     {

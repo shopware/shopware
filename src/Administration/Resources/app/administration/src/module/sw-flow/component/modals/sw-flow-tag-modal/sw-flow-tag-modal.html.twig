@@ -67,9 +67,7 @@
             size="small"
             @click="onSaveTag"
         >
-            {{ isNewTag
-                ? $tc('sw-flow.modals.buttonAddAction')
-                : $tc('sw-flow.modals.buttonSaveAction') }}
+            {{ isNewTag ? $tc('sw-flow.modals.buttonAddAction') : $tc('sw-flow.modals.buttonSaveAction') }}
         </sw-button>
         {% endblock %}
     </template>

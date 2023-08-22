@@ -51,11 +51,13 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_default_sales_channel_setting_visibility %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 v-if="salesChannel.length > 0"
                 class="sw-settings-listing-default-sales-channel__quick-link"
+                role="button"
+                tabindex="0"
                 @click="displayAdvancedVisibility"
+                @keydown.enter="displayAdvancedVisibility"
             >
                 {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
                 <sw-icon

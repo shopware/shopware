@@ -23,6 +23,8 @@
                     :key="pageType.name"
                     class="sw-cms-create-wizard__page-type"
                     :class="pageType.class"
+                    role="button"
+                    tabindex="0"
                     @click="onPageTypeSelect(pageType.name)"
                     @keyup.enter="onPageTypeSelect(pageType.name)"
                 >
@@ -94,10 +96,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_second_step_back %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
                 @click="goToStep('pageType')"
+                @keydown.enter="goToStep('pageType')"
             >
                 <sw-icon
                     name="regular-long-arrow-left"
@@ -197,10 +201,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_third_step_back %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
                 @click="goToStep('sectionType')"
+                @keydown.enter="goToStep('sectionType')"
             >
                 <sw-icon
                     name="regular-long-arrow-left"

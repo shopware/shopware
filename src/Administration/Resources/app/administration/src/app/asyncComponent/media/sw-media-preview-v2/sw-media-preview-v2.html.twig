@@ -27,7 +27,7 @@
         <template v-if="mimeTypeGroup === 'image'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_image %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <img
                 v-if="!imagePreviewFailed"
                 class="sw-media-preview-v2__item"

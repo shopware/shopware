@@ -153,10 +153,12 @@
                     <template #bulk>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_bulk %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             class="link link-warning"
+                            role="button"
+                            tabindex="0"
                             @click="onDeleteProducts"
+                            @keydown.enter="onDeleteProducts"
                         >
                             {{ $tc('global.default.remove') }}
                         </a>

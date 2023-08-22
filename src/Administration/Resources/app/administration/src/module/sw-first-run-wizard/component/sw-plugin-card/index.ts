@@ -66,6 +66,9 @@ export default Shopware.Component.wrapComponentConfig({
             void this.setupPlugin();
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will emit hypernated event only.
+         */
         async setupPlugin(): Promise<void> {
             this.pluginIsLoading = true;
             this.pluginIsSaveSuccessful = false;
@@ -91,6 +94,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await this.shopwareExtensionService.updateExtensionData();
 
+                this.$emit('on-plugin-installed', this.plugin.name);
                 this.$emit('onPluginInstalled', this.plugin.name);
             }
         },

@@ -26,8 +26,7 @@
             {{ getInlineSnippet(item.config.label) || item.name }}
         </template>
         <template #result-item="{ item, index, isSelected, setValue }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 v-tooltip="getTooltipConfig(item)"
                 :disabled="!item.allowCartExpose"
                 :selected="isSelected(item)"
@@ -42,7 +41,7 @@
                     {{ getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name }}
                     {% endblock %}
                 </template>
-            </li>
+            </sw-select-result>
         </template>
     </sw-entity-single-select>
     {% endblock %}

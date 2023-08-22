@@ -282,11 +282,13 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_advanced_prices %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="showMaxValueAdvancedPrices"
             class="sw-card__quick-link advanced-prices"
+            role="button"
+            tabindex="0"
             @click="onClickAdvancedPrices"
+            @keydown.enter="onClickAdvancedPrices"
         >
             {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <sw-icon
@@ -306,10 +308,12 @@
         columns="1fr"
         justify="end"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link advanced-prices"
+            role="button"
+            tabindex="0"
             @click="onClickAdvancedPrices"
+            @keydown.enter="onClickAdvancedPrices"
         >
             {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <sw-icon

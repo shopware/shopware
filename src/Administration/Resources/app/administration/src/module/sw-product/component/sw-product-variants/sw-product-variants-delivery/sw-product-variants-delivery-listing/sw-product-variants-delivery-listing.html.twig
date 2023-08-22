@@ -90,8 +90,7 @@
                         name="result-item"
                         v-bind="{ item, index, isSelected }"
                     >
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             :selected="isSelected(item)"
                             v-bind="{ item, index }"
                         >
@@ -105,7 +104,7 @@
                                 </sw-product-variant-info>
                             </span>
                             {% endblock %}
-                        </li>
+                        </sw-select-result>
                     </slot>
                 </template>
             </sw-entity-single-select>

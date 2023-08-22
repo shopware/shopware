@@ -33,7 +33,7 @@
             :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}
@@ -425,35 +425,33 @@
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-            <template>
-                <sw-text-field
-                    v-if="showSecretAccessKey"
-                    {% if VUE3 %}
-                    v-model:value="currentIntegration.secretAccessKey"
-                    {% else %}
-                    v-model="currentIntegration.secretAccessKey"
-                    {% endif %}
-                    :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
-                    :disabled="true"
-                    :password-toggle-able="false"
-                    :copy-able="showSecretAccessKey"
-                    :copy-able-tooltip="true"
-                />
+            <sw-text-field
+                v-if="showSecretAccessKey"
+                {% if VUE3 %}
+                v-model:value="currentIntegration.secretAccessKey"
+                {% else %}
+                v-model="currentIntegration.secretAccessKey"
+                {% endif %}
+                :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
+                :disabled="true"
+                :password-toggle-able="false"
+                :copy-able="showSecretAccessKey"
+                :copy-able-tooltip="true"
+            />
 
-                <sw-password-field
-                    v-else
-                    {% if VUE3 %}
-                    v-model:value="currentIntegration.secretAccessKey"
-                    {% else %}
-                    v-model="currentIntegration.secretAccessKey"
-                    {% endif %}
-                    :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
-                    :disabled="true"
-                    :password-toggle-able="false"
-                    :copy-able="showSecretAccessKey"
-                    :copy-able-tooltip="true"
-                />
-            </template>
+            <sw-password-field
+                v-else
+                {% if VUE3 %}
+                v-model:value="currentIntegration.secretAccessKey"
+                {% else %}
+                v-model="currentIntegration.secretAccessKey"
+                {% endif %}
+                :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
+                :disabled="true"
+                :password-toggle-able="false"
+                :copy-able="showSecretAccessKey"
+                :copy-able-tooltip="true"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

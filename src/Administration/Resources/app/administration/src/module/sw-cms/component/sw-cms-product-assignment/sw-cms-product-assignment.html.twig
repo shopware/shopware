@@ -71,8 +71,7 @@
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_product_assignment_results_list_list_item %}
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     :selected="isSelected(item)"
                                     v-bind="{ item, index }"
                                     @item-select="onItemSelect"
@@ -96,7 +95,7 @@
                                         </template>
                                     </slot>
                                 {% endblock %}
-                                </li>
+                                </sw-select-result>
                             {% endblock %}
                             </slot>
                         {% endblock %}

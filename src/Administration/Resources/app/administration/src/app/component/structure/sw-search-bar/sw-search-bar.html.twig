@@ -2,6 +2,8 @@
 {% block sw_search_bar %}
 <div
     class="sw-search-bar"
+    role="searchbox"
+    tabindex="0"
     @keyup.esc="clearSearchTerm()"
     @keyup.enter.prevent="onKeyUpEnter"
     @keydown.up.prevent="navigateUpResults"
@@ -63,11 +65,13 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_type %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <span
                 class="sw-search-bar__type--v2"
                 :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
+                role="button"
+                tabindex="0"
                 @click="onOpenModuleFiltersDropDown"
+                @keydown.enter="onOpenModuleFiltersDropDown"
             >
                 {{ getLabelSearchType() }}
                 <sw-icon
@@ -287,6 +291,8 @@
                 :key="index"
                 class="sw-search-bar__type-item"
                 :class="{ 'is--active': activeTypeListIndex === index }"
+                role="row"
+                tabindex="0"
                 @mouseenter="onMouseEnterSearchType(index)"
                 @click="onClickType(type.entityName)"
             >
@@ -356,6 +362,8 @@
                 :key="index"
                 class="sw-search-bar__type-item"
                 :class="{ 'is--active': activeTypeListIndex === index }"
+                role="row"
+                tabindex="0"
                 @mouseenter="onMouseEnterSearchType(index)"
                 @click="onClickType(type.entityName)"
             >

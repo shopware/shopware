@@ -144,8 +144,11 @@
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                             </sw-button>
                         </dt>
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                        <dd @click="onEditBillingAddress">
+                        <dd
+                            role="button"
+                            tabindex="0"
+                            @click="onEditBillingAddress"
+                            @keydown.enter="onEditBillingAddress">
                             <sw-address
                                 :address="billingAddress"
                                 :formatting-address="formattingAddress"
@@ -222,10 +225,12 @@
                             </sw-button>
                         </dd>
 
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <dd
                             v-else-if="hasDeliveries"
+                            role="button"
+                            tabindex="0"
                             @click="$emit('onEditDeliveryAddress',$event)"
+                            @keydown.enter="$emit('onEditDeliveryAddress',$event)"
                         >
                             <sw-address
                                 :address="delivery.shippingOrderAddress"

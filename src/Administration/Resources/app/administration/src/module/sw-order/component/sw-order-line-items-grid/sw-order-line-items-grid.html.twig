@@ -423,10 +423,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_bulk_actions_delete %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="link link-danger"
+                role="link"
+                tabindex="0"
                 @click="onDeleteSelectedItems"
+                @keydown.enter="onDeleteSelectedItems"
             >
                 {{ $tc('global.default.delete') }}
             </a>

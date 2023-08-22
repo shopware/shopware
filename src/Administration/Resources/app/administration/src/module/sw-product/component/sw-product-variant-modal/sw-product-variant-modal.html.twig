@@ -141,6 +141,8 @@
             <span
                 v-if="acl.can('product.editor')"
                 class="link link-primary sw-product-variant-modal__bulk-edit-action"
+                role="link"
+                tabindex="0"
                 @click="toggleBulkEditModal"
             >
                 {{ $tc('global.default.bulkEdit') }}
@@ -152,6 +154,8 @@
             <span
                 v-if="acl.can('product.deleter')"
                 class="link link-danger sw-product-variant-modal__bulk-delete-action"
+                role="link"
+                tabindex="0"
                 @click="onClickBulkDelete"
             >
                 {{ $tc('global.default.delete') }}
@@ -614,7 +618,7 @@
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
                 {% if VUE3 %}
-                @update:processSuccess="closeDeleteModal"
+                @update:process-success="closeDeleteModal"
                 {% else %}
                 @process-finish="closeDeleteModal"
                 {% endif %}
@@ -635,6 +639,8 @@
         {% block sw_product_variant_modal_footer_visit_main_product %}
         <div
             class="sw-product-variant-modal__main-product-link"
+            role="button"
+            tabindex="0"
             @click="visitProduct(productEntity.id)"
         >
             {{ openMainProductText }}

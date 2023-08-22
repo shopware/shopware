@@ -227,6 +227,8 @@
                             <a
                                 v-if="selectionCount > 1 && acl.can('tag.creator') && acl.can('tag.deleter')"
                                 class="link"
+                                role="button"
+                                tabindex="0"
                                 @click="showBulkMergeModal = true"
                             >
                                 {{ $tc('sw-settings-tag.list.bulkMerge') }}

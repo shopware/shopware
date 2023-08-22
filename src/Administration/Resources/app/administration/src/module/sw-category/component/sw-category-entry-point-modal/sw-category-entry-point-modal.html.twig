@@ -68,10 +68,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_entry_point_modal_layout_preview %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-category-entry-point-modal__preview"
+                role="button"
+                tabindex="0"
                 @click="openLayoutModal"
+                @keydown.enter="openLayoutModal"
             >
                 <sw-cms-list-item
                     class="sw-category-entry-point-modal__layout-item"

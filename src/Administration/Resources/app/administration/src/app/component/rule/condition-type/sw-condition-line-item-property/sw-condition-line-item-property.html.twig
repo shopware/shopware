@@ -21,7 +21,7 @@
         @select-collapsed="onSelectCollapsed"
         @search-term-change="setSearchTerm"
         {% if VUE3 %}
-        @update:entityCollection="setOptions"
+        @update:entity-collection="setOptions"
         {% else %}
         @change="setOptions"
         {% endif %}

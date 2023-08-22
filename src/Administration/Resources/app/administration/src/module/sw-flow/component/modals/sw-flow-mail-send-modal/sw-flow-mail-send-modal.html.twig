@@ -165,10 +165,12 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
             <ul class="sw-select-result__item-list">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-select-result sw-select-result__create-new-template"
+                    role="button"
+                    tabindex="0"
                     @click="onCreateMailTemplate"
+                    @keydown.enter="onCreateMailTemplate"
                 >
                     {{ $tc('sw-flow.modals.mail.titleNewEmailTemplate') }}
                 </li>
@@ -271,9 +273,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id
-                ? $tc('sw-flow.modals.buttonSaveAction')
-                : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
         </sw-button>
         {% endblock %}
     </template>

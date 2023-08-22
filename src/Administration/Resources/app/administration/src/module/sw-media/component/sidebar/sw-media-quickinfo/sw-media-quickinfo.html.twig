@@ -27,7 +27,6 @@
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_replace %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -37,7 +36,10 @@
                     }"
                     class="quickaction--replace"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalReplace"
+                    @keydown.enter="openModalReplace"
                 >
                     <sw-icon
                         small
@@ -71,7 +73,6 @@
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -80,7 +81,10 @@
                     }"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
 
                     <sw-icon
@@ -94,11 +98,13 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_copy_link %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="item.hasFile"
                     class="sw-media-sidebar__quickaction quickaction--copy-link"
+                    role="button"
+                    tabindex="0"
                     @click="copyLinkToClipboard"
+                    @keydown.enter="copyLinkToClipboard"
                 >
 
                     <sw-icon
@@ -112,7 +118,6 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -122,7 +127,10 @@
                     }"
                     class="quickaction--delete"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
                     <sw-icon
                         small

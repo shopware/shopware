@@ -10,10 +10,12 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_duplicate %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction"
+            role="button"
+            tabindex="0"
             @click="onBlockDuplicate"
+            @keydown.enter="onBlockDuplicate"
         >
             <sw-icon
                 name="regular-duplicate"
@@ -25,10 +27,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_delete %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction is--danger"
+            role="button"
+            tabindex="0"
             @click="onBlockDelete"
+            @keydown.enter="onBlockDelete"
         >
             <sw-icon
                 name="regular-trash"

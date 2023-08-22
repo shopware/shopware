@@ -14,7 +14,7 @@
         :advanced-selection-parameters="advanceSelectionParameters"
         v-on="$listeners"
         {% if VUE3 %}
-        @update:entityCollection="onChange"
+        @update:entity-collection="onChange"
         {% else %}
         @change="onChange"
         {% endif %}
@@ -24,10 +24,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_rule_select_v2_selection_before_list %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <li
                 class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
+                role="button"
+                tabindex="0"
                 @click="showRuleModal = true"
+                @keydown.enter="showRuleModal = true"
             >
                 {{ $tc('sw-promotion-v2.ruleSelect.labelAddNewRule') }}
             </li>

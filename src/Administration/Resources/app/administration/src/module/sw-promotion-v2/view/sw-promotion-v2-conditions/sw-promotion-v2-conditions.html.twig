@@ -45,7 +45,7 @@
             :entity-collection="excludedPromotions"
             :disabled="!acl.can('promotion.editor') || promotion.preventCombination"
             {% if VUE3 %}
-            @update:entityCollection="onChangeExclusions"
+            @update:entity-collection="onChangeExclusions"
             {% else %}
             @change="onChangeExclusions"
             {% endif %}

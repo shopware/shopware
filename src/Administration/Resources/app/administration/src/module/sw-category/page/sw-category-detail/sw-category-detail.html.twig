@@ -68,7 +68,7 @@
                 :disabled="isLoading || !acl.can('category.editor')"
                 variant="primary"
                 {% if VUE3 %}
-                @update:processSuccess="saveFinish"
+                @update:process-success="saveFinish"
                 {% else %}
                 @process-finish="saveFinish"
                 {% endif %}
@@ -89,7 +89,7 @@
                 :disabled="isLoading || !acl.can('landing_page.editor')"
                 variant="primary"
                 {% if VUE3 %}
-                @update:processSuccess="saveFinish"
+                @update:process-success="saveFinish"
                 {% else %}
                 @process-finish="saveFinish"
                 {% endif %}
@@ -226,7 +226,7 @@
                     :allow-create="acl.can('landing_page.creator')"
                     :allow-delete="acl.can('landing_page.deleter')"
                     @unsaved-changes="openChangeModal"
-                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
+                    @landing-page-checked-elements-count="landingPageCheckedElementsCount"
                 />
                 {% endblock %}
 

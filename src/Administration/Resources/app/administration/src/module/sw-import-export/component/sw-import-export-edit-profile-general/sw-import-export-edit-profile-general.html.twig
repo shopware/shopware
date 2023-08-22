@@ -62,8 +62,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_general_container_object_type_select_result %}
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         v-tooltip="{
                             showDelay: 300,
                             message: $tc('sw-import-export.profile.objectTypeDisabledText'),
@@ -90,7 +89,7 @@
                             {{ getKey(item, labelProperty) }}
                         </template>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                     {% endblock %}
                 </template>
             </sw-single-select>
@@ -119,8 +118,7 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_general_container_type_result %}
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-tooltip="{
                         showDelay: 300,
                         message: $tc('sw-import-export.profile.profileTypeDisabledText'),
@@ -147,7 +145,7 @@
                         {{ getKey(item, labelProperty) }}
                     </template>
                     {% endblock %}
-                </li>
+                </sw-select-result>
                 {% endblock %}
             </template>
         </sw-single-select>

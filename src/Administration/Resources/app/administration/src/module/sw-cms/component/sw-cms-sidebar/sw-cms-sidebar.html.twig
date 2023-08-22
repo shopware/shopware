@@ -115,8 +115,7 @@
                             v-if="demoEntity === 'product'"
                             #result-item="{ item, index }"
                         >
-                            <li
-                                is="sw-select-result"
+                            <sw-select-result
                                 v-bind="{ item, index }"
                             >
 
@@ -128,7 +127,7 @@
                                     </sw-product-variant-info>
                                 </span>
                                 {% endblock %}
-                            </li>
+                            </sw-select-result>
                         </template>
                         {% endblock %}
                     </sw-entity-single-select>

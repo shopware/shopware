@@ -17,7 +17,7 @@
         <template #before-item-list>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_before %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
@@ -34,8 +34,7 @@
                 name="result-item"
                 v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-tooltip="tooltipConfig(item)"
                     :selected="isSelected(item)"
                     :disabled="isRuleRestricted(item)"
@@ -58,7 +57,7 @@
                         </template>
                     </slot>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
             {% endblock %}
         </template>
@@ -85,7 +84,7 @@
         <template #before-item-list>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_single_select_before %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
@@ -101,8 +100,7 @@
                 name="result-item"
                 v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-tooltip="tooltipConfig(item)"
                     :selected="isSelected(item)"
                     :disabled="isRuleRestricted(item)"
@@ -125,7 +123,7 @@
                         </template>
                     </slot>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
             {% endblock %}
         </template>
@@ -142,10 +140,10 @@
         {% block sw_select_rule_create_rule_modal_inner%}
         <sw-rule-modal
             v-if="showRuleModal"
+            :rule-aware-group-key="ruleAwareGroupKey"
             @save="onSaveRule"
             @modal-close="onCloseRuleModal"
-            :rule-aware-group-key="ruleAwareGroupKey">
-        </sw-rule-modal>
+        />
         {% endblock %}
     </slot>
     {% endblock %}

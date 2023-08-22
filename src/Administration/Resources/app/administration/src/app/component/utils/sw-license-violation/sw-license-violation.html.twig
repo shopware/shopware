@@ -32,9 +32,9 @@
                         :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
                         alt=""
                     >
-                    <strong>{{ (getPluginForViolation(violation).translated &&
-                        getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label
-                    }}</strong>
+                    <strong>
+                        {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
+                    </strong>
                 </template>
 
                 <template v-else>

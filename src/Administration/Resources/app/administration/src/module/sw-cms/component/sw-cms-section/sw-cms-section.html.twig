@@ -35,11 +35,13 @@
             <template v-if="sideBarEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_sidebar_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon
@@ -122,11 +124,13 @@
             <template v-if="mainContentEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_content_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon

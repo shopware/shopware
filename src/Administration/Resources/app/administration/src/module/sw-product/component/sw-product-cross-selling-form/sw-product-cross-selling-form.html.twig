@@ -127,11 +127,7 @@
                     {% if VUE3 %}
                     v-model:value="crossSelling.productStreamId"
                     {% else %}
-                    {% if VUE3 %}
-                    v-model:value="crossSelling.productStreamId"
-                    {% else %}
                     v-model="crossSelling.productStreamId"
-                    {% endif %}
                     {% endif %}
                     entity="product_stream"
                     class="sw-select-cross-selling__select-product-stream"
@@ -190,11 +186,13 @@
                     justify="end"
                     class="sw-product-cross-selling-form__links"
                 >
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-card__quick-link"
                         :class="{ 'is--disabled': previewDisabled }"
+                        role="button"
+                        tabindex="0"
                         @click="openModalPreview"
+                        @keydown.enter="openModalPreview"
                     >
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
                         <sw-icon

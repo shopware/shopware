@@ -106,16 +106,18 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_discounts_list_add_discount%}
-            <sw-card hero>
-                <sw-button
-                    variant="ghost"
-                    class="sw-promotion-v2-discounts__action-create"
-                    :disabled="!acl.can('promotion.editor')"
-                    @click="onShowDiscountModal"
-                >
-                    {{ $tc('sw-promotion-v2.detail.discounts.addDiscountButton') }}
-                </sw-button>
-            </sw-card>
+        <sw-card
+            position-identifier="sw-promotion-v2-discount-list-add-discount"
+            hero>
+            <sw-button
+                variant="ghost"
+                class="sw-promotion-v2-discounts__action-create"
+                :disabled="!acl.can('promotion.editor')"
+                @click="onShowDiscountModal"
+            >
+                {{ $tc('sw-promotion-v2.detail.discounts.addDiscountButton') }}
+            </sw-button>
+        </sw-card>
         {% endblock %}
 
     </template>

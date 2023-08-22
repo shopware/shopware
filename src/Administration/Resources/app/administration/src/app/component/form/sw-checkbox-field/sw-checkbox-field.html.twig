@@ -9,6 +9,7 @@
         :class="swCheckboxFieldContentClasses"
     >
         <div class="sw-field__checkbox">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 {% if VUE3 %}
@@ -22,6 +23,7 @@
                 :disabled="disabled"
                 @change="onChange"
             >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <div class="sw-field__checkbox-state">
                 <sw-icon
                     name="regular-checkmark-xxs"

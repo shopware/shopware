@@ -1,6 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin_menu %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <aside
     class="sw-admin-menu"
     :class="adminMenuClasses"
@@ -96,7 +96,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_user_actions_toggle %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             class="sw-admin-menu__user-actions-toggle"
             :class="{'is--active': isUserActionsActive}"
@@ -144,7 +144,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_user_actions %}
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             class="sw-admin-menu__user-actions"
             :class="{'is--active': isUserActionsActive}"
@@ -221,7 +221,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_admin_menu_flyout_transition %}
     <transition name="flyout">
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
             v-if="flyoutEntries.length"
             class="sw-admin-menu_flyout-holder"

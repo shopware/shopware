@@ -20,7 +20,7 @@
         :entity-collection="categories"
         description-position="bottom"
         {% if VUE3 %}
-        @update:entityCollection="setCategoryIds"
+        @update:entity-collection="setCategoryIds"
         {% else %}
         @change="setCategoryIds"
         {% endif %}
@@ -28,8 +28,7 @@
         <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_line_item_in_category_field_result_item %}
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 :selected="isSelected(item)"
                 v-bind="{ item, index }"
                 :disabled="isSelectionDisabled(item)"
@@ -70,7 +69,7 @@
                     </slot>
                     {% endblock %}
                 </template>
-            </li>
+            </sw-select-result>
             {% endblock %}
         </template>
     </sw-entity-multi-select>

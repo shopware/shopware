@@ -20,8 +20,7 @@
     <template
         #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
     >
-        <li
-            is="sw-select-result"
+        <sw-select-result
             v-tooltip="getTooltipConfig(item)"
             :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
             :class="'sw-select-option--' + item.value"
@@ -37,7 +36,7 @@
             <template v-else>
                 {{ getKey(item, labelProperty) }}
             </template>
-        </li>
+        </sw-select-result>
     </template>
 </sw-grouped-single-select>
 {% endblock %}

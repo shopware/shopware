@@ -174,10 +174,12 @@
                     columns="1fr"
                     justify="end"
                 >
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-settings-country-general__currency-dependent-modal"
+                        role="button"
+                        tabindex="0"
                         @click="openCustomerTaxModal"
+                        @keydown.enter="openCustomerTaxModal"
                     >
                         {{ $tc('sw-settings-country.detail.currencyDependentValues') }}
                         <sw-icon
@@ -250,10 +252,12 @@
                     columns="1fr"
                     justify="end"
                 >
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-settings-country-general__currency-dependent-modal"
+                        role="button"
+                        tabindex="0"
                         @click="openCompanyTaxModal"
+                        @keydown.enter="openCompanyTaxModal"
                     >
                         {{ $tc('sw-settings-country.detail.currencyDependentValues') }}
                         <sw-icon

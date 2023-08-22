@@ -319,11 +319,13 @@
                 <template #bulk>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_bulk_selected_actions_content_bulk_edit %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="acl.can('order.editor')"
                         class="link link-primary"
+                        role="link"
+                        tabindex="0"
                         @click="showBulkEditModal = true"
+                        @keydown.enter="showBulkEditModal = true"
                     >
                         {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
                     </a>

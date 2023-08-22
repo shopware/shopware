@@ -390,3 +390,6 @@ shopware:
     dompdf:
         options:
             isRemoteEnabled: true
+
+    stock:
+        enable_stock_management: true

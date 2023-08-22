@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
+                ->append($this->createStockSection())
             ->end();
 
         return $treeBuilder;
@@ -689,6 +690,19 @@ class Configuration implements ConfigurationInterface
                 ->scalarPrototype()
                 ->end()
             ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createStockSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('stock');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('enable_stock_management')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

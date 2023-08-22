@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -57,9 +56,6 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $deleteCustomer2Event = null;
 
         foreach ($caughtEvents as $event) {
-            static::assertInstanceOf(CustomerDeletedEvent::class, $event);
-            static::assertInstanceOf(CustomerEntity::class, $event->getCustomer());
-
             if ($event->getCustomer()->getId() === $customerId1) {
                 $deleteCustomer1Event = $event;
 

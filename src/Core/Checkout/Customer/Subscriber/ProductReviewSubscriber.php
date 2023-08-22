@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -29,12 +29,12 @@ class ProductReviewSubscriber implements EventSubscriberInterface
     {
         return [
             'product_review.written' => 'createReview',
-            BeforeDeleteEvent::class => 'detectChangeset',
+            EntityDeleteEvent::class => 'detectChangeset',
             'product_review.deleted' => 'onReviewDeleted',
         ];
     }
 
-    public function detectChangeset(BeforeDeleteEvent $event): void
+    public function detectChangeset(EntityDeleteEvent $event): void
     {
         foreach ($event->getCommands() as $command) {
             if (!$command instanceof DeleteCommand) {

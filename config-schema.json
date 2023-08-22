@@ -92,6 +92,9 @@
                 },
                 "dompdf": {
                     "$ref": "#/definitions/dompdf"
+                },
+                "stock": {
+                    "$ref": "#/definitions/stock"
                 }
             },
             "title": "Shopware"
@@ -138,6 +141,16 @@
                 "options": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "stock": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable_stock_management": {
+                    "type": "boolean",
+                    "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
                 }
             }
         },

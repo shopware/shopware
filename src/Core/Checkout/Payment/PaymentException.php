@@ -40,6 +40,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION = 'CHECKOUT__PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION';
     final public const PAYMENT_REFUND_PROCESS_INTERRUPTED = 'CHECKOUT__REFUND_PROCESS_INTERRUPTED';
     final public const PAYMENT_REFUND_PROCESS_ERROR = 'CHECKOUT__REFUND_PROCESS_ERROR';
+    final public const PAYMENT_RECURRING_PROCESS_INTERRUPTED = 'CHECKOUT__RECURRING_PROCESS_INTERRUPTED';
     final public const PAYMENT_SYNC_PROCESS_INTERRUPTED = 'CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED';
     final public const PAYMENT_TOKEN_EXPIRED = 'CHECKOUT__PAYMENT_TOKEN_EXPIRED';
     final public const PAYMENT_TOKEN_INVALIDATED = 'CHECKOUT__PAYMENT_TOKEN_INVALIDATED';
@@ -237,7 +238,7 @@ class PaymentException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::PAYMENT_REFUND_PROCESS_INTERRUPTED,
+            self::PAYMENT_RECURRING_PROCESS_INTERRUPTED,
             'The recurring capture process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             [
                 'orderTransactionId' => $transactionId,

@@ -1,19 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Payment\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
+use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
+use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -27,10 +32,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor
  */
 #[Package('checkout')]
 class PaymentTransactionChainProcessorTest extends TestCase
@@ -58,6 +67,12 @@ class PaymentTransactionChainProcessorTest extends TestCase
                 )
             );
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
+
         $processor = new PaymentTransactionChainProcessor(
             $this->createMock(TokenFactoryInterfaceV2::class),
             $orderRepository,
@@ -65,7 +80,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->createMock(PaymentHandlerRegistry::class),
             $this->createMock(SystemConfigService::class),
             $this->createMock(InitialStateIdLoader::class),
-            new PaymentTransactionStructFactory()
+            new PaymentTransactionStructFactory(),
+            $eventDispatcher,
         );
 
         if (!Feature::isActive('v6.6.0.0')) {
@@ -85,14 +101,10 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
     public function testThrowsExceptionOnNullPaymentHandler(): void
     {
-        $paymentMethodEntity = new PaymentMethodEntity();
-        $paymentMethodEntity->setHandlerIdentifier($this->ids->get('handler-identifier'));
-        $paymentMethodEntity->setId($this->ids->get('payment'));
-
         $transaction = new OrderTransactionEntity();
         $transaction->setId(Uuid::randomHex());
         $transaction->setStateId($this->ids->get('order-state'));
-        $transaction->setPaymentMethod($paymentMethodEntity);
+        $transaction->setPaymentMethodId($this->ids->get('payment'));
 
         $order = new OrderEntity();
         $order->setUniqueIdentifier($this->ids->get('test-order'));
@@ -123,6 +135,12 @@ class PaymentTransactionChainProcessorTest extends TestCase
             ->method('get')
             ->willReturn($this->ids->get('order-state'));
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
+
         $processor = new PaymentTransactionChainProcessor(
             $this->createMock(TokenFactoryInterfaceV2::class),
             $orderRepository,
@@ -130,7 +148,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $paymentHandlerRegistry,
             $this->createMock(SystemConfigService::class),
             $initialStateIdLoader,
-            new PaymentTransactionStructFactory()
+            new PaymentTransactionStructFactory(),
+            $eventDispatcher,
         );
 
         if (!Feature::isActive('v6.6.0.0')) {
@@ -138,7 +157,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         }
         $this->expectException(PaymentException::class);
         static::expectExceptionMessage(
-            \sprintf('The payment method %s could not be found.', $this->ids->get('handler-identifier'))
+            \sprintf('The payment method %s could not be found.', $this->ids->get('payment'))
         );
 
         $processor->process(
@@ -146,5 +165,51 @@ class PaymentTransactionChainProcessorTest extends TestCase
             new RequestDataBag(),
             Generator::createSalesChannelContext()
         );
+    }
+
+    public function testProcessSync(): void
+    {
+        $transactionId = Uuid::randomHex();
+        $transaction = new OrderTransactionEntity();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId(Uuid::randomHex());
+        $transaction->setStateId(OrderTransactionStates::STATE_OPEN);
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setTransactions(new OrderTransactionCollection([$transaction]));
+        $context = Generator::createSalesChannelContext();
+        $requestDataBag = new RequestDataBag();
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects(static::once())->method('dispatch')->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository->expects(static::once())->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context->getContext()));
+
+        $struct = new SyncPaymentTransactionStruct($transaction, $order);
+        $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);
+        $paymentStructFactory->expects(static::once())->method('sync')->willReturn($struct);
+
+        $paymentHandler = $this->createMock(SynchronousPaymentHandlerInterface::class);
+        $paymentHandler->expects(static::once())->method('pay')->with($struct, $requestDataBag, $context);
+
+        $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
+        $paymentHandlerRegistry->expects(static::once())->method('getPaymentMethodHandler')->with($transaction->getPaymentMethodId())->willReturn($paymentHandler);
+
+        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
+        $initialStateIdLoader->expects(static::once())->method('get')->willReturn(OrderTransactionStates::STATE_OPEN);
+
+        $processor = new PaymentTransactionChainProcessor(
+            $this->createMock(TokenFactoryInterfaceV2::class),
+            $orderRepository,
+            $this->createMock(RouterInterface::class),
+            $paymentHandlerRegistry,
+            new StaticSystemConfigService([]),
+            $initialStateIdLoader,
+            $paymentStructFactory,
+            $eventDispatcher,
+        );
+
+        static::assertNull($processor->process('orderId', $requestDataBag, $context));
     }
 }

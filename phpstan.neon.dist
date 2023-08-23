@@ -243,7 +243,6 @@ parameters:
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
                 - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
         - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
             message: '#Parameter \#2 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection<Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity>#'
             paths:

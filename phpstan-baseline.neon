@@ -7433,11 +7433,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IteratorFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\SalesChannelRepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
-
-		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php

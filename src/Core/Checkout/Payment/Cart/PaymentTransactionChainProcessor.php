@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -38,6 +39,7 @@ class PaymentTransactionChainProcessor
         private readonly SystemConfigService $systemConfigService,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -87,15 +89,9 @@ class PaymentTransactionChainProcessor
             return null;
         }
 
-        $paymentMethod = $transaction->getPaymentMethod();
-        if ($paymentMethod === null) {
-            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
-        }
-
-        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
-
+        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethod->getHandlerIdentifier());
+            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
         }
 
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {

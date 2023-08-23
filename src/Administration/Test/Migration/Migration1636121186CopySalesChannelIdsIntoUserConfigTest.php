@@ -141,7 +141,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
     {
         return [
             'username' => $username,
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'admin',
             'lastName' => 'user',
             'email' => $username . '@test.com',

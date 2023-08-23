@@ -93,8 +93,7 @@ class LoginRouteTest extends TestCase
     public function testValidLogin(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -102,7 +101,7 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -115,8 +114,7 @@ class LoginRouteTest extends TestCase
     public function testItUpdatesCustomerLanguageIdOnValidLogin(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email, null, true, $this->getDeDeLanguageId());
+        $customerId = $this->createCustomer($email, null, true, $this->getDeDeLanguageId());
 
         $this->browser
             ->request(
@@ -124,7 +122,7 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ],
             );
 
@@ -140,11 +138,10 @@ class LoginRouteTest extends TestCase
     public function testValidLoginWithOneInactive(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
         // Inactive user with different password
-        $this->createCustomer($password . 'fooBar', $email, null, false);
+        $this->createCustomer($email, null, false);
         // Active user with correct password
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -152,7 +149,7 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -167,7 +164,6 @@ class LoginRouteTest extends TestCase
         static::expectException(UnauthorizedHttpException::class);
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
         $salesChannel = $this->createSalesChannel([
             'id' => Uuid::randomHex(),
         ]);
@@ -176,11 +172,11 @@ class LoginRouteTest extends TestCase
             'id' => Uuid::randomHex(),
         ], null);
 
-        $this->createCustomer($password, $email, $salesChannel['id']);
+        $this->createCustomer($email, $salesChannel['id']);
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        $requestDataBag = new RequestDataBag(['email' => $email, 'password' => $password]);
+        $requestDataBag = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
         $success = $loginRoute->login($requestDataBag, $salesChannelContext);
         static::assertInstanceOf(ContextTokenResponse::class, $success);
@@ -191,8 +187,7 @@ class LoginRouteTest extends TestCase
     public function testLoginSuccessRestoreCustomerContext(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email);
+        $customerId = $this->createCustomer($email);
         $contextToken = Uuid::randomHex();
 
         $this->createCart($contextToken);
@@ -201,7 +196,7 @@ class LoginRouteTest extends TestCase
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+        $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
         $response = $loginRoute->login($request, $salesChannelContext);
 
@@ -226,8 +221,7 @@ class LoginRouteTest extends TestCase
     public function testCustomerHaveDifferentCartsOnEachSalesChannel(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email);
+        $customerId = $this->createCustomer($email);
 
         $this->createSalesChannel([
             'id' => $this->ids->get('sales-channel-1'),
@@ -263,7 +257,7 @@ class LoginRouteTest extends TestCase
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+        $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
         $responseSalesChannel1 = $loginRoute->login($request, $salesChannelContext1);
 
@@ -324,7 +318,7 @@ class LoginRouteTest extends TestCase
         );
     }
 
-    private function createCustomer(string $password, ?string $email = null, ?string $boundSalesChannelId = null, bool $active = true, ?string $languageId = null): string
+    private function createCustomer(?string $email = null, ?string $boundSalesChannelId = null, bool $active = true, ?string $languageId = null): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -370,7 +364,7 @@ class LoginRouteTest extends TestCase
             ],
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
-            'password' => $password,
+            'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),

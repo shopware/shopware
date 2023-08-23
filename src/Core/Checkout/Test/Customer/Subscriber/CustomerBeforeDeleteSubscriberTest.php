@@ -30,10 +30,9 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
     {
         $email1 = Uuid::randomHex() . '@shopware.com';
         $email2 = Uuid::randomHex() . '@shopware.com';
-        $password = 'ThisIsPassword';
 
-        $customerId1 = $this->createCustomer($email1, $password);
-        $customerId2 = $this->createCustomer($email2, $password);
+        $customerId1 = $this->createCustomer($email1);
+        $customerId2 = $this->createCustomer($email2);
 
         $context = Context::createDefaultContext();
 
@@ -70,7 +69,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         static::assertInstanceOf(CustomerDeletedEvent::class, $deleteCustomer2Event);
     }
 
-    private function createCustomer(string $email, string $password): string
+    private function createCustomer(string $email): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -93,9 +92,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => null,
-                'legacyPassword' => md5($password),
-                'legacyEncoder' => 'Md5',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'encryption',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

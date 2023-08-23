@@ -102,7 +102,7 @@ trait SalesChannelApiTestBehaviour
     public function login(?KernelBrowser $browser = null): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer('shopware', $email);
+        $customerId = $this->createCustomer($email);
 
         if (!$browser) {
             $browser = $this->getSalesChannelBrowser();
@@ -165,17 +165,13 @@ trait SalesChannelApiTestBehaviour
         return $salesChannelApiBrowser;
     }
 
-    private function createCustomer(?string $password = null, ?string $email = null, ?bool $guest = false): string
+    private function createCustomer(?string $email = null, ?bool $guest = false): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         if ($email === null) {
             $email = Uuid::randomHex() . '@example.com';
-        }
-
-        if ($password === null) {
-            $password = Uuid::randomHex();
         }
 
         $this->getContainer()->get('customer.repository')->create([
@@ -220,7 +216,7 @@ trait SalesChannelApiTestBehaviour
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'guest' => $guest,

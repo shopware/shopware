@@ -96,7 +96,7 @@ class RateLimiterTest extends TestCase
     {
         $email = Uuid::randomHex() . '@example.com';
         $password = 'wrongPassword';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         for ($i = 0; $i <= 10; ++$i) {
             $this->browser
@@ -137,7 +137,7 @@ class RateLimiterTest extends TestCase
             ])
         );
 
-        $this->createCustomer('shopware', 'loginTest@example.com');
+        $this->createCustomer('loginTest@example.com');
 
         $this->getContainer()->get('request_stack')->push(new Request([
             'email' => 'loginTest@example.com',

@@ -177,7 +177,7 @@ class RequestCriteriaBuilder
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw new AssociationNotFoundException($propertyName);
+                    throw new AssociationNotFoundException((string) $propertyName);
                 }
 
                 $ref = $field->getReferenceDefinition();

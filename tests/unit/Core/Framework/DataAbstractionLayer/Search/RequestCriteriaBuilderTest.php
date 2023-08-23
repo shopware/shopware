@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -347,6 +348,20 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertEquals(101, $criteria->getAssociation('options')->getLimit());
         static::assertNull($criteria->getAssociation('prices')->getLimit());
         static::assertNull($criteria->getAssociation('categories')->getLimit());
+    }
+
+    public function testInvalidAssociations(): void
+    {
+        $payload = [
+            'associations' => [
+                1 => [],
+            ],
+        ];
+
+        static::expectException(AssociationNotFoundException::class);
+        static::expectExceptionMessage('Can not find association by name 1');
+
+        $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }
 
     /**

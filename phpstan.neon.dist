@@ -238,7 +238,7 @@ parameters:
         - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
         - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
 
-        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
+        - # No need to fix for now, as the facades are only used in twig context
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php

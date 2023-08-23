@@ -82,7 +82,7 @@ EOL;
 </config>
 EOL;
 
-    private string $testBoostrap = <<<EOL
+    private string $testBootstrap = <<<EOL
 <?php declare(strict_types=1);
 
 use Shopware\Core\TestBootstrapper;
@@ -167,7 +167,7 @@ EOL;
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
         $servicesXmlFile = $directory . '/src/Resources/config/services.xml';
-        $testFile = $directory . '/tests/TestBoostrap.php';
+        $testFile = $directory . '/tests/TestBootstrap.php';
         $phpUnitXmlFile = $directory . '/phpunit.xml';
 
         $composer = str_replace(
@@ -185,7 +185,7 @@ EOL;
         $test = str_replace(
             ['#name#'],
             [$name],
-            $this->testBoostrap
+            $this->testBootstrap
         );
 
         $xml = str_replace(

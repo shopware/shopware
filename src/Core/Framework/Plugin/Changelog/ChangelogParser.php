@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Framework\Plugin\Changelog;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
+/**
+ * @deprecated tag:v6.6.0 - will be removed without a replacement
+ */
 #[Package('core')]
 class ChangelogParser
 {
@@ -14,6 +18,8 @@ class ChangelogParser
      */
     public function parseChangelog(string $path): array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         $releases = [];
         $currentRelease = null;
 

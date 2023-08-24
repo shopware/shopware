@@ -12,9 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
-use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -36,7 +34,6 @@ class PluginService
         private readonly string $projectDir,
         private readonly EntityRepository $pluginRepo,
         private readonly EntityRepository $languageRepo,
-        private readonly ChangelogService $changelogService,
         private readonly PluginFinder $pluginFinder,
         private readonly VersionSanitizer $versionSanitizer
     ) {
@@ -93,24 +90,6 @@ class PluginService
             ];
 
             $pluginData['translations'] = $this->getTranslations($shopwareContext, $extra);
-
-            if ($changelogFiles = $this->changelogService->getChangelogFiles($pluginPath)) {
-                foreach ($changelogFiles as $file) {
-                    $languageId = $this->getLanguageIdForLocale(
-                        $this->changelogService->getLocaleFromChangelogFile($file),
-                        $shopwareContext
-                    );
-                    if ($languageId === '') {
-                        continue;
-                    }
-
-                    try {
-                        $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
-                    } catch (PluginChangelogInvalidException $changelogInvalidException) {
-                        $errors->add($changelogInvalidException);
-                    }
-                }
-            }
 
             /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('baseClass', $baseClass)->first();

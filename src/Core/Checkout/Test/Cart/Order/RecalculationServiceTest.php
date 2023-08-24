@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -393,16 +394,15 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
 
+        /** @var EntityRepository<OrderDeliveryCollection> $orderDeliveryRepository */
         $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
         $deliveries = $orderDeliveryRepository->search($criteria, $versionContext);
 
-        /** @var OrderDeliveryEntity $delivery */
-        $delivery = $deliveries->first();
+        $delivery = $deliveries->getEntities()->first();
+        static::assertNotNull($delivery);
         $newShippingCosts = $delivery->getShippingCosts();
 
-        /** @var CalculatedTax|null $firstTax */
         $firstTax = $newShippingCosts->getCalculatedTaxes()->first();
-        /** @var CalculatedTax|null $lastTax */
         $lastTax = $newShippingCosts->getCalculatedTaxes()->last();
 
         // tax is now mixed

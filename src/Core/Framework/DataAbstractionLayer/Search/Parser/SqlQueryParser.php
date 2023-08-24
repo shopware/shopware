@@ -235,6 +235,11 @@ class SqlQueryParser
         $result = new ParseResult();
 
         if ($field instanceof ListField) {
+            if ($query->getValue() === null) {
+                $result->addWhere($select . ' IS NULL');
+
+                return $result;
+            }
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 

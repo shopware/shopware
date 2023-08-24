@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1624262862UpdateDefaultValueOnCaptchaV2 extends MigrationStep

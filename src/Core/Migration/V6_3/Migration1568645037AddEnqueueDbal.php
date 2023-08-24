@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1568645037AddEnqueueDbal extends MigrationStep

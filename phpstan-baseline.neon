@@ -15238,56 +15238,6 @@ parameters:
 			path: tests/integration/Storefront/Controller/AddressControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 2
-			path: tests/migration/Core/V6_3/Migration1591253089OrderDeeplinkForMailTemplatesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_3/Migration1607500561UpdateSignUpMailTemplateTranslationTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1610448012LandingPageTest.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between array and false will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1610448012LandingPageTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with 'link_type' and array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1612980753AddLinkSettingsToCategoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1616076922AppPaymentMethodTest.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between array and false will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1616076922AppPaymentMethodTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1643724178ChangePromotionCodesProfileTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1659257396DownloadFlowTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_4/Migration1672164687FixTypoInUserRecoveryPasswordResetMailTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) with null will always evaluate to true\\.$#"
 			count: 1
 			path: tests/migration/Core/V6_5/Migration1670090989AddIndexOrderOrderNumberTest.php

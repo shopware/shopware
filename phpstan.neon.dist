@@ -243,10 +243,6 @@ parameters:
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
                 - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
-        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
-            message: '#Parameter \#2 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection<Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity>#'
-            paths:
-                - src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -261,6 +257,11 @@ parameters:
                 - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
                 - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
         - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
+        - # It is not possible to specify the type of the EntityResult, as the Aggregators are used for multiple entities at the same time
+            message: '#Method Shopware\\.*::hydrateEntityAggregation\(\) return type with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult does not specify its types: TEntityCollection#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
+                - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

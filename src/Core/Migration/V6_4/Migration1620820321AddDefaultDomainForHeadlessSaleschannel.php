@@ -11,6 +11,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends MigrationStep

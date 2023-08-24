@@ -203,10 +203,6 @@ parameters:
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
-        - # Remove with NEXT-24549
-            message: '#Method Shopware\\Tests\\Migration\\Core\\V6_3\\Migration1596441551CustomerGroupRegistrationTest::changeDefaultLanguageToDutch\(\) is unused#'
-            path: tests/migration/Core/V6_3/Migration1596441551CustomerGroupRegistrationTest.php
-
         - # Google Cloud Storage filesystem closes the stream even though it should not
             message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
             paths:

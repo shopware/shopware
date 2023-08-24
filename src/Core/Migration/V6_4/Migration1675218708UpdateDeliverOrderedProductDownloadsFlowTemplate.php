@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('business-ops')]
 class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplate extends MigrationStep

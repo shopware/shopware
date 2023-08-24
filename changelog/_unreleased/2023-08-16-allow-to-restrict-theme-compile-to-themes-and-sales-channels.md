@@ -1,6 +1,6 @@
 ---
 title: Allow to restrict theme:compile to themes and sales channels
-issue: NEXT-0000
+issue: NEXT-30042
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

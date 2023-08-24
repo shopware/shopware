@@ -39,8 +39,8 @@ class ThemeCompileCommand extends Command
             ->addOption('active-only', 'a', InputOption::VALUE_NONE, 'Compile themes only for active sales channels')
             ->addOption('only', 'o', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile themes only for given sales channels ids')
             ->addOption('skip', 's', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given sales channels ids')
-            ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile themes only for given sales channels ids')
-            ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given sales channels ids')
+            ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
+            ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
         ;
     }
 

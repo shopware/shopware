@@ -79,6 +79,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter"/>
+            <argument>%shopware.api.max_limit%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter">
@@ -89,7 +90,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter"/>
-            <argument>%shopware.api.max_limit%</argument>
+            <argument>%shopware.api.store.max_limit%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator">

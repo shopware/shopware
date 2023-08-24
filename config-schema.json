@@ -195,7 +195,8 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": "integer"
+                    "type": ["integer", "null"],
+                    "default": 100
                 },
                 "access_token_ttl": {
                     "type": "string"
@@ -290,6 +291,10 @@
             "properties": {
                 "context_lifetime": {
                     "type": "string"
+                },
+                "max_limit": {
+                    "type": ["integer", "null"],
+                    "default": 100
                 }
             },
             "title": "API store"

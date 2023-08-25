@@ -256,3 +256,5 @@ framework:
         # deprecated tag:v6.6.0 - Exception will be removed
         Shopware\Core\System\Country\Exception\CountryNotFoundException:
             log_level: notice
+        Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
+            log_level: notice

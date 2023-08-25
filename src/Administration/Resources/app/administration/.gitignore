@@ -10,6 +10,8 @@ test/_mocks_/entity-schema.json
 selenium-debug.log
 .eslintcache
 /build/artifacts/jest/
+/build/artifacts/vue3/jest/
+.jestcache_vue3
 .yalc
 yalc.lock
 src/entity-schema-definition.d.ts

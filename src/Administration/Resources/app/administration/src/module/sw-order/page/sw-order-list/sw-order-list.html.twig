@@ -144,8 +144,8 @@
                 <template #column-orderCustomer.firstName="{ item }">
                     <router-link
                         v-if="item.orderCustomer"
-                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }
-                        ">
+                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
+                    >
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                     </router-link>
                 </template>

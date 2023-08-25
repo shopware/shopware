@@ -57,6 +57,7 @@ variables:
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     after_script:
         - !reference [.upload-junit-xml, after_script]
+        - !reference [.tag-pipeline-span, after_script]
 
 .base-with-db:
   extends: .base

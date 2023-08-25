@@ -6195,15 +6195,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
 
-		-
-			message: "#^Parameter \\#1 \\$keys of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:purge\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
 
-		-
-			message: "#^Parameter \\#1 \\$logs of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:log\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:add\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"

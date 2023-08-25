@@ -16,11 +16,21 @@ class RetryableQuery
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public function execute(array $params = []): int
     {
         return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
     }
 
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
     public static function retryable(Connection $connection, \Closure $closure)
     {
         return self::retry($connection, $closure, 0);
@@ -31,6 +41,13 @@ class RetryableQuery
         return $this->query;
     }
 
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
     private static function retry(?Connection $connection, \Closure $closure, int $counter)
     {
         ++$counter;

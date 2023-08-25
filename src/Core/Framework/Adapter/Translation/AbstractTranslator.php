@@ -57,12 +57,16 @@ abstract class AbstractTranslator implements TranslatorInterface, TranslatorBagI
     abstract public function getDecorated(): AbstractTranslator;
 
     /**
-     * @return mixed|null All kind of data could be cached
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
      */
     abstract public function trace(string $key, \Closure $param);
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     abstract public function getTrace(string $key): array;
 }

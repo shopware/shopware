@@ -74,7 +74,7 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var mixed[]
+     * @var array<string, bool>
      */
     protected $permissions = [];
 
@@ -309,7 +309,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, bool>
      */
     public function getPermissions(): array
     {
@@ -317,7 +317,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @param mixed[] $permissions
+     * @param array<string, bool> $permissions
      */
     public function setPermissions(array $permissions): void
     {
@@ -335,7 +335,7 @@ class SalesChannelContext extends Struct
 
     public function hasPermission(string $permission): bool
     {
-        return \array_key_exists($permission, $this->permissions) && (bool) $this->permissions[$permission];
+        return \array_key_exists($permission, $this->permissions) && $this->permissions[$permission];
     }
 
     public function getSalesChannelId(): string

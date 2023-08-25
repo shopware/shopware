@@ -38,9 +38,12 @@ class Feature
     }
 
     /**
-     * @param array<string> $features
+     * @template TReturn of mixed
      *
-     * @return mixed|null
+     * @param array<string> $features
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
      */
     public static function fake(array $features, \Closure $closure)
     {
@@ -132,6 +135,13 @@ class Feature
         }
     }
 
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
     public static function silent(string $flagName, \Closure $closure): mixed
     {
         $before = isset(self::$silent[$flagName]);

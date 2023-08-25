@@ -13,8 +13,6 @@ import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
-import wrapTestComponent from '../_helper_/componentWrapper';
-import resetFilters from '../_helper_/restartFilters';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -53,18 +51,13 @@ Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
         return Vue.set(target, propertyName, value);
     },
-    deleteReactive(target, propertyName) {
-        Vue.delete(target, propertyName);
-    },
     root: {
         $tc: v => v,
     },
     i18n: {
-        global: {
-            tc: v => v,
-            te: v => v,
-            t: v => v,
-        },
+        tc: v => v,
+        te: v => v,
+        t: v => v,
     },
 };
 
@@ -108,7 +101,9 @@ config.global.mocks = {
         go: jest.fn(),
         resolve: jest.fn(() => {
             return {
-                matched: [],
+                resolved: {
+                    matched: [],
+                },
             };
         }),
     },
@@ -126,8 +121,6 @@ global.allowedErrors = [
 ];
 
 global.flushPromises = flushPromises;
-global.wrapTestComponent = wrapTestComponent;
-global.resetFilters = resetFilters;
 
 let consoleHasError = false;
 let errorArgs = null;

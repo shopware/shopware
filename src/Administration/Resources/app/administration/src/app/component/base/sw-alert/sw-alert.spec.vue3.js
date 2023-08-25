@@ -3,12 +3,13 @@
  */
 
 import { mount } from '@vue/test-utils_v3';
+import 'src/app/component/base/sw-alert';
 
 describe('components/base/sw-alert', () => {
     let wrapper;
 
     it('should be a Vue.js component', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+        wrapper = mount(await Shopware.Component.build('sw-alert'), {
             global: {
                 stubs: ['sw-icon'],
             },
@@ -20,7 +21,7 @@ describe('components/base/sw-alert', () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
 
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+        wrapper = mount(await Shopware.Component.build('sw-alert'), {
             global: {
                 stubs: ['sw-icon'],
             },
@@ -37,7 +38,7 @@ describe('components/base/sw-alert', () => {
     });
 
     it('should use custom icon', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+        wrapper = mount(await Shopware.Component.build('sw-alert'), {
             global: {
                 stubs: ['sw-icon'],
             },
@@ -66,7 +67,7 @@ describe('components/base/sw-alert', () => {
         ['neutral', 'notification', true],
         ['neutral', 'system', false],
     ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+        wrapper = mount(await Shopware.Component.build('sw-alert'), {
             global: {
                 stubs: ['sw-icon'],
             },

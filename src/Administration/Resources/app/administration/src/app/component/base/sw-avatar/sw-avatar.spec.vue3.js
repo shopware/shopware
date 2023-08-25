@@ -3,12 +3,13 @@
  */
 
 import { mount } from '@vue/test-utils_v3';
+import 'src/app/component/base/sw-avatar';
 
 describe('components/base/sw-avatar', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-avatar', { sync: true }));
+        wrapper = mount(await Shopware.Component.build('sw-avatar'));
     });
 
     it('should be a Vue.js component', async () => {

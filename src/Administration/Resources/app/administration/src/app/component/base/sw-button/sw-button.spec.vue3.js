@@ -3,16 +3,17 @@
  */
 
 import { mount, RouterLinkStub } from '@vue/test-utils_v3';
+import 'src/app/component/base/sw-button';
 
 describe('components/base/sw-button', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }));
+        const wrapper = mount(await Shopware.Component.build('sw-button'));
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render a plain button', async () => {
         const label = 'Button text';
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             slots: {
                 default: label,
             },
@@ -23,7 +24,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render a plain button visible to screen readers', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'Screen reader button text' },
             props: { role: 'button' },
         });
@@ -36,7 +37,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render a download button with a custom file name', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             props: {
                 download: 'My filename.txt',
                 link: 'http://my.download.link',
@@ -49,7 +50,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render router-link button', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             props: {
                 routerLink: { path: 'some/relative/link' },
             },
@@ -68,19 +69,19 @@ describe('components/base/sw-button', () => {
     });
 
     it('should trigger an click event when the button is clicked', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'I am clickable' },
         });
 
         await wrapper.get('button').trigger('click');
         expect(wrapper.emitted().click).toStrictEqual(expect.any(Array));
-        expect(wrapper.emitted().click).toHaveLength(1);
+        expect(wrapper.emitted().click.length).toBe(1);
     });
 
     it('should not trigger an event when disabled', async () => {
         const click = jest.fn();
 
-        const wrapper = mount(await wrapTestComponent('sw-button', { sync: true }), {
+        const wrapper = mount(await Shopware.Component.build('sw-button'), {
             props: {
                 disabled: true,
             },
@@ -99,7 +100,7 @@ describe('components/base/sw-button', () => {
         const wrapper = mount({
             template: '<sw-button :disabled="disabled" @click="onClick">I am clickable</sw-button>',
             components: {
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await Shopware.Component.build('sw-button'),
             },
             data() {
                 return {
@@ -119,6 +120,6 @@ describe('components/base/sw-button', () => {
         expect(button.attributes('disabled')).toBeFalsy();
 
         await button.trigger('click');
-        expect(onClick).not.toHaveBeenCalled();
+        expect(onClick).not.toBeCalled();
     });
 });

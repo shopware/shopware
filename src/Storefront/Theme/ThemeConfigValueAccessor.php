@@ -62,7 +62,11 @@ class ThemeConfigValueAccessor
     }
 
     /**
-     * @return mixed|null All kind of data could be cached
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
      */
     public function trace(string $key, \Closure $param)
     {

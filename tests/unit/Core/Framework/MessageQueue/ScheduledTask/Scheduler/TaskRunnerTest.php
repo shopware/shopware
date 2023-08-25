@@ -23,11 +23,10 @@ class TaskRunnerTest extends TestCase
     {
         /** @var StaticEntityRepository<ScheduledTaskCollection> $scheduledTaskRepository */
         $scheduledTaskRepository = new StaticEntityRepository([new ScheduledTaskCollection()]);
-        // @phpstan-ignore-next-line
         $taskRunner = new TaskRunner([], $scheduledTaskRepository);
 
-        static::expectException(MessageQueueException::class);
-        static::expectExceptionMessage('Cannot find scheduled task by name "non-existing-task"');
+        $this->expectException(MessageQueueException::class);
+        $this->expectExceptionMessage('Cannot find scheduled task by name "non-existing-task"');
         $taskRunner->runSingleTask('non-existing-task', Context::createDefaultContext());
     }
 
@@ -38,7 +37,6 @@ class TaskRunnerTest extends TestCase
         $invalid = $this->createMock(StaticEntityRepository::class);
         $invalid->expects(static::never())->method(static::anything());
 
-        // @phpstan-ignore-next-line
         $taskRunner = new TaskRunner([$handler, $handler2, $invalid], $this->getRepository());
         $taskRunner->runSingleTask('task-id', Context::createDefaultContext());
 

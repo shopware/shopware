@@ -17,15 +17,33 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             return Promise.reject(new Error('Some search failure'));
         }
 
-        return searchResult;
+        return {
+            ...searchResult,
+            context,
+        };
     });
-    const getMockMethod = jest.fn(() => getResult);
+    const getMockMethod = jest.fn((criteria, context) => {
+        return {
+            ...getResult,
+            context,
+        };
+    });
     const saveMockMethod = jest.fn(() => saveResult);
-    const cloneMockMethod = jest.fn(() => cloneResult);
+    const cloneMockMethod = jest.fn((criteria, context) => {
+        return {
+            ...cloneResult,
+            context,
+        };
+    });
     const hasChangesMockMethod = jest.fn(() => hasChangesResult);
     const saveAllMockMethod = jest.fn(() => saveAllResult);
     const deleteMockMethod = jest.fn(() => deleteResult);
-    const createMockMethod = jest.fn(() => createResult);
+    const createMockMethod = jest.fn((context) => {
+        return {
+            ...createResult,
+            context,
+        };
+    });
 
     beforeAll(() => {
         jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation((entityName) => {
@@ -93,7 +111,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(searchMockMethod).toHaveBeenCalledWith(searchCriteria, expect.objectContaining({
             languageId: 'my-awesome-language-id',
         }));
-        expect(result).toEqual(searchResult);
+        expect(result).toEqual({
+            ...searchResult,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
     });
 
     it('should handle repositoryGet', async () => {
@@ -113,7 +136,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(getMockMethod).toHaveBeenCalledWith('my-awesome-id', expect.objectContaining({
             languageId: 'my-awesome-language-id',
         }), getCriteria);
-        expect(result).toEqual(getResult);
+        expect(result).toEqual({
+            ...getResult,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
     });
 
     it('should handle repositorySave', async () => {
@@ -154,7 +182,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             }),
             'my-awesome-behavior',
         );
-        expect(result).toEqual(cloneResult);
+        expect(result).toEqual({
+            ...cloneResult,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
     });
 
     it('should handle repositoryHasChanges', async () => {
@@ -227,7 +260,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             'my-awesome-id',
         );
 
-        expect(result).toEqual(createResult);
+        expect(result).toEqual({
+            ...createResult,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
     });
 
     it('should throw an error if no extension with the given event origin was found', async () => {
@@ -296,7 +334,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(searchMockMethod).toHaveBeenCalledWith(searchCriteria, expect.objectContaining({
             languageId: 'my-awesome-language-id',
         }));
-        expect(result).toEqual(searchResult);
+        expect(result).toEqual({
+            ...searchResult,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
     });
 
     [

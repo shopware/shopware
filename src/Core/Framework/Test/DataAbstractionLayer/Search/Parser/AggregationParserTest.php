@@ -27,10 +27,7 @@ class AggregationParserTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var AggregationParser
-     */
-    private $parser;
+    private AggregationParser $parser;
 
     protected function setUp(): void
     {
@@ -73,7 +70,7 @@ class AggregationParserTest extends TestCase
             $criteria,
             $exception
         );
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(2, $criteria->getAggregations());
 
         $maxAggregation = $criteria->getAggregation('max_agg');
@@ -110,7 +107,7 @@ class AggregationParserTest extends TestCase
             $criteria,
             $exception
         );
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(2, $criteria->getAggregations());
 
         $maxAggregation = $criteria->getAggregation('max');
@@ -159,7 +156,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         $level = $criteria->getAggregation('level1');
@@ -207,7 +204,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         /** @var FilterAggregation|null $aggregation */
@@ -251,7 +248,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         $entity = $criteria->getAggregation('entity_test');
@@ -282,7 +279,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(1, $exception->getErrors());
+        static::assertCount(1, iterator_to_array($exception->getErrors()));
         static::assertCount(0, $criteria->getAggregations());
     }
 
@@ -309,7 +306,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         $agg = $criteria->getAggregation('range_test');

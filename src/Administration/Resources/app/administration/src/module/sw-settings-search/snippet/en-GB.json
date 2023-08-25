@@ -76,8 +76,8 @@
         "tagsName": "Product tag",
         "metaTitle": "Product meta title",
         "metaDescription": "Product meta description",
-        "propertiesName": "Property name",
-        "variantValue": "Property value"
+        "propertiesValue": "Property values",
+        "variantValue": "Variant values"
       }
     },
     "notification": {

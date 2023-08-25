@@ -53,6 +53,7 @@ async function createWrapper() {
             'sw-simple-search-field': true,
             'sw-empty-state': true,
             'sw-entity-listing': true,
+            'sw-pagination': true,
         },
         provide: {
             repositoryFactory: {

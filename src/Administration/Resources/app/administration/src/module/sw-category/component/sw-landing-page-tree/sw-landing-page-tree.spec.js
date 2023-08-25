@@ -39,8 +39,17 @@ async function createWrapper() {
                     </div>
                 `,
             },
-            'sw-tree-item': true,
+            'sw-tree-item': {
+                props: ['item'],
+                template: `
+                    <div class="sw-tree-item">
+                      <slot name="actions" :toolTip="{ delay: 300, message: 'jest', active: true}"></slot>
+                    </div>
+                `,
+            },
             'sw-button': true,
+            'sw-context-button': true,
+            'sw-context-menu-item': true,
         },
         provide: {
             syncService: {},
@@ -160,7 +169,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-new-categories']).toBeUndefined();
     });
 
@@ -173,7 +182,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeDefined();
     });
 
@@ -190,7 +199,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeUndefined();
     });
 
@@ -203,7 +212,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeDefined();
     });
 
@@ -220,7 +229,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeUndefined();
     });
 
@@ -237,7 +246,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBe('sw-privileges.tooltip.warning');
     });
 
@@ -250,7 +259,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBeUndefined();
     });
 

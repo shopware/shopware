@@ -39,7 +39,7 @@ export default Component.wrapComponentConfig({
             taxProvider?: Entity<'tax_provider'> | undefined,
             } {
         return {
-            taxProvider: undefined as Entity<'tax_provider'> | undefined,
+            taxProvider: undefined,
             isLoading: false,
             isSaveSuccessful: false,
         };
@@ -132,7 +132,6 @@ export default Component.wrapComponentConfig({
 
                 return this.loadTaxProvider();
             }).catch(() => {
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-settings-tax.detail.messageSaveError'),

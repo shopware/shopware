@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('customer-order')]
@@ -13,10 +15,14 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_DELIVERY_NOT_FOUND';
     final public const ORDER_ORDER_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_NOT_FOUND';
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
+    final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
+    final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
     final public const ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE';
+
+    final public const ORDER_CUSTOMER_NOT_LOGGED_IN = 'CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN';
 
     public static function missingAssociation(string $association): self
     {
@@ -58,6 +64,16 @@ class OrderException extends HttpException
         );
     }
 
+    public static function paymentMethodNotAvailable(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_PAYMENT_METHOD_UNAVAILABLE,
+            'The payment method with id {{ id }} is not available.',
+            ['id' => $id]
+        );
+    }
+
     public static function orderAlreadyPaid(string $orderId): self
     {
         return new self(
@@ -87,6 +103,16 @@ class OrderException extends HttpException
         );
     }
 
+    public static function missingTransactions(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_MISSING_TRANSACTIONS_CODE,
+            'Order with id {{ orderId }} has no transactions.',
+            ['orderId' => $orderId]
+        );
+    }
+
     public static function missingOrderNumber(string $orderId): self
     {
         return new self(
@@ -94,6 +120,23 @@ class OrderException extends HttpException
             self::ORDER_MISSING_ORDER_NUMBER_CODE,
             'Order with id {{ orderId }} has no order number.',
             ['orderId' => $orderId]
+        );
+    }
+
+    public static function customerNotLoggedIn(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::ORDER_CUSTOMER_NOT_LOGGED_IN,
+            'Customer is not logged in.',
+        );
+    }
+
+    public static function customerAuthThrottledException(int $waitTime, ?\Throwable $e = null): ShopwareHttpException
+    {
+        return new CustomerAuthThrottledException(
+            $waitTime,
+            $e
         );
     }
 }

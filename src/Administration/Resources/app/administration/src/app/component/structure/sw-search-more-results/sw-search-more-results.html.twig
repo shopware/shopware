@@ -9,7 +9,9 @@
     {% block sw_search_more_results_content %}
     <slot name="content">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_more_results_slot_content %} {{ searchContent }} {% endblock %}
+        {% block sw_search_more_results_slot_content %}
+        {{ searchContent }}
+        {% endblock %}
     </slot>
     {% endblock %}
 </router-link>

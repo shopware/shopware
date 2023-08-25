@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,6 +31,9 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param SalesChannelRepository<ProductCollection>    $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -49,7 +53,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $wishlist = $this->loadWishlist($context, $customer->getId());
@@ -68,14 +72,17 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         ]));
 
         $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());
-
-        if ($wishlist->first() === null) {
-            throw new CustomerWishlistNotFoundException();
+        $result = $wishlist->first();
+        if (!$result instanceof CustomerWishlistEntity) {
+            throw CustomerException::customerWishlistNotFound();
         }
 
-        return $wishlist->first();
+        return $result;
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     private function loadProducts(string $wishlistId, Criteria $criteria, SalesChannelContext $context, Request $request): EntitySearchResult
     {
         $criteria->addFilter(

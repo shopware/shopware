@@ -159,6 +159,9 @@ export default {
             }];
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed.
+         */
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
         },

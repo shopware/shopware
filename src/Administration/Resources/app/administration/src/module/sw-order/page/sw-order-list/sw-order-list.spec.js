@@ -175,6 +175,38 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
     });
 
+    it('should contain empty customer', async () => {
+        const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    orderCustomer: {
+                        customerId: '1',
+                        firstName: 'foo',
+                        lastName: 'bar',
+                    },
+                },
+                {
+                    ...mockItem,
+                    orderCustomer: null,
+                },
+            ],
+        });
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const secondRow = wrapper.find('.sw-data-grid__row--1');
+
+        expect(warningSpy).toHaveBeenCalledWith('[[sw-data-grid] Can not resolve accessor: orderCustomer.firstName]');
+
+        expect(firstRow.find('.sw-data-grid__cell--orderCustomer-firstName').exists()).toBeTruthy();
+        expect(firstRow.find('.sw-data-grid__cell--orderCustomer-firstName').text()).toBe('bar, foo');
+
+        expect(secondRow.find('.sw-data-grid__cell--orderCustomer-firstName').exists()).toBeTruthy();
+        expect(secondRow.find('.sw-data-grid__cell--orderCustomer-firstName').text()).toBe('');
+    });
+
     it('should add query score to the criteria', async () => {
         await wrapper.setData({
             term: 'foo',

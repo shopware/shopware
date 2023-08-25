@@ -271,6 +271,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     }
 
     beforeAll(async () => {
+        global.allowedErrors = [
+            ...global.allowedErrors,
+            {
+                method: 'warn',
+                msg: /\[vuex\].*/,
+            },
+        ];
+
         routes = [
             {
                 name: 'sw.product.detail.variants',
@@ -367,13 +375,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         });
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
         console.error = jest.fn();
-        global.allowedErrors = [
-            ...global.allowedErrors,
-            {
-                method: 'warn',
-                msg: /\[vuex\].*/,
-            },
-        ];
     });
 
     afterEach(() => {

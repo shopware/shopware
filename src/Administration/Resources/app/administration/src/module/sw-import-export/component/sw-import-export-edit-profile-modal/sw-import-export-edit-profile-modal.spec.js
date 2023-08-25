@@ -60,6 +60,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-select-base': true,
                 'sw-button': true,
                 'sw-tabs': true,
+                'sw-tabs-item': true,
                 'sw-modal': true,
             },
             provide: {

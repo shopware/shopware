@@ -12,6 +12,16 @@ import type {
     ThisTypedComponentOptionsWithArrayProps,
 // eslint-disable-next-line import/no-unresolved
 } from 'vue/types/options';
+import { defineComponent } from 'vue';
+import type { ComponentOptionsMixin } from 'vue/types/v3-component-options';
+
+/**
+ * This method is just for adding TypeScript support to component configuration and provides a this context.
+ *
+ * Function overload to support all vue component object variations.
+ */
+
+const wrapComponentConfig = defineComponent;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -138,20 +148,6 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
     return true;
 }
 
-/* eslint-disable max-len */
-/**
- * This method is just for adding TypeScript support to component configuration and provides a this context.
- *
- * Function overload to support all vue component object variations.
- */
-// @ts-expect-error
-function wrapComponentConfig<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): ComponentConfig;
-function wrapComponentConfig<V extends Vue, Data, Methods, Computed, Props>(componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): ComponentConfig;
-function wrapComponentConfig(componentConfiguration: ComponentConfig<Vue>): ComponentConfig {
-    return componentConfiguration;
-}
-/* eslint-enable max-len */
-
 /**
  * Register a new component.
  * @public
@@ -159,10 +155,10 @@ function wrapComponentConfig(componentConfiguration: ComponentConfig<Vue>): Comp
 /* eslint-disable max-len */
 // function overload to support all vue component object variations
 // @ts-expect-error
-function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, Props>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, Props>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, PropNames extends string, Setup, Mixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames, Setup, Mixin, Extends>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, PropNames extends string, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames, Setup, Mixin, Extends>>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, Props, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props, Setup, Mixin, Extends>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, Props, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props, Setup, Mixin, Extends>>): boolean | ComponentConfig;
 function register(componentName: string, componentConfiguration: ComponentConfig<Vue> | (() => Promise<ComponentConfig<Vue>>)): boolean | (() => Promise<ComponentConfig|boolean>) {
 /* eslint-enable max-len */
     if (!componentName || !componentName.length) {
@@ -578,18 +574,19 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
      */
     ['computed', 'methods'].forEach((methodOrComputed) => {
         // @ts-expect-error
-        const ConfigMethodOrComputed = config[methodOrComputed] as typeof config['computed'] | typeof config['methods'];
+        const ConfigMethodOrComputed = config[methodOrComputed];
 
         if (!ConfigMethodOrComputed) {
             return;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const methods = Object.entries(ConfigMethodOrComputed);
 
         methods.forEach(([name, method]) => {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
-                Object.entries(method).forEach(([cmd, func]) => {
+                Object.entries(method as object).forEach(([cmd, func]) => {
                     const path = `${name}.${cmd}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);

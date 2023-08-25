@@ -92,7 +92,7 @@ async function createWrapper(privileges = [], languageId = null) {
             'sw-language-info': true,
             'sw-button': true,
             'sw-button-process': true,
-            'sw-field': true,
+            'sw-text-field': true,
             'sw-entity-single-select': true,
             'sw-skeleton': true,
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
@@ -158,7 +158,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
             '.sw-settings-language-detail__save-action',
         );
         const languageNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-language.detail.labelName"]',
+            'sw-text-field-stub[label="sw-settings-language.detail.labelName"]',
         );
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
@@ -185,7 +185,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
             '.sw-settings-language-detail__save-action',
         );
         const languageNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-language.detail.labelName"]',
+            'sw-text-field-stub[label="sw-settings-language.detail.labelName"]',
         );
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',

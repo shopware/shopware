@@ -66,6 +66,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -129,7 +130,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
@@ -149,13 +150,12 @@ class ProductDefinition extends EntityDefinition
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware()),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required()),
-            (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited()),
             new AutoIncrementField(),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited()),
-            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
+
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
             (new VariantListingConfigField('variant_listing_config', 'variantListingConfig'))->addFlags(new Inherited()),
@@ -259,5 +259,17 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
+
+        if (Feature::isActive('STOCK_HANDLING')) {
+            $fields->add((new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()));
+        } else {
+            /**
+             * @deprecated tag:v6.6.0 availableStock will become write protected amd mirror stock from v6.6.0. It will not be removed for BC reasons.
+             */
+            $fields->add((new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware()));
+        }
+        $fields->add((new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()));
+
+        return $fields;
     }
 }

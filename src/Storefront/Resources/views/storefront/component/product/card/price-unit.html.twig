@@ -79,7 +79,7 @@
                 </span>
                 {% if isRegulationPrice %}
                     <span class="product-price with-regulation-price">
-                        {% if isListPrice %}<br/>{% endif %}<span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                        {% if isListPrice %}<br>{% endif %}<span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
                     </span>
                 {% endif %}
             </div>

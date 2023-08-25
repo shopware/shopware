@@ -4,7 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
-        <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
+        <h2>{{ salutationFilter(customer, $tc('sw-customer.general.newCustomer')) }}</h2>
     </template>
     {% endblock %}
 
@@ -27,7 +27,11 @@
             :disabled="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-customer.detail.buttonSave') }}
@@ -46,6 +50,7 @@
                 position-identifier="sw-customer-create-base-form"
             >
                 <sw-customer-base-form
+                    v-if="customer"
                     :is-loading="isLoading"
                     :customer="customer"
                     @sales-channel-change="onChangeSalesChannel"
@@ -60,6 +65,7 @@
                 position-identifier="sw-customer-create-address-form"
             >
                 <sw-customer-address-form
+                    v-if="customer"
                     v-bind="{ customer, address }"
                 />
             </sw-card>

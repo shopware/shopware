@@ -55,7 +55,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->addressRepository = $this->getContainer()->get('customer_address.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -185,7 +185,7 @@ class UpsertAddressRouteTest extends TestCase
 
     public function testCreateAddressForGuest(): void
     {
-        $customerId = $this->createCustomer(null, null, true);
+        $customerId = $this->createCustomer(null, true);
         $contextToken = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -245,7 +245,7 @@ class UpsertAddressRouteTest extends TestCase
             ->method('upsert')
             ->with([
                 [
-                    'salutationId' => null,
+                    'salutationId' => '1',
                     'firstName' => null,
                     'lastName' => null,
                     'street' => null,
@@ -279,7 +279,8 @@ class UpsertAddressRouteTest extends TestCase
             new EventDispatcher(),
             $this->createMock(DataValidationFactoryInterface::class),
             $this->createMock(SystemConfigService::class),
-            $storeApiCustomFieldMapper
+            $storeApiCustomFieldMapper,
+            $this->createMock(EntityRepository::class),
         );
 
         $customer = new CustomerEntity();
@@ -289,6 +290,7 @@ class UpsertAddressRouteTest extends TestCase
                 'bla' => 'bla',
                 'mapped' => 1,
             ],
+            'salutationId' => '1',
         ]), $this->createMock(SalesChannelContext::class), $customer);
     }
 

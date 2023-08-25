@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -107,7 +108,7 @@ class DocumentControllerTest extends TestCase
             $request
         );
 
-        $browser = $this->login('customer@example.com', 'shopware');
+        $browser = $this->login('customer@example.com');
 
         $browser->request(
             'GET',
@@ -128,10 +129,14 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        } else {
+            static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        }
     }
 
-    private function login(string $email, string $password): KernelBrowser
+    private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
@@ -139,7 +144,7 @@ class DocumentControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => $password,
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
@@ -219,7 +224,7 @@ class DocumentControllerTest extends TestCase
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => 'customer@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $paymentMethodId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

@@ -25,7 +25,7 @@ describe('Account: Login as customer', () => {
         });
 
         // Open profile
-        cy.get('.account-overview-card a[href="/account/profile"]').click();
+        cy.get('.account-aside-list-group a[href="/account/profile"].account-aside-item').last().click();
         cy.get('h1').contains('Your profile');
 
         // Change email
@@ -67,7 +67,7 @@ describe('Account: Login as customer', () => {
         });
 
         // Open profile
-        cy.get('.account-overview-card a[href="/account/profile"]').click();
+        cy.get('.account-aside-list-group a[href="/account/profile"].account-aside-item').last().click();
         cy.get('h1').contains('Your profile');
 
         // Change email

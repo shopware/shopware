@@ -85,9 +85,8 @@
           "Endpoints supporting Criteria "
         ],
         "summary": "Fetch a list of products",
-        "description": "List products that match the given criteria. For performance ressons a limit should always be set.",
+        "description": "List products that match the given criteria. For performance reasons a limit should always be set.",
         "operationId": "readProduct",
-        "parameters": [],
         "requestBody": {
           "required": false,
           "content": {
@@ -245,13 +244,17 @@
                     "type": "string"
                   },
                   "title": {
-                    "description": "The title of the review."
+                    "description": "The title of the review.",
+                    "type": "string"
                   },
                   "content": {
-                    "description": "The content of review."
+                    "description": "The content of review.",
+                    "type": "string"
                   },
                   "points": {
-                    "description": "The review rating for the product."
+                    "description": "The review rating for the product.",
+                    "type": "number",
+                    "format": "double"
                   }
                 },
                 "type": "object"

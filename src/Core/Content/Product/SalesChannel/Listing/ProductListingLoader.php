@@ -30,9 +30,11 @@ class ProductListingLoader
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly SalesChannelRepository $repository,
+        private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -40,6 +42,9 @@ class ProductListingLoader
     ) {
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
         $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -48,10 +53,10 @@ class ProductListingLoader
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
 
-        $ids = $this->repository->searchIds($criteria, $context);
+        $ids = $this->productRepository->searchIds($criteria, $context);
         /** @var list<string> $keys */
         $keys = $ids->getIds();
-        $aggregations = $this->repository->aggregate($criteria, $context);
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
 
         // no products found, no need to continue
         if (empty($keys)) {
@@ -79,11 +84,11 @@ class ProductListingLoader
         $read = $criteria->cloneForRead(array_values($mapping));
         $read->addAssociation('options.group');
 
-        $entities = $this->repository->search($read, $context);
+        $searchResult = $this->productRepository->search($read, $context);
 
-        $this->addExtensions($ids, $entities, $mapping);
+        $this->addExtensions($ids, $searchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $entities->getEntities(), $aggregations, $origin, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $searchResult->getEntities(), $aggregations, $origin, $context->getContext());
         $result->addState(...$ids->getStates());
 
         return $result;
@@ -197,7 +202,7 @@ class ProductListingLoader
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
-        $available = $this->repository->searchIds($criteria, $context);
+        $available = $this->productRepository->searchIds($criteria, $context);
 
         $remapped = [];
         // replace existing ids with main variant id
@@ -227,6 +232,7 @@ class ProductListingLoader
     }
 
     /**
+     * @param EntitySearchResult<ProductCollection> $entities
      * @param array<string> $mapping
      */
     private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void

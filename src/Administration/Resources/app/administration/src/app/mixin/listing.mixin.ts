@@ -6,6 +6,7 @@
 import type { Dictionary } from 'vue-router/types/router';
 import type { RawLocation } from 'vue-router';
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import { defineComponent } from 'vue';
 
 /* @private */
 export {};
@@ -16,7 +17,7 @@ export {};
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Shopware.Mixin.register('listing', {
+export default Shopware.Mixin.register('listing', defineComponent({
     inject: ['searchRankingService', 'feature'],
 
     data(): {
@@ -129,6 +130,7 @@ Shopware.Mixin.register('listing', {
             // Update data information from the url
             this.updateData(query);
 
+            // @ts-expect-error - properties are defined in base component
             if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
                 // @ts-expect-error - filterCriteria is defined in base component
                 this.filterCriteria = [];
@@ -371,4 +373,4 @@ Shopware.Mixin.register('listing', {
             );
         },
     },
-});
+}));

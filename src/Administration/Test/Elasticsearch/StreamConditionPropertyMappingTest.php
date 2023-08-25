@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
@@ -20,16 +21,21 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     private SalesChannelProductDefinition $productDefinition;
 
-    private ElasticsearchProductDefinition $elasticDefinition;
+    private ?AbstractElasticsearchDefinition $elasticDefinition;
 
     protected function setUp(): void
     {
         $this->productDefinition = $this->getContainer()->get(SalesChannelProductDefinition::class);
+
         $this->elasticDefinition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
     }
 
     public function testMappingHasConditionField(): void
     {
+        if ($this->elasticDefinition === null) {
+            static::fail('EsProductDefinition is not defined');
+        }
+
         $js = file_get_contents(__DIR__ . '/../../Resources/app/administration/src/app/service/product-stream-condition.service.js');
 
         if (!$js) {

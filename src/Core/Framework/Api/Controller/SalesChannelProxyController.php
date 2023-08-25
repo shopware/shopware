@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -123,13 +123,13 @@ class SalesChannelProxyController extends AbstractController
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
-            throw RoutingException::missingRequestParameter(self::CUSTOMER_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -154,7 +154,7 @@ class SalesChannelProxyController extends AbstractController
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
@@ -174,7 +174,7 @@ class SalesChannelProxyController extends AbstractController
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $contextToken = $this->getContextToken($request);
@@ -190,7 +190,7 @@ class SalesChannelProxyController extends AbstractController
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $contextToken = $this->getContextToken($request);
@@ -247,7 +247,7 @@ class SalesChannelProxyController extends AbstractController
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         if ($salesChannel === null) {
-            throw new InvalidSalesChannelIdException($salesChannelId);
+            throw ApiException::invalidSalesChannelId($salesChannelId);
         }
 
         return $salesChannel;
@@ -264,17 +264,29 @@ class SalesChannelProxyController extends AbstractController
         return $contextToken;
     }
 
+    /**
+     * @return array<Request>
+     */
     private function clearRequestStackWithBackup(RequestStack $requestStack): array
     {
         $requestStackBackup = [];
 
         while ($requestStack->getMainRequest()) {
-            $requestStackBackup[] = $requestStack->pop();
+            $request = $requestStack->pop();
+
+            if ($request === null) {
+                continue;
+            }
+
+            $requestStackBackup[] = $request;
         }
 
         return $requestStackBackup;
     }
 
+    /**
+     * @param array<Request> $requestStackBackup
+     */
     private function restoreRequestStack(RequestStack $requestStack, array $requestStackBackup): void
     {
         $this->clearRequestStackWithBackup($requestStack);
@@ -380,7 +392,7 @@ class SalesChannelProxyController extends AbstractController
     private function validateShippingCostsParameters(Request $request): void
     {
         if (!$request->request->has('shippingCosts')) {
-            throw RoutingException::missingRequestParameter('shippingCosts');
+            throw ApiException::shippingCostsParameterIsMissing();
         }
 
         $validation = new DataValidationDefinition('shipping-cost');

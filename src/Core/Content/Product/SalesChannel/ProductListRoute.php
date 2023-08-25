@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -15,6 +16,8 @@ class ProductListRoute extends AbstractProductListRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(private readonly SalesChannelRepository $productRepository)
     {

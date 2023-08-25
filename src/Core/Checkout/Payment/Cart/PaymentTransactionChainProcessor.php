@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -36,14 +37,14 @@ class PaymentTransactionChainProcessor
         private readonly RouterInterface $router,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly SystemConfigService $systemConfigService,
-        private readonly InitialStateIdLoader $initialStateIdLoader
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws PaymentProcessException
-     * @throws UnknownPaymentMethodException
      */
     public function process(
         string $orderId,
@@ -65,16 +66,18 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('lineItems');
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
+        $this->eventDispatcher->dispatch(new PayPaymentOrderCriteriaEvent($orderId, $criteria, $salesChannelContext));
+
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         if (!$order) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         $transactions = $transactions->filterByStateId(
@@ -86,19 +89,13 @@ class PaymentTransactionChainProcessor
             return null;
         }
 
-        $paymentMethod = $transaction->getPaymentMethod();
-        if ($paymentMethod === null) {
-            throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
-        }
-
-        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
-
+        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
         if (!$paymentHandler) {
-            throw new UnknownPaymentMethodException($paymentMethod->getHandlerIdentifier());
+            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
         }
 
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {
-            $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
+            $paymentTransaction = $this->paymentTransactionStructFactory->sync($transaction, $order);
             $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
 
             return null;
@@ -128,7 +125,7 @@ class PaymentTransactionChainProcessor
             $token = $this->tokenFactory->generateToken($tokenStruct);
 
             $returnUrl = $this->assembleReturnUrl($token);
-            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
+            $paymentTransaction = $this->paymentTransactionStructFactory->async($transaction, $order, $returnUrl);
 
             return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
         }

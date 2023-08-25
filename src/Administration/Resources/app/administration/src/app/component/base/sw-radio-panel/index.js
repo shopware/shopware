@@ -26,6 +26,8 @@ const utils = Shopware.Utils;
 Component.register('sw-radio-panel', {
     template,
 
+    inject: ['feature'],
+
     model: {
         prop: 'modelValue', // use the variable 'modelValue' instead of 'value' because both are relevant!
         event: 'input',
@@ -86,6 +88,12 @@ Component.register('sw-radio-panel', {
 
     methods: {
         toggle() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:modelValue', this.value);
+
+                return;
+            }
+
             this.$emit('input', this.value);
         },
     },

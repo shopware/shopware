@@ -54,7 +54,11 @@
                             <sw-inherit-wrapper
                                 v-if="entity && customField.config"
                                 :key="customField.name"
+                                {% if VUE3 %}
+                                v-model:value="customFields[customField.name]"
+                                {% else %}
                                 v-model="customFields[customField.name]"
+                                {% endif %}
                                 v-bind="getInheritWrapperBind(customField)"
                                 :class="'sw-form-field-renderer-field__' + customField.name"
                                 :has-parent="hasParent"
@@ -114,7 +118,11 @@
                         :disabled="isLoading || disabled"
                         variant="primary"
                         size="small"
+                        {% if VUE3 %}
+                        @update:process-success="$emit('process-finish')"
+                        {% else %}
                         @process-finish="$emit('process-finish')"
+                        {% endif %}
                         @click="$emit('save')"
                     >
                         {{ $tc('global.default.save') }}

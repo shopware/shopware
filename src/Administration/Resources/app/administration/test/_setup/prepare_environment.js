@@ -54,6 +54,11 @@ Shopware.Application.view = {
     root: {
         $tc: v => v,
     },
+    i18n: {
+        tc: v => v,
+        te: v => v,
+        t: v => v,
+    },
 };
 
 // Prepare Context
@@ -108,11 +113,18 @@ config.mocks = {
     $store: Shopware.State._store,
 };
 
-global.allowedErrors = [];
+global.allowedErrors = [
+    {
+        method: 'warn',
+        msg: 'No extension found for origin ""',
+    },
+];
 
 global.flushPromises = flushPromises;
 
 let consoleHasErrorOrWarning = false;
+let errorArgs = null;
+let warnArgs = null;
 const { error, warn } = console;
 
 global.console.error = (...args) => {
@@ -125,23 +137,33 @@ global.console.error = (...args) => {
 
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
-                silenceError = args[0].includes(allowedError.msg);
+                const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+                if (shouldBeSilenced) {
+                    silenceError = true;
+                }
             }
 
             return;
         }
 
-        silenceError = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg.test(args[0]);
+
+        if (shouldBeSilenced) {
+            silenceError = true;
+        }
     });
 
     if (!silenceError) {
         consoleHasErrorOrWarning = true;
+        errorArgs = args;
         error(...args);
     }
 };
 
 global.console.warn = (...args) => {
     let silenceWarn = false;
+
     // eslint-disable-next-line array-callback-return
     global.allowedErrors.some(allowedError => {
         if (allowedError.method !== 'warn') {
@@ -149,19 +171,35 @@ global.console.warn = (...args) => {
         }
 
         if (typeof allowedError.msg === 'string') {
-            silenceWarn = args[0].includes(allowedError.msg);
+            const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+            if (shouldBeSilenced) {
+                silenceWarn = true;
+            }
 
             return;
         }
 
-        silenceWarn = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg.test(args[0]);
+
+        if (shouldBeSilenced) {
+            silenceWarn = true;
+        }
     });
 
     if (!silenceWarn) {
         consoleHasErrorOrWarning = true;
+        warnArgs = args;
         warn(...args);
     }
 };
+
+// eslint-disable-next-line jest/require-top-level-describe
+beforeEach(() => {
+    consoleHasErrorOrWarning = false;
+    errorArgs = null;
+    warnArgs = null;
+});
 
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
@@ -169,10 +207,23 @@ afterEach(() => {
         // reset variable for next test
         consoleHasErrorOrWarning = false;
 
-        throw new Error('console.error and console.warn are not allowed');
+        if (errorArgs) {
+            throw new Error(...errorArgs);
+        }
+
+        if (warnArgs) {
+            throw new Error(...warnArgs);
+        }
+
+        throw new Error('A console.error or console.warn occurred without any arguments.');
     }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+// This is here to always get the Vue 2 version of templates
+window._features_ = {
+    VUE3: false,
+};

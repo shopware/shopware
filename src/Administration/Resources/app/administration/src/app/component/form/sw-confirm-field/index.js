@@ -122,10 +122,9 @@ Component.register('sw-confirm-field', {
             }
         },
 
-        onSubmitFromKey({ target }) {
+        onSubmitFromKey() {
             this.event = 'key';
             this.submitValue();
-            target.blur();
             this.isEditing = false;
         },
 

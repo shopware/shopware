@@ -9,10 +9,12 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_filter_panel_headline %}
     <template #headline-content>
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="activeFilterNumber"
+            role="button"
+            tabindex="0"
             @click="resetAll"
+            @keydown.enter="resetAll"
         >{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
     </template>
     {% endblock %}

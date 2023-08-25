@@ -9,9 +9,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_collapse_title %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
     <h4
         class="sw-sidebar-collapse__title"
+        aria-level="4"
         @click="collapseItem"
     >
         <slot
@@ -31,10 +32,12 @@
     <div class="sw-sidebar-collapse__actions">
         <slot name="actions"></slot>
     </div>
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-sidebar-collapse__indicator"
+        role="button"
+        tabindex="0"
         @click="collapseItem"
+        @keydown.enter="collapseItem"
     >
         <sw-icon
             :name="`regular-chevron-${expandChevronDirection}-xxs`"

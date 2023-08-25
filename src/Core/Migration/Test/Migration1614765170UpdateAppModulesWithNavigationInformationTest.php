@@ -174,7 +174,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
     {
         $appId = Uuid::randomHex();
 
-        $path = \realpath(__DIR__ . '/../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test');
+        $path = \realpath(__DIR__ . '/../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test');
         static::assertNotFalse($path);
 
         $this->appRepository->create([

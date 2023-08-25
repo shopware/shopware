@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -37,6 +38,10 @@ class NewsletterController extends StorefrontController
     {
         try {
             $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
+        } catch (NewsletterException) {
+            $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
+
+            return $this->forwardToRoute('frontend.home.page');
         } catch (\Throwable $throwable) {
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 

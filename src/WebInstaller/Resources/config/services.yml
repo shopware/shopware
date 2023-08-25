@@ -1,0 +1,13 @@
+services:
+  _defaults:
+    autoconfigure: true
+    autowire: true
+    public: false
+
+  Shopware\WebInstaller\:
+    resource: '../../{Listener,Services}'
+
+  Shopware\WebInstaller\Controller\:
+    resource: '../../Controller'
+    public: true
+    tags: ['controller.service_arguments']

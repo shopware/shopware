@@ -34,17 +34,7 @@ if (function_exists('date_default_timezone_set') && function_exists('date_defaul
 if ('cli' === \PHP_SAPI || !isset($_SERVER['REQUEST_URI'])) {
     Phar::mapPhar('shopware-recovery.phar');
 
-    if (($_SERVER['argv'][1] ?? '') === 'composer') {
-        unset($_SERVER['argv'][0]);
-        $_SERVER['argv'] = array_values($_SERVER['argv']);
-
-        $_SERVER['argc'] = count($_SERVER['argv']);
-        $argc = &$_SERVER['argc'];
-        $argv = &$_SERVER['argv'];
-        require 'phar://shopware-recovery.phar/vendor/bin/composer';
-    } else {
-        require 'phar://shopware-recovery.phar/bin/console';
-    }
+    require 'phar://shopware-recovery.phar/vendor/bin/composer';
 } else {
     function rewrites(): bool|string
     {
@@ -56,8 +46,8 @@ if ('cli' === \PHP_SAPI || !isset($_SERVER['REQUEST_URI'])) {
             return false;
         }
 
-        if (!empty($url) && is_file('phar://' . __FILE__ . '/src/Resources/public/' . $url)) {
-            return '/src/Resources/public' . $url;
+        if (!empty($url) && is_file('phar://' . __FILE__ . '/Resources/public/' . $url)) {
+            return '/Resources/public' . $url;
         }
 
         return 'index.php';

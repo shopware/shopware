@@ -93,6 +93,7 @@
                         identifier="sw-settings-customer-group-list"
                         detail-route="sw.settings.customer.group.detail"
                         :repository="customerGroupRepository"
+                        :criteria-limit="limit"
                         :is-loading="isLoading"
                         :items="customerGroups"
                         :columns="columns"

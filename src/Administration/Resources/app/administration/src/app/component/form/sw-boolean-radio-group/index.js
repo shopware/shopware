@@ -30,6 +30,9 @@ Component.register('sw-boolean-radio-group', {
     :bordered="bordered">
 </sw-radio-field>
 `,
+
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -75,6 +78,12 @@ Component.register('sw-boolean-radio-group', {
             },
 
             set(val) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', val === 'true');
+
+                    return;
+                }
+
                 this.$emit('change', val === 'true');
             },
         },

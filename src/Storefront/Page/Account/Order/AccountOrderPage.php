@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
@@ -10,7 +11,7 @@ use Shopware\Storefront\Page\Page;
 class AccountOrderPage extends Page
 {
     /**
-     * @var StorefrontSearchResult
+     * @var StorefrontSearchResult<OrderCollection>
      */
     protected $orders;
 
@@ -19,11 +20,17 @@ class AccountOrderPage extends Page
      */
     protected $deepLinkCode;
 
+    /**
+     * @return StorefrontSearchResult<OrderCollection>
+     */
     public function getOrders(): StorefrontSearchResult
     {
         return $this->orders;
     }
 
+    /**
+     * @param StorefrontSearchResult<OrderCollection> $orders
+     */
     public function setOrders(StorefrontSearchResult $orders): void
     {
         $this->orders = $orders;

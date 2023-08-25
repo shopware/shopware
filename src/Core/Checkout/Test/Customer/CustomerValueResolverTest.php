@@ -128,8 +128,7 @@ class CustomerValueResolverTest extends TestCase
     private function loginCustomer(bool $isGuest): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email, $isGuest);
+        $this->createCustomer($email, $isGuest);
 
         try {
             return $this->accountService->login($email, $this->salesChannelContext, $isGuest);

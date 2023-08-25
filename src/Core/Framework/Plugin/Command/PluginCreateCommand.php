@@ -82,6 +82,47 @@ EOL;
 </config>
 EOL;
 
+    private string $testBootstrap = <<<EOL
+<?php declare(strict_types=1);
+
+use Shopware\Core\TestBootstrapper;
+
+\$loader = (new TestBootstrapper())
+    ->addCallingPlugin()
+    ->addActivePlugins('#name#')
+    ->bootstrap()
+    ->getClassLoader();
+
+\$loader->addPsr4('#name#\\\\Tests\\\\', __DIR__);
+EOL;
+
+    private string $phpUnitXml = <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         bootstrap="tests/TestBootstrap.php"
+         executionOrder="random">
+    <coverage>
+        <include>
+            <directory>./src/</directory>
+        </include>
+    </coverage>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+    </php>
+    <testsuites>
+        <testsuite name="#name# Testsuite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+
+EOL;
+
     /**
      * @internal
      */
@@ -121,10 +162,13 @@ EOL;
         }
 
         mkdir($directory . '/src/Resources/config/', 0777, true);
+        mkdir($directory . '/tests/', 0777, true);
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
         $servicesXmlFile = $directory . '/src/Resources/config/services.xml';
+        $testFile = $directory . '/tests/TestBootstrap.php';
+        $phpUnitXmlFile = $directory . '/phpunit.xml';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
@@ -138,9 +182,23 @@ EOL;
             $this->bootstrapTemplate
         );
 
+        $test = str_replace(
+            ['#name#'],
+            [$name],
+            $this->testBootstrap
+        );
+
+        $xml = str_replace(
+            ['#name#'],
+            [$name],
+            $this->phpUnitXml
+        );
+
         file_put_contents($composerFile, $composer);
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
+        file_put_contents($testFile, $test);
+        file_put_contents($phpUnitXmlFile, $xml);
 
         if ($input->getOption('create-config')) {
             $configXmlFile = $directory . '/src/Resources/config/config.xml';

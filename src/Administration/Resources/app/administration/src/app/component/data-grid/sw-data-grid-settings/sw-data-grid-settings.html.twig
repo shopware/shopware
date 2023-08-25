@@ -39,11 +39,19 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_compact_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="currentCompact"
+            {% else %}
             v-model="currentCompact"
+            {% endif %}
             size="medium"
             no-margin-top
             :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
+            {% if VUE3 %}
+            @update:value="onChangeCompactMode(currentCompact)"
+            {% else %}
             @change="onChangeCompactMode(currentCompact)"
+            {% endif %}
         />
         {% endblock %}
 
@@ -51,11 +59,19 @@
         {% block sw_data_grid_settings_preview_switch %}
         <sw-switch-field
             v-if="enablePreviews"
+            {% if VUE3 %}
+            v-model:value="currentPreviews"
+            {% else %}
             v-model="currentPreviews"
+            {% endif %}
             size="medium"
             no-margin-top
             :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
+            {% if VUE3 %}
+            @update:value="onChangePreviews(currentPreviews)"
+            {% else %}
             @change="onChangePreviews(currentPreviews)"
+            {% endif %}
         />
         {% endblock %}
 
@@ -96,7 +112,11 @@
                 :disabled="column.primary"
                 :label="$te(column.label) ? $tc(column.label) : column.label"
                 :value="currentColumns[index].visible"
+                {% if VUE3 %}
+                @update:value="onChangeColumnVisibility($event, index)"
+                {% else %}
                 @change="onChangeColumnVisibility($event, index)"
+                {% endif %}
             />
             {% endblock %}
 

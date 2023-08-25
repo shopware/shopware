@@ -1,0 +1,30 @@
+title: "App FAQ"
+labels: ["App System"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask any question, give feedback or suggest improvements regarding the app system.
+  - type: dropdown
+    id: category
+    attributes:
+      label: What kind of question do you have about the app system?
+      options:
+        - General Setup
+        - Release process
+        - App Scripting Basic
+        - App Scripting Advanced
+        - Checkout
+        - Admin Extension SDK
+        - Data-Loading in frontend
+        - Templates
+        - Themes Backend
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Describe your question or feedback
+      description: "What are you struggling with regarding the app system? The more specific you can be, the higher the chance that we can provide a high quality answer. Code examples are always welcome."
+    validations:
+      required: true

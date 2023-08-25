@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
@@ -49,29 +48,20 @@ class GenerateThumbnailsMessage implements AsyncMessageInterface
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed
+     * @deprecated tag:v6.6.0 - Will be removed - reason:remove-getter-setter
      */
     public function withContext(Context $context): GenerateThumbnailsMessage
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-        );
         $this->contextData = serialize($context);
 
         return $this;
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed
+     * @deprecated tag:v6.6.0 - Will be removed - reason:remove-getter-setter
      */
     public function readContext(): Context
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-        );
-
         return unserialize($this->contextData);
     }
 

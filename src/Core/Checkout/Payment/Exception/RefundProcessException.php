@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-abstract class RefundProcessException extends ShopwareHttpException
+/**
+ * @decrecated tag:v6.6.0 - use PaymentException instead
+ */
+abstract class RefundProcessException extends PaymentException
 {
     public function __construct(
         private readonly string $refundId,
@@ -15,7 +18,13 @@ abstract class RefundProcessException extends ShopwareHttpException
         array $parameters = [],
         ?\Throwable $e = null
     ) {
-        parent::__construct($message, $parameters, $e);
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            PaymentException::PAYMENT_REFUND_PROCESS_ERROR,
+            $message,
+            $parameters,
+            $e
+        );
     }
 
     public function getStatusCode(): int

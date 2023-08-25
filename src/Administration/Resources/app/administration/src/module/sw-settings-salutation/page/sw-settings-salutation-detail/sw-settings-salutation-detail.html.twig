@@ -55,7 +55,11 @@
             :process-success="isSaveSuccessful"
             :disabled="invalidKey || isKeyChecking || !allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-salutation.general.buttonSave') }}
@@ -87,8 +91,12 @@
                     <template v-if="salutation">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.salutationKey"
+                            {% else %}
                             v-model="salutation.salutationKey"
+                            {% endif %}
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
                             :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
@@ -97,14 +105,22 @@
                             validation="required"
                             required
                             :disabled="!acl.can('salutation.editor')"
+                            {% if VUE3 %}
+                            @update:value="onChange"
+                            {% else %}
                             @input="onChange"
+                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.displayName"
+                            {% else %}
                             v-model="salutation.displayName"
+                            {% endif %}
                             required
                             class="sw-settings-salutation-detail__displayName"
                             :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
@@ -116,8 +132,12 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.letterName"
+                            {% else %}
                             v-model="salutation.letterName"
+                            {% endif %}
                             required
                             class="sw-settings-salutation-detail__letterName"
                             :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"

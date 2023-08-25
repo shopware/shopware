@@ -124,7 +124,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const stateSelect = wrapper.find('.sw-customer-address-form__state-select');
         expect(stateSelect.exists()).toBeTruthy();
@@ -196,5 +196,52 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(wrapper.vm.disabled).toBe(true);
         expect(firstName.classes()).not.toContain('has--error');
         expect(firstName.find('.sw-field__error').exists()).toBeFalsy();
+    });
+
+    it('should set required attribute based on the configuration of the country', async () => {
+        const wrapper = await createWrapper();
+
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        expect(definition.properties.zipcode.flags?.required).toBeUndefined();
+        expect(definition.properties.countryStateId.flags?.required).toBeUndefined();
+
+        await wrapper.setData({
+            country: {
+                postalCodeRequired: true,
+                forceStateInRegistration: true,
+            },
+        });
+
+        await flushPromises();
+
+        expect(definition.properties.zipcode.flags?.required).toBe(true);
+        expect(definition.properties.countryStateId.flags?.required).toBe(true);
+    });
+
+    it('should dispatch error/removeApiError based on the configuration of the country', async () => {
+        // add mock for dispatch
+        Object.defineProperty(Shopware.State, 'dispatch', {
+            value: jest.fn(),
+        });
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            country: {
+                postalCodeRequired: false,
+                forceStateInRegistration: false,
+            },
+        });
+
+        const address = wrapper.vm.address;
+
+        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
+            expression: `${address.getEntityName()}.${address.id}.zipcode`,
+        });
+
+        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
+            expression: `${address.getEntityName()}.${address.id}.countryStateId`,
+        });
     });
 });

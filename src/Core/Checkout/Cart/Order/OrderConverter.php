@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -19,7 +20,6 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -137,7 +137,7 @@ class OrderConverter
 
             $activeBillingAddress = $customer->getActiveBillingAddress();
             if ($activeBillingAddress === null) {
-                throw new AddressNotFoundException('');
+                throw CartException::addressNotFound('');
             }
             $customerAddressId = $activeBillingAddress->getId();
 
@@ -211,6 +211,7 @@ class OrderConverter
         $cart->setCustomerComment($order->getCustomerComment());
         $cart->setAffiliateCode($order->getAffiliateCode());
         $cart->setCampaignCode($order->getCampaignCode());
+        $cart->setSource($order->getSource());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {
@@ -261,10 +262,9 @@ class OrderConverter
         }
 
         $billingAddressId = $order->getBillingAddressId();
-        /** @var OrderAddressEntity|null $billingAddress */
         $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->get($billingAddressId);
-        if ($billingAddress === null) {
-            throw new AddressNotFoundException($billingAddressId);
+        if (!$billingAddress instanceof OrderAddressEntity) {
+            throw CartException::addressNotFound($billingAddressId);
         }
 
         $options = [
@@ -283,17 +283,15 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }
 
-        if ($order->getTransactions() !== null) {
-            foreach ($order->getTransactions() as $transaction) {
-                $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
-                if (
-                    $transaction->getStateMachineState() !== null
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
-                ) {
-                    break;
-                }
+        foreach ($order->getTransactions() as $transaction) {
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
+            if (
+                $transaction->getStateMachineState() !== null
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
+            ) {
+                break;
             }
         }
 
@@ -319,6 +317,9 @@ class OrderConverter
         if ($order->getRuleIds() !== null) {
             $salesChannelContext->setRuleIds($order->getRuleIds());
         }
+
+        $event = new SalesChannelContextAssembledEvent($order, $salesChannelContext);
+        $this->eventDispatcher->dispatch($event);
 
         return $salesChannelContext;
     }

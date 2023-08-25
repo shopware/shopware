@@ -45,7 +45,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     {
         $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.sliderItems.value[*].mediaId") as mediaId
-        FROM $table
+        FROM `$table`
         WHERE JSON_OVERLAPS(
             JSON_EXTRACT(slot_config, "$.*.sliderItems.value[*].mediaId"),
             JSON_ARRAY(%s)
@@ -64,7 +64,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     {
         $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.media.value") as mediaId
-        FROM $table
+        FROM `$table`
         WHERE JSON_OVERLAPS(
             JSON_EXTRACT(slot_config, "$.*.media.value"),
             JSON_ARRAY(%s)

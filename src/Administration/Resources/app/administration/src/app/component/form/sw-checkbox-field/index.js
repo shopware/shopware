@@ -19,6 +19,8 @@ Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -136,6 +138,12 @@ Component.register('sw-checkbox-field', {
 
     methods: {
         onChange(changeEvent) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', changeEvent.target.checked);
+
+                return;
+            }
+
             this.$emit('change', changeEvent.target.checked);
         },
     },

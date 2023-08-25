@@ -11,6 +11,8 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1665267882RenameCountryVat extends MigrationStep

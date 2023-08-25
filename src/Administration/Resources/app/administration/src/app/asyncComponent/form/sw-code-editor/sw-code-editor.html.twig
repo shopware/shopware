@@ -7,22 +7,27 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_label %}
-    <div
-        v-if="label.length"
-        class="sw-code-editor__label"
-    >{{ label }}
-    </div>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_editor %}
     <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -->
-    <div
-        :ref="`editor${editorId}`"
-        class="sw-code-editor__editor"
-        :content="value"
-        tabindex="1"
-    ></div>
+    <sw-base-field
+        v-bind="$attrs"
+        :label="label"
+        :disabled="disabled"
+        :required="required"
+        :error="error"
+    >
+        <template #sw-field-input>
+            <div
+                :ref="`editor${editorId}`"
+                class="sw-code-editor__editor"
+                :content="value"
+                tabindex="0"
+            ></div>
+        </template>
+    </sw-base-field>
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_sanitize_info %}
@@ -33,7 +38,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_code_editor_sanitize_info_content %}
         <div
-            v-if="contentWasSanitized"
+            v-if="contentWasSanitized && enableHtmlSanitizer"
             class="sw-code-editor__sanitized-hint"
             :class="{'sw-code-editor__sanitized-hint--visible': contentWasSanitized}"
         >
@@ -50,6 +55,7 @@
             {% endblock %}
         </div>
         <div
+            v-if="enableHtmlSanitizer"
             class="sw-code-editor__sanitize-info"
             :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
         >
@@ -69,10 +75,5 @@
 
     </div>
     {% endblock %}
-
-    <sw-field-error
-        v-if="error"
-        :error="error"
-    />
 </div>
 {% endblock %}

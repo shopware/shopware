@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Suggest;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
@@ -15,15 +16,21 @@ class SuggestPage extends Page
     protected $searchTerm;
 
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<ProductCollection>
      */
     protected $searchResult;
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     public function getSearchResult(): EntitySearchResult
     {
         return $this->searchResult;
     }
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $searchResult
+     */
     public function setSearchResult(EntitySearchResult $searchResult): void
     {
         $this->searchResult = $searchResult;

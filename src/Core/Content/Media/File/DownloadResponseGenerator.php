@@ -7,9 +7,11 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -90,10 +92,20 @@ class DownloadResponseGenerator
         $stream = $context->getContext()->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
-        )->detach();
+        );
+
+        if (!$stream instanceof StreamInterface) {
+            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
+        }
+
+        $stream = $stream->detach();
 
         if (!\is_resource($stream)) {
-            throw new FileNotFoundException($media->getFilename() . '.' . $media->getFileExtension());
+            if (!Feature::isActive('v6.6.0.0')) {
+                throw new FileNotFoundException($media->getFilename() . '.' . $media->getFileExtension());
+            }
+
+            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
         }
 
         return new StreamedResponse(function () use ($stream): void {
@@ -110,7 +122,7 @@ class DownloadResponseGenerator
         }
 
         if (!$filesystem instanceof Filesystem) {
-            throw new \RuntimeException(sprintf('Filesystem is not an instance of %s', Filesystem::class));
+            throw MediaException::fileIsNotInstanceOfFileSystem();
         }
 
         return $filesystem;

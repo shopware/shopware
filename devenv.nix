@@ -1,10 +1,8 @@
 { pkgs, lib, config, ... }:
 
 let
-  inherit (lib.attrsets) attrValues genAttrs;
-  pcovExtensions = lib.filter(e: e != "blackfire") (config.languages.php.extensions ++ [ "pcov" ]);
-  pcov = pkgs.php81.buildEnv {
-    extensions = { all, enabled }: with all; enabled ++ attrValues (lib.getAttrs pcovExtensions config.languages.php.package.extensions);
+  pcov = config.languages.php.package.buildEnv {
+    extensions = { all, enabled }: with all; (builtins.filter (e: e.extensionName != "blackfire" && e.extensionName != "xdebug") enabled) ++ [config.languages.php.package.extensions.pcov];
     extraConfig = config.languages.php.ini;
   };
 in {
@@ -20,6 +18,8 @@ in {
       exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"
     '')
   ];
+
+  dotenv.disableHint = true;
 
   languages.javascript = {
     enable = lib.mkDefault true;
@@ -104,7 +104,7 @@ in {
   services.redis.enable = lib.mkDefault true;
   services.adminer.enable = lib.mkDefault true;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
-  services.mailhog.enable = lib.mkDefault true;
+  services.mailpit.enable = lib.mkDefault true;
 
   # services.elasticsearch.enable = true;
   # services.rabbitmq.enable = true;
@@ -116,6 +116,10 @@ in {
   env.APP_SECRET = lib.mkDefault "devsecret";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
+
+  # Elasticsearch
+  env.OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
+  env.ADMIN_OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
 
   # General cypress
   env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";

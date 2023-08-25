@@ -30,8 +30,16 @@
                     >
                         <div class="sw-grid__cell-content">
                             <sw-checkbox-field
+                                {% if VUE3 %}
+                                v-model:value="allSelectedChecked"
+                                {% else %}
                                 v-model="allSelectedChecked"
+                                {% endif %}
+                                {% if VUE3 %}
+                                @update:value="selectAll"
+                                {% else %}
                                 @change="selectAll"
+                                {% endif %}
                             />
                         </div>
                     </div>
@@ -39,12 +47,14 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         v-for="(column, columnIndex) in columns"
                         :key="columnIndex"
                         :class="[{ 'sw-grid-column': true, 'is--sortable': column.sortable, 'is--sorted': sort === column.dataIndex }, `sw-grid-column--${column.align}`]"
+                        role="gridcell"
+                        tabindex="0"
                         @click="onGridCellClick($event, column)"
+                        @keydown.enter="onGridCellClick($event, column)"
                     >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -131,7 +141,11 @@
                                 <div class="sw-grid__cell-content">
                                     <sw-checkbox-field
                                         :value="isSelected(item.id)"
+                                        {% if VUE3 %}
+                                        @update:value="selectItem($event, item)"
+                                        {% else %}
                                         @change="selectItem($event, item)"
+                                        {% endif %}
                                     />
                                 </div>
                             </div>

@@ -57,7 +57,7 @@
                                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                                 entities: page.orders,
                                                 criteria: criteria
-                                            }  %}
+                                            } %}
                                         </form>
                                     </div>
                                 {% endblock %}
@@ -68,4 +68,10 @@
             {% endblock %}
         </div>
     {% endblock %}
+{% endblock %}
+
+{% block base_footer_inner %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' with {
+        showVatNotice: false
+    } %}
 {% endblock %}

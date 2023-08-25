@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -125,7 +126,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $changedOrder = $this->loadOrder($order->getId(), $salesChannelContext);
         $transactions = $changedOrder->getTransactions();
         if ($transactions === null || ($transaction = $transactions->get($transactionId)) === null) {
-            throw new InvalidTransactionException($transactionId);
+            if (Feature::isActive('v6.6.0.0')) {
+                throw OrderException::orderTransactionNotFound($transactionId);
+            }
+
+            throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
         $event = new OrderPaymentMethodChangedEvent(
@@ -145,6 +150,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 
         if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw OrderException::paymentMethodNotAvailable($paymentMethodId);
+            }
+
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
     }

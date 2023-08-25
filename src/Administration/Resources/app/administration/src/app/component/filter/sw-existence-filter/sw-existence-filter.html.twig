@@ -12,7 +12,11 @@
         <sw-select-field
             :value="value"
             :placeholder="filter.placeholder"
+            {% if VUE3 %}
+            @update:value="changeValue"
+            {% else %}
             @change="changeValue"
+            {% endif %}
         >
             <option :value="true">
                 {{ filter.optionHasCriteria }}

@@ -78,9 +78,36 @@ E2E:
         - export CYPRESS_INTERRUPT_ON_ERROR="true"
         - composer run e2e:cypress -- run
             --config retries=1
-            --browser $BROWSER
+            --browser "$BROWSER"
             --spec "$TEST_DIRECTORY"
             --headless
+
+E2E Vue3:
+  extends:
+    - .e2e-base
+  stage: E2E
+  rules:
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /E2E::VUE3/ && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "trigger")'
+  variables:
+    CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
+    CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
+    CYPRESS_grepTags: 'VUE3'
+    TEST_DIRECTORY: 'cypress/e2e/administration/**/*'
+    BROWSER: 'chrome'
+    VUE3: 1
+  script:
+    - composer run init:js
+    - echo "{\"VUE3\":true,\"vue3\":true}" > var/config_js_features.json
+    - npm run --prefix src/Administration/Resources/app/administration/ build
+    - bin/console assets:install
+    - export CYPRESS_VUE3="true"
+    - composer run e2e:cypress -- run
+      --config retries=1
+      --spec "$TEST_DIRECTORY"
+      --browser "$BROWSER"
+      --headless
 
 E2E quarantined:
   extends: E2E
@@ -233,7 +260,7 @@ E2E Changed install NL scenarios:
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    -   name: mysql:8.0
+    -   name: mysql:8.0.33
         alias: database
   variables:
     APP_ENV: e2e

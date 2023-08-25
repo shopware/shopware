@@ -25,7 +25,7 @@ class AssetInstallCommandTest extends TestCase
         $filesystem->deleteDirectory('bundles/test');
         $filesystem->delete('asset-manifest.json');
 
-        $fixturePath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+        $fixturePath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
         $fixturePath = \realpath($fixturePath);
         static::assertNotFalse($fixturePath);
 

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -34,7 +33,7 @@ class ListAddressRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -105,7 +104,7 @@ class ListAddressRouteTest extends TestCase
 
     public function testListAddressForGuest(): void
     {
-        $contextToken = $this->getLoggedInContextToken($this->createCustomer(Random::getAlphanumericString(16), null, true), $this->ids->get('sales-channel'));
+        $contextToken = $this->getLoggedInContextToken($this->createCustomer(null, true), $this->ids->get('sales-channel'));
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\InvalidCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -56,11 +58,17 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(Criteria $criteria): array
     {
         return $this->converter->convert($criteria);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         return $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
@@ -80,6 +88,9 @@ class RequestCriteriaBuilder
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function parse(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, ?int $maxLimit): Criteria
     {
         $searchException = new SearchRequestException();
@@ -91,7 +102,12 @@ class RequestCriteriaBuilder
                 $ids = $payload['ids'];
             }
 
-            $criteria->setIds($ids);
+            try {
+                $criteria->setIds($ids);
+            } catch (InvalidCriteriaIdsException $e) {
+                throw DataAbstractionLayerException::invalidApiCriteriaIds($e);
+            }
+
             $criteria->setLimit(null);
         } else {
             if (isset($payload['total-count-mode'])) {
@@ -131,7 +147,11 @@ class RequestCriteriaBuilder
 
         if (isset($payload['query']) && \is_array($payload['query'])) {
             foreach ($payload['query'] as $query) {
-                $parsedQuery = QueryStringParser::fromArray($definition, $query['query'], $searchException);
+                if (!\is_array($query)) {
+                    continue;
+                }
+
+                $parsedQuery = QueryStringParser::fromArray($definition, $query['query'] ?? [], $searchException);
                 $score = $query['score'] ?? 1;
                 $scoreField = $query['scoreField'] ?? null;
 
@@ -157,7 +177,7 @@ class RequestCriteriaBuilder
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw new AssociationNotFoundException($propertyName);
+                    throw new AssociationNotFoundException((string) $propertyName);
                 }
 
                 $ref = $field->getReferenceDefinition();
@@ -186,6 +206,11 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
+    /**
+     * @param list<array{order: string, type: string, field: string}> $sorting
+     *
+     * @return list<FieldSorting>
+     */
     private function parseSorting(EntityDefinition $definition, array $sorting): array
     {
         $sortings = [];
@@ -212,6 +237,9 @@ class RequestCriteriaBuilder
         return $sortings;
     }
 
+    /**
+     * @return list<FieldSorting>
+     */
     private function parseSimpleSorting(EntityDefinition $definition, string $query): array
     {
         $parts = array_filter(explode(',', $query));
@@ -236,6 +264,9 @@ class RequestCriteriaBuilder
         return $sorting;
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     */
     private function parseSimpleFilter(EntityDefinition $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
     {
         $queries = [];
@@ -262,6 +293,9 @@ class RequestCriteriaBuilder
         return new MultiFilter(MultiFilter::CONNECTION_AND, $queries);
     }
 
+    /**
+     * @param array{page: int, limit?: int} $payload
+     */
     private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if ($payload['page'] === '') {
@@ -289,6 +323,9 @@ class RequestCriteriaBuilder
         $criteria->setOffset($offset);
     }
 
+    /**
+     * @param array{limit: int} $payload
+     */
     private function addLimit(array $payload, Criteria $criteria, SearchRequestException $searchRequestException, ?int $maxLimit): void
     {
         if ($payload['limit'] === '') {
@@ -319,6 +356,9 @@ class RequestCriteriaBuilder
         $criteria->setLimit($limit);
     }
 
+    /**
+     * @param array{filter: array<mixed>} $payload
+     */
     private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['filter'])) {
@@ -343,6 +383,9 @@ class RequestCriteriaBuilder
         $criteria->addFilter($this->parseSimpleFilter($definition, $payload['filter'], $searchException));
     }
 
+    /**
+     * @param array{post-filter: array<mixed>} $payload
+     */
     private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['post-filter'])) {
@@ -373,11 +416,17 @@ class RequestCriteriaBuilder
         );
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function hasNumericIndex(array $data): bool
     {
         return array_keys($data) === range(0, \count($data) - 1);
     }
 
+    /**
+     * @param array{sort: list<array{order: string, type: string, field: string}>|string} $payload
+     */
     private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
     {
         if (\is_array($payload['sort'])) {

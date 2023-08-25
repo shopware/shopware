@@ -40,6 +40,8 @@ const { Component } = Shopware;
 Component.register('sw-inherit-wrapper', {
     template,
 
+    inject: ['feature'],
+
     props: {
         // FIXME: add type property
         // eslint-disable-next-line vue/require-prop-types
@@ -183,6 +185,13 @@ Component.register('sw-inherit-wrapper', {
         },
 
         updateValue(value, inheritanceEventName) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', value);
+                this.$emit(`inheritance-${inheritanceEventName}`);
+
+                return;
+            }
+
             this.$emit('input', value);
             this.$emit(`inheritance-${inheritanceEventName}`);
         },

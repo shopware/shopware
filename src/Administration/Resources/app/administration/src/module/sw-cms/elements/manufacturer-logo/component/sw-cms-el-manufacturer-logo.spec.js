@@ -40,6 +40,10 @@ const defaultProps = {
                 source: 'static',
                 value: null,
             },
+            horizontalAlign: {
+                source: 'static',
+                value: null,
+            },
         },
         data: {
             media: '',

@@ -11,10 +11,13 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class CategoryListRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<CategoryCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<CategoryCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -22,9 +25,6 @@ class CategoryListRouteResponse extends StoreApiResponse
 
     public function getCategories(): CategoryCollection
     {
-        /** @var CategoryCollection $categories */
-        $categories = $this->object->getEntities();
-
-        return $categories;
+        return $this->object->getEntities();
     }
 }

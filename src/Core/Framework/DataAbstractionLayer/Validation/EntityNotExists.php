@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  * @Annotation
  *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
+ *
+ * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
 #[Package('core')]
 class EntityNotExists extends Constraint
@@ -37,6 +39,8 @@ class EntityNotExists extends Constraint
     ];
 
     /**
+     * @param array{entity: string, context: Context, criteria?: Criteria} $options
+     *
      * @internal
      */
     public function __construct(array $options)

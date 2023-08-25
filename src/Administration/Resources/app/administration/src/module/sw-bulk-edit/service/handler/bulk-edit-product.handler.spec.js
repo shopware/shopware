@@ -462,7 +462,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
             ],
             [
-                'add an oneToMany association',
+                'add an oneToMany association with mapping reference field',
                 [{ type: 'add', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
                 {
                     'upsert-product_media': {
@@ -490,6 +490,43 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             id: 'product_media_1',
                             productId: 'product_1',
                             mediaId: 'media_2',
+                        },
+                    ],
+                },
+            ],
+            [
+                'add an oneToMany association without mapping reference field',
+                [{ type: 'add', field: 'productLocations', value: [{ name: 'location 2' }, { name: 'location 3' }] }],
+                {
+                    'upsert-product_location': {
+                        action: 'upsert',
+                        entity: 'product_location',
+                        payload: [
+                            {
+                                productId: 'product_1',
+                                name: 'location 2',
+                            },
+                            {
+                                productId: 'product_1',
+                                name: 'location 3',
+                            },
+                            {
+                                productId: 'product_2',
+                                name: 'location 2',
+                            },
+                            {
+                                productId: 'product_2',
+                                name: 'location 3',
+                            },
+                        ],
+                    },
+                },
+                {
+                    product_location: [
+                        {
+                            id: 'product_location_1',
+                            productId: 'product_1',
+                            name: 'location 1',
                         },
                     ],
                 },
@@ -818,6 +855,88 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     product_category: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `product_category_${k}`, productId: 'product_2', categoryId: `category_${k}` })),
                 },
             ],
+            [
+                'overwrite an oneToOne association',
+                [{ type: 'overwrite', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                {
+                    'upsert-product_ai': {
+                        action: 'upsert',
+                        entity: 'product_ai',
+                        payload: [
+                            {
+                                id: 'product_ai_1',
+                                name: 'ai 1',
+                            },
+                            {
+                                productId: 'product_2',
+                                name: 'ai 1',
+                            },
+                        ],
+                    },
+                },
+                {
+                    product_ai: [
+                        {
+                            id: 'product_ai_1',
+                            productId: 'product_1',
+                            name: 'b',
+                        },
+                    ],
+                },
+            ],
+            [
+                'add an oneToOne association',
+                [{ type: 'add', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                {
+                    'upsert-product_ai': {
+                        action: 'upsert',
+                        entity: 'product_ai',
+                        payload: [
+                            {
+                                id: 'product_ai_1',
+                                name: 'ai 1',
+                            },
+                            {
+                                productId: 'product_2',
+                                name: 'ai 1',
+                            },
+                        ],
+                    },
+                },
+                {
+                    product_ai: [
+                        {
+                            id: 'product_ai_1',
+                            productId: 'product_1',
+                            name: 'b',
+                        },
+                    ],
+                },
+            ],
+            [
+                'remove an oneToOne association',
+                [{ type: 'clear', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                {
+                    'delete-product_ai': {
+                        action: 'delete',
+                        entity: 'product_ai',
+                        payload: [
+                            {
+                                id: 'product_ai_1',
+                            },
+                        ],
+                    },
+                },
+                {
+                    product_ai: [
+                        {
+                            id: 'product_ai_1',
+                            productId: 'product_1',
+                            name: 'b',
+                        },
+                    ],
+                },
+            ],
         ];
 
         it.each(cases)('%s', async (testName, input, output, existAssociations = {}) => {
@@ -881,6 +1000,20 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             type: 'association',
                             relation: 'one_to_many',
                             entity: 'product_visibility',
+                            localField: 'id',
+                            referenceField: 'productId',
+                        },
+                        productAI: {
+                            type: 'association',
+                            relation: 'one_to_one',
+                            entity: 'product_ai',
+                            localField: 'id',
+                            referenceField: 'productId',
+                        },
+                        productLocations: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'product_location',
                             localField: 'id',
                             referenceField: 'productId',
                         },
@@ -951,6 +1084,36 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             type: 'association',
                             relation: 'one_to_many',
                             entity: 'media_translation',
+                        },
+                    },
+                },
+                product_ai: {
+                    entity: 'product_ai',
+                    relation: 'one_to_one',
+                    properties: {
+                        id: {
+                            type: 'uuid',
+                        },
+                        productId: {
+                            type: 'uuid',
+                        },
+                        name: {
+                            type: 'string',
+                        },
+                    },
+                },
+                product_location: {
+                    entity: 'product_ai',
+                    relation: 'one_to_many',
+                    properties: {
+                        id: {
+                            type: 'uuid',
+                        },
+                        productId: {
+                            type: 'uuid',
+                        },
+                        name: {
+                            type: 'string',
                         },
                     },
                 },

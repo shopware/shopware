@@ -5,13 +5,15 @@
     {% block sw_product_variants_delivery_media_groups %}
     <div class="sw-product-variants-delivery-media__groups">
         <ul>
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <li
                 v-for="group in selectedGroupsSorted"
                 :key="group.id"
                 class="sw-product-variants-delivery-media__groupElement"
+                role="button"
+                tabindex="0"
                 :class="{'is--selected': activeGroup.id == group.id}"
                 @click="activeGroup = group"
+                @keydown.enter="activeGroup = group"
             >
                 <sw-icon
                     name="regular-folder"

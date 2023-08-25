@@ -85,6 +85,9 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         $criteria->setLimit(150);
+        $considerInheritance = $message->getContext()->considerInheritance();
+        $message->getContext()->setConsiderInheritance(true);
+
         $iterator = new RepositoryIterator(
             $this->repository,
             $message->getContext(),
@@ -120,6 +123,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
             $insert->execute();
         }
+
+        $message->getContext()->setConsiderInheritance($considerInheritance);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(

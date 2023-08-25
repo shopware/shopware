@@ -10,6 +10,8 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1624967118updateMailTemplatesWithOptionalSalutation extends MigrationStep
@@ -37,6 +39,9 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
         'order_transaction.state.refunded',
         'order_transaction.state.refunded_partially',
         'order_transaction.state.reminded',
+        'order_transaction.state.authorized',
+        'order_transaction.state.chargeback',
+        'order_transaction.state.unconfirmed',
         'cancellation_mail',
         'credit_note_mail',
         'delivery_mail',

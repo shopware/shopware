@@ -8,6 +8,7 @@ import swCmsLayoutAssignmentModal from 'src/module/sw-cms/component/sw-cms-layou
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 import 'src/app/component/base/sw-modal';
+import 'src/app/component/utils/sw-inherit-wrapper';
 
 Shopware.Component.register('sw-cms-layout-assignment-modal', swCmsLayoutAssignmentModal);
 
@@ -87,7 +88,7 @@ async function createWrapper(layoutType = 'product_list') {
             },
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-category-tree-field': true,
-            'sw-inherit-wrapper': true,
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-entity-single-select': {
                 props: ['value'],
                 template: `
@@ -102,6 +103,7 @@ async function createWrapper(layoutType = 'product_list') {
             'sw-loader': true,
             'sw-icon': true,
             'sw-cms-product-assignment': true,
+            'sw-inheritance-switch': true,
             transition: false,
         },
         provide: {

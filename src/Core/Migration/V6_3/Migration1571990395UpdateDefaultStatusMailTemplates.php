@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep

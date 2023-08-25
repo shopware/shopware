@@ -53,7 +53,11 @@
                     :value="customerId"
                     :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="onSelectExistingCustomer"
+                    {% else %}
                     @change="onSelectExistingCustomer"
+                    {% endif %}
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -67,8 +71,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_search_customer_slot_result_item %}
                     <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             :selected="isSelected(item)"
                             v-bind="{ item, index }"
                             class="sw-order-create-details-header__customer-result"
@@ -133,7 +136,7 @@
                                 {% endblock %}
                             </div>
                             {% endblock %}
-                        </li>
+                        </sw-select-result>
                     </template>
                     {% endblock %}
                 </sw-entity-single-select>

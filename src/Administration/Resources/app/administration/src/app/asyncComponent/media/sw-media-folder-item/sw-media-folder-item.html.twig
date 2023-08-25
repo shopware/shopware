@@ -15,8 +15,8 @@
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
-            :src="'/administration/static/img/media/folder--back.svg' | asset"
             key="sw-media-folder-preview"
+            :src="'/administration/static/img/media/folder--back.svg' | asset"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
         >
@@ -59,7 +59,7 @@
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_base_item_name %}
-        <sw-field
+        <sw-text-field
             v-if="!isParent && (isInlineEdit || item.isNew())"
             v-autofocus
             class="sw-media-base-item__name-field"

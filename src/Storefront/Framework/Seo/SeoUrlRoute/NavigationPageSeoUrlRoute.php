@@ -43,13 +43,14 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('active', true),
-            new NotFilter(NotFilter::CONNECTION_OR, [
-                new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
-                new EqualsFilter('type', CategoryDefinition::TYPE_LINK),
-            ]),
+        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
+            new EqualsFilter('linkType', CategoryDefinition::LINK_TYPE_EXTERNAL),
         ]));
+
+        $criteria->addFilter(
+            new EqualsFilter('active', true),
+        );
     }
 
     public function getMapping(Entity $category, ?SalesChannelEntity $salesChannel): SeoUrlMapping

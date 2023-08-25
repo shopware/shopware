@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +30,8 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION';
 
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
+
+    final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
 
     public static function salesChannelNotFound(string $salesChannelId): self
     {
@@ -59,6 +61,11 @@ class SalesChannelException extends HttpException
             'Country state with id "{{ countryStateId }}" not found!.',
             ['countryStateId' => $countryStateId]
         );
+    }
+
+    public static function customerNotFoundByIdException(string $customerId): ShopwareHttpException
+    {
+        return new CustomerNotFoundByIdException($customerId);
     }
 
     public static function countryNotFound(string $countryId): self
@@ -92,7 +99,12 @@ class SalesChannelException extends HttpException
 
     public static function languageNotFound(string $languageId): ShopwareHttpException
     {
-        return new LanguageNotFoundException($languageId);
+        return new self(
+            Response::HTTP_PRECONDITION_FAILED,
+            self::LANGUAGE_NOT_FOUND,
+            'The language "{{ languageId }}" was not found.',
+            ['languageId' => $languageId]
+        );
     }
 
     /**
@@ -109,6 +121,6 @@ class SalesChannelException extends HttpException
 
     public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
     {
-        return new UnknownPaymentMethodException($paymentMethodId);
+        return PaymentException::unknownPaymentMethod($paymentMethodId);
     }
 }

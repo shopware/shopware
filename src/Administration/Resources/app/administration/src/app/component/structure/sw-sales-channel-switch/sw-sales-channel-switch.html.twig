@@ -63,7 +63,11 @@
         :value="salesChannelId"
         entity="sales_channel"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     >
         <template #labelProperty="{item, labelProperty}">
             <span v-if="item.translated">{{ item.translated[labelProperty] }}</span>

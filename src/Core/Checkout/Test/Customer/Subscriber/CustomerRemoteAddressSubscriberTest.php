@@ -38,9 +38,8 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testUpdateRemoteAddressByLogin(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
 
-        $customerId = $this->login($email, $password);
+        $customerId = $this->login($email);
 
         $remoteAddress = $this->browser->getRequest()->getClientIp();
 
@@ -50,13 +49,13 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         static::assertSame($customer->getRemoteAddress(), IpUtils::anonymize((string) $remoteAddress));
     }
 
-    private function login(string $email, string $password): string
+    private function login(string $email): string
     {
-        $customerId = $this->createCustomer($password, $email);
+        $customerId = $this->createCustomer($email);
 
         $this->browser->request('POST', '/store-api/account/login', [
             'username' => $email,
-            'password' => $password,
+            'password' => 'shopware',
         ]);
 
         $response = $this->browser->getResponse();
@@ -70,7 +69,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         return $customerId;
     }
 
-    private function createCustomer(string $password, string $email): string
+    private function createCustomer(string $email): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -93,7 +92,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

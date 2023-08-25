@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable extends MigrationStep
@@ -19,7 +21,7 @@ class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable extends M
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         ALTER TABLE `customer_address`
         MODIFY COLUMN `zipcode` varchar(50) NULL
         SQL;

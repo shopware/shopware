@@ -2,6 +2,8 @@
  * @package admin
  */
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import { defineComponent } from 'vue';
+import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';
 import convertUnit from '../../module/sw-settings-rule/utils/unit-conversion.utils';
 
@@ -28,7 +30,7 @@ interface Config {
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('generic-condition', {
+export default Mixin.register('generic-condition', defineComponent({
     data(): {
         visibleValue: null|number,
         baseUnit: null|unknown,
@@ -43,6 +45,7 @@ Mixin.register('generic-condition', {
 
     computed: {
         config(): Config {
+            // @ts-expect-error - condition is available in base component
             const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type) as Config|undefined;
 
             if (!config) {
@@ -52,7 +55,7 @@ Mixin.register('generic-condition', {
             return config;
         },
 
-        inputKey() {
+        inputKey(): string|null {
             if (!this.config.fields.length) {
                 return null;
             }
@@ -60,13 +63,16 @@ Mixin.register('generic-condition', {
             return this.config.fields[0].name;
         },
 
-        operators() {
+        operators(): ReturnType<RuleConditionService['getOperatorOptionsByIdentifiers']>|null {
             if (!this.config.operatorSet) {
                 return null;
             }
 
+            // @ts-expect-error - conditionDataProviderService is available in base component
             return this.conditionDataProviderService.getOperatorOptionsByIdentifiers(
+                // @ts-expect-error
                 this.config.operatorSet.operators,
+                // @ts-expect-error
                 this.config.operatorSet.isMatchAny,
             );
         },
@@ -86,16 +92,22 @@ Mixin.register('generic-condition', {
 
                 Object.defineProperty(values, name, {
                     get: () => {
+                        // @ts-expect-error
                         this.ensureValueExist();
 
                         if (['multi-entity-id-select', 'multi-select'].includes(type)) {
+                            // @ts-expect-error
                             return this.condition.value[name] || [];
                         }
 
+                        // @ts-expect-error
                         return this.condition.value[name];
                     },
                     set: (value) => {
+                        // @ts-expect-error
                         this.ensureValueExist();
+
+                        // @ts-expect-error
                         this.condition.value = { ...this.condition.value, [name]: value };
                     },
                 });
@@ -112,6 +124,7 @@ Mixin.register('generic-condition', {
                     return;
                 }
 
+                // @ts-expect-error
                 const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`) as unknown;
 
                 if (errorProperty) {
@@ -135,9 +148,10 @@ Mixin.register('generic-condition', {
             ];
         },
 
-        conditionValueClasses() {
+        conditionValueClasses(): { [key: string]: boolean } {
             return {
                 'sw-condition__condition-value': !!this.config.operatorSet,
+                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 [`sw-condition__condition-type-${this.condition.type}`]: true,
             };
@@ -147,6 +161,7 @@ Mixin.register('generic-condition', {
     methods: {
         getBind(field: Field) {
             const fieldClone = Shopware.Utils.object.cloneDeep(field);
+            // @ts-expect-error
             const snippetBasePath = ['global', 'sw-condition-generic', this.condition.type, fieldClone.name];
             const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
 
@@ -217,4 +232,4 @@ Mixin.register('generic-condition', {
             this.baseUnit = event;
         },
     },
-});
+}));

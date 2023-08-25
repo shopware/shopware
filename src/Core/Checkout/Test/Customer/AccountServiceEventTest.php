@@ -59,7 +59,7 @@ class AccountServiceEventTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->createCustomer('shopware', 'info@example.com');
+        $this->createCustomer('info@example.com');
     }
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGiven(): void

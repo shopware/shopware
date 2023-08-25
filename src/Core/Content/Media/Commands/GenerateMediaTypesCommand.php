@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -74,7 +76,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw new \RuntimeException('BatchSize is not numeric');
+            throw MediaException::invalidBatchSize();
         }
 
         return (int) $batchSize;
@@ -96,7 +98,10 @@ class GenerateMediaTypesCommand extends Command
 
         do {
             $result = $this->mediaRepository->search($criteria, $context);
-            foreach ($result->getEntities() as $media) {
+
+            /** @var MediaCollection $medias */
+            $medias = $result->getEntities();
+            foreach ($medias as $media) {
                 $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
@@ -112,9 +117,9 @@ class GenerateMediaTypesCommand extends Command
 
         $file = new MediaFile(
             $media->getUrl(),
-            $media->getMimeType(),
-            $media->getFileExtension(),
-            $media->getFileSize()
+            $media->getMimeType() ?? '',
+            $media->getFileExtension() ?? '',
+            $media->getFileSize() ?? 0
         );
 
         $type = $this->typeDetector->detect($file);

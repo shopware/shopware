@@ -22,12 +22,11 @@ class IndexCreator
      * @internal
      *
      * @param array<mixed> $config
-     * @param array<mixed> $mapping
      */
     public function __construct(
         private readonly Client $client,
         array $config,
-        private readonly array $mapping,
+        private readonly IndexMappingProvider $mappingProvider,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
         if (isset($config['settings']['index'])) {
@@ -47,16 +46,12 @@ class IndexCreator
     {
         // NEXT-21735 - does not execute if there's no index yet
         // @codeCoverageIgnoreStart
-        if ($this->client->indices()->exists(['index' => $index])) {
+        if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
         }
         // @codeCoverageIgnoreEnd
 
-        $mapping = $definition->getMapping($context);
-
-        $mapping = $this->addFullText($mapping);
-
-        $mapping = array_merge_recursive($mapping, $this->mapping);
+        $mapping = $this->mappingProvider->build($definition, $context);
 
         $body = array_merge(
             $this->config,
@@ -81,30 +76,9 @@ class IndexCreator
         return $this->client->indices()->existsAlias(['name' => $alias]);
     }
 
-    /**
-     * @param array<mixed> $mapping
-     *
-     * @return array<mixed>
-     */
-    private function addFullText(array $mapping): array
+    private function indexExists(string $index): bool
     {
-        $mapping['properties']['fullText'] = [
-            'type' => 'text',
-            'fields' => [
-                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-            ],
-        ];
-
-        $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
-
-        if (!\array_key_exists('_source', $mapping) || !\array_key_exists('includes', $mapping['_source'])) {
-            return $mapping;
-        }
-
-        $mapping['_source']['includes'][] = 'fullText';
-        $mapping['_source']['includes'][] = 'fullTextBoosted';
-
-        return $mapping;
+        return $this->client->indices()->exists(['index' => $index]);
     }
 
     private function createAliasIfNotExisting(string $index, string $alias): void

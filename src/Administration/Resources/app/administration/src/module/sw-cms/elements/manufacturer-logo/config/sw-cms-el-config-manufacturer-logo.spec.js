@@ -40,6 +40,10 @@ const defaultProps = {
                 source: 'static',
                 value: null,
             },
+            horizontalAlign: {
+                source: 'static',
+                value: null,
+            },
         },
         data: {
             media: '',
@@ -60,7 +64,7 @@ async function createWrapper() {
             'sw-upload-listener': true,
             'sw-text-field': true,
             'sw-select-field': true,
-            'sw-field': true,
+            'sw-switch-field': true,
         },
         data() {
             return {

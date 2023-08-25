@@ -57,7 +57,7 @@ trait DocumentTrait
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -149,7 +149,15 @@ trait DocumentTrait
             $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
         }
 
-        return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+        $config = $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+
+        if ($config === null) {
+            return null;
+        }
+
+        static::assertInstanceOf(DocumentBaseConfigEntity::class, $config);
+
+        return $config;
     }
 
     /**

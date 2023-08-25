@@ -3,11 +3,12 @@
  */
 
 import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Shopware.Mixin.register('sw-form-field', {
+export default Shopware.Mixin.register('sw-form-field', defineComponent({
     props: {
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +19,9 @@ Shopware.Mixin.register('sw-form-field', {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         boundExpression() {
             // @ts-expect-error - we check if model exists on vnode
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -29,7 +33,7 @@ Shopware.Mixin.register('sw-form-field', {
             return null;
         },
 
-        formFieldName() {
+        formFieldName(): string|null {
             if (this.$attrs.name) {
                 return this.$attrs.name;
             }
@@ -41,6 +45,9 @@ Shopware.Mixin.register('sw-form-field', {
                 return this.name;
             }
 
+            /**
+             * @deprecated tag:v6.6.0 - If statement will be removed
+             */
             if (this.boundExpression) {
                 // @ts-expect-error - we check if the value exists in boundExpression
                 // eslint-disable-next-line max-len
@@ -132,7 +139,5 @@ Shopware.Mixin.register('sw-form-field', {
             }
         },
     },
-});
+}));
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {};

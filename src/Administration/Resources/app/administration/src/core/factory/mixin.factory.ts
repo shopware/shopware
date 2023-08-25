@@ -4,12 +4,6 @@
  * @module core/factory/mixin
  */
 import { warn } from 'src/core/service/utils/debug.utils';
-import type Vue from 'vue';
-import type { ComponentOptions } from 'vue';
-import type {
-    ThisTypedComponentOptionsWithRecordProps,
-    ThisTypedComponentOptionsWithArrayProps,
-} from 'vue/types/options';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,12 +15,16 @@ export default {
 /**
  * Registry which holds all mixins
  */
-const mixinRegistry = new Map<string, ComponentOptions<Vue>>();
+const mixinRegistry = new Map<string, unknown>();
+
+function addToMixinRegistry<T extends keyof MixinContainer>(mixinName: T, mixin: MixinContainer[T]): void {
+    mixinRegistry.set(mixinName, mixin);
+}
 
 /**
  * Get the complete mixin registry
  */
-function getMixinRegistry(): Map<string, ComponentOptions<Vue>> {
+function getMixinRegistry(): Map<string, unknown> {
     return mixinRegistry;
 }
 
@@ -34,29 +32,18 @@ function getMixinRegistry(): Map<string, ComponentOptions<Vue>> {
  * Register a new mixin
  */
 // eslint-disable-next-line max-len
-function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(mixinName: string, mixin: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): boolean | ComponentOptions<V>;
-// eslint-disable-next-line max-len
-function register<V extends Vue, Data, Methods, Computed, Props>(mixinName: string, mixin: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): boolean | ComponentOptions<V>;
-function register(mixinName: string, mixin: ComponentOptions<Vue>): boolean | ComponentOptions<Vue> {
-    if (!mixinName || !mixinName.length) {
-        warn(
-            'MixinFactory',
-            'A mixin always needs a name.',
-            mixin,
-        );
-        return false;
-    }
-
+function register<T, MixinName extends keyof MixinContainer>(mixinName: MixinName, mixin: T) {
     if (mixinRegistry.has(mixinName)) {
         warn(
             'MixinFactory',
             `The mixin "${mixinName}" is already registered. Please select a unique name for your mixin.`,
             mixin,
         );
-        return false;
+
+        return mixinRegistry.get(mixinName) as T;
     }
 
-    mixinRegistry.set(mixinName, mixin);
+    addToMixinRegistry(mixinName, mixin);
 
     return mixin;
 }
@@ -64,10 +51,11 @@ function register(mixinName: string, mixin: ComponentOptions<Vue>): boolean | Co
 /**
  * Get a mixin by its name
  */
-function getByName(mixinName: string): ComponentOptions<Vue> {
-    if (!mixinRegistry.has(mixinName)) {
+// eslint-disable-next-line max-len
+function getByName<MN extends keyof MixinContainer>(mixinName: MN): MixinContainer[MN] {
+    if (!mixinRegistry.has(mixinName) || mixinRegistry.get(mixinName) === undefined) {
         throw new Error(`The mixin "${mixinName}" is not registered.`);
     }
 
-    return mixinRegistry.get(mixinName) as ComponentOptions<Vue>;
+    return mixinRegistry.get(mixinName);
 }

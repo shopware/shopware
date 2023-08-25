@@ -60,15 +60,12 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        'node_modules/(?!@shopware-ag/meteor-icon-kit|other)',
+        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         vue$: 'vue/dist/vue.common.dev.js',
-        // Force module uuid to resolve with the CJS entry point, because Jest does not support package.json.exports.
-        // See https://github.com/uuidjs/uuid/issues/451
-        '^uuid$': require.resolve('uuid'),
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^lodash-es$': 'lodash',
     },

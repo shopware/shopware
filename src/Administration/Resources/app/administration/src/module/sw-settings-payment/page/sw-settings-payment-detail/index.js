@@ -5,7 +5,6 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
  * @package checkout
@@ -164,7 +163,7 @@ export default {
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
 
-                    if (!paymentMethod || !hasOwnProperty(paymentMethod, 'mediaId')) {
+                    if (!paymentMethod?.mediaId) {
                         return;
                     }
 

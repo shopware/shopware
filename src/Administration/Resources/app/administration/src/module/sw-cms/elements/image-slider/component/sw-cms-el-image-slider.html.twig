@@ -33,13 +33,15 @@
             >
                 <div class="sw-cms-el-image-slider__navigation-buttons">
                     <template v-if="sliderItems && sliderItems.length > 0">
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <div
                             v-for="(sliderItem, index) in sliderItems"
                             :key="index"
                             :class="activeButtonClass(sliderItem.media.url)"
                             class="sw-cms-el-image-slider__navigation-button"
+                            role="button"
+                            tabindex="0"
                             @click="setSliderItem(sliderItem.media, index)"
+                            @keydown.enter="setSliderItem(sliderItem.media, index)"
                         ></div>
                     </template>
                     <template v-else>

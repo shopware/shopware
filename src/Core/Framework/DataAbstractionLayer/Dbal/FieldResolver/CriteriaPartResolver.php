@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Log\Package;
 
@@ -35,9 +36,11 @@ class CriteriaPartResolver
     ) {
     }
 
+    /**
+     * @param array<CriteriaPartInterface> $parts
+     */
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
-        /** @var CriteriaPartInterface $part */
         foreach ($parts as $part) {
             if ($part instanceof JoinGroup) {
                 $this->resolveSubJoin($part, $definition, $query, $context);
@@ -120,6 +123,9 @@ class CriteriaPartResolver
         }
 
         foreach ($filter->getQueries() as $filter) {
+            if (!$filter instanceof SingleFieldFilter) {
+                continue;
+            }
             $filter->setResolved(self::escape($alias) . '.id IS NOT NULL');
         }
 

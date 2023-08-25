@@ -10,16 +10,6 @@
                 "summary": "Fetch or create a cart",
                 "description": "Used to fetch the current cart or for creating a new one.",
                 "operationId": "readCart",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "The name of the new cart. This parameter will only be used when creating a new cart.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Cart",
@@ -104,8 +94,9 @@
                     "Cart"
                 ],
                 "summary": "Remove items from the cart",
-                "description": "This route removes items from the cart and recalculates it.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#deleting-items-in-the-cart)",
-                "operationId": "removeLineItem",
+                "description": "DEPRECATED: use removeLineItem instead. This route removes items from the cart and recalculates it.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#deleting-items-in-the-cart)",
+                "operationId": "removeLineItemDeprecated",
+                "deprecated": true,
                 "parameters": [
                     {
                         "name": "ids",
@@ -151,6 +142,55 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/CartItems"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated cart.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/checkout/cart/line-item/delete": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove items from the cart",
+                "description": "This route removes items from the cart and recalculates it.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#deleting-items-in-the-cart)",
+                "operationId": "removeLineItem",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["ids"],
+                                "properties": {
+                                    "ids": {
+                                        "description": "A list of product identifiers.",
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }

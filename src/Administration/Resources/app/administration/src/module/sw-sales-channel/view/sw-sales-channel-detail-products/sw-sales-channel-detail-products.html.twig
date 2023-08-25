@@ -89,7 +89,11 @@
                                     }"
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
+                                    {% if VUE3 %}
+                                    @update:value="selectItem($event, item)"
+                                    {% else %}
                                     @change="selectItem($event, item)"
+                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>
@@ -149,10 +153,12 @@
                     <template #bulk>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_bulk %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             class="link link-warning"
+                            role="button"
+                            tabindex="0"
                             @click="onDeleteProducts"
+                            @keydown.enter="onDeleteProducts"
                         >
                             {{ $tc('global.default.remove') }}
                         </a>
@@ -189,7 +195,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_empty_state %}
     <sw-empty-state
-        v-if="products.length <= 0 && !searchTerm"
+        v-if="products.length <= 0 && !searchTerm && !isLoading"
         :show-description="false"
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >

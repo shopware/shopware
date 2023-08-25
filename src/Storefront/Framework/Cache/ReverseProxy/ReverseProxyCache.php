@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
+use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,8 +61,22 @@ class ReverseProxyCache implements StoreInterface
                 return false;
             }
 
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
+                return false;
+            }
+
             return true;
         }));
+
+        if ($response->headers->has(CacheStore::TAG_HEADER)) {
+            /** @var string $tagHeader */
+            $tagHeader = $response->headers->get(CacheStore::TAG_HEADER);
+            $responseTags = \json_decode($tagHeader, true, 512, \JSON_THROW_ON_ERROR);
+            $tags = array_merge($responseTags, $tags);
+
+            $response->headers->remove(CacheStore::TAG_HEADER);
+        }
 
         $states = $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, '');
         $states = array_unique(array_filter(array_merge(explode(',', $states), $this->states)));

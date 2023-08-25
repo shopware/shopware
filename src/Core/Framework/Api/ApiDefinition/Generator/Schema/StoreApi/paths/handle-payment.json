@@ -21,7 +21,8 @@
                                 "properties": {
                                     "orderId": {
                                         "description": "Identifier of an order",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "finishUrl": {
                                         "description": "URL to which the client should be redirected after successful payment",

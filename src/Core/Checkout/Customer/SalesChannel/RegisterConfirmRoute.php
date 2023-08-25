@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -53,7 +51,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {
         if (!$dataBag->has('hash')) {
-            throw new NoHashProvidedException();
+            throw CustomerException::noHashProvided();
         }
 
         $criteria = new Criteria();
@@ -66,8 +64,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             ->search($criteria, $context->getContext())
             ->first();
 
-        if ($customer === null) {
-            throw new CustomerNotFoundByHashException($dataBag->get('hash'));
+        if (!$customer instanceof CustomerEntity) {
+            throw CustomerException::customerNotFoundByHash($dataBag->get('hash'));
         }
 
         $this->validator->validate(
@@ -80,7 +78,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())
             || $customer->getDoubleOptInConfirmDate() !== null) {
-            throw new CustomerAlreadyConfirmedException($customer->getId());
+            throw CustomerException::customerAlreadyConfirmed($customer->getId());
         }
 
         $customerUpdate = [

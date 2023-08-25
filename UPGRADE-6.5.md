@@ -1,5 +1,126 @@
+# 6.5.4.0
+* Update your thumbnails by running command: `media:generate-thumbnails`
+## Generic type template for EntityRepository
+The `EntityRepository` class now has a generic type template.
+This allows to define the entity type of the repository, which improves the IDE support and static code analysis.
+Usage:
+
+```php
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+
+class MyService
+    /**
+     * @param EntityRepository<ProductCollection> $productRepository
+     */
+    public function __construct(private readonly EntityRepository $productRepository)
+    {}
+
+    public function doSomething(Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
+        // $products is now inferred as ProductCollection
+    }
+```
+## Clean duplicated theme images
+With [NEXT-25804](https://issues.shopware.com/issues/NEXT-25804) we fixed an issue with duplicated theme images on `system:update` and `theme:refresh`.
+This fix will only prevent future duplicates. In order to remove already existing duplicates from your setup, follow these steps:
+
+1. Open the administration media section
+2. Open the folder `Theme Media` check for duplicated images with the suffix `(x)`, where x is a number. For example `defaultThemePreview_(1).jpg`, `defaultThemePreview_(2)` etc.
+3. Check the id of the images without a `(x)` suffix, these are the original images
+4. Go to the database table `theme` and check the field `preview_media_id`
+5. If it is not the id of the original image, change it to that. Otherwise leave it as is.
+6. Check the field `base_config`. This field is a JSON field. Check if there is an UUID inside, which refers to an image/media.
+7. Check for all these UUIDs if they refer to the original image without a `(x)` prefix. If not, change the UUIDs to match the original image.
+8. Check the database table `theme_media` for associations for the theme with duplicated images (with the suffix) and delete all of them.
+9. Now you should be able to delete these duplicates in the administration media section in the folder `Theme Media`
+10. Now do a `composer theme:refresh`
+
+This comment on github could also be helpful: [github how to clean theme media](https://github.com/shopware/platform/discussions/3254#discussioncomment-6666360)
+The images should not be doubled again.
+
+
+# 6.5.3.0
+## The app custom trigger and the app action can be defined in one xml file.
+Since v6.5.2.0, we can define the flow custom trigger and the flow app action in one XML file.
+To do that, we add the `Shopware\Core\Framework\App\Flow\Schema\flow-1.0.xsd` to support defining both of them.
+
+* ***Example***
+```xml
+<flow-extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flow-1.0.xsd">
+    <flow-events>
+        <flow-event>...</flow-event>
+    </flow-events>
+    <flow-actions>
+        <flow-action>...</flow-action>
+    </flow-actions>
+</flow-extensions>
+```
+## Deprecation of `ProductListingFeaturesSubscriber`
+With 6.6 the `ProductListingFeaturesSubscriber` is removed. This is currently responsible for evaluating the listing request parameters and applying them to the criteria.
+
+In the future this will no longer happen via the corresponding events but via the `AbstractListingProcessor`, which follows a more service oriented approach.
+
+If you dispatch one of the following events yourself, and expect the subscriber to process the corresponding data, you should now call the `CompositeProcessor` instead:
+
+```php
+// before
+class MyClass
+{
+    public function load(Criteria $criteria, SalesChannelContext $context) {
+        $this->dispatcher->dispatch(
+            new ProductListingCriteriaEvent($criteria, $context, $request)
+        );
+        
+        $result = $this->loadListing($request, $criteria, $context);
+        
+        $this->dispatcher->dispatch(
+            new ProductListingResultEvent($result, $context, $request)
+        );
+        
+        return $result;
+    }
+}
+
+// after
+class MyClass
+{
+    public function __construct(private readonly CompositeProcessor $listingProcessor) {}
+    
+    public function load(Criteria $criteria, SalesChannelContext $context) 
+    {
+        $this->listingProcessor->prepare($request, $criteria, $context);
+        
+        $result = $this->loadListing($request, $criteria, $context);
+        
+        $this->listingProcessor->process($request, $result, $context);
+        
+        return $result;
+    }
+}
+```
+## MediaSerializer
+### deserialize
+The deserialize method of src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php was changed such that the filename will be urldecoded before saving it to the cacheMediaFiles.
+Previously, encoded url raised an error during validateFileNameDoesNotContainForbiddenCharacter when importing them, because they contained % signs. 
+On the other hand, not encoding urls raised an "Invalid media url" exception.
+
+This change allows importing medias with filenames that contain special characters by supplying an encoded url in the import file.
+* Changed behavior of text block element, which is able to switch between languages in product detail page
+
 # 6.5.2.0
 The `context` property is used instead of `contextData` property in `src/Core/Content/Media/Message/GenerateThumbnailsMessage` due to the `context` data is serialized in context source
+
+## Update to Symfony 6.3
+Shopware now uses Symfony version 6.3, please make sure your plugins are compatible.
+
 ## Introduce BeforeLoadStorableFlowDataEvent
 The event is dispatched before the flow storer restores the data, so you can customize the criteria before passing it to the entity repository
 
@@ -1097,7 +1218,7 @@ This is the recommended method for all apps/themes which don't have control over
 * This block is not deprecated and can be used in the long term beyond the next major version of shopware.
 * Don't** use the `{{ parent() }}` call. This prevents multiple usages of jQuery. Even if multiple other plugins/apps use this method, the jQuery script will only be added once.
 * Please use jQuery version `3.5.1` (slim minified) to avoid compatibility issues between different plugins/apps.
-* If you don't want to use a CDN for jQuery, [download jQuery from the official website](https://releases.jquery.com/jquery/) (jQuery Core 3.5.1 - slim minified) and add it to `MyExtension/src/Resources/app/storefront/src/assets/jquery-3.5.1.slim.min.js`
+* If you don't want to use a CDN for jQuery, [download jQuery from the official website](https://releases.jquery.com/jquery/) (jQuery Core 3.5.1 - slim minified) and add it to `MyExtension/src/Resources/public/assets/jquery-3.5.1.slim.min.js`
 * After executing `bin/console asset:install`, you can reference the file using the `assset()` function. See also: https://developer.shopware.com/docs/guides/plugins/plugins/storefront/add-custom-assets
 
 ```html

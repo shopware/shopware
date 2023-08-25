@@ -222,7 +222,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'customerId' => $customerId,
@@ -233,7 +233,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidChannelId(): void
@@ -241,7 +241,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'salesChannelId' => $salesChannelId,
             'customerId' => $customerId,
@@ -267,7 +267,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidCustomerId(): void
@@ -293,7 +293,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $browser = $this->createCart($salesChannel['id']);
 
@@ -311,7 +311,6 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertIsString($salesChannel['id']);
         // assert customer is updated in database
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
     }
@@ -323,7 +322,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $permissions = [
             'allowProductPriceOverwrites',
@@ -349,7 +348,6 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('permissions', $payload);
         static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
     }
@@ -367,7 +365,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testModifyShippingCostsWithoutShippingCosts(): void
@@ -1019,7 +1017,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         try {
             $salesChannelContext = $this->createDefaultSalesChannelContext();
-            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
             $productId = $this->ids->get('p1');
             $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
             $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
@@ -1469,8 +1467,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function createCustomer(
         SalesChannelContext $salesChannelContext,
-        string $email,
-        string $password
+        string $email
     ): string {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -1496,7 +1493,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

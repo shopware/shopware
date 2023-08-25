@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
+use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
@@ -38,7 +38,7 @@ class RuleConditionPersister
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';
 
     public function __construct(
-        private readonly ScriptFileReaderInterface $scriptReader,
+        private readonly ScriptFileReader $scriptReader,
         private readonly EntityRepository $appScriptConditionRepository,
         private readonly EntityRepository $appRepository
     ) {

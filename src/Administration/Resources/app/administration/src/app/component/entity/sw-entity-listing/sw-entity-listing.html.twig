@@ -11,11 +11,13 @@
 {% block sw_data_grid_bulk_selected_actions_content %}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_edit_content %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
     v-if="allowBulkEdit"
     class="link link-primary"
+    role="button"
+    tabindex="0"
     @click="onClickBulkEdit"
+    @keydown.enter="onClickBulkEdit"
 >
     {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
 </a>
@@ -23,11 +25,13 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_delete_content %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
     v-if="allowDelete"
     class="link link-danger"
+    role="button"
+    tabindex="0"
     @click="showBulkDeleteModal = true"
+    @keydown.enter="showBulkDeleteModal = true"
 >
     {{ $tc('global.default.delete') }}
 </a>

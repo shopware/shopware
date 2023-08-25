@@ -7,3 +7,16 @@
               npx @datadog/datadog-ci junit upload --service shopware/platform $JUNIT_FILES >/dev/null;
             fi
           fi
+
+# Needed in order to differentiate between detached/merged result pipelines and merge train pipelines.
+# See: https://github.com/DataDog/datadog-ci/blob/master/src/commands/tag/README.md
+.tag-pipeline-span:
+  after_script:
+    - >
+      if which npx; then
+        if [ -n "$CI_MERGE_REQUEST_EVENT_TYPE" ]; then
+          npx @datadog/datadog-ci tag --level="pipeline" --tags="ci_merge_request_event_type:$CI_MERGE_REQUEST_EVENT_TYPE"
+        fi
+      else
+        printf 'npx is not installed, omitting additional datadog pipeline tags.\n'
+      fi

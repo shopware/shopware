@@ -165,6 +165,9 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         }
                     },
                 },
+                shopwareExtensionService: {
+                    updateExtensionData: () => Promise.resolve(),
+                },
             },
             mixins: [
                 Shopware.Mixin.getByName('notification'),

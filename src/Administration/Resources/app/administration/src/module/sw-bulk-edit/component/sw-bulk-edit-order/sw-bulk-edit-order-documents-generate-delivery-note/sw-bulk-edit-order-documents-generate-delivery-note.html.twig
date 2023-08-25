@@ -2,12 +2,20 @@
 {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
 <template v-if="generateData?.custom">
     <sw-datepicker
+        {% if VUE3 %}
+        v-model:value="generateData.custom.deliveryDate"
+        {% else %}
         v-model="generateData.custom.deliveryDate"
+        {% endif %}
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
     />
     <sw-datepicker
+        {% if VUE3 %}
+        v-model:value="generateData.custom.deliveryNoteDate"
+        {% else %}
         v-model="generateData.custom.deliveryNoteDate"
+        {% endif %}
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         :label="$tc('sw-bulk-edit.order.documents.generateDeliveryNote.labelDeliveryDatePicker')"
     />

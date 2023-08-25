@@ -54,12 +54,6 @@ describe('src/app/mixin/remove-api-error.mixin.ts', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should add a watcher for value', () => {
-        const valueWatcher = wrapper.vm._watchers.find(w => w.expression === 'value');
-
-        expect(valueWatcher).toBeDefined();
-    });
-
     it('should dispatch removeApiError on value change', async () => {
         // add mock for dispatch
         Object.defineProperty(Shopware.State, 'dispatch', {

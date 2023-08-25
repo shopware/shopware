@@ -19,8 +19,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<PaymentMethodCollection> $paymentMethodRepository
      */
-    public function __construct(private readonly SalesChannelRepository $paymentMethodsRepository)
+    public function __construct(private readonly SalesChannelRepository $paymentMethodRepository)
     {
     }
 
@@ -37,9 +39,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
             ->addSorting(new FieldSorting('position'))
             ->addAssociation('media');
 
-        $result = $this->paymentMethodsRepository->search($criteria, $context);
+        $result = $this->paymentMethodRepository->search($criteria, $context);
 
-        /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $result->getEntities();
 
         if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {

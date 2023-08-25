@@ -89,6 +89,14 @@ export default {
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {

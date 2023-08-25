@@ -3,20 +3,14 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\InstalledVersions;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
-use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -30,9 +24,9 @@ class AppLoader extends AbstractAppLoader
     public function __construct(
         private readonly string $appDir,
         private readonly string $projectDir,
-        private readonly ConfigReader $configReader,
-        private readonly CustomEntityXmlSchemaValidator $customEntityXmlValidator
+        ConfigReader $configReader
     ) {
+        parent::__construct($configReader);
     }
 
     public function getDecorated(): AbstractAppLoader
@@ -46,20 +40,6 @@ class AppLoader extends AbstractAppLoader
     public function load(): array
     {
         return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
-    }
-
-    /**
-     * @return array<mixed>|null
-     */
-    public function getConfiguration(AppEntity $app): ?array
-    {
-        $configPath = sprintf('%s/%s/Resources/config/config.xml', $this->projectDir, $app->getPath());
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return $this->configReader->read($configPath);
     }
 
     public function deleteApp(string $technicalName): void
@@ -79,90 +59,14 @@ class AppLoader extends AbstractAppLoader
         (new Filesystem())->remove($manifest->getPath());
     }
 
-    public function getCmsExtensions(AppEntity $app): ?CmsManifest
+    public function loadFile(string $appPath, string $filePath): ?string
     {
-        $configPath = sprintf('%s/%s/Resources/cms.xml', $this->projectDir, $app->getPath());
+        $path = Path::join($appPath, $filePath);
 
-        if (!file_exists($configPath)) {
-            return null;
+        if ($path[0] !== \DIRECTORY_SEPARATOR) {
+            $path = Path::join($this->projectDir, $path);
         }
 
-        return CmsManifest::createFromXmlFile($configPath);
-    }
-
-    public function getAssetPathForAppPath(string $appPath): string
-    {
-        return sprintf('%s/%s/Resources/public', $this->projectDir, $appPath);
-    }
-
-    public function getEntities(AppEntity $app): ?CustomEntityXmlSchema
-    {
-        $configPath = sprintf(
-            '%s/%s/src/Resources/%s',
-            $this->projectDir,
-            $app->getPath(),
-            CustomEntityXmlSchema::FILENAME
-        );
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
-        $this->customEntityXmlValidator->validate($entities);
-
-        return $entities;
-    }
-
-    public function getFlowActions(AppEntity $app): ?Action
-    {
-        $configPath = sprintf('%s/%s/Resources/flow.xml', $this->projectDir, $app->getPath());
-
-        if (file_exists($configPath)) {
-            return Action::createFromXmlFile($configPath);
-        }
-
-        $oldConfigPath = sprintf('%s/%s/Resources/flow-action.xml', $this->projectDir, $app->getPath());
-        if (!Feature::isActive('v6.6.0.0') && file_exists($oldConfigPath)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                'The flow-action.xml is deprecated and will be removed in v6.6.0.0. Use flow.xml instead.'
-            );
-
-            return Action::createFromXmlFile($oldConfigPath);
-        }
-
-        return null;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getSnippets(AppEntity $app): array
-    {
-        $snippets = [];
-
-        $path = sprintf('%s/%s/Resources/app/administration/snippet', $this->projectDir, $app->getPath());
-
-        if (!file_exists($path)) {
-            return $snippets;
-        }
-
-        $finder = new Finder();
-        $finder->in($path)
-            ->files()
-            ->name('*.json');
-
-        foreach ($finder->files() as $file) {
-            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
-        }
-
-        return $snippets;
-    }
-
-    public function loadFile(string $rootPath, string $filePath): ?string
-    {
-        $path = sprintf('%s/%s', $rootPath, $filePath);
         $content = @file_get_contents($path);
 
         if (!$content) {
@@ -172,10 +76,25 @@ class AppLoader extends AbstractAppLoader
         return $content;
     }
 
+    public function locatePath(string $appPath, string $filePath): ?string
+    {
+        $path = Path::join($appPath, $filePath);
+
+        if ($path[0] !== \DIRECTORY_SEPARATOR) {
+            $path = Path::join($this->projectDir, $path);
+        }
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        return $path;
+    }
+
     /**
      * @return array<string, Manifest>
      */
-    public function loadFromAppDir(): array
+    private function loadFromAppDir(): array
     {
         if (!file_exists($this->appDir)) {
             return [];
@@ -183,7 +102,7 @@ class AppLoader extends AbstractAppLoader
 
         $finder = new Finder();
         $finder->in($this->appDir)
-            ->depth('<= 1') // only use manifest files in app root folders
+            ->depth('<= 1') // only use manifest files in-app root folders
             ->name('manifest.xml');
 
         $manifests = [];
@@ -198,17 +117,6 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $manifests;
-    }
-
-    public function getFlowEvents(AppEntity $app): ?Event
-    {
-        $configPath = sprintf('%s/%s/Resources/flow.xml', $this->projectDir, $app->getPath());
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return Event::createFromXmlFile($configPath);
     }
 
     /**

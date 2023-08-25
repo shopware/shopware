@@ -50,8 +50,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, $existedData);
+        $this->prepareCustomer($email, $existedData);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -71,7 +70,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */

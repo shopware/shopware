@@ -6,6 +6,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher instead
  */
 class CollectingEventDispatcher implements EventDispatcherInterface
 {

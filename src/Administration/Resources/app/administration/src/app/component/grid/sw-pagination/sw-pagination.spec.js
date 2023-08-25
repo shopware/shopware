@@ -75,6 +75,7 @@ describe('src/component/grid/sw-pagination', () => {
                 'sw-field': {
                     template: '<div class="field"></div>',
                 },
+                'sw-select-field': true,
             },
             attachTo: document.body,
         });
@@ -286,5 +287,13 @@ describe('src/component/grid/sw-pagination', () => {
 
         expect(wrapper.findAll('.sw-pagination__list-button')).toHaveLength(3);
         expect(wrapper.findAll('.sw-pagination__list-separator')).toHaveLength(2);
+    });
+
+    it('should update the page once the limit changes', async () => {
+        await wrapper.setProps({
+            limit: 75,
+        });
+
+        expect(wrapper.vm.perPage).toBe(75);
     });
 });

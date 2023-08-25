@@ -114,7 +114,7 @@ class CustomerGroupRegistrationActionController
             $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if ($customerRequestedGroup === null) {
-                throw new \RuntimeException('customer group not found');
+                throw CustomerException::customerGroupNotFound($customer->getGroupId());
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
@@ -139,7 +139,7 @@ class CustomerGroupRegistrationActionController
         }
 
         if (empty($customerIds)) {
-            throw new \InvalidArgumentException('customerId or customerIds parameter are missing');
+            throw CustomerException::customerIdsParameterIsMissing();
         }
 
         return $customerIds;
@@ -162,7 +162,7 @@ class CustomerGroupRegistrationActionController
             foreach ($result->getElements() as $customer) {
                 if ($customer->getRequestedGroupId() === null) {
                     if ($silentError === false) {
-                        throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
+                        throw CustomerException::groupRequestNotFound($customer->getId());
                     }
 
                     continue;
@@ -174,6 +174,6 @@ class CustomerGroupRegistrationActionController
             return $customers;
         }
 
-        throw new \RuntimeException('Cannot find Customers');
+        throw CustomerException::customersNotFound($customerIds);
     }
 }

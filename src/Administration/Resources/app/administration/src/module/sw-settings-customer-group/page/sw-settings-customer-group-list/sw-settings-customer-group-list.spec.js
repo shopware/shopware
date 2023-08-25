@@ -61,6 +61,7 @@ async function createWrapper(privileges = []) {
                     </div>`,
             },
             'sw-empty-state': true,
+            'router-link': true,
         },
         provide: {
             repositoryFactory: {

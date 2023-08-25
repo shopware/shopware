@@ -6,6 +6,7 @@ import './sw-customer-detail-addresses.scss';
  * @package customer-order
  */
 
+const { ShopwareError } = Shopware.Classes;
 const { Mixin, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -99,6 +100,18 @@ export default {
 
             return this.activeCustomer.addresses;
         },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
+        },
     },
 
     created() {
@@ -138,11 +151,13 @@ export default {
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 align: 'center',
                 iconLabel: 'regular-shopping-cart',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
             }, {
                 property: 'defaultBillingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 align: 'center',
                 iconLabel: 'regular-file-text',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
             }, {
                 property: 'lastName',
                 label: this.$tc('sw-customer.detailAddresses.columnLastName'),
@@ -183,22 +198,18 @@ export default {
             this.createNewCustomerAddress();
         },
 
-        createNewCustomerAddress() {
+        async createNewCustomerAddress() {
+            const defaultSalutationId = await this.getDefaultSalutation();
+
             const newAddress = this.addressRepository.create();
             newAddress.customerId = this.activeCustomer.id;
+            newAddress.salutationId = defaultSalutationId;
 
             this.currentAddress = newAddress;
         },
 
         onSaveAddress() {
-            if (this.currentAddress === null) {
-                return;
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
+            if (this.currentAddress === null || !this.isValidAddress(this.currentAddress)) {
                 return;
             }
 
@@ -224,23 +235,39 @@ export default {
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
-            isValid = requiredAddressFields.every(field => {
-                return (ignoreFields.indexOf(field) !== -1) || required(address[field]);
+            requiredAddressFields.forEach(field => {
+                if ((ignoreFields.indexOf(field) !== -1) || required(address[field])) {
+                    return;
+                }
+
+                isValid = false;
+
+                Shopware.State.dispatch(
+                    'error/addApiError',
+                    {
+                        expression: `customer_address.${this.currentAddress.id}.${field}`,
+                        error: new ShopwareError(
+                            {
+                                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                            },
+                        ),
+                    },
+                );
             });
 
             return isValid;
         },
 
         onCloseAddressModal() {
-            if (this.hasOwnProperty('defaultShippingAddressId')) {
+            if (this.defaultShippingAddressId) {
                 this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
             }
 
-            if (this.hasOwnProperty('defaultBillingAddressId')) {
+            if (this.defaultBillingAddressId) {
                 this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
-            if (this.$route.query.hasOwnProperty('detailId')) {
+            if (this.$route.query.detailId) {
                 this.$route.query.detailId = null;
             }
 
@@ -291,19 +318,20 @@ export default {
             this.customer.defaultShippingAddressId = shippingAddressId;
         },
 
-        onDuplicateAddress(addressId) {
-            this.customerAddressRepository.clone(addressId).then(() => {
-                this.refreshList();
-            });
+        async onDuplicateAddress(addressId) {
+            const { id } = await this.customerAddressRepository.clone(addressId);
+            const newAddress = await this.customerAddressRepository.get(id);
+
+            this.activeCustomer.addresses.push(newAddress);
         },
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;
@@ -332,6 +360,12 @@ export default {
             const preFix = string.replace(replace, '');
 
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
+        },
+
+        async getDefaultSalutation() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
         },
     },
 };

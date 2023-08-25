@@ -1,4 +1,16 @@
 {
+  "global": {
+    "default": {
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "delete": "Löschen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "confirm": "Bestätigen",
+      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
+    }
+  },
   "general": {
     "homeLink": "Home",
     "menuLink": "Menü",
@@ -75,7 +87,9 @@
     "captcha" : {
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     },
-    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden."
+    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
+    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut.",
@@ -182,6 +196,7 @@
     "emailChangeNoSuccess": "E-Mail-Adresse konnte nicht geändert werden.",
     "passwordChangeSuccess": "Passwort wurde geändert",
     "passwordChangeNoSuccess": "Passwort konnte nicht geändert werden.",
+    "passwordNotIdentical": "Die von Ihnen eingegebenen Passwörter stimmen nicht überein.",
     "passwordHashNotFound": "Der Link zum Zurücksetzen des Passworts scheint defekt zu sein.",
     "passwordHashExpired": "Der Link zum Zurücksetzen des Passworts ist nicht mehr gültig. Bitte fordern Sie einen neuen Link an.",
     "recoveryMailSend": "Wenn die angegebene E-Mail-Adresse registriert ist, wurde eine Bestätigungs-E-Mail mit einem Link versandt, mit dem Sie Ihr Passwort zurücksetzen können.",
@@ -352,8 +367,8 @@
     "cartHeaderQuantity": "Anzahl",
     "cartHeaderUnitPrice": "Stückpreis",
     "cartHeaderTotalPrice": "Summe",
-    "cartHeaderTaxIncludeVat": "Stückpreis inkl. MwSt.",
-    "cartHeaderTaxExcludeVat": "Stückpreis exkl. MwSt.",
+    "cartHeaderTaxIncludeVat": "inkl. MwSt.",
+    "cartHeaderTaxExcludeVat": "exkl. MwSt.",
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutschein-Code",
     "addPromotionPlaceholder": "Gutschein-Code eingeben ...",

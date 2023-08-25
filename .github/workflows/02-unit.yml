@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.1", "8.2"]
+        php-version: ["8.1", "8.2", "8.3"]
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
@@ -26,7 +26,7 @@ jobs:
 
     services:
       database:
-        image: mysql:8.0
+        image: mysql:8.0.33
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: root
@@ -43,8 +43,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -52,13 +50,17 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: none
 
-      - name: Configure for PHP 8.2
-        run: composer config platform.php 8.1.99
-        if: matrix.php-version == '8.2'
+      - name: Configure for PHP 8.3
+        run: |
+          composer config platform.php 8.2.99
+          composer config -d vendor-bin/cs-fixer platform.php 8.2.99
+          composer config -d vendor-bin/rector platform.php 8.2.99
+          composer config -d vendor-bin/roave-backward-compatibility-check platform.php 8.2.99
+        if: matrix.php-version == '8.3'
 
       - name: Setup Composer
         run: |
-          composer install
+          composer install -o
 
       - name: Run PHPUnit
         run: |

@@ -206,17 +206,20 @@ shopware:
         expire_days: 120
 
     html_sanitizer:
+        enabled: true
         cache_dir: '%kernel.cache_dir%'
         cache_enabled: true
         sets:
             - name: basic
-              tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var"]
-              attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width", "target"]
+              tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var", "img"]
+              attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width", "target", "src", "alt"]
               options:
                   - key: Attr.AllowedFrameTargets
                     values: ['_blank', '_self', '_parent', '_top']
                   - key: Attr.AllowedRel
                     values: ['nofollow', 'print']
+                  - key: Attr.EnableID
+                    value: true
             - name: media
               tags: ["img"]
               attributes: ["src", "alt"]
@@ -249,12 +252,98 @@ shopware:
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            # deprecated tag:v6.6.0 - Exception will be removed
             - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
+            - Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException
         exclude_events:
             - user.recovery.request
             - customer.recovery.request
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
+            PRODUCT_SORTING_NOT_FOUND: notice
+            CHECKOUT__TAX_ID_NOT_FOUND: notice
+            CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
+            CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
+            CHECKOUT__PRICES_PARAMETER_IS_MISSING: notice
+            CHECKOUT__CUSTOMER_NOT_FOUND: notice
+            CHECKOUT__CUSTOMERS_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_GROUP_REQUEST_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_GROUP_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_NOT_LOGGED_IN: notice
+            CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS: notice
+            CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE: notice
+            CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT: notice
+            CHECKOUT__CUSTOMER_IS_ALREADY_CONFIRMED: notice
+            CHECKOUT__CUSTOMER_GROUP_REGISTRATION_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_NOT_FOUND_BY_HASH: notice
+            CHECKOUT__CUSTOMER_NOT_FOUND_BY_ID: notice
+            CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED: notice
+            CHECKOUT__WISHLIST_IS_NOT_ACTIVATED: notice
+            CHECKOUT__WISHLIST_NOT_FOUND: notice
+            CHECKOUT__DUPLICATE_WISHLIST_PRODUCT: notice
+            CHECKOUT__CUSTOMER_IS_INACTIVE: notice
+            CHECKOUT__LEGACY_PASSWORD_ENCODER_NOT_FOUND: notice
+            CHECKOUT__NO_HASH_PROVIDED: notice
+            CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_AUTH_THROTTLED: notice
+            CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED: notice
+            CHECKOUT__LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND: notice
+            CHECKOUT__CUSTOMER_IDS_PARAMETER_IS_MISSING: notice
+            CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN: notice
+            CHECKOUT__PROMOTION__NOT_FOUND: notice
+            CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice
+            CHECKOUT__SERVICE_CATEGORY_NOT_FOUND: notice
+            CHECKOUT__FOOTER_CATEGORY_NOT_FOUND: notice
+            CHECKOUT__DUPLICATE_SHIPPING_METHOD_PRICE: notice
+            CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND: notice
+            CHECKOUT__COUNTRY_NOT_FOUND: notice
+            CHECKOUT__COUNTRY_STATE_NOT_FOUND: notice
+            CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
+            CONTENT__MEDIA_INVALID_URL: notice
+            CONTENT__MEDIA_ILLEGAL_URL: notice
+            CONTENT__MEDIA_DISABLE_URL_UPLOAD_FEATURE: notice
+            CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ: notice
+            CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_WRITE: notice
+            CONTENT__MEDIA_FILE_SIZE_LIMIT_EXCEEDED: notice
+            CONTENT__MEDIA_MISSING_FILE_EXTENSION: notice
+            CONTENT__MEDIA_ILLEGAL_FILE_NAME: notice
+            CONTENT__MEDIA_EMPTY_FILE: notice
+            CONTENT__MEDIA_INVALID_FILE: notice
+            CONTENT__MEDIA_EMPTY_FILE_NAME: notice
+            CONTENT__MEDIA_FOLDER_NOT_FOUND: notice
+            CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND: notice
+            CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED: notice
+            CONTENT__MEDIA_EMPTY_ID: notice
+            CONTENT__MEDIA_FILE_NOT_SUPPORTED_FOR_THUMBNAIL: notice
+            CONTENT__MEDIA_STRATEGY_NOT_FOUND: notice
+            CONTENT__MEDIA_DUPLICATED_FILE_NAME: notice
+            CONTENT__MEDIA_NOT_FOUND: notice
+            CONTENT__MEDIA_MISSING_FILE: notice
+            CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
+            CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND: notice
+            FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
+            FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__TEMPLATE_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__ROUTE_NAME_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__ENTITY_NAME_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
+            FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION: notice
+            FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION: notice
+            FRAMEWORK__INVALID_VERSION_ID: notice
+            FRAMEWORK__API_TYPE_PARAMETER_INVALID: notice
+            FRAMEWORK__APP_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__APP_NOT_COMPATIBLE: notice
+            FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__KEY_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__INVALID_API_CRITERIA_IDS: notice
+            FRAMEWORK__DEFINITION_NOT_FOUND: notice
+            FRAMEWORK__LANGUAGE_NOT_FOUND: notice
+            FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
+            FRAMEWORK__WRITE_TYPE_INTEND_ERROR: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
@@ -262,9 +351,17 @@ shopware:
             SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION: notice
             SYSTEM__NO_CONTEXT_DATA_EXCEPTION: notice
+            PRODUCT_EXPORT__RENDER_FOOTER_EXCEPTION: notice
+            PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
+            PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
+            SYSTEM__SCOPE_NOT_FOUND: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        tagging:
+            each_snippet: true
+            each_config: true
+            each_theme_config: true
         invalidation:
             delay: 0
             count: 150
@@ -293,3 +390,6 @@ shopware:
     dompdf:
         options:
             isRemoteEnabled: true
+
+    stock:
+        enable_stock_management: true

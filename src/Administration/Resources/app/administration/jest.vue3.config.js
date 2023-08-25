@@ -10,7 +10,7 @@ process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 
-process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache';
+process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR ? `${process.env.JEST_CACHE_DIR}_vue3` : '<rootDir>.jestcache_vue3';
 
 const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
@@ -36,7 +36,7 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
-    coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
+    coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/vue3/jest'),
 
     collectCoverageFrom: [
         'src/**/*.js',
@@ -52,7 +52,7 @@ module.exports = {
     ],
 
     setupFilesAfterEnv: [
-        resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
+        resolve(join(__dirname, '/test/_setup/prepare_vue3_environment.js')),
     ],
 
     transform: {
@@ -61,14 +61,14 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|@vue/compat|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
-        vue$: 'vue/dist/vue.common.dev.js',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^lodash-es$': 'lodash',
+        vue$: '@vue/compat/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [
@@ -88,4 +88,12 @@ module.exports = {
     ] : [
         'default',
     ],
+
+    testMatch: [
+        '<rootDir>/src/**/*.spec.vue3.js',
+    ],
+
+    testEnvironmentOptions: {
+        customExportConditions: ['node', 'node-addons'],
+    },
 };

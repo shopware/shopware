@@ -100,7 +100,7 @@ module.exports = {
                 '@shopware-ag/eslint-config-base',
             ],
             files: ['**/*.js'],
-            excludedFiles: '*.spec.js',
+            excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
             rules: {
                 ...baseRules,
                 'vue/require-prop-types': 'error',

@@ -37,7 +37,7 @@ class ScheduledTaskRunner extends Command
         $this
             ->addOption('memory-limit', 'm', InputOption::VALUE_REQUIRED, 'The memory limit the worker can consume')
             ->addOption('time-limit', 't', InputOption::VALUE_REQUIRED, 'The time limit in seconds the worker can run')
-            ->addOption('no-wait', null, InputOption::VALUE_NONE, 'Do not wait for next cycle of schedulede tasks');
+            ->addOption('no-wait', null, InputOption::VALUE_NONE, 'Do not wait for next cycle of scheduled tasks');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -59,7 +59,10 @@ class TaskRegistryTest extends TestCase
             new ScheduledTaskCollection([$registeredTask]),
         ]);
 
-        (new TaskRegistry($tasks, $staticRepository, $parameterBag))->registerTasks();
+        // @phpstan-ignore-next-line
+        $registry = new TaskRegistry($tasks, $staticRepository, $parameterBag);
+
+        $registry->registerTasks();
 
         static::assertSame(
             [
@@ -324,7 +327,10 @@ class TaskRegistryTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
 
-        $tasks = (new TaskRegistry([], $repository, new ParameterBag([])))->getAllTasks(Context::createDefaultContext());
+        // @phpstan-ignore-next-line
+        $registry = new TaskRegistry([], $repository, new ParameterBag([]));
+
+        $tasks = $registry->getAllTasks(Context::createDefaultContext());
 
         static::assertCount(1, $tasks);
         static::assertEquals($taskEntity, $tasks->first());

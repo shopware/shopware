@@ -76,6 +76,13 @@ class CacheInvalidator
      */
     private function purge(array $keys): void
     {
+        /** @var list<string> $keys */
+        $keys = array_unique(array_filter($keys));
+
+        if (empty($keys)) {
+            return;
+        }
+
         foreach ($this->adapters as $adapter) {
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);

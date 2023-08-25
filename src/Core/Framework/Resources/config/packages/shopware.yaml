@@ -51,11 +51,13 @@ shopware:
             #         url: 'redis://localhost'
 
     api:
-        max_limit: 100
+        # @deprecated tag:v6.6.0 - The new default will be 100
+        max_limit: null
         api_browser:
             auth_required: true
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
+            max_limit: 100
         jwt_key:
             private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
             private_key_passphrase: 'shopware'

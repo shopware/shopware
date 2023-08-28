@@ -480,6 +480,10 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
 ```
 
+## Sync api changes
+We removed the single record behavior in the sync api. This means, that all operations and records are now handled as a collection and validated and written within one transaction.
+The headers `HTTP_Fail-On-Error` and `single-operation` were removed. The `single-operation` header is now always true. 
+
 ## DBAL upgrade
 
 We upgraded DBAL from 2.x to 3.x. Please take a look at the [DBAL upgrade information](https://github.com/doctrine/dbal/blob/3.6.0/UPGRADE.md) itself to see if you need to adjust your code.

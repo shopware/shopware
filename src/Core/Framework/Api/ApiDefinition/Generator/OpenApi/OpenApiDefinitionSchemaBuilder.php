@@ -159,8 +159,11 @@ class OpenApiDefinitionSchemaBuilder
                         'properties' => $attributes,
                     ]),
                 ],
-                'description' => 'Added since version: ' . $definition->since(),
             ]);
+
+            if (!empty($definition->since())) {
+                $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $definition->since();
+            }
 
             if (\count($requiredAttributes)) {
                 $schema[$schemaName . 'JsonApi']->allOf[1]->required = $requiredAttributes;
@@ -202,8 +205,11 @@ class OpenApiDefinitionSchemaBuilder
             'type' => 'object',
             'schema' => $schemaName,
             'properties' => $attributes,
-            'description' => 'Added since version: ' . $definition->since(),
         ]);
+
+        if (!empty($definition->since())) {
+            $schema[$schemaName]->description = 'Added since version: ' . $definition->since();
+        }
 
         if (\count($requiredAttributes)) {
             $schema[$schemaName]->required = $requiredAttributes;

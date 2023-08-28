@@ -10,3 +10,4 @@ author_github: akf-bw
 * Changed `OrderRouteResponse` `orders` property to type `array`
 * Changed `OpenApiDefinitionSchemaBuilder` to exclude the `required` field if it's empty
 * Changed `OpenApiDefinitionSchemaBuilder` to use type `array` with `items` for `ToMany` AssociationFields
+* Changed `OpenApiDefinitionSchemaBuilder` to only include the `description` field if `since` is not empty

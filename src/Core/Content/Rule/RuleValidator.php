@@ -121,6 +121,24 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         $value = $this->getConditionValue($condition, $payload);
+
+        // add violations when a property is not defined on the rule instance
+        $missingProperties = array_filter(
+            $value,
+            static fn (string $key): bool => !property_exists($ruleInstance, $key),
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        foreach (array_keys($missingProperties) as $missingProperty) {
+            $violationList->add(
+                $this->buildViolation(
+                    'The property "{{ fieldName }}" is not allowed.',
+                    ['{{ fieldName }}' => $missingProperty],
+                    '/value/' . $missingProperty
+                )
+            );
+        }
+
         $ruleInstance->assign($value);
 
         if ($ruleInstance instanceof ScriptRule) {
@@ -130,7 +148,8 @@ class RuleValidator implements EventSubscriberInterface
         $this->validateConsistence(
             $ruleInstance->getConstraints(),
             $value,
-            $violationList
+            $violationList,
+            $missingProperties
         );
 
         if ($violationList->count() > 0) {
@@ -159,7 +178,7 @@ class RuleValidator implements EventSubscriberInterface
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
         $value = $condition !== null ? $condition->getValue() : [];
-        if (isset($payload['value']) && $payload['value'] !== null) {
+        if (isset($payload['value'])) {
             $value = json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR);
         }
 
@@ -169,8 +188,9 @@ class RuleValidator implements EventSubscriberInterface
     /**
      * @param array<string, array<Constraint>> $fieldValidations
      * @param array<mixed> $payload
+     * @param array<string> $missingProperties
      */
-    private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList): void
+    private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList, array $missingProperties): void
     {
         foreach ($fieldValidations as $fieldName => $validations) {
             $violationList->addAll(
@@ -182,7 +202,7 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         foreach ($payload as $fieldName => $_value) {
-            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
+            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name' && !isset($missingProperties[$fieldName])) {
                 $violationList->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',

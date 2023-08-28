@@ -27,6 +27,8 @@ abstract class Rule extends Struct
 
     protected string $_name;
 
+    protected string $operator;
+
     public function __construct()
     {
         $this->_name = $this->getName();
@@ -86,5 +88,26 @@ abstract class Rule extends Struct
     public function getApiAlias(): string
     {
         return 'rule_' . $this->getName();
+    }
+
+    /**
+     * @param array<mixed> $options
+     *
+     * @return $this
+     */
+    public function assign(array $options)
+    {
+        foreach ($options as $key => $value) {
+            if (!property_exists($this, $key)) {
+                continue;
+            }
+
+            try {
+                $this->$key = $value; /* @phpstan-ignore-line */
+            } catch (\Error|\Exception $error) {
+            }
+        }
+
+        return $this;
     }
 }

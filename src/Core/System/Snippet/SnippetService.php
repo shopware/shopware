@@ -109,7 +109,7 @@ class SnippetService
 
         $snippets = [];
 
-        $snippetFileCollection = clone $this->snippetFileCollection;
+        $snippetFileCollection = $this->snippetFileCollection;
 
         $usingThemes = $this->getUsedThemes($salesChannelId);
         $unusedThemes = $this->getUnusedThemes($usingThemes);

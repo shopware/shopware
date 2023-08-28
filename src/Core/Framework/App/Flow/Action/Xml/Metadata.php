@@ -131,6 +131,11 @@ class Metadata extends XmlElement
         $this->delayable = $delayable;
     }
 
+    public function getBadge(): ?string
+    {
+        return $this->badge;
+    }
+
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));

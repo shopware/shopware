@@ -258,3 +258,16 @@ framework:
             log_level: notice
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
             log_level: notice
+        # deprecated tag:v6.6.0 - Exception become internal
+        Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException:
+            log_level: notice
+        Shopware\Core\Checkout\Document\Exception\InvalidDocumentException:
+            log_level: notice
+        Shopware\Core\Checkout\Document\Exception\DocumentGenerationException:
+            log_level: notice
+        Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException:
+            log_level: notice
+        Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException:
+            log_level: notice
+        Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
+            log_level: notice

@@ -302,6 +302,9 @@ shopware:
             CHECKOUT__COUNTRY_NOT_FOUND: notice
             CHECKOUT__COUNTRY_STATE_NOT_FOUND: notice
             CONTENT__AFTER_CATEGORY_NOT_FOUND: notice
+            DOCUMENT__INVALID_DOCUMENT_ID: notice
+            DOCUMENT__INVALID_GENERATOR_TYPE: notice
+            DOCUMENT__ORDER_NOT_FOUND: notice
             CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
             CONTENT__MEDIA_INVALID_URL: notice
             CONTENT__MEDIA_ILLEGAL_URL: notice

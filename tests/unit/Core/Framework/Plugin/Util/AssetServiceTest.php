@@ -356,7 +356,7 @@ class AssetServiceTest extends TestCase
         );
     }
 
-    public function testCopyDoesNotWriteManifest(): void
+    public function testCopyDoesNotWriteManifestForLocalFilesystems(): void
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
@@ -390,6 +390,86 @@ class AssetServiceTest extends TestCase
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
         static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+    }
+
+    public function testCopyPerformsFullCopyWithForceFlag(): void
+    {
+        $bundle = new Administration();
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel
+            ->method('getBundle')
+            ->with('AdministrationBundle')
+            ->willReturn($bundle);
+
+        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
+            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
+
+        $filesystem = $this->createMock(FilesystemOperator::class);
+
+        $filesystem
+            ->expects(static::never())
+            ->method('read');
+
+        $expectedWrites = [
+            'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
+            'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+            'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+            'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
+            'bundles/example/test.txt' => 'ExampleBundle/Resources/public/test.txt',
+        ];
+
+        $filesystem
+            ->expects(static::exactly(\count($expectedWrites)))
+            ->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) use ($expectedWrites) {
+                static::assertIsResource($stream);
+                $meta = stream_get_meta_data($stream);
+
+                $local = $expectedWrites[$path];
+                unset($expectedWrites[$path]);
+
+                static::assertEquals(__DIR__ . '/../_fixtures/' . $local, $meta['uri']);
+
+                return true;
+            });
+
+        $privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+
+        $assetService = new AssetService(
+            $filesystem,
+            $privateFilesystem,
+            $kernel,
+            $this->createMock(KernelPluginLoader::class),
+            $this->createMock(CacheInvalidator::class),
+            $appLoader,
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+        );
+
+        $assetService->copyAssetsFromBundle('AdministrationBundle', true);
+        $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle', true);
+
+        $expectedManifestFiles = [
+            'administration' => [
+                'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            ],
+            'examplebundle' => [
+                'test.txt' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            ],
+        ];
+
+        ksort($expectedManifestFiles);
+
+        static::assertSame(
+            json_encode($expectedManifestFiles, \JSON_PRETTY_PRINT),
+            $privateFilesystem->read('asset-manifest.json')
+        );
     }
 
     private function getBundle(): ExampleBundle

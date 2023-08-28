@@ -11,6 +11,7 @@ return [
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
+        '**/src/Core/Framework/Adapter/Asset/AssetInstallCommand.php', // symfony configure
 
         // Symfony validators, should be removed with NEXT-26264
         '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php',

@@ -1,9 +1,12 @@
 ---
 title: Fix OpenApi definitions
-issue: X
+issue: NEXT-00000
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw
 ---
 # Core
-* Removed object types from the schema definitions of the StoreApi schema where allOf exists
+* Removed type `object` from the schema definitions of the `StoreApi` schema where `allOf` exists
+* Changed `OrderRouteResponse` `orders` property to type `array`
+* Changed `OpenApiDefinitionSchemaBuilder` to exclude the `required` field if it's empty
+* Changed `OpenApiDefinitionSchemaBuilder` to use type `array` with `items` for `ToMany` AssociationFields

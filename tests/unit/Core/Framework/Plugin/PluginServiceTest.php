@@ -8,8 +8,6 @@ use Composer\Package\CompletePackage;
 use Composer\Package\Version\VersionParser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
@@ -51,7 +49,6 @@ class PluginServiceTest extends TestCase
             __DIR__,
             $pluginRepo,
             $this->getLanguageRepository(),
-            new ChangelogService(new ChangelogParser()),
             $pluginFinder,
             new VersionSanitizer()
         );
@@ -99,7 +96,6 @@ class PluginServiceTest extends TestCase
             __DIR__,
             $pluginRepo,
             $this->getLanguageRepository(),
-            new ChangelogService(new ChangelogParser()),
             $pluginFinder,
             new VersionSanitizer()
         );

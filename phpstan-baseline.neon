@@ -9188,21 +9188,6 @@ parameters:
 			path: src/Core/Framework/Plugin.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Aggregate\\\\PluginTranslation\\\\PluginTranslationEntity\\:\\:getChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Aggregate/PluginTranslation/PluginTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Aggregate\\\\PluginTranslation\\\\PluginTranslationEntity\\:\\:setChangelog\\(\\) has parameter \\$changelog with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Aggregate/PluginTranslation/PluginTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Aggregate\\\\PluginTranslation\\\\PluginTranslationEntity\\:\\:\\$changelog type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Aggregate/PluginTranslation/PluginTranslationEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\BundleConfigGenerator\\:\\:generateAppConfigs\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/BundleConfigGenerator.php
@@ -11276,26 +11261,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginLifecycleServiceTest\\:\\:installNotSupportedPlugin\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Exception\\\\\\\\ExceptionCollection' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Exception\\\\ExceptionCollection will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:fetchSwagTestNoDefaultLangPluginEntity\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:fetchSwagTestPluginEntity\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"

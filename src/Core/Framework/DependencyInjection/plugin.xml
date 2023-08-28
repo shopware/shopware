@@ -38,7 +38,6 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
         </service>

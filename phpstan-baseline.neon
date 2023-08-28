@@ -3616,11 +3616,6 @@ parameters:
 			path: src/Core/Content/Rule/Event/RuleIndexerEvent.php
 
 		-
-			message: "#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Event\\\\SeoUrlUpdateEvent\\:\\:__construct\\(\\) has parameter \\$seoUrls with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Event/SeoUrlUpdateEvent.php

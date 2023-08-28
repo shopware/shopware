@@ -135,6 +135,11 @@ class Metadata extends XmlElement
         return $this->badge;
     }
 
+    public static function fromXml(\DOMElement $element): self
+    {
+        return $this->badge;
+    }
+
     /**
      * @return array<string, mixed>
      */

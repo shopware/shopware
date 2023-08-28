@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -87,34 +86,6 @@ class SalesChannelContext extends Struct
      * @var Context
      */
     protected $context;
-
-    /**
-     * @var array<string>
-     */
-    protected array $languageIdChain = [];
-
-    protected ?string $scope = null;
-
-    protected bool $rulesLocked = false;
-
-    protected ContextSource $source;
-
-    /**
-     * @var array<string>
-     */
-    protected array $ruleIds = [];
-
-    protected ?string $currencyId = null;
-
-    protected ?string $versionId = null;
-
-    protected float $currencyFactor = 1.00;
-
-    protected bool $considerInheritance = false;
-
-    protected ?string $taxState = null;
-
-    protected CashRoundingConfig $rounding;
 
     /**
      * @internal

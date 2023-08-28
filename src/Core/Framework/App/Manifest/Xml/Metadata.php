@@ -196,6 +196,11 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
     /**
      * @return array<mixed>
      */

@@ -119,7 +119,9 @@ class CheapestPriceFacadeTest extends TestCase
 
     private function rampUpPriceFacade(IdsCollection $ids, string $currencyKey, string $taxState): CheapestPriceFacade
     {
-        $entity = new Entity();
+        $entity = new class() extends Entity {
+            protected CalculatedPrice $calculatedPrice;
+        };
 
         $quantityCalculator = new QuantityPriceCalculator(
             new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),

@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.4.1
+*  [NEXT-29992 - Fix mariadb compatibility](./changelog/release-6-5-4-1/2023-08-18-fix-mariadb-compatibility.md)
+
 ## 6.5.4.0
 *  [NEXT-23811 - Implement consideration of log configuration for plugins](./changelog/release-6-5-4-0/2022-10-13-implement-configurable-plugin-log-handling.md) ([Alexander Wink](https://github.com/jinnoflife))
 *  [NEXT-28673 - Add order tax state footnote in customer's order history](./changelog/release-6-5-4-0/2022-10-21-add-order-tax-state-footnote-in-customer-order-history.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

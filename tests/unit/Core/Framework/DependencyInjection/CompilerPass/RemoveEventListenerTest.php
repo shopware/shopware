@@ -37,7 +37,7 @@ class RemoveEventListenerTest extends TestCase
 
         RemoveEventListener::remove($builder, 'class-string', [$remove]);
 
-        if (empty($expected)) {
+        if ($expected === []) {
             static::assertFalse($definition->hasTag('kernel.event_listener'));
 
             return;

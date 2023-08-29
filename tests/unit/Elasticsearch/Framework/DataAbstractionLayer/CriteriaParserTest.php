@@ -590,7 +590,7 @@ class CriteriaParserTest extends TestCase
 
         $customFieldService = $this->createMock(CustomFieldService::class);
 
-        if ($customField !== null) {
+        if ($customField instanceof Field) {
             $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
         }
 

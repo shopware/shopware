@@ -126,7 +126,7 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        if (!empty($processedTemplate->getSuccess())) {
+        if ($processedTemplate->getSuccess() !== []) {
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
             /** @var RenderedDocument $rendered */

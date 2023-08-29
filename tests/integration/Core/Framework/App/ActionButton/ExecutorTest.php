@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
 use GuzzleHttp\Psr7\Response;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Errors\ValidationError;
+use Opis\JsonSchema\Resolvers\SchemaResolver;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;

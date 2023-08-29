@@ -223,8 +223,8 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $requestStack = new RequestStack();
 
-        if ($main instanceof Request) {
-            $requestStack->push($main);
+        if ($master instanceof Request) {
+            $requestStack->push($master);
         }
 
         return $requestStack;

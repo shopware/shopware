@@ -238,10 +238,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['--dry-run' => true, '--report' => true]);
 
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $output = new BufferedOutput();
 
-        $io = new \Symfony\Component\Console\Style\SymfonyStyle(
-            new \Symfony\Component\Console\Input\ArrayInput([]),
+        $io = new SymfonyStyle(
+            new ArrayInput([]),
             $output,
         );
 

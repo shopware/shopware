@@ -233,7 +233,7 @@ class AvailableCombinationLoaderTest extends TestCase
     /**
      * @param array<mixed> $a
      */
-    private static function ashuffle(array &$a): void
+    private function ashuffle(array &$a): void
     {
         $keys = array_keys($a);
         shuffle($keys);

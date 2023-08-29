@@ -51,8 +51,8 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -106,44 +106,55 @@ class PluginLifecycleService
             return $installContext;
         }
 
+        $didRunComposerRequire = false;
+
         if ($pluginBaseClass->executeComposerCommands()) {
-            $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $pluginVersion, $shopwareContext);
+            $didRunComposerRequire = $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $pluginVersion, $shopwareContext);
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
 
-        $pluginData['id'] = $plugin->getId();
+        try {
+            $pluginData['id'] = $plugin->getId();
 
-        // Makes sure the version is updated in the db after a re-installation
-        $updateVersion = $plugin->getUpgradeVersion();
-        if ($updateVersion !== null && $this->hasPluginUpdate($updateVersion, $pluginVersion)) {
-            $pluginData['version'] = $updateVersion;
-            $plugin->setVersion($updateVersion);
-            $pluginData['upgradeVersion'] = null;
-            $plugin->setUpgradeVersion(null);
-            $upgradeDate = new \DateTime();
-            $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $plugin->setUpgradedAt($upgradeDate);
+            // Makes sure the version is updated in the db after a re-installation
+            $updateVersion = $plugin->getUpgradeVersion();
+            if ($updateVersion !== null && $this->hasPluginUpdate($updateVersion, $pluginVersion)) {
+                $pluginData['version'] = $updateVersion;
+                $plugin->setVersion($updateVersion);
+                $pluginData['upgradeVersion'] = null;
+                $plugin->setUpgradeVersion(null);
+                $upgradeDate = new \DateTime();
+                $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                $plugin->setUpgradedAt($upgradeDate);
+            }
+
+            $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
+
+            $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
+
+            $pluginBaseClass->install($installContext);
+
+            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+
+            $this->runMigrations($installContext);
+
+            $installDate = new \DateTime();
+            $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $plugin->setInstalledAt($installDate);
+
+            $this->updatePluginData($pluginData, $shopwareContext);
+
+            $pluginBaseClass->postInstall($installContext);
+
+            $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
+        } catch (\Throwable $e) {
+            if ($didRunComposerRequire && $plugin->getComposerName()) {
+                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            }
+
+            throw $e;
         }
-
-        $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
-
-        $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
-
-        $pluginBaseClass->install($installContext);
-        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
-
-        $this->runMigrations($installContext);
-
-        $installDate = new \DateTime();
-        $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $plugin->setInstalledAt($installDate);
-
-        $this->updatePluginData($pluginData, $shopwareContext);
-
-        $pluginBaseClass->postInstall($installContext);
-
-        $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
 
         return $installContext;
     }
@@ -606,7 +617,7 @@ class PluginLifecycleService
         );
     }
 
-    private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): void
+    private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
     {
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
@@ -628,7 +639,7 @@ class PluginLifecycleService
 
             if (Comparator::equalTo($sanitizedVersion, $pluginVersion)) {
                 // plugin was already required at build time, no need to do so again at runtime
-                return;
+                return false;
             }
         }
 
@@ -636,5 +647,7 @@ class PluginLifecycleService
 
         // running composer require may have consequences for other plugins, when they are required by the plugin being installed
         $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
+
+        return true;
     }
 }

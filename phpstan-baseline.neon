@@ -15357,40 +15357,7 @@ parameters:
 			count: 1
 			path: tests/unit/Core/Framework/Plugin/Event/PluginPostDeactivationFailedEventTest.php
 
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\ActivateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\ActivateContext will always evaluate to true\\.$#"
-			count: 3
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\DeactivateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\DeactivateContext will always evaluate to true\\.$#"
-			count: 4
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\InstallContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\InstallContext will always evaluate to true\\.$#"
-			count: 5
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\InstallContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\UninstallContext will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\UpdateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\UpdateContext will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity is not allowed\\. The object is very basic and can be constructed$#"
-			count: 3
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
-
-		-
-			message: "#^Offset 1 does not exist on array\\<0, mixed\\>&list\\.$#"
-			count: 5
-			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Offset 1 does not exist on array\\<0, mixed\\>&list\\.$#"

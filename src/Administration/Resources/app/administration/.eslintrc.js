@@ -147,7 +147,7 @@ module.exports = {
                 'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
-            files: ['src/**/*.html.twig'],
+            files: ['src/**/*.html.twig', 'test/eslint/**/*.html.twig'],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,

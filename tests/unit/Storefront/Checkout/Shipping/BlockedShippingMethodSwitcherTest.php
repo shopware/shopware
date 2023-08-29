@@ -196,7 +196,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             static::assertCount(1, $criteria->getFilters());
 
             $nand = $criteria->getFilters()[0];
@@ -232,7 +232,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             $collection = new ShippingMethodCollection();
         } else {
             $collection = $this->shippingMethodCollection->filter(

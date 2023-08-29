@@ -155,7 +155,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     private function setSearchReturn(Context $context, ?CustomerCollection $collection = null): void
     {
-        if ($collection === null) {
+        if (!$collection instanceof CustomerCollection) {
             $collection = new CustomerCollection();
         }
         $criteria = new Criteria(array_values($collection->getIds()));

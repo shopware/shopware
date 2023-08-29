@@ -114,7 +114,7 @@ class Migration1687462843ProductManufacturerMediaThumbnailsTest extends TestCase
             ['name' => 'Product Manufacturer Media']
         );
 
-        if (\is_string($id) && !empty($id)) {
+        if (\is_string($id) && $id !== '') {
             return $id;
         }
 

@@ -30,7 +30,7 @@ class SchemaUpdaterTest extends TestCase
         $updater = new SchemaUpdater();
         $updater->applyCustomEntities($schema, [$entity]);
 
-        self::assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
+        $this->assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
     }
 
     public function testShortPrefix(): void
@@ -44,7 +44,7 @@ class SchemaUpdaterTest extends TestCase
         $updater = new SchemaUpdater();
         $updater->applyCustomEntities($schema, [$entity]);
 
-        self::assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
+        $this->assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
     }
 
     public function testExtendingExistingTables(): void
@@ -64,7 +64,7 @@ class SchemaUpdaterTest extends TestCase
         $updater = new SchemaUpdater();
         $updater->applyCustomEntities($schema, [$customEntity]);
 
-        self::assertColumns($schema, 'product', ['customentityextensionproduct']);
+        $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
 
         $productTable = $schema->getTable('product');
         $columnComment = $productTable->getColumn('customentityextensionproduct')->getComment();
@@ -96,8 +96,8 @@ class SchemaUpdaterTest extends TestCase
         $updater = new SchemaUpdater();
         $updater->applyCustomEntities($schema, $entities);
 
-        self::assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
-        self::assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at']);
+        $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
+        $this->assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at']);
     }
 
     /**
@@ -114,7 +114,7 @@ class SchemaUpdaterTest extends TestCase
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
-            self::assertColumns($schema, $tableName, $columns);
+            $this->assertColumns($schema, $tableName, $columns);
         }
     }
 
@@ -191,7 +191,7 @@ class SchemaUpdaterTest extends TestCase
     /**
      * @param list<string> $columns
      */
-    private static function assertColumns(Schema $schema, string $table, array $columns): void
+    private function assertColumns(Schema $schema, string $table, array $columns): void
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
 

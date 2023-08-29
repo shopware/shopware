@@ -85,7 +85,7 @@ class InvoiceRendererTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (self::$callback) {
+        if (self::$callback instanceof \Closure) {
             $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
     }
@@ -109,7 +109,7 @@ class InvoiceRendererTest extends TestCase
                 $caughtEvent = $event;
             });
 
-        if ($beforeRenderHook) {
+        if ($beforeRenderHook instanceof \Closure) {
             $beforeRenderHook($operationInvoice, $this->getContainer());
         }
 
@@ -126,7 +126,7 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        if (!empty($processedTemplate->getSuccess())) {
+        if ($processedTemplate->getSuccess() !== []) {
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
             /** @var RenderedDocument $rendered */

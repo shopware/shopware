@@ -451,7 +451,7 @@ class ProductListingLoaderTest extends TestCase
      */
     private function fetchListing(?Criteria $criteria = null): EntitySearchResult
     {
-        if (!$criteria) {
+        if (!$criteria instanceof Criteria) {
             $criteria = new Criteria();
         }
 

@@ -40,7 +40,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
 
         $expected = new Filter(
             'shipping-free',
-            $input === true,
+            $input,
             [
                 new FilterAggregation(
                     'shipping-free-filter',

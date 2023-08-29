@@ -279,7 +279,7 @@ class ConfigurationServiceTest extends TestCase
             new StaticSystemConfigService([])
         );
 
-        if (!empty($config)) {
+        if ($config !== []) {
             static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
         }
 

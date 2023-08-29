@@ -66,7 +66,7 @@ class GrantDownloadAccessActionTest extends TestCase
      */
     public function testSetAccessHandleFlow(?OrderEntity $orderEntity, array $expectedPayload, bool $value = true): void
     {
-        if ($orderEntity) {
+        if ($orderEntity instanceof OrderEntity) {
             $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [OrderAware::ORDER => $orderEntity]);
         } else {
             $flow = new StorableFlow('foo', Context::createDefaultContext());

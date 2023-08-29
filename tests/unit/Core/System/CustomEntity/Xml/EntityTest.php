@@ -27,7 +27,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 
@@ -59,7 +59,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 
@@ -81,7 +81,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 

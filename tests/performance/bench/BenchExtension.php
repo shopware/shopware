@@ -20,7 +20,7 @@ class BenchExtension implements ExtensionInterface
 
     public function load(Container $container): void
     {
-        if ($this->resolver === null) {
+        if (!$this->resolver instanceof OptionsResolver) {
             throw new \Exception(self::class . '::configure must be called before running the load method');
         }
 

@@ -54,7 +54,7 @@ class DoctrineSQLHandlerTest extends TestCase
                 unset($data['id']);
                 unset($data['created_at']);
 
-                if ($exceptionThrown === null) {
+                if (!$exceptionThrown instanceof \Exception) {
                     $exceptionThrown = new \Exception('some exception');
                     $insertData = $data;
 

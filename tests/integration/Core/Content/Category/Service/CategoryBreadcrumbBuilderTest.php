@@ -203,7 +203,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
 
-        if ($hasCategories === true) {
+        if ($hasCategories) {
             $productData[0]['categories'] = [
                 ['id' => $this->ids->get('navigation-a-1')],
                 ['id' => $this->ids->get('navigation-a-2')],
@@ -212,7 +212,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ];
         }
 
-        if ($hasMainCategory === true) {
+        if ($hasMainCategory) {
             $productData[0]['mainCategories'][] = [
                 'categoryId' => $this->ids->get('navigation-a-1'),
                 'id' => Uuid::randomHex(),
@@ -220,7 +220,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ];
         }
 
-        if ($hasMainCategory2ndChannel === true) {
+        if ($hasMainCategory2ndChannel) {
             $productData[0]['mainCategories'][] = [
                 'categoryId' => $this->ids->get('navigation-sc2-a-1'),
                 'id' => Uuid::randomHex(),
@@ -245,18 +245,18 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         static::assertInstanceOf(CategoryCollection::class, $product->getCategories());
 
-        if ($hasCategories === true) {
+        if ($hasCategories) {
             static::assertInstanceOf(CategoryEntity::class, $category);
             static::assertInstanceOf(CategoryEntity::class, $category2);
             static::assertNotCount(0, $product->getCategories());
 
-            if ($hasMainCategory === true) {
+            if ($hasMainCategory) {
                 static::assertSame($this->ids->get('navigation-a-1'), $category->getId());
             } else {
                 static::assertTrue(\in_array($category->getId(), $this->ids->prefixed('navigation-a'), true));
             }
 
-            if ($hasMainCategory2ndChannel === true) {
+            if ($hasMainCategory2ndChannel) {
                 static::assertSame($this->ids->get('navigation-sc2-a-1'), $category2->getId());
             } else {
                 static::assertTrue(\in_array($category2->getId(), $this->ids->prefixed('navigation-sc2-a'), true));
@@ -623,7 +623,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
 
-        if ($fillAll === true) {
+        if ($fillAll) {
             foreach ($products as $k => $v) {
                 $products[$k] = array_merge($basicPayload, $v);
             }

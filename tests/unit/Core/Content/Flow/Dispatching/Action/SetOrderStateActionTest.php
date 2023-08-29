@@ -72,7 +72,7 @@ class SetOrderStateActionTest extends TestCase
         $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        if ($expectsTimes) {
+        if ($expectsTimes !== 0) {
             $this->connection->expects(static::exactly($expectsTimes))
                 ->method('fetchOne')
                 ->willReturnOnConsecutiveCalls(

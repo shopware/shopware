@@ -95,7 +95,7 @@ class SendMailActionTest extends TestCase
         $documentIdNewer = null;
         $documentIds = [];
 
-        if (!empty($documentTypeIds) || $hasOrderSettingAttachment) {
+        if ($documentTypeIds !== null && $documentTypeIds !== [] || $hasOrderSettingAttachment) {
             $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
             $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
             $documentIds[] = $documentIdNewer;
@@ -183,7 +183,7 @@ class SendMailActionTest extends TestCase
                 static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
         }
 
-        if (!empty($documentTypeIds)) {
+        if ($documentTypeIds !== null && $documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
             $documents = $documentRepository->search($criteria, $context);
 
@@ -768,7 +768,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        return $document ? $document[0] : '';
+        return $document !== [] ? $document[0] : '';
     }
 }
 

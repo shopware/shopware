@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Log;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\LoggerFactory;
 
 /**
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\Log\LoggerFactory;
  *
  * @covers \Shopware\Core\Framework\Log\LoggerFactory
  */
-class LoggerFactoryTest extends \PHPUnit\Framework\TestCase
+class LoggerFactoryTest extends TestCase
 {
     public function testNullLogHandler(): void
     {
@@ -20,7 +21,7 @@ class LoggerFactoryTest extends \PHPUnit\Framework\TestCase
         $mainLogger = new Logger('test_logger', $providedHandler);
         $loggerFactory = new LoggerFactory('test_case', $mainLogger);
 
-        /** @var \Monolog\Logger $createdLogger */
+        /** @var Logger $createdLogger */
         $createdLogger = $loggerFactory->createRotating('test_file_path');
         $usedHandler = $createdLogger->getHandlers();
 
@@ -34,7 +35,7 @@ class LoggerFactoryTest extends \PHPUnit\Framework\TestCase
         $mainLogger = new Logger('test_logger', $providedHandler);
         $loggerFactory = new LoggerFactory('test_case', $mainLogger);
 
-        /** @var \Monolog\Logger $createdLogger */
+        /** @var Logger $createdLogger */
         $createdLogger = $loggerFactory->createRotating('test_file_path');
         $usedHandler = $createdLogger->getHandlers();
 
@@ -51,7 +52,7 @@ class LoggerFactoryTest extends \PHPUnit\Framework\TestCase
         $mainLogger = new Logger('test_logger', $providedHandler);
         $loggerFactory = new LoggerFactory('test_case', $mainLogger);
 
-        /** @var \Monolog\Logger $createdLogger */
+        /** @var Logger $createdLogger */
         $createdLogger = $loggerFactory->createRotating('test_file_path');
         $usedHandler = $createdLogger->getHandlers();
 

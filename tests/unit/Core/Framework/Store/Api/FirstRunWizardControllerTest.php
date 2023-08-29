@@ -649,7 +649,8 @@ class FirstRunWizardControllerTest extends TestCase
     private function createPluginCollection(array $data): PluginCollection
     {
         $collection = new PluginCollection();
-        for ($i = 0; $i < \count($data); ++$i) {
+        $counter = \count($data);
+        for ($i = 0; $i < $counter; ++$i) {
             if (!\array_key_exists('id', $data[$i])) {
                 $data[$i]['id'] = Uuid::randomHex();
             }

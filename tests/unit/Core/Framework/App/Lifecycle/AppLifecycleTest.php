@@ -81,14 +81,12 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesSnippetsGiven(): void
     {
-        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
-                [
-                    'id' => Uuid::randomHex(),
-                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
-                ],
-            ]
-        )]);
+                'id' => Uuid::randomHex(),
+                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
 
         $appEntities = [
             [],
@@ -117,7 +115,7 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[2], self::getSnippets()),
+            $this->getAppAdministrationSnippetPersisterMock($appEntities[2], $this->getSnippets()),
             $this->getAppLoaderMock($this->getSnippets())
         );
 
@@ -129,14 +127,12 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesNoSnippetsGiven(): void
     {
-        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
-                [
-                    'id' => Uuid::randomHex(),
-                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
-                ],
-            ]
-        )]);
+                'id' => Uuid::randomHex(),
+                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
 
         $appEntities = [
             [],
@@ -177,14 +173,12 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesNoSnippetsGiven(): void
     {
-        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
-                [
-                    'id' => Uuid::randomHex(),
-                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
-                ],
-            ]
-        )]);
+                'id' => Uuid::randomHex(),
+                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
 
         $appEntities = [
             [
@@ -224,14 +218,12 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesSnippets(): void
     {
-        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
-                [
-                    'id' => Uuid::randomHex(),
-                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
-                ],
-            ]
-        )]);
+                'id' => Uuid::randomHex(),
+                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
 
         $appEntities = [
             [
@@ -259,8 +251,8 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[1], self::getSnippets()),
-            $this->getAppLoaderMock(self::getSnippets())
+            $this->getAppAdministrationSnippetPersisterMock($appEntities[1], $this->getSnippets()),
+            $this->getAppLoaderMock($this->getSnippets())
         );
 
         $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
@@ -271,14 +263,12 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
     {
-        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
             [
-                [
-                    'id' => Uuid::randomHex(),
-                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
-                ],
-            ]
-        )]);
+                'id' => Uuid::randomHex(),
+                'locale' => $this->getLocaleEntity(['code' => 'en-GB']),
+            ],
+        ])]);
 
         $appId = Uuid::randomHex();
 
@@ -359,7 +349,7 @@ class AppLifecycleTest extends TestCase
     /**
      * @param array<int, array<string, mixed>> $languageEntities
      */
-    private static function getLanguageCollection(array $languageEntities = []): LanguageCollection
+    private function getLanguageCollection(array $languageEntities = []): LanguageCollection
     {
         $entities = [];
 
@@ -376,7 +366,7 @@ class AppLifecycleTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    private static function getLocaleEntity(array $data = []): LocaleEntity
+    private function getLocaleEntity(array $data = []): LocaleEntity
     {
         $localeEntity = new LocaleEntity();
 
@@ -456,7 +446,7 @@ class AppLifecycleTest extends TestCase
     /**
      * @return array<string, array<string, string>>
      */
-    private static function getSnippets(): array
+    private function getSnippets(): array
     {
         return [
             'en-GB' => [

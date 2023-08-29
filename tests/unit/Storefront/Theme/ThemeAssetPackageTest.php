@@ -25,7 +25,7 @@ class ThemeAssetPackageTest extends TestCase
     {
         $requestStack = new RequestStack();
 
-        if ($request !== null) {
+        if ($request instanceof Request) {
             $requestStack->push($request);
         }
 

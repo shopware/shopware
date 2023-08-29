@@ -694,7 +694,7 @@ class EntityWriteGatewayTest extends TestCase
             {
                 $this->event = $event;
 
-                if ($this->callback) {
+                if ($this->callback instanceof \Closure) {
                     ($this->callback)($event);
                 }
             }

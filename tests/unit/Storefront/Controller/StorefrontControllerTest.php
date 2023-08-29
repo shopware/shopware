@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
@@ -257,7 +258,7 @@ class StorefrontControllerTest extends TestCase
             ->method('getController')
             ->willReturn(fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
-        $kernel = new \Symfony\Component\HttpKernel\HttpKernel(
+        $kernel = new HttpKernel(
             static::createMock(EventDispatcherInterface::class),
             $controllerResolver,
             $requestStack,
@@ -323,7 +324,7 @@ class StorefrontControllerTest extends TestCase
             ->with($request)
             ->willReturn(['foo' => 'bar']);
 
-        $kernel = static::createMock(\Symfony\Component\HttpKernel\HttpKernel::class);
+        $kernel = static::createMock(HttpKernel::class);
         $kernel
             ->expects(static::once())
             ->method('handle')

@@ -51,7 +51,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
 
@@ -65,7 +65,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         $mediaIds = $this->createContent();
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);
@@ -81,7 +81,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent([...$mediaIds, ...$unusedMediaIds]);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);

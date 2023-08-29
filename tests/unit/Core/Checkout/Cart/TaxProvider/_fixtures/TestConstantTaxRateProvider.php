@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
@@ -26,7 +28,7 @@ class TestConstantTaxRateProvider extends AbstractTaxProvider
         $lineItems = [];
 
         foreach ($cart->getLineItems() as $lineItem) {
-            if (!$lineItem->getPrice()) {
+            if (!$lineItem->getPrice() instanceof CalculatedPrice) {
                 continue;
             }
 
@@ -48,7 +50,7 @@ class TestConstantTaxRateProvider extends AbstractTaxProvider
 
             $position = $delivery->getPositions()->first();
 
-            if (!$position) {
+            if (!$position instanceof DeliveryPosition) {
                 continue;
             }
 

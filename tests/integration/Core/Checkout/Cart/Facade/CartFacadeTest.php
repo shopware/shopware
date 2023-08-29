@@ -63,7 +63,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
@@ -89,7 +89,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
@@ -131,7 +131,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
         $cart = $this->getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
 
         $item = $cart->products()->add($this->ids->get('p1'));
@@ -168,7 +168,7 @@ class CartFacadeTest extends TestCase
 
         $this->assertItems($service, $expectations);
 
-        if ($closure !== null) {
+        if ($closure instanceof \Closure) {
             $closure($service, $this->ids);
         }
     }
@@ -364,7 +364,7 @@ class CartFacadeTest extends TestCase
         ];
     }
 
-    private static function createCart(): Cart
+    private function createCart(): Cart
     {
         $cart = new Cart('test');
         $cart->setBehavior(new CartBehavior());
@@ -418,7 +418,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $cart = self::createCart();
+        $cart = $this->createCart();
 
         $data['ids'] = $ids;
 

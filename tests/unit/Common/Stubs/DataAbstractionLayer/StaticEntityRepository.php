@@ -57,7 +57,7 @@ class StaticEntityRepository extends EntityRepository
         private array $searches,
         private readonly ?EntityDefinition $definition = null
     ) {
-        if (!$definition) {
+        if (!$definition instanceof EntityDefinition) {
             return;
         }
 
@@ -189,7 +189,7 @@ class StaticEntityRepository extends EntityRepository
 
     public function getDefinition(): EntityDefinition
     {
-        if ($this->definition === null) {
+        if (!$this->definition instanceof EntityDefinition) {
             throw new \RuntimeException('No definition set');
         }
 
@@ -232,7 +232,7 @@ class StaticEntityRepository extends EntityRepository
      */
     private function getDummyPrimaryKeys(array $payload): array
     {
-        if ($this->definition === null) {
+        if (!$this->definition instanceof EntityDefinition) {
             return [];
         }
 
@@ -248,7 +248,7 @@ class StaticEntityRepository extends EntityRepository
 
     private function getDummyEntityName(): string
     {
-        if (!$this->definition) {
+        if (!$this->definition instanceof EntityDefinition) {
             return 'mock';
         }
 

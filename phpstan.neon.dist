@@ -229,17 +229,20 @@ parameters:
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
 
+        - # Hard to fix, as no proper var annotation could be used within the while loop
+            message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"
+            count: 1
+            path: src/Core/Content/Media/UnusedMediaPurger.php
+
         # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
         - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
         - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
 
-        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
+        - # No need to fix for now, as the facades are only used in twig context
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
                 - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -254,6 +257,11 @@ parameters:
                 - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
                 - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
         - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
+        - # It is not possible to specify the type of the EntityResult, as the Aggregators are used for multiple entities at the same time
+            message: '#Method Shopware\\.*::hydrateEntityAggregation\(\) return type with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult does not specify its types: TEntityCollection#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
+                - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

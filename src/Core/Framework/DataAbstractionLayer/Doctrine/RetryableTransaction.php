@@ -12,9 +12,13 @@ class RetryableTransaction
     /**
      * Executes the given closure inside a DBAL transaction. In case of a deadlock (RetryableException) the transaction
      * is rolled back and the closure will be retried. Because it may run multiple times the closure should not cause
-     * any side effects outside of its own scope.
+     * any side effects outside its own scope.
      *
-     * @return mixed
+     * @template TReturn of mixed
+     *
+     * @param \Closure(Connection): TReturn $closure
+     *
+     * @return TReturn
      */
     public static function retryable(Connection $connection, \Closure $closure)
     {
@@ -22,9 +26,11 @@ class RetryableTransaction
     }
 
     /**
-     * @param \Closure(Connection):mixed $closure The function to execute transactionally.
+     * @template TReturn of mixed
      *
-     * @return mixed
+     * @param \Closure(Connection): TReturn $closure The function to execute transactionally.
+     *
+     * @return TReturn
      */
     private static function retry(Connection $connection, \Closure $closure, int $counter)
     {

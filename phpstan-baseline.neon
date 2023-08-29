@@ -3206,11 +3206,6 @@ parameters:
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
 
 		-
-			message: "#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DeleteNotUsedMediaService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Event\\\\MediaFileExtensionWhitelistEvent\\:\\:__construct\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Event/MediaFileExtensionWhitelistEvent.php
@@ -3581,66 +3576,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/RatingAverageUpdater.php
 
 		-
-			message: "#^Anonymous variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:buildCriteria\\(\\) has parameter \\$accessors with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:getConfigFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:getIterator\\(\\) has parameter \\$configFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:getIterator\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:insertDictionary\\(\\) has parameter \\$dictionary with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:insertKeywords\\(\\) has parameter \\$keywords with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:updateLanguage\\(\\) has parameter \\$existingProducts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:updateLanguage\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdater\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
@@ -3739,11 +3674,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\Filter\\:\\:getValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/Filter.php
-
-		-
-			message: "#^Parameter \\#2 \\$entities of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\FilterCollection\\:\\:getFilters\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6181,38 +6111,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Asset/FlysystemLastModifiedVersionStrategy.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\AbstractCacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
-
-
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:add\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:getTrace\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:\\$keys type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:\\$traces type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheTracer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\InvalidateCacheEvent\\:\\:__construct\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/InvalidateCacheEvent.php
@@ -7488,16 +7386,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IteratorFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\RepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\SalesChannelRepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
-
-		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
@@ -7666,21 +7554,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:execute\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:retry\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:retryable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -10093,11 +9966,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityForeignKeyResolverTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/RepositoryIteratorTest.php
-
-		-
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 8
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TranslatedVersionsTest.php
@@ -10136,51 +10004,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\EntityDefinitionTest\\:\\:provideTranslatedDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityDefinitionTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$extension\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$extension\\-\\>get\\('myDate'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$variant\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Cannot call method getExtension\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Cannot call method hasExtension\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\EntityExtensionReadTest\\:\\:\\$salesChannelRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
 
 		-
 			message: "#^Cannot call method getFields\\(\\) on object\\|null\\.$#"
@@ -10616,11 +10439,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\GroupByTest\\:\\:\\$searcher \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntitySearcher\\) does not accept Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearcher\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/GroupByTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$result\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 13
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/JoinFilterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\NaturalSortingTest\\:\\:sortingFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -12148,21 +11966,6 @@ parameters:
 			path: src/Core/Profiling/Integration/Tideways.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiler\\:\\:__construct\\(\\) has parameter \\$profilers with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Profiling/Profiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiler\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Profiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiler\\:\\:trace\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Profiler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Annotation\\\\Concept\\\\DeprecationPattern\\\\RenameService\\:\\:__construct\\(\\) has parameter \\$info with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Annotation/Concept/DeprecationPattern/RenameService.php
@@ -13448,11 +13251,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Storefront/Event/CartMergedSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheTracer.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmer\\:\\:createMessage\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"

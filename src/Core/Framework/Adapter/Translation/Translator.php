@@ -87,9 +87,6 @@ class Translator extends AbstractTranslator
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return mixed|null All kind of data could be cached
-     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];
@@ -102,9 +99,6 @@ class Translator extends AbstractTranslator
         return $result;
     }
 
-    /**
-     * @return array<int, string>
-     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];

@@ -45,7 +45,6 @@ class TaskRegistry
     {
         $context = Context::createDefaultContext();
 
-        /** @var ScheduledTaskCollection $alreadyRegisteredTasks */
         $alreadyRegisteredTasks = $this->scheduledTaskRepository
             ->search(new Criteria(), $context)
             ->getEntities();

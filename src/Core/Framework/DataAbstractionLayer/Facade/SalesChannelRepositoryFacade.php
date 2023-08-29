@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -39,7 +38,7 @@ class SalesChannelRepositoryFacade
      * The `search()` method allows you to search for Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array<mixed> $criteria The criteria used for your search.
+     * @param array<string, mixed> $criteria The criteria used for your search.
      *
      * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
      *
@@ -51,16 +50,14 @@ class SalesChannelRepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getSalesChannelRepository($entityName);
-
-        return $repository->search($criteriaObject, $this->context);
+        return $this->registry->getSalesChannelRepository($entityName)->search($criteriaObject, $this->context);
     }
 
     /**
      * The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array<mixed> $criteria The criteria used for your search.
+     * @param array<string, mixed> $criteria The criteria used for your search.
      *
      * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
      *
@@ -70,16 +67,14 @@ class SalesChannelRepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getSalesChannelRepository($entityName);
-
-        return $repository->searchIds($criteriaObject, $this->context);
+        return $this->registry->getSalesChannelRepository($entityName)->searchIds($criteriaObject, $this->context);
     }
 
     /**
      * The `aggregate()` method allows you to execute aggregations specified in the given criteria.
      *
      * @param string $entityName The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
-     * @param array<mixed> $criteria The criteria that define your aggregations.
+     * @param array<string, mixed> $criteria The criteria that define your aggregations.
      *
      * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
      *
@@ -89,13 +84,11 @@ class SalesChannelRepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getSalesChannelRepository($entityName);
-
-        return $repository->aggregate($criteriaObject, $this->context);
+        return $this->registry->getSalesChannelRepository($entityName)->aggregate($criteriaObject, $this->context);
     }
 
     /**
-     * @param array<mixed> $criteria
+     * @param array<string, mixed> $criteria
      */
     private function prepareCriteria(string $entityName, array $criteria): Criteria
     {

@@ -7,11 +7,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -205,13 +203,12 @@ class ProductListingTest extends TestCase
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
         $propertyGroups = $result->getEntities();
+
         $propertyGroupIds = [];
 
-        /** @var PropertyGroupEntity $propertyGroup */
         foreach ($propertyGroups as $propertyGroup) {
             $propertyGroupIds[] = $propertyGroup->getId();
         }
@@ -426,9 +423,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('property_group.repository');
-        $repo->create($data, Context::createDefaultContext());
+        $this->getContainer()->get('property_group.repository')->create($data, Context::createDefaultContext());
     }
 
     private function createTestProductStreamEntity(string $categoryStreamId): void

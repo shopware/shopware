@@ -220,7 +220,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $defaultContext = Context::createDefaultContext();
 
         $orderData = array_map(static function (array $order): array {
-            $order['orderDateTime'] = self::getTestTimestamp();
+            $order['orderDateTime'] = new \DateTime('2020-03-10T15:00:00+00:00');
 
             return $order;
         }, $this->getOrderData($orderId, $defaultContext));
@@ -231,10 +231,5 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $result = $customerRepository->search($criteria, $defaultContext);
 
         return $result->first();
-    }
-
-    private static function getTestTimestamp(): \DateTime
-    {
-        return new \DateTime('2020-03-10T15:00:00+00:00');
     }
 }

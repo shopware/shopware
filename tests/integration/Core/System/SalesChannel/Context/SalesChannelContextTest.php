@@ -764,7 +764,7 @@ class SalesChannelContextTest extends TestCase
      */
     private function createSalesChannelContext(array $taxData = [], array $options = []): SalesChannelContext
     {
-        if ($taxData) {
+        if ($taxData !== []) {
             $this->getContainer()->get('tax.repository')->create($taxData, Context::createDefaultContext());
         }
 

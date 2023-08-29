@@ -188,7 +188,7 @@ class ShopConfiguratorTest extends TestCase
 
         $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => !empty($item)));
+        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => $item !== []));
 
         $methodCalls = \count($methodReturns);
 

@@ -75,7 +75,7 @@ class FlowExecutorTest extends TestCase
         ];
 
         $actionSequences = [];
-        if (!empty($actionSequencesExecuted)) {
+        if ($actionSequencesExecuted !== []) {
             foreach ($actionSequencesExecuted as $actionSequenceExecuted) {
                 $actionSequence = new ActionSequence();
                 $actionSequence->sequenceId = $ids->get($actionSequenceExecuted);
@@ -86,7 +86,7 @@ class FlowExecutorTest extends TestCase
         }
 
         $context = Context::createDefaultContext();
-        if (!empty($actionSequencesTrueCase)) {
+        if ($actionSequencesTrueCase !== []) {
             $condition = new IfSequence();
             $condition->sequenceId = $ids->get('true_case');
             $condition->ruleId = $ids->get('ruleId');
@@ -105,7 +105,7 @@ class FlowExecutorTest extends TestCase
             $actionSequences[] = $condition;
         }
 
-        if (!empty($actionSequencesFalseCase)) {
+        if ($actionSequencesFalseCase !== []) {
             $condition = new IfSequence();
             $condition->sequenceId = $ids->get('false_case');
             $condition->ruleId = $ids->get('ruleId');

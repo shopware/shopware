@@ -32,7 +32,7 @@ class CacheInvalidatorTest extends TestCase
 
         $item = CacheCompressor::compress(new CacheItem(), $logs);
 
-        if ($delay > 0 && $time !== null) {
+        if ($delay > 0 && $time instanceof \DateTime) {
             $time->modify(sprintf('-%d second', $delay));
         }
 

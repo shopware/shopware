@@ -38,7 +38,7 @@ trait AppSystemTestBehaviour
 
         $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
 
-        if (!empty($fails)) {
+        if ($fails !== []) {
             $errors = \array_map(function (array $fail): string {
                 return $fail['exception']->getMessage();
             }, $fails);

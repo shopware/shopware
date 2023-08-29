@@ -21,7 +21,7 @@ class Migration1687463180ProductMediaThumbnailsTest extends TestCase
         /** @var Connection $con */
         $con = $this->getContainer()->get(Connection::class);
 
-        if (\count($this->thumbnailSizesIds($con)) > 0) {
+        if ($this->thumbnailSizesIds($con) !== []) {
             $this->revertMigration($con);
         }
 
@@ -90,7 +90,7 @@ class Migration1687463180ProductMediaThumbnailsTest extends TestCase
             ['name' => 'Product Media']
         );
 
-        if (\is_string($id) && !empty($id)) {
+        if (\is_string($id) && $id !== '') {
             return $id;
         }
 

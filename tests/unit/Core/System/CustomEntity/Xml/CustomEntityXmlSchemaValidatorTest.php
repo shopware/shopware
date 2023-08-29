@@ -38,7 +38,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entities = new Entities([
             Entity::fromXml($dom->documentElement),

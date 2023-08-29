@@ -68,7 +68,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         $this->calculator->calculate([$entity], $context);
 
-        if ($expected === null) {
+        if (!$expected instanceof \Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price\PriceAssertion) {
             static::assertNull($entity->get('calculatedPrice'));
 
             return;
@@ -249,7 +249,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         $this->calculator->calculate([$product], $context);
 
-        if (empty($expected)) {
+        if ($expected === []) {
             static::assertCount(0, $product->get('calculatedPrices'));
 
             return;
@@ -342,7 +342,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         $this->calculator->calculate([$entity], $context);
 
-        if ($expected === null) {
+        if (!$expected instanceof \Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price\PriceAssertion) {
             static::assertNull($entity->get('calculatedCheapestPrice'));
 
             return;

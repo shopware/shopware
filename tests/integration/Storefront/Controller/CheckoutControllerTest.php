@@ -667,7 +667,7 @@ class CheckoutControllerTest extends TestCase
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        if ($request === null) {
+        if (!$request instanceof Request) {
             $request = $this->createRequest();
         }
 
@@ -860,7 +860,7 @@ class CheckoutControllerTest extends TestCase
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
         ]);
 
-        if ($context) {
+        if ($context instanceof SalesChannelContext) {
             $request->attributes->add([
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
             ]);

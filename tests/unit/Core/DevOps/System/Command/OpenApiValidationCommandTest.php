@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
 
 use AsyncAws\Core\Test\Http\SimpleMockedResponse;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
  *
  * @covers \Shopware\Core\DevOps\System\Command\OpenApiValidationCommand
  */
-class OpenApiValidationCommandTest extends \PHPUnit\Framework\TestCase
+class OpenApiValidationCommandTest extends TestCase
 {
     public function testRunWithoutErrors(): void
     {

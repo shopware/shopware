@@ -6,11 +6,18 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 
-const createWrapper = async () => {
+const defaultData = {
+    indeterminateOne: false,
+    checkOne: false,
+    checkTwo: false,
+    checkThree: false,
+};
+
+const createWrapper = async (data = defaultData) => {
     const baseComponent = {
         template: `
             <div>
-                <sw-checkbox-field v-model="checkOne" label="CheckOne" bordered/>
+                <sw-checkbox-field v-model="checkOne" label="CheckOne" bordered :partly-checked="indeterminateOne" />
                 <sw-checkbox-field v-model="checkTwo" label="CheckTwo" padded/>
                 <sw-checkbox-field v-model="checkThree" label="CheckThree" bordered padded/>
             </div>
@@ -18,9 +25,7 @@ const createWrapper = async () => {
 
         data() {
             return {
-                checkOne: false,
-                checkTwo: false,
-                checkThree: false,
+                ...data,
             };
         },
     };
@@ -89,6 +94,8 @@ describe('app/component/form/sw-checkbox-field', () => {
             expect(wrapper.vm[checkboxId]).toBeFalsy();
             await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
             expect(wrapper.vm[checkboxId]).toBeTruthy();
+
+            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
         });
 
 
@@ -98,6 +105,8 @@ describe('app/component/form/sw-checkbox-field', () => {
             expect(wrapper.vm[checkboxId]).toBeFalsy();
             await wrapper.find(`input[name="sw-field--${checkboxId}"]`).setChecked();
             expect(wrapper.vm[checkboxId]).toBeTruthy();
+
+            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
         });
     });
 
@@ -148,5 +157,43 @@ describe('app/component/form/sw-checkbox-field', () => {
         expect(checkboxContentWrappers.at(1).classes()).toContain('is--padded');
         expect(checkboxContentWrappers.at(2).classes()).toContain('is--bordered');
         expect(checkboxContentWrappers.at(2).classes()).toContain('is--padded');
+    });
+
+    it('should display indeterminate icon if indeterminate state is active and checkbox is not checked', async () => {
+        const wrapper = await createWrapper({
+            ...defaultData,
+            indeterminateOne: true,
+            checkOne: false,
+        });
+
+        const firstCheckbox = wrapper.find('.sw-field--checkbox');
+
+        expect(firstCheckbox.find('input').element.checked).toBe(false);
+        expect(firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-minus-xxs');
+    });
+
+    it('should switch the checked icon if partlyChecked state and state is active and checkbox is partlyChecked', async () => {
+        const wrapper = await createWrapper({
+            ...defaultData,
+            indeterminateOne: true,
+            checkOne: false,
+        });
+
+        const firstCheckbox = wrapper.find('.sw-field--checkbox');
+        const icon = firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub');
+
+        expect(icon.attributes('name')).toBe('regular-minus-xxs');
+        await firstCheckbox.find('input').setChecked();
+        expect(icon.attributes('name')).toBe('regular-checkmark-xxs');
+    });
+
+    it('should add partlyChecked class to checkbox if partlyChecked state is active and checkbox is not checked', async () => {
+        const wrapper = await createWrapper({
+            ...defaultData,
+            indeterminateOne: true,
+            checkOne: false,
+        });
+
+        expect(wrapper.find('.sw-field--checkbox').classes()).toContain('is--partly-checked');
     });
 });

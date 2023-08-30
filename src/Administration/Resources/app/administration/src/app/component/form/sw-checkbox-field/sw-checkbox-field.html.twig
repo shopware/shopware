@@ -21,12 +21,13 @@
                 :name="formFieldName || identification"
                 :checked="inputState"
                 :disabled="disabled"
+                :indeterminate.prop="partlyChecked"
                 @change="onChange"
             >
             <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <div class="sw-field__checkbox-state">
                 <sw-icon
-                    name="regular-checkmark-xxs"
+                    :name="iconName"
                 />
             </div>
         </div>

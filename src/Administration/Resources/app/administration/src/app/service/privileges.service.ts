@@ -2,22 +2,51 @@
  * @package admin
  */
 
-import Vue from 'vue';
+import { reactive } from 'vue3';
 
 const { warn, error } = Shopware.Utils.debug;
 const { object } = Shopware.Utils;
+
+type GetPrivilegesWithDependenciesSignature = () => string[];
+
+type PrivilegeRole = {
+    dependencies: Array<string>,
+    privileges: Array<string|GetPrivilegesWithDependenciesSignature>,
+}
+
+type PrivilegeMapping = {
+    category: 'permissions'|'additional_permissions',
+    key: null|string,
+    parent: string,
+    roles: {
+        [key: string]: PrivilegeRole,
+    }
+}
+
+type PrivilegesState = {
+    privilegesMappings: PrivilegeMapping[],
+}
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default class PrivilegesService {
-    alreadyImportedAdminPrivileges = [];
+    /**
+     * @deprecated tag: v6.6.0 - Will be private
+     */
+    public alreadyImportedAdminPrivileges: string[] = [];
 
-    state = Vue.observable({
+    /**
+     * @deprecated tag: v6.6.0 - Will be private. Use getPrivilegesMappings instead of direct access
+     */
+    public state = reactive<PrivilegesState>({
         privilegesMappings: [],
     });
 
-    requiredPrivileges = [
+    /**
+     * @deprecated tag: v6.6.0 - Will be private. Use getRequiredMappings instead of direct access
+     */
+    public requiredPrivileges = [
         'language:read', // for entityInit and languageSwitch
         'locale:read', // for localeToLanguage service
         'message_queue_stats:read', // for message queue
@@ -25,27 +54,19 @@ export default class PrivilegesService {
     ];
 
     /**
-     * Removes all keys from the given array which are not a admin role.
+     * Removes all keys from the given array which are not an admin role.
      *
      * Example:
      * product.viewer => Valid
      * product:read => Invalid
-     *
-     * @param privileges {Array}
-     * @returns {Array}
      */
-    filterPrivilegesRoles(privileges) {
+    public filterPrivilegesRoles(privileges: string[]) {
         const onlyRoles = privileges.filter(privilegeKey => this.existsPrivilege(privilegeKey));
 
         return onlyRoles.filter((role, index) => onlyRoles.indexOf(role) === index);
     }
 
-    /**
-     * @public
-     * @param privilegeKey {String}
-     * @returns {boolean}
-     */
-    existsPrivilege(privilegeKey) {
+    public existsPrivilege(privilegeKey: string) {
         const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.some(privilegeMapping => {
@@ -53,13 +74,7 @@ export default class PrivilegesService {
         });
     }
 
-    /**
-     *
-     * @private
-     * @param privilegeKey {String}
-     * @returns {Object}
-     */
-    _getPrivilege(privilegeKey) {
+    private _getPrivilege(privilegeKey: string): PrivilegeMapping|undefined {
         const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.find(privilegeMapping => {
@@ -67,17 +82,12 @@ export default class PrivilegesService {
         });
     }
 
-    /**
-     *
-     * @param privilegeKey {String}
-     * @returns {Object}
-     */
-    getPrivilegeRole(privilegeKey) {
+    public getPrivilegeRole(privilegeKey: string): PrivilegeRole|undefined {
         const role = privilegeKey.split('.')[1];
 
         const privilege = this._getPrivilege(privilegeKey);
 
-        return privilege ? privilege.roles[role] : undefined;
+        return privilege?.roles[role] ?? undefined;
     }
 
     /**
@@ -106,13 +116,8 @@ export default class PrivilegesService {
      *      'promotion.creator'
      *    ]
      * _getPrivilegesWithDependencies('promotion.creator', true);
-     *
-     * @private
-     * @param {string} adminPrivilegeKey
-     * @param {boolean} shouldAddAdminPrivilege
-     * @returns {string[]}
      */
-    _getPrivilegesWithDependencies(adminPrivilegeKey, shouldAddAdminPrivilege = true) {
+    private _getPrivilegesWithDependencies(adminPrivilegeKey: string, shouldAddAdminPrivilege = true): string[] {
         // check for duplicated calls to prevent infinite loop
         if (this.alreadyImportedAdminPrivileges.includes(adminPrivilegeKey)) {
             return [];
@@ -134,7 +139,7 @@ export default class PrivilegesService {
         /**
          * Resolve all privileges for dependencies
          */
-        const dependenciesPrivileges = dependencies.reduce((acc, dependencyKey) => {
+        const dependenciesPrivileges = dependencies.reduce((acc: string[], dependencyKey) => {
             return [
                 ...acc,
                 ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege),
@@ -145,7 +150,7 @@ export default class PrivilegesService {
          * Look in privileges for the getPrivileges() method. If found then it
          * will be recursively resolved and the returned privileges are added
          */
-        const resolvedPrivileges = privileges.reduce((acc, privilege) => {
+        const resolvedPrivileges = privileges.reduce((acc: string[], privilege) => {
             if (typeof privilege === 'function') {
                 return [...acc, ...privilege()];
             }
@@ -196,11 +201,8 @@ export default class PrivilegesService {
      * @example
      * // returns "() => this._getPrivilegesWithDependencies('rule.creator', false)"
      * getPrivileges('rule.editor')
-     *
-     * @param privilegeKey {string}
-     * @returns {function(): string[]}
      */
-    getPrivileges(privilegeKey) {
+    getPrivileges(privilegeKey: string) {
         return () => this._getPrivilegesWithDependencies(privilegeKey, false);
     }
 
@@ -220,15 +222,12 @@ export default class PrivilegesService {
      *      ...
      *    ]
      * getPrivilegesForAdminPrivilegeKeys(['promotion.viewer', 'product.creator'])
-     *
-     * @param adminPrivileges {string[]}
-     * @returns {string[]}
      */
-    getPrivilegesForAdminPrivilegeKeys(adminPrivileges) {
+    getPrivilegesForAdminPrivilegeKeys(adminPrivileges: string[]) {
         // reset the global state
         this.alreadyImportedAdminPrivileges = [];
 
-        const allPrivileges = adminPrivileges.reduce((acc, adminPrivilegeKey) => {
+        const allPrivileges = adminPrivileges.reduce((acc: string[], adminPrivilegeKey) => {
             const isAdminPrivilege = adminPrivilegeKey.match(/.+\..+/);
 
             if (!isAdminPrivilege) {
@@ -246,29 +245,8 @@ export default class PrivilegesService {
         ].sort();
     }
 
-    /**
-     *
-     * @param privilegeMapping {Object}
-     * @returns {PrivilegesService}
-     */
-    addPrivilegeMappingEntry(privilegeMapping) {
-        if (typeof privilegeMapping !== 'object') {
-            warn('addPrivilegeMappingEntry', 'The privilegeMapping has to be an object.');
-            return this;
-        }
-
-        if (!('category' in privilegeMapping)) {
-            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "category".');
-            return this;
-        }
-
-        if (!('parent' in privilegeMapping)) {
-            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "parent".');
-            return this;
-        }
-
-        if (!('key' in privilegeMapping)) {
-            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "key".');
+    public addPrivilegeMappingEntry(privilegeMapping: unknown) {
+        if (!this.isPrivilegeMapping(privilegeMapping)) {
             return this;
         }
 
@@ -277,25 +255,51 @@ export default class PrivilegesService {
                 mapping.key === privilegeMapping.key;
         });
 
-        if (existingCategoryKeyCombination) {
-            Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
-                if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
-                    Vue.set(
-                        existingCategoryKeyCombination.roles,
-                        role,
-                        object.deepMergeObject(existingCategoryKeyCombination.roles[role], entry),
-                    );
-                } else {
-                    Vue.set(existingCategoryKeyCombination.roles, role, entry);
-                }
-            });
+        if (!existingCategoryKeyCombination) {
+            this.state.privilegesMappings.push(privilegeMapping);
 
             return this;
         }
 
-        this.state.privilegesMappings.push(privilegeMapping);
+        Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
+            if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
+                existingCategoryKeyCombination.roles[role] =
+                    object.deepMergeObject(existingCategoryKeyCombination.roles[role], entry);
+            } else {
+                existingCategoryKeyCombination.roles[role] = entry;
+            }
+        });
 
         return this;
+    }
+
+    private isPrivilegeMapping(privilegeMapping: unknown): privilegeMapping is PrivilegeMapping {
+        if (typeof privilegeMapping !== 'object') {
+            warn('addPrivilegeMappingEntry', 'The privilegeMapping has to be an object.');
+            return false;
+        }
+
+        if (privilegeMapping === null) {
+            warn('addPrivilegeMappingEntry', 'The privilegeMapping must not be null.');
+            return false;
+        }
+
+        if (!('category' in privilegeMapping)) {
+            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "category".');
+            return false;
+        }
+
+        if (!('parent' in privilegeMapping)) {
+            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "parent".');
+            return false;
+        }
+
+        if (!('key' in privilegeMapping)) {
+            warn('addPrivilegeMappingEntry', 'The privilegeMapping need the property "key".');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -303,7 +307,7 @@ export default class PrivilegesService {
      * @returns {PrivilegesService}
      * @param privilegeMappings {Object[]}
      */
-    addPrivilegeMappingEntries(privilegeMappings) {
+    public addPrivilegeMappingEntries(privilegeMappings: unknown) {
         if (!Array.isArray(privilegeMappings)) {
             error('addPrivilegeMappingEntries', 'The privilegeMappings must be an array.');
             return this;
@@ -316,18 +320,11 @@ export default class PrivilegesService {
         return this;
     }
 
-    /**
-     *
-     * @returns {[]|*[]}
-     */
-    getPrivilegesMappings() {
+    public getPrivilegesMappings() {
         return this.state.privilegesMappings;
     }
 
-    /**
-     * @returns {[string, string, string]}
-     */
-    getRequiredPrivileges() {
+    public getRequiredPrivileges() {
         return this.requiredPrivileges;
     }
 }

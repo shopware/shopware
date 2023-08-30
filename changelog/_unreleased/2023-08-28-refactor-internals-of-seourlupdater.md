@@ -6,4 +6,4 @@ author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Core
-* Refactor and simplify internals of `Shopware\Core\Content\Seo\SeoUrlUpdater`
+* Changed internals of `Shopware\Core\Content\Seo\SeoUrlUpdater` to simplify it

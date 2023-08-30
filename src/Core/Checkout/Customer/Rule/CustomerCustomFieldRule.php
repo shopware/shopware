@@ -14,7 +14,7 @@ class CustomerCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomField';
 
-    protected string|int|bool|null|float $renderedFieldValue = null;
+    protected array|string|int|bool|null|float $renderedFieldValue = null;
 
     /**
      * @param array<string, string> $renderedField

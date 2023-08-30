@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\MultiEntitySelectField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\MultiSelectField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -49,7 +51,7 @@ class CustomFieldRule
      * @param array<string, string> $renderedField
      * @param array<string, mixed> $customFields
      */
-    public static function match(array $renderedField, string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
+    public static function match(array $renderedField, array|string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
     {
         $actual = self::getValue($customFields, $renderedField);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);
@@ -64,6 +66,10 @@ class CustomFieldRule
 
         if (self::isFloat($renderedField)) {
             return self::floatMatch($operator, (float) $actual, (float) $expected);
+        }
+
+        if (self::isArray($renderedField)) {
+            return self::arrayMatch($operator, (array) $actual, (array) $expected);
         }
 
         return match ($operator) {
@@ -86,6 +92,15 @@ class CustomFieldRule
             Rule::OPERATOR_EQ => FloatComparator::equals($actual, $expected),
             Rule::OPERATOR_GT => FloatComparator::greaterThan($actual, $expected),
             Rule::OPERATOR_LT => FloatComparator::lessThan($actual, $expected),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
+    }
+
+    private static function arrayMatch(string $operator, array $actual, array $expected): bool
+    {
+        return match ($operator) {
+            Rule::OPERATOR_NEQ => count(array_intersect($actual, $expected)) === 0,
+            Rule::OPERATOR_EQ => count(array_intersect($actual, $expected)) > 0,
             default => throw new UnsupportedOperatorException($operator, self::class),
         };
     }
@@ -114,7 +129,7 @@ class CustomFieldRule
      * @param array<string, mixed> $customFields
      * @param array<string, string> $renderedField
      */
-    private static function getValue(array $customFields, array $renderedField): float|bool|int|string|null
+    private static function getValue(array $customFields, array $renderedField): array|float|bool|int|string|null
     {
         if (!empty($customFields) && \array_key_exists($renderedField['name'], $customFields)) {
             return $customFields[$renderedField['name']];
@@ -130,7 +145,7 @@ class CustomFieldRule
     /**
      * @param array<string, string> $renderedField
      */
-    private static function getExpectedValue(float|bool|int|string|null $renderedFieldValue, array $renderedField): float|bool|int|string|null
+    private static function getExpectedValue(array|float|bool|int|string|null $renderedFieldValue, array $renderedField): array|float|bool|int|string|null
     {
         if (self::isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);
@@ -157,5 +172,29 @@ class CustomFieldRule
     private static function isFloat(array $renderedField): bool
     {
         return $renderedField['type'] === CustomFieldTypes::FLOAT;
+    }
+
+    /**
+     * @param array<string, string> $renderedField
+     */
+    private static function isArray(array $renderedField): bool
+    {
+        if ($renderedField['type'] !== CustomFieldTypes::SELECT) {
+            return false;
+        }
+
+        if (!array_key_exists('componentName', $renderedField['config'])) {
+            return false;
+        }
+
+        if ($renderedField['config']['componentName'] === MultiSelectField::COMPONENT_NAME) {
+            return true;
+        }
+
+        if ($renderedField['config']['componentName'] === MultiEntitySelectField::COMPONENT_NAME) {
+            return true;
+        }
+
+        return false;
     }
 }

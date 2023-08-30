@@ -18,9 +18,10 @@ eval "$curenv"
 set +o allexport
 
 export APP_URL
-export PROXY_URL
-export STOREFRONT_PROXY_PORT
 export ESLINT_DISABLE
+export PROXY_URL
+export STOREFRONT_ASSETS_PORT
+export STOREFRONT_PROXY_PORT
 
 DATABASE_URL="" "${CWD}"/console feature:dump
 "${CWD}"/console theme:compile

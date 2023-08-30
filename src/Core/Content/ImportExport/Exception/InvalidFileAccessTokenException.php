@@ -11,7 +11,7 @@ class InvalidFileAccessTokenException extends ShopwareHttpException
 {
     public function __construct()
     {
-        parent::__construct('Access to file denied due to invalid access token', []);
+        parent::__construct('Access to file denied due to invalid access token');
     }
 
     public function getStatusCode(): int

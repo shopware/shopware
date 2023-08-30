@@ -2941,16 +2941,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Service/AbstractFileService.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\DownloadService\\:\\:findFile\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/DownloadService.php
-
-		-
-			message: "#^Parameter \\#3 \\$filenameFallback of static method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderUtils\\:\\:makeDisposition\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/DownloadService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\FileService\\:\\:updateFile\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Service/FileService.php
@@ -4834,11 +4824,6 @@ parameters:
 			message: "#^Missing call to parent\\:\\:setUp\\(\\) method\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/ScheduledTask/CleanupImportExportFileTaskHandlerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/DownloadServiceTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOriginalName\\(\\)\\.$#"

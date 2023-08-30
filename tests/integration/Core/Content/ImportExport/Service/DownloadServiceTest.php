@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Service;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -41,10 +41,37 @@ class DownloadServiceTest extends TestCase
         $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
 
         $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
-        static::assertStringContainsString($asciiName, $response->headers->get('Content-Disposition'));
+        static::assertIsString($header = $response->headers->get('Content-Disposition'));
+        static::assertStringContainsString($asciiName, $header);
 
         $response->sendContent();
         $this->expectOutputString($fileData['originalName']);
+    }
+
+    public function testSlashFilename(): void
+    {
+        $filesystem = $this->getPrivateFilesystem();
+        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+
+        $nameWithSlash = 'Name with /\/\/\ slashes';
+
+        $fileData = [
+            'id' => Uuid::randomHex(),
+            'originalName' => $nameWithSlash,
+            'path' => 'test\/.csv',
+            'expireDate' => new \DateTime(),
+        ];
+        $filesystem->write($fileData['path'], $fileData['originalName']);
+        $context = Context::createDefaultContext();
+        $fileRepository->create([$fileData], $context);
+
+        $downloadService = new DownloadService($filesystem, $fileRepository);
+        $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
+
+        $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
+        static::assertIsString($header = $response->headers->get('Content-Disposition'));
+        static::assertStringNotContainsString($nameWithSlash, $header);
+        static::assertStringContainsString('Name with  slashes', $header);
     }
 
     public function testDownloadWithInvalidAccessToken(): void

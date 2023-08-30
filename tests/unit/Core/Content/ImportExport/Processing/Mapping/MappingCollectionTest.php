@@ -5,15 +5,15 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
  *
- * @package system-settings
- *
  * @covers \Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection
  */
+#[Package('system-settings')]
 class MappingCollectionTest extends TestCase
 {
     public function testGet(): void

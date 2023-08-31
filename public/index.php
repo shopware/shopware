@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\HttpKernel;
 use Shopware\Core\Installer\InstallerKernel;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,6 +53,12 @@ return function (array $context) {
     }
 
     $shopwareHttpKernel = new HttpKernel($appEnv, $debug, $classLoader);
+
+    if (EnvironmentHelper::getVariable('COMPOSER_PLUGIN_LOADER', false)) {
+        $shopwareHttpKernel->setPluginLoader(
+            new ComposerPluginLoader($classLoader, null)
+        );
+    }
 
     return new class($shopwareHttpKernel) implements HttpKernelInterface, TerminableInterface {
         private HttpKernel $httpKernel;

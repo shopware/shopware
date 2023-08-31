@@ -93,6 +93,19 @@ describe('src/app/service/privileges.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()).toHaveLength(0);
     });
 
+    it('should throw a warning if property mapping is null', async () => {
+        const privilegesService = new PrivilegesService();
+
+        expect(global.console.warn).not.toHaveBeenCalled();
+        privilegesService.addPrivilegeMappingEntry(null);
+        expect(global.console.warn).toHaveBeenCalledWith(
+            '[addPrivilegeMappingEntry]',
+            'The privilegeMapping must not be null.',
+        );
+
+        expect(privilegesService.getPrivilegesMappings()).toHaveLength(0);
+    });
+
     it('should throw a warning if the property category is missing', async () => {
         const privilegesService = new PrivilegesService();
 

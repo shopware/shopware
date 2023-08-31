@@ -196,7 +196,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             static::assertCount(1, $criteria->getFilters());
 
             $nand = $criteria->getFilters()[0];
@@ -232,7 +232,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             $collection = new PaymentMethodCollection();
         } else {
             $collection = $this->paymentMethodCollection->filter(

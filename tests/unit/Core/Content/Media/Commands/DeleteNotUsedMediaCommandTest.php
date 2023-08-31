@@ -8,6 +8,9 @@ use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -32,10 +35,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $output = new BufferedOutput();
 
-        $io = new \Symfony\Component\Console\Style\SymfonyStyle(
-            new \Symfony\Component\Console\Input\ArrayInput([]),
+        $io = new SymfonyStyle(
+            new ArrayInput([]),
             $output,
         );
 
@@ -219,10 +222,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['--dry-run' => true, '--report' => true]);
 
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $output = new BufferedOutput();
 
-        $io = new \Symfony\Component\Console\Style\SymfonyStyle(
-            new \Symfony\Component\Console\Input\ArrayInput([]),
+        $io = new SymfonyStyle(
+            new ArrayInput([]),
             $output,
         );
 

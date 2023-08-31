@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "rector/rector": "^0.17.0"
+        "rector/rector": "^0.18.1"
     },
     "config": {
         "platform": {

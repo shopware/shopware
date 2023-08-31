@@ -11,6 +11,7 @@ use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\CollectingMessageBus;
 use Symfony\Component\Messenger\Envelope;
 
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\Envelope;
  *
  * @covers \Shopware\Core\Content\ImportExport\Message\ImportExportHandler
  */
+#[Package('system-settings')]
 class ImportExportHandlerTest extends TestCase
 {
     /**
@@ -81,7 +83,10 @@ class ImportExportHandlerTest extends TestCase
         static::assertEquals($logEntity->getActivity(), $importExportMessage->getActivity());
     }
 
-    public static function dataProviderForTestImportExport(): \Generator
+    /**
+     * @return iterable<string, array{activity: string}>
+     */
+    public static function dataProviderForTestImportExport(): iterable
     {
         yield 'Test import process' => [
             'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,

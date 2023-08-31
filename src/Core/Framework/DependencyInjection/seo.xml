@@ -59,11 +59,6 @@
             <argument type="service" id="Shopware\Core\Content\Seo\EmptyPathInfoResolver.inner"/>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\CachedSeoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-1000">
-            <argument type="service" id="Shopware\Core\Content\Seo\CachedSeoResolver.inner"/>
-            <argument type="service" id="cache.object"/>
-        </service>
-
         <service id="Shopware\Core\Content\Seo\SeoResolver" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

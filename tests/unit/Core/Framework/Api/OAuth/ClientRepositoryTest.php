@@ -91,7 +91,7 @@ class ClientRepositoryTest extends TestCase
 
         $clientEntity = $this->clientRepository->getClientEntity($clientIdentifier);
 
-        if ($expectedResult === null) {
+        if (!$expectedResult instanceof ClientEntityInterface) {
             static::assertNull($clientEntity);
 
             return;

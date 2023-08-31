@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('checkout')]
 class DateIntervalFieldSerializerTest extends TestCase
 {
-    private const REGEX_DATE_INTERVAL_VALIDATION = '/^P([0-9]+Y)([0-9]+M)([0-9]+D)T([0-9]+H)([0-9]+M)([0-9]+S)$/';
+    private const REGEX_DATE_INTERVAL_VALIDATION = '/^P(\d+Y)(\d+M)(\d+D)T(\d+H)(\d+M)(\d+S)$/';
 
     private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;
 

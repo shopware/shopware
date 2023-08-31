@@ -294,11 +294,11 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $order = new OrderEntity();
         $order->setId($orderId);
 
-        if ($itemRounding) {
+        if ($itemRounding instanceof CashRoundingConfig) {
             $order->setItemRounding($itemRounding);
         }
 
-        if ($totalRounding) {
+        if ($totalRounding instanceof CashRoundingConfig) {
             $order->setTotalRounding($totalRounding);
         }
 

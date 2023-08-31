@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -242,7 +243,7 @@ class DocumentGeneratorTest extends TestCase
      */
     public function testUpload(bool $preGenerateDoc, Request $uploadFileRequest, bool $static = true, ?\Exception $expectedException = null): void
     {
-        if ($expectedException !== null) {
+        if ($expectedException instanceof \Exception) {
             static::expectExceptionObject($expectedException);
         }
 
@@ -497,7 +498,7 @@ class DocumentGeneratorTest extends TestCase
     public function testConfigurationWithSalesChannelOverride(): void
     {
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
-        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
@@ -531,7 +532,7 @@ class DocumentGeneratorTest extends TestCase
         $orderId = $this->persistCart($cart);
 
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
-        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);

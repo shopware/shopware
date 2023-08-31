@@ -736,7 +736,7 @@ class CartLineItemControllerTest extends TestCase
 
     private function translatorCallback(?Session $session = null): void
     {
-        if ($session === null) {
+        if (!$session instanceof Session) {
             $session = new Session(new MockArraySessionStorage());
         }
         $stack = $this->createMock(RequestStack::class);

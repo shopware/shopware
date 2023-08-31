@@ -17,6 +17,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -145,7 +146,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 static::isInstanceOf(Context::class),
                 static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (
-                        $configs->first()
+                        $configs->first() instanceof StorefrontPluginConfiguration
                         ? $configs->first()->getTechnicalName()
                         : ''
                     ) === 'Storefront'

@@ -8,7 +8,11 @@
         {% endif %}
         :has-parent="!!parentProduct.id"
         :inherited-value="parentProduct.isCloseout"
+        {% if VUE3 %}
+        @update:value="onSwitchInput"
+        {% else %}
         @input="onSwitchInput"
+        {% endif %}
     >
         <template #content="props">
 

@@ -6,6 +6,7 @@ yarn-error.log
 test/unit/coverage
 test/e2e/reports
 test/_mocks_/entity-schema.json
+test/_helper_/componentWrapper/component-imports.js
 !test/_mocks_/.gitkeep
 selenium-debug.log
 .eslintcache

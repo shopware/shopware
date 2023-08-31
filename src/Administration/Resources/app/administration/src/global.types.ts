@@ -134,7 +134,12 @@ declare global {
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
-    interface Window { Shopware: ShopwareClass; }
+    interface Window {
+        Shopware: ShopwareClass;
+        _features_: {
+            [featureName: string]: boolean
+        };
+    }
 
     const _features_: {
         [featureName: string]: boolean
@@ -324,6 +329,11 @@ declare global {
     }
 
     const flushPromises: () => Promise<void>;
+
+    /**
+     * @private This is a private method and should not be used outside of the test suite
+     */
+    const wrapTestComponent: (componentName: string) => Promise<VueComponent>;
 }
 
 /**

@@ -23,7 +23,6 @@ export default function initState() {
 }
 
 function initVuexState(state: FullState, app = Vue) {
-    // @ts-expect-error - vue3 in the window is defined
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const isVue3 = !!window._features_?.vue3;
 

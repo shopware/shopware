@@ -281,6 +281,7 @@
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
+            "@npm:admin run unit-setup",
             "@npm:admin run unit"
         ],
         "admin:unit:watch": [

@@ -263,6 +263,13 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
                 - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
+        - # For testing purpose this errors can be ignored
+            message: '#Cannot assign new offset to Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade#'
+            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+        -
+            message: '#Call to static method PHPUnit\\Framework\\Assert::assertContains\(\) with .* and Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade will always evaluate to true#'
+            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

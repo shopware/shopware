@@ -51,8 +51,12 @@ class CustomFieldRule
      * @param array<string, string> $renderedField
      * @param array<string, mixed> $customFields
      */
-    public static function match(array $renderedField, array|string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
-    {
+    public static function match(
+        array $renderedField,
+        array|string|int|bool|null|float $renderedFieldValue,
+        string $operator,
+        array $customFields
+    ): bool {
         $actual = self::getValue($customFields, $renderedField);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);
 
@@ -65,11 +69,11 @@ class CustomFieldRule
         }
 
         if (self::isFloat($renderedField)) {
-            return self::floatMatch($operator, (float) $actual, (float) $expected);
+            return self::floatMatch($operator, (float)$actual, (float)$expected);
         }
 
         if (self::isArray($renderedField)) {
-            return self::arrayMatch($operator, (array) $actual, (array) $expected);
+            return self::arrayMatch($operator, (array)$actual, (array)$expected);
         }
 
         return match ($operator) {
@@ -99,8 +103,8 @@ class CustomFieldRule
     private static function arrayMatch(string $operator, array $actual, array $expected): bool
     {
         return match ($operator) {
-            Rule::OPERATOR_NEQ => count(array_intersect($actual, $expected)) === 0,
-            Rule::OPERATOR_EQ => count(array_intersect($actual, $expected)) > 0,
+            Rule::OPERATOR_NEQ => \count(array_intersect($actual, $expected)) === 0,
+            Rule::OPERATOR_EQ => \count(array_intersect($actual, $expected)) > 0,
             default => throw new UnsupportedOperatorException($operator, self::class),
         };
     }
@@ -145,8 +149,10 @@ class CustomFieldRule
     /**
      * @param array<string, string> $renderedField
      */
-    private static function getExpectedValue(array|float|bool|int|string|null $renderedFieldValue, array $renderedField): array|float|bool|int|string|null
-    {
+    private static function getExpectedValue(
+        array|float|bool|int|string|null $renderedFieldValue,
+        array $renderedField
+    ): array|float|bool|int|string|null {
         if (self::isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);
         }
@@ -183,7 +189,7 @@ class CustomFieldRule
             return false;
         }
 
-        if (!array_key_exists('componentName', $renderedField['config'])) {
+        if (!\array_key_exists('componentName', $renderedField['config'])) {
             return false;
         }
 

@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils_v3';
 import { createStore } from 'vuex_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-async function createWrapper() {
+async function createWrapper(privileges = []) {
     const store = createStore({
         modules: {
             swProductDetail: {
@@ -32,6 +32,14 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: {},
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+
             },
             stubs: {
                 'sw-upload-listener': true,
@@ -105,7 +113,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -113,15 +120,15 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should show the sw-media-upload-v2 component', async () => {
-        global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'product.editor',
+        ]);
         await flushPromises();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeTruthy();
     });
 
     it('should not show the sw-media-upload-v2 component', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -129,8 +136,9 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should only show 1 cover', async () => {
-        global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'product.editor',
+        ]);
         await flushPromises();
 
         let coverCount = 0;
@@ -144,7 +152,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should emit an event when onOpenMedia() function is called', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -155,7 +162,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should can show cover when `showCoverLabel` is true', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -164,7 +170,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should not show cover when `showCoverLabel` is false', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -184,7 +189,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should move media to first position when it is marked as cover', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 

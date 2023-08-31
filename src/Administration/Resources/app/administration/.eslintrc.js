@@ -52,7 +52,6 @@ module.exports = {
         autoStub: true,
         flushPromises: true,
         wrapTestComponent: true,
-        resetFilters: true,
     },
 
     plugins: [

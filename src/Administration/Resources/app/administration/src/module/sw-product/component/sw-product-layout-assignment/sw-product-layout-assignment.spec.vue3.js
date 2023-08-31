@@ -4,12 +4,21 @@
 
 import { mount } from '@vue/test-utils_v3';
 
-async function createWrapper() {
+async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-layout-assignment', { sync: true }), {
         global: {
             stubs: {
                 'sw-cms-list-item': true,
                 'sw-button': true,
+            },
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
             },
         },
     });
@@ -18,10 +27,12 @@ async function createWrapper() {
 describe('module/sw-product/component/sw-product-layout-assignment', () => {
     let wrapper;
 
-    it('should emit an event when openLayoutModal() function is called', async () => {
-        global.activeAclRoles = [];
+    beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
+    });
+
+    it('should emit an event when openLayoutModal() function is called', async () => {
         wrapper.vm.openLayoutModal();
 
         const pageChangeEvents = wrapper.emitted()['modal-layout-open'];
@@ -29,9 +40,6 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
     });
 
     it('should emit an event when openInPageBuilder() function is called', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        await flushPromises();
         wrapper.vm.openInPageBuilder();
 
         const pageChangeEvents = wrapper.emitted()['button-edit-click'];
@@ -39,9 +47,6 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
     });
 
     it('should emit an event when onLayoutReset() function is called', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        await flushPromises();
         wrapper.vm.onLayoutReset();
 
         const pageChangeEvents = wrapper.emitted()['button-delete-click'];
@@ -49,8 +54,7 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
     });
 
     it('should not be able to edit layout assignment', async () => {
-        global.activeAclRoles = ['product.viewer'];
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['product.viewer']);
         await flushPromises();
 
         const cmsItem = wrapper.find('sw-cms-list-item-stub');
@@ -64,8 +68,7 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
     });
 
     it('should be able to edit layout assignment', async () => {
-        global.activeAclRoles = ['product.editor'];
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['product.editor']);
 
         const cmsItem = wrapper.find('sw-cms-list-item-stub');
         const buttons = wrapper.findAll('sw-button-stub');

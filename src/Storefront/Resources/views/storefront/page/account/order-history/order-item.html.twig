@@ -53,13 +53,11 @@
 
                 {% block page_account_order_item_context_menu_col %}
                     <div class="col-1 order-table-header-context-menu-wrapper">
-
                         {% if isPaymentNeeded %}
                             <span class="order-table-header-context-menu-indicator notification-dot notification-dot-danger"></span>
                         {% endif %}
 
                         {% block page_account_order_item_context_menu %}
-
                             {% block page_account_order_item_context_menu_button %}
                                 <button class="btn dropdown-toggle order-table-header-context-menu"
                                         type="button"
@@ -73,87 +71,86 @@
 
                             {% block page_account_order_item_context_menu_content %}
                                 <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content"
-                                aria-labelledby="accountOrderDropdown">
+                                     aria-labelledby="accountOrderDropdown">
+                                    {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
+                                        {% block page_account_order_item_context_menu_content_change_payment_button %}
+                                            {% if isPaymentNeeded %}
+                                                <a class="order-table-header-context-menu-content-link"
+                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                    <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>
+                                                </a>
+                                            {% else %}
+                                                <a class="order-table-header-context-menu-content-link"
+                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                    {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
+                                                </a>
+                                            {% endif %}
+                                        {% endblock %}
+                                    {% endif %}
 
-                                {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
-                                    {% block page_account_order_item_context_menu_content_change_payment_button %}
-                                        {% if isPaymentNeeded %}
-                                            <a class="order-table-header-context-menu-content-link"
-                                               href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>
-                                            </a>
-                                        {% else %}
-                                            <a class="order-table-header-context-menu-content-link"
-                                               href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
-                                            </a>
+                                    {% block page_account_order_item_context_menu_reorder %}
+                                        {% set action %}
+                                            {% block page_account_order_item_context_menu_reorder_form_action %}
+                                                {{ path('frontend.checkout.line-item.add') }}
+                                            {% endblock %}
+                                        {% endset %}
+
+                                        {% block page_account_order_item_context_menu_reorder_form %}
+                                            <form action="{{ action }}"
+                                                  id="orderDetailForm-{{ order.Id }}"
+                                                  method="post"
+                                                  class="order-table-header-context-menu-content-form"
+                                                  data-add-to-cart="true">
+                                                {% block page_account_order_item_context_menu_reorder_form_redirect %}
+                                                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
+                                                    {% for lineItem in order.lineItems %}
+                                                        {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
+                                                            {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][id]"
+                                                                       value="{{ lineItem.identifier }}">
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][referencedId]"
+                                                                       value="{{ lineItem.referencedId }}">
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][type]"
+                                                                       value="{{ lineItem.type }}">
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][stackable]"
+                                                                       value="1">
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][removable]"
+                                                                       value="1">
+                                                                <input type="hidden"
+                                                                       name="lineItems[{{ lineItem.identifier }}][quantity]"
+                                                                       value="{{ lineItem.quantity }}">
+                                                            {% endif %}
+                                                        {% endblock %}
+                                                    {% endfor %}
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_context_menu_reorder_form_button %}
+                                                    <button class="order-table-header-context-menu-content-link" type="submit">{{ "account.orderContextMenuReorder"|trans|sw_sanitize }}</button>
+                                                {% endblock %}
+                                            </form>
+                                        {% endblock %}
+                                    {% endblock %}
+
+                                    {% block page_account_order_item_context_menu_cancel_order %}
+                                        {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
+                                            <button type="button"
+                                                    class="order-table-header-context-menu-content-link"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#order-{{ order.id }}">
+                                                {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                                            </button>
                                         {% endif %}
                                     {% endblock %}
-                                {% endif %}
-
-                                {% block page_account_order_item_context_menu_reorder %}
-                                    {% set action %}
-                                        {% block page_account_order_item_context_menu_reorder_form_action %}
-                                            {{ path('frontend.checkout.line-item.add') }}
-                                        {% endblock %}
-                                    {% endset %}
-
-                                    {% block page_account_order_item_context_menu_reorder_form %}
-                                        <form action="{{ action }}"
-                                              id="orderDetailForm-{{ order.Id }}"
-                                              method="post"
-                                              class="order-table-header-context-menu-content-form"
-                                              data-add-to-cart="true">
-                                            {% block page_account_order_item_context_menu_reorder_form_redirect %}
-                                                <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
-                                            {% endblock %}
-
-                                            {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
-                                                {% for lineItem in order.lineItems %}
-                                                    {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
-                                                        {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][id]"
-                                                                   value="{{ lineItem.identifier }}">
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][referencedId]"
-                                                                   value="{{ lineItem.referencedId }}">
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][type]"
-                                                                   value="{{ lineItem.type }}">
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][stackable]"
-                                                                   value="1">
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][removable]"
-                                                                   value="1">
-                                                            <input type="hidden"
-                                                                   name="lineItems[{{ lineItem.identifier }}][quantity]"
-                                                                   value="{{ lineItem.quantity }}">
-                                                        {% endif %}
-                                                    {% endblock %}
-                                                {% endfor %}
-                                            {% endblock %}
-
-                                            {% block page_account_order_item_context_menu_reorder_form_button %}
-                                                <button class="order-table-header-context-menu-content-link" type="submit">{{ "account.orderContextMenuReorder"|trans|sw_sanitize }}</button>
-                                            {% endblock %}
-                                        </form>
-                                    {% endblock %}
-                                {% endblock %}
-
-                                {% block page_account_order_item_context_menu_cancel_order %}
-                                    {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
-                                        <button type="button"
-                                                class="order-table-header-context-menu-content-link"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#order-{{ order.id }}">
-                                            {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
-                                        </button>
-                                    {% endif %}
-                                {% endblock %}
+                                </div>
                             {% endblock %}
-                            </div>
                         {% endblock %}
 
                         {% if orderState != ORDER_STATE_CANCELLED %}
@@ -161,7 +158,6 @@
                                 {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
                             </div>
                         {% endif %}
-
                     </div>
                 {% endblock %}
 
@@ -258,7 +254,6 @@
                                             data-bs-target="#order{{ order.orderNumber }}"
                                             aria-expanded="false"
                                             aria-controls="collapseExample">
-
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
                                             <span class="order-hide-btn-text">{{ "account.orderActionHide"|trans|sw_sanitize }}</span>
                                             <span class="order-view-btn-text">{{ "account.orderActionView"|trans|sw_sanitize }}</span>

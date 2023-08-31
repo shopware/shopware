@@ -201,7 +201,7 @@ module.exports = {
                 'vue/no-deprecated-v-on-native-modifier': 'off',
             },
         }, {
-            files: ['**/*.spec.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
                 'max-len': 0,

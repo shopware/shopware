@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import swPropertyList from 'src/module/sw-property/page/sw-property-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -10,71 +10,73 @@ import Criteria from 'src/core/data/criteria.data';
 Shopware.Component.register('sw-property-list', swPropertyList);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-property-list'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '1a2b3c4e',
-                                name: 'Test property',
-                                sourceEntitiy: 'property',
-                            },
-                        ]);
+    return mount(await Shopware.Component.build('sw-property-list'), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
                     },
-                }),
-            },
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
-                },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
                 },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
-                    <div class="sw-page">
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="content">CONTENT</slot>
-                        <slot></slot>
-                    </div>`,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c4e',
+                                    name: 'Test property',
+                                    sourceEntitiy: 'property',
+                                },
+                            ]);
+                        },
+                    }),
+                },
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
+                },
             },
-            'sw-button': {
-                template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                props: ['disabled'],
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content">CONTENT</slot>
+                            <slot></slot>
+                        </div>`,
+                },
+                'sw-button': {
+                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
+                    props: ['disabled'],
+                },
+                'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-entity-listing': {
+                    props: ['items', 'allow-inline-edit'],
+                    template: `
+                        <div>
+                            <template v-for="item in items">
+                                <slot name="actions" v-bind="{ item }"></slot>
+                            </template>
+                        </div>`,
+                },
+                'sw-language-switch': true,
+                'sw-empty-state': true,
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                    props: ['disabled'],
+                },
+                'router-link': true,
             },
-            'sw-icon': true,
-            'sw-search-bar': true,
-            'sw-entity-listing': {
-                props: ['items', 'allow-inline-edit'],
-                template: `
-                    <div>
-                        <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>`,
-            },
-            'sw-language-switch': true,
-            'sw-empty-state': true,
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-                props: ['disabled'],
-            },
-            'router-link': true,
         },
     });
 }
@@ -86,7 +88,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const createButton = wrapper.find('.sw-property-list__button-create');
+        const createButton = wrapper.getComponent('.sw-property-list__button-create');
 
         expect(createButton.props('disabled')).toBe(true);
     });
@@ -97,7 +99,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const createButton = wrapper.find('.sw-property-list__button-create');
+        const createButton = wrapper.getComponent('.sw-property-list__button-create');
 
         expect(createButton.props('disabled')).toBe(false);
     });
@@ -108,9 +110,8 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-property-list-grid');
+        const entityListing = wrapper.getComponent('.sw-property-list-grid');
 
-        expect(entityListing.exists()).toBe(true);
         expect(entityListing.props('allowInlineEdit')).toBe(false);
     });
 
@@ -120,8 +121,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-property-list-grid');
-        expect(entityListing.exists()).toBe(true);
+        const entityListing = wrapper.getComponent('.sw-property-list-grid');
         expect(entityListing.props('allowInlineEdit')).toBe(true);
     });
 
@@ -131,7 +131,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
+        const deleteMenuItem = wrapper.getComponent('.sw-property-list__delete-action');
         expect(deleteMenuItem.props('disabled')).toBe(true);
     });
 
@@ -141,7 +141,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
+        const deleteMenuItem = wrapper.getComponent('.sw-property-list__delete-action');
         expect(deleteMenuItem.props('disabled')).toBe(false);
     });
 
@@ -151,7 +151,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const editMenuItem = wrapper.find('.sw-property-list__edit-action');
+        const editMenuItem = wrapper.getComponent('.sw-property-list__edit-action');
         expect(editMenuItem.props('disabled')).toBe(true);
     });
 
@@ -161,7 +161,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const editMenuItem = wrapper.find('.sw-property-list__edit-action');
+        const editMenuItem = wrapper.getComponent('.sw-property-list__edit-action');
         expect(editMenuItem.props('disabled')).toBe(false);
     });
 
@@ -262,4 +262,3 @@ describe('module/sw-property/page/sw-property-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });
-

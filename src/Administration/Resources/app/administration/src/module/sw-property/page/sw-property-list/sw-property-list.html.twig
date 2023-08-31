@@ -110,10 +110,8 @@
                 <template
                     #column-options="{ item }"
                 >
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                     <span
-                        v-for="(option, index) in item.options"
-                        v-if="index < 4"
+                        v-for="(option, index) in item.options.slice(0, 4)"
                         :key="option.id"
                     >
                         {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}

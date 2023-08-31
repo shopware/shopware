@@ -35,6 +35,7 @@ Component.register('sw-data-grid', {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     props: {
@@ -679,6 +680,24 @@ Component.register('sw-data-grid', {
             }
 
             const selection = this.selection;
+
+
+            if (this.feature.isActive('VUE3')) {
+                const key = item[this.itemIdentifierProperty];
+                if (selected) {
+                    this.selection = {
+                        ...this.selection,
+                        [key]: item,
+                    };
+                } else {
+                    this.selection = Object.fromEntries(
+                        Object.entries(this.selection).filter(([selectionKey]) => selectionKey !== key),
+                    );
+                }
+                this.$emit('select-item', this.selection, item, selected);
+
+                return;
+            }
 
             if (selected) {
                 this.$set(this.selection, item[this.itemIdentifierProperty], item);

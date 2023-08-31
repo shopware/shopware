@@ -4746,31 +4746,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Repository/ProductTagTest.php
 
 		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
-			message: "#^Cannot call method getCrossSelling\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CrossSellingElement\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
-			message: "#^Cannot call method getGross\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 8
-			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
-			message: "#^Cannot call method getProducts\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CrossSellingElement\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
-			message: "#^Cannot call method getTotal\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CrossSellingElement\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Product/SalesChannel/CrossSelling/CrossSellingRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Fixture\\\\ListingTestData\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/Fixture/ListingTestData.php
@@ -10208,11 +10183,6 @@ parameters:
 			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
 
 		-
-			message: "#^Cannot assign new offset to Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
-
-		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrl/SeoUrlRepositoryTest.php
@@ -14385,11 +14355,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$c\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 11
 			path: tests/unit/Core/Profiling/Doctrine/ConnectionProfilerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Rule\\\\\\\\RuleEntity' and Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Profiling/Subscriber/ActiveRulesDataCollectorSubscriberTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\AdminUiXmlSchema' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\AdminUiXmlSchema will always evaluate to true\\.$#"

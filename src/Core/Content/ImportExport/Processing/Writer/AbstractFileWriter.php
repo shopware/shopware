@@ -34,7 +34,7 @@ abstract class AbstractFileWriter extends AbstractWriter
     {
         rewind($this->buffer);
 
-        if (!is_resource($this->tempFile)) {
+        if (!\is_resource($this->tempFile)) {
             $this->initTempFile();
         }
 

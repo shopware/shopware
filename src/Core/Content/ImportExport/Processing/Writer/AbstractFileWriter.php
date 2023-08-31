@@ -34,6 +34,10 @@ abstract class AbstractFileWriter extends AbstractWriter
     {
         rewind($this->buffer);
 
+        if (!is_resource($this->tempFile)) {
+            $this->initTempFile();
+        }
+
         $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);
         if ($bytesCopied === false) {
             throw new \RuntimeException(sprintf('Could not copy stream to %s', $this->tempPath));

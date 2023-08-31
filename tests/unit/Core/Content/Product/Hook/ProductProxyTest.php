@@ -57,7 +57,6 @@ class ProductProxyTest extends TestCase
         // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertArrayHasKey('stock', $proxy, 'Proxy should be able to check if a property exists');
     }
 

@@ -557,6 +557,7 @@ class OrderRouteTest extends TestCase
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
+        static::assertIsArray($response['orders']['elements']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);

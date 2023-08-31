@@ -85,7 +85,7 @@ class RangeAggregationTest extends TestCase
      * @dataProvider rangeAggregationDataProvider
      *
      * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     * @param array<string, int> $rangesExpectedResult
      */
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult): void
     {

@@ -86,13 +86,16 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
+        static::assertNotNull($element);
         static::assertEquals(3, $element->getTotal());
         static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
-            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+            static::assertNotNull($productPrice);
+            static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
+            $lastPrice = $productPrice->getGross();
         }
     }
 
@@ -119,13 +122,16 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
+        static::assertNotNull($element);
         static::assertEquals(3, $element->getTotal());
         static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
-            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+            static::assertNotNull($productPrice);
+            static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
+            $lastPrice = $productPrice->getGross();
         }
     }
 
@@ -156,14 +162,16 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
-
+        static::assertNotNull($element);
         static::assertEquals(3, $element->getTotal());
         static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
-            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+            static::assertNotNull($productPrice);
+            static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
+            $lastPrice = $productPrice->getGross();
         }
     }
 
@@ -194,14 +202,16 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
-
+        static::assertNotNull($element);
         static::assertEquals(1, $element->getTotal());
         static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
-            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+            static::assertNotNull($productPrice);
+            static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
+            $lastPrice = $productPrice->getGross();
         }
     }
 
@@ -260,9 +270,9 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
-
+        static::assertNotNull($element);
         static::assertEquals(5, $element->getProducts()->count());
-        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()->count());
+        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()?->count());
 
         $this->browser->request(
             'POST',
@@ -286,6 +296,7 @@ class CrossSellingRouteTest extends TestCase
         $expected = ['id', 'name', 'apiAlias'];
         sort($expected);
 
+        static::assertIsArray($response[0]['crossSelling']);
         $properties = array_keys($response[0]['crossSelling']);
         sort($properties);
         static::assertEquals($expected, $properties);
@@ -326,9 +337,9 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals(1, $result->count());
 
         $element = $result->first();
-
+        static::assertNotNull($element);
         static::assertEquals(0, $element->getProducts()->count());
-        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()->count());
+        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()?->count());
     }
 
     /**
@@ -429,14 +440,12 @@ class CrossSellingRouteTest extends TestCase
         }
     }
 
-    private function createProductStream(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): string
+    private function createProductStream(bool $includesIsCloseoutProducts = false, bool $noStock = false): string
     {
-        /** @var EntityRepository $streamRepository */
-        $streamRepository = $this->getContainer()->get('product_stream.repository');
         $id = Uuid::randomHex();
         $randomProductIds = implode('|', array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id'));
 
-        $streamRepository->create([
+        $this->getContainer()->get('product_stream.repository')->create([
             [
                 'id' => $id,
                 'filters' => [
@@ -456,7 +465,7 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return list<array{productId: string, position: int}>
      */
-    private function createAssignedProducts(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): array
+    private function createAssignedProducts(bool $includesIsCloseoutProducts = false, bool $noStock = false): array
     {
         $assignedProducts = [];
         $randomProductIds = array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id');
@@ -474,7 +483,7 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return list<array<string, mixed>>
      */
-    private function createProducts(?bool $isCloseout = false, ?bool $noStock = false): array
+    private function createProducts(bool $isCloseout = false, bool $noStock = false): array
     {
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
@@ -505,7 +514,7 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, ?int $stock = 1, ?bool $isCloseout = false): array
+    private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, int $stock = 1, bool $isCloseout = false): array
     {
         $price = random_int(0, 10);
 

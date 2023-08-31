@@ -49,7 +49,7 @@ export default {
             isProcessLoading: false,
             isLoading: false,
             currenciesLoading: false,
-            customFieldSets: null,
+            customFieldSets: [],
         };
     },
 
@@ -193,7 +193,6 @@ export default {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
             } else {
                 this.loadEntityData();
-                this.loadCustomFieldSets();
             }
             this.loadCurrencies();
         },
@@ -219,12 +218,14 @@ export default {
                 this.shippingMethodCriteria,
             ).then(res => {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', res);
-                this.isLoading = false;
+                this.loadCustomFieldSets().then(() => {
+                    this.isLoading = false;
+                });
             });
         },
 
         loadCustomFieldSets() {
-            this.customFieldDataProviderService.getCustomFieldSets('shipping_method').then((sets) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('shipping_method').then((sets) => {
                 this.customFieldSets = sets;
             });
         },

@@ -75,7 +75,7 @@ describe('components/base/sw-button', () => {
 
         await wrapper.get('button').trigger('click');
         expect(wrapper.emitted().click).toStrictEqual(expect.any(Array));
-        expect(wrapper.emitted().click.length).toBe(1);
+        expect(wrapper.emitted().click).toHaveLength(1);
     });
 
     it('should not trigger an event when disabled', async () => {
@@ -120,6 +120,6 @@ describe('components/base/sw-button', () => {
         expect(button.attributes('disabled')).toBeFalsy();
 
         await button.trigger('click');
-        expect(onClick).not.toBeCalled();
+        expect(onClick).not.toHaveBeenCalled();
     });
 });

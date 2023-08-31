@@ -3,6 +3,16 @@
  */
 
 import { mount } from '@vue/test-utils_v3';
+import swPropertyOptionList from 'src/module/sw-property/component/sw-property-option-list';
+import 'src/app/component/base/sw-card';
+import 'src/app/component/base/sw-container';
+import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/entity/sw-one-to-many-grid';
+import swPropertyOptionDetail from 'src/module/sw-property/component/sw-property-option-detail';
+import 'src/app/component/form/sw-colorpicker';
+
+Shopware.Component.register('sw-property-option-list', swPropertyOptionList);
+Shopware.Component.register('sw-property-option-detail', swPropertyOptionDetail);
 
 function getOptions() {
     const options = [
@@ -68,7 +78,7 @@ function getOptionRepository() {
 }
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-property-option-list', { sync: true }), {
+    return mount(await Shopware.Component.build('sw-property-option-list'), {
         props: {
             propertyGroup: propertyGroup,
             optionRepository: getOptionRepository(),
@@ -88,16 +98,16 @@ async function createWrapper() {
                 },
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-container': await Shopware.Component.build('sw-container'),
                 'sw-button': {
                     template: '<button class="sw-button" @click="$emit(`click`)"></botton>',
                 },
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
-                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', { sync: true }),
+                'sw-one-to-many-grid': await Shopware.Component.build('sw-one-to-many-grid'),
                 'sw-pagination': {
                     template: '<div></div>',
                 },
@@ -110,7 +120,7 @@ async function createWrapper() {
                 'sw-icon': {
                     template: '<div></div>',
                 },
-                'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),
+                'sw-property-option-detail': await Shopware.Component.build('sw-property-option-detail'),
                 'sw-modal': {
                     template: `
                         <div class="sw-modal">

@@ -3,9 +3,12 @@
  */
 
 import { mount } from '@vue/test-utils_v3';
+import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
+
+Shopware.Component.register('sw-property-detail', swPropertyDetail);
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-property-detail', { sync: true }), {
+    return mount(await Shopware.Component.build('sw-property-detail'), {
         global: {
             provide: {
                 repositoryFactory: {

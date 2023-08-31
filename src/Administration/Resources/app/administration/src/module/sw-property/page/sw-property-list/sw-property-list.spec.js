@@ -70,7 +70,10 @@ async function createWrapper() {
             },
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': true,
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                props: ['disabled'],
+            },
             'router-link': true,
         },
     });

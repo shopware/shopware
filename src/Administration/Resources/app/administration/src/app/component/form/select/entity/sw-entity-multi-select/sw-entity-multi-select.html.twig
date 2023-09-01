@@ -5,9 +5,10 @@
     class="sw-entity-multi-select"
     :is-loading="isLoading"
     v-bind="$attrs"
+    v-on="$listeners"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="$listeners"
+    @clear="clearSelection"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base %}

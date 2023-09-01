@@ -64,7 +64,7 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.id', null)]));
+        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannels.id', null)]));
         $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         $languages = $this->sortLanguages($languages);

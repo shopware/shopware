@@ -34,7 +34,7 @@ class ExtensionThemeStillInUseExceptionTest extends TestCase
     public function testGetMessage(): void
     {
         static::assertSame(
-            'The extension with id "36cf0d7a018a41719f29f50f2a056179"can not be removed because it\'s theme is still assigned to a sales channel.',
+            'The extension with id "36cf0d7a018a41719f29f50f2a056179" can not be removed because its theme is still assigned to a sales channel.',
             (new ExtensionThemeStillInUseException('36cf0d7a018a41719f29f50f2a056179', ['foo' => 'bar']))->getMessage()
         );
     }

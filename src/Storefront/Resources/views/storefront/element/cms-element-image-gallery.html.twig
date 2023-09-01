@@ -228,9 +228,12 @@
                                                 {% block element_image_gallery_slider_dots_buttons %}
                                                     {% for image in mediaItems %}
                                                         {% block element_image_gallery_slider_dots_button %}
-                                                            <button class="base-slider-dot"
-                                                                    data-nav-dot="{{ loop.index }}"
-                                                                    tabindex="-1"></button>
+                                                            <button
+                                                                class="base-slider-dot"
+                                                                data-nav-dot="{{ loop.index }}"
+                                                                aria-label="{{ 'component.cms.imageGallery.sliderDotLabel'|trans({ '%index%': loop.index, '%total%': mediaItems|length })|striptags }}"
+                                                                tabindex="-1">
+                                                            </button>
                                                         {% endblock %}
                                                     {% endfor %}
                                                 {% endblock %}

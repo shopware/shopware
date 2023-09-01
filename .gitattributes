@@ -20,6 +20,8 @@
 /bin/pre-commit export-ignore
 /bin/pre-push export-ignore
 /config-schema.json export-ignore
+/config/routes/test export-ignore
+/config/services_test.xml export-ignore
 /*.md export-ignore
 /devenv.* export-ignore
 /docker-compose.yml export-ignore

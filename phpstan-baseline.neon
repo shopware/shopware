@@ -12723,11 +12723,6 @@ parameters:
 			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver\\:\\:getMaintenanceWhitelist\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/MaintenanceModeResolver.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php

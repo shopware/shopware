@@ -165,7 +165,10 @@ trait SalesChannelApiTestBehaviour
         return $salesChannelApiBrowser;
     }
 
-    private function createCustomer(?string $email = null, ?bool $guest = false): string
+    /**
+     * @param array<string, mixed> $customerOverride
+     */
+    private function createCustomer(?string $email = null, ?bool $guest = false, array $customerOverride = []): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -174,56 +177,58 @@ trait SalesChannelApiTestBehaviour
             $email = Uuid::randomHex() . '@example.com';
         }
 
-        $this->getContainer()->get('customer.repository')->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'active' => true,
-                    'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRule' => [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'cartCartAmount',
-                                'value' => [
-                                    'operator' => '>=',
-                                    'amount' => 0,
-                                ],
+        $customer = array_merge([
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->getValidCountryId(),
+            ],
+            'defaultBillingAddressId' => $addressId,
+            'defaultPaymentMethod' => [
+                'name' => 'Invoice',
+                'active' => true,
+                'description' => 'Default payment method',
+                'handlerIdentifier' => SyncTestPaymentHandler::class,
+                'availabilityRule' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'cartCartAmount',
+                            'value' => [
+                                'operator' => '>=',
+                                'amount' => 0,
                             ],
                         ],
                     ],
-                    'salesChannels' => [
-                        [
-                            'id' => TestDefaults::SALES_CHANNEL,
-                        ],
+                ],
+                'salesChannels' => [
+                    [
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'guest' => $guest,
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
             ],
-        ], Context::createDefaultContext());
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'guest' => $guest,
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ], $customerOverride);
+
+        $customerId = $customer['id'];
+
+        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

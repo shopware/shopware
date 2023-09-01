@@ -361,6 +361,7 @@ shopware:
             PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
             SYSTEM__SCOPE_NOT_FOUND: notice
+            FRAMEWORK__EXTENSION_THEME_STILL_IN_USE: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

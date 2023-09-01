@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -15,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ExtensionUpdateRequiresConsentAffirmationExceptionTest extends TestCase
 {
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetErrorCode(): void
     {
         static::assertSame(
@@ -23,6 +27,9 @@ class ExtensionUpdateRequiresConsentAffirmationExceptionTest extends TestCase
         );
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetStatusCode(): void
     {
         static::assertSame(
@@ -31,6 +38,9 @@ class ExtensionUpdateRequiresConsentAffirmationExceptionTest extends TestCase
         );
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetMessage(): void
     {
         static::assertSame(

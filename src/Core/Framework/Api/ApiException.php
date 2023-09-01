@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelMaintenanceException;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -169,6 +170,11 @@ class ApiException extends HttpException
     public static function salesChannelNotFound(): ShopwareHttpException
     {
         return new SalesChannelNotFoundException();
+    }
+
+    public static function salesChannelMaintenanceException(): ShopwareHttpException
+    {
+        return new SalesChannelMaintenanceException();
     }
 
     public static function deleteLiveVersion(): ShopwareHttpException

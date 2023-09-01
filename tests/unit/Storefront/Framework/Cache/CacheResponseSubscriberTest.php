@@ -18,6 +18,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;

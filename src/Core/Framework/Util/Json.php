@@ -16,26 +16,23 @@ final class Json
     }
 
     /**
-     * @throws UtilException when the JSON is invalid, not an array or not an object with sequential keys
+     * @throws \JsonException
+     * @throws \UnexpectedValueException
      *
-     * @return list<mixed>
+     * @return array<int, mixed>
      */
-    public static function decodeToList(string $value): array
+    public static function decodeArray(string $value): array
     {
         if ($value === '') {
             return [];
         }
 
-        try {
-            $result = json_decode($value, true, flags: \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw UtilException::invalidJson($e);
-        }
+        $result = json_decode($value, true, flags: \JSON_THROW_ON_ERROR);
 
         if (\is_array($result) && \array_is_list($result)) {
             return $result;
         }
 
-        throw UtilException::invalidJsonNotList();
+        throw new \UnexpectedValueException('Provided JSON is not a string.');
     }
 }

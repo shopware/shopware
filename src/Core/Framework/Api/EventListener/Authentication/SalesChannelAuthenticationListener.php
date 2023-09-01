@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -69,7 +69,10 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
 
         $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
         if (!$accessKey) {
-            throw ApiException::unauthorized('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
+            throw ApiException::unauthorized(
+                'header',
+                sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY)
+            );
         }
 
         $origin = AccessKeyHelper::getOrigin($accessKey);
@@ -109,7 +112,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             ->executeQuery()
             ->fetchAssociative();
 
-        if (!$salesChannelId) {
+        if (!\is_array($salesChannelData)) {
             throw ApiException::salesChannelNotFound();
         }
 
@@ -139,17 +142,13 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        try {
-            /** @var string[] $allowedIps */
-            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
-        } catch (UtilException $e) {
-            return;
-        }
+        /** @var string[] $allowedIps */
+        $allowedIps = Json::decodeArray((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
 
         if ($this->maintenanceModeResolver->isClientAllowed($request, $allowedIps)) {
             return;
         }
 
-        throw ApiException::salesChannelInMaintenanceMode();
+        throw ApiException::salesChannelMaintenanceException();
     }
 }

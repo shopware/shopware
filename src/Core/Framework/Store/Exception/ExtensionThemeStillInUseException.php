@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - Will be removed. use \Shopware\Core\Framework\Store\StoreException::extensionThemeStillInUse instead
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class ExtensionThemeStillInUseException extends StoreException
 {
     public function __construct(

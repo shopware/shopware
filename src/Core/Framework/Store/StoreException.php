@@ -32,29 +32,12 @@ class StoreException extends HttpException
 
     public static function extensionThemeStillInUse(string $extensionId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ExtensionThemeStillInUseException($extensionId);
-        }
-
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::EXTENSION_THEME_STILL_IN_USE,
-            'The extension with id "{{ extensionId }}" can not be removed because its theme is still assigned to a sales channel.',
-            ['extensionId' => $extensionId]
-        );
+        return new ExtensionThemeStillInUseException($extensionId);
     }
 
     public static function extensionInstallException(string $message): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ExtensionInstallException($message);
-        }
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::EXTENSION_INSTALL,
-            $message
-        );
+        return new ExtensionInstallException($message);
     }
 
     /**
@@ -62,43 +45,16 @@ class StoreException extends HttpException
      */
     public static function extensionUpdateRequiresConsentAffirmationException(string $appName, array $deltas): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionUpdateRequiresConsentAffirmationException::fromDelta($appName, $deltas);
-        }
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION,
-            'Updating app "{{ appName }}" requires a renewed consent affirmation.',
-            ['appName' => $appName, 'deltas' => $deltas]
-        );
+        return ExtensionUpdateRequiresConsentAffirmationException::fromDelta($appName, $deltas);
     }
 
     public static function extensionNotFoundFromId(string $id): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionNotFoundException::fromId($id);
-        }
-
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::EXTENSION_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'extension', 'field' => 'id', 'value' => $id]
-        );
+        return ExtensionNotFoundException::fromId($id);
     }
 
     public static function extensionNotFoundFromTechnicalName(string $technicalName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionNotFoundException::fromTechnicalName($technicalName);
-        }
-
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::EXTENSION_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName]
-        );
+        return ExtensionNotFoundException::fromTechnicalName($technicalName);
     }
 }

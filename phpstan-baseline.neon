@@ -9216,21 +9216,6 @@ parameters:
 			path: src/Core/Framework/Store/Search/FilterStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\ExtensionDataProvider\\:\\:getAppEntityFromId\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/ExtensionDataProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\ExtensionDataProvider\\:\\:getAppEntityFromTechnicalName\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/ExtensionDataProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\\:\\:getAppByName\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct is not subtype of native type Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Services/StoreClient.php
@@ -11229,46 +11214,6 @@ parameters:
 			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Authentication/StoreRequestOptionsProviderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\AppEntity' and Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionDataProviderTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getSalesChannels\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getVersion\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\ExtensionLifecycleServiceTest\\:\\:\\$pluginRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Store\\\\\\\\Struct\\\\\\\\ExtensionCollection' and Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionCollection will always evaluate to true\\.$#"

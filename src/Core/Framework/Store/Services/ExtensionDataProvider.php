@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
 /**
@@ -56,8 +56,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($app === null) {
-            throw ExtensionNotFoundException::fromTechnicalName($technicalName);
+        if (!$app instanceof AppEntity) {
+            throw StoreException::extensionNotFoundFromTechnicalName($technicalName);
         }
 
         return $app;
@@ -68,8 +68,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = new Criteria([$id]);
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($app === null) {
-            throw ExtensionNotFoundException::fromId($id);
+        if (!$app instanceof AppEntity) {
+            throw StoreException::extensionNotFoundFromId($id);
         }
 
         return $app;

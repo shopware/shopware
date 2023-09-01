@@ -35,7 +35,7 @@ abstract class AbstractFileWriter extends AbstractWriter
         rewind($this->buffer);
 
         if (!\is_resource($this->tempFile)) {
-            $this->initTempFile();
+            $this->tempFile = fopen($this->tempPath, 'a+b');
         }
 
         $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);

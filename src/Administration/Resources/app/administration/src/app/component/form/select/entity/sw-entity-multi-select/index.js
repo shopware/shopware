@@ -91,16 +91,19 @@ Component.register('sw-entity-multi-select', {
                 return Shopware.Context.api;
             },
         },
+
         hideLabels: {
             type: Boolean,
             required: false,
             default: false,
         },
+
         selectionDisablingMethod: {
             type: Function,
             required: false,
             default: () => false,
         },
+
         descriptionPosition: {
             type: String,
             required: false,
@@ -110,6 +113,7 @@ Component.register('sw-entity-multi-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
+
         advancedSelectionComponent: {
             type: String,
             required: false,
@@ -117,6 +121,7 @@ Component.register('sw-entity-multi-select', {
                 return '';
             },
         },
+
         advancedSelectionParameters: {
             type: Object,
             required: false,
@@ -411,6 +416,12 @@ Component.register('sw-entity-multi-select', {
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
+        },
+
+        clearSelection() {
+            this.emitChanges(this.createEmptyCollection());
+            this.searchTerm = '';
+            this.$refs.selectionList.blur();
         },
     },
 });

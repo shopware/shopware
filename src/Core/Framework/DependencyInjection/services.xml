@@ -216,6 +216,10 @@ base-uri 'self';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\MaintenanceModeResolver">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <!-- Custom Entity -->
         <service id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService">
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>

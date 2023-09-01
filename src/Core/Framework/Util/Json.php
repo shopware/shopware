@@ -14,4 +14,25 @@ final class Json
     {
         return (string) json_encode($value, $options);
     }
+
+    /**
+     * @throws \JsonException
+     * @throws \UnexpectedValueException
+     *
+     * @return array<int, mixed>
+     */
+    public static function decodeArray(string $value): array
+    {
+        if ($value === '') {
+            return [];
+        }
+
+        $result = json_decode($value, true, flags: \JSON_THROW_ON_ERROR);
+
+        if (\is_array($result) && \array_is_list($result)) {
+            return $result;
+        }
+
+        throw new \UnexpectedValueException('Provided JSON is not a string.');
+    }
 }

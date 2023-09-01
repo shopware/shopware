@@ -120,7 +120,12 @@ phpstan.neon
 
 config/jwt/
 config/packages/
+config/routes*
+!config/routes/
+config/routes/*
+!config/routes/test/
 config/services*
+!/config/services_test.xml
 
 custom
 !/custom/scripts/boot

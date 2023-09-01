@@ -173,8 +173,13 @@ class InvoiceRendererTest extends TestCase
                     $rendered->getHtml()
                 );
 
+                static::assertNotNull($locale = $order->getLanguage()->getLocale());
+                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
+                $formattedDate = $formatter->format(new \DateTime());
+
+                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Date %s', (new \DateTime())->format('j M Y')),
+                    sprintf('Date %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -228,8 +233,13 @@ class InvoiceRendererTest extends TestCase
                 );
                 static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
 
+                static::assertNotNull($locale = $order->getLanguage()->getLocale());
+                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
+                $formattedDate = $formatter->format(new \DateTime());
+
+                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Datum %s', (new \DateTime())->format('d.m.Y')),
+                    sprintf('Datum %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },

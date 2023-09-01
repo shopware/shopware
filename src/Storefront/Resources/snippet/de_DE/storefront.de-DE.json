@@ -668,6 +668,11 @@
           "true": "Ja",
           "false": "Nein"
         }
+      },
+      "quantitySelect": {
+        "label": "Anzahl",
+        "increase": "Anzahl erhöhen",
+        "decrease": "Anzahl verringern"
       }
     },
     "cms": {
@@ -675,6 +680,9 @@
         "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "privacyNoticeText": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
+      },
+      "imageGallery": {
+        "sliderDotLabel": "Zeige Bild %index% von %total%"
       },
       "defaultMedia": {
         "preview_camera_large": {

@@ -9,6 +9,7 @@
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
+      "SHOPWARE_INVALID_IP_CIDR": "Bitte gib eine gültige IP-Adresse oder eine IP-Adresse mit CIDR-Maske ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
@@ -549,7 +550,9 @@
       "enterValidIp": "Gültige IPv4- oder IPv6-Adresse eingeben ...",
       "addIpAddress": "IP-Adresse hinzufügen",
       "knownIps": {
-        "you": "Du"
+        "you": "Du",
+        "youIPv6Block56": "Du und andere (Selber Standort)",
+        "youIPv6Block64": "Du und andere (Heimnetzwerk)"
       }
     },
     "sw-entity-advanced-selection-modal": {

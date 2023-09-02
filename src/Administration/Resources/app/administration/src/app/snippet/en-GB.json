@@ -9,6 +9,7 @@
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",
       "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
+      "SHOPWARE_INVALID_IP_CIDR": "Please enter a valid IP address or a valid IP-address with CIDR mask.",
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
@@ -549,7 +550,9 @@
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
       "addIpAddress": "Add IP address",
       "knownIps": {
-        "you": "You"
+        "you": "You",
+        "youIPv6Block56": "You and others (same endsite)",
+        "youIPv6Block64": "You and others (home network)"
       }
     },
     "sw-entity-advanced-selection-modal": {

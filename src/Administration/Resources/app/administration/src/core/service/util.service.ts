@@ -84,6 +84,7 @@ export const string = {
     isEmptyOrSpaces: stringUtils.isEmptyOrSpaces,
     isUrl: stringUtils.isUrl,
     isValidIp: stringUtils.isValidIp,
+    isValidCidr: stringUtils.isValidCidr,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

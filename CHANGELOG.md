@@ -61,9 +61,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-28978 - Add Vue 3 Jest](./changelog/release-6-5-5-0/2023-08-25-add-vue-3-jest.md)
 *  [NEXT-30107 - Reduce log level of InvalidTemplateException](./changelog/release-6-5-5-0/2023-08-25-reduce-log-level-of-invalid-template-exception.md)
 
-## 6.5.4.1
-*  [NEXT-29992 - Fix mariadb compatibility](./changelog/release-6-5-4-1/2023-08-18-fix-mariadb-compatibility.md)
-
 ## 6.5.4.0
 *  [NEXT-23811 - Implement consideration of log configuration for plugins](./changelog/release-6-5-4-0/2022-10-13-implement-configurable-plugin-log-handling.md) ([Alexander Wink](https://github.com/jinnoflife))
 *  [NEXT-28673 - Add order tax state footnote in customer's order history](./changelog/release-6-5-4-0/2022-10-21-add-order-tax-state-footnote-in-customer-order-history.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

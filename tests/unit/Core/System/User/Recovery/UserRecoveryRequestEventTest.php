@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -14,6 +15,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
  *
  * @covers \Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent
  */
+#[Package('system-settings')]
 class UserRecoveryRequestEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

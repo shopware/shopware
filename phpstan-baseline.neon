@@ -12913,26 +12913,6 @@ parameters:
 			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
 
 		-
-			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/User/Recovery/UserRecoveryServiceTest.php
-
-		-
-			message: "#^Cannot call method getPassword\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/User/Recovery/UserRecoveryServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Recovery\\\\UserRecoveryServiceTest\\:\\:dataProviderTestCheckHash\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/User/Recovery/UserRecoveryServiceTest.php
-
-		-
-			message: "#^Unsafe access to private constant Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Recovery\\\\UserRecoveryServiceTest\\:\\:VALID_EMAIL through static\\:\\:\\.$#"
-			count: 5
-			path: src/Core/System/Test/User/Recovery/UserRecoveryServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Unit\\\\Aggregate\\\\UnitTranslation\\\\UnitTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Unit/Aggregate/UnitTranslation/UnitTranslationCollection.php
@@ -12961,16 +12941,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:\\$value type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Recovery\\\\UserRecoveryService\\:\\:getUserByEmail\\(\\) should return Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/User/Recovery/UserRecoveryService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Recovery\\\\UserRecoveryService\\:\\:getUserRecovery\\(\\) should return Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserRecovery\\\\UserRecoveryEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/User/Recovery/UserRecoveryService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\UserCollection\\:\\:getLocaleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14681,11 +14651,6 @@ parameters:
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
-
-		-
-			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/System/User/Api/UserRecoveryControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

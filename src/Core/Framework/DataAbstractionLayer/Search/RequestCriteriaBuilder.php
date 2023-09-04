@@ -174,6 +174,10 @@ class RequestCriteriaBuilder
 
         if (isset($payload['associations'])) {
             foreach ($payload['associations'] as $propertyName => $association) {
+                if (!\is_array($association)) {
+                    continue;
+                }
+
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {

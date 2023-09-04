@@ -176,9 +176,124 @@ parameters:
 			path: src/Administration/Test/System/SalesChannel/Subscriber/SalesChannelUserConfigSubscriberTest.php
 
 		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Address\\\\Error\\\\SalutationMissingError\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Address/Error/SalutationMissingError.php
+
+		-
 			message: "#^Cannot call method getDeliveryDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation\\:\\:getCountry\\(\\) should return Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity but returns Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Delivery/Struct/ShippingLocation.php
+
+		-
+			message: "#^Parameter \\#1 \\$country of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation constructor expects Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity, Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null given\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Delivery/Struct/ShippingLocation.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorCollection\\:\\:filterByErrorLevel\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorCollection\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorCollection\\:\\:getNotices\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorCollection\\:\\:getWarnings\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorRoute\\:\\:__construct\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorRoute\\:\\:getParams\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorRoute.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorRoute\\:\\:\\$params type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/ErrorRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\GenericCartError\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Error/GenericCartError.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemAddedEvent\\:\\:__construct\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemAddedEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemAddedEvent\\:\\:getLineItems\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemAddedEvent.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemAddedEvent\\:\\:\\$lineItems type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemAddedEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemQuantityChangedEvent\\:\\:__construct\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemQuantityChangedEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemQuantityChangedEvent\\:\\:getItems\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemQuantityChangedEvent.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemQuantityChangedEvent\\:\\:\\$items type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemQuantityChangedEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemRemovedEvent\\:\\:__construct\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemRemovedEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemRemovedEvent\\:\\:getLineItems\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemRemovedEvent.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\AfterLineItemRemovedEvent\\:\\:\\$lineItems type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/AfterLineItemRemovedEvent.php
+
+		-
+			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
+
+		-
+			message: "#^Cannot call method getFirstName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
+
+		-
+			message: "#^Cannot call method getLastName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
 
 		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade will always evaluate to true\\.$#"
@@ -6231,6 +6346,46 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/Webhooks.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:__construct\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncFinalizePayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:getQueryParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncFinalizePayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncPayPayload\\:\\:__construct\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncPayPayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncPayPayload\\:\\:getRequestData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncPayPayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\ValidatePayload\\:\\:__construct\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/ValidatePayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\ValidatePayload\\:\\:getRequestData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Payload/Struct/ValidatePayload.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Response\\\\ValidateResponse\\:\\:getPreOrderPayment\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Response/ValidateResponse.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Response\\\\ValidateResponse\\:\\:\\$preOrderPayment type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Response/ValidateResponse.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Validation\\\\ConfigValidator\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Validation/ConfigValidator.php
@@ -8034,6 +8189,21 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\FilterStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Search/FilterStruct.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\ExtensionDataProvider\\:\\:getAppEntityFromId\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
+			count: 1
+			path: src/Core/Framework/Store/Services/ExtensionDataProvider.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\ExtensionDataProvider\\:\\:getAppEntityFromTechnicalName\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
+			count: 1
+			path: src/Core/Framework/Store/Services/ExtensionDataProvider.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\\:\\:getAppByName\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
+			count: 1
+			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct is not subtype of native type Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\.$#"
@@ -9869,6 +10039,46 @@ parameters:
 			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Authentication/StoreRequestOptionsProviderTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\AppEntity' and Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity will always evaluate to true\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Store/Service/ExtensionDataProviderTest.php
+
+		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 2
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
+			count: 4
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Cannot call method getSalesChannels\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Cannot call method getVersion\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
+			count: 2
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
+			count: 4
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\ExtensionLifecycleServiceTest\\:\\:\\$pluginRepository is never read, only written\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Store\\\\\\\\Struct\\\\\\\\ExtensionCollection' and Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionCollection will always evaluate to true\\.$#"

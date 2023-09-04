@@ -13620,11 +13620,6 @@ parameters:
 			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
 
 		-
-			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/System/User/Api/UserRecoveryControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Storefront/Controller/AddressControllerTest.php

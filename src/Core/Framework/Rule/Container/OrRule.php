@@ -10,6 +10,8 @@ class OrRule extends Container
 {
     final public const RULE_NAME = 'orContainer';
 
+    protected int $count;
+
     public function match(RuleScope $scope): bool
     {
         foreach ($this->rules as $rule) {

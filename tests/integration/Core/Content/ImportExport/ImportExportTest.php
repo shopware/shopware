@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
@@ -35,6 +36,7 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -47,11 +49,17 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
+use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
+use Shopware\Core\Content\Test\ImportExport\TestSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -65,8 +73,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitDefinition;
+use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -452,13 +464,18 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertEquals(2, $product->getPrices()->count());
         $firstPrice = $product->getPrices()->first();
+
+        static::assertInstanceOf(ProductPriceEntity::class, $firstPrice);
         static::assertEquals($ruleId, $firstPrice->getRuleId());
+        static::assertInstanceOf(Price::class, $firstPrice->getPrice()->first());
         static::assertEquals(7.89, $firstPrice->getPrice()->first()->getNet());
         static::assertEquals(9.39, $firstPrice->getPrice()->first()->getGross());
         static::assertEquals(1, $firstPrice->getQuantityStart());
         static::assertEquals(10, $firstPrice->getQuantityEnd());
         $lastPrice = $product->getPrices()->last();
+        static::assertInstanceOf(ProductPriceEntity::class, $lastPrice);
         static::assertEquals($ruleId, $lastPrice->getRuleId());
+        static::assertInstanceOf(Price::class, $lastPrice->getPrice()->first());
         static::assertEquals(5.67, $lastPrice->getPrice()->first()->getNet());
         static::assertEquals(6.75, $lastPrice->getPrice()->first()->getGross());
         static::assertEquals(11, $lastPrice->getQuantityStart());
@@ -668,24 +685,28 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
         static::assertEquals(2, $progress->getProcessedRecords());
 
-        $productRepository = $this->getContainer()->get('product.repository');
         $criteria = new Criteria();
         $criteria->addAssociation('options.group');
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]));
 
-        $result = $productRepository->search($criteria, Context::createDefaultContext());
-        static::assertEquals(32, $result->count());
-        static::assertCount(3, $result->first()->getVariation());
-        static::assertContains('color', array_column($result->first()->getVariation(), 'group'));
-        static::assertContains('size', array_column($result->first()->getVariation(), 'group'));
-        static::assertContains('material', array_column($result->first()->getVariation(), 'group'));
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        static::assertInstanceOf(ProductCollection::class, $products);
+        static::assertEquals(32, $products->count());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->first());
+        static::assertCount(3, $product->getVariation());
+        static::assertContains('color', array_column($product->getVariation(), 'group'));
+        static::assertContains('size', array_column($product->getVariation(), 'group'));
+        static::assertContains('material', array_column($product->getVariation(), 'group'));
 
         $criteria = new Criteria();
         $criteria->addAssociation('configuratorSettings');
         $criteria->addFilter(new EqualsFilter('parentId', null));
 
-        $result = $productRepository->search($criteria, Context::createDefaultContext());
-        static::assertEquals(10, $result->first()->getConfiguratorSettings()->count());
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $settings = $product->getConfiguratorSettings());
+        static::assertEquals(10, $settings->count());
     }
 
     /**
@@ -751,13 +772,11 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
-        $count = $productRepository->search(new Criteria($productIds), $context)->count();
+        $count = $this->productRepository->search(new Criteria($productIds), $context)->count();
         static::assertSame(4, $count);
 
         $name = 'Name has changed';
-        $productRepository->upsert([
+        $this->productRepository->upsert([
             [
                 'id' => $productIds[0],
                 'name' => $name,
@@ -768,14 +787,15 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $criteria = new Criteria([$productIds[0]]);
         $criteria->addAssociation('categories');
-        /** @var ProductEntity $product */
-        $product = $productRepository->search($criteria, $context)->first();
 
+        $product = $this->productRepository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotSame($name, $product->getName());
         static::assertSame(Uuid::fromStringToHex('tax19'), $product->getTaxId());
         static::assertSame(Uuid::fromStringToHex('manufacturer1'), $product->getManufacturerId());
-        $categories = $product->getCategories();
-        static::assertInstanceOf(CategoryCollection::class, $categories);
+
+        static::assertInstanceOf(CategoryCollection::class, $categories = $product->getCategories());
         static::assertCount(3, $categories);
         static::assertTrue($categories->has($category1Id));
         static::assertTrue($categories->has($category2Id));
@@ -1166,6 +1186,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $criteria = new Criteria([$productAId]);
         $criteria->addAssociation('visibilities');
@@ -1173,7 +1194,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         /** @var ProductEntity $productA */
         $productA = $productRepository->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertNotNull($productA);
+        static::assertInstanceOf(ProductEntity::class, $productA);
 
         static::assertInstanceOf(ProductVisibilityCollection::class, $productA->getVisibilities());
         static::assertCount(1, $productA->getVisibilities());
@@ -1184,7 +1205,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $productB = $productRepository->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertNotNull($productB);
+        static::assertInstanceOf(ProductEntity::class, $productB);
 
         static::assertInstanceOf(ProductVisibilityCollection::class, $productB->getVisibilities());
         static::assertCount(2, $productB->getVisibilities());
@@ -1196,7 +1217,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $productC = $productRepository->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertNotNull($productC);
+        static::assertInstanceOf(ProductEntity::class, $productC);
 
         static::assertInstanceOf(ProductVisibilityCollection::class, $productC->getVisibilities());
         static::assertCount(0, $productC->getVisibilities());
@@ -1288,8 +1309,21 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        $mailSent = false;
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listenerClosure = function (MailSentEvent $event) use (&$mailSent): void {
+            $mailSent = true;
+        };
+
+        $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
 
         $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
+        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
+        static::assertFalse($mailSent, 'The mail.sent Event did run');
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1456,9 +1490,11 @@ class ImportExportTest extends AbstractImportExportTestCase
         /** @var PromotionEntity $promotion */
         $promotion = $this->getContainer()->get('promotion.repository')->search((new Criteria([$promotionId]))->addAssociation('discounts.discountRules'), $context)->first();
 
-        static::assertInstanceOf(PromotionDiscountCollection::class, $promotion->getDiscounts());
-        static::assertCount(2, $promotion->getDiscounts());
-        $firstDiscount = $promotion->getDiscounts()->first();
+        static::assertInstanceOf(PromotionDiscountCollection::class, $discounts = $promotion->getDiscounts());
+        static::assertCount(2, $discounts);
+
+        $firstDiscount = $discounts->first();
+        static::assertInstanceOf(PromotionDiscountEntity::class, $firstDiscount);
         static::assertEquals('cart', $firstDiscount->getScope());
         static::assertEquals('absolute', $firstDiscount->getType());
         static::assertEquals(5, $firstDiscount->getValue());
@@ -1468,8 +1504,11 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertEquals('ALL', $firstDiscount->getApplierKey());
         static::assertEquals('ALL', $firstDiscount->getUsageKey());
         static::assertEmpty($firstDiscount->getPickerKey());
-        static::assertEmpty($firstDiscount->getDiscountRules()->getIds());
-        $lastDiscount = $promotion->getDiscounts()->last();
+        static::assertInstanceOf(RuleCollection::class, $firstDiscountRules = $firstDiscount->getDiscountRules());
+        static::assertEmpty($firstDiscountRules->getIds());
+
+        $lastDiscount = $discounts->last();
+        static::assertInstanceOf(PromotionDiscountEntity::class, $lastDiscount);
         static::assertEquals('set', $lastDiscount->getScope());
         static::assertEquals('percentage', $lastDiscount->getType());
         static::assertEquals(2.5, $lastDiscount->getValue());
@@ -1479,7 +1518,8 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertEquals('1', $lastDiscount->getApplierKey());
         static::assertEquals('1', $lastDiscount->getUsageKey());
         static::assertEquals('VERTICAL', $lastDiscount->getPickerKey());
-        static::assertContains($ruleId, $lastDiscount->getDiscountRules()->getIds());
+        static::assertInstanceOf(RuleCollection::class, $lastDiscountRules = $lastDiscount->getDiscountRules());
+        static::assertContains($ruleId, $lastDiscountRules->getIds());
 
         $progress = $this->export($context, PromotionDiscountDefinition::ENTITY_NAME);
 
@@ -1561,16 +1601,21 @@ class ImportExportTest extends AbstractImportExportTestCase
         $products = $this->productRepository->search((new Criteria())->addAssociations(['categories', 'properties']), $context);
 
         static::assertEquals(1, $products->count());
-        static::assertEquals(3, $products->first()->getCategories()->count());
-        static::assertEquals(3, $products->first()->getProperties()->count());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->first());
+        static::assertInstanceOf(CategoryCollection::class, $categories = $product->getCategories());
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $properties = $product->getProperties());
+        static::assertEquals(3, $categories->count());
+        static::assertEquals(3, $properties->count());
 
         $taxes = $this->getContainer()->get('tax.repository')->search(
             (new Criteria())->addFilter(new EqualsFilter('taxRate', 23)),
             $context
-        );
+        )->getEntities();
 
+        static::assertInstanceOf(TaxCollection::class, $taxes);
         static::assertEquals(1, $taxes->count());
-        static::assertEquals('changed', $taxes->first()->getName());
+        static::assertInstanceOf(TaxEntity::class, $tax = $taxes->first());
+        static::assertEquals('changed', $tax->getName());
 
         $manufacturerCount = $this->getContainer()->get('product_manufacturer.repository')->search(
             (new Criteria())->addFilter(new EqualsFilter('name', 'onlyone')),
@@ -1579,13 +1624,15 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertEquals(1, $manufacturerCount);
 
-        $unit = $this->getContainer()->get('unit.repository')->search(
+        $units = $this->getContainer()->get('unit.repository')->search(
             new Criteria(),
             $context
-        );
+        )->getEntities();
 
-        static::assertEquals(1, $unit->count());
-        static::assertEquals('foo', $unit->first()->getName());
+        static::assertInstanceOf(UnitCollection::class, $units);
+        static::assertEquals(1, $units->count());
+        static::assertInstanceOf(UnitEntity::class, $unit = $units->first());
+        static::assertEquals('foo', $unit->getName());
     }
 
     public function testImportProductsWithInvalidUpdateByMapping(): void

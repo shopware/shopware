@@ -364,6 +364,19 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }
 
+    public function testInvalidAssociationsCriteria(): void
+    {
+        $payload = [
+            'associations' => [
+                'prices' => 'invalid',
+            ],
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+
+        static::assertEmpty($criteria->getAssociations());
+    }
+
     /**
      * @dataProvider providerTotalCount
      */

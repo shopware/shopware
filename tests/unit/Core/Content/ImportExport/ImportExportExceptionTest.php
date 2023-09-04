@@ -50,5 +50,19 @@ class ImportExportExceptionTest extends TestCase
             'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_NOT_FOUND',
             'message' => 'Cannot find import/export file with id notFoundFile',
         ];
+
+        yield 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION' => [
+            'exception' => ImportExportException::processingError('Cannot merge file'),
+            'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION',
+            'message' => 'Cannot merge file',
+        ];
+
+        yield 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER' => [
+            'exception' => ImportExportException::requiredByUser('foo'),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER',
+            'message' => 'foo is set to required by the user but has no value',
+        ];
     }
 }

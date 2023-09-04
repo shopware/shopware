@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\User\Recovery;
+namespace Shopware\Tests\Integration\Core\System\User\Recovery;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -10,9 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
 /**
@@ -27,8 +30,14 @@ class UserRecoveryServiceTest extends TestCase
 
     private UserRecoveryService $userRecoveryService;
 
+    /**
+     * @var EntityRepository<UserRecoveryCollection>
+     */
     private EntityRepository $userRecoveryRepo;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepo;
 
     private Context $context;
@@ -42,9 +51,28 @@ class UserRecoveryServiceTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    public function testGenerateUserRecoveryWithNotExistingSalesChannelLanguage(): void
+    {
+        $this->createRecovery(self::VALID_EMAIL);
+
+        $this->context->assign([
+            'languageIdChain' => [Uuid::randomHex()],
+        ]);
+
+        $eventDispatched = false;
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
+            $eventDispatched = true;
+        });
+
+        $this->userRecoveryService->generateUserRecovery(self::VALID_EMAIL, $this->context);
+
+        static::assertTrue($eventDispatched);
+    }
+
     public function testGenerateUserRecoveryWithExistingUser(): void
     {
-        $this->createRecovery(static::VALID_EMAIL);
+        $this->createRecovery(self::VALID_EMAIL);
 
         $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first();
         static::assertInstanceOf(UserRecoveryEntity::class, $userRecovery);
@@ -81,6 +109,9 @@ class UserRecoveryServiceTest extends TestCase
         static::assertSame($expectedResult, $this->userRecoveryService->checkHash($hash, $this->context));
     }
 
+    /**
+     * @return array<array<int, \DateInterval|string|bool>>
+     */
     public static function dataProviderTestCheckHash(): array
     {
         return [
@@ -119,34 +150,42 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testUpdatePassword(): void
     {
-        $this->createRecovery(static::VALID_EMAIL);
+        $this->createRecovery(self::VALID_EMAIL);
 
-        $hash = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first()->getHash();
+        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first());
 
-        $passwordBefore = $this->userRepo->search(new Criteria(), $this->context)->first()->getPassword();
+        $hash = $recovery->getHash();
+
+        static::assertInstanceOf(UserEntity::class, $user = $this->userRepo->search(new Criteria(), $this->context)->first());
+
+        $passwordBefore = $user->getPassword();
 
         $this->userRecoveryService->updatePassword($hash, 'newPassword', $this->context);
 
-        $passwordAfter = $this->userRepo->search(new Criteria(), $this->context)->first()->getPassword();
+        static::assertInstanceOf(UserEntity::class, $userAfter = $this->userRepo->search(new Criteria(), $this->context)->first());
+
+        $passwordAfter = $userAfter->getPassword();
 
         static::assertNotEquals($passwordBefore, $passwordAfter);
     }
 
     public function testGetUserByHash(): void
     {
-        $this->createRecovery(static::VALID_EMAIL);
+        $this->createRecovery(self::VALID_EMAIL);
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $hash = $this->userRecoveryRepo->search($criteria, $this->context)->first()->getHash();
+        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first());
+
+        $hash = $recovery->getHash();
 
         $invalid = $this->userRecoveryService->getUserByHash('invalid', $this->context);
         static::assertNull($invalid);
 
         $valid = $this->userRecoveryService->getUserByHash($hash, $this->context);
-        static::assertNotNull($valid);
-        static::assertEquals(static::VALID_EMAIL, $valid->getEmail());
+        static::assertInstanceOf(UserEntity::class, $valid);
+        static::assertEquals(self::VALID_EMAIL, $valid->getEmail());
     }
 
     public function testReEvaluateRules(): void
@@ -157,7 +196,7 @@ class UserRecoveryServiceTest extends TestCase
             ->addListener(UserRecoveryRequestEvent::EVENT_NAME, $validator);
 
         $this->userRecoveryService->generateUserRecovery(
-            static::VALID_EMAIL,
+            self::VALID_EMAIL,
             Context::createDefaultContext()
         );
 
@@ -179,10 +218,7 @@ class UserRecoveryServiceTest extends TestCase
  */
 class RuleValidator extends CallableClass
 {
-    /**
-     * @var UserRecoveryRequestEvent|null
-     */
-    public $event;
+    public ?UserRecoveryRequestEvent $event;
 
     public function __invoke(): void
     {

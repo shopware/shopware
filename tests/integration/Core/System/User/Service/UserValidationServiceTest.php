@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\User\Service;
+namespace Shopware\Tests\Integration\Core\System\User\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;

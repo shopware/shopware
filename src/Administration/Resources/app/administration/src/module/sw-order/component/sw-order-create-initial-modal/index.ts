@@ -105,11 +105,9 @@ export default Component.wrapComponentConfig({
                 languageId: value.context.languageIdChain[0],
                 shippingMethodId: value.shippingMethod.id,
                 paymentMethodId: value.paymentMethod.id,
-                // @ts-expect-error - this needs to be fixed, activeBillingAddress is not defined in the EntityDefinition
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: value.customer?.activeBillingAddress?.id ?? '',
-                // @ts-expect-error - this needs to be fixed, activeShippingAddress is not defined in the EntityDefinition
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 shippingAddressId: value.customer?.activeShippingAddress?.id ?? '',

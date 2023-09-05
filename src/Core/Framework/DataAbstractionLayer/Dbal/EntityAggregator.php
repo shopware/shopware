@@ -344,6 +344,15 @@ class EntityAggregator implements EntityAggregatorInterface
         if ($aggregation->getAggregation()) {
             $this->extendQuery($aggregation->getAggregation(), $query, $definition, $context);
         }
+
+        // First create the results of this entity, then create the aggregation with those results, so you get proper filters.
+        $whereQuery = clone $query;
+        $whereQuery->resetQueryPart('select');
+        $whereQuery->resetQueryPart('groupBy');
+        $whereQuery->select($countAccessor);
+
+        $query->resetQueryPart('where');
+        $query->where("$countAccessor IN ($whereQuery)");
     }
 
     private function parseAvgAggregation(

@@ -1,6 +1,6 @@
 ---
 title: Use correct languages to update product search keywords.
-issue: NEXT-00000
+issue: NEXT-30332
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

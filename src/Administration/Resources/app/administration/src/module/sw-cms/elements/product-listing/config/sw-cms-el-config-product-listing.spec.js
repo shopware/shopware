@@ -3,26 +3,25 @@
  */
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigProductListing from 'src/module/sw-cms/elements/product-listing/config';
 import 'src/app/component/data-grid/sw-data-grid';
-import EntityCollection from 'src/core/data/entity-collection.data';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/form/select/entity/sw-entity-single-select';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
 
 Shopware.Component.register('sw-cms-el-config-product-listing', swCmsElConfigProductListing);
 
 const productSortingRepositoryMock = {
-    search() {
+    search: jest.fn(() => {
         return Promise.resolve(
-            new EntityCollection(
-                '',
-                '',
-                Shopware.Context.api,
-                null,
-                [{}],
-                1,
-            ),
+            new EntityCollection('', '', Shopware.Context.api, null, [{}], 1),
         );
-    },
+    }),
     route: '/product_sorting',
     schema: {
         entity: 'product_sorting',
@@ -63,31 +62,28 @@ const repositoryMockFactory = (entity) => {
 };
 
 
-async function createWrapper(activeTab = 'sorting') {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing'), {
         stubs: {
             'sw-cms-el-config-product-listing-config-sorting-grid': true,
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-entity-single-select': true,
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-simple-search-field': true,
             'sw-entity-multi-select': true,
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-pagination': true,
             'sw-container': true,
-            'sw-tabs-item': true,
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-alert': true,
             'sw-empty-state': true,
-            'sw-tabs': {
-                data() {
-                    return { active: activeTab };
-                },
-                template: `
-<div>
-    <slot></slot>
-    <slot name="content" v-bind="{ active }"></slot>
-</div>`,
-            },
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-icon': true,
+            'sw-help-text': true,
         },
         provide: {
             cmsService: {
@@ -133,6 +129,10 @@ async function createWrapper(activeTab = 'sorting') {
 }
 
 describe('src/module/sw-cms/elements/product-listing/config', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
@@ -141,19 +141,21 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain tab items content, sorting and filter', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
-        expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
-        expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-content').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-filter').exists()).toBeTruthy();
     });
 
     it('should contain content for sorting when defaultSorting is deactivated', async () => {
         const wrapper = await createWrapper();
 
+        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
+
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
-        const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
+        const defaultSortingIdSelect = wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
             .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
@@ -168,15 +170,23 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain only some content for sorting when defaultSorting is activated', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.element.config.useCustomSorting.value = false;
+        await wrapper.setData({
+            element: {
+                config: {
+                    useCustomSorting: {
+                        value: false,
+                    },
+                },
+            },
+        });
 
-        await wrapper.vm.$nextTick();
+        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
 
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
-        const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
+        const defaultSortingIdSelect = wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
             .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
@@ -210,6 +220,23 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             foo: 2,
             bar: 5,
         });
+    });
+
+    it('should automatically clear defaultSorting if defaultSorting is null', async () => {
+        productSortingRepositoryMock.search.mockImplementationOnce(() => {
+            return Promise.resolve(
+                new EntityCollection('', '', Shopware.Context.api, null, [], 0),
+            );
+        });
+
+        const wrapper = await createWrapper();
+
+        expect(productSortingRepositoryMock.search).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.defaultSorting).toStrictEqual({});
+
+        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
+        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select').exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select input').element.value).toBe('');
     });
 
     it('should update the productSortings priority with the values from the config', async () => {
@@ -275,6 +302,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain content for filter setting', async () => {
         const wrapper = await createWrapper('filter');
 
+        await wrapper.find('.sw-cms-el-config-product-listing__tab-filter').trigger('click');
+
         const showFilterManufacturerSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
         const showFilterRatingSwitchField = wrapper
@@ -284,7 +313,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const showFilterForFreeShippingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]');
 
-
         expect(showFilterManufacturerSwitchField.exists()).toBeTruthy();
         expect(showFilterRatingSwitchField.exists()).toBeTruthy();
         expect(showFilterPriceSwitchField.exists()).toBeTruthy();
@@ -293,12 +321,9 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
     it('should show use-filter-properties-option when properties available', async () => {
         const wrapper = await createWrapper('filter');
-
-        await wrapper.vm.$nextTick(); // calculate showPropertySelection
-
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        await wrapper.vm.$nextTick(); // re-render view
+        await wrapper.find('.sw-cms-el-config-product-listing__tab-filter').trigger('click');
 
         const showUseFilterByPropertiesSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]');
@@ -315,10 +340,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should sort properties by status', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
-
         // enable filterByProperties otherwise any property is active
-        wrapper.vm.filterByProperties = true;
+        await wrapper.setData({
+            filterByProperties: true,
+        });
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
@@ -327,11 +352,17 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
 
-        // eslint-disable-next-line inclusive-language/use-inclusive-words
-        wrapper.vm.element.config.propertyWhitelist.value = ['x02']; // activate Property_group 'baz'
-        wrapper.vm.loadFilterableProperties();
-
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await wrapper.setData({
+            element: {
+                config: {
+                    // eslint-disable-next-line inclusive-language/use-inclusive-words
+                    propertyWhitelist: {
+                        value: ['x02'],
+                    },
+                },
+            },
+        });
+        await wrapper.vm.loadFilterableProperties();
 
         const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
         const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map(item => item.name);
@@ -342,22 +373,19 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should filter properties by term', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
-
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
-        wrapper.vm.filterPropertiesTerm = 'bar';
-        wrapper.vm.onFilterProperties();
-        await wrapper.vm.$nextTick(); // fetch filtered list
+        await wrapper.setData({
+            filterPropertiesTerm: 'bar',
+        });
+        await wrapper.vm.onFilterProperties();
 
         const expectedToDisplayFilteredProperties = ['bar'];
         const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
 
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
-
-        await wrapper.vm.$nextTick(); // await template re-render
 
         const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
         expect(emptyStateElement.element).not.toBeTruthy();
@@ -366,21 +394,18 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should show an empty-state when filtered properties have no result', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
-
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
-        wrapper.vm.filterPropertiesTerm = 'notinlist';
-        wrapper.vm.onFilterProperties();
-        await wrapper.vm.$nextTick(); // fetch filtered list
+        await wrapper.setData({
+            filterPropertiesTerm: 'notinlist',
+        });
+        await wrapper.vm.onFilterProperties();
 
         const expectedToDisplayFilteredProperties = [];
         const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
-
-        await wrapper.vm.$nextTick(); // await template re-render
 
         const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
         expect(emptyStateElement).toBeTruthy();
@@ -389,8 +414,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should toggle property filters', async () => {
         /* eslint-disable inclusive-language/use-inclusive-words */
         const wrapper = await createWrapper('filter');
-
-        await wrapper.vm.$nextTick(); // fetch property_group call
 
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);

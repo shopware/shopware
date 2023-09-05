@@ -255,7 +255,7 @@ export default {
 
                 this.productSortingRepository.search(criteria)
                     .then(response => {
-                        this.defaultSorting = response.first();
+                        this.defaultSorting = response.first() || {};
                     });
             }
         },

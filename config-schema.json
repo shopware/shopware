@@ -529,7 +529,10 @@
             "additionalProperties": false,
             "properties": {
                 "blue_green": {
-                    "type": "string"
+                    "type": "boolean"
+                },
+                "cluster_setup": {
+                    "type": "boolean"
                 }
             },
             "title": "Deployment"

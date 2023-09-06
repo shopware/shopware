@@ -53,6 +53,7 @@
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
+            <argument>%shopware.deployment.cluster_setup%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 

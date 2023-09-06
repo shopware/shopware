@@ -109,11 +109,12 @@ class AnnotationTagTesterTest extends TestCase
         static::assertNull($version);
     }
 
-    public function testNoWrongDeprecationsIfThereAreNone(): void
+    public function testDeprecatedWithoutPropertiesWillThrowException(): void
     {
-        $deprecatedContent = 'no deprecation here';
+        $deprecatedContent = '@deprecated';
 
-        static::expectException(NoDeprecationFoundException::class);
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Could not find indicator manifest or tag in deprecation annotation');
         $this->annotationTagTester->validateDeprecatedAnnotations($deprecatedContent);
     }
 
@@ -148,7 +149,7 @@ class AnnotationTagTesterTest extends TestCase
         $deprecatedContent = '@deprecated tag:v6.5.0.0';
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Tag version must have 3 digits.');
+        static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
         $this->annotationTagTester->validateDeprecatedAnnotations($deprecatedContent);
     }
 
@@ -157,7 +158,7 @@ class AnnotationTagTesterTest extends TestCase
         $deprecatedContent = '@deprecated tag:v6.5';
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Tag version must have 3 digits.');
+        static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
         $this->annotationTagTester->validateDeprecatedAnnotations($deprecatedContent);
     }
 
@@ -225,36 +226,79 @@ class AnnotationTagTesterTest extends TestCase
         $this->annotationTagTester->validateDeprecationElements('<deprecated>tag:v6.3.0</deprecated>');
     }
 
+    public function testIncorrectDeprecationTagFormat(): void
+    {
+        static::expectException(NoDeprecationFoundException::class);
+        static::expectExceptionMessage('Deprecation tag is not found in the file.');
+        $this->annotationTagTester->validateDeprecationElements('<deprecatedd>tag:v6.5</deprecatedd>');
+    }
+
+    /**
+     * @dataProvider incorrectExperimentalAnnotationsFormatProvider
+     */
+    public function testExperimentalWithIncorrectPropertiesDeclarationWillThrowException(string $content): void
+    {
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared');
+        $this->annotationTagTester->validateExperimentalAnnotations($content);
+    }
+
+    public static function incorrectExperimentalAnnotationsFormatProvider(): \Generator
+    {
+        yield 'No properties added' => ['@experimental'];
+        yield 'Added only stableVersion property' => ['@experimental stableVersion:v6.5.0'];
+        yield 'Added only feature property' => ['@experimental feature:testFeature'];
+        yield 'Incorrect separator' => ['@experimental stableVersion=v6.5.0 feature1=testFeature'];
+    }
+
     public function testExperimentalTagWithoutStableVersionPropertyThrowsException(): void
     {
-        $deprecatedContent = '@experimental tag:v6.5.0';
+        $deprecatedContent = '@experimental tag:v6.5.0 feature:testFeature';
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Could not find indicator stableVersion in experimental annotation');
+        static::expectExceptionMessage('Could not find property stableVersion in experimental annotation');
+        $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
+    }
+
+    public function testExperimentalWithoutFeaturePropertyWillThrowException(): void
+    {
+        $deprecatedContent = '@experimental stableVersion:v6.5.0 name:testFeature';
+
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Could not find property feature in experimental annotation');
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }
 
     public function testExperimentalStableVersionMustNotHaveMoreThanThreeDigits(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5.0.0';
+        $deprecatedContent = '@experimental stableVersion:v6.5.0.0 feature:testFeature';
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Tag version must have 3 digits.');
+        static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
+        $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
+    }
+
+    public function testExperimentalStableVersionMustStartFromV(): void
+    {
+        $deprecatedContent = '@experimental stableVersion:a6.5.0 feature:testFeature';
+
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }
 
     public function testExperimentalStableVersionMustNotHaveLessThanThreeDigits(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5';
+        $deprecatedContent = '@experimental stableVersion:v6.5 feature:testFeature';
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Tag version must have 3 digits.');
+        static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }
 
     public function testExperimentalStableVersionMustNotBeSmallerThanActualLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.3.0';
+        $deprecatedContent = '@experimental stableVersion:v6.3.0 feature:testFeature';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation or experimental annotation is already live.');
@@ -263,7 +307,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustNotBeTheSameAsTheLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.4.0';
+        $deprecatedContent = '@experimental stableVersion:v6.4.0 feature:testFeature';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation or experimental annotation is already live.');
@@ -271,11 +315,28 @@ class AnnotationTagTesterTest extends TestCase
     }
 
     /**
+     * @dataProvider incorrectFeaturePropertyValueProvider
+     */
+    public function testExperimentalWithIncorrectFeatureValueWillThrowException(string $content): void
+    {
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('The value of feature-property could not be empty, contain white spaces and must be in camelCase format.');
+        $this->annotationTagTester->validateExperimentalAnnotations($content);
+    }
+
+    public static function incorrectFeaturePropertyValueProvider(): \Generator
+    {
+        yield 'Incorrect symbols' => ['@experimental stableVersion:v6.5.0 feature:here+Incorrect-Symbols'];
+        yield 'Used snake_case instead camelCase' => ['@experimental stableVersion:v6.5.0 feature:feature_name'];
+        yield 'Empty feature value' => ['@experimental stableVersion:v6.5.0 feature:'];
+    }
+
+    /**
      * @doesNotPerformAssertions - the test should check that no exception is thrown in this case
      */
     public function testExperimentalStableVersionHigherThenLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5.0';
+        $deprecatedContent = '@experimental stableVersion:v6.5.0 feature:testFeature';
 
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }

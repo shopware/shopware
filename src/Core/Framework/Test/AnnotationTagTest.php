@@ -65,7 +65,7 @@ class AnnotationTagTest extends TestCase
             ->name('*.html.twig')
             ->name('*.xsd')
             ->exclude('node_modules')
-            ->contains('@deprecated');
+            ->contains(['@deprecated', '@experimental']);
 
         foreach ($this->whiteList as $path) {
             $finder->notPath($path);
@@ -80,10 +80,8 @@ class AnnotationTagTest extends TestCase
             try {
                 $this->getDeprecationTagTester()->validateDeprecatedAnnotations($content);
                 $this->getDeprecationTagTester()->validateExperimentalAnnotations($content);
-            } catch (\Throwable $error) {
-                if (!$error instanceof NoDeprecationFoundException) {
-                    $invalidFiles[$filePath] = $error->getMessage();
-                }
+            } catch (NoDeprecationFoundException|\InvalidArgumentException $error) {
+                $invalidFiles[$filePath] = $error->getMessage();
             }
         }
 

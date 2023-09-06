@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class OpenApiPathBuilder
 {
+    private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
+
     /**
      * @return PathItem[]
      */
@@ -405,6 +407,6 @@ class OpenApiPathBuilder
     {
         $reflection = new \ReflectionClass($definition);
 
-        return str_contains($reflection->getDocComment() ?: '', '@experimental');
+        return str_contains($reflection->getDocComment() ?: '', '@' . self::EXPERIMENTAL_ANNOTATION_NAME);
     }
 }

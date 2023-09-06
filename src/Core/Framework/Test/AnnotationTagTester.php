@@ -18,7 +18,7 @@ class AnnotationTagTester
     /**
      * captures a deprecation tag version like 6.5.0
      */
-    private const PLATFORM_DEPRECATION_SCHEMA = '(\d+\.?){2}\d+';
+    private const PLATFORM_DEPRECATION_SCHEMA = 'v((\d+\.?){2}\d+)';
 
     /**
      * captures a manifest schema version like 1.0
@@ -66,11 +66,11 @@ class AnnotationTagTester
         /*
          * captures the first word after the @deprecated annotation
          */
-        $annotationPattern = '/@deprecated\s*([^\s]*)\s?/';
+        $annotationPattern = '/@deprecated(.*)?/';
         $matches = [];
-        preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
-
-        $this->validateMatches($matches, $this->validateDeprecationVersion(...));
+        if (preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
+            $this->validateMatches($matches, $this->validateDeprecationVersion(...));
+        }
     }
 
     public function validateExperimentalAnnotations(string $content): void
@@ -78,11 +78,11 @@ class AnnotationTagTester
         /*
          * captures the first word after the @experimental annotation
          */
-        $annotationPattern = '/@experimental\s*([^\s]*)\s?/';
+        $annotationPattern = '/@experimental(.*)/';
         $matches = [];
-        preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
-
-        $this->validateMatches($matches, $this->validateExperimentalVersion(...));
+        if (preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
+            $this->validateMatches($matches, $this->validateExperimentalVersion(...));
+        }
     }
 
     public function validateDeprecationElements(string $content): void
@@ -97,7 +97,9 @@ class AnnotationTagTester
         );
 
         $matches = [];
-        preg_match_all($elementPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
+        if (!preg_match_all($elementPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
+            throw new NoDeprecationFoundException('Deprecation tag is not found in the file.');
+        }
 
         $this->validateMatches($matches, $this->validateDeprecationVersion(...));
     }
@@ -108,19 +110,15 @@ class AnnotationTagTester
      */
     private function validateMatches(array $matches, callable $validateFunction): void
     {
-        if (empty($matches)) {
-            throw new NoDeprecationFoundException();
-        }
-
         foreach ($matches as $match) {
-            $validateFunction($match[1] ?? '');
+            $validateFunction(trim($match[1] ?? ''));
         }
     }
 
     private function validateDeprecationVersion(string $versionTag): void
     {
         $match = [];
-        preg_match('/(tag|manifest):v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
+        preg_match('/(tag|manifest):([^\s]*)\s?/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
 
         $tag = $match[1] ?? '';
         $version = $match[2] ?? '';
@@ -137,37 +135,44 @@ class AnnotationTagTester
             return;
         }
 
-        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation annotation');
+        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation annotation.');
     }
 
-    private function validateExperimentalVersion(string $versionTag): void
+    private function validateExperimentalVersion(string $propertiesString): void
     {
         $match = [];
-        preg_match('/stableVersion:v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
+        preg_match('/([^\s]+):([^\s]*)\s+([^\s]+):([^\s]*)/', $propertiesString, $match, \PREG_UNMATCHED_AS_NULL);
 
         if (empty($match)) {
-            throw new \InvalidArgumentException('Could not find indicator stableVersion in experimental annotation');
+            throw new \InvalidArgumentException('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared.');
         }
+        $properties = [
+            $match[1] => (string) $match[2],
+            $match[3] => (string) $match[4],
+        ];
 
-        $version = $match[1] ?? '';
-
-        $this->validateAgainstPlatformVersion($version);
+        match (true) {
+            !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
+            !isset($properties['feature']) => throw new \InvalidArgumentException('Could not find property feature in experimental annotation.'),
+            !preg_match('/^(?:[a-z]+[A-Z]?[a-z]*\d*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property could not be empty, contain white spaces and must be in camelCase format.'),
+            default => $this->validateAgainstPlatformVersion($properties['stableVersion'])
+        };
     }
 
     private function validateAgainstPlatformVersion(string $version): void
     {
         $pattern = sprintf('/^%s$/', self::PLATFORM_DEPRECATION_SCHEMA);
-
-        if (!preg_match($pattern, $version)) {
-            throw new \InvalidArgumentException('Tag version must have 3 digits.');
+        $matches = [];
+        if (!preg_match($pattern, $version, $matches)) {
+            throw new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.');
         }
 
-        $this->compareVersion($this->shopwareVersion, $version);
+        $this->compareVersion($this->shopwareVersion, $matches[1]);
     }
 
     private function validateAgainstManifestVersion(string $version): void
     {
-        $pattern = sprintf('/^%s$/', self::MANIFEST_VERSION_SCHEMA);
+        $pattern = sprintf('/^v%s$/', self::MANIFEST_VERSION_SCHEMA);
 
         if (!preg_match($pattern, $version)) {
             throw new \InvalidArgumentException('Manifest version must have 2 digits.');

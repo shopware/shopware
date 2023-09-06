@@ -271,3 +271,5 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
             log_level: notice
+        Shopware\Core\Content\Product\Exception\VariantNotFoundException:
+            log_level: notice

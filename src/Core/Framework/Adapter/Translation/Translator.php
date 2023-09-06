@@ -250,29 +250,30 @@ class Translator extends AbstractTranslator
 
     public function getSnippetSetId(?string $locale = null): ?string
     {
-        if ($locale !== null) {
-            if (\array_key_exists($locale, $this->snippets)) {
-                return $this->snippets[$locale];
-            }
+        $snippetSetId = $this->snippetSetId;
 
-            $snippetSetId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
-            if ($snippetSetId !== false) {
-                return $this->snippets[$locale] = $snippetSetId;
-            }
+        if ($request = $this->requestStack->getCurrentRequest()) {
+            $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
         }
 
-        if ($this->snippetSetId !== null) {
-            return $this->snippetSetId;
+        if ($locale === null) {
+            return $this->snippetSetId = $snippetSetId;
+        }
+        // If locale parameter is using, prioritize it over snippet set of request
+        if (\array_key_exists($locale, $this->snippets)) {
+            return $this->snippets[$locale];
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return null;
+        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the domain's snippet set
+        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
+
+        if (!empty($snippetSetIds)) {
+            $snippetSetId = \in_array($snippetSetId, $snippetSetIds, true) ? $snippetSetId : $snippetSetIds[0];
         }
 
-        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+        $this->snippets[$locale] = $snippetSetId;
 
-        return $this->snippetSetId;
+        return $this->snippetSetId = $snippetSetId;
     }
 
     /**

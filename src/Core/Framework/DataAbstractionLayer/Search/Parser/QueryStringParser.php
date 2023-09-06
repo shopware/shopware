@@ -23,10 +23,22 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-type EqualsFilterType array{type: 'equals', field: string, value: mixed}
+ * @phpstan-type NotFilterType array{type: 'not', queries: array<mixed>, operator: string}
+ * @phpstan-type MultiFilterType array{type: 'multi', queries: array<mixed>, operator: string}
+ * @phpstan-type ContainsFilterType array{type: 'contains', field: string, value: mixed}
+ * @phpstan-type PrefixFilterType array{type: 'prefix', field: string, value: mixed}
+ * @phpstan-type SuffixFilterType array{type: 'suffix', field: string, value: mixed}
+ * @phpstan-type RangeFilterType array{type: 'range'|'until'|'since', field: string, value?: mixed, parameters: array<string, mixed>}
+ * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
  */
 #[Package('core')]
 class QueryStringParser
 {
+    /**
+     * @param array<string, mixed> $query
+     */
     public static function fromArray(EntityDefinition $definition, array $query, SearchRequestException $exception, string $path = ''): Filter
     {
         if (empty($query['type'])) {
@@ -41,6 +53,10 @@ class QueryStringParser
 
                 if (!\array_key_exists('value', $query) || $query['value'] === '') {
                     throw new InvalidFilterQueryException('Parameter "value" for equals filter is missing.', $path . '/value');
+                }
+
+                if (!\is_scalar($query['value']) && $query['value'] !== null) {
+                    throw new InvalidFilterQueryException('Parameter "value" for equals filter must be scalar or null.', $path . '/value');
                 }
 
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
@@ -168,6 +184,9 @@ class QueryStringParser
         throw new InvalidFilterQueryException(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
 
+    /**
+     * @return EqualsFilterType|NotFilterType|MultiFilterType|ContainsFilterType|PrefixFilterType|SuffixFilterType|RangeFilterType|EqualsAnyFilterType
+     */
     public static function toArray(Filter $query): array
     {
         return match (true) {
@@ -178,12 +197,12 @@ class QueryStringParser
             ],
             $query instanceof NotFilter => [
                 'type' => 'not',
-                'queries' => array_map(fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
+                'queries' => array_map(static fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
                 'operator' => $query->getOperator(),
             ],
             $query instanceof MultiFilter => [
                 'type' => 'multi',
-                'queries' => array_map(fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
+                'queries' => array_map(static fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
                 'operator' => $query->getOperator(),
             ],
             $query instanceof ContainsFilter => [
@@ -215,6 +234,11 @@ class QueryStringParser
         };
     }
 
+    /**
+     * @param array<string, mixed> $queries
+     *
+     * @return array<Filter>
+     */
     private static function parseQueries(EntityDefinition $definition, string $path, SearchRequestException $exception, array $queries): array
     {
         $parsed = [];
@@ -230,6 +254,9 @@ class QueryStringParser
         return $parsed;
     }
 
+    /**
+     * @param array<string, mixed> $query
+     */
     private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter
     {
         \assert(\is_string($query['type']));
@@ -309,13 +336,16 @@ class QueryStringParser
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (mb_strpos($fieldName, $prefix) === false) {
+        if (!str_contains($fieldName, $prefix)) {
             return $prefix . $fieldName;
         }
 
         return $fieldName;
     }
 
+    /**
+     * @return array{gte: string, lte: string}
+     */
     private static function getDayRangeParameters(\DateTimeImmutable $thresholdDate): array
     {
         return [

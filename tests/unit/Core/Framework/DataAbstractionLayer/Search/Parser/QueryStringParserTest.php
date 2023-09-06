@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,34 +21,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type EqualsFilterType from QueryStringParser
+ * @phpstan-import-type NotFilterType from QueryStringParser
+ * @phpstan-import-type MultiFilterType from QueryStringParser
+ * @phpstan-import-type ContainsFilterType from QueryStringParser
+ * @phpstan-import-type PrefixFilterType from QueryStringParser
+ * @phpstan-import-type SuffixFilterType from QueryStringParser
+ * @phpstan-import-type RangeFilterType from QueryStringParser
+ * @phpstan-import-type EqualsAnyFilterType from QueryStringParser
+ *
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  */
 class QueryStringParserTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testWithUnsupportedFormat(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), ['type' => 'foo'], new SearchRequestException());
+        QueryStringParser::fromArray(new ProductDefinition(), ['type' => 'foo'], new SearchRequestException());
     }
 
     public function testInvalidParameters(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), ['foo' => 'bar'], new SearchRequestException());
+        QueryStringParser::fromArray(new ProductDefinition(), ['foo' => 'bar'], new SearchRequestException());
     }
 
     /**
      * @dataProvider parserProvider
+     *
+     * @param array<string, mixed> $payload
      */
     public function testParser(array $payload, Filter $expected): void
     {
         $result = QueryStringParser::fromArray(
-            $this->getContainer()->get(ProductDefinition::class),
+            new ProductDefinition(),
             $payload,
             new SearchRequestException()
         );
@@ -78,6 +88,8 @@ class QueryStringParserTest extends TestCase
 
     /**
      * @dataProvider equalsFilterDataProvider
+     *
+     * @param EqualsFilterType $filter
      */
     public function testEqualsFilter(array $filter, bool $expectException): void
     {
@@ -86,7 +98,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(EqualsFilter::class, $result);
 
@@ -94,23 +106,27 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public static function equalsFilterDataProvider(): array
+    public static function equalsFilterDataProvider(): \Generator
     {
-        return [
-            [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'equals', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'equals', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'equals', 'field' => 'foo'], true],
-            [['type' => 'equals', 'value' => 'bar'], true],
-            [['type' => 'equals', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'equals', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'equals', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'equals', 'field' => 'foo', 'value' => 0], false],
-        ];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'equals', 'field' => '', 'value' => 'bar'], true];
+        yield [['type' => 'equals', 'field' => 'foo'], true];
+        yield [['type' => 'equals', 'value' => 'bar'], true];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => true], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => 1], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => 1.0], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => 0], false];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => []], true];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => new \stdClass()], true];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => null], false];
     }
 
     /**
      * @dataProvider containsFilterDataProvider
+     *
+     * @param ContainsFilterType $filter
      */
     public function testContainsFilter(array $filter, bool $expectException): void
     {
@@ -119,7 +135,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(ContainsFilter::class, $result);
 
@@ -127,23 +143,23 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public static function containsFilterDataProvider(): array
+    public static function containsFilterDataProvider(): \Generator
     {
-        return [
-            [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'contains', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'contains', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'contains', 'field' => 'foo'], true],
-            [['type' => 'contains', 'value' => 'bar'], true],
-            [['type' => 'contains', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'contains', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'contains', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'contains', 'field' => 'foo', 'value' => 0], false],
-        ];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'contains', 'field' => '', 'value' => 'bar'], true];
+        yield [['type' => 'contains', 'field' => 'foo'], true];
+        yield [['type' => 'contains', 'value' => 'bar'], true];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => true], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => 1], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => 0], false];
     }
 
     /**
      * @dataProvider prefixFilterDataProvider
+     *
+     * @param PrefixFilterType $filter
      */
     public function testPrefixFilter(array $filter, bool $expectException): void
     {
@@ -152,7 +168,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(PrefixFilter::class, $result);
 
@@ -160,23 +176,23 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public static function prefixFilterDataProvider(): array
+    public static function prefixFilterDataProvider(): \Generator
     {
-        return [
-            [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'prefix', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'prefix', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'prefix', 'field' => 'foo'], true],
-            [['type' => 'prefix', 'value' => 'bar'], true],
-            [['type' => 'prefix', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'prefix', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'prefix', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'prefix', 'field' => 'foo', 'value' => 0], false],
-        ];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'prefix', 'field' => '', 'value' => 'bar'], true];
+        yield [['type' => 'prefix', 'field' => 'foo'], true];
+        yield [['type' => 'prefix', 'value' => 'bar'], true];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => true], false];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => 1], false];
+        yield [['type' => 'prefix', 'field' => 'foo', 'value' => 0], false];
     }
 
     /**
      * @dataProvider suffixFilterDataProvider
+     *
+     * @param SuffixFilterType $filter
      */
     public function testSuffixFilter(array $filter, bool $expectException): void
     {
@@ -185,7 +201,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(SuffixFilter::class, $result);
 
@@ -193,23 +209,23 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public static function suffixFilterDataProvider(): array
+    public static function suffixFilterDataProvider(): \Generator
     {
-        return [
-            [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'suffix', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'suffix', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'suffix', 'field' => 'foo'], true],
-            [['type' => 'suffix', 'value' => 'bar'], true],
-            [['type' => 'suffix', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'suffix', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'suffix', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'suffix', 'field' => 'foo', 'value' => 0], false],
-        ];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'suffix', 'field' => '', 'value' => 'bar'], true];
+        yield [['type' => 'suffix', 'field' => 'foo'], true];
+        yield [['type' => 'suffix', 'value' => 'bar'], true];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => true], false];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => 1], false];
+        yield [['type' => 'suffix', 'field' => 'foo', 'value' => 0], false];
     }
 
     /**
      * @dataProvider equalsAnyFilterDataProvider
+     *
+     * @param EqualsAnyFilterType $filter
      */
     public function testEqualsAnyFilter(array $filter, bool $expectException): void
     {
@@ -218,7 +234,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsAnyFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(EqualsAnyFilter::class, $result);
 
@@ -235,26 +251,26 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $expectedValue);
     }
 
-    public static function equalsAnyFilterDataProvider(): array
+    public static function equalsAnyFilterDataProvider(): \Generator
     {
-        return [
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'equalsAny', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'abc|def|ghi'], false],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'false|true|0'], false],
-            [['type' => 'equalsAny', 'field' => 'foo'], true],
-            [['type' => 'equalsAny', 'value' => 'foo'], true],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true],
-            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false],
-        ];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar'], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'equalsAny', 'field' => '', 'value' => 'bar'], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'abc|def|ghi'], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'false|true|0'], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo'], true];
+        yield [['type' => 'equalsAny', 'value' => 'foo'], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false];
     }
 
     /**
      * @dataProvider equalsAllFilterDataProvider
+     *
+     * @param EqualsAnyFilterType $filter
      */
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
     {
@@ -262,7 +278,7 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertEquals($expectedFilter, $result);
     }
@@ -320,6 +336,8 @@ class QueryStringParserTest extends TestCase
 
     /**
      * @dataProvider relativeTimeToDateFilterDataProvider
+     *
+     * @param RangeFilterType $filter
      */
     public function testRelativeTimeToDateFilters(
         array $filter,
@@ -332,7 +350,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var MultiFilter $result */
-        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(MultiFilter::class, $result);
 
@@ -357,6 +375,9 @@ class QueryStringParserTest extends TestCase
 
         if ($primaryOperator === 'eq' || $primaryOperator === 'neq') {
             $then = new \DateTimeImmutable();
+
+            static::assertArrayHasKey('value', $filter);
+
             $dateInterval = new \DateInterval($filter['value']);
             if ($filter['type'] === 'since') {
                 $dateInterval->invert = 1;
@@ -380,7 +401,7 @@ class QueryStringParserTest extends TestCase
         static::assertSame($thresholdInFuture, $now < $thresholdDate);
     }
 
-    public static function relativeTimeToDateFilterDataProvider(): iterable
+    public static function relativeTimeToDateFilterDataProvider(): \Generator
     {
         // test exceptions being thrown
         yield 'missing field exception' => [['type' => 'until', 'field' => '', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], true];

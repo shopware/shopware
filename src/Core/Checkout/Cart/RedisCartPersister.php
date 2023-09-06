@@ -110,7 +110,6 @@ class RedisCartPersister extends AbstractCartPersister
             return;
         }
 
-        // we need to clone the context,
         $copyContext = clone $context;
         $copyContext->setRuleIds($cart->getRuleIds());
 

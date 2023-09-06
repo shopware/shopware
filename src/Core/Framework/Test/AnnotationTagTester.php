@@ -73,19 +73,16 @@ class AnnotationTagTester
         }
     }
 
-        $this->validateMatches($matches, $this->validateDeprecationVersion(...));
-    }
-
     public function validateExperimentalAnnotations(string $content): void
     {
         /*
          * captures the first word after the @experimental annotation
          */
-        $annotationPattern = '/@experimental\s*([^\s]*)\s?/';
+        $annotationPattern = '/@experimental(.*)/';
         $matches = [];
-        preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
-
-        $this->validateMatches($matches, $this->validateExperimentalVersion(...));
+        if (preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
+            $this->validateMatches($matches, $this->validateExperimentalVersion(...));
+        }
     }
 
     public function validateDeprecationElements(string $content): void
@@ -114,7 +111,7 @@ class AnnotationTagTester
     private function validateMatches(array $matches, callable $validateFunction): void
     {
         foreach ($matches as $match) {
-            $validateFunction($match[1] ?? '');
+            $validateFunction(trim($match[1] ?? ''));
         }
     }
 
@@ -138,21 +135,28 @@ class AnnotationTagTester
             return;
         }
 
-        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation annotation');
+        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation annotation.');
     }
 
-    private function validateExperimentalVersion(string $versionTag): void
+    private function validateExperimentalVersion(string $propertiesString): void
     {
         $match = [];
-        preg_match('/stableVersion:v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
+        preg_match('/([^\s]+):([^\s]*)\s+([^\s]+):([^\s]*)/', $propertiesString, $match, \PREG_UNMATCHED_AS_NULL);
 
         if (empty($match)) {
-            throw new \InvalidArgumentException('Could not find indicator stableVersion in experimental annotation');
+            throw new \InvalidArgumentException('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared.');
         }
+        $properties = [
+            $match[1] => (string) $match[2],
+            $match[3] => (string) $match[4],
+        ];
 
-        $version = $match[1] ?? '';
-
-        $this->validateAgainstPlatformVersion($version);
+        match (true) {
+            !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
+            !isset($properties['feature']) => throw new \InvalidArgumentException('Could not find property feature in experimental annotation.'),
+            !preg_match('/^(?:[a-z]+[A-Z]?[a-z]*\d*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property could not be empty, contain white spaces and must be in camelCase format.'),
+            default => $this->validateAgainstPlatformVersion($properties['stableVersion'])
+        };
     }
 
     private function validateAgainstPlatformVersion(string $version): void

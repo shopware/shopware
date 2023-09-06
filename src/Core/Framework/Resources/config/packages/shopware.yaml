@@ -180,6 +180,7 @@ shopware:
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
+        cluster_setup: false
 
     media:
         enable_url_upload_feature: true

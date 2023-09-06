@@ -101,6 +101,7 @@ class CacheClearerTest extends TestCase
             $filesystem,
             $cacheDir,
             'test',
+            false,
             $this->getContainer()->get('messenger.bus.shopware')
         );
 
@@ -127,7 +128,33 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear();
 
         foreach ($urlGeneratorCacheFileFinder->getIterator() as $generatorFile) {
-            static::assertFileDoesNotExist($generatorFile);
+            static::assertFileDoesNotExist($generatorFile->getRealPath());
+        }
+    }
+
+    public function testUrlGeneratorCacheGetsNotClearedInClusterMode(): void
+    {
+        $cacheClearer = new CacheClearer(
+            [],
+            $this->getContainer()->get('cache_clearer'),
+            $this->getContainer()->get('filesystem'),
+            $this->getKernel()->getCacheDir(),
+            'test',
+            true,
+            $this->getContainer()->get('messenger.bus.shopware')
+        );
+
+        touch(sprintf('%s%sUrlGenerator.php', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
+        touch(sprintf('%s%sUrlGenerator.php.meta', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
+
+        $urlGeneratorCacheFileFinder = (new Finder())->in($this->getKernel()->getCacheDir())->files()->name('UrlGenerator.php*');
+
+        static::assertCount(2, $urlGeneratorCacheFileFinder);
+
+        $cacheClearer->clear();
+
+        foreach ($urlGeneratorCacheFileFinder->getIterator() as $generatorFile) {
+            static::assertFileExists($generatorFile->getRealPath());
         }
     }
 }

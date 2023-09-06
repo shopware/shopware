@@ -215,7 +215,10 @@ Component.register('sw-property-search', {
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
-                    this.selectOptions(this.$refs.optionSearchGrid);
+                }).then(() => {
+                    if (this.$refs.optionSearchGrid) {
+                        this.selectOptions(this.$refs.optionSearchGrid);
+                    }
                 });
         },
 

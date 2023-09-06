@@ -60,6 +60,10 @@ class QueryStringParser
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equals filter must be scalar or null.', $path . '/value');
                 }
 
+                if (!\is_scalar($query['value']) && $query['value'] !== null) {
+                    throw new InvalidFilterQueryException('Parameter "value" for equals filter must be scalar or null.', $path . '/value');
+                }
+
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nand':
                 return new NandFilter(

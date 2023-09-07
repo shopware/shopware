@@ -2846,6 +2846,33 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testCustomFieldsGetsMerged(IdsCollection $ids): void
+    {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
+        $context = $this->createIndexingContext();
+
+        // Fetch: Fallback through parent to variant in other language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+
+        $dal3 = $ids->getBytes('dal-3');
+
+        $esProducts = $this->definition->fetch([$dal3], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-3')];
+
+        $criteria = new Criteria([$ids->get('dal-3')]);
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testReleaseDate(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2950,6 +2977,15 @@ class ElasticsearchProductTest extends TestCase
                         'testField' => [
                             'type' => 'text',
                         ],
+                        'a' => [
+                            'type' => 'text',
+                        ],
+                        'b' => [
+                            'type' => 'text',
+                        ],
+                        'c' => [
+                            'type' => 'text',
+                        ],
                     ],
                 ];
             }
@@ -2992,6 +3028,15 @@ class ElasticsearchProductTest extends TestCase
                         'type' => 'double',
                     ],
                     'testField' => [
+                        'type' => 'text',
+                    ],
+                    'a' => [
+                        'type' => 'text',
+                    ],
+                    'b' => [
+                        'type' => 'text',
+                    ],
+                    'c' => [
                         'type' => 'text',
                     ],
                 ],

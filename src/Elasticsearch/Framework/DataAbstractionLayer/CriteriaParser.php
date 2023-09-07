@@ -1055,6 +1055,7 @@ class CriteriaParser
                             'field' => 'customFields',
                             'languages' => $context->getLanguageIdChain(),
                             'suffix' => $parts[1] ?? '',
+                            'order' => strtolower($sorting->getDirection()),
                         ],
                     ],
                 ]);

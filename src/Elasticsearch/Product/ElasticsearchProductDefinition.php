@@ -250,14 +250,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $tags = $this->filterToOne(json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
             $categories = $this->filterToMany(json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
-            $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
-
-            // MariaDB servers gives the result as string and not directly decoded
-            // @codeCoverageIgnoreStart
-            if (\is_string($customFields)) {
-                $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
-            }
-            // @codeCoverageIgnoreEnd
+            $customFields = $this->buildCustomFields($context, $parentTranslations, $translations);
 
             $document = [
                 'id' => $id,

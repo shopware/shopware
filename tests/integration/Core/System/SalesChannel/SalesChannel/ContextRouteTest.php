@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @covers \Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute
  */
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class ContextRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

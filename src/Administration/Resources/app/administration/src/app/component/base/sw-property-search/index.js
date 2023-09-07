@@ -193,6 +193,10 @@ Component.register('sw-property-search', {
         },
 
         selectOptions(grid) {
+            if (!grid) {
+                return;
+            }
+
             grid.selectAll(false);
 
             this.preventSelection = true;

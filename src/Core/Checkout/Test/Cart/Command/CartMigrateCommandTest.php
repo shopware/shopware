@@ -52,6 +52,7 @@ class CartMigrateCommandTest extends TestCase
 
         $factory = new RedisConnectionFactory('test-prefix-');
         $redis = $factory->create((string) $url);
+        static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
         $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), false, 90);
@@ -95,6 +96,7 @@ class CartMigrateCommandTest extends TestCase
 
         $factory = $this->getContainer()->get(RedisConnectionFactory::class);
         $redis = $factory->create((string) $url);
+        static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
         $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed, 90);
@@ -150,6 +152,7 @@ class CartMigrateCommandTest extends TestCase
 
         $factory = $this->getContainer()->get(RedisConnectionFactory::class);
         $redis = $factory->create((string) $url);
+        static::assertInstanceOf(\Redis::class, $redis);
         $redis->flushAll();
 
         $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, 90, $factory);

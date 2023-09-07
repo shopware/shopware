@@ -12438,11 +12438,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/Repository/SalesChannelRepositoryTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/ContextLoadRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Subscriber\\\\SalesChannelTypeValidatorTest\\:\\:listAvailable\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Subscriber/SalesChannelTypeValidatorTest.php

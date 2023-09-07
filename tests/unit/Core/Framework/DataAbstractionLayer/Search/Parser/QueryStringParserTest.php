@@ -72,6 +72,14 @@ class QueryStringParserTest extends TestCase
             ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
             new AndFilter([new EqualsFilter('product.name', 'foo')]),
         ];
+        yield 'Test null queries' => [
+            ['type' => 'and', 'queries' => null],
+            new AndFilter(),
+        ];
+        yield 'Test without queries' => [
+            ['type' => 'and'],
+            new AndFilter(),
+        ];
         yield 'Test or filter' => [
             ['type' => 'or', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
             new OrFilter([new EqualsFilter('product.name', 'foo')]),

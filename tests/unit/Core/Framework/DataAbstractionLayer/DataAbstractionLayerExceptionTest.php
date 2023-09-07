@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -94,5 +95,14 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $e = DataAbstractionLayerException::invalidLanguageId('foo');
 
         static::assertInstanceOf(LanguageNotFoundException::class, $e);
+    }
+
+    public function testInvalidFilterQuery(): void
+    {
+        $e = DataAbstractionLayerException::invalidFilterQuery('foo', 'baz');
+
+        static::assertInstanceOf(InvalidFilterQueryException::class, $e);
+        static::assertEquals('foo', $e->getMessage());
+        static::assertEquals('baz', $e->getPath());
     }
 }

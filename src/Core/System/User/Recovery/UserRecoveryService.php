@@ -163,24 +163,12 @@ class UserRecoveryService
             new EqualsFilter('email', $userEmail)
         );
 
-        $user = $this->userRepo->search($criteria, $context)->first();
-
-        if (!$user instanceof UserEntity) {
-            return null;
-        }
-
-        return $user;
+        return $this->userRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function getUserRecovery(Criteria $criteria, Context $context): ?UserRecoveryEntity
     {
-        $recovery = $this->userRecoveryRepo->search($criteria, $context)->first();
-
-        if (!$recovery instanceof UserRecoveryEntity) {
-            return null;
-        }
-
-        return $recovery;
+        return $this->userRecoveryRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function deleteRecoveryForUser(UserRecoveryEntity $userRecoveryEntity, Context $context): void

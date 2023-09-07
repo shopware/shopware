@@ -366,21 +366,40 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             $document['metaDescription'] = $this->mapTranslatedField('metaDescription', true, ...$parentTranslations, ...$translations);
             $document['customSearchKeywords'] = $this->mapTranslatedField('customSearchKeywords', false, ...$parentTranslations, ...$translations);
             $document['customFields'] = [];
-            $customFields = $this->mapTranslatedField('customFields', false, ...$parentTranslations, ...$translations);
+            $customFieldsParent = $this->mapTranslatedField('customFields', false, ...$parentTranslations);
+            $customFieldsVariant = $this->mapTranslatedField('customFields', false, ...$translations);
 
-            foreach ($customFields as $languageId => $customField) {
-                if (empty($customField)) {
-                    continue;
+            $customFieldsLanguageIds = array_unique(array_merge(array_keys($customFieldsParent), array_keys($customFieldsVariant)));
+
+            foreach ($customFieldsLanguageIds as $languageId) {
+                $merged = [];
+
+                $chains = [
+                    $customFieldsParent[$languageId] ?? [],
+                    $customFieldsVariant[$languageId] ?? [],
+                ];
+
+                /** @var array<mixed>|string $chain */
+                foreach ($chains as $chain) {
+                    // chain is empty string, when no custom fields are set
+                    if ($chain === '') {
+                        $chain = [];
+                    }
+
+                    if (\is_string($chain)) {
+                        $chain = json_decode($chain, true, 512, \JSON_THROW_ON_ERROR);
+                    }
+
+                    foreach ($chain as $k => $v) {
+                        if ($v === null) {
+                            continue;
+                        }
+
+                        $merged[$k] = $v;
+                    }
                 }
 
-                // MariaDB servers gives the result as string and not directly decoded
-                // @codeCoverageIgnoreStart
-                if (\is_string($customField)) {
-                    $customField = json_decode($customField, true, 512, \JSON_THROW_ON_ERROR);
-                }
-                // @codeCoverageIgnoreEnd
-
-                $document['customFields'][$languageId] = $this->formatCustomFields($customField ?: [], $context);
+                $document['customFields'][$languageId] = $this->formatCustomFields($merged, $context);
             }
 
             $document['properties'] = array_values(array_map(function (string $propertyId) use ($groups) {
@@ -568,9 +587,9 @@ SQL;
     }
 
     /**
-     * @param array<string, mixed> $customFields
+     * @param array<mixed> $customFields
      *
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     private function formatCustomFields(array $customFields, Context $context): array
     {

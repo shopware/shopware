@@ -241,14 +241,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $tags = $this->filterToOne(json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
             $categories = $this->filterToMany(json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
-            $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
-
-            // MariaDB servers gives the result as string and not directly decoded
-            // @codeCoverageIgnoreStart
-            if (\is_string($customFields)) {
-                $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
-            }
-            // @codeCoverageIgnoreEnd
+            $customFields = $this->buildCustomFields($context, $parentTranslations, $translations);
 
             $document = [
                 'id' => $id,
@@ -667,5 +660,48 @@ WHERE custom_field_set_relation.entity_name = "product"
         }
 
         return $filtered;
+    }
+
+    /**
+     * @param array<mixed> ...$sources
+     *
+     * @return array<mixed>
+     *
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::customFields
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::mergeJson
+     */
+    private function buildCustomFields(Context $context, array ...$sources): array
+    {
+        $merged = [];
+
+        // need to reverse the language chain to get the correct order merged
+        $languageIds = array_reverse($context->getLanguageIdChain());
+
+        foreach ($languageIds as $languageId) {
+            foreach ($sources as $source) {
+                if (!isset($source[$languageId]['customFields'])) {
+                    continue;
+                }
+
+                $languageTranslation = $source[$languageId]['customFields'];
+
+                // MariaDB's servers gives the result as string and not directly decodes
+                // @codeCoverageIgnoreStart
+                if (\is_string($languageTranslation)) {
+                    $languageTranslation = json_decode($languageTranslation, true, 512, \JSON_THROW_ON_ERROR);
+                }
+                // @codeCoverageIgnoreEnd
+
+                foreach ($languageTranslation as $key => $value) {
+                    if ($value === null) {
+                        continue;
+                    }
+
+                    $merged[$key] = $value;
+                }
+            }
+        }
+
+        return $merged;
     }
 }

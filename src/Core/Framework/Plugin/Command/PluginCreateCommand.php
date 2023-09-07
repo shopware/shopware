@@ -90,6 +90,7 @@ use Shopware\Core\TestBootstrapper;
 \$loader = (new TestBootstrapper())
     ->addCallingPlugin()
     ->addActivePlugins('#name#')
+    ->setForceInstallPlugins(true)
     ->bootstrap()
     ->getClassLoader();
 

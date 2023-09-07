@@ -5,7 +5,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -125,12 +125,6 @@ export default {
         },
 
         onCloseSettingsModal() {
-            const childComponent = this.$refs.elementComponentRef;
-
-            if (childComponent && childComponent.handleUpdateContent) {
-                childComponent.handleUpdateContent();
-            }
-
             this.showElementSettings = false;
         },
 

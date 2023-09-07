@@ -13,12 +13,6 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
         '**/src/Core/Framework/Adapter/Asset/AssetInstallCommand.php', // symfony configure
-
-        // Symfony validators, should be removed with NEXT-26264
-        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php',
-        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php',
-        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerVatIdentification.php',
-        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php',
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
@@ -36,24 +30,5 @@ return [
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
-        'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
-
-        // Removed boot method from Bundle
-        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
-
-        // __set cannot have a return value
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration#__set\(\) changed from no type to void',
-
-        // Should be removed with NEXT-29044
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
-
-        // Renaming of arguments
-        'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions',
-
-        // Property type change from int to float
-        'Type of property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\DaysSinceRule#$daysPassed changed from int|null to float|null'
     ],
 ];

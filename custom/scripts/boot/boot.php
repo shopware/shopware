@@ -1,6 +1,6 @@
 <?php
 
-use script\boot\ScriptKernel;
+use Scripts\Boot\ScriptKernel;
 use Shopware\Core\HttpKernel;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -16,7 +16,7 @@ if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php'
 
 $returnKernel = $returnKernel ?? false;
 
-$env = $env ?? 'prod';
+$env = $env ?? 'dev';
 
 $kernel = new class($env, $env !== 'prod', $classLoader) extends HttpKernel {
     protected static string $kernelClass = ScriptKernel::class;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Script;
+namespace Scripts\Examples;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -13,7 +13,7 @@ use Shopware\Core\Test\TestDefaults;
 
 require_once __DIR__ . '/base-script.php';
 
-$env = 'dev'; // by default, kernel gets booted in dev
+$env = 'prod'; // by default, kernel gets booted in dev
 
 $kernel = require __DIR__ . '/../boot/boot.php';
 
@@ -46,8 +46,6 @@ class Main extends BaseScript
             ->create(['id' => $ids->get('p1')], $context);
 
         $service->add($cart, [$item], $context);
-
-        dd($cart);
     }
 }
 

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -100,5 +102,13 @@ class DataAbstractionLayerException extends HttpException
             'The provided language id "{{ languageId }}" is invalid.',
             ['languageId' => $languageId]
         );
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
+     */
+    public static function invalidFilterQuery(string $message, string $path = ''): ShopwareHttpException
+    {
+        return new InvalidFilterQueryException($message, $path);
     }
 }

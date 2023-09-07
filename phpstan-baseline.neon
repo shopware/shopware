@@ -1006,11 +1006,6 @@ parameters:
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Cart' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart will always evaluate to true\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Command/CartMigrateCommandTest.php
-
-		-
 			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryBuilderTest.php
@@ -8011,36 +8006,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowLogEvent\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/FlowLogEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/AbstractIncrementer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:list\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/AbstractIncrementer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/AbstractIncrementer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/AbstractIncrementer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\ArrayIncrementer\\:\\:list\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/ArrayIncrementer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Increment\\\\ArrayIncrementer\\:\\:\\$logs type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/ArrayIncrementer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\IncrementerGatewayCompilerPass\\:\\:resolveTypeDefinition\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"

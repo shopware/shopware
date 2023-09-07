@@ -26,7 +26,7 @@
                                     {% block page_product_detail_buy_quantity_input_group %}
                                         <div class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true">
                                             {% block page_product_detail_buy_quantity_input %}
-                                                <button type="button" class="btn btn-outline-light btn-minus js-btn-minus">
+                                                <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ "component.product.quantitySelect.decrease"|trans|striptags }}">
                                                     {% sw_icon 'minus' style {'size': 'xs'} %}
                                                 </button>
                                                 <input
@@ -37,8 +37,9 @@
                                                     max="{{ product.calculatedMaxPurchase }}"
                                                     step="{{ product.purchaseSteps }}"
                                                     value="{{ product.minPurchase }}"
+                                                    aria-label="{{ "component.product.quantitySelect.label"|trans|striptags }}"
                                                 />
-                                                <button type="button" class="btn btn-outline-light btn-plus js-btn-plus">
+                                                <button type="button" class="btn btn-outline-light btn-plus js-btn-plus" aria-label="{{ "component.product.quantitySelect.increase"|trans|striptags }}">
                                                     {% sw_icon 'plus' style {'size': 'xs'} %}
                                                 </button>
                                             {% endblock %}

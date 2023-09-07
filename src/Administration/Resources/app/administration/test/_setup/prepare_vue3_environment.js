@@ -13,6 +13,7 @@ import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
+import wrapTestComponent from '../_helper_/componentWrapper';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -55,9 +56,11 @@ Shopware.Application.view = {
         $tc: v => v,
     },
     i18n: {
-        tc: v => v,
-        te: v => v,
-        t: v => v,
+        global: {
+            tc: v => v,
+            te: v => v,
+            t: v => v,
+        },
     },
 };
 
@@ -101,9 +104,7 @@ config.global.mocks = {
         go: jest.fn(),
         resolve: jest.fn(() => {
             return {
-                resolved: {
-                    matched: [],
-                },
+                matched: [],
             };
         }),
     },
@@ -121,6 +122,7 @@ global.allowedErrors = [
 ];
 
 global.flushPromises = flushPromises;
+global.wrapTestComponent = wrapTestComponent;
 
 let consoleHasError = false;
 let errorArgs = null;

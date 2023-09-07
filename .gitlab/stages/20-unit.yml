@@ -39,6 +39,7 @@ Jest Vue 3 (Administration):
       - composer run admin:generate-entity-schema-types
     script:
       - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+      - npm --prefix $ADMIN_PATH run unit-setup
       - npm --prefix $ADMIN_PATH run unit:vue3 -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
       - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
 

@@ -51,6 +51,7 @@ module.exports = {
         cy: true,
         autoStub: true,
         flushPromises: true,
+        wrapTestComponent: true,
     },
 
     plugins: [

@@ -110,8 +110,11 @@ class RedisCartPersister extends AbstractCartPersister
             return;
         }
 
+        $copyContext = clone $context;
+        $copyContext->setRuleIds($cart->getRuleIds());
+
         $cart->setToken($newToken);
-        $this->save($cart, $context);
+        $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
 
         $this->delete($oldToken, $context);

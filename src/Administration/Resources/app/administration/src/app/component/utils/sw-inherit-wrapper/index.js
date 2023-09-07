@@ -225,6 +225,11 @@ Component.register('sw-inherit-wrapper', {
                 return;
             }
 
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', null);
+                return;
+            }
+
             this.$emit('input', null);
         },
 
@@ -255,6 +260,11 @@ Component.register('sw-inherit-wrapper', {
 
             if (!newValue) {
                 this.forceInheritanceRemove = true;
+            }
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', newValue);
+                return;
             }
 
             this.$emit('input', newValue);

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Service;
+namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -62,7 +62,9 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromTechnicalName(): void
     {
-        static::assertInstanceOf(AppEntity::class, $this->extensionDataProvider->getAppEntityFromTechnicalName('TestApp', $this->context));
+        $app = $this->extensionDataProvider->getAppEntityFromTechnicalName('TestApp', $this->context);
+
+        static::assertEquals('TestApp', $app->getName());
     }
 
     public function testGetAppEntityFromId(): void
@@ -76,15 +78,37 @@ class ExtensionDataProviderTest extends TestCase
         );
     }
 
-    public function testGetAppEntityFromTechnicalNameThrowsIfExtensionCantBeFound(): void
+    public function testGetAppEntityFromTechnicalNameThrowsWithoutMajorFlag(): void
     {
+        Feature::skipTestIfActive('V6_6_0_0', $this);
+
         static::expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
     }
 
-    public function testGetAppEntityFromIdThrowsIfExtensionCantBeFound(): void
+    public function testGetAppEntityFromTechnicalNameThrowsWithMajorFlag(): void
     {
+        Feature::skipTestIfInActive('V6_6_0_0', $this);
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromTechnicalName instead.');
+        $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
+    }
+
+    public function testGetAppEntityFromIdThrowsWithoutMajorFlag(): void
+    {
+        Feature::skipTestIfActive('V6_6_0_0', $this);
+
         static::expectException(ExtensionNotFoundException::class);
+        $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
+    }
+
+    public function testGetAppEntityFromIdThrowsWithMajorFlag(): void
+    {
+        Feature::skipTestIfInActive('V6_6_0_0', $this);
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromId');
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
     }
 

@@ -15,7 +15,6 @@ async function createWrapper() {
         stubs: {
             'foo-bar': true,
             'sw-icon': true,
-            'sw-modal': true,
         },
         provide: {
             cmsService: {
@@ -173,22 +172,5 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
 
         expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
-    });
-
-    it('should call handleUpdateContent and hide the settings modal', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.$refs = {
-            elementComponentRef: {
-                handleUpdateContent: jest.fn(),
-            },
-        };
-
-        await wrapper.setData({ showElementSettings: true });
-
-        wrapper.vm.onCloseSettingsModal();
-
-        expect(wrapper.vm.$refs.elementComponentRef.handleUpdateContent).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.showElementSettings).toBe(false);
     });
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scripts\Examples;
+namespace Script;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\HttpKernel;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scripts\Boot;
+namespace script\boot;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

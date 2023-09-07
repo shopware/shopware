@@ -1087,6 +1087,8 @@
     "customer.updatedAt",
     "customer.createdById",
     "customer.updatedById",
+    "customer.activeBillingAddress",
+    "customer.activeShippingAddress",
     "customer_group_translation.name",
     "customer_group_translation.registrationTitle",
     "customer_group_translation.registrationIntroduction",

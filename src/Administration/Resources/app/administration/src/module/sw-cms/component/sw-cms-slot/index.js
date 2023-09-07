@@ -125,12 +125,6 @@ export default {
         },
 
         onCloseSettingsModal() {
-            const childComponent = this.$refs.elementComponentRef;
-
-            if (childComponent && childComponent.hasOwnProperty('handleUpdateContent')) {
-                childComponent.handleUpdateContent();
-            }
-
             this.showElementSettings = false;
         },
 

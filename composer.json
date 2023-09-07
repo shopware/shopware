@@ -202,6 +202,9 @@
         "admin:generate-entity-schema-types": " ",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
+        "admin:unit:prepare-vue3": "Prepares the jest unit test-suite for the Admin with Vue3",
+        "admin:unit:vue3": "Launches the jest unit test-suite for the Admin with Vue3",
+        "admin:unit:watch:vue3": "Launches the interactive jest unit test-suite watcher for the Admin with Vue3",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
         "build:js:admin": "Builds the Administration",
@@ -286,6 +289,20 @@
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
             "@npm:admin run unit-watch"
+        ],
+        "admin:unit:prepare-vue3": [
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup"
+        ],
+        "admin:unit:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit:vue3"
+        ],
+        "admin:unit:watch:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-watch:vue3"
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",

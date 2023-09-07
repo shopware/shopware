@@ -123,6 +123,8 @@ config/packages/
 config/services*
 
 custom
+!/custom/scripts/boot
+!/custom/scripts/examples
 files/*
 install.lock
 docker-compose.override.yaml

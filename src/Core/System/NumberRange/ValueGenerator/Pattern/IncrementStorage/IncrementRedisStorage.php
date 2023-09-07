@@ -124,8 +124,14 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         return 'number_range:' . $id;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getNumberRangeIds(): array
     {
-        return $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+        /** @var list<string> $ids */
+        $ids = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+
+        return $ids;
     }
 }

@@ -68,9 +68,7 @@ class CartMigrateCommandTest extends TestCase
             false
         );
 
-        $sqlCart = $persister->load($redisCart->getToken(), $context);
-
-        static::assertInstanceOf(Cart::class, $sqlCart);
+        $persister->load($redisCart->getToken(), $context);
     }
 
     /**
@@ -112,9 +110,7 @@ class CartMigrateCommandTest extends TestCase
             $sqlCompressed
         );
 
-        $sqlCart = $persister->load($redisCart->getToken(), $context);
-
-        static::assertInstanceOf(Cart::class, $sqlCart);
+        $persister->load($redisCart->getToken(), $context);
     }
 
     /**
@@ -159,9 +155,7 @@ class CartMigrateCommandTest extends TestCase
         $command->run(new ArrayInput(['from' => 'sql']), new NullOutput());
 
         $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed, 90);
-        $redisCart = $persister->load($sqlCart->getToken(), $context);
-
-        static::assertInstanceOf(Cart::class, $redisCart);
+        $persister->load($sqlCart->getToken(), $context);
     }
 
     public static function dataProvider(): \Generator

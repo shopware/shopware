@@ -75,28 +75,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringValue(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DaysSinceLastOrderRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'daysPassed' => '10',
-                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
-        }
-    }
-
     public function testValidateWithInvalidValue(): void
     {
         try {
@@ -137,7 +115,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 'type' => (new DaysSinceLastOrderRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'daysPassed' => 10,
+                    'daysPassed' => 10.1,
                     'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                 ],
             ],
@@ -228,8 +206,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderRepository->create($orderData, $defaultContext);
         $criteria = new Criteria([$orderData[0]['orderCustomer']['customer']['id']]);
 
-        $result = $customerRepository->search($criteria, $defaultContext);
+        /** @var CustomerEntity $customer */
+        $customer = $customerRepository->search($criteria, $defaultContext)->getEntities()->first();
 
-        return $result->first();
+        return $customer;
     }
 }

@@ -148,4 +148,3 @@ commercial tag:
     project: shopware/6/product/commercial
     strategy: depend
     branch: $CI_COMMIT_TAG
-

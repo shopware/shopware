@@ -66,7 +66,7 @@ class TranslatorTest extends TestCase
         $localeCodeProvider->expects(static::any())->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
+        $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
 
         $translator = new Translator(
             $decorated,
@@ -79,6 +79,18 @@ class TranslatorTest extends TestCase
             $snippetServiceMock,
             false
         );
+
+        $item = new CacheItem();
+        $property = (new \ReflectionClass($item))->getProperty('isTaggable');
+        $property->setAccessible(true);
+        $property->setValue($item, true);
+
+        $cache->expects($expectedCacheKey ? static::once() : static::never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
+            static::assertEquals($expectedCacheKey, $key);
+
+            /** @var callable(CacheItem): mixed $callback */
+            return $callback($item);
+        });
 
         if ($injectSalesChannelId) {
             $translator->injectSettings($injectSalesChannelId, Uuid::randomHex(), 'en-GB', Context::createDefaultContext());
@@ -97,18 +109,6 @@ class TranslatorTest extends TestCase
             return;
         }
 
-        $item = new CacheItem();
-        $property = (new \ReflectionClass($item))->getProperty('isTaggable');
-        $property->setAccessible(true);
-        $property->setValue($item, true);
-
-        $cache->expects(static::once())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
-            static::assertEquals($expectedCacheKey, $key);
-
-            /** @var callable(CacheItem): mixed $callback */
-            return $callback($item);
-        });
-
         $catalogue = $translator->getCatalogue('en-GB');
 
         static::assertNotSame($originCatalogue, $catalogue);
@@ -120,12 +120,47 @@ class TranslatorTest extends TestCase
     }
 
     /**
+     * @dataProvider getSnippetSetIdRequestProvider
+     *
+     * @param string[] $dbSnippetSetIds
+     */
+    public function testGetSnippetId(array $dbSnippetSetIds, ?string $expectedSnippetSetId, ?string $locale, ?string $requestSnippetSetId): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(null, $requestSnippetSetId));
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($locale ? static::once() : static::never())->method('fetchFirstColumn')->willReturn($dbSnippetSetIds);
+
+        $translator = new Translator(
+            $this->createMock(SymfonyTranslator::class),
+            $requestStack,
+            $this->createMock(CacheInterface::class),
+            $this->createMock(MessageFormatterInterface::class),
+            'prod',
+            $connection,
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            $this->createMock(SnippetService::class),
+            false
+        );
+
+        $snippetSetId = $translator->getSnippetSetId($locale);
+
+        static::assertEquals($expectedSnippetSetId, $snippetSetId);
+
+        // double call to make sure caching works
+        $snippetSetId = $translator->getSnippetSetId($locale);
+
+        static::assertEquals($expectedSnippetSetId, $snippetSetId);
+    }
+
+    /**
      * @return iterable<string, array<int, string|Request|null>>
      */
     public static function getCatalogueRequestProvider(): iterable
     {
-        $salesChannelId = Uuid::randomHex();
         $snippetSetId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
 
         yield 'without request' => [
             $snippetSetId,
@@ -149,6 +184,66 @@ class TranslatorTest extends TestCase
             null,
             sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
+        ];
+    }
+
+    /**
+     * @return iterable<string, array<string, string|string[]|null>>
+     */
+    public static function getSnippetSetIdRequestProvider(): iterable
+    {
+        $expectedSnippetSetId = Uuid::randomHex();
+        $foundSnippetSetId = Uuid::randomHex();
+
+        yield 'without locale and request snippet set id' => [
+            'dbSnippetSetIds' => [],
+            'expectedSnippetSetId' => null,
+            'locale' => null,
+            'requestSnippetSetId' => null,
+        ];
+
+        yield 'without locale but request snippet set id is set' => [
+            'dbSnippetSetIds' => [],
+            'expectedSnippetSetId' => $expectedSnippetSetId,
+            'locale' => null,
+            'requestSnippetSetId' => $expectedSnippetSetId,
+        ];
+
+        yield 'with locale and request snippet set id but no matched db record' => [
+            'dbSnippetSetIds' => [],
+            'expectedSnippetSetId' => $expectedSnippetSetId,
+            'locale' => 'de-DE',
+            'requestSnippetSetId' => $expectedSnippetSetId,
+        ];
+
+        yield 'with locale and there is one set matched' => [
+            'dbSnippetSetIds' => [
+                $foundSnippetSetId,
+            ],
+            'expectedSnippetSetId' => $foundSnippetSetId,
+            'locale' => 'de-DE',
+            'requestSnippetSetId' => $expectedSnippetSetId,
+        ];
+
+        yield 'with locale and multiple sets matched, take the first match' => [
+            'dbSnippetSetIds' => [
+                $foundSnippetSetId,
+                Uuid::randomHex(),
+            ],
+            'expectedSnippetSetId' => $foundSnippetSetId,
+            'locale' => 'de-DE',
+            'requestSnippetSetId' => $expectedSnippetSetId,
+        ];
+
+        yield 'with locale and multiple sets matched, prioritize set from request' => [
+            'dbSnippetSetIds' => [
+                $foundSnippetSetId,
+                $expectedSnippetSetId,
+                Uuid::randomHex(),
+            ],
+            'expectedSnippetSetId' => $expectedSnippetSetId,
+            'locale' => 'de-DE',
+            'requestSnippetSetId' => $expectedSnippetSetId,
         ];
     }
 

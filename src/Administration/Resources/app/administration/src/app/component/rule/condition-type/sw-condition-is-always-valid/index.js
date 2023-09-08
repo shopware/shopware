@@ -19,11 +19,13 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
         isAlwaysValid() {
             return true;
         },
+
         defaultValues() {
             return {
                 isAlwaysValid: true,
             };
         },
+
         selectValues() {
             return [
                 {
@@ -32,6 +34,7 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
                 },
             ];
         },
+
         ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {

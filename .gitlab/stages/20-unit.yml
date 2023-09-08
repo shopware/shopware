@@ -74,10 +74,11 @@ Jest Coverage per Area (Storefront):
   extends: Jest (Storefront)
   stage: unit
   rules:
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-      when: never
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
     - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - !reference [ .rules, run ]
   variables:
     ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
@@ -87,6 +88,7 @@ Jest Coverage per Area (Storefront):
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
     - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
       - PRODUCT_AREA: [ "checkout", "content", "inventory", "merchant-services", "storefront", "unknown" ]
@@ -99,16 +101,18 @@ Jest Coverage per Area (Administration):
   extends: Jest (Administration)
   stage: unit
   rules:
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-      when: never
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
     - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - !reference [ .rules, run ]
   script:
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
     - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
       - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "customer-order", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
@@ -153,7 +157,6 @@ PHP unit:
             --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
             --testsuite "$TESTSUITE"
             --order-by default
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
         reports:
@@ -265,17 +268,18 @@ PHP unit coverage:
             --testsuite unit
             --coverage-text
             --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
+        - .gitlab/bin/split-coverage-report.php cobertura.xml
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
       paths:
-        - cobertura.xml
+        - cobertura-*.xml
         - phpunit.junit.xml
       reports:
         junit: phpunit.junit.xml
         coverage_report:
           coverage_format: cobertura
-          path: cobertura.xml
+          path: cobertura-*.xml
 
 PHP migration coverage:
     extends: .base-no-setup
@@ -305,16 +309,17 @@ PHP migration coverage:
             --testsuite migration-tests
             --coverage-text
             --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
+        - .gitlab/bin/split-coverage-report.php cobertura.xml
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
       paths:
-        - cobertura.xml
+        - cobertura-*.xml
       reports:
         junit: phpunit.junit.xml
         coverage_report:
           coverage_format: cobertura
-          path: cobertura.xml
+          path: cobertura-*.xml
 
 PHP Full:
     extends: .long-running
@@ -449,10 +454,11 @@ PHP unit per area:
     extends: PHP unit coverage
     stage: unit
     rules:
-      - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-        when: never
+      - !reference [ .rules, skip ]
+      - !reference [ .rules, skip-in-merge-train ]
       - if: '$CI_PIPELINE_SOURCE == "pipeline"'
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      - !reference [ .rules, run ]
     script:
       - composer dump-autoload -o
       - bin/console coverage:classes-per-area -g > /dev/null
@@ -466,6 +472,7 @@ PHP unit per area:
         --coverage-text
         --coverage-html phpunit/
         --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
+    coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
         - PRODUCT_AREA: ["administration", "business-ops", "checkout", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]

@@ -1,4 +1,57 @@
 # 6.6.0.0
+## Introduced in 6.5.5.0
+## New stock handling implementation is now the default
+
+The `product.stock` field is now the primary source for real time product stock values. However, `product.availableStock` is a direct mirror of `product.stock` and is updated whenever `product.stock` is updated via the DAL.
+
+A database migration `\Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock` takes care of copying the `available_stock` field to the `stock` field.
+
+## New configuration values
+
+* `stock.enable_stock_management` - Default `true`. This can be used to completely disable Shopware's stock handling. If disabled, product stock will be not be updated as orders are created and transitioned through the various states.
+
+## Removed `\Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater`
+
+The listener was replaced with a new listener `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` which handles subscribing to the various order events and interfaces with the stock storage `\Shopware\Core\Content\Product\Stock\AbstractStockStorage` to write the stock alterations.
+
+## Removed `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader::load()` && `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::load()`
+
+These methods are removed and superseded by `loadCombinations` which has a different method signature.
+
+From:
+
+```php
+public function load(string $productId, Context $context, string $salesChannelId)
+```
+
+To:
+
+```php
+public function loadCombinations(string $productId, SalesChannelContext $salesChannelContext): AvailableCombinationResult
+```
+
+The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method. 
+
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+
+`$context` can be replaced with `$salesChannelContext->getContext()`.
+
+## Writing to `product.availableStock` field is now not possible
+
+The field is write protected. Use the `product.stock` to write new stock levels. 
+
+## Reading product stock
+
+The `product.stock` should be used to read the current stock level. When building new extensions which need to query the stock of a product, use this field. Not the `product.availableStock` field.
+
+## Removed `\Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent`
+
+It is replaced by `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent` with the same API.
+
+You should use `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent` instead, only the class name changed.
+## sw-field deprecation:
+* Instead of `<sw-field type="url"` use `<sw-url-field`. You can see the component mapping in the `sw-field/index.js`
+
 ## Introduced in 6.5.3.0
 ## Removal of `flow-action-1.0.xsd`
 We removed `Shopware\Core\Framework\App\FlowAction\Schema\flow-action-1.0.xsd`, use `Shopware\Core\Framework\App\Flow\Schema\flow-1.0.xsd` instead.

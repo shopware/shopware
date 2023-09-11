@@ -13,28 +13,21 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AsyncPayPayload extends SyncPayPayload
 {
+    /**
+     * @param mixed[] $requestData
+     */
     public function __construct(
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         protected string $returnUrl,
-        protected array $requestData,
-        protected ?RecurringDataStruct $recurring = null,
+        array $requestData = [],
+        ?RecurringDataStruct $recurring = null,
     ) {
-        parent::__construct($orderTransaction, $order);
+        parent::__construct($orderTransaction, $order, $requestData, $recurring);
     }
 
     public function getReturnUrl(): string
     {
         return $this->returnUrl;
-    }
-
-    public function getRequestData(): array
-    {
-        return $this->requestData;
-    }
-
-    public function getRecurring(): ?RecurringDataStruct
-    {
-        return $this->recurring;
     }
 }

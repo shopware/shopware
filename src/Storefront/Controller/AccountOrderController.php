@@ -261,7 +261,7 @@ class AccountOrderController extends StorefrontController
 
         $setPaymentRequest = new Request();
         $setPaymentRequest->request->set('orderId', $orderId);
-        $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
+        $setPaymentRequest->request->add($request->request->all());
 
         $setPaymentOrderRouteRequestEvent = new SetPaymentOrderRouteRequestEvent($request, $setPaymentRequest, $context);
         $this->eventDispatcher->dispatch($setPaymentOrderRouteRequestEvent);
@@ -272,6 +272,7 @@ class AccountOrderController extends StorefrontController
         $handlePaymentRequest->request->set('orderId', $orderId);
         $handlePaymentRequest->request->set('finishUrl', $finishUrl);
         $handlePaymentRequest->request->set('errorUrl', $errorUrl);
+        $handlePaymentRequest->request->add($request->request->all());
 
         $handlePaymentMethodRouteRequestEvent = new HandlePaymentMethodRouteRequestEvent($request, $handlePaymentRequest, $context);
         $this->eventDispatcher->dispatch($handlePaymentMethodRouteRequestEvent);

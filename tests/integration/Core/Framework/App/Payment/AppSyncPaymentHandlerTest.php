@@ -28,7 +28,8 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $response = new SyncPayResponse();
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $data = new RequestDataBag(['foo' => 'bar']);
+        $this->paymentService->handlePaymentByOrder($orderId, $data, $salesChannelContext);
 
         /** @var Request $request */
         $request = $this->getLastRequest();
@@ -64,7 +65,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['orderTransaction']);
         static::assertArrayHasKey('recurring', $content);
         static::assertNull($content['recurring']);
-        static::assertCount(4, $content);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        static::assertArrayHasKey('foo', $content['requestData']);
+        static::assertSame('bar', $content['requestData']['foo']);
+        static::assertCount(5, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
     }
 

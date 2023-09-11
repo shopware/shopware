@@ -29,10 +29,8 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
     {
         $this->transactionStateHandler->processUnconfirmed($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
 
-        $requestData = $dataBag->all();
-        unset($requestData['_csrf_token']);
+        $payload = $this->buildPayPayload($transaction, $dataBag->all());
 
-        $payload = $this->buildPayPayload($transaction, $requestData);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
             throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');

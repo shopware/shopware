@@ -29,6 +29,7 @@ class SyncPayPayload implements PaymentPayloadInterface
     public function __construct(
         OrderTransactionEntity $orderTransaction,
         protected OrderEntity $order,
+        protected array $requestData = [],
         protected ?RecurringDataStruct $recurring = null,
     ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
@@ -52,6 +53,14 @@ class SyncPayPayload implements PaymentPayloadInterface
     public function getOrder(): OrderEntity
     {
         return $this->order;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getRequestData(): array
+    {
+        return $this->requestData;
     }
 
     public function getRecurring(): ?RecurringDataStruct

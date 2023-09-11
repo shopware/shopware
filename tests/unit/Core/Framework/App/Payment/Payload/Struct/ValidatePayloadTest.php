@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload\Struct;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Generator;
 
 /**
  * @covers \Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload
@@ -19,7 +19,7 @@ class ValidatePayloadTest extends TestCase
 {
     public function testPayload(): void
     {
-        $cart = new Cart('testToken');
+        $cart = new Cart('hatouken');
         $requestData = ['foo' => 'bar'];
         $salesChannelContext = Generator::createSalesChannelContext();
         $source = new Source('foo', 'bar', '1.0.0');

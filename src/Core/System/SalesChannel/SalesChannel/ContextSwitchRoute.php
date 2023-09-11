@@ -34,11 +34,15 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 
     /**
+     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
+     *
      * @var SalesChannelContextPersister
      */
     protected $contextPersister;
 
     /**
+     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
+     *
      * @var DataValidator
      */
     protected $validator;

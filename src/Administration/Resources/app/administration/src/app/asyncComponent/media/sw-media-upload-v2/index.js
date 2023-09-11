@@ -28,7 +28,12 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaService', 'configService'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+        'configService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -181,6 +186,10 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
+            if (this.feature.isActive('VUE3')) {
+                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            }
+
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },
 

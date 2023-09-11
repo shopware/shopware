@@ -2846,6 +2846,33 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testCustomFieldsGetsMerged(IdsCollection $ids): void
+    {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
+        $context = $this->createIndexingContext();
+
+        // Fetch: Fallback through parent to variant in other language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+
+        $dal3 = $ids->getBytes('dal-3');
+
+        $esProducts = $this->definition->fetch([$dal3], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-3')];
+
+        $criteria = new Criteria([$ids->get('dal-3')]);
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testReleaseDate(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2950,6 +2977,15 @@ class ElasticsearchProductTest extends TestCase
                         'testField' => [
                             'type' => 'text',
                         ],
+                        'a' => [
+                            'type' => 'text',
+                        ],
+                        'b' => [
+                            'type' => 'text',
+                        ],
+                        'c' => [
+                            'type' => 'text',
+                        ],
                     ],
                 ];
             }
@@ -2994,6 +3030,15 @@ class ElasticsearchProductTest extends TestCase
                     'testField' => [
                         'type' => 'text',
                     ],
+                    'a' => [
+                        'type' => 'text',
+                    ],
+                    'b' => [
+                        'type' => 'text',
+                    ],
+                    'c' => [
+                        'type' => 'text',
+                    ],
                 ],
             ];
         }
@@ -3004,7 +3049,34 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSortByCustomFieldInt(IdsCollection $ids): void
+    public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
+    {
+        $context = $this->context;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::ASCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $context->addState('test');
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-2'), $result[0]);
+            static::assertSame($ids->get('product-1'), $result[1]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
     {
         $context = $this->context;
 
@@ -3012,13 +3084,46 @@ class ElasticsearchProductTest extends TestCase
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $context->addState('test');
+
+            /** @var array<int, string> $result */
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('variant-3.1'), $result[0], (string) $ids->getKey($result[0])); // has 8000000000
+            static::assertSame($ids->get('variant-3.2'), $result[1], (string) $ids->getKey($result[1])); // has 8000000000
+            static::assertSame($ids->get('product-1'), $result[2], (string) $ids->getKey($result[2])); // has 19999
+            static::assertSame($ids->get('product-2'), $result[3], (string) $ids->getKey($result[3])); // has 200
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCustomFieldsAreMerged(IdsCollection $ids): void
+    {
+        $context = $this->context;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.test_int', 8000000000));
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::ASCENDING));
 
             $searcher = $this->createEntitySearcher();
 
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
 
-            static::assertSame($ids->get('product-1'), $result[0]);
-            static::assertSame($ids->get('product-2'), $result[1]);
+            static::assertCount(2, $result);
+            static::assertContains($ids->get('variant-3.2'), $result);
+            static::assertContains($ids->get('variant-3.1'), $result);
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -3417,6 +3522,18 @@ class ElasticsearchProductTest extends TestCase
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
 
         $customFields = [
+            [
+                'name' => 'a',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'b',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'c',
+                'type' => CustomFieldTypes::TEXT,
+            ],
             [
                 'name' => 'test_int',
                 'type' => CustomFieldTypes::INT,
@@ -4029,6 +4146,13 @@ class ElasticsearchProductTest extends TestCase
                         ->build()
                 )
                 ->build(),
+            (new ProductBuilder($this->ids, 'dal-3'))
+                ->price(50)
+                ->customField('a', '1')
+                ->translation($secondLanguage, 'customFields', ['a' => '2', 'b' => '1'])
+                ->translation($thirdLanguage, 'customFields', ['a' => '3', 'b' => '2', 'c' => '1'])
+                ->build(),
+
             (new ProductBuilder($this->ids, 's-1'))
                 ->name('Default-1')
                 ->price(1)
@@ -4083,6 +4207,22 @@ class ElasticsearchProductTest extends TestCase
                 )
                 ->variant(
                     (new ProductBuilder($this->ids, 'variant-2.2'))
+                        ->build()
+                )
+                ->build(),
+            (new ProductBuilder($this->ids, 'variant-3'))
+                ->name('Main-Product-2')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->customField('test_int', 8000000000)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-3.1'))
+                        ->customField('random', 1)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-3.2'))
+                        ->customField('random', 1)
                         ->build()
                 )
                 ->build(),

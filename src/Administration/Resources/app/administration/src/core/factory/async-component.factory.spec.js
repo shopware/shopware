@@ -1399,7 +1399,7 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
-    describe.only('should build the $super-call-stack when $super-call to an asynchronous method is inside an promise chain and the component providing the promise chain is overridden', () => {
+    describe('should build the $super-call-stack when $super-call to an asynchronous method is inside an promise chain and the component providing the promise chain is overridden', () => {
         createComponentMatrix({
             A: () => ({
                 methods: {

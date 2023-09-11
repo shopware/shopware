@@ -11,7 +11,12 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[Package('core')]
 class RedisIncrementer extends AbstractIncrementer
 {
-    public function __construct(private readonly \Redis $redis)
+    /**
+     * @internal
+     *
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     */
+    public function __construct(private $redis)
     {
     }
 
@@ -43,6 +48,7 @@ class RedisIncrementer extends AbstractIncrementer
         }
 
         $keys = $this->redis->keys($this->getKey($cluster));
+        \assert(\is_array($keys));
 
         foreach ($keys as $key) {
             $this->redis->del($key);
@@ -52,12 +58,14 @@ class RedisIncrementer extends AbstractIncrementer
     public function list(string $cluster, int $limit = 5, int $offset = 0): array
     {
         $keys = $this->redis->keys($this->getKey($cluster));
+        \assert(\is_array($keys));
 
         if (empty($keys)) {
             return [];
         }
 
         $rows = $this->redis->mget($keys);
+        \assert(\is_array($rows));
 
         $result = [];
 
@@ -71,6 +79,7 @@ class RedisIncrementer extends AbstractIncrementer
             $key = $keys[$index];
 
             $key = str_replace(str_replace('*', '', $this->getKey($cluster)), '', $key);
+            \assert(\is_string($key));
 
             $result[$key] = [
                 'key' => $key,

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[Package('core')]
 class ArrayIncrementer extends AbstractIncrementer
 {
+    /**
+     * @var array<string, array<string, int>>
+     */
     private array $logs = [];
 
     public function getDecorated(): AbstractIncrementer

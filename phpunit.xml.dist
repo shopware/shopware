@@ -54,6 +54,7 @@
             <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
+            <file>src/Core/Framework/Adapter/Twig/functions.php</file>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
             <directory suffix=".php">src/Core/Checkout/Test</directory>
@@ -69,6 +70,13 @@
             <directory suffix=".php">src/Storefront/Test</directory>
             <directory suffix=".php">./vendor</directory>
             <directory suffix=".php">./var</directory>
+
+            <directory suffix="Definition.php">src/</directory>
+            <directory suffix="Entity.php">src/</directory>
+            <directory suffix="Event.php">src/</directory>
+            <directory suffix="Field.php">src/</directory>
+            <directory suffix="Struct.php">src/</directory>
+            <directory suffix="Collection.php">src/</directory>
         </exclude>
       </coverage>
     <php>

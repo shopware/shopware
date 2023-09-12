@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -24,6 +25,10 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
 
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
+
+    public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
+
+    public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
 
     final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
 
@@ -110,5 +115,29 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidFilterQuery(string $message, string $path = ''): ShopwareHttpException
     {
         return new InvalidFilterQueryException($message, $path);
+    }
+
+    public static function cannotCreateNewVersion(string $entity, string $id): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CANNOT_CREATE_NEW_VERSION,
+            'Cannot create new version. {{ entity }} by id {{ id }} not found.',
+            ['entity' => $entity, 'id' => $id]
+        );
+    }
+
+    public static function versionMergeAlreadyLocked(string $versionId): self
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new VersionMergeAlreadyLockedException($versionId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_MERGE_ALREADY_LOCKED,
+            'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
+            ['versionId' => $versionId]
+        );
     }
 }

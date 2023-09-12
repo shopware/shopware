@@ -8131,11 +8131,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Version/Aggregate/VersionCommitData/VersionCommitDataEntity.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\CloneBehavior\\:\\:__construct\\(\\) has parameter \\$overwrites with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/CloneBehavior.php
@@ -10174,11 +10169,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Version\\\\VersioningCustomFieldTest\\:\\:getOrderFixture\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Version/VersioningCustomFieldTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Version/VersioningTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriter\\:\\:delete\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, object\\|null given\\.$#"
@@ -14246,11 +14236,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationList will always evaluate to true\\.$#"
 			count: 2
 			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$clonedAffected\\['product'\\]\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: tests/integration/Core/Framework/DataAbstractionLayer/VersionManagerTest.php
 
 		-
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

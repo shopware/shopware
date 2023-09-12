@@ -139,6 +139,7 @@ declare global {
         _features_: {
             [featureName: string]: boolean
         };
+        processingInactivityLogout?: boolean;
     }
 
     const _features_: {

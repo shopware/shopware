@@ -52,16 +52,16 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         // assign to view router options
         const options = { ...opts, routes: mergedRoutes };
-        if (vue3) {
-            options.history = Router.createWebHashHistory();
-        }
 
         // create router
         let router;
         if (vue3) {
+            options.history = Router.createWebHashHistory();
             router = Router.createRouter(options);
+            addGlobalNavigationGuard(router);
         } else {
             router = new Router(options);
+            beforeRouterInterceptor(router);
         }
 
         instance = router;

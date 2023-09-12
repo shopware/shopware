@@ -28,7 +28,7 @@ const rootPath = 'src';
 // @ts-expect-error
 // eslint-disable-next-line no-undef
 const testAbleFiles = getAllFiles(path.join(adminPath, rootPath)).filter(file => {
-    return file.match(/^.*(?<!\.spec)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
+    return file.match(/^.*(?<!\.spec|vue3)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
 });
 
 describe('Administration meta tests', () => {

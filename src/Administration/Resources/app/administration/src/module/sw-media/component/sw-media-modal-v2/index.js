@@ -157,7 +157,7 @@ export default {
             });
 
             this.$emit('media-modal-selection-change', selectedMedia);
-            this.$emit('modal-close');
+            this.onEmitModalClosed();
         },
 
         /*

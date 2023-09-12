@@ -107,6 +107,10 @@ export default {
     },
 
     methods: {
+        closeModal() {
+            this.mediaModalIsOpen = false;
+        },
+
         onModalClosed(selection) {
             this.$emit('selection-change', selection, this.uploadTag);
         },

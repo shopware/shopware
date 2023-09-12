@@ -130,7 +130,11 @@
     {% block sw_cms_element_youtube_video_config_preview_media %}
     <sw-cms-mapping-field
         v-if="element.config.needsConfirmation.value"
+        {% if VUE3 %}
+        v-model:config="element.config.previewMedia"
+        {% else %}
         v-model="element.config.previewMedia"
+        {% endif %}
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.previewImage')"
         value-types="entity"
         entity="media"

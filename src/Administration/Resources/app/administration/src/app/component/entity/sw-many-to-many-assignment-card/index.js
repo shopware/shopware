@@ -88,7 +88,7 @@ Component.register('sw-many-to-many-assignment-card', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.entity-components.placeholderToManyAssociationCard');
+                return Shopware.Snippet.tc('global.entity-components.placeholderToManyAssociationCard');
             },
         },
 

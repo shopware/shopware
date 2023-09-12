@@ -30,5 +30,8 @@ return [
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
+
+        // Removed boot method from Bundle
+        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot'
     ],
 ];

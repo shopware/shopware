@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +13,6 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -37,14 +35,6 @@ abstract class Bundle extends SymfonyBundle
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
         $this->registerEvents($container);
-    }
-
-    public function boot(): void
-    {
-        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
-        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName(), $this->getPath());
-
-        parent::boot();
     }
 
     public function getMigrationNamespace(): string
@@ -70,10 +60,9 @@ abstract class Bundle extends SymfonyBundle
 
     public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
-        $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
-        if ($fileSystem->exists($confDir)) {
+        if (file_exists($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');

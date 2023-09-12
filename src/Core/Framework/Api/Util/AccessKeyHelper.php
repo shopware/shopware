@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Util;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
@@ -38,7 +39,7 @@ class AccessKeyHelper
         $identifier = mb_substr($accessKey, 0, 4);
 
         if (!isset(self::$mapping[$identifier])) {
-            throw new \RuntimeException('Access key is invalid and could not be identified.');
+            throw ApiException::invalidAccessKey();
         }
 
         return self::$mapping[$identifier];
@@ -49,7 +50,7 @@ class AccessKeyHelper
         $mapping = array_flip(self::$mapping);
 
         if (!isset($mapping[$origin])) {
-            throw new \RuntimeException('Given identifier for access key is invalid.');
+            throw ApiException::invalidAccessKeyIdentifier();
         }
 
         return $mapping[$origin];

@@ -111,7 +111,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     }, { scope: 'worker' }],
 
     adminPage: async ({ idProvider, adminApiContext, browser, storeBaseConfig }, use) => {
-        const context = await browser.newContext();
+        const context = await browser.newContext({
+            baseURL: storeBaseConfig.appUrl
+        });
         const page = await context.newPage();
 
         const { id, uuid } = idProvider.getIdPair();
@@ -173,7 +175,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const { uuid: domainUuid } = idProvider.getWorkerDerivedStableId('domain');
         const { uuid: customerUuid } = idProvider.getWorkerDerivedStableId('customer');
 
-        const baseUrl =`${storeBaseConfig.appUrl}/test-${uuid}`;
+        const baseUrl =`${storeBaseConfig.appUrl}test-${uuid}/`;
 
         await adminApiContext.delete(`./customer/${customerUuid}`);
         await adminApiContext.delete(`./sales-channel/${uuid}`);

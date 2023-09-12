@@ -23,6 +23,9 @@ if (missingEnvVars.length > 0) {
     process.exit(1);
 }
 
+// make sure APP_URL ends with a slash
+process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */

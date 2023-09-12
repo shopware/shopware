@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
@@ -104,5 +105,35 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertInstanceOf(InvalidFilterQueryException::class, $e);
         static::assertEquals('foo', $e->getMessage());
         static::assertEquals('baz', $e->getPath());
+    }
+
+    public function testCannotCreateNewVersion(): void
+    {
+        $e = DataAbstractionLayerException::cannotCreateNewVersion('product', 'product-id');
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals('Cannot create new version. product by id product-id not found.', $e->getMessage());
+        static::assertEquals(DataAbstractionLayerException::CANNOT_CREATE_NEW_VERSION, $e->getErrorCode());
+    }
+
+    /**
+     * @DisabledFeatures("v6.6.0.0")
+     *
+     * @deprecated tag:v6.6.0.0 - will be removed
+     */
+    public function testVersionMergeAlreadyLockedLegacy(): void
+    {
+        $e = DataAbstractionLayerException::versionMergeAlreadyLocked('version-id');
+
+        static::assertInstanceOf(VersionMergeAlreadyLockedException::class, $e);
+    }
+
+    public function testVersionMergeAlreadyLocked(): void
+    {
+        $e = DataAbstractionLayerException::versionMergeAlreadyLocked('version-id');
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals(DataAbstractionLayerException::VERSION_MERGE_ALREADY_LOCKED, $e->getErrorCode());
+        static::assertEquals('Merging of version version-id is locked, as the merge is already running by another process.', $e->getMessage());
     }
 }

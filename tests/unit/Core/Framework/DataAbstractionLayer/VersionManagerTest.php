@@ -152,6 +152,85 @@ class VersionManagerTest extends TestCase
         );
     }
 
+    public function testMergeEntityWithInsertVersionCommitActionWhenEmptyPayload(): void
+    {
+        $entityReaderMock = $this->createMock(EntityReaderInterface::class);
+        $entityReaderMock->expects(static::once())->method('read')->willReturn(new EntityCollection([]));
+
+        $this->versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $entityReaderMock,
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $this->createMock(LockFactory::class)
+        );
+
+        $productId = 'product-id';
+        static::expectException(DataAbstractionLayerException::class);
+        static::expectExceptionMessage(DataAbstractionLayerException::cannotCreateNewVersion('product', $productId)->getMessage());
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerTestDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $this->versionManager->clone(
+            $registry->getByEntityName('product'),
+            $productId,
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            $this->createMock(WriteContext::class),
+            $this->createMock(CloneBehavior::class)
+        );
+    }
+
+    public function testMergeEntityWithLockedVersion(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $lock = $this->createMock(LockInterface::class);
+        $lock->method('acquire')->willReturn(false);
+        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
+
+        $this->versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $this->createMock(EntityReaderInterface::class),
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $registry,
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $lockFactory
+        );
+
+        $versionId = 'version-id';
+        static::expectException(DataAbstractionLayerException::class);
+        static::expectExceptionMessage(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId)->getMessage());
+
+        $this->versionManager->merge(
+            $versionId,
+            $this->createMock(WriteContext::class)
+        );
+    }
+
     public function testMergeEntityWithLockedVersion(): void
     {
         $lockFactory = $this->createMock(LockFactory::class);

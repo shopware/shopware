@@ -13570,11 +13570,6 @@ parameters:
 			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$clonedAffected\\['product'\\]\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: tests/integration/Core/Framework/DataAbstractionLayer/VersionManagerTest.php
-
-		-
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php

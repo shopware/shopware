@@ -162,10 +162,6 @@ class VersionManager
             throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
         }
 
-        if (!$this->versionExists($versionId)) {
-            throw DataAbstractionLayerException::versionNotExists($versionId);
-        }
-
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 
@@ -554,6 +550,7 @@ class VersionManager
                 continue;
             }
 
+            /** @var Field $pkField */
             if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }

@@ -85,11 +85,8 @@ Shopware.Component.register('sw-cms-missing-element-modal', () => import('./sw-c
  * @private
  * @package content
  */
-Shopware.Component.extend(
-    'sw-cms-product-assignment',
-    'sw-many-to-many-assignment-card',
-    () => import('./sw-cms-product-assignment'),
-);
+// eslint-disable-next-line max-len
+Shopware.Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card', () => import('./sw-cms-product-assignment'));
 /* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-cms-visibility-config', () => import('./sw-cms-visibility-config'));
 /* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */

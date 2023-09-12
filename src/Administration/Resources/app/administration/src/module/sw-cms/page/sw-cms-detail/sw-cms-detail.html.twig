@@ -52,7 +52,7 @@
                             v-if="page.type"
                             class="sw-cms-detail__page-type"
                         >
-                            {{ $tc(pageType?.title) }}
+                            {{ $tc(pageType?.title ?? '') }}
                         </div>
                         {% endblock %}
 

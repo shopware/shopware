@@ -200,7 +200,9 @@ Component.register('sw-entity-multi-select', {
         },
 
         refreshCurrentCollection() {
-            this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
+            if (this.entityCollection) {
+                this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
+            }
         },
 
         createEmptyCollection() {

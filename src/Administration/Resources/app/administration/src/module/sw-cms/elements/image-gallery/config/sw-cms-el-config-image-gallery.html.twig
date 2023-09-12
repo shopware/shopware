@@ -44,7 +44,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_config_media_selection %}
                 <sw-cms-mapping-field
+                    {% if VUE3 %}
+                    v-model:config="element.config.sliderItems"
+                    {% else %}
                     v-model="element.config.sliderItems"
+                    {% endif %}
                     entity="product_media"
                     value-types="entity"
                     :label="$tc('sw-cms.elements.imageGallery.label')"

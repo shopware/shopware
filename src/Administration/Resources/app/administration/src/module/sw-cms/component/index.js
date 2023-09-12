@@ -117,6 +117,8 @@ Shopware.Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignme
 /*
  * @package buyers-experience
  */
+// eslint-disable-next-line max-len
+Shopware.Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card', () => import('./sw-cms-product-assignment'));
 /* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-cms-visibility-config', () => import('./sw-cms-visibility-config'));
 /*

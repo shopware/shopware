@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package buyers-experience
+ * @package content
  */
 
 async function createWrapper() {

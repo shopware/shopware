@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { mount } from '@vue/test-utils_v3';
 
@@ -93,7 +93,7 @@ async function createWrapper(routeParams = {}) {
 }
 
 /**
- * @package buyers-experience
+ * @package content
  */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {

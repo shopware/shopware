@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -108,7 +108,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
         });
 
         const img = wrapper.find('img');
-        expect(img.attributes('src')).toContain(mediaDataMock.url);
+        expect(img.attributes('src')).toBe(mediaDataMock.url);
     });
 
     it('should show default image if demo value is undefined', async () => {

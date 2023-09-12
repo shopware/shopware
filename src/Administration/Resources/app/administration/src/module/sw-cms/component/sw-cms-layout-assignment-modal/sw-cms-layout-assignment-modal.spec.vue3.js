@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';

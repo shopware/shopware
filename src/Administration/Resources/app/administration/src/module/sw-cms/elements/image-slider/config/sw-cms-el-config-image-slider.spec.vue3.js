@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils_v3';

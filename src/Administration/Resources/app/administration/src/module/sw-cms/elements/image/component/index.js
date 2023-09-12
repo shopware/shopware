@@ -42,7 +42,7 @@ export default {
 
         horizontalAlign() {
             return {
-                'justify-content': this.element.config.horizontalAlign.value || null,
+                'justify-content': this.element.config.horizontalAlign?.value || null,
             };
         },
 

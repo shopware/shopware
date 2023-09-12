@@ -25,7 +25,7 @@ describe('Test review function on Product page', () => {
         cy.get('.product-detail-review-login .login-form').should('be.visible');
     });
 
-    it('Should paginate and filter reviews', { tags: ['pa-content-management'] }, () => {
+    it('Should paginate and filter reviews', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/product/**/reviews*',

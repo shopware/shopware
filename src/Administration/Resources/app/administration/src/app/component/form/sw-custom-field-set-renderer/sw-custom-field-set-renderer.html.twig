@@ -89,47 +89,48 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_media %}
         <template v-else-if="variant === 'media-collapse'">
-            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-            <sw-media-collapse
-                v-for="set in visibleCustomFieldSets"
-                v-if="set.customFields.length > 0"
-                :key="`sw-media-collapse--${set.id}`"
-                :expand-on-loading="false"
-                :title="getInlineSnippet(set.config.label) || set.name"
-            >
-                <template #content>
-                    <template v-for="customField in set.customFields">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            <template v-for="set in visibleCustomFieldSets">
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <sw-media-collapse
+                    v-if="set.customFields && set.customFields.length > 0"
+                    :key="`sw-media-collapse--${set.id}`"
+                    :expand-on-loading="false"
+                    :title="getInlineSnippet(set.config.label) || set.name"
+                >
+                    <template #content>
+                        <template v-for="customField in set.customFields">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
-                        <sw-form-field-renderer
-                            :key="customField.name"
-                            v-model="customFields[customField.name]"
-                            v-bind="customField"
-                            :disabled="disabled"
-                            :required="customField.config.validation === 'required'"
-                        />
+                            <sw-form-field-renderer
+                                :key="customField.name"
+                                v-model="customFields[customField.name]"
+                                v-bind="customField"
+                                :disabled="disabled"
+                                :required="customField.config.validation === 'required'"
+                            />
                         {% endblock %}
-                    </template>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        </template>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_set_renderer_media_button_save %}
-                    <sw-button-process
-                        :is-loading="isLoading"
-                        :process-success="isSaveSuccessful"
-                        :disabled="isLoading || disabled"
-                        variant="primary"
-                        size="small"
+                        <sw-button-process
+                            :is-loading="isLoading"
+                            :process-success="isSaveSuccessful"
+                            :disabled="isLoading || disabled"
+                            variant="primary"
+                            size="small"
                         {% if VUE3 %}
-                        @update:process-success="$emit('process-finish')"
+                            @update:process-success="$emit('process-finish')"
                         {% else %}
-                        @process-finish="$emit('process-finish')"
+                            @process-finish="$emit('process-finish')"
                         {% endif %}
-                        @click="$emit('save')"
-                    >
-                        {{ $tc('global.default.save') }}
-                    </sw-button-process>
+                            @click="$emit('save')"
+                        >
+                            {{ $tc('global.default.save') }}
+                        </sw-button-process>
                     {% endblock %}
-                </template>
-            </sw-media-collapse>
+                    </template>
+                </sw-media-collapse>
+            </template>
         </template>
         {% endblock %}
     </template>

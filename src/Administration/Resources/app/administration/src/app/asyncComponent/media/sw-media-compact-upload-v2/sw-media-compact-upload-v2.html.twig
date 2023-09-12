@@ -220,7 +220,7 @@
                             <sw-media-modal-v2
                                 v-if="mediaModalIsOpen"
                                 :allow-multi-select="false"
-                                @modal-close="mediaModalIsOpen = false"
+                                @modal-close="closeModal()"
                                 @media-modal-selection-change="onModalClosed"
                             />
                         </template>

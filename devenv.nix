@@ -37,7 +37,7 @@ in {
       session.gc_probability = 0
       ${lib.optionalString config.services.redis.enable ''
       session.save_handler = redis
-      session.save_path = "tcp://127.0.0.1:6379/0"
+      session.save_path = "tcp://127.0.0.1:${toString config.services.redis.port}/0"
       ''}
       display_errors = On
       error_reporting = E_ALL
@@ -97,6 +97,7 @@ in {
     settings = {
       mysqld = {
         log_bin_trust_function_creators = 1;
+        sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
       };
     };
   };
@@ -106,7 +107,7 @@ in {
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
   services.mailpit.enable = lib.mkDefault true;
 
-  # services.elasticsearch.enable = true;
+  # services.opensearch.enable = true;
   # services.rabbitmq.enable = true;
   # services.rabbitmq.managementPlugin.enable = true;
 
@@ -130,6 +131,9 @@ in {
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
+
+  # Disable session variables setting in kernel
+  env.SQL_SET_DEFAULT_SESSION_VARIABLES = lib.mkDefault "0";
 
   scripts.build-updater.exec = ''
       ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller

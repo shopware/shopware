@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 /**
  * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor
@@ -248,6 +250,49 @@ class AnnotatePackageProcessorTest extends TestCase
 
         static::assertEquals($expected, $handler($record));
     }
+
+    public function testAnnotateCommandWithNestedException(): void
+    {
+        $exception = null;
+
+        try {
+            $command = new TestNestedCommand();
+            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        $inner = $this->createMock(AbstractHandler::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+
+        $context = [
+            'exception' => $exception,
+            'dataIsPassedThru' => true,
+        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'command',
+            'exception' => 'exception',
+            'causingClass' => 'command',
+        ];
+
+        static::assertEquals($expected, $handler($record));
+    }
 }
 
 /**
@@ -306,6 +351,21 @@ class TestCommand extends Command
     {
         $testCause = new TestCause();
         $testCause->throw(new TestException('test'));
+
+        return Command::SUCCESS;
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('command')]
+class TestNestedCommand extends Command
+{
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $testCause = new TestCause();
+        $testCause->throw(new HandlerFailedException(new Envelope(new \stdClass()), [new TestException('test')]));
 
         return Command::SUCCESS;
     }

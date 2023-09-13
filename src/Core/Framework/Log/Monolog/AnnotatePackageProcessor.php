@@ -45,7 +45,7 @@ class AnnotatePackageProcessor implements ProcessorInterface
                 $packages['entrypoint'] = $package;
             }
 
-            if ($package = Package::getPackageName($exception::class)) {
+            if ($package = $this->getExceptionPackage($exception)) {
                 $packages['exception'] = $package;
             }
 
@@ -89,33 +89,45 @@ class AnnotatePackageProcessor implements ProcessorInterface
 
     private function getCommandPackage(\Throwable $exception): ?string
     {
-        $trace = $exception->getTrace();
+        while ($exception && ($trace = $exception->getTrace())) {
+            foreach ($trace as $x) {
+                if (isset($x['class']) && is_subclass_of($x['class'], Command::class)) {
+                    $package = Package::getPackageName($x['class']);
 
-        foreach ($trace as $x) {
-            if (isset($x['class']) && is_subclass_of($x['class'], Command::class)) {
-                $package = Package::getPackageName($x['class']);
-
-                if ($package) {
-                    return $package;
+                    if ($package) {
+                        return $package;
+                    }
                 }
             }
+            $exception = $exception->getPrevious();
         }
 
         return null;
     }
 
+    private function getExceptionPackage(\Throwable $exception): ?string
+    {
+        do {
+            $package = Package::getPackageName($exception::class);
+        } while (!$package && ($exception = $exception->getPrevious()));
+
+        return $package;
+    }
+
     private function getCause(\Throwable $exception): ?string
     {
-        $trace = $exception->getTrace();
+        while ($exception && ($trace = $exception->getTrace())) {
+            foreach ($trace as $x) {
+                if (isset($x['class'])) {
+                    $package = Package::getPackageName($x['class']);
 
-        foreach ($trace as $x) {
-            if (isset($x['class'])) {
-                $package = Package::getPackageName($x['class']);
-
-                if ($package) {
-                    return $package;
+                    if ($package) {
+                        return $package;
+                    }
                 }
             }
+
+            $exception = $exception->getPrevious();
         }
 
         return null;

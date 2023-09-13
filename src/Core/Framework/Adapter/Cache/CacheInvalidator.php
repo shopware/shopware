@@ -51,9 +51,6 @@ class CacheInvalidator
         $this->purge($tags);
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - The parameter $time is obsolete and will be removed in v6.6.0.0
-     */
     public function invalidateExpired(?\DateTime $time = null): void
     {
         if ($time) {
@@ -76,13 +73,6 @@ class CacheInvalidator
      */
     private function purge(array $keys): void
     {
-        /** @var list<string> $keys */
-        $keys = array_unique(array_filter($keys));
-
-        if (empty($keys)) {
-            return;
-        }
-
         foreach ($this->adapters as $adapter) {
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);

@@ -124,6 +124,59 @@ class RedisStub extends \Redis
         return $found;
     }
 
+    public function sAdd($key, $value, ...$other_values)
+    {
+        $current = $this->get($key);
+
+        if ($current === false) {
+            $current = [];
+        }
+
+        if (!\is_array($current)) {
+            throw new \RedisException('sAdd can be only called on a set');
+        }
+
+        $current = array_merge($current, [$value], $other_values);
+        $current = array_unique($current);
+
+        sort($current);
+
+        $this->data[$key] = ['value' => $current, 'expire' => $current];
+
+        return true;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return list<string>
+     */
+    public function sMembers($key)
+    {
+        /** @var list<string>|false|string $value */
+        $value = $this->get($key);
+
+        if ($value === false) {
+            return [];
+        }
+
+        if (!\is_array($value)) {
+            throw new \RedisException('sMembers can be only called on a set');
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return RedisMultiWrapper
+     *
+     * @phpstan-ignore-next-line
+     */
+    public function multi($mode = \Redis::MULTI)
+    {
+        return new RedisMultiWrapper($this);
+    }
+
     /**
      * {@inheritdoc}
      */

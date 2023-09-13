@@ -24,9 +24,6 @@ variables:
     CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
-    # percy
-    PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    PERCY_COMMIT: $CI_COMMIT_SHA
     # things plugins might want to override
     PLUGIN_NAME:
         value: ${CI_PROJECT_TITLE}
@@ -51,19 +48,13 @@ variables:
         description: 'mysql 8 needs a special auth option to work with shopware/platform'
     BROWSER:
         value: chrome
-        description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+        description: 'Browser to use for cypress tests. Possible values: "chrome", "firefox", "electron"'
     STOREFRONT_CYPRESS_SPEC:
         value: ''
         description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/content/**/*,cypress/integration/catalogue/**/*"'
     ADMIN_CYPRESS_SPEC:
         value: ''
         description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/content/**/*,cypress/integration/catalogue/**/*"'
-    STOREFRONT_PERCY_SPEC:
-        value: ''
-        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/visual/**/*,cypress/integration/catalogue/**/*"'
-    ADMIN_PERCY_SPEC:
-        value: ''
-        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/visual/**/*,cypress/integration/catalogue/**/*"'
     PLUGIN_DEPENDENCIES:
         value: '[]'
         description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
@@ -390,68 +381,6 @@ cypress storefront:
                 - Resources/app/storefront/test/e2e/cypress.config.js
                 - src/Resources/app/storefront/test/e2e/cypress.json
                 - src/Resources/app/storefront/test/e2e/cypress.config.js
-
-percy admin:
-    extends: cypress admin
-    stage: visual
-    rules:
-        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-            when: never
-        -   exists:
-                - Resources/app/administration/test/e2e/.percy*
-                - src/Resources/app/administration/test/e2e/.percy*
-            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            when: manual
-            allow_failure: true
-    variables:
-        E2E_PROJECT_PATH: Resources/app/administration/test/e2e/
-        CYPRESS_SPEC: $ADMIN_CYPRESS_SPEC
-        APP_ENV: e2e
-        CYPRESS_usePercy: 1
-    script:
-        - *e2e-prepare
-        - >
-            if [[ -z "$ADMIN_PERCY_SPEC" ]]; then
-                echo "Running visual tests"
-                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
-            else
-                echo "Running specs: $CYPRESS_SPEC"
-                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$ADMIN_PERCY_SPEC"
-            fi
-
-percy storefront:
-    extends: cypress storefront
-    stage: visual
-    rules:
-        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-            when: never
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            when: manual
-            allow_failure: true
-    variables:
-        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
-        CYPRESS_SPEC: $STOREFRONT_CYPRESS_SPEC
-        APP_ENV: e2e
-        CYPRESS_usePercy: 1
-    script:
-        - *e2e-prepare
-        - >
-            if [[ -z "$STOREFRONT_PERCY_SPEC" ]]; then
-                echo "Running visual tests"
-                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
-            else
-                echo "Running specs: $CYPRESS_SPEC"
-                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$STOREFRONT_PERCY_SPEC"
-            fi
 
 upload zip to store:
     stage: deploy

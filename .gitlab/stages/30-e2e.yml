@@ -15,7 +15,6 @@
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
     CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
     SHOPWARE_HTTP_CACHE_ENABLED: 0
-    cypress_usePercy: 'false'
     SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     CYPRESS_storefrontName: "E2E install test"
   before_script:
@@ -267,7 +266,6 @@ E2E Changed install NL scenarios:
     APP_DEBUG: 0
     CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
     SHOPWARE_HTTP_CACHE_ENABLED: 1
-    cypress_usePercy: 'false'
     E2E_PROJECT: recovery
     CYPRESS_baseUrl: "http://localhost:8050"
     INSTALL_URL: "http://localhost:8050"

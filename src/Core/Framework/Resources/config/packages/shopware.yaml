@@ -375,6 +375,8 @@ shopware:
             each_theme_config: true
         invalidation:
             delay: 0
+            delay_options:
+                storage: cache
             count: 150
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []

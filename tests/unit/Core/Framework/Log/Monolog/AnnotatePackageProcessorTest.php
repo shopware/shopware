@@ -250,6 +250,49 @@ class AnnotatePackageProcessorTest extends TestCase
 
         static::assertEquals($expected, $handler($record));
     }
+
+    public function testAnnotateCommandWithNestedException(): void
+    {
+        $exception = null;
+
+        try {
+            $command = new TestNestedCommand();
+            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        $inner = $this->createMock(AbstractHandler::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+
+        $context = [
+            'exception' => $exception,
+            'dataIsPassedThru' => true,
+        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'command',
+            'exception' => 'exception',
+            'causingClass' => 'command',
+        ];
+
+        static::assertEquals($expected, $handler($record));
+    }
 }
 
 /**

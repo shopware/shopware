@@ -52,12 +52,6 @@ if (featureFlags?.VUE3) {
     console.log();
 }
 
-// https://regex101.com/r/OGpZFt/1
-const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
-if (!versionRegex.test(process.versions.node)) {
-    console.log();
-}
-
 const nodeMajor = process.versions.node.split('.')[0];
 const supportedNodeVersions = ['18', '19', '20'];
 if (!supportedNodeVersions.includes(nodeMajor)) {

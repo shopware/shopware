@@ -75,14 +75,14 @@ class PropertyGroupOptionEntity extends Entity
     protected $media;
 
     /**
-     * @internal
+     * @var bool|null
      */
-    private ?ProductConfiguratorSettingEntity $configuratorSetting = null;
+    protected $combinable = false;
 
     /**
      * @internal
      */
-    private bool $combinable = false;
+    private ?ProductConfiguratorSettingEntity $configuratorSetting = null;
 
     public function getGroupId(): string
     {

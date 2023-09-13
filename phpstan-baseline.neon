@@ -11481,11 +11481,6 @@ parameters:
 			path: src/Core/System/Annotation/Concept/ExtensionPattern/Handler.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryState\\\\CountryStateCollection\\:\\:getCountryIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/Aggregate/CountryState/CountryStateCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryStateTranslation\\\\CountryStateTranslationCollection\\:\\:getCountryStateIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Country/Aggregate/CountryStateTranslation/CountryStateTranslationCollection.php

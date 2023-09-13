@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
@@ -112,6 +113,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
+        $container->addCompilerPass(new AssetBundleRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());

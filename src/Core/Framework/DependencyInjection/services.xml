@@ -59,9 +59,7 @@ base-uri 'self';
     <services>
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
-            <argument type="service" id="assets.packages"/>
-            <argument type="service" id="shopware.asset.asset_without_versioning"/>
-            <argument type="service" id="shopware.asset.asset.version_strategy"/>
+            <deprecated package="shopware/core" version="6.6.0.0">tag:v6.6.0 - The %service_id% service will be removed in v6.6.0.0</deprecated>
         </service>
 
         <!-- Database / Doctrine -->

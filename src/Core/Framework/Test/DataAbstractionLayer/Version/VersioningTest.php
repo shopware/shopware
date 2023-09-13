@@ -29,11 +29,11 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -1719,9 +1719,9 @@ class VersioningTest extends TestCase
             $versionContext
         );
 
-        /** @var ProductCollection $products */
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $versionContext)->getEntities();
         // check both products updated
+        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));
@@ -1729,8 +1729,8 @@ class VersioningTest extends TestCase
         static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
 
         // check existing live version not to be updated
-        /** @var ProductCollection $products */
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context)->getEntities();
+        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));
@@ -1741,8 +1741,9 @@ class VersioningTest extends TestCase
         $this->productRepository->merge($versionId, $context);
 
         // check both products are merged
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context);
+        $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context)->getEntities();
+
+        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));
@@ -1869,7 +1870,7 @@ class VersioningTest extends TestCase
 
         try {
             $this->productRepository->merge($versionId, $context);
-        } catch (VersionMergeAlreadyLockedException) {
+        } catch (DataAbstractionLayerException) {
             $exceptionWasThrown = true;
         } finally {
             $lock->release();

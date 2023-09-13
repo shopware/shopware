@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -162,7 +161,7 @@ class VersionManager
         $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
 
         if (!$lock->acquire()) {
-            throw new VersionMergeAlreadyLockedException($versionId);
+            throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
         }
 
         // load all commits of the provided version
@@ -236,7 +235,7 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition->getEntityName(), $id));
+            throw DataAbstractionLayerException::cannotCreateNewVersion($definition->getEntityName(), $id);
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true, 512, \JSON_THROW_ON_ERROR);
@@ -550,10 +549,14 @@ class VersionManager
              * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
              * has to be unset, so that its set by the parent, resulting in a valid primary key.
              */
-            /** @var StorageAware $pkField */
-            if ($field instanceof TranslationsAssociationField && $pkField->getStorageName() === $field->getLanguageField()) {
+            if (
+                $field instanceof TranslationsAssociationField
+                && $pkField instanceof StorageAware
+                && $pkField->getStorageName() === $field->getLanguageField()
+            ) {
                 continue;
             }
+
             /** @var Field $pkField */
             if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);

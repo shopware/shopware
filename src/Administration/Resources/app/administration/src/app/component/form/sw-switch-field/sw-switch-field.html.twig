@@ -27,11 +27,15 @@
                 <div class="sw-field__switch-state-knob"></div>
             </div>
         </div>
-
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
             v-bind="$attrs"
             :disabled="disabled"
+            {% if VUE3 %}
+            :name="formFieldName || identification"
+            {% else %}
             :name="identification"
+            {% endif %}
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
             @inheritance-restore="onInheritanceRestore($event)"

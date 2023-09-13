@@ -24,9 +24,6 @@ variables:
     CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
-    # percy
-    PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    PERCY_COMMIT: $CI_COMMIT_SHA
     # things themes might want to override
     THEME_NAME:
         value: ${CI_PROJECT_TITLE}
@@ -51,7 +48,7 @@ variables:
         description: 'mysql 8 needs a special auth option to work with shopware/platform'
     BROWSER:
         value: chrome
-        description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+        description: 'Browser to use for cypress tests. Possible values: "chrome", "firefox", "electron"'
     PLUGIN_DEPENDENCIES:
         value: '[]'
         description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
@@ -293,36 +290,6 @@ cypress:
             - var/log/*
         reports:
             junit: var/log/e2e/*.xml
-
-percy:
-    extends: cypress
-    stage: visual
-    rules:
-        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-            when: never
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            when: manual
-            allow_failure: true
-    variables:
-        GIT_STRATEGY: none
-        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
-        APP_ENV: e2e
-        CYPRESS_usePercy: 1
-    script:
-        - >
-          if [[ -z "$PERCY_SPEC" ]]; then
-              echo "Running visual tests"
-              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
-          else
-              echo "Running specs: $PERCY_SPEC"
-              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$PERCY_SPEC"
-          fi
 
 upload zip to store:
     stage: deploy

@@ -41,5 +41,9 @@ export default {
         showDescription() {
             return !this.hideDescription && this.description && this.description.length > 0;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 };

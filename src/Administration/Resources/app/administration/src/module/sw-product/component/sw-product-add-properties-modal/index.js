@@ -35,6 +35,10 @@ export default {
         showSaveButton() {
             return this.propertiesAvailable;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     methods: {

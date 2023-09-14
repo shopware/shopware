@@ -69,6 +69,10 @@ export default {
                 label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

@@ -230,6 +230,10 @@ export default {
 
             return this.buttonLabel;
         },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
+        },
     },
 
     watch: {

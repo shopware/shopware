@@ -66,6 +66,10 @@ export default {
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

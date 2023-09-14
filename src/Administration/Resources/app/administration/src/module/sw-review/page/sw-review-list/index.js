@@ -75,9 +75,11 @@ export default {
                 },
             ];
         },
+
         repository() {
             return this.repositoryFactory.create('product_review');
         },
+
         criteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -90,6 +92,10 @@ export default {
             criteria.addAssociation('product');
 
             return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

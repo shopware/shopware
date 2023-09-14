@@ -76,7 +76,7 @@
             <template #column-createdAt="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_column_date_label %}
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                 {% endblock %}
             </template>
             {% endblock %}
@@ -239,7 +239,7 @@
     >/
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                 :alt="$tc('sw-order.list.messageEmpty')"
             >
         </template>

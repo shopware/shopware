@@ -352,4 +352,10 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'total-count-mode': 1,
         });
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

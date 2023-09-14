@@ -172,4 +172,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
 
         expect(mappedFilters).toEqual(expected);
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
+    });
 });

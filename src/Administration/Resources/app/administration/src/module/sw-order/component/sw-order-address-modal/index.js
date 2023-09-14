@@ -88,6 +88,10 @@ export default {
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
+
+        salutationFilter() {
+            return Shopware.Filter.getByName('salutation');
+        },
     },
 
     created() {

@@ -90,6 +90,10 @@ export default {
         firstEntity() {
             return this.items[0];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

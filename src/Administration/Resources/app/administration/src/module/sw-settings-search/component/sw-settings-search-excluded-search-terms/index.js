@@ -62,6 +62,10 @@ export default {
                 sortable: false,
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

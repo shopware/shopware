@@ -299,4 +299,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
 });

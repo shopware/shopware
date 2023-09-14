@@ -9,6 +9,8 @@ import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-ne
 Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);
 Shopware.Component.register('sw-order-nested-line-items-row', swOrderNestedLineItemsRow);
 
+const localCurrency = 'EUR';
+
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');
     // id: 1.2.3.4.5 -> tax: 1.2345%
@@ -67,14 +69,12 @@ const mockChildrenCollection = [
 async function createWrapper() {
     const localVue = createLocalVue();
 
-    localVue.filter('currency', value => value);
-
     return shallowMount(await Shopware.Component.build('sw-order-nested-line-items-modal'), {
         localVue,
         propsData: {
             order: {
                 currency: {
-                    shortName: 'EUR',
+                    shortName: localCurrency,
                 },
             },
             lineItem: mockParent,
@@ -138,6 +138,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
     it('should render the items in the correct order with correct indentation class and properties', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
+        const currencyFilter = Shopware.Filter.getByName('currency');
 
         const content = wrapper.findAll('.sw-order-nested-line-items-row__content');
 
@@ -227,9 +228,9 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
             expect(currentNestingLevels).toHaveLength(data.nestingLevel - 1);
             expect(currentLabel.text()).toContain(data.label);
-            expect(currentUnitPrice.text()).toContain(`${data.unitPrice}`);
+            expect(currentUnitPrice.text()).toContain(currencyFilter(data.unitPrice, localCurrency));
             expect(currentQuantity.text()).toContain(`${data.quantity}`);
-            expect(currentTotalPrice.text()).toContain(`${data.totalPrice}`);
+            expect(currentTotalPrice.text()).toContain(currencyFilter(data.totalPrice, localCurrency));
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });

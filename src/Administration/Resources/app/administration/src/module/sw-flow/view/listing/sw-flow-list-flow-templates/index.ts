@@ -106,6 +106,10 @@ export default Shopware.Component.wrapComponentConfig({
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

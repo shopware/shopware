@@ -92,7 +92,7 @@
             <template #column-price="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_price %}
-                {{ getPriceForDefaultCurrency(item).unitPrice | currency('EUR') }}
+                {{ currencyFilter(getPriceForDefaultCurrency(item).unitPrice, 'EUR') }}
                 {% endblock %}
             </template>
 
@@ -100,7 +100,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_stock %}
                 {{ item.stock }}
-                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 {% endblock %}
             </template>
 

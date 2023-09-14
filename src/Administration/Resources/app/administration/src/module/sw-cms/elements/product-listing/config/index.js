@@ -164,6 +164,10 @@ export default {
                 'is--disabled': this.showFilterGrid,
             };
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

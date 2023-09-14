@@ -59,6 +59,10 @@ export default Shopware.Component.wrapComponentConfig({
         pluginIsNotActive(): boolean {
             return !this.plugin.active;
         },
+
+        truncateFilter() {
+            return Shopware.Filter.getByName('truncate');
+        },
     },
 
     methods: {

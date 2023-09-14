@@ -61,6 +61,10 @@ export default {
 
             return null;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {

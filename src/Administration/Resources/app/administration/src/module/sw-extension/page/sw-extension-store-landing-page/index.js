@@ -22,10 +22,13 @@ export default {
         extensionName() {
             return 'SwagExtensionStore';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     methods: {
-
         activateStore() {
             this.isLoading = true;
             this.activationStatus = null;

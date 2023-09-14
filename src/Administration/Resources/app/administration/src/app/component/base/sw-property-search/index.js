@@ -95,6 +95,10 @@ Component.register('sw-property-search', {
 
             return criteria;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

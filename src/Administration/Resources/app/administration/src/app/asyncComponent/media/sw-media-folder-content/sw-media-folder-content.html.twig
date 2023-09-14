@@ -21,7 +21,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_icon %}
                 <img
-                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
+                    :src="assetFilter('/administration/static/img/media/folder-thumbnail.svg')"
                     class="sw-media-folder-content__folder-icon"
                     alt="Folder thumbnail"
                 >
@@ -49,7 +49,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_button_icon %}
                 <img
-                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
+                    :src="assetFilter('/administration/static/img/media/folder-thumbnail.svg')"
                     class="sw-media-folder-content__folder-icon"
                     alt="Folder thumbnail"
                 >

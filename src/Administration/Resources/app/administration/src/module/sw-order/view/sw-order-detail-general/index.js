@@ -88,6 +88,10 @@ export default {
         currency() {
             return this.order.currency;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     methods: {

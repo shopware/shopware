@@ -45,6 +45,10 @@ export default {
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

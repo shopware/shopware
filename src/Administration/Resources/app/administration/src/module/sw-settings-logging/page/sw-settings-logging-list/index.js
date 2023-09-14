@@ -42,7 +42,6 @@ export default {
     },
 
     computed: {
-
         logEntryRepository() {
             return this.repositoryFactory.create('log_entry');
         },
@@ -59,6 +58,10 @@ export default {
                 return `sw-settings-logging-${subComponentName}-info`;
             }
             return 'sw-settings-logging-entry-info';
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

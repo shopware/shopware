@@ -57,8 +57,6 @@ const mockItem = {
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    localVue.filter('currency', key => key);
-    localVue.filter('date', key => key);
 
     return shallowMount(await Shopware.Component.build('sw-order-list'), {
         localVue,
@@ -505,5 +503,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             wrapper.vm.orderRepository.search.mockRestore();
             loadFilterValuesSpy.mockClear();
         });
+    });
+
+    it('should return filters from filter registry', async () => {
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

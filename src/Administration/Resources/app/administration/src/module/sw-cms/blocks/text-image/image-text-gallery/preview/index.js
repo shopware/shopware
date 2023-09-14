@@ -7,4 +7,10 @@ import './sw-cms-preview-image-text-gallery.scss';
  */
 export default {
     template,
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
 };

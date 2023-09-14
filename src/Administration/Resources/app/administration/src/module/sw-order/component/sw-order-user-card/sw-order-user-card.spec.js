@@ -80,4 +80,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
             ),
         ).toBe(`${trackingUrl}${trackingCode}lorem%20ipsum%20dolor%20sit%20amet`);
     });
+
+    it('should return filters from filter registry', async () => {
+        expect(userCard.computed.currencyFilter()).toEqual(expect.any(Function));
+    });
 });

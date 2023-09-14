@@ -21,7 +21,6 @@ const productMock = {
 
 async function createWrapper() {
     const localVue = createLocalVue();
-    localVue.filter('currency', key => key);
 
     return shallowMount(await Shopware.Component.build('sw-cms-el-buy-box'), {
         localVue,
@@ -82,7 +81,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€0.00');
     });
 
     it('should show product data if page type is not product page', async () => {
@@ -98,7 +97,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€100.00');
     });
 
     it('should show current demo data if mapping entity is product', async () => {
@@ -115,7 +114,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€100.00');
     });
 
     it('should show dummy data initially if mapping entity is not product', async () => {
@@ -132,6 +131,6 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€0.00');
     });
 });

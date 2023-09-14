@@ -141,6 +141,14 @@ export default {
         delivery() {
             return this.order.deliveries[0];
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

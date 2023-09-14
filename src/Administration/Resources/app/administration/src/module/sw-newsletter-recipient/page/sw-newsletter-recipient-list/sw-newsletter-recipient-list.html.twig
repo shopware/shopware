@@ -172,7 +172,7 @@
             <template
                 #column-updatedAt="{ item }"
             >
-                {{ item.updatedAt | date() }}
+                {{ dateFilter(item.updatedAt) }}
             </template>
             {% endblock %}
 
@@ -181,7 +181,7 @@
             <template
                 #column-createdAt="{ item }"
             >
-                {{ item.createdAt | date() }}
+                {{ dateFilter(item.createdAt) }}
             </template>
             {% endblock %}
 

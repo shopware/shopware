@@ -42,6 +42,10 @@ export default {
         showListing() {
             return !!this.mailHeaderFooters && this.mailHeaderFooters.length !== 0;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

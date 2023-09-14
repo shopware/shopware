@@ -7,4 +7,10 @@ import './sw-cms-el-preview-vimeo-video.scss';
  */
 export default {
     template,
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
 };

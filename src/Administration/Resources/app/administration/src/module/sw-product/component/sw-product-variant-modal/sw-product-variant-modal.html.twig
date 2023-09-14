@@ -230,7 +230,7 @@
                 {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
                 <template #column-stock="{ item }">
                     {{ item.stock }}
-                    <sw-color-badge :variant="item.stock | stockColorVariant" />
+                    <sw-color-badge :variant="stockColorVariant(item.stock)" />
                 </template>
                 {% endblock %}
 
@@ -409,7 +409,7 @@
             {% block sw_product_variant_modal_body_grid_column_stock_content %}
             <template v-else>
                 {{ item.stock }}
-                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
             </template>
             {% endblock %}
         </template>

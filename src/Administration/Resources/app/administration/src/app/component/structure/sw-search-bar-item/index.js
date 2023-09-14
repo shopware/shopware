@@ -162,6 +162,10 @@ Component.register('sw-search-bar-item', {
         currentUser() {
             return Shopware.State.get('session').currentUser;
         },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
+        },
     },
 
     created() {

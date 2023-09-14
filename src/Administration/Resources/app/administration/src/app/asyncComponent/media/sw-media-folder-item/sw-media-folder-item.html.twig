@@ -16,7 +16,7 @@
         <img
             v-if="isParent"
             key="sw-media-folder-preview"
-            :src="'/administration/static/img/media/folder--back.svg' | asset"
+            :src="assetFilter('/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
         >
@@ -29,7 +29,7 @@
             key="sw-media-folder-preview"
         >
             <img
-                :src="'/administration/static/img/media/' + iconName + '.svg' | asset"
+                :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
@@ -46,7 +46,7 @@
         <img
             v-else
             key="sw-media-folder-preview"
-            :src="'/administration/static/img/media/folder-thumbnail--large.svg' | asset"
+            :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder thumbnail"
         >
@@ -86,7 +86,7 @@
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
-            {{ item.createdAt| date() }}
+            {{ dateFilter(item.createdAt) }}
         </div>
     </template>
     {% endblock %}

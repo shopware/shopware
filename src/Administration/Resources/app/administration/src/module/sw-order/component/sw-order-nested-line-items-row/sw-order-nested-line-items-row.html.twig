@@ -36,7 +36,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_items_row_content_unit_price_content %}
-            {{ lineItem.unitPrice | currency(currency.shortName) }}
+            {{ currencyFilter(lineItem.unitPrice, currency.shortName) }}
             {% endblock %}
 
         </div>
@@ -60,7 +60,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_nested_line_items_row_content_total_price_content %}
-            {{ lineItem.totalPrice | currency(currency.shortName) }}
+            {{ currencyFilter(lineItem.totalPrice, currency.shortName) }}
             {% endblock %}
 
         </div>

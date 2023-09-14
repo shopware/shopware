@@ -138,7 +138,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_created_at %}
                         <template #column-createdAt="{ item }">
-                            {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                            {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                         </template>
                         {% endblock %}
 

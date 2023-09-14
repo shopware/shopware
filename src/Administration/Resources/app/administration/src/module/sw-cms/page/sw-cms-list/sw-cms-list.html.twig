@@ -309,14 +309,14 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_created %}
                                     <template #column-createdAt="{ item }">
-                                        {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                        {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_updated %}
                                     <template #column-updatedAt="{ item }">
-                                        {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                        {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 

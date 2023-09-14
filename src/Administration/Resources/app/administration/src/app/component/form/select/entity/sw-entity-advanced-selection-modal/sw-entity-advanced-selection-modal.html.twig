@@ -163,7 +163,7 @@
             >
                 <template #icon>
                     <img
-                        :src="emptyImagePath | asset"
+                        :src="assetFilter(emptyImagePath)"
                         :alt="$tc('sw-empty-state.messageNoResultTitle')"
                     >
                 </template>

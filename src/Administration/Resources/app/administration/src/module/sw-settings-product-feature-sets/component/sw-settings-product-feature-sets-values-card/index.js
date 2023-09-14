@@ -90,6 +90,10 @@ export default {
 
             return this.translationService;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

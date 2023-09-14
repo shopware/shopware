@@ -42,7 +42,7 @@
         >
 
             <template v-if="item.hasFile">
-                {{ item | mediaName }}
+                {{ mediaNameFilter(item) }}
             </template>
         </div>
     </template>
@@ -52,7 +52,7 @@
     {% block sw_media_media_item_metadata %}
     <template #metadata="{ item }">
         <div class="sw-media-media-item__metadata">
-            {{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}
+            {{ dateFilter(item.uploadedAt) }}, {{ fileSizeFilter(item.fileSize, locale) }}
         </div>
     </template>
     {% endblock %}

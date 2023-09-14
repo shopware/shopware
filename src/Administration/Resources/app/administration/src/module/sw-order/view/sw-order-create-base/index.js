@@ -200,6 +200,10 @@ export default {
 
             return this.cartPrice.totalPrice;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {

@@ -91,4 +91,10 @@ describe('src/module/sw-media/page/sw-media-index', () => {
 
         expect(createButton.attributes().disabled).toBeFalsy();
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

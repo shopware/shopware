@@ -52,6 +52,10 @@ export default {
         languageCriteria() {
             return this.getLanguageCriteria();
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

@@ -253,6 +253,10 @@ Component.register('sw-entity-advanced-selection-modal', {
 
             return this.entityColumns;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

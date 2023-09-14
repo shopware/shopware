@@ -142,11 +142,11 @@
                 </template>
 
                 <template #column-updatedAt="{item}">
-                    {{ item.updatedAt|date }}
+                    {{ dateFilter(item.updatedAt) }}
                 </template>
 
                 <template #column-createdAt="{item}">
-                    {{ item.createdAt|date }}
+                    {{ dateFilter(item.createdAt) }}
                 </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

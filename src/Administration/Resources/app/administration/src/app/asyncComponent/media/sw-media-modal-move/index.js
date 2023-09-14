@@ -83,6 +83,10 @@ export default {
 
             return firstItem.parentId;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

@@ -51,12 +51,17 @@ export default {
                 if (this.customer) this.customer.id = customerId;
             },
         },
+
         customerCriteria() {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('defaultBillingAddress.country');
 
             return criteria;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

@@ -106,4 +106,8 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
         const emitted = wrapper.emitted()['modal-save'];
         expect(emitted).toBeTruthy();
     });
+
+    it('should return filters from filter registry', async () => {
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

@@ -257,6 +257,10 @@ export default {
             return Filter.getByName('mediaName');
         },
 
+        assetFilter() {
+            return Filter.getByName('asset');
+        },
+
         sourceSet() {
             if (this.isFile || this.isUrl) {
                 return '';

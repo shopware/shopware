@@ -229,7 +229,7 @@
                                 <sw-switch-field
                                     :value="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
-                                    :label="size | thumbnailSize"
+                                    :label="thumbnailSizeFilter(size)"
                                     :disabled="notEditable"
                                     {% if VUE3 %}
                                     @update:value="onChangeThumbnailSize($event, size)"

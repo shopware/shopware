@@ -81,6 +81,14 @@ export default {
         assetFilter() {
             return Filter.getByName('asset');
         },
+
+        truncateFilter() {
+            return Filter.getByName('truncate');
+        },
+
+        currencyFilter() {
+            return Filter.getByName('currency');
+        },
     },
 
     created() {

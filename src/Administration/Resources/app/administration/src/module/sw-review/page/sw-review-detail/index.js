@@ -96,6 +96,10 @@ export default {
         showCustomFields() {
             return this.review && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

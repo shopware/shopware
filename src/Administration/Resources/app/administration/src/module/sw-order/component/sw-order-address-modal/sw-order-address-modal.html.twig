@@ -66,7 +66,7 @@
                     @click="onExistingAddressSelected(address)"
                 >
                     {{ address.company }} <br>
-                    {{ address | salutation }}<br>
+                    {{ salutationFilter(address) }}<br>
                     {{ address.street }} <br>
                     {{ address.zipcode }} {{ address.city }}<br>
                     {{ placeholder(address.country, 'name') }}<br>

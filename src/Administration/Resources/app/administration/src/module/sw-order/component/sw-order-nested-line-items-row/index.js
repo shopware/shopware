@@ -32,6 +32,12 @@ export default {
         },
     },
 
+    computed: {
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+    },
+
     methods: {
         getNestingClasses(nestingLevel) {
             return [

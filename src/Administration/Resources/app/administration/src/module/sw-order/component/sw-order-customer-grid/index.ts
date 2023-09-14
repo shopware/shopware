@@ -132,6 +132,10 @@ export default Component.wrapComponentConfig({
         cart(): Cart {
             return State.get('swOrder').cart;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     mounted() {

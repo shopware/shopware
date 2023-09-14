@@ -21,7 +21,6 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExt
 
 async function createWrapper() {
     const localVue = createLocalVue();
-    localVue.filter('asset', key => key);
 
     return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-listing'), {
         localVue,
@@ -111,6 +110,9 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                             appUrlReachable: true,
                         },
                     },
+                },
+                api: {
+                    assetsPath: '/',
                 },
             },
         });

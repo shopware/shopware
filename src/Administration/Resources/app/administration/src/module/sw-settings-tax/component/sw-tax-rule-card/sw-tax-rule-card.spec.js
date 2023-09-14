@@ -227,4 +227,11 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
 });

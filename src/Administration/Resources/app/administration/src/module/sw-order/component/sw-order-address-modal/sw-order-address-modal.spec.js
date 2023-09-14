@@ -84,4 +84,10 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
 
         wrapper.vm.getCustomerInfo.mockRestore();
     });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.salutationFilter).toEqual(expect.any(Function));
+    });
 });

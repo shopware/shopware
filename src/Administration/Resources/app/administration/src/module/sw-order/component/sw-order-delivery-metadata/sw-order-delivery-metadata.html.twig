@@ -24,13 +24,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_delivery_date %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
-            <dd>{{ delivery.shippingDateEarliest | date }}</dd>
+            <dd>{{ dateFilter(delivery.shippingDateEarliest) }}</dd>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_shipping_costs %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
-            <dd>{{ order.shippingTotal | currency(order.currency.shortName) }}</dd>
+            <dd>{{ currencyFilter(order.shippingTotal, order.currency.shortName) }}</dd>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

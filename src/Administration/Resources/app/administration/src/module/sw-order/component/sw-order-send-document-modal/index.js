@@ -74,6 +74,10 @@ export default {
         primaryActionDisabled() {
             return this.mailTemplateId === null || this.subject.length <= 0 || this.recipient.length <= 0;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

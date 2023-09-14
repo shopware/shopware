@@ -11,6 +11,12 @@ export default {
         };
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     methods: {
         routerGoBack() {
             this.$router.go(-1);

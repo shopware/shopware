@@ -7021,46 +7021,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/Webhooks.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:__construct\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncFinalizePayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:getQueryParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncFinalizePayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncPayPayload\\:\\:__construct\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncPayPayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncPayPayload\\:\\:getRequestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncPayPayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\ValidatePayload\\:\\:__construct\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/ValidatePayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\ValidatePayload\\:\\:getRequestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Payload/Struct/ValidatePayload.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Response\\\\ValidateResponse\\:\\:getPreOrderPayment\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Response/ValidateResponse.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Response\\\\ValidateResponse\\:\\:\\$preOrderPayment type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Response/ValidateResponse.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Validation\\\\ConfigValidator\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Validation/ConfigValidator.php

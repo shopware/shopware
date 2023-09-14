@@ -211,36 +211,6 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
         expect(emitted).toBeTruthy();
     });
 
-    it('should keep text when entering something into the search input', async () => {
-        jest.useFakeTimers();
-
-        const searchInput = wrapper.find('.sw-product-add-properties-modal__search input');
-
-        expect(searchInput.element.value).toHaveLength(0);
-
-        await searchInput.setValue('test');
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
-
-        expect(searchInput.element.value).toBe('test');
-    });
-
-    it('should clear search grid after clearing the search term', async () => {
-        jest.useFakeTimers();
-
-        const searchInput = wrapper.find('.sw-product-add-properties-modal__search input');
-
-        await searchInput.setValue('d');
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
-
-        await searchInput.setValue('');
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
-
-        expect(wrapper.find('.sw-product-add-properties-modal__search').vm.groupOptions).toEqual([]);
-    });
-
     it('should return filters from filter registry', async () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });

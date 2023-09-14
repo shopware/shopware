@@ -167,7 +167,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
     });
 
     it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });

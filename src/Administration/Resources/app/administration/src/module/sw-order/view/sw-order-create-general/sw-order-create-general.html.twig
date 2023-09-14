@@ -82,11 +82,7 @@
                             >
                                 {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                             </dt>
-                            <dd
-                                {% if VUE2 %}
-                                :key="`dd-delivery-${index}`"
-                                {% endif %}
-                            >
+                            <dd :key="`dd-delivery-${index}`">
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
                             </dd>
                         </template>
@@ -112,11 +108,7 @@
                                 >
                                     {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
-                                <dd
-                                    {% if VUE2 %}
-                                    :key="`dd-${index}`"
-                                    {% endif %}
-                                >
+                                <dd :key="`dd-${index}`">
                                     {{ currencyFilter(calculatedTax.tax, currency.shortName, currency.totalRounding.decimals) }}
                                 </dd>
                             </template>

@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
-                {{ order.amountTotal | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}
+                {{ currencyFilter(order.amountTotal, order.currency.translated.shortName, order.totalRounding.decimals) }}
             </div>
             {% endblock %}
         </div>
@@ -29,7 +29,7 @@
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
-                {{ order.orderDateTime | date({
+                {{ dateFilter(order.orderDateTime, {
                 hour: '2-digit',
                 minute: '2-digit',
                 day: '2-digit',
@@ -54,7 +54,7 @@
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ lastChangedDateTime | date({
+                    {{ dateFilter(lastChangedDateTime, {
                     hour: '2-digit',
                     minute: '2-digit',
                     day: '2-digit',

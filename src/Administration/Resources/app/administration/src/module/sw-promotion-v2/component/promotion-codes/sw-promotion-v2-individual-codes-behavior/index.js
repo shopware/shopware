@@ -86,6 +86,11 @@ export default {
         },
     },
 
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     mounted() {
         this.mountedComponent();
     },

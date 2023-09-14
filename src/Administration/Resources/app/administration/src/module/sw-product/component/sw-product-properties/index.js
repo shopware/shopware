@@ -114,10 +114,6 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
-
-        productHasProperties() {
-            return this.product?.id && this.groupIds.length > 0;
-        },
     },
 
     watch: {

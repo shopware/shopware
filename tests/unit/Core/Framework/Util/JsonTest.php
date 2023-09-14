@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
@@ -14,72 +15,86 @@ class JsonTest extends TestCase
 {
     public function testDecodeArrayReturnsEmptyArrayOnEmptyString(): void
     {
-        static::assertSame([], Json::decodeArray(''));
+        static::assertSame([], Json::decodeToList(''));
     }
 
-    public function testDecodeArrayThrowsJsonExceptionOnInvalidJsonString(): void
+    public function testDecodeArrayThrowsExceptionOnInvalidJsonString(): void
     {
-        static::expectException(\JsonException::class);
-        Json::decodeArray('["abc", "foo"');
+        try {
+            Json::decodeToList('["abc", "foo"');
+            static::fail(UtilException::class . ' not thrown');
+        } catch (UtilException $e) {
+            static::assertEquals(UtilException::INVALID_JSON, $e->getErrorCode());
+            static::assertEquals('JSON is invalid', $e->getMessage());
+            static::assertInstanceOf(\JsonException::class, $e->getPrevious());
+        }
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedObject(): void
+    public function testDecodeListThrowsExceptionOnDecodedObject(): void
     {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('{"abc": "foo"}');
+        try {
+            Json::decodeToList('{"abc": "foo"}');
+            static::fail(UtilException::class . ' not thrown');
+        } catch (UtilException $e) {
+            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+        }
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedObjectWithNumericNonSequentialIndices(): void
+    public function testDecodeListThrowsExceptionOnDecodedObjectWithNumericNonSequentialIndices(): void
     {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('{"0": "abc", "2": "foo"}');
+        try {
+            Json::decodeToList('{"0": "abc", "2": "foo"}');
+            static::fail(UtilException::class . ' not thrown');
+        } catch (UtilException $e) {
+            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+        }
     }
 
-    public function testDecodeArrayDecodesObjectWithSequentialNumericIndicesAsArray(): void
+    public function testDecodeListDecodesObjectWithSequentialNumericIndices(): void
     {
-        static::assertSame(['abc', 'foo'], Json::decodeArray('{"0": "abc", "1": "foo"}'));
+        static::assertSame(['abc', 'foo'], Json::decodeToList('{"0": "abc", "1": "foo"}'));
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedString(): void
+    /**
+     * @return array<string, array<string>>
+     */
+    public static function nonArrayInput(): array
     {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('"abc"');
+        return [
+            'string' => ['"abc"'],
+            'int' => ['123'],
+            'float' => ['12.01'],
+            'false' => ['false'],
+            'null' => ['null'],
+        ];
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedInt(): void
+    /**
+     * @dataProvider nonArrayInput
+     */
+    public function testDecodeListThrowsExceptionOnNonArrayInputs(mixed $input): void
     {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('123');
+        try {
+            Json::decodeToList($input);
+            static::fail(UtilException::class . ' not thrown');
+        } catch (UtilException $e) {
+            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+        }
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedFloat(): void
+    public function testDecodeLIstCorrectlyDecodesList(): void
     {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('12.01');
+        static::assertSame(['abc', 'foo'], Json::decodeToList('["abc", "foo"]'));
     }
 
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedBoolean(): void
-    {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('false');
-    }
-
-    public function testDecodeArrayThrowsUnexcpectedValueExceptionOnDecodedNull(): void
-    {
-        static::expectException(\UnexpectedValueException::class);
-        Json::decodeArray('null');
-    }
-
-    public function testDecodeArrayCorrectlyDecodesArray(): void
-    {
-        static::assertSame(['abc', 'foo'], Json::decodeArray('["abc", "foo"]'));
-    }
-
-    public function testDecodeArrayWithObjectsAsArrayListWithAssociativeArrays(): void
+    public function testDecodeListWithObjectsAsArrayListWithAssociativeArrays(): void
     {
         static::assertSame(
             [['name' => 'abc'], ['name' => 'foo']],
-            Json::decodeArray('[{"name": "abc"}, {"name": "foo"}]')
+            Json::decodeToList('[{"name": "abc"}, {"name": "foo"}]')
         );
     }
 }

@@ -47,3 +47,11 @@ Reduce worker count
 ```
 npx playwright test --workers 4
 ```
+
+
+## Running with admin watcher
+
+You can point playwright to a different admin url by setting `ADMIN_URL`. The default is `${APP_URL}admin/`
+```
+ADMIN_URL=http://localhost:8080
+```

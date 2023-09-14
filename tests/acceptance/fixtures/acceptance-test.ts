@@ -10,6 +10,7 @@ import {
     getThemeId
 } from './sales-channel-helper';
 import { components } from "@shopware/api-client/admin-api-types";
+import crypto from "crypto";
 
 interface StoreBaseConfig {
     storefrontTypeId: string;
@@ -23,6 +24,7 @@ interface StoreBaseConfig {
     enGBSnippetSetId: string,
     defaultThemeId: string,
     appUrl: string,
+    adminUrl: string,
 }
 
 interface Cleanup {
@@ -106,13 +108,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             defaultThemeId: await requests.defaultThemeId,
 
-            appUrl: process.env['APP_URL']
+            appUrl: process.env['APP_URL'],
+            adminUrl: process.env['ADMIN_URL'] || `${process.env['APP_URL']}admin/`,
         })
     }, { scope: 'worker' }],
 
     adminPage: async ({ idProvider, adminApiContext, browser, storeBaseConfig }, use) => {
         const context = await browser.newContext({
-            baseURL: storeBaseConfig.appUrl
+            baseURL: storeBaseConfig.adminUrl
         });
         const page = await context.newPage();
 
@@ -136,7 +139,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         expect(response.ok()).toBeTruthy();
 
-        await page.goto('./admin#/login');
+        await page.goto('#/login');
 
         await page.getByLabel('Username').fill(adminUser.username);
         await page.getByLabel('Password').fill(adminUser.password);
@@ -176,6 +179,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const { uuid: customerUuid } = idProvider.getWorkerDerivedStableId('customer');
 
         const baseUrl =`${storeBaseConfig.appUrl}test-${uuid}/`;
+
+        const currentConfigResponse = await adminApiContext.get(`./_action/system-config?domain=storefront&salesChannelId=${uuid}`);
+        const currentConfig = await currentConfigResponse.json();
 
         await adminApiContext.delete(`./customer/${customerUuid}`);
         await adminApiContext.delete(`./sales-channel/${uuid}`);
@@ -246,8 +252,31 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         const salesChannelPromise = adminApiContext.get(`./sales-channel/${uuid}`)
 
-        // we should only call this, if really necessary...
-        const themeAssignPromise = adminApiContext.post(`./_action/theme/${storeBaseConfig.defaultThemeId}/assign/${uuid}`);
+        let themeAssignPromise;
+
+        if (currentConfig && currentConfig['storefront.themeSeed']) {
+            // check if theme folder exists
+            const md5 = data => crypto.createHash('md5')
+                .update(data)
+                .digest("hex");
+
+            const md5Str = md5(`${storeBaseConfig.defaultThemeId}${uuid}${currentConfig['storefront.themeSeed']}`);
+
+            const themeCssResp = await adminApiContext.head(`${storeBaseConfig.appUrl}theme/${md5Str}/css/all.css`);
+
+            // if theme all.css exists reuse the seed/theme
+            if (themeCssResp.status() === 200) {
+                themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
+                    data: {
+                        'storefront.themeSeed': currentConfig['storefront.themeSeed']
+                    }
+                });
+            }
+        }
+
+        if (!themeAssignPromise) {
+            themeAssignPromise = adminApiContext.post(`./_action/theme/${storeBaseConfig.defaultThemeId}/assign/${uuid}`);
+        }
 
         const customerData = {
             id: customerUuid,
@@ -321,7 +350,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     product: async ({ idProvider, storeBaseConfig, adminApiContext }, use) => {
         // Generate unique IDs
         const { id: productId, uuid: productUuid } = idProvider.getIdPair();
-        const productName = `Test product ${productId}`;
+        const productName = `Test_product_${productId}`;
 
         // Create product
         const newProduct = await adminApiContext.post<components['schemas']['Product']>('./product?_response', {

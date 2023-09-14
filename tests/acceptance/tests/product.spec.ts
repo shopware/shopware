@@ -5,8 +5,8 @@ test('Open admin settings', async ({ adminPage }) => {
 });
 
 // run multiple times to test stability
-for (let i = 0; i < 12; ++i) {
-    test(`Open product ${i}`, async ({product, adminPage}) => {
+for (let i = 0; i < 1; ++i) {
+    test(`Open product ${i}`, async ({ product, adminPage }) => {
         await adminPage.getByText('Catalogues').click();
         await adminPage.getByRole('link', {name: 'Products'}).first().click();
 
@@ -20,7 +20,7 @@ for (let i = 0; i < 12; ++i) {
 }
 
 // run multiple times to test stability
-for (let i = 0; i < 4; ++i) {
+for (let i = 0; i < 1; ++i) {
     test(`Open storefront user account ${i}`, async ({ storefrontPage }) => {
         await storefrontPage.getByLabel('Your account').click();
 

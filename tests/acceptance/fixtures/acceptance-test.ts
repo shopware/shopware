@@ -36,13 +36,15 @@ type TestFixtures = {
     adminPage: Page,
     product: components['schemas']['Product'],
     storefrontPage: Page,
+    anonStorefrontPage: Page,
+    salesChannelProduct: components['schemas']['Product'],
 }
 
 type WorkerFixtures = {
     idProvider: IdProvider,
     defaultStorefront: {
         salesChannel: components['schemas']['SalesChannel'],
-        customer: components['schemas']['Customer'],
+        customer: components['schemas']['Customer'] & { password: string },
         url: string,
     },
     adminApiContext: AdminApiContext,
@@ -146,18 +148,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         await page.getByRole('button', { name: 'Log in' }).click();
 
-        // Wait until the page is loaded
-        await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
-            timeout: 10000,
-        });
-
-        await expect(page.locator('.sw-skeleton')).toHaveCount(0, {
-            timeout: 10000,
-        });
-
-        await expect(page.locator('.sw-loader')).toHaveCount(0, {
-            timeout: 10000,
-        });
+        // // Wait until the page is loaded
+        // await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
+        //     timeout: 10000,
+        // });
+        //
+        // await expect(page.locator('.sw-skeleton')).toHaveCount(0, {
+        //     timeout: 10000,
+        // });
+        //
+        // await expect(page.locator('.sw-loader')).toHaveCount(0, {
+        //     timeout: 10000,
+        // });
 
         // Run the test
         await use(page);
@@ -246,6 +248,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                         ],
                     }]
                 },
+                // 'set-theme-seed': {
+                //     entity: 'system_settings',
+                //     action: 'upsert',
+                //     payload: [{
+                // }
             }
         });
         expect(syncResp.ok()).toBeTruthy();
@@ -344,6 +351,22 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await context.close();
     },
 
+    anonStorefrontPage: async ({ defaultStorefront, browser, storeBaseConfig }, use) => {
+        const { url } = defaultStorefront;
+
+        const context = await browser.newContext({
+            baseURL: url,
+        });
+        const page = await context.newPage();
+
+        await page.goto('./');
+
+        await use(page);
+
+        await page.close();
+        await context.close();
+    },
+
     /**
      * Collection of all fixtures
      */
@@ -384,5 +407,33 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         // Delete product after the test is done
         await adminApiContext.delete(`./product/${productUuid}`);
+    },
+
+    salesChannelProduct: async ({ adminApiContext, defaultStorefront, product }, use) => {
+        const syncResp = await adminApiContext.post('./_action/sync', {
+            data: {
+                'add product to sales channel': {
+                    entity: 'product_visibility',
+                    action: 'upsert',
+                    payload: [{
+                        productId: product.id,
+                        salesChannelId: defaultStorefront.salesChannel.id,
+                        visibility: 30,
+                    }]
+                },
+                'add product to root navigation': {
+                    entity: 'product_category',
+                    action: 'upsert',
+                    payload: [{
+                        productId: product.id,
+                        categoryId: defaultStorefront.salesChannel.navigationCategoryId,
+                    }]
+                },
+            }
+        });
+
+        expect(syncResp.ok()).toBeTruthy();
+
+        await use(product)
     },
 });

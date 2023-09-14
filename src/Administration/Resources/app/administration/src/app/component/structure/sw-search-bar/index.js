@@ -319,20 +319,21 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            this.showResultsSearchTrends = true;
             this.loadSearchTrends().then(response => {
                 this.resultsSearchTrends = response;
+
+                this.showResultsSearchTrends = true;
             });
 
             if (this.resultsSearchTrends?.length) {
+                this.showResultsSearchTrends = true;
                 return;
-            } else {
-                this.showResultsSearchTrends = false;
             }
 
-            this.showResultsSearchTrends = true;
             this.loadSearchTrends().then(response => {
                 this.resultsSearchTrends = response;
+
+                this.showResultsSearchTrends = true;
             });
         },
 

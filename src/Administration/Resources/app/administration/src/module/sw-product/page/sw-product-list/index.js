@@ -58,7 +58,6 @@ export default {
             activeFilterNumber: 0,
             showBulkEditModal: false,
             searchConfigEntity: 'product',
-            requestId: 0,
         };
     },
 
@@ -261,8 +260,6 @@ export default {
 
     methods: {
         async getList() {
-            const requestId = ++this.requestId;
-
             this.isLoading = true;
 
             let criteria = await Shopware.Service('filterService')
@@ -301,24 +298,22 @@ export default {
                         criteria.addQuery(Criteria.equalsAny('id', parentIds), searchRankingPoint.HIGH_SEARCH_RANKING);
                     }
                 }
-s
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
                     this.currencyRepository.search(this.currencyCriteria),
                 ]);
 
-                if (requestId === this.requestId) {
-                    const products = result[0];
-                    const currencies = result[1];
+                const products = result[0];
+                const currencies = result[1];
 
-                    this.total = products.total;
-                    this.products = products;
+                this.total = products.total;
+                this.products = products;
 
-                    this.currencies = currencies;
-                    this.isLoading = false;
+                this.currencies = currencies;
+                this.isLoading = false;
 
-                    this.selection = {};
-                }
+                this.selection = {};
             } catch {
                 this.isLoading = false;
             }

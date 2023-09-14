@@ -103,7 +103,7 @@ class MaintenanceModeResolver
         $whitelist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST) ?? '';
 
         /** @var string[] $allowedIps */
-        $allowedIps = Json::decodeArray((string) $whitelist);
+        $allowedIps = Json::decodeToList((string) $whitelist);
 
         return $this->maintenanceModeResolver->isClientAllowed($request, $allowedIps);
     }

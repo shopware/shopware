@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +23,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Tested via an integration test
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Api\EventListener\SalesChannelAuthenticationListenerTest
  */
 #[Package('core')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
@@ -138,13 +143,17 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var string[] $allowedIps */
-        $allowedIps = Json::decodeArray((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
+        try {
+            /** @var string[] $allowedIps */
+            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
+        } catch (UtilException $e) {
+            return;
+        }
 
         if ($this->maintenanceModeResolver->isClientAllowed($request, $allowedIps)) {
             return;
         }
 
-        throw ApiException::salesChannelMaintenanceException();
+        throw ApiException::salesChannelInMaintenanceMode();
     }
 }

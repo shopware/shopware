@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\SalesChannelMaintenanceException;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +45,8 @@ class ApiException extends HttpException
     public const API_UNABLE_GENERATE_BUNDLE = 'FRAMEWORK__API_UNABLE_GENERATE_BUNDLE';
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
+
+    public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
 
     public static function invalidSyncCriteriaException(string $operationKey): self
     {
@@ -172,11 +173,6 @@ class ApiException extends HttpException
         return new SalesChannelNotFoundException();
     }
 
-    public static function salesChannelMaintenanceException(): ShopwareHttpException
-    {
-        return new SalesChannelMaintenanceException();
-    }
-
     public static function deleteLiveVersion(): ShopwareHttpException
     {
         return new LiveVersionDeleteException();
@@ -290,6 +286,15 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION,
             'Given identifier for access key is invalid.',
+        );
+    }
+
+    public static function salesChannelInMaintenanceMode(): self
+    {
+        return new self(
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            self::API_SALES_CHANNEL_MAINTENANCE_MODE,
+            'The sales channel is in maintenance mode.',
         );
     }
 }

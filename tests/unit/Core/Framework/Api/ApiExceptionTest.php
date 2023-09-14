@@ -258,4 +258,11 @@ class ApiExceptionTest extends TestCase
 
         static::assertEquals(ApiException::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION, $exception->getErrorCode());
     }
+
+    public function testSalesChannelInMaintenanceMode(): void
+    {
+        $exception = ApiException::salesChannelInMaintenanceMode();
+
+        static::assertEquals(ApiException::API_SALES_CHANNEL_MAINTENANCE_MODE, $exception->getErrorCode());
+    }
 }

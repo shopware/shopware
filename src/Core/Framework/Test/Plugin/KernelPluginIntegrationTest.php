@@ -373,7 +373,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = new $kernelClass('test', true, $loader, Uuid::randomHex(), $version);
         $connection = (new \ReflectionClass($kernelClass))->getProperty('connection');
         $connection->setAccessible(true);
-        $connection->setValue($this->connection);
+        $connection->setValue($this->kernel, $this->connection);
 
         return $this->kernel;
     }

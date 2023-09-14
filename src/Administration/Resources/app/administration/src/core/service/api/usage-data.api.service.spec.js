@@ -1,17 +1,17 @@
-import MetricsApiService from 'src/core/service/api/metrics.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
+import UsageDataApiService from 'src/core/service/api/usage-data.api.service';
 
-function getMetricsService(client) {
-    return new MetricsApiService(client, createLoginService(client, Shopware.Context.api));
+function getUsageDataService(client) {
+    return new UsageDataApiService(client, createLoginService(client, Shopware.Context.api));
 }
 
 describe('metricsService', () => {
     const client = createHTTPClient();
-    const service = getMetricsService(client);
+    const service = getUsageDataService(client);
 
     it('has the correct name', async () => {
-        expect(service.name).toBe('metricsService');
+        expect(service.name).toBe('usageDataService');
     });
 
     describe('needs approval request', () => {
@@ -26,7 +26,7 @@ describe('metricsService', () => {
 
             service.needsApproval();
             expect(getMethod).toHaveBeenCalledTimes(1);
-            expect(getMethod).toHaveBeenCalledWith('/metrics/needs-approval', {
+            expect(getMethod).toHaveBeenCalledWith('/usage-data/needs-approval', {
                 headers: service.getBasicHeaders(),
                 params: {},
             });

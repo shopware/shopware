@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import swSettingsUsageDataPage from 'src/module/sw-settings-usage-data/page/sw-settings-usage-data';
-import { ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY } from 'src/core/service/api/metrics.api.service';
+import { ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY } from 'src/core/service/api/usage-data.api.service';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';

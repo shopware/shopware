@@ -9,11 +9,11 @@ import ApiService from '../api.service';
  *
  * @package merchant-services
  */
-export default class MetricsApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'metrics') {
+export default class UsageDataApiService extends ApiService {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'usage-data') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
 
-        this.name = 'metricsService';
+        this.name = 'usageDataService';
     }
 
     public async needsApproval(): Promise<boolean> {
@@ -29,18 +29,18 @@ export default class MetricsApiService extends ApiService {
     }
 }
 
-const METRICS_SYSTEM_CONFIG_DOMAIN = 'core.metrics';
-const ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY = 'core.metrics.shareUsageData';
+const USAGE_DATA_SYSTEM_CONFIG_DOMAIN = 'core.usageData';
+const ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY = 'core.usageData.shareUsageData';
 
 /**
  * @private
  *
  * @package merchant-services
  */
-export { METRICS_SYSTEM_CONFIG_DOMAIN, ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY };
+export { USAGE_DATA_SYSTEM_CONFIG_DOMAIN, ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY };
 
 /**
  * @private
  * @package merchant-services
  */
-export type { MetricsApiService };
+export type { UsageDataApiService };

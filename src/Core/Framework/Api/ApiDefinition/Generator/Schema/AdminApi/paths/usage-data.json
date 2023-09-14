@@ -2,14 +2,14 @@
     "openapi": "3.0.0",
     "info": [],
     "paths": {
-        "\/metrics\/needs-approval": {
+        "\/usage-data\/needs-approval": {
             "delete": {
                 "tags": [
-                    "Metrics approval request"
+                    "Usage data"
                 ],
-                "summary": "Get information about the metrics approval request.",
-                "description": "Get whether the metrics approval request is necessary or not.",
-                "operationId": "getNeedsMetricsApprovalRequest",
+                "summary": "Get information about the usage data approval request.",
+                "description": "Get whether the usage data approval request is necessary or not.",
+                "operationId": "getNeedsUsageDataApprovalRequest",
                 "responses": {
                     "200": {
                         "description": "Returns true if it is needed, false if it is not."

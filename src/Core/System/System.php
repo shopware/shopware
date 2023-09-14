@@ -37,7 +37,7 @@ class System extends Bundle
         $loader->load('currency.xml');
         $loader->load('custom_entity.xml');
         $loader->load('locale.xml');
-        $loader->load('metrics.xml');
+        $loader->load('usage_data.xml');
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');
         $loader->load('tax.xml');

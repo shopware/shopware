@@ -376,6 +376,24 @@
                 "delay": {
                     "type": "integer"
                 },
+                "delay_options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "storage": {
+                            "type": "string",
+                            "default": "cache",
+                            "enum": [
+                                "cache",
+                                "redis"
+                            ]
+                        },
+                        "dsn": {
+                            "type": "string",
+                            "default": "redis://localhost"
+                        }
+                    }
+                },
                 "count": {
                     "type": "integer"
                 },

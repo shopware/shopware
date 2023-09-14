@@ -83,6 +83,10 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

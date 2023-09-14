@@ -147,4 +147,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         expect(wrapper.vm.productStreamFilter).toEqual(['foo', 'bar']);
         expect(wrapper.vm.productStreamInvalid).toBe(false);
     });
+
+    it('should return filters from filter registry', () => {
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

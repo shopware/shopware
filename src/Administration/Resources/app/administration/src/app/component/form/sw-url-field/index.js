@@ -83,6 +83,10 @@ Component.extend('sw-url-field', 'sw-text-field', {
         combinedError() {
             return this.errorUrl || this.error;
         },
+
+        unicodeUriFilter() {
+            return Shopware.Filter.getByName('unicodeUri');
+        },
     },
 
     watch: {

@@ -18,6 +18,12 @@ export default {
         };
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     created() {
         this.createdComponent();
     },

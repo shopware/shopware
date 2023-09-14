@@ -1,7 +1,7 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Context } = Shopware;
+const { Context, Filter } = Shopware;
 
 /**
  * @package content
@@ -55,6 +55,10 @@ export default {
             root.name = this.$tc('sw-media.index.rootFolderName');
             root.id = null;
             return root;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
     },
 

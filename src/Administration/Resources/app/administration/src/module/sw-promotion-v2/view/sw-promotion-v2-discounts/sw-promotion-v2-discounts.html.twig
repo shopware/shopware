@@ -143,7 +143,7 @@
             {% block sw_promotion_v2_discounts_empty_state_icon %}
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/promotion-empty-state.svg')"
                     :alt="$tc('sw-promotion-v2.detail.discounts.emptyStateTitle')"
                 >
             </template>

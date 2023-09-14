@@ -17,4 +17,10 @@ export default {
             required: false,
         },
     },
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
 };

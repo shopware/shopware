@@ -247,6 +247,18 @@ export default {
 
             return productCriteria;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

@@ -90,7 +90,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_created_at %}
             <template #column-createdAt="{ item }">
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
             </template>
             {% endblock %}
 

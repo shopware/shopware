@@ -80,6 +80,14 @@ export default {
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

@@ -41,6 +41,10 @@ export default {
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

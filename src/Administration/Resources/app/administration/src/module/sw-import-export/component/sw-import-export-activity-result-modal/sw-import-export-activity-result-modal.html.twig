@@ -115,7 +115,7 @@
                 {% block sw_import_export_activity_result_modal_info_log_list_date %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-date">
                     <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelDate') }}</dt>
-                    <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
+                    <dd>{{ dateFilter(logEntity.createdAt, { hour: '2-digit', minute: '2-digit' }) }}</dd>
                 </div>
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

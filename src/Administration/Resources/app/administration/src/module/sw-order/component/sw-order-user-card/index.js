@@ -125,6 +125,10 @@ export default {
 
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     created() {

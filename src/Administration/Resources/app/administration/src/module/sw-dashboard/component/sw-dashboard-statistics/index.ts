@@ -251,6 +251,14 @@ export default Shopware.Component.wrapComponentConfig({
         isSessionLoaded() {
             return !Shopware.State.get('session')?.userPending;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

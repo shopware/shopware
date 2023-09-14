@@ -118,6 +118,10 @@ export default {
 
             return 'extension-apps';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

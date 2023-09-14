@@ -128,6 +128,10 @@ export default {
         isProductDetailPage() {
             return this.page.type === 'product_detail';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

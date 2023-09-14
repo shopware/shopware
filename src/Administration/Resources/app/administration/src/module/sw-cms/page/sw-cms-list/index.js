@@ -144,6 +144,10 @@ export default {
                 },
             ];
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

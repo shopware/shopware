@@ -84,7 +84,7 @@
         <template #column-price="{ item }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_price %}
-            {{ getPriceForDefaultCurrency(item)|currency(systemCurrency.isoCode) }}
+            {{ currencyFilter(getPriceForDefaultCurrency(item), systemCurrency.isoCode) }}
             {% endblock %}
         </template>
 
@@ -123,7 +123,7 @@
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     alt=""
                 >
             </template>

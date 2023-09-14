@@ -113,6 +113,14 @@ Component.register('sw-product-stream-grid-preview', {
 
             return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {

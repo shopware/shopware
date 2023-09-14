@@ -661,4 +661,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             },
         ]);
     });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
 });

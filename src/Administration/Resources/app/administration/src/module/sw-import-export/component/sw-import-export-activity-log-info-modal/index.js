@@ -39,6 +39,10 @@ export default {
                 'sw-import-export-activity-log-info-modal__item-state--processing': this.logEntity.state === 'progress',
             };
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

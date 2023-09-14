@@ -36,6 +36,10 @@ export default {
         promotionDiscountRepository() {
             return this.repositoryFactory.create('promotion_discount');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     methods: {

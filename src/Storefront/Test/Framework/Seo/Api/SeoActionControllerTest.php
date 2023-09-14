@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -164,9 +165,7 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('test', $data[0]['seoPathInfo']);
     }
@@ -214,8 +213,6 @@ class SeoActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
-        $content = $response->getContent();
-        static::assertIsString($content);
 
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -395,9 +392,6 @@ class SeoActionControllerTest extends TestCase
         }
     }
 
-    /**
-     * @return array<Product>
-     */
     private function getSeoUrls(string $id, ?bool $canonical = null, ?string $salesChannelId = null): array
     {
         $params = [];

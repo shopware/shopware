@@ -156,6 +156,12 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelNotFound($salesChannelId);
         }
 
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            if (Feature::isActive('v6.6.0.0')) {
+                return new Response('', Response::HTTP_NO_CONTENT);
+            }
+        }
+
         $this->seoUrlPersister->updateSeoUrls(
             $context,
             $seoUrlData['routeName'],

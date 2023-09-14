@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -155,6 +156,12 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelNotFound($salesChannelId);
         }
 
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            if (Feature::isActive('v6.6.0.0')) {
+                return new Response('', Response::HTTP_NO_CONTENT);
+            }
+        }
+
         $this->seoUrlPersister->updateSeoUrls(
             $context,
             $seoUrlData['routeName'],
@@ -197,14 +204,22 @@ class SeoActionController extends AbstractController
         }
 
         foreach ($writeData as $salesChannelId => $writeRows) {
-            $salesChannelEntity = null;
-
             if ($salesChannelId === '') {
                 throw SeoException::salesChannelIdParameterIsMissing();
             }
 
             /** @var SalesChannelEntity $salesChannelEntity */
             $salesChannelEntity = $salesChannels->get($salesChannelId);
+
+            if ($salesChannelEntity === null) {
+                throw SeoException::salesChannelNotFound((string) $salesChannelId);
+            }
+
+            if ($salesChannelEntity->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+                if (Feature::isActive('v6.6.0.0')) {
+                    continue;
+                }
+            }
 
             $this->seoUrlPersister->updateSeoUrls(
                 $context,

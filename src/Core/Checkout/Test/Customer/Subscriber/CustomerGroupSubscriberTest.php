@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -84,6 +85,38 @@ class CustomerGroupSubscriberTest extends TestCase
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
         static::assertSame('test', $url->getSeoPathInfo());
+    }
+
+    public function testUrlsAreForHeadlessSalesChannelAreHanldedCorrectly(): void
+    {
+        $s1 = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_API])['id'];
+
+        $id = Uuid::randomHex();
+
+        $this->customerGroupRepository->create([
+            [
+                'id' => $id,
+                'name' => 'Test',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationSalesChannels' => [['id' => $s1]],
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getSeoUrlsById($id);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            static::assertCount(0, $urls);
+        } else {
+            static::assertCount(1, $urls);
+            $url = $urls->first();
+
+            static::assertNotNull($url);
+            static::assertSame($s1, $url->getSalesChannelId());
+            static::assertSame($id, $url->getForeignKey());
+            static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
+            static::assertSame('test', $url->getSeoPathInfo());
+        }
     }
 
     public function testUrlsAreNotWrittenWhenRegistrationIsDisabled(): void

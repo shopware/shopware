@@ -13042,30 +13042,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Test/Framework/Cache/CacheStateValidatorTest.php
 
-		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>redis\\-\\>expects\\(static\\:\\:exactly\\(2\\)\\)\\-\\>method\\('lPush'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
 
-		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>redis\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('del'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>redis\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('eval'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
-
-		-
-			message: "#^Call to an undefined method Redis\\:\\:expects\\(\\)\\.$#"
-			count: 4
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$entirePurge of class Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway constructor expects array\\{method\\: string, headers\\: array\\<string, string\\>, urls\\: array\\<string\\>\\}, array\\{method\\: 'BAN', headers\\: array\\{\\}\\} given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"

@@ -53,6 +53,10 @@ export default {
         tagRepository() {
             return this.repositoryFactory.create('tag');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

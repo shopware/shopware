@@ -472,6 +472,10 @@ export default {
 
             return criteria;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

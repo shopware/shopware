@@ -600,7 +600,7 @@
                 v-if="productExport.generatedAt"
                 class="sw-sales-channel-detail-base_general__last-generation-text"
             >
-                {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}{{ productExport.generatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}{{ dateFilter(productExport.generatedAt, { hour: '2-digit', minute: '2-digit' }) }}
             </div>
             <div
                 v-else

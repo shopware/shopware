@@ -601,4 +601,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

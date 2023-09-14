@@ -84,5 +84,11 @@ describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal
 
         wrapper.vm.paymentMethodRepository.saveAll.mockRestore();
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });
 

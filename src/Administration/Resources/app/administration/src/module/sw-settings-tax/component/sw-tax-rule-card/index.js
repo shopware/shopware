@@ -106,6 +106,14 @@ export default {
                 label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

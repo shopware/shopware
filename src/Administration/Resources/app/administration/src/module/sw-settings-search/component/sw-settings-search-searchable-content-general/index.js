@@ -54,6 +54,12 @@ export default {
         },
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     methods: {
 
         getMatchingFields(fieldName) {

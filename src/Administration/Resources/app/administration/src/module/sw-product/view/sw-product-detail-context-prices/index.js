@@ -185,6 +185,10 @@ export default {
 
             return [...priceColumns, ...this.currencyColumns];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
 

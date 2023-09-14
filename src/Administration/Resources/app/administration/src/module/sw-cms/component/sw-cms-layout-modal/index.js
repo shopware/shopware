@@ -109,6 +109,10 @@ export default {
 
             return { [this.selectedPageObject.id]: this.selectedPageObject };
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

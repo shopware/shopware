@@ -110,7 +110,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rule_active_from %}
                 <template #column-activeFrom="{ item }">
-                    {{ item.activeFrom | date({
+                    {{ dateFilter(item.activeFrom, {
                     hour: '2-digit',
                     minute: '2-digit',
                     day: '2-digit',
@@ -229,7 +229,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_empty_state_image %}
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
             {% endblock %}

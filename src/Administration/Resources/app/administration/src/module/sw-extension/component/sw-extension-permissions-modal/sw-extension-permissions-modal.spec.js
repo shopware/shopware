@@ -7,7 +7,6 @@ Shopware.Component.register('sw-extension-permissions-modal', swExtensionPermiss
 
 async function createWrapper(propsData) {
     const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
 
     return shallowMount(await Shopware.Component.build('sw-extension-permissions-modal'), {
         localVue,
@@ -80,7 +79,7 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         ]));
 
         expect(wrapper.find('.sw-extension-permissions-modal__image')
-            .attributes().src).toBe('/administration/static/img/extension-store/permissions.svg');
+            .attributes().src).toBe('administration/static/img/extension-store/permissions.svg');
     });
 
     it('should display two detail links and open the correct detail page', async () => {

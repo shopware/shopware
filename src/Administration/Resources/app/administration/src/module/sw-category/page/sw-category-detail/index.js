@@ -226,6 +226,10 @@ export default {
 
             return criteria;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

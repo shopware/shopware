@@ -158,6 +158,10 @@ export default {
             return this.$refs.dataGrid?.currentColumns
                 .find(item => item.property === 'payload.productNumber')?.visible;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
     methods: {
         onInlineEditSave(item) {

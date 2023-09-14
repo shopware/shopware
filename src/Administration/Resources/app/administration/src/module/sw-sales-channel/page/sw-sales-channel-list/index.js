@@ -109,6 +109,9 @@ export default {
             return Shopware.Service('salesChannelFavorites');
         },
 
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

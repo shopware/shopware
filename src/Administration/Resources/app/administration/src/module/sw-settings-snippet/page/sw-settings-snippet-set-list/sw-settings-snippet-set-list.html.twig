@@ -235,10 +235,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                                 <div v-if="item.updatedAt">
-                                    {{ item.updatedAt | date }}
+                                    {{ dateFilter(item.updatedAt) }}
                                 </div>
                                 <div v-else>
-                                    {{ item.createdAt | date }}
+                                    {{ dateFilter(item.createdAt) }}
                                 </div>
                                 {% endblock %}
                             </sw-grid-column>

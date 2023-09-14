@@ -174,4 +174,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
 
         expect(wrapper.vm.addCodesModal).toBe(false);
     });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

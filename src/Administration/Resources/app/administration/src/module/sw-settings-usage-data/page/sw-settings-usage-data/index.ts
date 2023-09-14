@@ -1,3 +1,7 @@
+import {
+    USAGE_DATA_SYSTEM_CONFIG_DOMAIN,
+    ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY,
+} from 'src/core/service/api/usage-data.api.service';
 import template from './sw-settings-usage-data.html.twig';
 import './sw-settings-usage-data.scss';
 
@@ -36,5 +40,21 @@ export default Shopware.Component.wrapComponentConfig({
 
     created() {
         void this.createdComponent();
+    },
+
+    methods: {
+        async createdComponent(): Promise<void> {
+            const config = await this.systemConfigApiService.getValues(
+                USAGE_DATA_SYSTEM_CONFIG_DOMAIN,
+            ) as CoreMetricsConfigNamespace;
+
+            this.shareUsageData = config[ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY] ?? false;
+        },
+
+        async saveSystemConfig() {
+            await this.systemConfigApiService.saveValues({
+                [ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY]: this.shareUsageData,
+            });
+        },
     },
 });

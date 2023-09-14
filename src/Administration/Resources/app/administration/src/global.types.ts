@@ -61,7 +61,7 @@ import type FilterFactory from './core/factory/filter.factory';
 import type StateStyleService from './app/service/state-style.service';
 import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
-import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
+import type UsageDataApiService from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -204,7 +204,7 @@ declare global {
         userActivityService: UserActivityService,
         filterFactory: FilterFactoryData,
         systemConfigApiService: SystemConfigApiService,
-        usageDataService: UsageDataApiService,
+        metricsService: UsageDataApiService,
         configService: ConfigApiService,
         importExport: ImportExportService,
     }

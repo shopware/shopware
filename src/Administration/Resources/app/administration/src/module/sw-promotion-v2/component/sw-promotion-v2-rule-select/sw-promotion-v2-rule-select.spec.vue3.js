@@ -1,7 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
-import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
-
-Shopware.Component.register('sw-promotion-v2-rule-select', swPromotionV2RuleSelect);
+import { mount } from '@vue/test-utils_v3';
 
 const ruleConditionDataProviderService = {
     getRestrictedRuleTooltipConfig: jest.fn(),
@@ -9,14 +6,16 @@ const ruleConditionDataProviderService = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-rule-select'), {
-        stubs: {
-            'sw-entity-many-to-many-select': true,
-            'sw-arrow-field': true,
-            'sw-grouped-single-select': true,
-        },
-        provide: {
-            ruleConditionDataProviderService: ruleConditionDataProviderService,
+    return mount(await wrapTestComponent('sw-promotion-v2-rule-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-entity-many-to-many-select': true,
+                'sw-arrow-field': true,
+                'sw-grouped-single-select': true,
+            },
+            provide: {
+                ruleConditionDataProviderService: ruleConditionDataProviderService,
+            },
         },
     });
 }

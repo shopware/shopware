@@ -1,43 +1,9 @@
-import { shallowMount } from '@vue/test-utils';
-import swPromotionV2GenerateCodesModalCmp from './index';
-
-Shopware.Component.register('sw-promotion-v2-generate-codes-modal', swPromotionV2GenerateCodesModalCmp);
+import { mount } from '@vue/test-utils_v3';
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';
 async function createWrapper(propsData = {}) {
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-generate-codes-modal'), {
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-text-field': {
-                template: '<input class="sw-text-field"></input>',
-                props: ['value'],
-            },
-            'sw-number-field': {
-                template: '<input class="sw-number-field"></input>',
-                props: ['value'],
-            },
-            'sw-switch-field': true,
-            'sw-field-error': true,
-            'sw-modal': true,
-            'sw-alert': true,
-            'sw-button': true,
-            'sw-button-process': true,
-        },
-        provide: {
-            promotionCodeApiService: {
-                generatePreview() {
-                    return new Promise((resolve) => {
-                        resolve(mockCode);
-                    });
-                },
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-promotion-v2-generate-codes-modal', { sync: true }), {
+        props: {
             promotion: {
                 name: 'Test Promotion',
                 active: true,
@@ -79,6 +45,41 @@ async function createWrapper(propsData = {}) {
                 ...propsData,
             },
         },
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot /></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot /></div>',
+                },
+                'sw-text-field': {
+                    template: '<input class="sw-text-field"></input>',
+                    props: ['value'],
+                },
+                'sw-number-field': {
+                    template: '<input class="sw-number-field"></input>',
+                    props: ['value'],
+                },
+                'sw-switch-field': true,
+                'sw-field-error': true,
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot /></div>',
+                },
+                'sw-alert': true,
+                'sw-button': true,
+                'sw-button-process': true,
+            },
+            provide: {
+                promotionCodeApiService: {
+                    generatePreview() {
+                        return new Promise((resolve) => {
+                            resolve(mockCode);
+                        });
+                    },
+                },
+            },
+        },
     });
 }
 
@@ -93,15 +94,17 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
 
     it('should generate a correct preview', async () => {
         const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
         jest.advanceTimersByTime(1000);
 
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__prefix').props('value')).toBe('PREFIX_');
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__replacement').props('value')).toBe(4);
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__suffix').props('value')).toBe('_SUFFIX');
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__prefix').props('value')).toBe('PREFIX_');
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__replacement').props('value')).toBe(4);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('value')).toBe('_SUFFIX');
 
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
     });
 
     it('should generate a correct preview in custom mode', async () => {
@@ -109,24 +112,24 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
             individualCodePattern: '%d%d%d',
         });
 
-        const inputPrefix = wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix');
-        const inputCustomPattern = wrapper.find('.sw-promotion-v2-generate-codes-modal__custom-pattern');
-        const inputPreview = wrapper.find('.sw-promotion-v2-generate-codes-modal__preview');
-
-        expect(inputPrefix.exists()).toBeFalsy();
-        expect(inputCustomPattern.isVisible()).toBe(true);
+        await wrapper.vm.$nextTick();
         jest.advanceTimersByTime(1000);
-
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(inputPreview.isVisible()).toBe(true);
+        expect(wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix').exists()).toBe(false);
+        expect(wrapper.find('.sw-promotion-v2-generate-codes-modal__suffix').exists()).toBe(false);
+
+        const inputCustomPattern = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__custom-pattern');
+        const inputPreview = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview');
+
+        expect(inputCustomPattern.props('value')).toBe('%d%d%d');
         expect(inputPreview.props('value')).toBe(mockCode);
 
         expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__custom-pattern').isVisible()).toBe(true);
-
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
     });
 
     it('should show or hide alert depends on existing individualCodes', async () => {

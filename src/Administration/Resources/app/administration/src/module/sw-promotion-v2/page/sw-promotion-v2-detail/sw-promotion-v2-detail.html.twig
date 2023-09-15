@@ -124,21 +124,35 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_content_view %}
             <div
-                v-if="isLoading"
+                v-if="isLoading && !promotion"
                 class="sw-promotion-v2-detail__content-view-skeleton"
             >
                 <sw-skeleton />
                 <sw-skeleton />
             </div>
 
-            <router-view
-                v-else-if="promotion"
-                :promotion="promotion"
-                :is-create-mode="isCreateMode"
-                @clean-up-codes="onCleanUpCodes"
-                @generate-individual-codes-finish="onGenerateIndividualCodesFinish"
-                @delete-individual-codes-finish="onDeleteIndividualCodesFinish"
-            />
+            <template v-else>
+                {% if VUE3 %}
+                <router-view v-slot="{ Component }">
+                    <component
+                        :is="Component"
+                        :promotion="promotion"
+                        :is-create-mode="isCreateMode"
+                        @clean-up-codes="onCleanUpCodes"
+                        @generate-individual-codes-finish="onGenerateIndividualCodesFinish"
+                        @delete-individual-codes-finish="onDeleteIndividualCodesFinish"
+                    />
+                </router-view>
+                {% else %}
+                <router-view
+                    :promotion="promotion"
+                    :is-create-mode="isCreateMode"
+                    @clean-up-codes="onCleanUpCodes"
+                    @generate-individual-codes-finish="onGenerateIndividualCodesFinish"
+                    @delete-individual-codes-finish="onDeleteIndividualCodesFinish"
+                />
+                {% endif %}
+            </template>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

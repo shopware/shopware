@@ -35,7 +35,7 @@ export default {
     computed: {
         imagePath() {
             return this.assetPath ||
-                `/administration/static/img/empty-states/${this.$route.meta.$module.name}-empty-state-hero.svg`;
+                '/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg';
         },
 
         showDescription() {

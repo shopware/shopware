@@ -334,7 +334,7 @@ declare global {
     /**
      * @private This is a private method and should not be used outside of the test suite
      */
-    const wrapTestComponent: (componentName: string) => Promise<VueComponent>;
+    const wrapTestComponent: (componentName: string, config?: { sync?: boolean }) => Promise<VueComponent>;
 }
 
 /**

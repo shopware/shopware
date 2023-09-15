@@ -3,7 +3,7 @@ import swPromotionV2Detail from 'src/module/sw-promotion-v2/page/sw-promotion-v2
 
 Shopware.Component.register('sw-promotion-v2-detail', swPromotionV2Detail);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -68,13 +68,6 @@ async function createWrapper(privileges = []) {
             'sw-skeleton': true,
         },
         provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
-                },
-            },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([promotionData]),
@@ -95,15 +88,9 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-
-        wrapper.destroy();
-    });
-
     it('should disable the save button when privilege does not exist', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -112,14 +99,12 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeTruthy();
-
-        wrapper.destroy();
     });
 
     it('should enable the save button when privilege does not exist', async () => {
-        const wrapper = await createWrapper([
-            'promotion.editor',
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -127,7 +112,5 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeFalsy();
-
-        wrapper.destroy();
     });
 });

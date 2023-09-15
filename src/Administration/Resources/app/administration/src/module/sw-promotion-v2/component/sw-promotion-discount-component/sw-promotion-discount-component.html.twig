@@ -209,6 +209,7 @@
             {% else %}
             v-model="discount.type"
             {% endif %}
+            class="sw-promotion-discount-component__type-select"
             :label="$tc('sw-promotion.detail.main.discounts.labelType')"
             :disabled="isEditingDisabled"
             {% if VUE3 %}

@@ -55,8 +55,8 @@ class OpenApiDefinitionSchemaBuilder
         $requiredAttributes = [];
         $relationships = [];
 
-        $uuid = Uuid::randomHex();
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+        $uuid = Uuid::fromStringToHex($schemaName);
         $exampleDetailPath = $path . '/' . $uuid;
 
         $extensions = [];
@@ -270,7 +270,7 @@ class OpenApiDefinitionSchemaBuilder
                         'id' => [
                             'type' => 'string',
                             'pattern' => '^[0-9a-f]{32}$',
-                            'example' => Uuid::randomHex(),
+                            'example' => Uuid::fromStringToHex($field->getPropertyName()),
                         ],
                     ],
                 ],
@@ -311,7 +311,7 @@ class OpenApiDefinitionSchemaBuilder
                             ],
                             'id' => [
                                 'type' => 'string',
-                                'example' => Uuid::randomHex(),
+                                'example' => Uuid::fromStringToHex($field->getPropertyName()),
                             ],
                         ],
                     ],

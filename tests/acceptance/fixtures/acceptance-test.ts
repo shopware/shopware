@@ -185,8 +185,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const currentConfigResponse = await adminApiContext.get(`./_action/system-config?domain=storefront&salesChannelId=${uuid}`);
         const currentConfig = await currentConfigResponse.json();
 
-        await adminApiContext.delete(`./customer/${customerUuid}`);
-        await adminApiContext.delete(`./sales-channel/${uuid}`);
+        const deleteCustomerResp = await adminApiContext.delete(`./customer/${customerUuid}`);
+        // expect(deleteCustomerResp.ok()).toBeTruthy();
+
+        const deleteSalesChannelResp = await adminApiContext.delete(`./sales-channel/${uuid}`);
+        // expect(deleteSalesChannelResp.ok()).toBeTruthy();
 
         const syncResp = await adminApiContext.post('./_action/sync', {
             data: {
@@ -285,10 +288,17 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             themeAssignPromise = adminApiContext.post(`./_action/theme/${storeBaseConfig.defaultThemeId}/assign/${uuid}`);
         }
 
+        const salutationResponse = await adminApiContext.get(`./salutation`);
+        const salutations = await salutationResponse.json();
+
+        console.debug(salutations);
+        console.debug(salutationResponse);
+
         const customerData = {
             id: customerUuid,
             email: `customer_${id}@example.com`,
             password: 'shopware',
+            salutationId: salutations.data[0].id,
 
             defaultShippingAddress: {
                 firstName: `${id} admin`,
@@ -297,7 +307,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 'street' : 'not',
                 'zipcode' : 'not',
                 'countryId' : storeBaseConfig.deCountryId,
+                salutationId: salutations.data[0].id,
             },
+            defaultBillingAddress: {
+                firstName: `${id} admin`,
+                lastName: `${id} admin`,
+                'city' : 'not',
+                'street' : 'not',
+                'zipcode' : 'not',
+                'countryId' : storeBaseConfig.deCountryId,
+                salutationId: salutations.data[0].id,
+            },
+
             firstName: `${id} admin`,
             lastName: `${id} admin`,
 

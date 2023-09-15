@@ -9,5 +9,9 @@ test.only(`Buy product from storefront`, async ({
     await storefrontPage
         .getByRole("button", { name: "Add to shopping cart" })
         .click();
+
+    await expect(storefrontPage.getByText('1 item')).toBeVisible();
+    await expect(storefrontPage.getByRole('dialog').getByText(salesChannelProduct.name)).toBeVisible();
+
     await storefrontPage.pause();
 });

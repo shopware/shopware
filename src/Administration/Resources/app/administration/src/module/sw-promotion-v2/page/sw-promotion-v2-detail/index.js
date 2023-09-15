@@ -208,7 +208,7 @@ export default {
             });
         },
 
-        savePromotion() {
+        async savePromotion() {
             this.isLoading = true;
 
             if (this.cleanUpIndividualCodes === true) {
@@ -231,27 +231,23 @@ export default {
                 });
             }
 
-            return this.promotionRepository.save(this.promotion)
-                .then(() => {
-                    this.loadEntityData();
-                    return this.savePromotionSetGroups();
-                })
-                .then(() => {
-                    Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
-                    this.isSaveSuccessful = true;
-                    this.loadEntityData();
-                })
-                .catch(() => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.promotion.name,
-                        }),
-                    });
-                })
-                .finally(() => {
-                    this.cleanUpCodes(false, false);
+            try {
+                await this.promotionRepository.save(this.promotion);
+                await this.savePromotionSetGroups();
+
+                Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
+                this.isSaveSuccessful = true;
+                await this.loadEntityData();
+            } catch (e) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
+                        entityName: this.promotion.name,
+                    }),
                 });
+            } finally {
+                this.cleanUpCodes(false, false);
+            }
         },
 
         savePromotionSetGroups() {

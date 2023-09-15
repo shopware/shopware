@@ -3,7 +3,9 @@ import './sw-promotion-v2-discounts.scss';
 
 const { createId } = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be removed in v6.6.0. This component currently is not registered anywhere.
+ */
 export default {
     template,
 

@@ -1,7 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swPromotionV2CartConditionForm from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
-
-Shopware.Component.register('sw-promotion-v2-cart-condition-form', swPromotionV2CartConditionForm);
+import { mount } from '@vue/test-utils_v3';
 
 Shopware.Service().register('syncService', () => {
     return {
@@ -17,41 +14,43 @@ Shopware.Service().register('syncService', () => {
 });
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    return mount(await wrapTestComponent('sw-promotion-v2-cart-condition-form', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-switch-field': {
+                    template: '<div class="sw-field sw-switch-field"></div>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-promotion-rule-select': {
+                    template: '<div class="sw-promotion-rule-select"></div>',
+                },
+                'sw-promotion-v2-rule-select': {
+                    template: '<div class="sw-promotion-v2-rule-select"></div>',
+                    props: ['disabled'],
+                },
+            },
+            provide: {
+                promotionSyncService: {
+                    loadPackagers: () => Promise.resolve(),
+                    loadSorters: () => Promise.resolve(),
+                },
 
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-cart-condition-form'), {
-        localVue,
-        stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                    }),
+                },
+
+                ruleConditionDataProviderService: {},
             },
-            'sw-switch-field': {
-                template: '<div class="sw-switch-field"></div>',
-            },
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-promotion-rule-select': {
-                template: '<div class="sw-promotion-rule-select"></div>',
-            },
-            'sw-promotion-v2-rule-select': true,
         },
-        provide: {
-            promotionSyncService: {
-                loadPackagers: () => Promise.resolve(),
-                loadSorters: () => Promise.resolve(),
-            },
-
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
-                }),
-            },
-
-            ruleConditionDataProviderService: {},
-        },
-        propsData: {
+        props: {
             promotion: {
                 name: 'Test Promotion',
                 active: true,
@@ -103,13 +102,11 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
 
-        const elements = wrapper.findAll('.sw-switch-field');
-        expect(elements.wrappers.length).toBeGreaterThan(0);
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        const elements = wrapper.findAllComponents('.sw-field');
+        expect(elements.length).toBeGreaterThan(0);
+        elements.forEach(el => expect(el.props('disabled')).toBe(true));
 
-        const promotionSelectionElements = wrapper.findAll('.sw-promotion-v2-cart-condition-form__rule-select-cart');
-        expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
-        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        expect(wrapper.findComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart').props('disabled')).toBe(true);
     });
 
     it('should not have disabled form fields', async () => {
@@ -117,16 +114,16 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
 
         const wrapper = await createWrapper();
 
-        const elements = wrapper.findAll('.sw-switch-field');
-        expect(elements.wrappers.length).toBeGreaterThan(0);
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+        const elements = wrapper.findAllComponents('.sw-field');
+        expect(elements.length).toBeGreaterThan(0);
+        elements.forEach(el => expect(el.props('disabled')).toBe(false));
 
-        const promotionSelectionElements = wrapper.findAll('.sw-promotion-v2-cart-condition-form__rule-select-cart');
-        expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
-        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+        expect(wrapper.findComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart').props('disabled')).toBe(false);
     });
 
     it('should add conditions association', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 

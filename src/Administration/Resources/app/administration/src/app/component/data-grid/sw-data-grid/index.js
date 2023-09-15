@@ -681,7 +681,6 @@ Component.register('sw-data-grid', {
 
             const selection = this.selection;
 
-
             if (this.feature.isActive('VUE3')) {
                 const key = item[this.itemIdentifierProperty];
                 if (selected) {

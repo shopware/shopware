@@ -213,7 +213,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'cheap-module-eval-source-map' : '#source-map',
+    devtool: isDev ? 'eval-source-map' : 'source-map',
 
     optimization: {
         moduleIds: 'hashed',

@@ -273,11 +273,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             // if theme all.css exists reuse the seed/theme
             if (themeCssResp.status() === 200) {
-                themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
-                    data: {
-                        'storefront.themeSeed': currentConfig['storefront.themeSeed']
-                    }
-                });
+                // themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
+                //     data: {
+                //         'storefront.themeSeed': currentConfig['storefront.themeSeed']
+                //     }
+                // });
             }
         }
 

@@ -98,8 +98,7 @@ class StoreApiGeneratorTest extends TestCase
 
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Presentation', $entities);
-        static::assertArrayHasKey('infoConfigResponse', $entities);
-        static::assertEquals('Experimental', $schema['tags'][0]['name'] ?? null);
+        static::assertArrayNotHasKey('infoConfigResponse', $entities);
     }
 
     public function testSchemaContainsCustomPathsOnly(): void

@@ -63,7 +63,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): never
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi', ?string $bundleName = null): never
     {
         throw new \RuntimeException();
     }

@@ -48,10 +48,11 @@ describe('Administration meta tests', () => {
                 return whole.includes(filePath);
             });
 
-        const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.${extension}`);
-        const specFileExists = fs.existsSync(specFile);
+        const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.js`);
+        const vue3SpecFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.vue3.js`);
+        const specFileExists = fs.existsSync(specFile) || fs.existsSync(vue3SpecFile);
 
-        const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.${extension}`);
+        const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.js`);
         const specFileWithFolderNameExists = fs.existsSync(specFileWithFolderName);
 
         let specFileAlternativeExtension = '';

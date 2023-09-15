@@ -60,9 +60,9 @@ class DefinitionService
      *
      * @return OpenApiSpec
      */
-    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API, ?string $bundleName = null): array
     {
-        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType);
+        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType, $bundleName);
     }
 
     /**

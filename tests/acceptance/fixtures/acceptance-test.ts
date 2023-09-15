@@ -148,18 +148,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         await page.getByRole('button', { name: 'Log in' }).click();
 
-        // // Wait until the page is loaded
-        // await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
-        //     timeout: 10000,
-        // });
-        //
-        // await expect(page.locator('.sw-skeleton')).toHaveCount(0, {
-        //     timeout: 10000,
-        // });
-        //
-        // await expect(page.locator('.sw-loader')).toHaveCount(0, {
-        //     timeout: 10000,
-        // });
+        // Wait until the page is loaded
+        await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
+            timeout: 10000,
+        });
+
+        await expect(page.locator('.sw-skeleton')).toHaveCount(0, {
+            timeout: 10000,
+        });
+
+        await expect(page.locator('.sw-loader')).toHaveCount(0, {
+            timeout: 10000,
+        });
 
         // Run the test
         await use(page);
@@ -173,6 +173,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
 
     defaultStorefront: [async ({ idProvider, adminApiContext, browser, storeBaseConfig }, use) => {
+
+        // thread id seems to be random
+
         const { id, uuid } = idProvider.getWorkerDerivedStableId('salesChannel');
 
         const { uuid: rootCategoryUuid } = idProvider.getWorkerDerivedStableId('category');
@@ -185,6 +188,28 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const currentConfigResponse = await adminApiContext.get(`./_action/system-config?domain=storefront&salesChannelId=${uuid}`);
         const currentConfig = await currentConfigResponse.json();
 
+        const ordersResp = await adminApiContext.post(`./search/order`, {
+            data: {
+                query: [{
+                    query: {
+                        field: 'order.salesChannelId',
+                        type: 'equals',
+                        value: uuid,
+                    }
+                }]
+            }
+        });
+
+        const orders = await ordersResp.json();
+
+        if (orders.data) {
+            for (const i in orders.data) {
+                // delete orders
+                const deleteOrderResp = await adminApiContext.delete(`./order/${orders.data[i].id}`);
+            }
+        }
+
+        // delete all orders
         const deleteCustomerResp = await adminApiContext.delete(`./customer/${customerUuid}`);
         // expect(deleteCustomerResp.ok()).toBeTruthy();
 
@@ -290,9 +315,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
         const salutationResponse = await adminApiContext.get(`./salutation`);
         const salutations = await salutationResponse.json();
-
-        console.debug(salutations);
-        console.debug(salutationResponse);
 
         const customerData = {
             id: customerUuid,

@@ -74,6 +74,7 @@
                                 {% block base_breadcrumb %}
                                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                                         context: context,
+                                        themeIconConfig: themeIconConfig,
                                         category: page.product.seoCategory
                                     } only %}
                                 {% endblock %}

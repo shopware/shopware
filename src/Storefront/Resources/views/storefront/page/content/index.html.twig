@@ -8,6 +8,7 @@
                 <div class="breadcrumb cms-breadcrumb container">
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
+                        themeIconConfig: themeIconConfig,
                         category: page.header.navigation.active
                     } only %}
                 </div>

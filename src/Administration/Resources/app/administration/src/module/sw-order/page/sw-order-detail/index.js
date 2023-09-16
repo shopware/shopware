@@ -105,7 +105,7 @@ export default {
 
             criteria
                 .getAssociation('lineItems.children')
-                .addSorting(Criteria.naturalSorting('label'));
+                .addSorting(Criteria.sort('position', 'ASC'));
 
             criteria
                 .addAssociation('salesChannel');

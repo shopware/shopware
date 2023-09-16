@@ -330,6 +330,10 @@ export default {
             return item.type === this.lineItemTypes.PROMOTION;
         },
 
+        isContainerItem(item) {
+            return item.type === this.lineItemTypes.CONTAINER;
+        },
+
         getMinItemPrice(id) {
             if (this.isCreditItem(id)) {
                 return null;

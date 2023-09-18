@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -305,7 +306,12 @@ class Translator extends AbstractTranslator
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
+        try {
+            $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
+        } catch (DriverException) {
+            // this allows us to use the translator even if there's no db connection yet
+            return $catalog;
+        }
 
         if (!$snippetSetId) {
             return $catalog;

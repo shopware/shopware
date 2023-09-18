@@ -68,7 +68,11 @@
         :criteria="salesChannelCriteria"
         :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
         :disabled="!selectedEntryPoint || !acl.can('category.editor')"
+        {% if VUE3 %}
+        @update:entity-collection="onSalesChannelChange"
+        {% else %}
         @change="onSalesChannelChange"
+        {% endif %}
     />
     {% endblock %}
 

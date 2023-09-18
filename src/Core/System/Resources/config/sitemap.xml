@@ -39,14 +39,14 @@
             <helpText>
                 Manually: refresh via console command: php bin/console sitemap:generate.
 
-                Scheduled: refresh via scheduled tasks.
+                Scheduled: refresh via scheduled tasks (every 24 hours).
 
                 Live: Refresh in intervals defined above, if Administration is opened.
             </helpText>
             <helpText lang="de-DE">
                 Manuell: Aktualisierung über Konsolenbefehl php bin/console sitemap:generate.
 
-                Geplant: Aktualisierung über geplante Tasks.
+                Geplant: Aktualisierung über geplante Tasks (alle 24 Stunden).
 
                 Live: Aktualisierung in regelmäßigen Intervallen (definiere oben)- wenn Admin geöffnet.
             </helpText>

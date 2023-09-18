@@ -8,6 +8,7 @@
     >
         <template #default="{ active }">
             <sw-tabs-item
+                class="sw-cms-el-config-product-listing__tab-content"
                 name="content"
                 :active-tab="active"
             >
@@ -15,6 +16,7 @@
             </sw-tabs-item>
 
             <sw-tabs-item
+                class="sw-cms-el-config-product-listing__tab-sorting"
                 name="sorting"
                 :active-tab="active"
             >
@@ -22,6 +24,7 @@
             </sw-tabs-item>
 
             <sw-tabs-item
+                class="sw-cms-el-config-product-listing__tab-filter"
                 name="filter"
                 :active-tab="active"
             >
@@ -98,13 +101,14 @@
                 {% block sw_cms_element_product_listing_config_default_sorting %}
                 <sw-entity-single-select
                     v-if="showSortingGrid"
-                    :value="defaultSorting.id"
+                    class="sw-cms-element-config-product-listing__sorting-default-select"
                     entity="product_sorting"
+                    label-property="label"
+                    show-clearable-button
+                    :value="defaultSorting.id"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
                     :criteria="allProductSortingsCriteria"
-                    label-property="label"
-                    show-clearable-button
                     @option-select="onDefaultSortingChange"
                 />
                 {% endblock %}

@@ -271,7 +271,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: $options.filters.unicodeUri(deleteDomain.url) }) }}
+        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: unicodeUriFilter(deleteDomain.url) }) }}
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

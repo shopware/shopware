@@ -84,6 +84,7 @@
             :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
             :label="$tc('sw-sales-channel.detail.labelInputName')"
             :error="salesChannelNameError"
+            class="sw-field--salesChannel-name"
         />
         {% endblock %}
 
@@ -179,7 +180,11 @@
         {% block sw_sales_channel_detail_base_general_input_customer_group %}
         <sw-entity-single-select
             v-if="!isProductComparison"
+            {% if VUE3 %}
+            v-model:value="salesChannel.customerGroupId"
+            {% else %}
             v-model="salesChannel.customerGroupId"
+            {% endif %}
             class="sw-sales-channel-detail__select-customer-group"
             required
             show-clearable-button
@@ -800,7 +805,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
         <sw-multi-tag-ip-select
+            {% if VUE3 %}
+            v-model:value="maintenanceIpWhitelist"
+            {% else %}
             v-model="maintenanceIpWhitelist"
+            {% endif %}
             :is-loading="isLoading"
             :disabled="!acl.can('sales_channel.editor')"
             class="sw-order-user-card__tag-select"

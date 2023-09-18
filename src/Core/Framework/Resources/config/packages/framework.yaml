@@ -273,3 +273,5 @@ framework:
             log_level: notice
         Shopware\Core\Content\Product\Exception\VariantNotFoundException:
             log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException:
+            log_level: notice

@@ -188,15 +188,16 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const currentConfigResponse = await adminApiContext.get(`./_action/system-config?domain=storefront&salesChannelId=${uuid}`);
         const currentConfig = await currentConfigResponse.json();
 
+        const deleteCustomerResp = await adminApiContext.delete(`./customer/${customerUuid}`);
+
+
         const ordersResp = await adminApiContext.post(`./search/order`, {
             data: {
-                query: [{
-                    query: {
-                        field: 'order.salesChannelId',
-                        type: 'equals',
-                        value: uuid,
-                    }
-                }]
+                filter: [{
+                    type: "equals",
+                    field: "salesChannelId",
+                    value: uuid,
+                }],
             }
         });
 
@@ -206,15 +207,43 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             for (const i in orders.data) {
                 // delete orders
                 const deleteOrderResp = await adminApiContext.delete(`./order/${orders.data[i].id}`);
+                expect(deleteOrderResp.ok()).toBeTruthy();
             }
         }
 
-        // delete all orders
-        const deleteCustomerResp = await adminApiContext.delete(`./customer/${customerUuid}`);
-        // expect(deleteCustomerResp.ok()).toBeTruthy();
+        // fetch all versions
+        // delete orders for each version
+        const versionsResp = await adminApiContext.post(`./search/version`);
+        expect(versionsResp.ok()).toBeTruthy();
+        const versions = await versionsResp.json();
+        const versionIds = versions.data.map((v) => v.id);
+
+        for (const versionId of versionIds) {
+            const ordersResp = await adminApiContext.post(`./search/order`, {
+                data: {
+                    filter: [{
+                        type: "equals",
+                        field: "salesChannelId",
+                        value: uuid,
+                    }],
+                },
+                headers: {
+                    'sw-version-id': versionId
+                }
+            });
+
+            const orders = await ordersResp.json();
+
+            if (orders.data) {
+                for (const i in orders.data) {
+                    // delete orders
+                    const deleteOrderResp = await adminApiContext.post(`./_action/version/${versionId}/order/${orders.data[i].id}`);
+                    expect(deleteOrderResp.ok()).toBeTruthy();
+                }
+            }
+        }
 
         const deleteSalesChannelResp = await adminApiContext.delete(`./sales-channel/${uuid}`);
-        // expect(deleteSalesChannelResp.ok()).toBeTruthy();
 
         const syncResp = await adminApiContext.post('./_action/sync', {
             data: {
@@ -274,13 +303,17 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                         currencies: [
                             { id: storeBaseConfig.eurCurrencyId }
                         ],
+
                     }]
                 },
-                // 'set-theme-seed': {
-                //     entity: 'system_settings',
-                //     action: 'upsert',
-                //     payload: [{
-                // }
+                'theme-assignment': {
+                    entity: 'theme_sales_channel',
+                    action: 'upsert',
+                    payload: [{
+                        salesChannelId: uuid,
+                        themeId: storeBaseConfig.defaultThemeId,
+                    }]
+                }
             }
         });
         expect(syncResp.ok()).toBeTruthy();
@@ -301,11 +334,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             // if theme all.css exists reuse the seed/theme
             if (themeCssResp.status() === 200) {
-                // themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
-                //     data: {
-                //         'storefront.themeSeed': currentConfig['storefront.themeSeed']
-                //     }
-                // });
+                themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
+                    data: {
+                        'storefront.themeSeed': currentConfig['storefront.themeSeed']
+                    }
+                });
             }
         }
 

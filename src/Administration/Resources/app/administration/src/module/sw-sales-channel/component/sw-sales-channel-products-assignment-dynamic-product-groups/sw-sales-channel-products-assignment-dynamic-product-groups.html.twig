@@ -61,6 +61,10 @@
                         :allow-column-edit="false"
                         :allow-inline-edit="false"
                         @selection-change="onSelect"
+                        {% if VUE3 %}
+                        @select-item="onSelect"
+                        @select-all-items="onSelect"
+                        {% endif %}
                     >
                         <template #bulk>
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

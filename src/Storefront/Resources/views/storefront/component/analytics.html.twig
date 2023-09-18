@@ -6,7 +6,7 @@
             <script>
                 {% block component_head_analytics_gtag_config %}
                     window.gtagActive = true;
-                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}'
+                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}';
                     window.controllerName = '{{ controllerName|lower }}';
                     window.actionName = '{{ controllerAction|lower }}';
                     window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';

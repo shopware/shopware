@@ -1,21 +1,11 @@
 /**
  * @package content
  */
-import { config, createLocalVue, shallowMount } from '@vue/test-utils';
-import swLandingPageTree from 'src/module/sw-category/component/sw-landing-page-tree';
+import { mount } from '@vue/test-utils_v3';
 import VueRouter from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
-Shopware.Component.register('sw-landing-page-tree', swLandingPageTree);
-
 async function createWrapper() {
-    // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
-
-    const localVue = createLocalVue();
-    localVue.use(VueRouter);
-
     const routes = [{
         name: 'sw.category.landingPageDetail',
         path: 'category/landingPage/:id',
@@ -25,45 +15,48 @@ async function createWrapper() {
         routes,
     });
 
-    return shallowMount(await Shopware.Component.build('sw-landing-page-tree'), {
-        localVue,
-        router,
-        stubs: {
-            'sw-loader': true,
-            'sw-skeleton': true,
-            'sw-tree': {
-                props: ['items'],
-                template: `
-                    <div class="sw-tree">
-                      <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
-                    </div>
-                `,
+    return mount(await wrapTestComponent('sw-landing-page-tree', { sync: true }), {
+        global: {
+            mocks: {
+                $router: router,
             },
-            'sw-tree-item': {
-                props: ['item'],
-                template: `
-                    <div class="sw-tree-item">
-                      <slot name="actions" :toolTip="{ delay: 300, message: 'jest', active: true}"></slot>
-                    </div>
-                `,
+            stubs: {
+                'sw-loader': true,
+                'sw-skeleton': true,
+                'sw-tree': {
+                    props: ['items'],
+                    template: `
+                        <div class="sw-tree">
+                            <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
+                        </div>
+                    `,
+                },
+                'sw-tree-item': {
+                    props: ['item'],
+                    template: `
+                        <div class="sw-tree-item">
+                            <slot name="actions" :toolTip="{ delay: 300, message: 'jest', active: true}"></slot>
+                        </div>
+                    `,
+                },
+                'sw-button': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
             },
-            'sw-button': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
+            provide: {
+                syncService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([
+                            {
+                                id: '1a',
+                            },
+                        ]),
+                    }),
+                },
+            },
         },
-        provide: {
-            syncService: {},
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([
-                        {
-                            id: '1a',
-                        },
-                    ]),
-                }),
-            },
-        },
-        propsData: {
+        props: {
             currentLanguageId: '1a2b3c',
         },
     });
@@ -90,12 +83,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         Shopware.Context.api.systemLanguageId = oldSystemLanguageId;
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to sort the items', async () => {
         const wrapper = await createWrapper();
 
@@ -107,8 +94,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowEdit: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const tree = wrapper.find('.sw-tree');
         expect(tree.attributes().sortable).toBeUndefined();
     });
@@ -119,8 +104,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-
-        await wrapper.vm.$nextTick();
 
         const tree = wrapper.find('.sw-tree');
         expect(tree.attributes()['allow-delete-categories']).toBeDefined();
@@ -137,8 +120,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowDelete: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const tree = wrapper.find('.sw-tree');
         expect(tree.attributes()['allow-delete-categories']).toBeUndefined();
     });
@@ -149,8 +130,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-
-        await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('.sw-landing-page-tree__add-button-button');
         expect(treeItem.attributes().disabled).toBeUndefined();
@@ -167,8 +146,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowCreate: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-new-categories']).toBeUndefined();
     });
@@ -179,8 +156,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-
-        await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeDefined();
@@ -197,8 +172,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowDelete: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeUndefined();
     });
@@ -209,8 +182,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-
-        await wrapper.vm.$nextTick();
 
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeDefined();
@@ -227,8 +198,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowEdit: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeUndefined();
     });
@@ -244,8 +213,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             allowEdit: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBe('sw-privileges.tooltip.warning');
     });
@@ -257,8 +224,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             isLoadingInitialData: false,
         });
 
-        await wrapper.vm.$nextTick();
-
         const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBeUndefined();
     });
@@ -269,7 +234,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-        await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
         expect(itemUrl).toBe('#category/landingPage/1a2b');
@@ -281,7 +245,6 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         await wrapper.setData({
             isLoadingInitialData: false,
         });
-        await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
         expect(itemUrl).not.toBe('#/landingPage/1a2b');

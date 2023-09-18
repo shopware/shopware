@@ -109,8 +109,8 @@
                         :prevent-empty-submit="true"
                         :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
                         @input="onFinishNameingElement"
-                        @blur="onCancelSubmit(item)"
-                        @submit-cancel="onBlurTreeItemInput(item)"
+                        @blur="onBlurTreeItemInput(item)"
+                        @submit-cancel="onCancelSubmit(item)"
                     />
                 </template>
                 {% endblock %}

@@ -68,6 +68,9 @@
             @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
+            {% if VUE3 %}
+            @keydown.enter.stop
+            {% endif %}
             @keyup.esc="endInlineEdit"
         />
         <div

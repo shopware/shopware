@@ -20,6 +20,9 @@
         label="URL"
         :error="invalidUrlError"
         :placeholder="$tc('global.sw-media-url-form.example')"
+        {% if VUE3 %}
+        name="sw-field--url"
+        {% endif %}
     />
 
     <sw-text-field
@@ -80,6 +83,9 @@
         label="URL"
         :error="invalidUrlError"
         :placeholder="$tc('global.sw-media-url-form.example')"
+        {% if VUE3 %}
+        name="sw-field--url"
+        {% endif %}
     />
 
     <sw-text-field

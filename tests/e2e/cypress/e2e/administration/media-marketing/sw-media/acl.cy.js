@@ -5,7 +5,7 @@
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
-describe('Media: Test ACL privileges', () => {
+describe('Media: Test ACL privileges', { tags: ['VUE3'] }, () => {
     beforeEach(() => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
     });

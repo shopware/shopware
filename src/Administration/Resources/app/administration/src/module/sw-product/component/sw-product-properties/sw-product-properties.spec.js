@@ -5,39 +5,23 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swProductProperties from 'src/module/sw-product/component/sw-product-properties';
+import 'src/app/component/entity/sw-entity-listing';
+import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/base/sw-card';
+import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-simple-search-field';
+import EntityCollection from '../../../../core/data/entity-collection.data';
 
 Shopware.Component.register('sw-product-properties', swProductProperties);
 
 const { State } = Shopware;
 
-let productPropertiesMock = [
-    { id: '01', groupId: 'sizeId', name: '30' },
-    { id: '02', groupId: 'sizeId', name: '32' },
-    { id: '03', groupId: 'colorId', name: 'white' },
-    { id: '04', groupId: 'colorId', name: 'black' },
+const productPropertiesMock = [
+    { id: '01', groupId: 'sizeId', name: '30', translated: { name: '30' } },
+    { id: '02', groupId: 'sizeId', name: '32', translated: { name: '32' } },
+    { id: '03', groupId: 'colorId', name: 'white', translated: { name: 'white' } },
+    { id: '04', groupId: 'colorId', name: 'black', translated: { name: 'black' } },
 ];
-
-productPropertiesMock.getIds = () => {
-    return productPropertiesMock.map(property => {
-        return property.id;
-    });
-};
-
-productPropertiesMock.remove = (id) => {
-    productPropertiesMock = productPropertiesMock.filter((item) => {
-        return item.id !== id;
-    });
-};
-productPropertiesMock.has = (id) => {
-    return productPropertiesMock.some((item) => {
-        return item.id === id;
-    });
-};
-productPropertiesMock.add = (item) => {
-    productPropertiesMock.push(item);
-};
 
 const propertiesMock = [
     {
@@ -62,16 +46,42 @@ const propertiesMock = [
     },
 ];
 
+function getPropertyCollection(propertiesMockIndex = -1) {
+    return new EntityCollection(
+        '/property-group-option',
+        'property_group_option',
+        null,
+        { isShopwareContext: true },
+        (propertiesMockIndex > -1 ? [propertiesMock[propertiesMockIndex]] : propertiesMock),
+        propertiesMock.length,
+        null,
+    );
+}
+
+function getProductPropertyCollection() {
+    return new EntityCollection(
+        '/property-group-option',
+        'property_group_option',
+        null,
+        { isShopwareContext: true },
+        productPropertiesMock,
+        productPropertiesMock.length,
+        null,
+    );
+}
+
 const productMock = {
+    name: 'productMock',
     id: 'productId',
     parentId: 'parentProductId',
     properties: [],
 };
 
 const parentProductMock = {
+    name: 'productMock',
     id: 'parentProductId',
     parentId: null,
-    properties: productPropertiesMock,
+    properties: getProductPropertyCollection(),
 };
 
 const $refsMock = {
@@ -82,6 +92,28 @@ const $refsMock = {
             1: propertiesMock[1],
         },
     },
+};
+
+const propertyGroupRepositoryMock = {
+    search: jest.fn(() => {
+        return Promise.resolve(getPropertyCollection());
+    }),
+};
+
+const repositoryMockFactory = (entity) => {
+    if (entity === 'property_group') {
+        return propertyGroupRepositoryMock;
+    }
+
+    if (entity === 'property_group_option') {
+        return {
+            search: () => {
+                return Promise.resolve({ total: 0 });
+            },
+        };
+    }
+
+    throw new Error(`Repository for ${entity} is not implemented`);
 };
 
 async function createWrapper(privileges = []) {
@@ -123,54 +155,33 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
             },
-            'sw-container': {
-                template: `
-                    <div class="sw-container">
-                        <slot></slot>
-                    </div>
-                `,
-            },
-            'sw-card-section': {
-                template: `
-                    <div class="sw-card-section">
-                        <slot></slot>
-                    </div>
-                `,
-            },
-            'sw-entity-listing': {
-                props: ['items'],
-                methods: {
-                    resetSelection: () => {},
-                },
-                template: `
-                    <div class="sw-entity-listing" ref="entityListing">
-                        <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>
-                `,
-            },
-            'sw-empty-state': {
-                template: `
-                    <div class="sw-empty-state">
-                        <slot></slot>
-                        <slot name="actions"></slot>
-                    </div>
-                `,
-            },
+            'sw-container': true,
+            'sw-card-section': true,
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-empty-state': true,
             'sw-product-add-properties-modal': true,
             'sw-loader': true,
-            'sw-simple-search-field': true,
-            'sw-button': true,
+            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+            'sw-text-field': {
+                template: '<input class="sw-text-field" @input="$emit(\'input\', $event.target.value)" />',
+            },
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-label': true,
             'sw-icon': true,
+            'sw-checkbox-field': {
+                template: '<input class="sw-checkbox-field" type="checkbox" @change="$emit(\'change\', $event.target.value)" />',
+            },
+            'sw-pagination': true,
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
+            'router-link': true,
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot name="modal-footer"></slot></div>',
+            },
         },
         provide: {
             repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve({ total: 0 });
-                    },
-                }),
+                create: (entity) => repositoryMockFactory(entity),
             },
             acl: {
                 can: (identifier) => {
@@ -181,6 +192,7 @@ async function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 },
             },
+            validationService: {},
         },
     });
 }
@@ -205,6 +217,11 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         });
     });
 
+    afterEach(() => {
+        parentProductMock.properties = getProductPropertyCollection();
+        jest.clearAllMocks();
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
 
@@ -213,10 +230,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should get group ids successful', async () => {
         const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
+        await flushPromises();
 
         expect(wrapper.vm.groupIds).toEqual(
             expect.arrayContaining(['sizeId', 'colorId']),
@@ -225,10 +239,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should get group ids failed', async () => {
         const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', {});
-        await wrapper.vm.getGroupIds();
+        await flushPromises();
 
         expect(wrapper.vm.groupIds).toEqual(
             expect.arrayContaining([]),
@@ -237,74 +248,36 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should get properties successful', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await flushPromises();
 
         expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining(propertiesMock),
+            expect.arrayContaining(getPropertyCollection()),
         );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should get properties failed', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.reject();
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await flushPromises();
 
         expect(wrapper.vm.properties).toEqual(
             expect.arrayContaining([]),
         );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should get properties failed if having no inputs', async () => {
+        parentProductMock.properties = [];
+
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.getProperties = jest.fn(() => {
-            return Promise.reject(new Error('Whoops!'));
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-
-        const getError = async () => {
-            try {
-                await wrapper.vm.getProperties();
-
-                throw new Error('Method should have thrown an error');
-            } catch (error) {
-                return error;
-            }
-        };
-        expect((await getError()).message).toBe('Whoops!');
+        await flushPromises();
 
         expect(wrapper.vm.properties).toEqual(
             expect.arrayContaining([]),
         );
-        wrapper.vm.getProperties.mockRestore();
     });
 
     it('should delete property value successful', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         wrapper.vm.onDeletePropertyValue(productPropertiesMock[0]);
 
@@ -315,20 +288,12 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
             ]),
         );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should delete property successful', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({ $refs: $refsMock });
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
 
         wrapper.vm.onDeleteProperty(propertiesMock[0]);
 
@@ -338,48 +303,151 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
             ]),
         );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
-    it('should delete properties successful', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({ $refs: $refsMock });
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
+    it('should delete all properties successful', async () => {
+        const wrapper = await createWrapper([
+            'product.deleter',
+        ]);
+        await flushPromises();
 
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await wrapper.find('.sw-data-grid__select-all').setChecked(true);
+        await wrapper.find('.sw-data-grid__select-all').trigger('change');
 
-        wrapper.vm.onDeleteProperties();
+        await wrapper.find('.sw-data-grid__bulk-selected .link-danger').trigger('click');
 
-        expect(wrapper.vm.productProperties).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ id: '01', groupId: 'sizeId', name: '30' }),
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
-            ]),
-        );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        await wrapper.find('.sw-modal .sw-button--danger').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(false);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-properties').exists()).toBe(true);
+        expect(wrapper.vm.productProperties).toHaveLength(0);
     });
 
     it('should get properties when changing search term', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        const error = new Error('Whoops!');
-        wrapper.vm.getProperties = jest.fn(() => {
-            return Promise.reject(error);
-        });
+        await flushPromises();
 
-        await expect(wrapper.vm.onChangeSearchTerm('textile')).rejects.toEqual(error);
+        await wrapper.vm.onChangeSearchTerm('textile');
 
         expect(wrapper.vm.searchTerm).toBe('textile');
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('textile');
     });
 
+    it('should display an empty state if product has no properties', async () => {
+        parentProductMock.properties = [];
+
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(false);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-properties').exists()).toBe(true);
+    });
+
+    it('should display the properties if product has properties', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(true);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(true);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-properties').exists()).toBe(false);
+    });
+
+    it('should get searched properties successfully, if the product has properties', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        propertyGroupRepositoryMock.search.mockImplementationOnce(() => {
+            return Promise.resolve(getPropertyCollection(0));
+        });
+
+        const searchField = wrapper.find('.sw-simple-search-field input');
+        await searchField.setValue('size');
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(true);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(true);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-search-result').exists()).toBe(false);
+    });
+
+    it('should get searched properties unsuccessfully, if the product has properties', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        propertyGroupRepositoryMock.search.mockImplementationOnce(() => {
+            return Promise.reject();
+        });
+
+        const searchField = wrapper.find('.sw-simple-search-field input');
+        await searchField.setValue('Test');
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(true);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-search-result').exists()).toBe(true);
+    });
+
+    it('should get all properties again after clearing a non successful search, if the product has properties', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        propertyGroupRepositoryMock.search.mockImplementationOnce(() => {
+            return Promise.reject();
+        });
+
+        const searchField = wrapper.find('.sw-simple-search-field input');
+        await searchField.setValue('Test');
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        await searchField.setValue(null);
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(true);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(true);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-search-result').exists()).toBe(false);
+    });
+
+    it('should get all properties again after clearing a successful search, if the product has properties', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        propertyGroupRepositoryMock.search.mockImplementationOnce(() => {
+            return Promise.resolve(getPropertyCollection(0));
+        });
+
+        const searchField = wrapper.find('.sw-simple-search-field input');
+        await searchField.setValue('size');
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        await searchField.setValue(null);
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(wrapper.vm.productHasProperties).toBe(true);
+        expect(wrapper.find('.sw-product-properties__list').exists()).toBe(true);
+        expect(wrapper.find('.sw-product-properties__empty-state.has--no-search-result').exists()).toBe(false);
+    });
+
     it('should turn on add properties modal', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
         await wrapper.setData({
             propertiesAvailable: true,
         });
@@ -394,7 +462,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should turn off add properties modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.updateNewProperties = jest.fn();
 
         wrapper.vm.turnOffAddPropertiesModal();
@@ -406,14 +474,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should update new properties correctly', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         wrapper.vm.updateNewProperties();
 
@@ -441,12 +502,11 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should call a turning off modal function when canceling properties modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
         wrapper.vm.onCancelAddPropertiesModal();
@@ -457,7 +517,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should save add properties modal failed', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
         wrapper.vm.onSaveAddPropertiesModal([]);
@@ -470,122 +530,83 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to add properties in empty state', async () => {
+        parentProductMock.properties = [];
+
         const wrapper = await createWrapper([
             'product.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        await wrapper.setData({ properties: [], searchTerm: null });
-
-        const createButton = wrapper.find('sw-button-stub');
+        const createButton = wrapper.find('.sw-product-properties__empty-state.has--no-properties .sw-button');
 
         expect(createButton.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to add properties in empty state', async () => {
+        parentProductMock.properties = [];
+
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        await wrapper.setData({ properties: [], searchTerm: null });
-
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.find('.sw-product-properties__empty-state.has--no-properties .sw-button');
+        expect(createButton.attributes().disabled).toBe('disabled');
     });
 
     it('should be able to add properties in filled state', async () => {
         const wrapper = await createWrapper([
             'product.editor',
         ]);
+        await flushPromises();
 
-        await wrapper.vm.$nextTick();
-
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
-
-        const createButton = wrapper.find('sw-button-stub');
+        const createButton = wrapper.find('.sw-product-properties__button-add-property');
 
         expect(createButton.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to add properties in filled state', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
+        await wrapper.setData({ properties: getPropertyCollection() });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.find('.sw-product-properties__button-add-property');
+        expect(createButton.attributes().disabled).toBe('disabled');
     });
 
     it('should be able to edit property', async () => {
         const wrapper = await createWrapper([
             'property.editor',
         ]);
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
-        expect(entityListing.attributes()['allow-edit']).toBe('true');
-
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        expect(entityListing.props('allowEdit')).toBe(true);
     });
 
     it('should not be able to edit property', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
-
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should be able to delete property', async () => {
         const wrapper = await createWrapper([
             'product.deleter',
         ]);
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
-        expect(entityListing.attributes()['allow-delete']).toBe('true');
-
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        expect(entityListing.props('allowDelete')).toBe(true);
     });
 
     it('should not be able to delete property', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
-        expect(entityListing.attributes()['allow-delete']).toBeUndefined();
-
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
+        expect(entityListing.props('allowDelete')).toBe(false);
     });
 
     it('should hide sw-inheritance-switch component', async () => {

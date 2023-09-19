@@ -231,9 +231,7 @@ Component.register('sw-property-search', {
             this.displayTree = true;
             this.groupPage = 1;
             this.optionPage = 1;
-            if (this.collapsible) {
-                this.groupOptions = [];
-            }
+            this.groupOptions = [];
             this.loadGroups();
         },
 

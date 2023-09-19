@@ -322,6 +322,7 @@
       "buttonAddProperty": "Configure properties",
       "buttonAddProperties": "Configure properties",
       "titleEmptyState": "No properties assigned to this product yet.",
+      "titleEmptyStateList": "No properties found.",
       "columnProperty": "Property",
       "columnValue": "Property value",
       "placeholderSearchAddedProperties": "Search added properties...",

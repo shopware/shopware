@@ -52,7 +52,7 @@
             </template>
 
             <template
-                v-if="properties.length > 0 || searchTerm"
+                v-if="productHasProperties"
                 #grid
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -109,11 +109,11 @@
                         class="sw-product-properties__list"
                         detail-route="sw.property.detail"
                         identifier="sw-product-properties-list"
+                        plain-appearance
                         :items="properties"
                         :data-source="properties"
                         :columns="propertyColumns"
                         :repository="propertyGroupRepository"
-                        :plain-appearance="true"
                         :full-page="false"
                         :show-settings="false"
                         :allow-column-edit="false"
@@ -173,6 +173,7 @@
                     {% block sw_product_properties_filled_state_body_empty_state %}
                     <sw-empty-state
                         v-if="properties.length <= 0"
+                        class="sw-product-properties__empty-state has--no-search-result"
                         :absolute="false"
                         :show-description="false"
                         :title="$tc('sw-product.properties.titleEmptyStateList')"
@@ -191,9 +192,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_body_loading_state %}
-                    <sw-loader
-                        v-if="isPropertiesLoading"
-                    />
+                    <sw-loader v-if="isPropertiesLoading" />
                     {% endblock %}
                 </sw-container>
                 {% endblock %}
@@ -202,7 +201,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_properties_empty_state %}
             <sw-empty-state
-                v-if="properties.length <= 0 && !searchTerm"
+                v-if="!productHasProperties"
+                class="sw-product-properties__empty-state has--no-properties"
                 :absolute="false"
                 :show-description="false"
                 :title="$tc('sw-product.properties.titleEmptyState')"

@@ -156,11 +156,5 @@ describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-    });
 });
 

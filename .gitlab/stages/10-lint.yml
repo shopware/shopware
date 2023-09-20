@@ -34,6 +34,21 @@ ESLint (Administration):
     after_script:
         - grep 'failure message' eslint.junit.xml
 
+Lint Acceptance:
+    extends: .base-no-setup
+    stage: lint
+    image: node:lts-alpine
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+              - 'tests/acceptance/**/*'
+    script:
+        - cd tests/acceptance
+        - npm clean-install
+        - npx eslint .
+        - npx prettier . --check
+
 Check eslint parser (Administration):
     extends: .base-with-node
     stage: lint

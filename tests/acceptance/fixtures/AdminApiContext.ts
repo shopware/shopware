@@ -1,14 +1,15 @@
 import { request, APIResponse, APIRequestContext } from "@playwright/test";
 
-export type AppAuthOptions = {
+export interface AppAuthOptions {
     app_url?: string;
     client_id?: string;
     client_secret?: string;
     access_token?: string;
     ignoreHTTPSErrors?: boolean;
-};
+}
 
-interface Options<PAYLOAD extends any> {
+interface Options<PAYLOAD> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
     data?: PAYLOAD;
 }
@@ -22,37 +23,26 @@ export class AdminApiContext {
         this.options = options;
     }
 
-    public static async newContext(
-        options?: AppAuthOptions
-    ): Promise<AdminApiContext> {
-        let withDefaults = options || {};
+    public static async newContext(options?: AppAuthOptions): Promise<AdminApiContext> {
+        const withDefaults = options || {};
 
         withDefaults.app_url = withDefaults.app_url || process.env["APP_URL"];
-        withDefaults.client_id =
-            withDefaults.client_id || process.env["SHOPWARE_ACCESS_KEY_ID"];
-        withDefaults.client_secret =
-            withDefaults.client_secret ||
-            process.env["SHOPWARE_SECRET_ACCESS_KEY"];
+        withDefaults.client_id = withDefaults.client_id || process.env["SHOPWARE_ACCESS_KEY_ID"];
+        withDefaults.client_secret = withDefaults.client_secret || process.env["SHOPWARE_SECRET_ACCESS_KEY"];
         withDefaults.ignoreHTTPSErrors = true;
         withDefaults.access_token = await this.authenticate(withDefaults);
 
-        return new AdminApiContext(
-            await this.createContext(withDefaults),
-            withDefaults
-        );
+        return new AdminApiContext(await this.createContext(withDefaults), withDefaults);
     }
 
-    static async createContext(
-        options: AppAuthOptions
-    ): Promise<APIRequestContext> {
-        let extraHTTPHeaders = {
+    static async createContext(options: AppAuthOptions): Promise<APIRequestContext> {
+        const extraHTTPHeaders = {
             Accept: "application/json",
             "Content-Type": "application/json",
         };
 
         if (options.access_token) {
-            extraHTTPHeaders["Authorization"] =
-                "Bearer " + options.access_token;
+            extraHTTPHeaders["Authorization"] = "Bearer " + options.access_token;
         }
         return await request.newContext({
             baseURL: `${options.app_url}api/`,
@@ -73,7 +63,7 @@ export class AdminApiContext {
             },
         });
 
-        const authData = await authResponse.json();
+        const authData = (await authResponse.json()) as { access_token?: string };
 
         if (!authData["access_token"]) {
             throw new Error(
@@ -100,38 +90,23 @@ export class AdminApiContext {
         return !!this.options.access_token;
     }
 
-    async delete<PAYLOAD = any>(
-        url: string,
-        options?: Options<PAYLOAD>
-    ): Promise<APIResponse> {
+    async delete<PAYLOAD>(url: string, options?: PAYLOAD): Promise<APIResponse> {
         return this.context.delete(url, options);
     }
 
-    async get<PAYLOAD = any>(
-        url: string,
-        options?: Options<PAYLOAD>
-    ): Promise<APIResponse> {
+    async get<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
         return this.context.get(url, options);
     }
 
-    async post<PAYLOAD = any>(
-        url: string,
-        options?: Options<PAYLOAD>
-    ): Promise<APIResponse> {
+    async post<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
         return this.context.post(url, options);
     }
 
-    async fetch<PAYLOAD = any>(
-        url: string,
-        options?: Options<PAYLOAD>
-    ): Promise<APIResponse> {
+    async fetch<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
         return this.context.fetch(url, options);
     }
 
-    async head<PAYLOAD = any>(
-        url: string,
-        options?: Options<PAYLOAD>
-    ): Promise<APIResponse> {
+    async head<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
         return this.context.head(url, options);
     }
 }

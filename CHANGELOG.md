@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.5.2
+*  [NEXT-30335 - Fix translator picks snippet set randomly](./changelog/release-6-5-5-2/2023-09-06-fix-translator-picks-snippet-set-randomly.md)
+*  [NEXT-30036 - Revert NEXT-29109 - Bad performance when editing text with many CMS blocks](./changelog/release-6-5-5-2/2023-09-07-category-text-can-not-be-saved.md)
+
 ## 6.5.5.1
 *  [NEXT-29164 - Fix remaining PHP 8.2 deprecations](./changelog/release-6-5-5-1/2023-08-28-fix-remaining-php-8-2-deprecations.md)
 

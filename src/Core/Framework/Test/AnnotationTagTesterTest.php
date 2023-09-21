@@ -247,13 +247,13 @@ class AnnotationTagTesterTest extends TestCase
     {
         yield 'No properties added' => ['@experimental'];
         yield 'Added only stableVersion property' => ['@experimental stableVersion:v6.5.0'];
-        yield 'Added only feature property' => ['@experimental feature:testFeature'];
+        yield 'Added only feature property' => ['@experimental feature:TEST_FEATURE'];
         yield 'Incorrect separator' => ['@experimental stableVersion=v6.5.0 feature1=testFeature'];
     }
 
     public function testExperimentalTagWithoutStableVersionPropertyThrowsException(): void
     {
-        $deprecatedContent = '@experimental tag:v6.5.0 feature:testFeature';
+        $deprecatedContent = '@experimental tag:v6.5.0 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('Could not find property stableVersion in experimental annotation');
@@ -271,7 +271,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustNotHaveMoreThanThreeDigits(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5.0.0 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:v6.5.0.0 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
@@ -280,7 +280,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustStartFromV(): void
     {
-        $deprecatedContent = '@experimental stableVersion:a6.5.0 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:a6.5.0 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
@@ -289,7 +289,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustNotHaveLessThanThreeDigits(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:v6.5 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The tag version should start with `v` and comprise 3 digits separated by periods.');
@@ -298,7 +298,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustNotBeSmallerThanActualLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.3.0 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:v6.3.0 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation or experimental annotation is already live.');
@@ -307,7 +307,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testExperimentalStableVersionMustNotBeTheSameAsTheLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.4.0 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:v6.4.0 feature:TEST_FEATURE';
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation or experimental annotation is already live.');
@@ -320,23 +320,24 @@ class AnnotationTagTesterTest extends TestCase
     public function testExperimentalWithIncorrectFeatureValueWillThrowException(string $content): void
     {
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('The value of feature-property could not be empty, contain white spaces and must be in camelCase format.');
+        static::expectExceptionMessage('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.');
         $this->annotationTagTester->validateExperimentalAnnotations($content);
     }
 
     public static function incorrectFeaturePropertyValueProvider(): \Generator
     {
         yield 'Incorrect symbols' => ['@experimental stableVersion:v6.5.0 feature:here+Incorrect-Symbols'];
-        yield 'Used snake_case instead camelCase' => ['@experimental stableVersion:v6.5.0 feature:feature_name'];
+        yield 'Used camelCase instead of ALL_CAPS' => ['@experimental stableVersion:v6.5.0 feature:here+Incorrect-Symbols'];
+        yield 'Used snake_case instead of ALL_CAPS' => ['@experimental stableVersion:v6.5.0 feature:feature_name'];
         yield 'Empty feature value' => ['@experimental stableVersion:v6.5.0 feature:'];
     }
 
     /**
      * @doesNotPerformAssertions - the test should check that no exception is thrown in this case
      */
-    public function testExperimentalStableVersionHigherThenLiveVersion(): void
+    public function testExperimentalStableVersionHigherThanLiveVersion(): void
     {
-        $deprecatedContent = '@experimental stableVersion:v6.5.0 feature:testFeature';
+        $deprecatedContent = '@experimental stableVersion:v6.5.0 feature:TEST_FEATURE';
 
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }

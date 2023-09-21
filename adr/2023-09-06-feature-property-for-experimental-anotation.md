@@ -24,11 +24,11 @@ To address the existing challenges, we propose implementing a refined approach t
 The key modifications are as follows:
 * Mandatory `feature` property: 
   * Every `@experimental` annotation will now require a mandatory `feature` property. This property is a string that must contain the name of the associated feature.
-* Uniform Feature Naming: 
+* Uniform feature Naming: 
   * To enhance code organization and traceability, all sections of code related to a particular feature must use the same feature name in the `feature` property of the `@experimental` annotation.
   * Feature names should follow the conventions.
     * Feature names cannot contain spaces
-    * Feature names should be written in camelCase.
+    * Feature names should be written in `ALL_CAPS`.
 
 ## Consequences
 ### Core
@@ -40,7 +40,7 @@ Examples of usage:
 php
 ```php
 /**
- * @experimental stableVersion:v6.6.0 feature:wishlist
+ * @experimental stableVersion:v6.6.0 feature:WISHLIST
  */
 class testClass()
 {
@@ -50,7 +50,7 @@ class testClass()
 js
 ```js
 /**
- * @experimental stableVersion:v6.6.0 feature:wishlist
+ * @experimental stableVersion:v6.6.0 feature:WISHLIST
  */
 Component.register('sw-new-component', {
     ...
@@ -59,7 +59,7 @@ Component.register('sw-new-component', {
 
 In twig blocks can be wrapped as being experimental:
 ```twig
-{# @experimental stableVersion:v6.6.0 feature:wishlist #}
+{# @experimental stableVersion:v6.6.0 feature:WISHLIST #}
 {% block awesome_new_feature %}
    ...
 {% endblock %}
@@ -68,7 +68,7 @@ In twig blocks can be wrapped as being experimental:
 
 In addition to that, we can also mark the whole template as experimental:
 ```twig
-{# @experimental stableVersion:v6.6.0 feature:wishlist #}
+{# @experimental stableVersion:v6.6.0 feature:WISHLIST #}
 {% sw_extends '@Storefront/storefront/page/product-detail/index.html.twig' %}
 ```
 
@@ -88,15 +88,15 @@ feature.yaml
 shopware:
   feature:
     flags:
-      - name: wishList
+      - name: WISHLIST
         default: false
         major: true
-        description: "experimental stableVersion:v6.6.0 feature:wishList"
+        description: "experimental stableVersion:v6.6.0 feature:WISHLIST"
 ```
 New experimental class
 ```php
 /**
- * @experimental stableVersion:v6.6.0 feature:wishList
+ * @experimental stableVersion:v6.6.0 feature:WISHLIST
  */
 class Foo
 {
@@ -104,7 +104,7 @@ class Foo
 ```
 Connection point
 ```php
-if (Feature.isActive('wishlist') {
+if (Feature.isActive('WISHLIST') {
         $obj = new Foo();
         // New implementation
 } else {

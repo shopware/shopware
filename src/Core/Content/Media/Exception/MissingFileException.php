@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::missingFile instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MissingFileException extends MediaException
 {
     public function __construct(string $mediaId)

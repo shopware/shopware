@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class UnexpectedFieldConfigValueType extends ShopwareHttpException
 {
     public function __construct(

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyCountryRoundingEntity extends Entity
 {
     use EntityIdTrait;

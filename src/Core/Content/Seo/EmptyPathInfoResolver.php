@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class EmptyPathInfoResolver extends AbstractSeoResolver
 {
     /**

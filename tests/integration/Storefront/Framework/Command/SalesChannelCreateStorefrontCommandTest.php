@@ -4,16 +4,16 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('buyers-experience')]
 class SalesChannelCreateStorefrontCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

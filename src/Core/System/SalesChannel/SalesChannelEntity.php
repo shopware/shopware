@@ -42,7 +42,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelEntity extends Entity
 {
     use EntityCustomFieldsTrait;

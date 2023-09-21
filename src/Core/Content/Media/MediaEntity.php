@@ -30,7 +30,7 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaEntity extends Entity
 {
     use EntityCustomFieldsTrait;

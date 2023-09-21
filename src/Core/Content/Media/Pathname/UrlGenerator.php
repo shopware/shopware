@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterf
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**

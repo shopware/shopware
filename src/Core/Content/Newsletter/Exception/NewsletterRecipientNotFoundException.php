@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:remove-exception - Will be removed, use NewsletterException::recipientNotFound instead
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterRecipientNotFoundException extends NewsletterException
 {
     public function __construct(

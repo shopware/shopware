@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::cannotOpenSourceStreamToRead instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class StreamNotReadableException extends ShopwareHttpException
 {
     public function __construct(string $path)

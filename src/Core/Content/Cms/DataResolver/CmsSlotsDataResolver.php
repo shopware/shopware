@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsSlotsDataResolver
 {
     /**

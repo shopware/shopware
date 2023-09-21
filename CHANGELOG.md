@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.5.2
+*  [NEXT-30335 - Fix translator picks snippet set randomly](./changelog/release-6-5-5-2/2023-09-06-fix-translator-picks-snippet-set-randomly.md)
+*  [NEXT-30036 - Revert NEXT-29109 - Bad performance when editing text with many CMS blocks](./changelog/release-6-5-5-2/2023-09-07-category-text-can-not-be-saved.md)
+
+## 6.5.5.1
+*  [NEXT-29164 - Fix remaining PHP 8.2 deprecations](./changelog/release-6-5-5-1/2023-08-28-fix-remaining-php-8-2-deprecations.md)
+
 ## 6.5.5.0
 *  [NEXT-29158 - Added horizontal alignment config to cms-image](./changelog/release-6-5-5-0/2022-10-01-cms-element-image-horizontal-align.md) ([Joschi Mehta](https://github.com/NinjaArmy))
 *  [NEXT-29895 - Allow to query/filter on null on fields of type ListField](./changelog/release-6-5-5-0/2023-06-19-allow-query-on-null-for-listfields.md) ([Kurt Inge Smådal](https://github.com/kurtinge))

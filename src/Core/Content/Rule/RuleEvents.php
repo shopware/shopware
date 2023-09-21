@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleEvents
 {
     /**

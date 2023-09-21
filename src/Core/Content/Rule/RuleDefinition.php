@@ -43,7 +43,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'rule';

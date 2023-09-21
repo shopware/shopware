@@ -14,7 +14,7 @@ use Shopware\Core\System\Salutation\SalutationSorter;
  *
  * @covers \Shopware\Core\System\Salutation\SalutationSorter
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class SalutationSorterTest extends TestCase
 {
     public function testSort(): void

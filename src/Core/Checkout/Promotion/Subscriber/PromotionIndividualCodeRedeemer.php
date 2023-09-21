@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
     /**

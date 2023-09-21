@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaFolderConfigLoadedSubscriber implements EventSubscriberInterface
 {
     /**

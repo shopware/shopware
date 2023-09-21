@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * @covers \Shopware\Core\Content\Media\File\DownloadResponseGenerator
  */
+#[Package('buyers-experience')]
 class DownloadResponseGeneratorTest extends TestCase
 {
     private MockObject&MediaService $mediaService;

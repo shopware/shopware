@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:delete-unused',
     description: 'Deletes all media files which are not used in any entity',
 )]
-#[Package('content')]
+#[Package('buyers-experience')]
 class DeleteNotUsedMediaCommand extends Command
 {
     /**

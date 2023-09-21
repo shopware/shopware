@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<PromotionSalesChannelEntity>
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionSalesChannelCollection extends EntityCollection
 {
     public function getApiAlias(): string

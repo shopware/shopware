@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -13,12 +14,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Rule\SalesChannelRule
  */
+#[Package('buyers-experience')]
 class SalesChannelRuleTest extends TestCase
 {
     /**

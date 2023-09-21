@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 {
     private array $blacklist = [

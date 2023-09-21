@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class GenerateThumbnailsMessage implements AsyncMessageInterface
 {
     /**

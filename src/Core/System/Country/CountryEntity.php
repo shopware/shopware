@@ -15,7 +15,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryEntity extends Entity
 {
     use EntityCustomFieldsTrait;

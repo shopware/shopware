@@ -54,7 +54,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media';

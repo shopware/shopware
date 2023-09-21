@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CmsPageEntity>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsPageCollection extends EntityCollection
 {
     public function getApiAlias(): string

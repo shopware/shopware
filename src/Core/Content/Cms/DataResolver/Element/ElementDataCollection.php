@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @implements \IteratorAggregate<array-key, EntitySearchResult<EntityCollection>>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class ElementDataCollection implements \IteratorAggregate, \Countable
 {
     /**

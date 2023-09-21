@@ -9,7 +9,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class SalesChannelLanguageDefinition extends LanguageDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void

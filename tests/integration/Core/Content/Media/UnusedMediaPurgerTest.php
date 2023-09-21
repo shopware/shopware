@@ -9,6 +9,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
+#[Package('buyers-experience')]
 class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;

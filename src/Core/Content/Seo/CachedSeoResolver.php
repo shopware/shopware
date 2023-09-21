@@ -13,7 +13,7 @@ use Symfony\Contracts\Cache\ItemInterface;
  *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class CachedSeoResolver extends AbstractSeoResolver
 {
     /**

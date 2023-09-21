@@ -47,7 +47,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * Cart Promotion Calculator
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;

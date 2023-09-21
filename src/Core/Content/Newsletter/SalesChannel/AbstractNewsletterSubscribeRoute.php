@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Valid "option" arguments: "subscribe" for double optin and "direct" to skip double optin
  * Optional parameters are: "salutationId", "firstName", "lastName", "street", "city" and "zipCode"
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 abstract class AbstractNewsletterSubscribeRoute
 {
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;

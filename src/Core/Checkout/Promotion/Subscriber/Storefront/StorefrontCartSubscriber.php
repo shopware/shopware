@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {
     final public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('buyers-experience')]
 class PromotionLineItemRule extends Rule
 {
     final public const RULE_NAME = 'promotionLineItem';

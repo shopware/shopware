@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaThumbnailDeletedEvent extends Event
 {
     final public const EVENT_NAME = 'media_thumbnail.after_delete';

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand('cms:page:create')]
-#[Package('content')]
+#[Package('buyers-experience')]
 class CreatePageCommand extends Command
 {
     /**

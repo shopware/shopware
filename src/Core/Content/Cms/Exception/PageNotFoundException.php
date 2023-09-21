@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class PageNotFoundException extends ShopwareHttpException
 {
     final public const ERROR_CODE = 'CONTENT__CMS_PAGE_NOT_FOUND';

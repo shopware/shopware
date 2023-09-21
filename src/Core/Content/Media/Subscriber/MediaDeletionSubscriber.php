@@ -31,7 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
     final public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';

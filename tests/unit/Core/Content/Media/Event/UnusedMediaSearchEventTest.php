@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent
  */
+#[Package('buyers-experience')]
 class UnusedMediaSearchEventTest extends TestCase
 {
     public function testGetIds(): void

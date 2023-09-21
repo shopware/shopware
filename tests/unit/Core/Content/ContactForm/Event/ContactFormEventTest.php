@@ -8,6 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
  *
  * @covers \Shopware\Core\Content\ContactForm\Event\ContactFormEvent
  */
+#[Package('buyers-experience')]
 class ContactFormEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

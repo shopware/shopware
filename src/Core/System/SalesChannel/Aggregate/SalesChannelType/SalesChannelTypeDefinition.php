@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTypeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'sales_channel_type';

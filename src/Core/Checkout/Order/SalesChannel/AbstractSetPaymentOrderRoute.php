@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used to update the paymentMethod for an order
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractSetPaymentOrderRoute
 {
     abstract public function getDecorated(): AbstractSetPaymentOrderRoute;

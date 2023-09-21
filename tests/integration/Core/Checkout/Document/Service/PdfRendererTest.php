@@ -24,7 +24,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class PdfRendererTest extends TestCase
 {
     use DocumentTrait;

@@ -25,7 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionStateHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

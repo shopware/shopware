@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  *
  * @covers \Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerProfileValidationFactoryTest extends TestCase
 {
     /**

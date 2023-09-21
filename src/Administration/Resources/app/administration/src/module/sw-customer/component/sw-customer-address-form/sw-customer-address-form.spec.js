@@ -11,7 +11,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);

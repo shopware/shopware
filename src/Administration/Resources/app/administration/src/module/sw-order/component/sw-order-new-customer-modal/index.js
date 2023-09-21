@@ -3,7 +3,7 @@ import './sw-order-new-customer-modal.scss';
 import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;

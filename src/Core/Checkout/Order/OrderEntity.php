@@ -23,7 +23,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderEntity extends Entity
 {
     use EntityCustomFieldsTrait;

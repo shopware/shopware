@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swOrderProductSelect from 'src/module/sw-order/component/sw-order-product-select';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-product-select', swOrderProductSelect);

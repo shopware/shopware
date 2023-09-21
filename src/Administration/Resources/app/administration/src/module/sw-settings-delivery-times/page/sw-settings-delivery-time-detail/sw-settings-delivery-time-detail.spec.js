@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsDeliveryTimeDetail from 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-delivery-time-detail', swSettingsDeliveryTimeDetail);

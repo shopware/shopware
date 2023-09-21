@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
     public function testCreate(): void

@@ -17,7 +17,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentTemplateRenderer
 {
     /**

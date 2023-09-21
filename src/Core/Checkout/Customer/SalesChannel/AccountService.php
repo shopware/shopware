@@ -26,7 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountService
 {
     /**

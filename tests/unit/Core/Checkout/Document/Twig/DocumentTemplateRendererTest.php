@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @covers \Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer
  *

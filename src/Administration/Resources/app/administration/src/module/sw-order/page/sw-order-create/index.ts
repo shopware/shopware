@@ -6,7 +6,7 @@ import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context, State, Mixin } = Shopware;

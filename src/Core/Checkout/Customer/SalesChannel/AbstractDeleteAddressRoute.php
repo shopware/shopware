@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route can be used to delete addresses
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractDeleteAddressRoute
 {
     abstract public function getDecorated(): AbstractDeleteAddressRoute;

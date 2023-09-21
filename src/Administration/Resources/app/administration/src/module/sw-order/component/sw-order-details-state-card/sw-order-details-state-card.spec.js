@@ -3,7 +3,7 @@ import swOrderDetailsStateCard from 'src/module/sw-order/component/sw-order-deta
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));

@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used to change the password of a logged-in user
  * The required fields are: "password", "newPassword" and "newPasswordConfirm"
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractChangePasswordRoute
 {
     abstract public function getDecorated(): AbstractChangePasswordRoute;

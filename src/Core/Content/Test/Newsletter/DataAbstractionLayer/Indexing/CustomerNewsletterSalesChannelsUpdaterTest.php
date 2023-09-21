@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

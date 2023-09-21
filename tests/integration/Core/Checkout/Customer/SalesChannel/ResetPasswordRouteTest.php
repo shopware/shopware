@@ -24,7 +24,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ResetPasswordRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

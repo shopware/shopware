@@ -11,7 +11,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerAddressEntity extends Entity
 {
     use EntityCustomFieldsTrait;

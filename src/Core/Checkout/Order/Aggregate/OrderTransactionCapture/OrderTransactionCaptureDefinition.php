@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCaptureDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_transaction_capture';

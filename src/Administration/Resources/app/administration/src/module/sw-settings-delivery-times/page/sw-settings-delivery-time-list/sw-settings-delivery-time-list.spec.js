@@ -3,7 +3,7 @@ import swSettingsDeliveryTimeList from 'src/module/sw-settings-delivery-times/pa
 import 'src/app/component/base/sw-card';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-delivery-time-list', swSettingsDeliveryTimeList);

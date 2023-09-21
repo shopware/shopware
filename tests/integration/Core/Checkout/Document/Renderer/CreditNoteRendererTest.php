@@ -42,7 +42,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;

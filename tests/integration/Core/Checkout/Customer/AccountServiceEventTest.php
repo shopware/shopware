@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountServiceEventTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

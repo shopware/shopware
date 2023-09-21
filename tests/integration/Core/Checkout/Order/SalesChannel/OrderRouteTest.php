@@ -56,7 +56,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @group slow
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

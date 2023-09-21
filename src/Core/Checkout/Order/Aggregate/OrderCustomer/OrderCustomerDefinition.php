@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderCustomerDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_customer';

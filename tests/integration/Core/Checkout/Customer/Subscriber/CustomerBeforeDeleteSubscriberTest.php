@@ -14,7 +14,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

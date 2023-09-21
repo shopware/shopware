@@ -1,7 +1,7 @@
 import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-user-card', swOrderUserCard);

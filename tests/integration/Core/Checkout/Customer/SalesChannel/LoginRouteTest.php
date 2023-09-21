@@ -34,7 +34,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class LoginRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

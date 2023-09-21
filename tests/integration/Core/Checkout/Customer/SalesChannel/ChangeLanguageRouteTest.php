@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeLanguageRouteTest extends TestCase
 {
     use CustomerTestTrait;

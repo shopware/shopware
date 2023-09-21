@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterController extends StorefrontController
 {
     /**

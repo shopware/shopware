@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOrderControllerTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeCustomerProfileRouteTest extends TestCase
 {
     public function testCustomFieldsGetPassed(): void

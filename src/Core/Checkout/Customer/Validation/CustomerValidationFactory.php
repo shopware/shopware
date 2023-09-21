@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerValidationFactory implements DataValidationFactoryInterface
 {
     /**

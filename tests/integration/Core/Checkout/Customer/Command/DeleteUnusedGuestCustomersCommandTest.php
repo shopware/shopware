@@ -30,7 +30,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeleteUnusedGuestCustomersCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

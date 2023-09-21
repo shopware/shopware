@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:remove-exception - will be removed, use CustomerException::customerGroupRegistrationConfigurationNotFound instead
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupRegistrationConfigurationNotFound extends CustomerException
 {
     public function __construct(string $customerGroupId)

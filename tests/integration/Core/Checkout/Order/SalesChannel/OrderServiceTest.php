@@ -43,7 +43,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  *
  * @group slow
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderServiceTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

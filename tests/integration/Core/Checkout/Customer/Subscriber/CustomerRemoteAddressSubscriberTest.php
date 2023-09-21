@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\IpUtils;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

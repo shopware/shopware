@@ -7,7 +7,7 @@ namespace Shopware\Core\System\Tax\TaxRuleType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractTaxRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
     protected function isTaxActive(TaxRuleEntity $taxRuleEntity): bool

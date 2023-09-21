@@ -55,7 +55,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer';

@@ -14,7 +14,7 @@ import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, Mixin, State } = Shopware;

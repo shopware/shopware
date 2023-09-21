@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\TestDefaults;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 trait CustomerTestTrait
 {
     use IntegrationTestBehaviour;

@@ -45,7 +45,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

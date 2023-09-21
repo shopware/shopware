@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
  *          ->group('standard')
  *          ->build();
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerBuilder
 {
     use KernelTestBehaviour;

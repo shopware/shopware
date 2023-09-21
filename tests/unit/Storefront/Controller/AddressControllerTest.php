@@ -31,7 +31,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @covers \Shopware\Storefront\Controller\AddressController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AddressControllerTest extends TestCase
 {
     private AddressControllerTestClass $controller;

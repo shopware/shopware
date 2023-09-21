@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
     use CustomerAddressValidationTrait;

@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils, State, Service } = Shopware;

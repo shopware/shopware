@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class GuestCustomerRegisterEvent extends CustomerRegisterEvent implements FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.guest_register';

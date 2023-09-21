@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
  *
  * @covers \Shopware\Core\Content\MailTemplate\Api\MailActionController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class MailActionControllerTest extends TestCase
 {
     private AbstractMailService&MockObject $mailService;

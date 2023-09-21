@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  *

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 final class RendererResult extends Struct
 {
     /**

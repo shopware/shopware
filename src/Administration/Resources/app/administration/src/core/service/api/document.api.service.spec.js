@@ -4,7 +4,7 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 function getDocumentApiService() {

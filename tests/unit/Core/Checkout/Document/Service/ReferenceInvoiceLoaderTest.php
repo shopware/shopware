@@ -16,7 +16,7 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQu
  *
  * @covers \Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ReferenceInvoiceLoaderTest extends TestCase
 {
     private Connection&MockObject $connection;

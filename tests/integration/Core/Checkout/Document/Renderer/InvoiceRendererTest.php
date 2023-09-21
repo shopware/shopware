@@ -42,7 +42,7 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class InvoiceRendererTest extends TestCase
 {
     use AppSystemTestBehaviour;

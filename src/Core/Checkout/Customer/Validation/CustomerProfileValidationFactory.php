@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @Decoratable
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 {
     /**

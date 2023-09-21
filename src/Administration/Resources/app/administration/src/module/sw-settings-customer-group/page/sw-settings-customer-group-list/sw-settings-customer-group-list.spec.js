@@ -5,7 +5,7 @@ import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-customer-group-list', swSettingsCustomerGroupList);

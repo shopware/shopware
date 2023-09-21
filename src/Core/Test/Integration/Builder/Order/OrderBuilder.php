@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @final
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderBuilder
 {
     use BasicTestDataBehaviour;

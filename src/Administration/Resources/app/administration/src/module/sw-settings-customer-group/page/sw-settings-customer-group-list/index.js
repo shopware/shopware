@@ -1,7 +1,7 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;

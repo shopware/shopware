@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**

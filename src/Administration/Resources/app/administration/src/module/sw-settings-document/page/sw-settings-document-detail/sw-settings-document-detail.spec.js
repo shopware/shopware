@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swSettingsDocumentDetail from 'src/module/sw-settings-document/page/sw-settings-document-detail';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-document-detail', swSettingsDocumentDetail);

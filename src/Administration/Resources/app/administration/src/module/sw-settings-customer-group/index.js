@@ -2,7 +2,7 @@ import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

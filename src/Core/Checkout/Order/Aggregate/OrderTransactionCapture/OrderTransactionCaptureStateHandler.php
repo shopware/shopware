@@ -11,7 +11,7 @@ use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCaptureStateHandler
 {
     /**

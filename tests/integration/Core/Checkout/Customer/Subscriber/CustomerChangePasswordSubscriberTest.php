@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerChangePasswordSubscriberTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

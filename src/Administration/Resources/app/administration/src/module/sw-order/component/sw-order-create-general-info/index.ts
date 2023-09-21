@@ -4,7 +4,7 @@ import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, Mixin } = Shopware;

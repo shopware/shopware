@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swOrderCreateGeneralInfo from 'src/module/sw-order/component/sw-order-create-general-info';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const cart = {

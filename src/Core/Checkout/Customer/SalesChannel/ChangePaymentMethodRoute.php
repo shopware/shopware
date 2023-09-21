@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 {
     /**

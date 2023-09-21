@@ -23,7 +23,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerRecoveryRouteTest extends TestCase
 {
     use CustomerTestTrait;

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerValueResolver implements ValueResolverInterface
 {
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator

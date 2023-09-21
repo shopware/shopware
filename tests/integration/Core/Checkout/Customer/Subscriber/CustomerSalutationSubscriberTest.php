@@ -20,7 +20,7 @@ use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

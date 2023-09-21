@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  *

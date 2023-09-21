@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
 {
     /**

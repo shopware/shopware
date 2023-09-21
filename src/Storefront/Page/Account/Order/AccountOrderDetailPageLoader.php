@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOrderDetailPageLoader
 {
     /**

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerTokenSubscriberTest extends TestCase
 {
     use BasicTestDataBehaviour;

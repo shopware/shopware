@@ -5,7 +5,7 @@ import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-line-items-grid-sales-channel', swOrderLineItemsGridSalesChannel);

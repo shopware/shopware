@@ -16,7 +16,7 @@ use Shopware\Core\Test\TestBuilderTrait;
 /**
  * @final
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCaptureRefundBuilder
 {
     use BasicTestDataBehaviour;

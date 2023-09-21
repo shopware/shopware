@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     final public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';

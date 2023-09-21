@@ -3,7 +3,7 @@ import swOrderNestedLineItemsModal from 'src/module/sw-order/component/sw-order-
 import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-nested-line-items-row';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);

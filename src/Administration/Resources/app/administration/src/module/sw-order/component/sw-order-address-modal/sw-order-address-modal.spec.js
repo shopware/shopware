@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swOrderAddressModal from 'src/module/sw-order/component/sw-order-address-modal';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-address-modal', swOrderAddressModal);

@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class UpsertAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;

@@ -10,7 +10,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-document-card', swOrderDocumentCard);

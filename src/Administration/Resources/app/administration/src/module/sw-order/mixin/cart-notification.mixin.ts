@@ -2,7 +2,7 @@ import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { State, Mixin } = Shopware;

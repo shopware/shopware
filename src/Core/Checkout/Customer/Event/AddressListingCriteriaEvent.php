@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

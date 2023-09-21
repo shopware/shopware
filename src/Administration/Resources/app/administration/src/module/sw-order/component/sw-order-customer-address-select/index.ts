@@ -7,7 +7,7 @@ import type CriteriaType from '../../../../core/data/criteria.data';
 import type Repository from '../../../../core/data/repository.data';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component } = Shopware;

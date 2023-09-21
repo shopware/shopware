@@ -17,7 +17,7 @@ use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  */

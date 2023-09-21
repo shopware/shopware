@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeleteCustomerRouteTest extends TestCase
 {
     use CustomerTestTrait;

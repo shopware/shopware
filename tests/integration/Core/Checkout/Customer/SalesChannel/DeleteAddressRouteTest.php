@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeleteAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;

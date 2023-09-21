@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerValueResolverTest extends TestCase
 {
     use CustomerTestTrait;

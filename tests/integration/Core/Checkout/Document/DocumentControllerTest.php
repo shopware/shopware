@@ -43,7 +43,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

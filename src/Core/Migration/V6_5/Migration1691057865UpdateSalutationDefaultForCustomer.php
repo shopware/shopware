@@ -11,7 +11,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1691057865UpdateSalutationDefaultForCustomer extends MigrationStep
 {
     public function getCreationTimestamp(): int

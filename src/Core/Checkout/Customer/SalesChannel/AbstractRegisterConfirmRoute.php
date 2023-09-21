@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route can be used to complete the double optin registration.
  * The required parameters are: "hash" (received from the mail) and "em" (received from the mail)
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractRegisterConfirmRoute
 {
     abstract public function getDecorated(): AbstractRegisterConfirmRoute;

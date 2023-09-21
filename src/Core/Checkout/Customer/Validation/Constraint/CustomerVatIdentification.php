@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  *
  * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerVatIdentification extends Constraint
 {
     final public const VAT_ID_FORMAT_NOT_CORRECT = '463d3548-1caf-11eb-adc1-0242ac120002';

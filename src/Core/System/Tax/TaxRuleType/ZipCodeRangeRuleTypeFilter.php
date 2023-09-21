@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class ZipCodeRangeRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
     final public const TECHNICAL_NAME = 'zip_code_range';

@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\Checkout\Customer\CustomerException
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerExceptionTest extends TestCase
 {
     /**

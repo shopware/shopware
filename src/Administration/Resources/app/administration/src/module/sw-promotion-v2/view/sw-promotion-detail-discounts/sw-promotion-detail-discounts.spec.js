@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { shallowMount } from '@vue/test-utils';
 import swPromotionDetailDiscounts from 'src/module/sw-promotion-v2/view/sw-promotion-detail-discounts';
 import promotionState from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail/state';

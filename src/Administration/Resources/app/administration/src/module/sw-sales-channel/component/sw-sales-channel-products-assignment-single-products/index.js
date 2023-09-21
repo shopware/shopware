@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';

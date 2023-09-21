@@ -7,7 +7,7 @@ const Criteria = Shopware.Data.Criteria;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

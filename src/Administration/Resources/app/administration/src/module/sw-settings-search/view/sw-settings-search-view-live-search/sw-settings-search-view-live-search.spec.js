@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchViewLiveSearch from 'src/module/sw-settings-search/view/sw-settings-search-view-live-search';

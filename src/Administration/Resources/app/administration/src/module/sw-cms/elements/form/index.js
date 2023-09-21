@@ -1,22 +1,22 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-form', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-form', () => import('./config'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-form', () => import('./component'));
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'form',

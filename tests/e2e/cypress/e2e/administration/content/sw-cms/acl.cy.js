@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {

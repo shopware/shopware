@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 

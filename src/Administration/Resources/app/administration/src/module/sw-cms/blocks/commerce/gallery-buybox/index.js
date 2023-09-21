@@ -1,17 +1,17 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-preview-gallery-buybox', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-block-gallery-buybox', () => import('./component'));
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'gallery-buybox',

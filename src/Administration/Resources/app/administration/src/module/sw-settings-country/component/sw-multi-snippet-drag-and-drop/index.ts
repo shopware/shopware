@@ -15,7 +15,7 @@ const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
 /**
- * @package customer-order
+ * @package buyers-experience
  *
  * @private
  */

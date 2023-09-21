@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2Discounts from 'src/module/sw-promotion-v2/view/sw-promotion-v2-discounts';
 import swPromotionV2WizardDiscountSelection from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection';

@@ -1,10 +1,9 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 import elements from '../../../../support/pages/sw-general.page-object';
-
-/**
- * @package sales-channel
- */
 
 describe('Theme: Test ACL privileges', { tags: ['VUE3']}, () => {
     beforeEach(() => {

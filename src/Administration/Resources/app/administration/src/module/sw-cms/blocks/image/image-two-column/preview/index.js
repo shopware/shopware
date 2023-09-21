@@ -3,7 +3,7 @@ import './sw-cms-preview-image-two-column.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

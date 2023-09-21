@@ -2,18 +2,18 @@ import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-preview-image-bubble-row', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-block-image-bubble-row', () => import('./component'));
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-bubble-row',

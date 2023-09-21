@@ -2,7 +2,7 @@ import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
 /**
- * @package customer-order
+ * @package buyers-experience
  */
 
 const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;

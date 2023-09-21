@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, mount } from '@vue/test-utils';
 import swNewsletterRecipientList from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
 

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { shallowMount } from '@vue/test-utils';
 import swCountryStateDetail from 'src/module/sw-settings-country/component/sw-country-state-detail';

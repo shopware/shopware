@@ -6,7 +6,7 @@ const { Context, Utils } = Shopware;
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

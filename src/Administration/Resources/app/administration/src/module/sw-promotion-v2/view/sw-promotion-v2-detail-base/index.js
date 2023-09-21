@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-detail-base.html.twig';
 
 const { Mixin } = Shopware;

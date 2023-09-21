@@ -111,7 +111,7 @@ function initVisibility(element) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -122,7 +122,7 @@ function initSlotConfig(slot) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -133,7 +133,7 @@ function initSlotDefaultData(slot) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
@@ -167,7 +167,7 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
@@ -226,7 +226,7 @@ function fetchByIdentifier(directReads) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function fetchByCriteria(searches) {
     const results = {};
@@ -268,7 +268,7 @@ function fetchByCriteria(searches) {
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 function getRepository(entity) {
     if (repositories[entity]) {

@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2CartConditionForm from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
 

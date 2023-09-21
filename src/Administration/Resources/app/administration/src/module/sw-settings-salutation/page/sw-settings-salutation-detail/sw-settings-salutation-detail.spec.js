@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSalutationDetail from 'src/module/sw-settings-salutation/page/sw-settings-salutation-detail';
 

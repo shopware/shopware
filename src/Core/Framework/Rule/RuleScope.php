@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 abstract class RuleScope
 {
     abstract public function getContext(): Context;

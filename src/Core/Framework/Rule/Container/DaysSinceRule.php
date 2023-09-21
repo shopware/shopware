@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 abstract class DaysSinceRule extends Rule
 {
     protected string $operator = Rule::OPERATOR_EQ;

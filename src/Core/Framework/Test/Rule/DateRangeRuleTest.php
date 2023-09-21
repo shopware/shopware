@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class DateRangeRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

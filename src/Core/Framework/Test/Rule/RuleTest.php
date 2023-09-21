@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleTest extends TestCase
 {
     use CartRuleHelperTrait;

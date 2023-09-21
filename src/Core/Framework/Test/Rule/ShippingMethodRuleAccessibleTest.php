@@ -15,7 +15,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ShippingMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;

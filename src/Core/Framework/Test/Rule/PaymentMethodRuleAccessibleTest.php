@@ -19,7 +19,7 @@ use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class PaymentMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;

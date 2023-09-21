@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Add and remove products from saleschannel', () => {
     beforeEach(() => {

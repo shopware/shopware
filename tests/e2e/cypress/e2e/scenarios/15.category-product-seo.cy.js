@@ -1,7 +1,7 @@
-/**
- * @package content
- */
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 import CategoryPageObject from '../../support/pages/module/sw-category.page-object';
 

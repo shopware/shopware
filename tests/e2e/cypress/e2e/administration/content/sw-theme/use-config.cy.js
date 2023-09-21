@@ -1,7 +1,6 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';

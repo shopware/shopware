@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Sales Channel: create product, change currency and language', () => {
     beforeEach(() => {

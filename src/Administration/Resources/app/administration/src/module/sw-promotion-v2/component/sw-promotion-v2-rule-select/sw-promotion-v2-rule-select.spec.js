@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { shallowMount } from '@vue/test-utils';
 import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
 

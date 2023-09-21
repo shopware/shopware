@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2Detail from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail';
 

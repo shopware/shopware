@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionDiscountComponent from 'src/module/sw-promotion-v2/component/sw-promotion-discount-component';
 import 'src/app/component/form/sw-select-field';

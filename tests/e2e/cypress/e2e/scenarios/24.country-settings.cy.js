@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Storefront: test registration with country settings & invalid inputs', () => {
     beforeEach(() => {

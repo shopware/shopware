@@ -3,7 +3,7 @@ import './sw-cms-visibility-config.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

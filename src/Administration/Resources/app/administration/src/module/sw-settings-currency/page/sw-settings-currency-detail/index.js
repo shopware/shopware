@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 

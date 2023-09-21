@@ -22,7 +22,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelDomainDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'sales_channel_domain';

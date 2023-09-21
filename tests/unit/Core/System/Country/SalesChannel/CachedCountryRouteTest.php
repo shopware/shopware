@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -37,6 +38,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @covers \Shopware\Core\System\Country\SalesChannel\CachedCountryRoute
  */
+#[Package('buyers-experience')]
 class CachedCountryRouteTest extends TestCase
 {
     private MockObject&AbstractCountryRoute $decorated;

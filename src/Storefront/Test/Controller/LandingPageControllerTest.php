@@ -17,7 +17,7 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

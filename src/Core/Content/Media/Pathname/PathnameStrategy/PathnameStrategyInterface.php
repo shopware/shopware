@@ -11,9 +11,10 @@ use Shopware\Core\Framework\Log\Package;
  * Important:
  *   * If an empty string is returned, the data will be striped
  *   * You must not return leading or trailing slashes
+ *
+ * Generate path components of media urls/filesystem paths
  */
-#[Package('content
-Generate path components of media urls/filesystem paths')]
+#[Package('buyers-experience')]
 interface PathnameStrategyInterface
 {
     public function getName(): string;

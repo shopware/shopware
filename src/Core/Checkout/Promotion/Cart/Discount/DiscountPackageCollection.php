@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<DiscountPackage>
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class DiscountPackageCollection extends Collection
 {
     /**

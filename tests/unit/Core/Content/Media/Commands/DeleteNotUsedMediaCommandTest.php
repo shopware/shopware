@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  *
  * @covers \Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand
  */
+#[Package('buyers-experience')]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
     public function testCommandDoesNotRunIfJsonOverlapNotAvailable(): void

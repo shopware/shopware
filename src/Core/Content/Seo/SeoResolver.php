@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoResolver extends AbstractSeoResolver
 {
     /**

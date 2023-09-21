@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PatternNotComplexEnoughException extends PromotionException
 {
     /**

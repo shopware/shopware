@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class ContextSwitchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

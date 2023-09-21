@@ -4,15 +4,15 @@ namespace Shopware\Tests\Unit\Core\Content\Cms;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\Cms\CmsException
  */
+#[Package('buyers-experience')]
 class CmsExceptionTest extends TestCase
 {
     /**

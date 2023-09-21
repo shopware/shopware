@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaThumbnailDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_thumbnail';

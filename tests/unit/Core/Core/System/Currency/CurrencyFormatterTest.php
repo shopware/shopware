@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -19,6 +20,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
  *
  * @covers \Shopware\Core\System\Currency\CurrencyFormatter
  */
+#[Package('buyers-experience')]
 class CurrencyFormatterTest extends TestCase
 {
     private MockObject&LanguageLocaleCodeProvider $localeProvider;

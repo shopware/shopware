@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -33,10 +34,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\LandingPage\SalesChannel\CachedLandingPageRoute
  */
+#[Package('buyers-experience')]
 class CachedLandingPageRouteTest extends TestCase
 {
     private MockObject&AbstractLandingPageRoute $decorated;

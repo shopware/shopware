@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     public function __construct(

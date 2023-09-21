@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryStateController extends StorefrontController
 {
     /**

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPicker
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class FilterServiceRegistry
 {
     /**

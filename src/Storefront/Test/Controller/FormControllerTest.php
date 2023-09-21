@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class FormControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

@@ -8,12 +8,14 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent
  */
+#[Package('buyers-experience')]
 class NewsletterRegisterEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

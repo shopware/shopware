@@ -9,14 +9,14 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection
  */
+#[Package('buyers-experience')]
 class ElementDataCollectionTest extends TestCase
 {
     public function testItIterates(): void

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsPageDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'cms_page';

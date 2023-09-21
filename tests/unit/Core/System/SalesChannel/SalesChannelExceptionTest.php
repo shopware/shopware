@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\SalesChannel\SalesChannelException
  */
+#[Package('buyers-experience')]
 class SalesChannelExceptionTest extends TestCase
 {
     /**

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Content\Media;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Content\Media\MediaEntity
  */
+#[Package('buyers-experience')]
 class MediaEntityTest extends TestCase
 {
     /**

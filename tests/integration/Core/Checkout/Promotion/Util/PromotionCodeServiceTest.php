@@ -17,7 +17,7 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\Promo
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionCodeServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

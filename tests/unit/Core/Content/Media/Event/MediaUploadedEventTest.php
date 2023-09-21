@@ -9,16 +9,16 @@ use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\Media\Event\MediaUploadedEvent
  */
+#[Package('buyers-experience')]
 class MediaUploadedEventTest extends TestCase
 {
     public function testInstance(): void

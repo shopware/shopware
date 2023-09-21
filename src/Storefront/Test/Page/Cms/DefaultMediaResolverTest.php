@@ -14,7 +14,7 @@ use Shopware\Storefront\Page\Cms\DefaultMediaResolver;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

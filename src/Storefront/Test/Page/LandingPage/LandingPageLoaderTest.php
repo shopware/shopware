@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

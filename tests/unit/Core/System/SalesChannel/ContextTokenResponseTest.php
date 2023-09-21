@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
  *
  * @covers \Shopware\Core\System\SalesChannel\ContextTokenResponse
  */
+#[Package('buyers-experience')]
 class ContextTokenResponseTest extends TestCase
 {
     public function testGetTokenFromResponseBody(): void

@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @template TEntityCollection of EntityCollection
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelRepository
 {
     /**

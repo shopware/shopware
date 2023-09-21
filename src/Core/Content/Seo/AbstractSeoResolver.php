@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-type ResolvedSeoUrl = array{id?: string, pathInfo: string, isCanonical: bool|string, canonicalPathInfo?: string}
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 abstract class AbstractSeoResolver
 {
     abstract public function getDecorated(): AbstractSeoResolver;

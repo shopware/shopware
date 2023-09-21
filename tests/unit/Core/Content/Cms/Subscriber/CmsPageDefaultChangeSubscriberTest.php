@@ -11,16 +11,16 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
+#[Package('buyers-experience')]
 class CmsPageDefaultChangeSubscriberTest extends TestCase
 {
     public function testHasEvents(): void

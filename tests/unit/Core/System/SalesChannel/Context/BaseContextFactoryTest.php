@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -43,6 +44,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @covers \Shopware\Core\System\SalesChannel\Context\BaseContextFactory
  */
+#[Package('buyers-experience')]
 class BaseContextFactoryTest extends TestCase
 {
     /**

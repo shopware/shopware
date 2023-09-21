@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class SetScopeDiscountPackager extends DiscountPackager
 {
     /**

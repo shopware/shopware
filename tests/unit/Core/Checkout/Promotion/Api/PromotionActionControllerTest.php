@@ -7,14 +7,14 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Promotion\Api\PromotionActionController;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package checkout
- *
  * @covers \Shopware\Core\Checkout\Promotion\Api\PromotionActionController
  */
+#[Package('buyers-experience')]
 class PromotionActionControllerTest extends TestCase
 {
     private PromotionActionController $promotionActionController;

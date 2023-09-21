@@ -25,7 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;

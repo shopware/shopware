@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<FieldConfig>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class FieldConfigCollection extends Collection
 {
     /**

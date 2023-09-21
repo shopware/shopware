@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ContactForm\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,10 +17,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @package content
- *
  * @covers \Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory
  */
+#[Package('buyers-experience')]
 class ContactFormValidationFactoryTest extends TestCase
 {
     /**

@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyEvents
 {
     /**

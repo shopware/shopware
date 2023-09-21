@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
     final public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';

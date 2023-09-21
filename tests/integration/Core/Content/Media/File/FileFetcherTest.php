@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @package content
- *
  * @group needsWebserver
  *
  * @covers \Shopware\Core\Content\Media\File\FileFetcher
  */
+#[Package('buyers-experience')]
 class FileFetcherTest extends TestCase
 {
     final public const TEST_IMAGE = __DIR__ . '/../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';

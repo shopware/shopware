@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 interface UrlGeneratorInterface
 {
     public function getAbsoluteMediaUrl(MediaEntity $media): string;

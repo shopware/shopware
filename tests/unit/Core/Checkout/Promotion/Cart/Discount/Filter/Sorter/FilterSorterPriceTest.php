@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\AbstractPriceSorter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPri
  * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc
  * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc
  */
+#[Package('buyers-experience')]
 class FilterSorterPriceTest extends TestCase
 {
     /**

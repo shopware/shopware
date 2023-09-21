@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
@@ -32,6 +33,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
  *
  * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountAbsoluteCalculator
  */
+#[Package('buyers-experience')]
 class DiscountAbsoluteCalculatorTest extends TestCase
 {
     /**

@@ -22,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - UrlAware is deprecated and will be removed in v6.6.0
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'newsletter.register';

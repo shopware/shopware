@@ -23,7 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionValidator implements EventSubscriberInterface
 {
     /**

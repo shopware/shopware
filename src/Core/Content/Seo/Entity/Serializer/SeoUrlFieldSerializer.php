@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - will be removed
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlFieldSerializer extends OneToManyAssociationFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator

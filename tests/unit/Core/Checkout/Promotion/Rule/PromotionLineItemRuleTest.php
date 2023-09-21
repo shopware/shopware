@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,14 +18,13 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @package checkout
  *
  * @covers \Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule
  */
+#[Package('buyers-experience')]
 class PromotionLineItemRuleTest extends TestCase
 {
     public function testGetName(): void

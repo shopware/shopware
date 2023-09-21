@@ -7,9 +7,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @deprecated tag:v6.6.0 - Use AbstractMediaPathStrategy instead
- */
 #[Package('buyers-experience')]
 abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 {

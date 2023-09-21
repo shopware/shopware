@@ -7,8 +7,11 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('buyers-experience')]
-class MediaLoadedSubscriber
+class MediaLoadedSubscriber implements EventSubscriberInterface
 {
     public function unserialize(EntityLoadedEvent $event): void
     {

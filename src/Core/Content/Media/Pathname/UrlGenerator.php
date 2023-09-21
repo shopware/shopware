@@ -11,9 +11,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @deprecated tag:v6.6.0 - reason:remove-subscriber - Use AbstractMediaUrlGenerator instead
- */
 #[Package('buyers-experience')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {

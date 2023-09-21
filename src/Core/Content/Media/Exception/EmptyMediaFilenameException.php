@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::emptyMediaFilename instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class EmptyMediaFilenameException extends MediaException
 {
     public function __construct()

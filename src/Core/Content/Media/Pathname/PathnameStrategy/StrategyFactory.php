@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @deprecated tag:v6.6.0 - reason:factory-for-deprecation - Use PathStrategyFactory instead
- */
 #[Package('buyers-experience')]
 class StrategyFactory
 {

@@ -10,15 +10,15 @@ use Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSub
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber
  */
+#[Package('buyers-experience')]
 class NewsletterRecipientSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

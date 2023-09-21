@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\Content\Newsletter\NewsletterException
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterExceptionTest extends TestCase
 {
     /**

@@ -9,7 +9,7 @@ use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\Country\Exception\CountryStateNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class CountryException extends HttpException
 {
     public const COUNTRY_NOT_FOUND = 'CHECKOUT__COUNTRY_NOT_FOUND';

@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\Locale\LocaleException
  */
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class LocaleExceptionTest extends TestCase
 {
     public function testLocaleDoesNotExist(): void

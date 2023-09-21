@@ -282,13 +282,22 @@
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-select-field
-                                                                                        :placeholder="field.placeholder"
-                                                                                        :options="field.options"
-                                                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                                                        :disabled="isInherited || !acl.can('theme.editor')"
-                                                                                        @change="updateCurrentValue"
-                                                                                        @input="updateCurrentValue"
-                                                                                        v-model="currentValue">
+                                                                                    {% if VUE3 %}
+                                                                                    v-model:value="currentValue"
+                                                                                    {% else %}
+                                                                                    v-model="currentValue"
+                                                                                    {% endif %}
+                                                                                    :placeholder="field.placeholder"
+                                                                                    :options="field.options"
+                                                                                    :helpText="!field.helpText ? null : field.helpText"
+                                                                                    :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                    {% if VUE3 %}
+                                                                                    @update:value="updateCurrentValue"
+                                                                                    {% else %}
+                                                                                    @change="updateCurrentValue"
+                                                                                    @input="updateCurrentValue"
+                                                                                    {% endif %}
+                                                                                >
                                                                                 </sw-select-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
@@ -315,11 +324,20 @@
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-url-field
-                                                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                                                        :disabled="isInherited || !acl.can('theme.editor')"
-                                                                                        @change="updateCurrentValue"
-                                                                                        @input="updateCurrentValue"
-                                                                                        v-model="currentValue">
+                                                                                    {% if VUE3 %}
+                                                                                    v-model:value="currentValue"
+                                                                                    {% else %}
+                                                                                    v-model="currentValue"
+                                                                                    {% endif %}
+                                                                                    :helpText="!field.helpText ? null : field.helpText"
+                                                                                    :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                    {% if VUE3 %}
+                                                                                    @update:value="updateCurrentValue"
+                                                                                    {% else %}
+                                                                                    @change="updateCurrentValue"
+                                                                                    @input="updateCurrentValue"
+                                                                                    {% endif %}
+                                                                                >
                                                                                 </sw-url-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
@@ -392,8 +410,12 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue"
+                                                                                    {% if VUE3 %}
+                                                                                    @update:value="updateCurrentValue"
+                                                                                    {% else %}
                                                                                     @change="updateCurrentValue"
                                                                                     @input="updateCurrentValue"
+                                                                                    {% endif %}
                                                                                 />
 
                                                                                 <sw-text-field
@@ -401,8 +423,12 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue | cssValue"
+                                                                                    {% if VUE3 %}
+                                                                                    @update:value="updateCurrentValue"
+                                                                                    {% else %}
                                                                                     @change="updateCurrentValue"
                                                                                     @input="updateCurrentValue"
+                                                                                    {% endif %}
                                                                                 />
                                                                             </template>
                                                                         </sw-inherit-wrapper>
@@ -613,7 +639,12 @@
                         </div>
 
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="newThemeName"
+                            {% else %}
                             v-model="newThemeName"
+                            {% endif %}
+                            name="sw-field--duplicate-theme-name"
                             :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
                             :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
                         />
@@ -653,8 +684,13 @@
                             {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
                         </div>
 
-                        <sw-text-field 
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="newThemeName"
+                            {% else %}
                             v-model="newThemeName"
+                            {% endif %}
+                            name="sw-field--rename-theme-name"
                             :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
                             :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
                         />
@@ -714,16 +750,18 @@
                             :initialFolderId="defaultMediaFolderId">
                             <template #context-menu-items="media">
                                 {% block sw_theme_manager_detail_sidebar_media_items %}
-                                    <template v-if="shouldShowContent" v-for="(tab, tabName) in structuredThemeFields.tabs">
-                                        <template v-for="block in tab.blocks">
-                                            <template v-for="section in block.sections">
-                                                <sw-context-menu-item
-                                                    v-for="(field, fieldName) in section.fields"
-                                                    v-if="themeConfig[fieldName] && field.type === 'media'"
-                                                    :key="fieldName"
-                                                    @click="onAddMediaToTheme(media.mediaItem, currentThemeConfig[fieldName])">
-                                                    {{ $tc('sw-theme-manager.modal.addToMediaLabel', 0, { name: field.label }) }}
-                                                </sw-context-menu-item>
+                                    <template v-if="shouldShowContent">
+                                        <template v-for="(tab, tabName) in structuredThemeFields.tabs">
+                                            <template v-for="block in tab.blocks">
+                                                <template v-for="section in block.sections">
+                                                    <template v-for="(field, fieldName) in section.fields">
+                                                        <sw-context-menu-item v-if="themeConfig[fieldName] && field.type === 'media'"
+                                                                              :key="fieldName"
+                                                                              @click="onAddMediaToTheme(media.mediaItem, currentThemeConfig[fieldName])">
+                                                            {{ $tc('sw-theme-manager.modal.addToMediaLabel', 0, { name: field.label }) }}
+                                                        </sw-context-menu-item>
+                                                    </template>
+                                                </template>
                                             </template>
                                         </template>
                                     </template>

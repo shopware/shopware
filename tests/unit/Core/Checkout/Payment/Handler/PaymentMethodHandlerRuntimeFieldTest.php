@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifier
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler;
+use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\MultipleTestPaymentHandler;
 
 /**
  * @internal

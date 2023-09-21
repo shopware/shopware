@@ -31,6 +31,7 @@ use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;

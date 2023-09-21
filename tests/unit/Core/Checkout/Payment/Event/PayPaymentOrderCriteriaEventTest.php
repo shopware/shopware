@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

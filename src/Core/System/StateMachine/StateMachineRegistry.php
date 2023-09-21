@@ -215,6 +215,11 @@ class StateMachineRegistry implements ResetInterface
         });
     }
 
+    public function reset(): void
+    {
+        $this->stateMachines = [];
+    }
+
     /**
      * @throws StateMachineException
      * @throws InconsistentCriteriaIdsException

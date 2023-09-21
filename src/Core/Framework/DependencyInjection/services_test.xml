@@ -19,30 +19,30 @@
     <services>
         <defaults public="true"/>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
         </service>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\PreparedTestPaymentHandler">
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\MultipleTestPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\RefundTestPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\RefundTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
             <tag name="shopware.payment.method.refund"/>
         </service>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestFailedPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestFailedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
-        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler">
+        <service id="Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.sync"/>
         </service>

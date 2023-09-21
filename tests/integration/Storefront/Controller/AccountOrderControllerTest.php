@@ -20,13 +20,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
-use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -177,7 +177,11 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
         static::assertNotNull($salesChannel);
 
         $orderData[0]['salesChannelId'] = $salesChannel->getId();

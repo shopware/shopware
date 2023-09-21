@@ -32,11 +32,15 @@
 
                                     {% block sw_theme_list_listing_actions_sorting %}
                                         <div class="sw-theme-list__actions-sorting">
-                                            <sw-select-field 
+                                            <sw-select-field
                                                 name="sortType"
                                                 :label="$tc('sw-theme-manager.sorting.labelSort')"
                                                 :value="sortingConCat"
+                                                {% if VUE3 %}
+                                                @update:value="onSortingChanged"
+                                                {% else %}
                                                 @change="onSortingChanged"
+                                                {% endif %}
                                                 aside
                                             >
 
@@ -105,7 +109,7 @@
 
                                                         {% block sw_theme_list_listing_list_data_grid_column_created %}
                                                             <template #column-createdAt="{ item }">
-                                                                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                                                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                                                             </template>
                                                         {% endblock %}
 
@@ -339,6 +343,7 @@
                                     {% else %}
                                     v-model="newThemeName"
                                     {% endif %}
+                                    name="sw-field--duplicate-theme-name"
                                     :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
                                     :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
                                 />
@@ -384,6 +389,7 @@
                                     {% else %}
                                     v-model="newThemeName"
                                     {% endif %}
+                                    name="sw-field--rename-theme-name"
                                     :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
                                     :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
                                 />

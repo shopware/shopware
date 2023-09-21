@@ -118,7 +118,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         defaultThemeAsset() {
-            return `url('${Shopware.Context.api.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
+            const assetFilter = Shopware.Filter.getByName('asset');
+            const previewUrl = assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+
+            return `url(${previewUrl})`;
         },
 
         deleteDisabledToolTip() {

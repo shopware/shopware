@@ -4,7 +4,7 @@
  * @package sales-channel
  */
 
-describe('Theme: Visual tests', () => {
+describe('Theme: Visual tests', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(Cypress.env('admin'));

@@ -264,6 +264,9 @@ shopware:
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
             PRODUCT_SORTING_NOT_FOUND: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
+            CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY: notice
+            CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
             CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice

@@ -134,6 +134,11 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
+                if (this.feature.isActive('VUE3') && this.isInherited && newValue !== this.inheritedValue) {
+                    this.removeInheritance(newValue);
+                    return;
+                }
+
                 if (this.isInherited) {
                     this.removeInheritance(newValue);
                     return;

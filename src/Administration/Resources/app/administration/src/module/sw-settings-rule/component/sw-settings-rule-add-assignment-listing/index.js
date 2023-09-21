@@ -7,7 +7,7 @@ const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,

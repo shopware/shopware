@@ -84,7 +84,7 @@ class DeleteNotUsedMediaCommand extends Command
 
         $count = $this->unusedMediaPurger->deleteNotUsedMedia(
             $input->getOption('limit') ? (int) $input->getOption('limit') : null,
-            $input->getOption('offset') ? (int) $input->getOption('offset') : null,
+            $input->getOption('offset') !== null ? (int) $input->getOption('offset') : null,
             (int) $input->getOption('grace-period-days'),
             $input->getOption('folder-entity'),
         );

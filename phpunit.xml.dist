@@ -55,9 +55,9 @@
         </include>
         <exclude>
             <file>src/Core/Framework/Adapter/Twig/functions.php</file>
+            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/Checkout/Test</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
@@ -101,9 +101,6 @@
         </testsuite>
         <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
-        </testsuite>
-        <testsuite name="checkout">
-            <directory>src/Core/Checkout/Test</directory>
         </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>

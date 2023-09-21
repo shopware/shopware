@@ -9,17 +9,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
-use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
-use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransaction\OrderTransactionBuilder;
-use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureBuilder;
-use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundBuilder;
-use Shopware\Core\Checkout\Test\Order\OrderBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -37,6 +34,11 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
+use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionBuilder;
+use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
+use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureRefundBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -248,7 +250,6 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $criteria->addFilter(new EqualsFilter('handlerIdentifier', sprintf('app\\testPayments_%s', $name)));
         $id = $this->paymentMethodRepository->searchIds($criteria, $this->context)->firstId();
         static::assertNotNull($id);
-        static::assertIsString($id);
 
         return $id;
     }
@@ -291,6 +292,8 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     {
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('state');
+
+        /** @var OrderTransactionEntity|null $transaction */
         $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->first();
         static::assertNotNull($transaction);
 
@@ -305,6 +308,8 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     {
         $criteria = new Criteria([$refundId]);
         $criteria->addAssociation('state');
+
+        /** @var OrderTransactionCaptureRefundEntity|null $refund */
         $refund = $this->orderTransactionCaptureRefundRepository->search($criteria, $this->context)->first();
         static::assertNotNull($refund);
 

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -16,8 +15,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductCloseoutFilterFactoryTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testCreatesProductCloseoutFilter(): void
     {
         $context = $this->createMock(SalesChannelContext::class);

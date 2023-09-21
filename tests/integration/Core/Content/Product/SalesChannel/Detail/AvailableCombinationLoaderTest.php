@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

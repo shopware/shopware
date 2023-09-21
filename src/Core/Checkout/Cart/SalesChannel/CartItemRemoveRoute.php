@@ -44,11 +44,11 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
         foreach ($ids as $id) {
             $lineItem = $cart->get($id);
-            $lineItems[] = $lineItem;
 
             if (!$lineItem) {
                 throw CartException::lineItemNotFound($id);
             }
+            $lineItems[] = $lineItem;
 
             $cart->remove($id);
 

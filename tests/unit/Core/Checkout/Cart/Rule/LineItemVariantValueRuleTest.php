@@ -62,8 +62,8 @@ class LineItemVariantValueRuleTest extends TestCase
         $lineItem->setPayloadValue('optionIds', $itemOptionIds);
         $lineItems = new LineItemCollection([$lineItem]);
 
-        $cart = $this->createMock(Cart::class);
-        $cart->method('getLineItems')->willReturn($lineItems);
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems($lineItems);
 
         $context = $this->createMock(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $context);

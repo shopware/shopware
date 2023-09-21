@@ -108,8 +108,7 @@ class LineItemValidatorTest extends TestCase
         $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(1, $errors);
-        static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('id', $errors->first()->getId());
-        static::assertSame('price', $errors->last()->getMessageKey());
+        static::assertSame('id', $errors->first()?->getId());
+        static::assertSame('price', $errors->last()?->getMessageKey());
     }
 }

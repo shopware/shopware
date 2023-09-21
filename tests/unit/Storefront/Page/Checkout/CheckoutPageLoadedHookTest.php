@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\Checkout;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
@@ -17,6 +16,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\PageLoadedHook;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

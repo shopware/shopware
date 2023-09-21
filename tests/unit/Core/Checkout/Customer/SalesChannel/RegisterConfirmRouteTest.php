@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -93,7 +93,7 @@ class RegisterConfirmRouteTest extends TestCase
 
         $confirmResult = $this->route->confirm($this->mockRequestDataBag(), $this->context);
 
-        static::assertInstanceOf(CustomerResponse::class, $confirmResult);
+        static::assertTrue($confirmResult->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testConfirmCustomerNotDoubleOptIn(): void

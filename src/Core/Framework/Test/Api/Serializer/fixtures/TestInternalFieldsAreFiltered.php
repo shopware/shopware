@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
-use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\FalseRule;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
 
 /**
  * @internal

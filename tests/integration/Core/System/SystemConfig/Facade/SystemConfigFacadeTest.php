@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Facade;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -22,6 +21,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

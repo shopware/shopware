@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;

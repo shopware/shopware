@@ -51,7 +51,6 @@ class PaymentMethodRuleTest extends TestCase
         $rule = new PaymentMethodRule();
 
         $constraints = $rule->getConstraints();
-        static::assertIsArray($constraints);
         static::assertCount(2, $constraints['paymentMethodIds']);
         static::assertInstanceOf(NotBlank::class, $constraints['paymentMethodIds'][0]);
         static::assertInstanceOf(ArrayOfUuid::class, $constraints['paymentMethodIds'][1]);

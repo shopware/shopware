@@ -387,6 +387,7 @@ class TaxAdjustmentTest extends TestCase
         static::assertCount(1, $taxes);
 
         $tax = $taxes->first();
+        static::assertNotNull($tax);
 
         static::assertSame(7.0, $tax->getTax());
         static::assertSame(7.0, $tax->getTaxRate());

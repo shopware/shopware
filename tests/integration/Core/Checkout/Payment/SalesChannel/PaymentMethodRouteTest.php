@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 

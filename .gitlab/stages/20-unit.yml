@@ -163,7 +163,7 @@ PHP unit:
             junit: phpunit.junit.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,migration", "content", "checkout"]
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,migration", "content"]
 
 PHP unit Elasticsearch:
   extends: PHP unit
@@ -340,7 +340,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront content framework profiling system elasticsearch unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         ALLOW_FAILURE: "false"
@@ -378,12 +378,12 @@ PHP Full:
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
-                TEST_SUITES: "checkout content framework profiling system integration migration"
+                TEST_SUITES: "content framework profiling system integration migration"
             -   MYSQL_IMAGE: mariadb:11.0
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
-                TEST_SUITES: "checkout content framework profiling system integration migration"
+                TEST_SUITES: "content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
                 MYSQL_CMD: 'mariadbd'
     script:
@@ -478,7 +478,7 @@ PHP unit per area:
     coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
-        - PRODUCT_AREA: ["administration", "business-ops", "checkout", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
+        - PRODUCT_AREA: ["administration", "business-ops", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
     artifacts:
       when: always
       paths:

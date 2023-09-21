@@ -38,6 +38,8 @@ class ShippingLocation extends Struct
 
     public static function createFromAddress(CustomerAddressEntity $address): self
     {
+        \assert($address->getCountry() !== null);
+
         return new self(
             $address->getCountry(),
             $address->getCountryState(),
@@ -52,11 +54,7 @@ class ShippingLocation extends Struct
 
     public function getCountry(): CountryEntity
     {
-        if ($this->address) {
-            return $this->address->getCountry();
-        }
-
-        return $this->country;
+        return $this->address?->getCountry() ?? $this->country;
     }
 
     public function getState(): ?CountryStateEntity

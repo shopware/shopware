@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload\Struct;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @covers \Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload

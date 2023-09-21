@@ -39,14 +39,13 @@ class ItemsFacadeTest extends TestCase
             $this->item(new LineItem('item-1', 'item', 'reference'))
         );
 
-        static::assertEquals(1, $facade->count());
+        static::assertCount(1, $facade);
         static::assertTrue($facade->has('item-1'));
         static::assertInstanceOf(ItemFacade::class, $facade->get('item-1'));
-        static::assertIsIterable($facade);
 
         $facade->remove('item-1');
 
-        static::assertEquals(0, $facade->count());
+        static::assertCount(0, $facade);
         static::assertFalse($facade->has('item-1'));
         static::assertNull($facade->get('item-1'));
 

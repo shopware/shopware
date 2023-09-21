@@ -36,6 +36,8 @@ use Shopware\Core\Framework\Rule\Rule as ShopwareRule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\Framework\Rule\TimeRangeRule;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\FalseRule;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
 
 /**
  * @implements Rule<InClassNode>
@@ -76,6 +78,8 @@ class RuleConditionHasRuleConfigRule implements Rule
         LineItemGoodsTotalRule::class,
         CustomerCustomFieldRule::class,
         LineItemGroupRule::class,
+        FalseRule::class,
+        TrueRule::class,
     ];
 
     public function getNodeType(): string

@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Event;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @covers \Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent

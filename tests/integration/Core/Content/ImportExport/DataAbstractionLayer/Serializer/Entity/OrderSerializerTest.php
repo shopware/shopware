@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 
 /**
  * @internal
@@ -78,6 +78,8 @@ class OrderSerializerTest extends TestCase
         static::assertNotNull($delivery = $deliveries->first());
         $shippingAddress = $delivery->getShippingOrderAddress();
 
+        static::assertNotNull($shippingAddress);
+
         static::assertNotEmpty($serialized['deliveries']);
         static::assertNotEmpty($serialized['deliveries']['shippingOrderAddress']);
         static::assertSame($serialized['deliveries']['trackingCodes'], implode('|', $delivery->getTrackingCodes()));
@@ -125,7 +127,12 @@ class OrderSerializerTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        return $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($order);
+
+        return $order;
     }
 
     /**

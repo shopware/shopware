@@ -43,6 +43,6 @@ class DocumentMergerTest extends TestCase
             $fpdi
         );
 
-        $documentMerger->merge([Uuid::randomHex()], $this->createMock(Context::class));
+        $documentMerger->merge([Uuid::randomHex()], Context::createDefaultContext());
     }
 }

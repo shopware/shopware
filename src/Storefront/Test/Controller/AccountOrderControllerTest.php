@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -26,6 +27,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -172,16 +174,14 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
         static::assertNotNull($salesChannel);
 
-        if ($salesChannel !== null) {
-            $orderData[0]['salesChannelId'] = $salesChannel->getId();
-        }
+        $orderData[0]['salesChannelId'] = $salesChannel->getId();
 
         $productId = $this->createProduct($context);
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
@@ -424,11 +424,16 @@ class AccountOrderControllerTest extends TestCase
             ],
         ];
 
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
-
         $repo->create($data, $context);
 
-        return $repo->search(new Criteria([$customerId]), $context)->first();
+        /** @var CustomerEntity|null $customer */
+        $customer = $repo->search(new Criteria([$customerId]), $context)->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     private function createProduct(Context $context): string

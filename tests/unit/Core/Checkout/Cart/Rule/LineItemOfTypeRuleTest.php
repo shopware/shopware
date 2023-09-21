@@ -26,13 +26,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemOfTypeRuleTest extends TestCase
 {
-    public function testInitialize(): void
-    {
-        $rule = new LineItemOfTypeRule(Rule::OPERATOR_EQ, 'test');
-
-        static::assertInstanceOf(LineItemOfTypeRule::class, $rule);
-    }
-
     public function testGetName(): void
     {
         $rule = new LineItemOfTypeRule(Rule::OPERATOR_EQ, 'test');

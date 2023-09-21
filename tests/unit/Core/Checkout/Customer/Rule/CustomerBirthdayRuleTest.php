@@ -82,7 +82,6 @@ class CustomerBirthdayRuleTest extends TestCase
     public function testCustomerWithoutBirthdayIsFalse(): void
     {
         $customer = new CustomerEntity();
-        static::assertNotNull($customer);
 
         $scope = $this->createScope($customer);
         $this->rule->assign(['birthday' => '2000-09-05', 'operator' => Rule::OPERATOR_EQ]);

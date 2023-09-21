@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
-use Shopware\Core\Checkout\Cart\Facade\ProductsFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
@@ -40,7 +39,7 @@ class ContainerFacadeTest extends TestCase
 
         $facade->remove('foo');
         static::assertFalse($facade->has('foo'));
-        static::assertInstanceOf(ProductsFacade::class, $facade->products());
+        static::assertCount(0, $facade->products());
     }
 
     public function testAbsoluteDiscount(): void

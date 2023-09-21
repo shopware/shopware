@@ -5,10 +5,6 @@
 
 import elements from '../../../../support/pages/sw-general.page-object';
 
-/**
- * @package sales-channel
- */
-
 describe('Theme: Test ACL privileges', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);

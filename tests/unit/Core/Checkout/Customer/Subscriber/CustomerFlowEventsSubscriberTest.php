@@ -59,10 +59,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     public function testOnCustomerWrittenWithInstanceOfSaleChannelApi(): void
     {
-        $context = $this->createMock(Context::class);
-        $context->expects(static::once())
-            ->method('getSource')
-            ->willReturn(new SalesChannelApiSource(Defaults::SALES_CHANNEL_TYPE_API));
+        $context = Context::createDefaultContext(new SalesChannelApiSource(Defaults::SALES_CHANNEL_TYPE_API));
 
         $event = $this->createMock(EntityWrittenEvent::class);
         $event->expects(static::once())

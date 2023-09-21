@@ -272,6 +272,11 @@ parameters:
             message: '#Call to static method PHPUnit\\Framework\\Assert::assertContains\(\) with .* and Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade will always evaluate to true#'
             path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
 
+        - # TestBuilders must not be internal
+            message: '#must be flagged @internal to not be captured by the BC checker#'
+            paths:
+                - src/Core/Test/Integration/Builder
+
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

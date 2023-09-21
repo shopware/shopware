@@ -15,9 +15,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

@@ -22,7 +22,6 @@ class ErrorsFacadeTest extends TestCase
         $facade->error('error');
         $facade->notice('notice');
 
-        static::assertIsIterable($facade);
         static::assertCount(3, $facade);
         static::assertTrue($facade->has('warning'));
         static::assertTrue($facade->has('error'));

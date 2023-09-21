@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**

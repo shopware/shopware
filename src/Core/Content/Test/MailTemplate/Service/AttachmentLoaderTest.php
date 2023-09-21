@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Content\Media\MediaService;
@@ -20,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

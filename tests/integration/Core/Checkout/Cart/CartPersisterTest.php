@@ -19,13 +19,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**

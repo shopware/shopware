@@ -120,8 +120,6 @@ class RangeAggregationTest extends TestCase
         $rangesResult = $aggregationCollection->get('test-range-aggregation')->getRanges();
 
         static::assertCount(\count($rangesDefinition), $rangesResult);
-
-        static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {
             static::assertArrayHasKey($key, $rangesExpectedResult);
             static::assertEquals($rangesExpectedResult[$key], $count);

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

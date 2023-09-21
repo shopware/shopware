@@ -4,7 +4,6 @@ namespace Shopware\Administration\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler;
 
 /**
  * @internal

@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -53,6 +51,8 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

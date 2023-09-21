@@ -25,9 +25,10 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('checkout')]
-class StateMachineRegistry
+class StateMachineRegistry implements ResetInterface
 {
     /**
      * @var StateMachineEntity[]
@@ -212,6 +213,11 @@ class StateMachineRegistry
 
             return $stateMachineStateCollection;
         });
+    }
+
+    public function reset(): void
+    {
+        $this->stateMachines = [];
     }
 
     /**

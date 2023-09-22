@@ -1158,5 +1158,13 @@ export default {
         onChangeDontRemindCheckbox() {
             this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
         },
+
+        back() {
+            if (window.history.length > 2) {
+                this.$router.back();
+            } else {
+                this.$router.push({name: 'sw.cms.index'});
+            }
+        },
     },
 };

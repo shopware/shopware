@@ -110,6 +110,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
+                $ids = array_values($ids);
+
                 // we provide no queue when the data is sent by the admin
                 if ($indexingBehavior->getNoQueue()) {
                     $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));

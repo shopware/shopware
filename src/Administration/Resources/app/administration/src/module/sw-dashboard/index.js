@@ -6,7 +6,7 @@ Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashbo
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 Module.register('sw-dashboard', {

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swImportExportImporter from 'src/module/sw-import-export/component/sw-import-export-importer';

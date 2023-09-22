@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swImportExportActivityResultModal from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';

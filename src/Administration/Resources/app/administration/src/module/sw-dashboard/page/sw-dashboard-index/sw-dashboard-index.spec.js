@@ -37,7 +37,7 @@ async function createWrapper(privileges = []) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;

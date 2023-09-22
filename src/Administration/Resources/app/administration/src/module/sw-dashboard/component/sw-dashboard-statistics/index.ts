@@ -48,7 +48,7 @@ interface ComponentData {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  *
  * @private
  */

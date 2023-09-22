@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 const { Module } = Shopware;
 const ModuleFactory = Module;

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';

@@ -382,6 +382,8 @@ class Kernel extends HttpKernel
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 
+        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+
         $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
 
         $loader = <<<PHP

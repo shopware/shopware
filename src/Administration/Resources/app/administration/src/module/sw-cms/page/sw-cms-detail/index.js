@@ -1159,11 +1159,11 @@ export default {
             this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
         },
 
-        async onClickBack() {
+        back() {
             if (window.history.length > 2) {
-                await this.$router.back();
+                this.$router.back();
             } else {
-                await this.$router.push({ name: 'sw.cms.index' });
+                this.$router.push({name: 'sw.cms.index'});
             }
         },
     },

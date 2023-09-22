@@ -5,4 +5,5 @@ author: amenk
 author_github: amenk
 --- 
 # Administration
-* Changed `sw-cms-detail` to redirect back to the previous page instead of the cms page list
+* Changed: When using the designer in a category and closing the view, we are now sent back to the category, not the template list.
+

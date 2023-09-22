@@ -31,12 +31,12 @@
                     <div class="sw-cms-detail__page-info">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_back_button %}
-                        <router-link
-                            :to="{ name: 'sw.cms.index' }"
+                        <a
+                            @click="back()"
                             class="sw-cms-detail__back-btn"
                         >
                             <sw-icon name="regular-times" />
-                        </router-link>
+                        </a>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -1,7 +1,6 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';

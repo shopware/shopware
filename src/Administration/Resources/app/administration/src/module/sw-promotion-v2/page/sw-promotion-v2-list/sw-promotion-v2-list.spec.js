@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2List from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

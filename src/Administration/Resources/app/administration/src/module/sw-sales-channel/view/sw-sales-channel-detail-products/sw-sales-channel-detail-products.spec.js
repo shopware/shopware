@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 /* eslint-disable prefer-promise-reject-errors */

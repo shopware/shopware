@@ -5,7 +5,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

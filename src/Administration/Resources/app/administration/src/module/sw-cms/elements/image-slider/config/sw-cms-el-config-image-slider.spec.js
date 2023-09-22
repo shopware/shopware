@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';

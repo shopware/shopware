@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCurrencyCountryModal from 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
 

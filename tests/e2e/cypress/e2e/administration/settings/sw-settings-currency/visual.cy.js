@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Currency: Visual testing', () => {
     beforeEach(() => {

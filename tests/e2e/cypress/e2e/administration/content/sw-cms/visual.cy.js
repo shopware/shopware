@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef

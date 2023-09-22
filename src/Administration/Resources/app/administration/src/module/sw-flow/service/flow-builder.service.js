@@ -17,7 +17,7 @@ Application.addServiceProvider('flowBuilderService', () => {
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default function flowBuilderService() {
     const $icon = {

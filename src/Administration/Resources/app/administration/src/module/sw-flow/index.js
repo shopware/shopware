@@ -38,7 +38,7 @@ Shopware.Component.register('sw-flow-leave-page-modal', () => import('./componen
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Module.register('sw-flow', {
     type: 'core',

@@ -148,6 +148,14 @@ export default {
                 width: '80px',
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     methods: {

@@ -213,4 +213,10 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         expect(categoryTree.attributes()['allow-delete']).toBe('true');
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 /* eslint-disable prefer-promise-reject-errors */
@@ -479,5 +479,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-empty-state').exists()).toBe(true);
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

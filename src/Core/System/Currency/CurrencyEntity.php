@@ -15,7 +15,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslat
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyEntity extends Entity
 {
     use EntityCustomFieldsTrait;

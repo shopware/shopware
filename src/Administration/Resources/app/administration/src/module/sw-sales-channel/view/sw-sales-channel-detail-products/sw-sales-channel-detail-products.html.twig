@@ -178,7 +178,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_card_section_primary_image %}
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
                         >
                         {% endblock %}
@@ -197,13 +197,16 @@
     <sw-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
         :show-description="false"
+        {% if VUE3 %}
+        :absolute="false"
+        {% endif %}
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #icon>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_empty_state_image %}
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
             >
             {% endblock %}

@@ -83,6 +83,10 @@ Component.extend('sw-url-field', 'sw-text-field', {
         combinedError() {
             return this.errorUrl || this.error;
         },
+
+        unicodeUriFilter() {
+            return Shopware.Filter.getByName('unicodeUri');
+        },
     },
 
     watch: {
@@ -168,7 +172,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 .toString()
                 .replace(URL_REGEX.PROTOCOL, '')
                 .replace(removeTrailingSlash, '')
-                .replace(url.host, this.$options.filters.unicodeUri(url.host));
+                .replace(url.host, this.unicodeUriFilter(url.host));
         },
 
         changeMode(disabled) {

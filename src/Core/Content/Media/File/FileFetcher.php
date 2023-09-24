@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];

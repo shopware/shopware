@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\CollectingMessageBus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -29,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @covers \Shopware\Core\Content\Media\File\FileSaver
  */
+#[Package('buyers-experience')]
 class FileSaverTest extends TestCase
 {
     private MockObject&EntityRepository $mediaRepository;

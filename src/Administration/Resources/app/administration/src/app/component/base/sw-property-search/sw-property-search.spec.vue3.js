@@ -14,6 +14,7 @@ async function createWrapper() {
                 ],
             },
             global: {
+                renderStubDefaultSlot: true,
                 stubs: {
                     'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -135,6 +136,10 @@ async function createWrapper() {
 }
 
 describe('components/base/sw-property-search', () => {
+    afterEach(async () => {
+        await flushPromises();
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 

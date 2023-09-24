@@ -154,7 +154,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_amount %}
                             <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                            <dd>{{ (cartPrice ? cartPrice.positionPrice : 0) | currency(currency.shortName) }}</dd>
+                            <dd>{{ currencyFilter(cartPrice ? cartPrice.positionPrice : 0, currency.shortName) }}</dd>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -173,7 +173,7 @@
                                         :value="cartDelivery.shippingCosts.totalPrice"
                                         @value-change="onShippingChargeEdited"
                                     >
-                                        {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName) }}
+                                        {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.shortName) }}
                                     </sw-order-saveable-field>
                                 </dd>
                             </template>
@@ -186,7 +186,7 @@
                                     {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
                                 <dd :key="`dd-${index}`">
-                                    {{ delivery.shippingCosts.totalPrice | currency(currency.shortName) }}
+                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName) }}
                                 </dd>
                             </template>
                             {% endblock %}
@@ -195,7 +195,7 @@
                             {% block sw_order_create_base_line_items_summary_amount_without_tax %}
                             <template v-if="taxStatus !== 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                <dd><strong>{{ (cartPrice ? cartPrice.netPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(cartPrice ? cartPrice.netPrice : 0, currency.shortName) }}</strong></dd>
                             </template>
                             {% endblock %}
 
@@ -207,7 +207,7 @@
                                         {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                     </dt>
                                     <dd :key="`dd-${index}`">
-                                        {{ calculatedTax.tax | currency(currency.shortName) }}
+                                        {{ currencyFilter(calculatedTax.tax, currency.shortName) }}
                                     </dd>
                                 </template>
                             </template>
@@ -217,10 +217,10 @@
                             {% block sw_order_create_base_line_items_summary_amount_total %}
                             <template v-if="taxStatus !== 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
-                                <dd><strong>{{ orderTotal | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(orderTotal, currency.shortName) }}</strong></dd>
                                 <template v-if="displayRounded">
                                     <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                    <dd><strong>{{ cart.price.totalPrice | currency(currency.shortName) }}</strong></dd>
+                                    <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.shortName) }}</strong></dd>
                                 </template>
                             </template>
                             {% endblock %}
@@ -229,7 +229,7 @@
                             {% block sw_order_create_base_line_items_summary_amount_free_tax %}
                             <template v-if="taxStatus === 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                                <dd><strong>{{ cart.price.totalPrice | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.shortName) }}</strong></dd>
                             </template>
                             {% endblock %}
                             {% endblock %}

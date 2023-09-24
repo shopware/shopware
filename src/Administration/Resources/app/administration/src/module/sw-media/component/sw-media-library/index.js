@@ -5,7 +5,7 @@ const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -201,6 +201,10 @@ export default {
             }
 
             return criteria;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

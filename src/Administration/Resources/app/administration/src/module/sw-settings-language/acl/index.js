@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',

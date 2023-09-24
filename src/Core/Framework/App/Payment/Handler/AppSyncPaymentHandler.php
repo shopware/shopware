@@ -28,7 +28,8 @@ class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaym
             return;
         }
 
-        $payload = $this->buildPayload($transaction);
+        $payload = $this->buildPayload($transaction, $dataBag->all());
+
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
             throw PaymentException::syncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
@@ -63,11 +64,15 @@ class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaym
         );
     }
 
-    private function buildPayload(SyncPaymentTransactionStruct $transaction): SyncPayPayload
+    /**
+     * @param array<string|int, mixed> $requestData
+     */
+    private function buildPayload(SyncPaymentTransactionStruct $transaction, array $requestData): SyncPayPayload
     {
         return new SyncPayPayload(
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
+            $requestData,
             $transaction->getRecurring()
         );
     }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  *
  * @covers \Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand
  */
+#[Package('buyers-experience')]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
     public function testCommandDoesNotRunIfJsonOverlapNotAvailable(): void
@@ -66,24 +68,38 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         static::assertStringContainsString('Successfully deleted 2 media files.', $commandTester->getDisplay());
     }
 
-    public function testExecuteWithLimitAndOffset(): void
+    /**
+     * @dataProvider limitOffsetProvider
+     */
+    public function testExecuteWithLimitAndOffset(int $limit, int $offset): void
     {
         $service = $this->createMock(UnusedMediaPurger::class);
 
         $service->expects(static::once())
             ->method('deleteNotUsedMedia')
-            ->with(10, 5)
+            ->with($limit, static::identicalTo($offset))
             ->willReturn(2);
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(Connection::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
-        $commandTester->execute(['--limit' => 10, '--offset' => 5]);
+        $commandTester->execute(['--limit' => $limit, '--offset' => $offset]);
 
         $commandTester->assertCommandIsSuccessful();
         static::assertStringContainsString('Are you sure that you want to delete unused media files?', $commandTester->getDisplay());
         static::assertStringContainsString('Successfully deleted 2 media files.', $commandTester->getDisplay());
+    }
+
+    /**
+     * @return array<string, array{0: int, 1:int}>
+     */
+    public static function limitOffsetProvider(): array
+    {
+        return [
+            'zero-offset' => [10, 0],
+            'mid-offset' => [10, 5],
+        ];
     }
 
     public function testExecuteWithoutConfirmDoesNotPerformDelete(): void

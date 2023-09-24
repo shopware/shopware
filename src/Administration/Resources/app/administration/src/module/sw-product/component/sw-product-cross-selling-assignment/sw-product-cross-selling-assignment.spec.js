@@ -126,4 +126,8 @@ describe('module/sw-product/component/sw-product-cross-selling-assignment', () =
         expect(row2.text()).toContain('Color');
         expect(row2.text()).toContain('Blue');
     });
+
+    it('should return filters from filter registry', async () => {
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

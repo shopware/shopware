@@ -46,7 +46,7 @@
                         <img
                             v-if="isShopwareDefaultPaymentMethod(paymentMethod)"
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__icon"
-                            :src="'/administration/static/img/checkout/shopware_payment_method.svg' | asset"
+                            :src="assetFilter('/administration/static/img/checkout/shopware_payment_method.svg')"
                             alt=""
                         >
                         <sw-media-preview-v2

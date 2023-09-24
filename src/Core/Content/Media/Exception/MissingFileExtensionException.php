@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::missingFileExtension instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MissingFileExtensionException extends UploadException
 {
     public function __construct()

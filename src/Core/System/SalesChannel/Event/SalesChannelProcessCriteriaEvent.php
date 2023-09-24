@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelProcessCriteriaEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

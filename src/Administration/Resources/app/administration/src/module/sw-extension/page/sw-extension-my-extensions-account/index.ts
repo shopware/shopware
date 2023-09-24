@@ -5,7 +5,7 @@ import extensionErrorHandler from '../../service/extension-error-handler.service
 import type { MappedError } from '../../service/extension-error-handler.service';
 import type { UserInfo } from '../../../../core/service/api/store.api.service';
 
-const { State, Mixin } = Shopware;
+const { State, Mixin, Filter } = Shopware;
 
 /**
  * @package merchant-services
@@ -49,6 +49,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isLoggedIn(): boolean {
             return State.get('shopwareExtensions').userInfo !== null;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
     },
 

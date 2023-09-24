@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\Country\CountryException
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class CountryExceptionTest extends TestCase
 {
     /**

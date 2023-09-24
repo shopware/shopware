@@ -150,11 +150,11 @@ class LineItemCollectionTest extends TestCase
     {
         $collection = new LineItemCollection([
             new LineItem('A', 'a'),
-            new LineItem('B', 'a'),
+            new LineItem('B', 'b'),
             new LineItem('C', 'a'),
         ]);
 
-        static::assertInstanceOf(LineItemCollection::class, $collection->filterType('a'));
+        static::assertCount(2, $collection->filterType('a'));
     }
 
     public function testFilterReturnsNewCollection(): void

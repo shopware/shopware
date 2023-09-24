@@ -77,7 +77,11 @@
                     :value="mediaFolder.defaultFolderId ? mediaFolder.defaultFolderId : ''"
                     :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="onInputDefaultFolder"
+                    {% else %}
                     @change="onInputDefaultFolder"
+                    {% endif %}
                 >
 
                     <template #selection-label-property="{ item: item }">
@@ -229,7 +233,7 @@
                                 <sw-switch-field
                                     :value="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
-                                    :label="size | thumbnailSize"
+                                    :label="thumbnailSizeFilter(size)"
                                     :disabled="notEditable"
                                     {% if VUE3 %}
                                     @update:value="onChangeThumbnailSize($event, size)"

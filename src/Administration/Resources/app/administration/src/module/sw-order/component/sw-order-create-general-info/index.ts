@@ -54,5 +54,9 @@ export default Component.wrapComponentConfig({
         shippingMethodName(): string {
             return this.context.shippingMethod.translated?.name ?? '';
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 });

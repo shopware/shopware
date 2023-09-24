@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
     /**

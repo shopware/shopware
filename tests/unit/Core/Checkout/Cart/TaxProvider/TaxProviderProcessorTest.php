@@ -130,7 +130,7 @@ class TaxProviderProcessorTest extends TestCase
         static::assertArrayHasKey('7', $deliveryTaxes);
 
         static::assertInstanceOf(CalculatedTax::class, $lineItemTaxes['7']);
-        static::assertInstanceOf(CalculatedTax::class, $lineItemTaxes['7']);
+        static::assertInstanceOf(CalculatedTax::class, $deliveryTaxes['7']);
 
         $lineItemTax = $lineItemTaxes['7'];
         $deliveryTax = $deliveryTaxes['7'];

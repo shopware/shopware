@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 /**
  * @deprecated tag:v6.6.0 - Will be removed, use \Shopware\Core\Content\Media\UnusedMediaPurger instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class DeleteNotUsedMediaService
 {
     final public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';

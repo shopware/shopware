@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class StrategyFactory
 {
     /**

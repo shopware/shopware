@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class ProductSliderStruct extends Struct
 {
     /**

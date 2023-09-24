@@ -157,4 +157,20 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
         expect(wrapper.vm.productDisplayName).toBe('Product test (color: red | size: 39)');
     });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper({
+            entityIconName: 'default-shopping-basket',
+            entityIconColor: 'blue',
+            column: 1,
+            index: 1,
+            type: 'product',
+            item: {
+                id: 'productId',
+                name: 'Awesome Product',
+            },
+        });
+
+        expect(wrapper.vm.mediaNameFilter).toEqual(expect.any(Function));
+    });
 });

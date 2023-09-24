@@ -47,6 +47,10 @@ export default {
         logTypeText() {
             return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

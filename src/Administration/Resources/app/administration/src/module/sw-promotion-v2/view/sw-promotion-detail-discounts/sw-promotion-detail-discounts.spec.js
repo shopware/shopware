@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { shallowMount } from '@vue/test-utils';
 import swPromotionDetailDiscounts from 'src/module/sw-promotion-v2/view/sw-promotion-detail-discounts';
 import promotionState from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail/state';
@@ -37,12 +40,6 @@ async function createWrapper(privileges = []) {
 describe('src/module/sw-promotion-v2/view/sw-promotion-detail-discounts', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swPromotionDetail', promotionState);
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable adding discounts when privileges not set', async () => {

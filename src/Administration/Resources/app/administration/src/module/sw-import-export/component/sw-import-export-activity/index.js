@@ -194,6 +194,10 @@ export default {
                 this.$tc('sw-import-export.activity.emptyState.titleExport') :
                 this.$tc('sw-import-export.activity.emptyState.titleImport');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

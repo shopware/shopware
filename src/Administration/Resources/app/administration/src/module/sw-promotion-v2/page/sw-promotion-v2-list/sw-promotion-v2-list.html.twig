@@ -114,14 +114,14 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_valid_from %}
                 <template #column-validFrom="{ item }">
-                    {{ item.validFrom | date({ hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validFrom, { hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_valid_until %}
                 <template #column-validUntil="{ item }">
-                    {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validUntil, { hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}
                 {% endblock %}

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,14 +19,13 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @group store-api
  *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
+#[Package('buyers-experience')]
 class NewsletterSubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

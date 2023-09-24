@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2List from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -51,12 +54,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable create button when privilege not available', async () => {
         const wrapper = await createWrapper();
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');

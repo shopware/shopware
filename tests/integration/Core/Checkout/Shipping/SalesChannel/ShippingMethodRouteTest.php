@@ -168,13 +168,13 @@ class ShippingMethodRouteTest extends TestCase
         $request = new Request();
 
         $unselectedPaymentResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
-        $lastPaymentMethodId = $unselectedPaymentResult->getShippingMethods()->last()->getId();
+        $lastPaymentMethodId = $unselectedPaymentResult->getShippingMethods()->last()?->getId() ?? '';
 
         $this->salesChannelContext->getShippingMethod()->setId($lastPaymentMethodId);
         $selectedPaymentMethodResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
 
         static::assertInstanceOf(SortedShippingMethodRoute::class, $shippingMethodRoute);
-        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()->getId());
+        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()?->getId());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);

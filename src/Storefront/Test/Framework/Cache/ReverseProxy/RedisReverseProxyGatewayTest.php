@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
@@ -18,7 +19,7 @@ class RedisReverseProxyGatewayTest extends TestCase
 {
     private RedisReverseProxyGateway $gateway;
 
-    private \Redis $redis;
+    private \Redis&MockObject $redis;
 
     private MockHandler $mockHandler;
 
@@ -32,7 +33,7 @@ class RedisReverseProxyGatewayTest extends TestCase
         $this->gateway = new RedisReverseProxyGateway(
             ['http://localhost'],
             ['method' => 'BAN', 'headers' => []],
-            ['method' => 'BAN', 'headers' => []],
+            ['method' => 'BAN', 'headers' => [], 'urls' => []],
             3,
             $this->redis,
             new Client(['handler' => HandlerStack::create($this->mockHandler)])
@@ -53,8 +54,10 @@ class RedisReverseProxyGatewayTest extends TestCase
             ->redis
             ->expects(static::exactly(2))
             ->method('lPush')
-            ->willReturnCallback(function ($key, $value) use (&$parameters): void {
+            ->willReturnCallback(function ($key) use (&$parameters): int {
                 $parameters[] = $key;
+
+                return 1;
             });
 
         $this->gateway->tag(['product-1', 'product-2'], '/foo', new SymfonyResponse());

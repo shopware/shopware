@@ -110,6 +110,10 @@ export default {
                 ? this.parentProduct.properties
                 : this.product.properties;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

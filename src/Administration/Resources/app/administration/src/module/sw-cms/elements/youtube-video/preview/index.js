@@ -3,8 +3,14 @@ import './sw-cms-el-preview-youtube-video.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
 };

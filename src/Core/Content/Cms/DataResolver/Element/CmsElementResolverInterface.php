@@ -7,7 +7,7 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 interface CmsElementResolverInterface
 {
     public function getType(): string;

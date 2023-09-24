@@ -258,7 +258,7 @@
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                     <template #empty-state>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             alt=""
                         >
                         <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>

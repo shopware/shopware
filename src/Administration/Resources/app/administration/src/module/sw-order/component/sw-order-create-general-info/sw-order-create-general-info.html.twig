@@ -5,7 +5,7 @@
                 {{ summaryMainHeader }}
             </div>
             <div class="sw-order-create-general-info__summary-main-total">
-                {{ cart.price.totalPrice | currency(context.currency.translated.shortName, context.currency.totalRounding.decimals) }}
+                {{ currencyFilter(cart.price.totalPrice, context.currency.translated.shortName, context.currency.totalRounding.decimals) }}
             </div>
         </div>
 

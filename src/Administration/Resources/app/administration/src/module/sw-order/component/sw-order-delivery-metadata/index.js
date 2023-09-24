@@ -40,6 +40,16 @@ export default {
         };
     },
 
+    computed: {
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+    },
+
     created() {
         this.createdComponent();
     },

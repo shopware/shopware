@@ -21,7 +21,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('content')]
+#[Package('buyers-experience')]
 class CachedLandingPageRoute extends AbstractLandingPageRoute
 {
     /**

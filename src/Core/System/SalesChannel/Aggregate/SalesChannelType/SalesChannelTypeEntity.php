@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;

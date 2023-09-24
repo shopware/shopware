@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import { shallowMount } from '@vue/test-utils';
@@ -1108,5 +1108,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                 { field: 'name', order: 'ASC', naturalSorting: false },
             ]),
         }));
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class VideoTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [

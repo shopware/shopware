@@ -112,6 +112,10 @@ export default {
                 { extensionLabel: this.extensionLabel },
             );
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     methods: {

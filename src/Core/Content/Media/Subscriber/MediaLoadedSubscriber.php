@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaLoadedSubscriber implements EventSubscriberInterface
 {
     /**

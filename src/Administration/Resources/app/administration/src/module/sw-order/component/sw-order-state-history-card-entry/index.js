@@ -35,6 +35,13 @@ export default {
             default: false,
         },
     },
+
+    computed: {
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+    },
+
     methods: {
         userDisplayName(user) {
             let userString = '';

@@ -129,6 +129,32 @@ export default class VueAdapter extends ViewAdapter {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
+        /* eslint-disable max-len */
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+        this.app.config.globalProperties.$createTitle = function createTitle(this: Vue, identifier: string|null = null, ...additionalParams): string {
+            if (!this.$root) {
+                return '';
+            }
+
+            const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
+
+            if (!this.$route.meta || !this.$route.meta.$module) {
+                return '';
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+            const pageTitle = this.$root.$tc(this.$route.meta.$module.title);
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                return item !== null && item.trim() !== '';
+            });
+
+            return params.reverse().join(' | ');
+        };
+        /* eslint-enable max-len */
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 
@@ -472,9 +498,18 @@ export default class VueAdapter extends ViewAdapter {
      * @private
      */
     initPlugins() {
+        // placeholder variable because import is not filterable
+        let plugins = VuePlugins;
+
         if (!this.vue3) {
             // Add the community plugins to the plugin list
-            VuePlugins.push(VueRouter, VueI18n, VueMeta);
+            plugins.push(VueRouter, VueI18n, VueMeta);
+
+            // Remove our meta info plugin because we use the vue-meta plugin with Vue 2
+            plugins = plugins.filter((plugin) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                return !plugin?.isMetaInfoPluginInstalled;
+            });
         }
 
         VuePlugins.forEach((plugin) => {

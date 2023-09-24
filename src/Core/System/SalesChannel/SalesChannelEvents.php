@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelEvents
 {
     /**

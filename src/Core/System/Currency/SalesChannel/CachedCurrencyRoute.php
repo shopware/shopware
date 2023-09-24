@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CachedCurrencyRoute extends AbstractCurrencyRoute
 {
     final public const ALL_TAG = 'currency-route';

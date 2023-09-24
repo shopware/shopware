@@ -30,5 +30,13 @@ return [
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
+
+        // Removed boot method from Bundle
+        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
+
+        // Internal flag added
+        'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
     ],
 ];

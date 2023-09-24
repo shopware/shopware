@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\Promotion
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -80,6 +79,7 @@ use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import SalesChannelFavoritesService from 'src/module/sw-sales-channel/service/sales-channel-favorites.service';

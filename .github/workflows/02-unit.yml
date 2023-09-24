@@ -9,11 +9,20 @@ on:
 jobs:
   php:
     name: "PHPUnit with PHP ${{ matrix.php-version }}"
+    continue-on-error: ${{ !matrix.stable }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.1", "8.2", "8.3"]
+        include:
+          - php-version: 8.1
+            stable: true
+          - php-version: 8.2
+            stable: true
+          - php-version: 8.3
+            stable: false
+          - php-version: 8.4
+            stable: false
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
@@ -25,6 +34,12 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
     services:
+      elasticsearch:
+        image: elastic/elasticsearch:7.8.0
+        env:
+          discovery.type: single-node
+        ports:
+          - "9200:9200"
       database:
         image: mysql:8.0.33
         env:
@@ -33,14 +48,11 @@ jobs:
         options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
         ports:
           - "3306:3306"
-      elasticsearch:
-        image: elastic/elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
-        ports:
-          - "9200:9200"
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
@@ -54,22 +66,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           coverage: none
 
-      - name: Configure for PHP 8.3
+      - name: Configure for Unstable
         run: |
           composer config platform.php 8.2.99
           composer config -d vendor-bin/cs-fixer platform.php 8.2.99
           composer config -d vendor-bin/rector platform.php 8.2.99
           composer config -d vendor-bin/roave-backward-compatibility-check platform.php 8.2.99
-        if: matrix.php-version == '8.3'
+        if: matrix.stable == false
 
       - name: Setup Composer
         run: |

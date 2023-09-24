@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-base.html.twig';
@@ -471,6 +471,10 @@ export default {
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

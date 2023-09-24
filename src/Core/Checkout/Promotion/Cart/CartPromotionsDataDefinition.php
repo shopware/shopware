@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class CartPromotionsDataDefinition extends Struct
 {
     private array $codePromotions;

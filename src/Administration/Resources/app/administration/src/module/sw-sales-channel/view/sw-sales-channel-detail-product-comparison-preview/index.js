@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-product-comparison-preview.html.twig';

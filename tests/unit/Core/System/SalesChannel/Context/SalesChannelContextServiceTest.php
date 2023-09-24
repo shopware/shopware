@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -21,6 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @covers \Shopware\Core\System\SalesChannel\Context\SalesChannelContextService
  */
+#[Package('buyers-experience')]
 class SalesChannelContextServiceTest extends TestCase
 {
     public function testTokenExpired(): void

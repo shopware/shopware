@@ -200,6 +200,14 @@ export default {
 
             return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {

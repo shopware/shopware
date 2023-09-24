@@ -2,6 +2,8 @@ import template from './sw-promotion-v2-empty-state-hero.html.twig';
 import './sw-promotion-v2-empty-state-hero.scss';
 
 /**
+ * @package buyers-experience
+ *
  * @private
  */
 export default {
@@ -35,11 +37,15 @@ export default {
     computed: {
         imagePath() {
             return this.assetPath ||
-                `/administration/static/img/empty-states/${this.$route.meta.$module.name}-empty-state-hero.svg`;
+                '/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg';
         },
 
         showDescription() {
             return !this.hideDescription && this.description && this.description.length > 0;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 };

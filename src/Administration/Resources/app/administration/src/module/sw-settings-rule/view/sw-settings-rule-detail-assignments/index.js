@@ -80,6 +80,10 @@ export default {
         associationEntitiesConfig() {
             return Object.values(this.getRuleAssignmentConfiguration);
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

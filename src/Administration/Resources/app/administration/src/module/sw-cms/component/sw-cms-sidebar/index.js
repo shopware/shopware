@@ -9,7 +9,7 @@ const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

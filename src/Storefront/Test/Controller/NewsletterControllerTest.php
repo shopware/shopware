@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

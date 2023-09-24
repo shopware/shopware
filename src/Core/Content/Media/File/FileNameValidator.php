@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\File;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FileNameValidator
 {
     private const RESTRICTED_CHARACTERS = [

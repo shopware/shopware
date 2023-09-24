@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @covers \Shopware\Core\Content\Media\Pathname\UrlGenerator
  */
+#[Package('buyers-experience')]
 class UrlGeneratorTest extends TestCase
 {
     public function testAbsoluteMediaUrl(): void

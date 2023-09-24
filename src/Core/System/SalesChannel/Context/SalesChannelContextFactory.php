@@ -29,7 +29,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     /**

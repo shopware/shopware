@@ -417,7 +417,7 @@ Component.register('sw-text-editor', {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
-                        icon: 'default-text-editor-variables',
+                        icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
                         tooltipShowDelay: 500,

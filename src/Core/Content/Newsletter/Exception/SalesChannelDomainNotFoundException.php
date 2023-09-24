@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class SalesChannelDomainNotFoundException extends ShopwareHttpException
 {
     public function __construct(SalesChannelEntity $salesChannel)

@@ -264,6 +264,9 @@ shopware:
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
             PRODUCT_SORTING_NOT_FOUND: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
+            CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY: notice
+            CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
             CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
@@ -344,6 +347,8 @@ shopware:
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
             FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER: notice
             FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING: notice
             FRAMEWORK__KEY_PARAMETER_IS_MISSING: notice
             FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
@@ -373,6 +378,8 @@ shopware:
             each_theme_config: true
         invalidation:
             delay: 0
+            delay_options:
+                storage: cache
             count: 150
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []

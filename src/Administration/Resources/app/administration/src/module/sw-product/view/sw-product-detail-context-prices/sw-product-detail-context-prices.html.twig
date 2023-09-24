@@ -342,7 +342,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_empty_state_image %}
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 alt=""
             >
             {% endblock %}

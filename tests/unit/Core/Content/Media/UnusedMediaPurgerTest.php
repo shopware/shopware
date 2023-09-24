@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -39,6 +40,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
+#[Package('buyers-experience')]
 class UnusedMediaPurgerTest extends TestCase
 {
     public function testGetNotUsedMediaOnlyAppliesValidAssociationsToCriteria(): void

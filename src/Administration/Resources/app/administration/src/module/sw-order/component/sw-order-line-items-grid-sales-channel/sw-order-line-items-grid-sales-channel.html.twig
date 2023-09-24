@@ -98,7 +98,7 @@
     >
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-order.createBase.messageEmptyItem')"
             >
         </template>
@@ -211,7 +211,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
             <template v-else>
-                {{ item.price.unitPrice | currency(currency.shortName) }}
+                {{ currencyFilter(item.price.unitPrice,  currency.shortName) }}
             </template>
             {% endblock %}
 
@@ -223,7 +223,7 @@
         <template #column-totalPrice="{ item }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
-            {{ item.price.totalPrice | currency(currency.shortName) }}
+            {{ currencyFilter(item.price.totalPrice, currency.shortName) }}
             {% endblock %}
         </template>
         {% endblock %}

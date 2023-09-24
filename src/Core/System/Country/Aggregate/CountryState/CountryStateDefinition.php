@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryStateDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'country_state';

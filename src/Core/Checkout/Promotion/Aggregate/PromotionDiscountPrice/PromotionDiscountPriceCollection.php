@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<PromotionDiscountPriceEntity>
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionDiscountPriceCollection extends EntityCollection
 {
     public function getApiAlias(): string

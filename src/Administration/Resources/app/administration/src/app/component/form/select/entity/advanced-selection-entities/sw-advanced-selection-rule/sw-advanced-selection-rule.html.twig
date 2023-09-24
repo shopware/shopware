@@ -77,10 +77,10 @@
         {% block sw_advanced_selection_rule_list_grid_columns_create_date_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.updatedAt">
-                {{ item.updatedAt|date }}
+                {{ dateFilter(item.updatedAt) }}
             </template>
             <template v-else>
-                {{ item.createdAt|date }}
+                {{ dateFilter(item.createdAt) }}
             </template>
         </span>
         {% endblock %}

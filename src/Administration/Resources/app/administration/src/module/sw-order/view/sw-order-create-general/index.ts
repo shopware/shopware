@@ -117,6 +117,10 @@ export default Component.wrapComponentConfig({
 
             return this.cart.price.totalPrice;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     created(): void {

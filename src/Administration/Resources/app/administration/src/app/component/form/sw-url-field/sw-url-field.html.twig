@@ -40,7 +40,7 @@
             type="url"
             class="sw-url-input-field__input"
             :name="identification"
-            :value="currentValue|unicodeUri"
+            :value="unicodeUriFilter(currentValue)"
             :placeholder="placeholder"
             :disabled="disabled"
             @focus="setFocusClass"

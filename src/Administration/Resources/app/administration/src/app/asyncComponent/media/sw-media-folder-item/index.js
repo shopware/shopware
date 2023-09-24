@@ -73,6 +73,14 @@ export default {
                     return 'multicolor-folder-thumbnail';
             }
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

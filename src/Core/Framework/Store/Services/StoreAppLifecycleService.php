@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Store\StoreException;
 /**
  * @internal - only for use by the app-system
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     public function __construct(

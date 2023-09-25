@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed. Use StoreException::extensionInstallException instead.
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionInstallException extends StoreException
 {
     public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)

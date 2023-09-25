@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class InvalidExtensionRatingValueException extends ShopwareHttpException
 {
     public function __construct(

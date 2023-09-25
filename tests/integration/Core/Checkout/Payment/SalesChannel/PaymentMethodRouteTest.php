@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 

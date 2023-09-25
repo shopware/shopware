@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler;
 
 /**
  * @internal

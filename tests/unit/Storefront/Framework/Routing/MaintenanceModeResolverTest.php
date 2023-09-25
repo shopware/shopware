@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -17,7 +19,7 @@ class MaintenanceModeResolverTest extends TestCase
 {
     public function testShouldInstantiate(): void
     {
-        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack()));
+        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())));
     }
 
     /**
@@ -36,7 +38,7 @@ class MaintenanceModeResolverTest extends TestCase
          * we need to be able to set the master-request's config here, since
          * the resolver reads the whitelist from it.
          */
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
 
         if ($shouldRedirect) {
             static::assertTrue(
@@ -59,7 +61,7 @@ class MaintenanceModeResolverTest extends TestCase
      */
     public function testShouldRedirectToShop(Request $request, bool $shouldRedirect): void
     {
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
 
         if ($shouldRedirect) {
             static::assertFalse(
@@ -83,7 +85,7 @@ class MaintenanceModeResolverTest extends TestCase
     public function testIsMaintenanceRequest(Request $request, bool $expected): void
     {
         static::assertEquals(
-            (new MaintenanceModeResolver($this->getRequestStack($request)))->isMaintenanceRequest($request),
+            (new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher())))->isMaintenanceRequest($request),
             $expected
         );
     }
@@ -217,12 +219,12 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
-    private function getRequestStack(?Request $master = null): RequestStack
+    private function getRequestStack(?Request $main = null): RequestStack
     {
         $requestStack = new RequestStack();
 
-        if ($master instanceof Request) {
-            $requestStack->push($master);
+        if ($main instanceof Request) {
+            $requestStack->push($main);
         }
 
         return $requestStack;

@@ -84,6 +84,7 @@
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">

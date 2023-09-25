@@ -46,6 +46,8 @@ class ApiException extends HttpException
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
 
+    public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
+
     public static function invalidSyncCriteriaException(string $operationKey): self
     {
         return new self(
@@ -284,6 +286,15 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION,
             'Given identifier for access key is invalid.',
+        );
+    }
+
+    public static function salesChannelInMaintenanceMode(): self
+    {
+        return new self(
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            self::API_SALES_CHANNEL_MAINTENANCE_MODE,
+            'The sales channel is in maintenance mode.',
         );
     }
 }

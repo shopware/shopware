@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -92,7 +92,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     public function testPayOrder(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630(Context::createDefaultContext());
+        $paymentMethodId = $this->createPaymentMethod(Context::createDefaultContext());
         $customerId = $this->createCustomer();
         $orderId = $this->createOrder($customerId, $paymentMethodId, Context::createDefaultContext());
         $this->createTransaction($orderId, $paymentMethodId, Context::createDefaultContext());
@@ -109,7 +109,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('redirectUrl', $response);
-        static::assertSame(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response['redirectUrl']);
+        static::assertSame(AsyncTestPaymentHandler::REDIRECT_URL, $response['redirectUrl']);
     }
 
     private function createTransaction(
@@ -185,9 +185,9 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         return $orderId;
     }
 
-    private function createPaymentMethodV630(
+    private function createPaymentMethod(
         Context $context,
-        string $handlerIdentifier = AsyncTestPaymentHandlerV630::class
+        string $handlerIdentifier = AsyncTestPaymentHandler::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [

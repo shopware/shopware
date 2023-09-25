@@ -23,9 +23,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -174,9 +174,9 @@ class PaymentControllerTest extends TestCase
         return $orderId;
     }
 
-    private function createPaymentMethodV630(
+    private function createPaymentMethod(
         Context $context,
-        string $handlerIdentifier = AsyncTestPaymentHandlerV630::class
+        string $handlerIdentifier = AsyncTestPaymentHandler::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [
@@ -196,7 +196,7 @@ class PaymentControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $paymentMethodId = $this->createPaymentMethodV630($context);
+        $paymentMethodId = $this->createPaymentMethod($context);
         $orderId = $this->createOrder($context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $context);
 
@@ -205,7 +205,7 @@ class PaymentControllerTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);

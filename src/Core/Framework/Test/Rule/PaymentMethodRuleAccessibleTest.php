@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 
 /**
  * @internal

@@ -25,7 +25,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     /** @type Wrapper */

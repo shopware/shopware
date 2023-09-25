@@ -31,7 +31,7 @@ async function createWrapper(props) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     /** @type Wrapper */

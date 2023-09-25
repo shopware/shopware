@@ -4,7 +4,7 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

@@ -2,7 +2,7 @@ import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

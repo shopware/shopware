@@ -4,7 +4,7 @@ import swExtensionRatingsCard from 'src/module/sw-extension/component/sw-ratings
 Shopware.Component.register('sw-extension-ratings-card', swExtensionRatingsCard);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     /** @type Wrapper */

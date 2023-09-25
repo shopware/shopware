@@ -4,7 +4,7 @@ import './sw-extension-my-extensions-listing.scss';
 const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

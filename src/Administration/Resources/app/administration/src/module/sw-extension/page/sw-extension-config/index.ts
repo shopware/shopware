@@ -12,7 +12,7 @@ type ComponentData = {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

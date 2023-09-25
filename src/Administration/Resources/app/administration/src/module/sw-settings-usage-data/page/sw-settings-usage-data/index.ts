@@ -12,7 +12,7 @@ type CoreMetricsConfigNamespace = {
 /**
  * @private
  *
- * @package merchant-services
+ * @package services-settings
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

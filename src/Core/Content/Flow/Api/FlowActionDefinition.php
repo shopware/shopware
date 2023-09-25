@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Api;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowActionDefinition extends Struct
 {
     /**

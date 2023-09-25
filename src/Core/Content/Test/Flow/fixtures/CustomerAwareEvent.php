@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CustomerAwareEvent implements CustomerAware, FlowEventAware
 {
     public function __construct(

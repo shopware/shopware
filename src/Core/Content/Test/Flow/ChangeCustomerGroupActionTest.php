@@ -25,7 +25,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ChangeCustomerGroupActionTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

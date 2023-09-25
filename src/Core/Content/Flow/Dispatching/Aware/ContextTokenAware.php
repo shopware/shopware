@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 interface ContextTokenAware extends FlowEventAware
 {
     public const CONTEXT_TOKEN = FlowMailVariables::CONTEXT_TOKEN;

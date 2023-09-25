@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowTemplateConfigField extends JsonField
 {
     public function __construct(

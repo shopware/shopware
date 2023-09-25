@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
     use CacheTestBehaviour;

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 interface DelayableAction
 {
 }

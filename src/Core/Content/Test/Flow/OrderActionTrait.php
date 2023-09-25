@@ -25,7 +25,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 trait OrderActionTrait
 {
     use CountryAddToSalesChannelTestBehaviour;

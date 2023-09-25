@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class GrantDownloadAccessAction extends FlowAction implements DelayableAction
 {
     public function __construct(private readonly EntityRepository $orderLineItemDownloadRepository)

@@ -23,10 +23,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\MultipleTestPaymentHandler;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\PreparedTestPaymentHandler;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\RefundTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\RefundTestPaymentHandler;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**

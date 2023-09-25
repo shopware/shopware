@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportBeforeExportRecordEvent extends Event
 {
     public function __construct(

@@ -35,7 +35,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';

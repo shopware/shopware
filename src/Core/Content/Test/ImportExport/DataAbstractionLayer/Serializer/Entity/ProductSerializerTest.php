@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

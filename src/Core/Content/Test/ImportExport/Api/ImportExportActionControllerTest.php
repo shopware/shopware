@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

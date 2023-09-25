@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
     private EntityRepository $logRepository;

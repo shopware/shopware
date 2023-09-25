@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';

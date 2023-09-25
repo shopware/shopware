@@ -47,11 +47,13 @@
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand">
             <argument type="service" id="service_container"/>
+            <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand">
             <argument type="service" id="service_container"/>
+            <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
 

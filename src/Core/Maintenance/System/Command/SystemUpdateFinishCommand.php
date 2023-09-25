@@ -6,12 +6,10 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -33,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class SystemUpdateFinishCommand extends Command
 {
-    public function __construct(private readonly ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container, private readonly string $shopwareVersion)
     {
         parent::__construct();
     }
@@ -63,38 +61,22 @@ class SystemUpdateFinishCommand extends Command
         $output->writeln('Run Post Update');
         $output->writeln('');
 
-        /** @var Kernel $kernel */
-        $kernel = $this->container->get('kernel');
-        $pluginLoader = $kernel->getPluginLoader();
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = $this->container->get('event_dispatcher');
 
-        try {
-            $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
-
-            $context = Context::createDefaultContext();
-            $systemConfigService = $this->container->get(SystemConfigService::class);
-            $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
-
-            $newVersion = $containerWithoutPlugins->getParameter('kernel.shopware_version');
-            if (!\is_string($newVersion)) {
-                throw new \RuntimeException('Container parameter "kernel.shopware_version" needs to be a string');
-            }
-
-            /** @var EventDispatcherInterface $eventDispatcherWithoutPlugins */
-            $eventDispatcherWithoutPlugins = $this->rebootKernelWithoutPlugins()->get('event_dispatcher');
-            $eventDispatcherWithoutPlugins->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $newVersion));
-
-            $this->runMigrations($output);
-        } finally {
-            $kernel->reboot(null, $pluginLoader);
-        }
+        $context = Context::createDefaultContext();
+        $systemConfigService = $this->container->get(SystemConfigService::class);
+        $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
 
         if ($input->getOption('skip-asset-build')) {
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
-        /** @var EventDispatcherInterface $eventDispatcher */
-        $eventDispatcher = $this->container->get('event_dispatcher');
-        $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $newVersion);
+        $eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
+
+        $this->runMigrations($output);
+
+        $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion);
         $eventDispatcher->dispatch($updateEvent);
         $output->writeln($updateEvent->getPostUpdateMessage());
 
@@ -108,9 +90,7 @@ class SystemUpdateFinishCommand extends Command
     private function runMigrations(OutputInterface $output): int
     {
         $application = $this->getApplication();
-        if ($application === null) {
-            throw new \RuntimeException('No application initialised');
-        }
+        \assert($application !== null);
         $command = $application->find('database:migrate');
 
         return $this->runCommand($application, $command, [
@@ -122,23 +102,10 @@ class SystemUpdateFinishCommand extends Command
     private function installAssets(OutputInterface $output): int
     {
         $application = $this->getApplication();
-        if ($application === null) {
-            throw new \RuntimeException('No application initialised');
-        }
+        \assert($application !== null);
         $command = $application->find('assets:install');
 
         return $this->runCommand($application, $command, [], $output);
-    }
-
-    private function rebootKernelWithoutPlugins(): ContainerInterface
-    {
-        /** @var Kernel $kernel */
-        $kernel = $this->container->get('kernel');
-
-        $classLoad = $kernel->getPluginLoader()->getClassLoader();
-        $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
-
-        return $kernel->getContainer();
     }
 
     /**

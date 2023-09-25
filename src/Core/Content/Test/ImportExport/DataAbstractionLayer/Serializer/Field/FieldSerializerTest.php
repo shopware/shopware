@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class FieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemDefaultValidator implements EventSubscriberInterface
 {
     public function __construct(private readonly Connection $connection)

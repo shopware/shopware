@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<UpdateBy>
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UpdateByCollection extends Collection
 {
     /**

@@ -16,7 +16,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class InvalidMediaUrlException extends ShopwareHttpException
 {
     public function __construct(?string $url)

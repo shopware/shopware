@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal We might break this in v6.2
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SupportedFeaturesService
 {
     /**

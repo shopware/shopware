@@ -5,7 +5,7 @@ import 'src/app/component/utils/sw-progress-bar';
 Shopware.Component.register('sw-extension-ratings-summary', swExtensionRatingsSummary);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {

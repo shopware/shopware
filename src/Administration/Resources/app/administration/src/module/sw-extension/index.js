@@ -41,7 +41,7 @@ Shopware.Component.register('sw-extension-app-module-page', () => import('./page
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 Shopware.Module.register('sw-extension', {

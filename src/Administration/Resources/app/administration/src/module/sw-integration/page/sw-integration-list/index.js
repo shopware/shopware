@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';

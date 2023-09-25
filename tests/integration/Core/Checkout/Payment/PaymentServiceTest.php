@@ -39,9 +39,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler as SyncTestPaymentHandlerV630;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -98,9 +98,9 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
-    public function testHandlePaymentByOrderSyncPaymentV630(): void
+    public function testHandlePaymentByOrderSyncPayment(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context, SyncTestPaymentHandlerV630::class);
+        $paymentMethodId = $this->createPaymentMethod($this->context, SyncTestPaymentHandler::class);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -110,9 +110,9 @@ class PaymentServiceTest extends TestCase
         static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
     }
 
-    public function testHandlePaymentByOrderAsyncPaymentV630(): void
+    public function testHandlePaymentByOrderAsyncPayment(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -122,12 +122,12 @@ class PaymentServiceTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
 
-    public function testHandlePaymentByOrderAsyncPaymentWithFinalizeV630(): void
+    public function testHandlePaymentByOrderAsyncPaymentWithFinalize(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -137,7 +137,7 @@ class PaymentServiceTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
@@ -164,7 +164,7 @@ class PaymentServiceTest extends TestCase
 
     public function testDuplicateFinalizeCall(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -174,7 +174,7 @@ class PaymentServiceTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
@@ -195,9 +195,9 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
     }
 
-    public function testHandlePaymentByOrderDefaultPaymentV630(): void
+    public function testHandlePaymentByOrderDefaultPayment(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
+        $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -219,7 +219,7 @@ class PaymentServiceTest extends TestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
 
-        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
+        $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
 
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
     }
@@ -235,7 +235,7 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -1);
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
-        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
+        $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
 
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
         if (!Feature::isActive('v6.6.0.0')) {
@@ -245,9 +245,9 @@ class PaymentServiceTest extends TestCase
         static::assertEquals('The provided token ' . $token . ' is expired and the payment could not be processed.', $response->getException()->getMessage());
     }
 
-    public function testFinalizeTransactionCustomerCanceledV630(): void
+    public function testFinalizeTransactionCustomerCanceled(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -257,7 +257,7 @@ class PaymentServiceTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
@@ -323,7 +323,7 @@ class PaymentServiceTest extends TestCase
 
     public function testHandlePaymentByOrderCanHandleNoneOpenInitialTransactionState(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
 
@@ -368,7 +368,7 @@ class PaymentServiceTest extends TestCase
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
@@ -490,9 +490,9 @@ class PaymentServiceTest extends TestCase
         return $customerId;
     }
 
-    private function createPaymentMethodV630(
+    private function createPaymentMethod(
         Context $context,
-        string $handlerIdentifier = AsyncTestPaymentHandlerV630::class
+        string $handlerIdentifier = AsyncTestPaymentHandler::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [

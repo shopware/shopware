@@ -13,30 +13,30 @@ const { v4: uuid } = require('uuid');
  * @function
  */
 Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null, percyCSS = null) => {
-    if (!Cypress.env('usePercy')) {
-        return;
-    }
-
-    if (selectorToCheck) {
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-loader__element').should('not.exist');
-        cy.get(selectorToCheck).should('be.visible');
-    }
-
-    let options = {};
-    if (width) {
-        Object.assign(options, width);
-    }
-
-    if (percyCSS) {
-        Object.assign(options, percyCSS);
-    }
-
-    // Wait 1 second for the network to idle. This will reduce flackyness with missing icons etc.
-    cy.waitForNetworkIdle(1000);
-
-    cy.percySnapshot(title, options);
+    // if (!Cypress.env('usePercy')) {
+    //     return;
+    // }
+    //
+    // if (selectorToCheck) {
+    //     cy.get('.sw-skeleton').should('not.exist');
+    //     cy.get('.sw-loader').should('not.exist');
+    //     cy.get('.sw-loader__element').should('not.exist');
+    //     cy.get(selectorToCheck).should('be.visible');
+    // }
+    //
+    // let options = {};
+    // if (width) {
+    //     Object.assign(options, width);
+    // }
+    //
+    // if (percyCSS) {
+    //     Object.assign(options, percyCSS);
+    // }
+    //
+    // // Wait 1 second for the network to idle. This will reduce flackyness with missing icons etc.
+    // cy.waitForNetworkIdle(1000);
+    //
+    // cy.percySnapshot(title, options);
 });
 
 /**

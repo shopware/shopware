@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowIndexerSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly MessageBusInterface $messageBus)

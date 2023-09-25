@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 final class FlowMailVariables
 {
     public const URL = 'url';

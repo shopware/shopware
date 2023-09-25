@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class OrderTransactionStorer extends FlowStorer
 {
     /**

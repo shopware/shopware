@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
     use AdminApiTestBehaviour;

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 interface NewsletterRecipientAware extends FlowEventAware
 {
     public const NEWSLETTER_RECIPIENT_ID = 'newsletterRecipientId';

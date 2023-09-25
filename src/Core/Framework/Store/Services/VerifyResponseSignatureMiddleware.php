@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class VerifyResponseSignatureMiddleware implements MiddlewareInterface
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';

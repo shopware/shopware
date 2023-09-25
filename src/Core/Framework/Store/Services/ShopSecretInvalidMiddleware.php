@@ -12,7 +12,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ShopSecretInvalidMiddleware implements MiddlewareInterface
 {
     private const INVALID_SHOP_SECRET = 'ShopwarePlatformException-68';

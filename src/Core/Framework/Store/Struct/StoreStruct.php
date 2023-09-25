@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 abstract class StoreStruct extends Struct
 {
     abstract public static function fromArray(array $data): self;

@@ -49,7 +49,6 @@ use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestFailedPaymentHandler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;

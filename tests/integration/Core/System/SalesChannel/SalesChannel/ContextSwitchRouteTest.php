@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

@@ -39,12 +39,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
-use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler as SyncTestPaymentHandlerV630;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -214,13 +211,6 @@ class PaymentServiceTest extends TestCase
     {
         $token = Uuid::randomHex();
         $request = new Request();
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidTokenException::class);
-        }
-
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
 
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectException(InvalidTokenException::class);

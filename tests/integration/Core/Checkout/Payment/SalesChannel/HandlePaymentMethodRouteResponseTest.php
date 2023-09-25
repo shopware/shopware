@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**

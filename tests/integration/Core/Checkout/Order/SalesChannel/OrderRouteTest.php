@@ -47,7 +47,6 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\SyncTestPaymentHandler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed.
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionNotFoundException extends StoreException
 {
     public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)

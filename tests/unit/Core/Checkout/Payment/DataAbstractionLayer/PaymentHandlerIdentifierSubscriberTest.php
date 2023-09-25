@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Checkout\Payment\Handler\MockPaymentHandler\MultipleTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler;
 
 /**
  * @covers \Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber

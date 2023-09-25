@@ -103,7 +103,11 @@
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor')"
+                            {% if VUE3 %}
+                            @update:value="(id, type) => onChangeType(type)"
+                            {% else %}
                             @change="(id, type) => onChangeType(type)"
+                            {% endif %}
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

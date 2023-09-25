@@ -143,11 +143,14 @@
                 {% block sw_order_list_grid_columns_customer_name %}
                 <template #column-orderCustomer.firstName="{ item }">
                     <router-link
-                        v-if="item.orderCustomer"
+                        v-if="item.orderCustomer && item.orderCustomer.customerId"
                         :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
                     >
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                     </router-link>
+                    <template v-else-if="item.orderCustomer">
+                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                    </template>
                 </template>
                 {% endblock %}
 

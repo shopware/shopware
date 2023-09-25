@@ -264,7 +264,12 @@ export default {
 
             Object.values(this.selectedItems).forEach((item) => {
                 if (item.isNew()) {
-                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem.id);
+                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem?.id);
+                    if (this.feature.isActive('VUE3')) {
+                        this.order.lineItems.splice(itemIndex, 1);
+                        return;
+                    }
+
                     this.$delete(this.order.lineItems, itemIndex);
                     return;
                 }
@@ -287,6 +292,10 @@ export default {
 
         onDeleteItem(item, itemIndex) {
             if (item.isNew()) {
+                if (this.feature.isActive('VUE3')) {
+                    this.order.lineItems.splice(itemIndex, 1);
+                    return;
+                }
                 this.$delete(this.order.lineItems, itemIndex);
                 return;
             }

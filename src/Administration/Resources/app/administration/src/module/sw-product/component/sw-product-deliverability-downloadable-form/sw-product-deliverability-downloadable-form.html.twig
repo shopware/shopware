@@ -92,7 +92,11 @@
                 :error="productDeliveryTimeIdError"
                 :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
                 show-clearable-button
+                {% if VUE3 %}
+                @update:value="updateCurrentValue"
+                {% else %}
                 @change="updateCurrentValue"
+                {% endif %}
             />
         </template>
     </sw-inherit-wrapper>

@@ -2,11 +2,10 @@
  * @package admin
  */
 
-import 'src/app/component/base/sw-address';
 import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    return mount(await Shopware.Component.build('sw-address'), {
+    return mount(await wrapTestComponent('sw-address', { sync: true }), {
         attachTo: document.body,
         props: {
             address: {

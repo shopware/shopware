@@ -15,7 +15,11 @@
                 :criteria="customEntityCriteria"
                 entity="custom_entity"
                 required
+                {% if VUE3 %}
+                @update:value="onEntityChange"
+                {% else %}
                 @change="onEntityChange"
+                {% endif %}
             />
         </sw-card>
 
@@ -45,7 +49,11 @@
                     :criteria="customEntityCriteria"
                     entity="custom_entity"
                     required
+                    {% if VUE3 %}
+                    @update:value="onEntityChange"
+                    {% else %}
                     @change="onEntityChange"
+                    {% endif %}
                 />
             </template>
 

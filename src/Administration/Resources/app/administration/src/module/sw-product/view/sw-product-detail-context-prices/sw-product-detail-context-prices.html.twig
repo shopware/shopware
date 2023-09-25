@@ -186,7 +186,11 @@
                         :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                         :size="compact ? 'small' : 'default'"
                         :disabled="!acl.can('product.editor')"
+                        {% if VUE3 %}
+                        @update:value="onQuantityEndChange(item, priceGroup)"
+                        {% else %}
                         @change="onQuantityEndChange(item, priceGroup)"
+                        {% endif %}
                     />
                     {% endblock %}
                 </template>

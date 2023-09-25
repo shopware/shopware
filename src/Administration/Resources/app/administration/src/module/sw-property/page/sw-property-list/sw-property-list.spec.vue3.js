@@ -3,14 +3,11 @@
  */
 
 import { mount } from '@vue/test-utils_v3';
-import swPropertyList from 'src/module/sw-property/page/sw-property-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-Shopware.Component.register('sw-property-list', swPropertyList);
-
 async function createWrapper() {
-    return mount(await Shopware.Component.build('sw-property-list'), {
+    return mount(await wrapTestComponent('sw-property-list', { sync: true }), {
         global: {
             mocks: {
                 $route: {

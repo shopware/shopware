@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils_v3';
 import { createStore } from 'vuex_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-async function createWrapper(privileges = [], hasError = false) {
+async function createWrapper(hasError = false) {
     return mount(await wrapTestComponent('sw-product-download-form', { sync: true }), {
         global: {
             mocks: {
@@ -29,13 +29,6 @@ async function createWrapper(privileges = [], hasError = false) {
             },
             provide: {
                 repositoryFactory: {},
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
-                    },
-                },
                 configService: {
                     getConfig() {
                         return Promise.resolve({
@@ -119,6 +112,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should be a Vue.JS component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -126,15 +120,15 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should show the sw-media-upload-v2 component', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-media-upload-v2').exists()).toBeTruthy();
     });
 
     it('should not show the sw-media-upload-v2 component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -142,6 +136,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should emit an event when onOpenMedia() function is called', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -152,6 +147,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should show filename and metadata in the ui', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -162,6 +158,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should accept only file extensions of the config service', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -169,7 +166,8 @@ describe('module/sw-product/component/sw-product-download-form', () => {
     });
 
     it('should have an error state', async () => {
-        const wrapper = await createWrapper(['product.editor'], true);
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper(true);
         await flushPromises();
 
         expect(wrapper.find('.sw-product-download-form .sw-media-upload-v2').classes()).toContain('has--error');

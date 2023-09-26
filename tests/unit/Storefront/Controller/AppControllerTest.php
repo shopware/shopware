@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AppController;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

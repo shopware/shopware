@@ -7,6 +7,9 @@ Shopware.Component.register('sw-settings-document-detail', () => import('./page/
 
 const { Module } = Shopware;
 
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {
     type: 'core',

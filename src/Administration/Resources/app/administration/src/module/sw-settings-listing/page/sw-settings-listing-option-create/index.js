@@ -2,6 +2,7 @@ import { kebabCase } from 'lodash';
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
 
+const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,6 +16,12 @@ export default {
 
         isNewProductSorting() {
             return !this.productSortingEntity || this.productSortingEntity._isNew;
+        },
+
+        urlKeyCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.equals('key', this.productSortingEntity.key));
+            return criteria;
         },
     },
 
@@ -39,7 +46,7 @@ export default {
             return productSortingEntity;
         },
 
-        onSave() {
+        async onSave() {
             this.transformCustomFieldCriterias();
 
             this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
@@ -47,6 +54,15 @@ export default {
             });
 
             this.productSortingEntity.key = kebabCase(this.productSortingEntity.label);
+
+            const resolvedValue = await this.productSortingRepository.search(this.urlKeyCriteria);
+            if (resolvedValue?.length) {
+                const sortingOptionName = this.productSortingEntity.label;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-listing.base.notification.saveErrorAlreadyExists', { sortingOptionName }),
+                });
+                return Promise.resolve();
+            }
 
             return this.productSortingRepository.save(this.productSortingEntity)
                 .then(response => {

@@ -131,6 +131,19 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
+    it('should handle the "saveErrorAlreadyExists" case', async () => {
+        wrapper.vm.productSortingEntity.key = 'existingKey';
+        const resolvedValue = [{}];
+        wrapper.vm.productSortingRepository.search = jest.fn().mockResolvedValue(resolvedValue);
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveErrorAlreadyExists', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
+        });
+    });
+
 
     it('should display the entity name for the smart bar heading', async () => {
         wrapper.vm.productSortingEntity.label = 'label';

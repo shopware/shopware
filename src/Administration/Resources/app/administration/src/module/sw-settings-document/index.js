@@ -7,6 +7,8 @@ Component.register('sw-settings-document-list', () => import('./page/sw-settings
 Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
+const { Module } = Shopware;
+
 /**
  * @package services-settings
  */

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\Common;
+namespace Shopware\Core\Test;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -36,11 +36,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
-use Shopware\Core\Test\TestDefaults;
 
 /**
- * @coversNothing
- *
  * @internal
  */
 #[Package('checkout')]

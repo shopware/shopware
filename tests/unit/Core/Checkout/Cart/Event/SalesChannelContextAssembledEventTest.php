@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 
 /**
  * @covers \Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent

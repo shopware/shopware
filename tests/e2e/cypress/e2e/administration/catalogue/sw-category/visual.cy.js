@@ -10,8 +10,7 @@ describe('Category: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic category workflow', { tags: ['pa-inventory', 'VUE3'] }, () => {        
-        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+    it('@visual: check appearance of basic category workflow', { tags: ['pa-inventory'] }, () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/category/index',
             mainMenuId: 'sw-catalogue',

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - Exception will be removed
  */
-#[Package('sales-channel')]
+#[Package('inventory')]
 class RenderFooterException extends StringTemplateRenderingException
 {
 }

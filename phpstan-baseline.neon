@@ -891,81 +891,6 @@ parameters:
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationCollection\\:\\:getCategoryIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:getBreadcrumb\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:setBreadcrumb\\(\\) has parameter \\$breadcrumb with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:setSlotConfig\\(\\) has parameter \\$slotConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:\\$breadcrumb type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationEntity\\:\\:\\$slotConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\:\\:getMediaIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\:\\:getParentIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\NavigationRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/NavigationRouteCacheTagsEvent.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilder\\:\\:getMainCategory\\(\\) should return Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilder\\:\\:getProductSeoCategory\\(\\) should return Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php
-
-		-
 			message: "#^Parameter \\#2 \\$entity of method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotCollection\\:\\:set\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/Aggregate/CmsBlock/CmsBlockCollection.php
@@ -12643,11 +12568,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
 
 		-
-			message: "#^Parameter \\#1 \\$product of method Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilder\\:\\:getProductSeoCategory\\(\\) expects Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 5
-			path: tests/integration/Core/Content/Category/Service/CategoryBreadcrumbBuilderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
 			path: tests/integration/Core/Content/Cms/Subscriber/CmsPageBeforeDefaultChangeSubscriberTest.php
@@ -12731,11 +12651,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$property\\-\\>getValue\\(\\$renderer\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: tests/integration/Core/Content/Mail/Service/MailServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizerTest\\:\\:getProductCategoryList\\(\\) should return list\\<string\\>\\|null but returns array\\<string\\>\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\MoveShopPermanentlyStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

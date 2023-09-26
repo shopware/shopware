@@ -3,7 +3,7 @@ import utils from 'src/core/service/util.service';
 import ApiService from '../api.service';
 
 /**
- * @package customer-order
+ * @package checkout
  * Gateway for the API end point "order"
  * @class
  * @extends ApiService

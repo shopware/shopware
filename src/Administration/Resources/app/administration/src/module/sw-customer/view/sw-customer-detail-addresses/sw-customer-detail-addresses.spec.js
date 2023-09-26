@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-detail-addresses';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;

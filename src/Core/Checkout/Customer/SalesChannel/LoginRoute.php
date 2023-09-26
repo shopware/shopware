@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class LoginRoute extends AbstractLoginRoute
 {
     /**

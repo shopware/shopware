@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<TaxRuleTypeEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class TaxRuleTypeCollection extends EntityCollection
 {
     public function getByTechnicalName(string $technicalName): ?TaxRuleTypeEntity

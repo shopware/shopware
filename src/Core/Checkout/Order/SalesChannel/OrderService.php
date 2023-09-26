@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderService
 {
     final public const CUSTOMER_COMMENT_KEY = 'customerComment';

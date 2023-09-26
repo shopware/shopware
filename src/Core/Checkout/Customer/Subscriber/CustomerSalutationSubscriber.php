@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerSalutationSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly Connection $connection)

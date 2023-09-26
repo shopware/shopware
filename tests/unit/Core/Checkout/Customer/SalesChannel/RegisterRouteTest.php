@@ -41,13 +41,11 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterRouteTest extends TestCase
 {
     public function testAccountType(): void

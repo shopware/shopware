@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: DeleteUnusedGuestCustomerTask::class)]
-#[Package('customer-order')]
+#[Package('checkout')]
 final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
 {
     /**

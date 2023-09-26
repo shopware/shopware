@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:remove-exception - Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class InactiveCustomerException extends CustomerOptinNotCompletedException
 {
     public function __construct(string $id)

@@ -4,7 +4,7 @@ import swSettingsTaxDetail from 'src/module/sw-settings-tax/page/sw-settings-tax
 Shopware.Component.register('sw-settings-tax-detail', swSettingsTaxDetail);
 
 /**
- * @package customer-order
+ * @package checkout
  */
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     return shallowMount(await Shopware.Component.build('sw-settings-tax-detail'), {

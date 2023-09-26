@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * This route is used to change the language of a logged-in user
  * The required field is: "languageId"
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractChangeLanguageRoute
 {
     abstract public function getDecorated(): AbstractChangeLanguageRoute;

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used to get information about the newsletter recipients
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractAccountNewsletterRecipientRoute
 {
     abstract public function getDecorated(): AbstractAccountNewsletterRecipientRoute;

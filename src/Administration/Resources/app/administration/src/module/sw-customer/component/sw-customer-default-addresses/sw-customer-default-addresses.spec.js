@@ -3,7 +3,7 @@ import SwCustomerDefaultAddresses from 'src/module/sw-customer/component/sw-cust
 import 'src/app/component/base/sw-address';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-default-addresses', SwCustomerDefaultAddresses);

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerException extends HttpException
 {
     public const CUSTOMERS_NOT_FOUND = 'CHECKOUT__CUSTOMERS_NOT_FOUND';

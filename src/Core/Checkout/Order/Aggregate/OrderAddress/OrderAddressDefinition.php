@@ -24,7 +24,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderAddressDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_address';

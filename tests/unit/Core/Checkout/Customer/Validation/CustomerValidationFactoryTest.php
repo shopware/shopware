@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerValidationFactoryTest extends TestCase
 {
     /**

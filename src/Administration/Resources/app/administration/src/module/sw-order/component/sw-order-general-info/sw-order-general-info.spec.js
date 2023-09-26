@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import swOrderGeneralInfo from 'src/module/sw-order/component/sw-order-general-info';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-general-info', swOrderGeneralInfo);

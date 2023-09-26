@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 /**
  * This route can be used to merge wishlist products from guest users to registered users.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractMergeWishlistProductRoute
 {
     abstract public function getDecorated(): AbstractMergeWishlistProductRoute;

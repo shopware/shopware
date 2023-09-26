@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CancelOrderRouteTest extends TestCase
 {
     use CustomerTestTrait;

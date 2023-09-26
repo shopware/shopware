@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
     /**

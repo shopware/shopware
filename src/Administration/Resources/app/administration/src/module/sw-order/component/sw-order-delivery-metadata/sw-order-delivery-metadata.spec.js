@@ -3,7 +3,7 @@ import SwOrderDeliveryMetadata from 'src/module/sw-order/component/sw-order-deli
 import 'src/app/component/base/sw-address';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-delivery-metadata', SwOrderDeliveryMetadata);

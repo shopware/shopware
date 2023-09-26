@@ -40,7 +40,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

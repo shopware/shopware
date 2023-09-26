@@ -26,7 +26,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
     /**

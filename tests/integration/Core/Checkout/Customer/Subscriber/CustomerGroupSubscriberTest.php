@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

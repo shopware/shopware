@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - EmailAware is deprecated and will be removed in v6.6.0
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.before.login';

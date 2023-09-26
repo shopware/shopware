@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;

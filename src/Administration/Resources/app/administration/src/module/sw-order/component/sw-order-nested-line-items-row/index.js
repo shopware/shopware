@@ -2,7 +2,7 @@ import template from './sw-order-nested-line-items-row.html.twig';
 import './sw-order-nested-line-items-row.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @private
  */

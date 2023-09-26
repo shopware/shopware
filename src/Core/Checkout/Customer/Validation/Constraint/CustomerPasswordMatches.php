@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerPasswordMatches extends Constraint
 {
     final public const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';

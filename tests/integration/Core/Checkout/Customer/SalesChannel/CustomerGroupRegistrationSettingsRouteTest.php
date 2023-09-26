@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

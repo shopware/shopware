@@ -4,7 +4,7 @@ import swTaxRuleCard from 'src/module/sw-settings-tax/component/sw-tax-rule-card
 Shopware.Component.register('sw-tax-rule-card', swTaxRuleCard);
 
 /**
- * @package customer-order
+ * @package checkout
  */
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-tax-rule-card'), {

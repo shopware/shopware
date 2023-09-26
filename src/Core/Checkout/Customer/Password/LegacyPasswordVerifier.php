@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class LegacyPasswordVerifier
 {
     /**

@@ -29,7 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 trait DocumentTrait
 {
     use IntegrationTestBehaviour;

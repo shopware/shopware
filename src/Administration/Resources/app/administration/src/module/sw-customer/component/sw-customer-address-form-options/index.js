@@ -1,7 +1,7 @@
 import template from './sw-customer-address-form-options.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

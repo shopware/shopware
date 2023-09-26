@@ -5,7 +5,7 @@ import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;

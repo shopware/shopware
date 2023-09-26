@@ -34,7 +34,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderStateChangeEventListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

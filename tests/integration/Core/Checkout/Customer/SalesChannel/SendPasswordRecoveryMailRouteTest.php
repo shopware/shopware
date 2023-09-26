@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  *

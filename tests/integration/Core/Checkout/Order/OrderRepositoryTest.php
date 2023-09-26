@@ -38,7 +38,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderRepositoryTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

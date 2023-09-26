@@ -18,7 +18,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
  *
  * @covers \Shopware\Core\Migration\V6_5\Migration1691057865UpdateSalutationDefaultForCustomer
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1691057865UpdateSalutationDefaultForCustomerTest extends TestCase
 {
     use MigrationTestTrait;

@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator as NewGenerator;
+use Shopware\Core\Test\Generator as NewGenerator;
 
 /**
  * @internal
  *
- * @deprecated tag:v6.6.0 - Use `\Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator` instead
+ * @deprecated tag:v6.6.0 - Use `\Shopware\Core\Test\Generator` instead
  */
 class Generator extends NewGenerator
 {

@@ -26,7 +26,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal

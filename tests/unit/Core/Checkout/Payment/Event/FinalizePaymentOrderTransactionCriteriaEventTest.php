@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal

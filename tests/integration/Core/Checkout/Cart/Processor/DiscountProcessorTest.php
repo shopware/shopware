@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\AbsoluteItem;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\CalculatedItem;
@@ -25,7 +26,6 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\Calculated
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\PercentageItem;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

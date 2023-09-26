@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

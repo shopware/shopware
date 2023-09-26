@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**

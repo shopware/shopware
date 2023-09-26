@@ -1,20 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\Common;
+namespace Shopware\Core\Test\Stub\Rule;
 
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
-class FalseRule extends Rule
+class TrueRule extends Rule
 {
-    final public const RULE_NAME = 'false';
+    final public const RULE_NAME = 'true';
 
     public function match(RuleScope $matchContext): bool
     {
-        return false;
+        return true;
     }
 
     public function getConstraints(): array

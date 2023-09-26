@@ -19,9 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

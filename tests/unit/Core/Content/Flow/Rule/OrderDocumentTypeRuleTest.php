@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 

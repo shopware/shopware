@@ -33,6 +33,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
         searchConfigEntity: string|null,
         entitySearchable: boolean,
         freshSearchTerm: boolean,
+        previousRouteName: string,
         } {
         return {
             page: 1,
@@ -47,6 +48,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
             searchConfigEntity: null,
             entitySearchable: true,
             freshSearchTerm: false,
+            previousRouteName: '',
         };
     },
 
@@ -88,6 +90,10 @@ export default Shopware.Mixin.register('listing', defineComponent({
     },
 
     created() {
+        if (this.feature.isActive('VUE3')) {
+            this.previousRouteName = this.$route.name as string;
+        }
+
         if (this.disableRouteParams) {
             this.getList();
             return;
@@ -117,7 +123,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'(newRoute, oldRoute) {
-            if (this.disableRouteParams) {
+            if (this.disableRouteParams || (this.feature.isActive('VUE3') && this.previousRouteName !== newRoute.name)) {
                 return;
             }
 

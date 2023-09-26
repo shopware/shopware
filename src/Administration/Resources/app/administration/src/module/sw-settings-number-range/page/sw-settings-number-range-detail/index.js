@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package inventory
  */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';

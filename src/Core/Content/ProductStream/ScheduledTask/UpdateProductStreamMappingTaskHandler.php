@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: UpdateProductStreamMappingTask::class)]
-#[Package('business-ops')]
+#[Package('inventory')]
 final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     /**

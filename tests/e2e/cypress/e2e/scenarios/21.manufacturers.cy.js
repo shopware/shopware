@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import ManufacturerPageObject from '../../support/pages/module/sw-manufacturer.page-object';
 

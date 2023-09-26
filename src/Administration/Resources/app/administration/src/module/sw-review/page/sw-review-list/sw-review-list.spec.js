@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package inventory
  */
 import { shallowMount } from '@vue/test-utils';
 import swReviewList from 'src/module/sw-review/page/sw-review-list';

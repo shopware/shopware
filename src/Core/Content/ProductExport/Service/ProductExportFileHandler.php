@@ -8,7 +8,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
     /**

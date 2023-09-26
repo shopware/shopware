@@ -1,8 +1,7 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 describe('Category: Visual tests', () => {
     beforeEach(() => {
         cy.createProductFixture()
@@ -13,7 +12,7 @@ describe('Category: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic category workflow', { tags: ['pa-content-management'] }, () => {
+    it('@visual: check appearance of basic category workflow', { tags: ['pa-inventory'] }, () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/category/index',
             mainMenuId: 'sw-catalogue',

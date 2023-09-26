@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 const page = new SettingsPageObject();
@@ -7,7 +10,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: read number range with ACL, but without rights', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: read number range with ACL, but without rights', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -20,7 +23,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@settings: read number range with ACL', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: read number range with ACL', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -42,7 +45,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get('input').should('be.disabled');
     });
 
-    it('@settings: create and read number range with ACL', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: create and read number range with ACL', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -113,7 +116,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
-    it('@settings: can edit number range with ACL', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can edit number range with ACL', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -157,7 +160,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
-    it('@settings: can delete number range with ACL', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete number range with ACL', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',

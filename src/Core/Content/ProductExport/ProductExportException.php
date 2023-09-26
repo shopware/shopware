@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportException extends HttpException
 {
     public const TEMPLATE_BODY_NOT_SET = 'PRODUCT_EXPORT__TEMPLATE_BODY_NOT_SET';

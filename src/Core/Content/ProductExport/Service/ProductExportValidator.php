@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportValidator implements ProductExportValidatorInterface
 {
     /**
@@ -19,6 +20,9 @@ class ProductExportValidator implements ProductExportValidatorInterface
     {
     }
 
+    /**
+     * @return list<Error>
+     */
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent): array
     {
         $errors = new ErrorCollection();

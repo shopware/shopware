@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CategoryTranslationEntity>
  */
-#[Package('content')]
+#[Package('inventory')]
 class CategoryTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCategoryIds(): array
     {
@@ -25,7 +25,7 @@ class CategoryTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

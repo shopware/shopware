@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import template from './index.html.twig';

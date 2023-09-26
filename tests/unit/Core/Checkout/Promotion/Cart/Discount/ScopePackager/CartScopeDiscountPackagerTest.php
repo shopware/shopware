@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscou
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal

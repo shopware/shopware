@@ -8,8 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\FalseRule;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
  * @internal

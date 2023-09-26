@@ -1507,4 +1507,22 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
         expect(shoppingBagIcon.exists()).toBe(true);
     });
+
+    it('should not call the search service when the search term reaches the maximum length', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: '',
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('shorts'.repeat(100));
+
+        await flushPromises();
+
+        expect(spyLoadResults).toHaveBeenCalledTimes(0);
+    });
 });

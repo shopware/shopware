@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-product-feature-sets-detail.html.twig';
 
 const { Mixin } = Shopware;

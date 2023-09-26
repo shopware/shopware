@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<Error>
  */
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ErrorCollection extends Collection
 {
     /**

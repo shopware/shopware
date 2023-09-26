@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware are deprecated and will be removed in v6.6.0
  */
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware, ScalarValuesAware, FlowEventAware
 {
     final public const NAME = 'product_export.log';

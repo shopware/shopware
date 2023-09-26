@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('content')]
+#[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**

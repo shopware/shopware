@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -27,9 +28,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @package content
  */
+#[Package('inventory')]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -453,6 +453,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $this->updateProductStream($this->ids->get('variant-product-3'), $this->ids->get('stream_id_1'));
 
+        /** @var ProductEntity $mainProduct */
         $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), Context::createDefaultContext())->first();
         $categoryMain = $this->breadcrumbBuilder->getProductSeoCategory($mainProduct, $this->salesChannelContext);
 
@@ -460,6 +461,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($this->ids->get('navigation-a-2'), $categoryMain->getId());
         static::assertSame('EN-AA', $categoryMain->getName());
 
+        /** @var ProductEntity $variant1 */
         $variant1 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-1')]), Context::createDefaultContext())->first();
         $categoryVariant1 = $this->breadcrumbBuilder->getProductSeoCategory($variant1, $this->salesChannelContext);
 
@@ -467,6 +469,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($this->ids->get('navigation-b-2'), $categoryVariant1->getId());
         static::assertSame('EN-BA', $categoryVariant1->getName());
 
+        /** @var ProductEntity $variant2 */
         $variant2 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-2')]), Context::createDefaultContext())->first();
         $categoryVariant2 = $this->breadcrumbBuilder->getProductSeoCategory($variant2, $this->salesChannelContext);
 
@@ -474,6 +477,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($this->ids->get('navigation-b-1'), $categoryVariant2->getId());
         static::assertSame('EN-B', $categoryVariant2->getName());
 
+        /** @var ProductEntity $variant3 */
         $variant3 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-3')]), Context::createDefaultContext())->first();
         $categoryVariant3 = $this->breadcrumbBuilder->getProductSeoCategory($variant3, $this->salesChannelContext);
 
@@ -481,6 +485,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($this->ids->get('navigation-a-1'), $categoryVariant3->getId());
         static::assertSame('EN-A', $categoryVariant3->getName());
 
+        /** @var ProductEntity $variant4 */
         $variant4 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-4')]), Context::createDefaultContext())->first();
         $categoryVariant4 = $this->breadcrumbBuilder->getProductSeoCategory($variant4, $this->salesChannelContext);
 

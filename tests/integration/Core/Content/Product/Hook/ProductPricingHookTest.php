@@ -11,6 +11,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -27,6 +28,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @covers \Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook
  */
+#[Package('inventory')]
 class ProductPricingHookTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package inventory
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsNumberRangeDetail from 'src/module/sw-settings-number-range/page/sw-settings-number-range-detail';

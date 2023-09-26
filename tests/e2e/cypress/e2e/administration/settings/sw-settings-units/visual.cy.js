@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 describe('Scale units: Visual testing', () => {
     beforeEach(() => {
         cy.createDefaultFixture('unit')

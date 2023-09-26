@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportControllerTest extends TestCase
 {
     use AppSystemTestBehaviour;

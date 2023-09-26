@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {
     public function matchException(\Exception $e): ?\Exception

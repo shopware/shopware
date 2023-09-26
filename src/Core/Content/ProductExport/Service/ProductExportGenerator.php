@@ -35,7 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
     private readonly TwigVariableParser $twigVariableParser;

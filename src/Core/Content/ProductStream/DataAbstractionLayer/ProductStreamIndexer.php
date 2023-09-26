@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamIndexer extends EntityIndexer
 {
     /**

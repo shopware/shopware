@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { kebabCase } from 'lodash';
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';

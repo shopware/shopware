@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryBreadcrumbBuilder
 {
     /**
@@ -100,7 +100,10 @@ class CategoryBreadcrumbBuilder
         $categories = $this->categoryRepository->search($criteria, $context->getContext());
 
         if ($categories->count() > 0) {
-            return $categories->first();
+            /** @var CategoryEntity|null $category */
+            $category = $categories->first();
+
+            return $category;
         }
 
         return null;
@@ -136,9 +139,10 @@ class CategoryBreadcrumbBuilder
 
         $firstCategory = $categories->first();
 
+        /** @var CategoryEntity|null $entity */
         $entity = $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
 
-        return $product->getCategoryIds() !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
+        return $product->getCategoryIds() !== null && $entity !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
     }
 
     private function getMainCategoryFilter(string $productId, SalesChannelContext $context): AndFilter

@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package inventory
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swReviewDetail from 'src/module/sw-review/page/sw-review-detail';

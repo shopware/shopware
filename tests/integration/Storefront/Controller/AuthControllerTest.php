@@ -52,7 +52,6 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;

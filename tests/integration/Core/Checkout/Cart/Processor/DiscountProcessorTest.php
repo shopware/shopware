@@ -26,7 +26,6 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\Calculated
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\PercentageItem;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 
 /**
  * @internal

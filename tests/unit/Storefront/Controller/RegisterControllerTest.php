@@ -27,7 +27,6 @@ use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\Generator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;

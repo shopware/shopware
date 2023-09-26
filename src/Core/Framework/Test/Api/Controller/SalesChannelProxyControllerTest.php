@@ -33,7 +33,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;

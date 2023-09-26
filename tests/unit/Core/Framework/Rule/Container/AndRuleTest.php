@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\FalseRule;
-use Shopware\Tests\Unit\Core\Checkout\Cart\Common\TrueRule;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
  * @package business-ops

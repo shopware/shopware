@@ -25,6 +25,12 @@
             <argument type="service" id="clock"/>
         </service>
 
+        <service id="Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber">
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber">
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -101,6 +107,18 @@
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\UsageDataAllowListService"/>
+
+        <!-- Scheduled tasks -->
+        <service id="Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
 
         <!-- Clients -->
         <service id="shopware.usage_data.gateway.client" class="Symfony\Contracts\HttpClient\HttpClientInterface">

@@ -5,15 +5,23 @@
 The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/).
 
 ## Setup
+Navigate to this directory if you haven't yet.
+```
+cd tests/acceptance
+```
 
 Install the project dependencies.
-
 ```
 npm install
 ```
 
-Make sure to add the required environment variables to your `.env` file in the acceptance directory (not the shopware root).
+Install Playwright.
+```
+npx playwright install
+npx playwright install-deps
+```
 
+Make sure to add the required environment variables to your `.env` file in the acceptance directory (not the shopware root).
 ```
 APP_URL="<shop base url>"
 SHOPWARE_ACCESS_KEY_ID="<your-api-client-id>"
@@ -22,7 +30,9 @@ SHOPWARE_SECRET_ACCESS_KEY="<your-api-secret>"
 
 To generate the access key you can use the following symfony command:
 
-`bin/console framework:integration:create AcceptanceTest --admin`
+```
+bin/console framework:integration:create AcceptanceTest --admin
+```
 
 ## Running Tests
 

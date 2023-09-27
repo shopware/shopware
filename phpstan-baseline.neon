@@ -12261,11 +12261,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$canonicalUrl\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php

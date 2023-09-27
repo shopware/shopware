@@ -13448,21 +13448,6 @@ parameters:
 			path: tests/unit/Storefront/Page/Account/Overview/AccountOverviewPageLoaderTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Cart' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Confirm\\\\\\\\CheckoutConfirmPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Confirm\\\\CheckoutConfirmPage will always evaluate to true\\.$#"
-			count: 4
-			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationInterface will always evaluate to true\\.$#"
-			count: 3
-			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
 			count: 5
 			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php

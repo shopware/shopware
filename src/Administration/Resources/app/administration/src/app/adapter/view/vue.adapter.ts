@@ -94,6 +94,21 @@ export default class VueAdapter extends ViewAdapter {
         this.app.config.globalProperties.$t = i18n.global.t;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.config.globalProperties.$tc = i18n.global.tc;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        this.app.config.warnHandler = (
+            msg: string,
+            instance: unknown,
+            trace: string,
+        ) => {
+            const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
+
+            console.warn(...warnArgs);
+
+            if (msg.includes('Template compilation error')) {
+                console.error(...[`[Vue error]: ${msg}`, trace, instance]);
+                throw new Error(msg);
+            }
+        };
 
         /**
          * This is a hack for providing the services to the components.

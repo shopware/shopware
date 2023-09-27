@@ -11,7 +11,7 @@
   "author": "shopware AG",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.36.2",
+    "@playwright/test": "^1.38.1",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@shopware/api-client": "^0.0.0-canary-20230823113412",
+    "@types/node": "^20.6.5",
     "uuid": "^9.0.0"
   }
 }

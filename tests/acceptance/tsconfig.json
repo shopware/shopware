@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["es2021"],
-    "esModuleInterop": true
+    "lib": ["ES2022"],
+    "esModuleInterop": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/*": ["fixtures/*"]
+    }
   }
 }

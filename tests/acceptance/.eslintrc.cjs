@@ -4,19 +4,10 @@ module.exports = {
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/stylistic",
+        "plugin:playwright/recommended",
         "prettier",
     ],
     parser: "@typescript-eslint/parser",
     plugins: ["@typescript-eslint"],
-    root: true,
-    parserOptions: {
-        project: true,
-        tsconfigRootDir: __dirname,
-    },
-    overrides: [
-        {
-            extends: ["plugin:@typescript-eslint/recommended-requiring-type-checking"],
-            files: ["./**/*.{ts,tsx}"],
-        },
-    ],
+    root: true
 };

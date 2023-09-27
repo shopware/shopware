@@ -328,6 +328,8 @@ class InvoiceRendererTest extends TestCase
 
                 $rendered = $rendered->getHtml();
 
+                static::assertNotNull($shippingAddress->getZipcode());
+
                 static::assertStringContainsString('Shipping address', $rendered);
                 static::assertStringContainsString($shippingAddress->getStreet(), $rendered);
                 static::assertStringContainsString($shippingAddress->getCity(), $rendered);
@@ -375,6 +377,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($orderAddress->getCountry()->getName());
                 static::assertNotNull($orderAddress->getSalutation()->getLetterName());
                 static::assertNotNull($orderAddress->getSalutation()->getDisplayName());
+                static::assertNotNull($orderAddress->getZipcode());
 
                 static::assertStringContainsString($orderAddress->getStreet(), $rendered);
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);

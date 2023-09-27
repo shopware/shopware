@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
@@ -114,6 +115,10 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        if ($billingAddress) {
+            $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
+        }
+
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 
@@ -135,6 +140,10 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        if ($shippingAddress) {
+            $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
+        }
+
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 

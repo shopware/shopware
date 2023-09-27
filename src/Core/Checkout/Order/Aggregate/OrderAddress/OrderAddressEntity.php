@@ -49,7 +49,7 @@ class OrderAddressEntity extends Entity
     protected $street;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $zipcode;
 
@@ -188,12 +188,12 @@ class OrderAddressEntity extends Entity
         $this->street = $street;
     }
 
-    public function getZipcode(): string
+    public function getZipcode(): ?string
     {
         return $this->zipcode;
     }
 
-    public function setZipcode(string $zipcode): void
+    public function setZipcode(?string $zipcode): void
     {
         $this->zipcode = $zipcode;
     }

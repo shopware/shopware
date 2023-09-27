@@ -1,5 +1,6 @@
 import { APIResponse, test as base, expect, Page } from "@playwright/test";
 import { AdminApiContext } from "./AdminApiContext";
+import { StoreApiContext } from "@fixtures/StoreApiContext";
 import { IdProvider } from "./IdProvider";
 import {
     getCountryId,
@@ -45,6 +46,7 @@ interface WorkerFixtures {
         url: string;
     };
     adminApiContext: AdminApiContext;
+    storeApiContext: StoreApiContext;
     storeBaseConfig: StoreBaseConfig;
 }
 
@@ -265,7 +267,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                                 shippingMethodId: storeBaseConfig.defaultShippingMethod,
                                 countryId: storeBaseConfig.deCountryId,
 
-                                accessKey: "AC" + uuid,
+                                accessKey: "SWSC" + uuid,
 
                                 homeEnabled: true,
 
@@ -401,6 +403,24 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 customer: { ...customer.data, password: customerData.password },
                 url: baseUrl,
             });
+        },
+        { scope: "worker" },
+    ],
+
+    storeApiContext: [
+        // eslint-disable-next-line no-empty-pattern
+        async ({ defaultStorefront }, use) => {
+            console.log('defaultStorefront', defaultStorefront);
+
+            const options = {
+                'app_url': process.env['APP_URL'],
+                'sw-access-key': defaultStorefront.salesChannel.accessKey
+            }
+
+            console.log('Options', options);
+
+            const storeApiContext = await StoreApiContext.newContext(options);
+            await use(storeApiContext);
         },
         { scope: "worker" },
     ],

@@ -65,6 +65,10 @@ parameters:
         # PHPStan rule test files
         - tests/unit/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
+        # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
+        - src/Core/Test/Stub/Redis/RedisCompatibility.php
+        - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -276,6 +280,9 @@ parameters:
             message: '#must be flagged @internal to not be captured by the BC checker#'
             paths:
                 - src/Core/Test/Integration/Builder
+
+        - message: '#Method Shopware\\Core\\Test\\Stub\\Redis\\RedisStub::do.*\(\) is unused#'
+          path: src/Core/Test/Stub/Redis/RedisStub.php
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

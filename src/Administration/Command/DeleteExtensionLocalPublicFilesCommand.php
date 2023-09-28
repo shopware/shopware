@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'administration:delete-extension-local-public-files',
     description: 'Deletes all files in the local public folder of the extension. This command should run after assets:install so the assets are available in the public folder.',
 )]
-#[Package('admin')]
+#[Package('administration')]
 class DeleteExtensionLocalPublicFilesCommand extends Command
 {
     /**

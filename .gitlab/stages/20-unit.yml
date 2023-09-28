@@ -115,7 +115,7 @@ Jest Coverage per Area (Administration):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "customer-order", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "business-ops", "buyers-experience", "checkout", "content", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:
@@ -464,7 +464,7 @@ PHP unit per area:
       - !reference [ .rules, run ]
     script:
       - composer dump-autoload -o
-      - bin/console coverage:classes-per-area -g > /dev/null
+      - bin/console coverage:classes-per-area -g -q
       - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
       - php $PHP_OPTIONS vendor/bin/phpunit
         --configuration phpunit.$PRODUCT_AREA.xml
@@ -478,7 +478,7 @@ PHP unit per area:
     coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
-        - PRODUCT_AREA: ["administration", "business-ops", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
+        - PRODUCT_AREA: ["administration", "business-ops", "buyers-experience", "checkout", "content", "core", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
     artifacts:
       when: always
       paths:

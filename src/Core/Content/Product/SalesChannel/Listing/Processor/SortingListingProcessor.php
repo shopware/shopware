@@ -45,11 +45,13 @@ class SortingListingProcessor extends AbstractListingProcessor
         $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
         $sortings->merge($this->getAvailableSortings($request, $context->getContext()));
 
-        $currentSorting = $this->getCurrentSorting($sortings, $request);
+        $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
-        $criteria->addSorting(
-            ...$currentSorting->createDalSorting()
-        );
+        if ($currentSorting !== null) {
+            $criteria->addSorting(
+                ...$currentSorting->createDalSorting()
+            );
+        }
 
         $criteria->addExtension('sortings', $sortings);
     }
@@ -58,14 +60,16 @@ class SortingListingProcessor extends AbstractListingProcessor
     {
         /** @var ProductSortingCollection $sortings */
         $sortings = $result->getCriteria()->getExtension('sortings');
-        $currentSortingKey = $this->getCurrentSorting($sortings, $request)->getKey();
+        $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
-        $result->setSorting($currentSortingKey);
+        if ($currentSorting !== null) {
+            $result->setSorting($currentSorting->getKey());
+        }
 
         $result->setAvailableSortings($sortings);
     }
 
-    private function getCurrentSorting(ProductSortingCollection $sortings, Request $request): ProductSortingEntity
+    private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity
     {
         $key = $request->get('order');
 
@@ -78,7 +82,7 @@ class SortingListingProcessor extends AbstractListingProcessor
             return $sorting;
         }
 
-        throw ProductException::sortingNotFoundException($key);
+        return $sortings->getByKey($this->systemConfigService->getString('core.listing.defaultSorting', $salesChannelId));
     }
 
     private function getAvailableSortings(Request $request, Context $context): ProductSortingCollection

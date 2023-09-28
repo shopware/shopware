@@ -4,6 +4,7 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
       "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
+      "PARENT_MUST_NOT_BE_EMPTY": "This field's inheritor must not be empty.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",

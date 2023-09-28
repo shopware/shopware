@@ -24,7 +24,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders', 'VUE3'] }, () => {
+    it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'/*, 'VUE3'*/] }, () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later

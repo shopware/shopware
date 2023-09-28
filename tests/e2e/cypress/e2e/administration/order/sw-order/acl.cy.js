@@ -64,7 +64,7 @@ describe('Order: Test ACL privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, '19 %');
     });
 
-    it('@acl: can edit order', {tags: ['pa-customers-orders', 'quarantined', 'VUE3']}, () => {
+    it('@acl: can edit order', {tags: ['pa-customers-orders', 'quarantined'/*, 'VUE3'*/]}, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
             method: 'POST',

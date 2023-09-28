@@ -141,7 +141,7 @@ class CriteriaPartResolver
             $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
             $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
-            if ($definition->isVersionAware() && $reference->getField($definition->getEntityName() . '_version_id')) {
+            if ($definition->isVersionAware() && $reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
                 $query->addSelect(self::accessor($alias, $definition->getEntityName() . '_version_id'));
             }
 

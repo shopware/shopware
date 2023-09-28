@@ -4,6 +4,8 @@ namespace Shopware\Core\Test\Stub\Redis;
 
 class RedisStub extends \Redis
 {
+    use RedisCompatibility;
+
     /**
      * @var array<string, mixed>
      */
@@ -13,26 +15,7 @@ class RedisStub extends \Redis
     {
     }
 
-    /**
-     * @param mixed $context
-     */
-    public function connect($host, $port = 6379, $timeout = 0, $persistent_id = null, $retry_interval = 0, $read_timeout = 0, $context = null)
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isConnected()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function get($key)
+    private function doGet(string $key): mixed
     {
         if (\array_key_exists($key, $this->data)) {
             $value = $this->data[$key];
@@ -49,12 +32,7 @@ class RedisStub extends \Redis
         return false;
     }
 
-    /**
-     * @param string $key
-     * @param string $value
-     * @param int|array{'EX'?: int, 'ex'?: int} $options
-     */
-    public function set($key, $value, $options = 0)
+    private function doSet(string $key, mixed $value, mixed $options = null): bool
     {
         $expire = 0;
 
@@ -75,29 +53,15 @@ class RedisStub extends \Redis
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setex($key, $expire, $value)
-    {
-        return $this->set($key, $value, $expire);
-    }
-
-    /**
-     * @param string $key1
-     * @param string ...$otherKeys
-     *
-     * @return int
-     */
-    public function del($key1, ...$otherKeys)
+    private function doDel(string $key, string ...$other_keys): int
     {
         $deletions = 0;
 
-        $otherKeys[] = $key1;
+        $other_keys[] = $key;
 
-        foreach ($otherKeys as $key) {
-            if (\array_key_exists($key, $this->data)) {
-                unset($this->data[$key]);
+        foreach ($other_keys as $otherKey) {
+            if (\array_key_exists($otherKey, $this->data)) {
+                unset($this->data[$otherKey]);
                 ++$deletions;
             }
         }
@@ -105,7 +69,7 @@ class RedisStub extends \Redis
         return $deletions;
     }
 
-    public function exists($key, ...$other_keys)
+    private function doExists(mixed $key, mixed ...$other_keys): int|bool
     {
         if ($other_keys === []) {
             return \array_key_exists($key, $this->data);
@@ -124,7 +88,7 @@ class RedisStub extends \Redis
         return $found;
     }
 
-    public function sAdd($key, $value, ...$other_values)
+    private function doSAdd(string $key, mixed $value, mixed ...$other_values): int
     {
         $current = $this->get($key);
 
@@ -143,15 +107,13 @@ class RedisStub extends \Redis
 
         $this->data[$key] = ['value' => $current, 'expire' => $current];
 
-        return true;
+        return 1;
     }
 
     /**
-     * @param string $key
-     *
      * @return list<string>
      */
-    public function sMembers($key)
+    private function doSMembers(string $key): array
     {
         /** @var list<string>|false|string $value */
         $value = $this->get($key);
@@ -167,20 +129,7 @@ class RedisStub extends \Redis
         return $value;
     }
 
-    /**
-     * @return RedisMultiWrapper
-     *
-     * @phpstan-ignore-next-line
-     */
-    public function multi($mode = \Redis::MULTI)
-    {
-        return new RedisMultiWrapper($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function ttl($key)
+    private function doTtl(string $key): int|false
     {
         if (\array_key_exists($key, $this->data)) {
             $value = $this->data[$key];

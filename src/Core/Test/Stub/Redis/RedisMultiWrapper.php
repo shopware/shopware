@@ -2,26 +2,15 @@
 
 namespace Shopware\Core\Test\Stub\Redis;
 
-class RedisMultiWrapper
+class RedisMultiWrapper extends \Redis
 {
+    use RedisMultiCompatibility;
+
     /**
      * @param array<mixed> $results
      */
     public function __construct(private readonly \Redis $redis, private array $results = [])
     {
-    }
-
-    /**
-     * @param array<mixed> $arguments
-     *
-     * @return RedisMultiWrapper
-     */
-    public function __call(string $name, array $arguments)
-    {
-        // @phpstan-ignore-next-line
-        $this->results[] = $this->redis->$name(...$arguments);
-
-        return $this;
     }
 
     /**
@@ -33,5 +22,18 @@ class RedisMultiWrapper
         $this->results = [];
 
         return $ret;
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     *
+     * @return RedisMultiWrapper
+     */
+    private function doCall(string $name, array $arguments)
+    {
+        // @phpstan-ignore-next-line
+        $this->results[] = $this->redis->$name(...$arguments);
+
+        return $this;
     }
 }

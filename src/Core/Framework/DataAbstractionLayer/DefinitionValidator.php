@@ -103,6 +103,7 @@ class DefinitionValidator
         'messenger_messages',
         'payment_token',
         'refresh_token',
+        'usage_data_entity_deletion',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

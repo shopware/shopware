@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
@@ -123,5 +124,41 @@ class UsageDataExceptionTest extends TestCase
             'Consent has already been revoked.',
             $exception->getMessage(),
         );
+    }
+
+    public function testUnexpectedOperationInInitialRun(): void
+    {
+        $exception = UsageDataException::unexpectedOperationInInitialRun(Operation::DELETE);
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertEquals('SYSTEM__USAGE_DATA_UNEXPECTED_OPERATION_IN_INITIAL_RUN', $exception->getErrorCode());
+        static::assertEquals('Operation "delete" was not expected to be dispatched in initial run', $exception->getMessage());
+    }
+
+    public function testEntityNotAllowed(): void
+    {
+        $exception = UsageDataException::entityNotAllowed('product');
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertEquals('SYSTEM__USAGE_DATA_ENTITY_NOT_TAGGED', $exception->getErrorCode());
+        static::assertEquals('Entity "product" is not allowed to be used for usage data', $exception->getMessage());
+    }
+
+    public function testFailedToCompressEntityDispatchPayload(): void
+    {
+        $exception = UsageDataException::failedToCompressEntityDispatchPayload();
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertEquals('SYSTEM__USAGE_DATA_FAILED_TO_COMPRESS_ENTITY_DISPATCH_PAYLOAD', $exception->getErrorCode());
+        static::assertEquals('Failed to compress entity dispatch payload', $exception->getMessage());
+    }
+
+    public function testFailedToLoadDefaultAllowList(): void
+    {
+        $exception = UsageDataException::failedToLoadDefaultAllowList();
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertEquals('SYSTEM__USAGE_DATA_FAILED_TO_LOAD_DEFAULT_ALLOW_LIST', $exception->getErrorCode());
+        static::assertEquals('Failed to load default allow list', $exception->getMessage());
     }
 }

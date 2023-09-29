@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Defau
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlobFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer;
@@ -81,6 +82,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             JsonFieldSerializer::class => new JsonFieldSerializer($this->validator, $this),
             CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this),
             UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this),
+            BlobFieldSerializer::class => new BlobFieldSerializer(),
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,
                 $this->validator,

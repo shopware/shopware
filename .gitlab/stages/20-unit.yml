@@ -74,11 +74,7 @@ Jest Coverage per Area (Storefront):
   extends: Jest (Storefront)
   stage: unit
   rules:
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, skip-in-merge-train ]
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - !reference [ .rules, run ]
   variables:
     ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
@@ -101,11 +97,7 @@ Jest Coverage per Area (Administration):
   extends: Jest (Administration)
   stage: unit
   rules:
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, skip-in-merge-train ]
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - !reference [ .rules, run ]
   script:
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
@@ -457,11 +449,7 @@ PHP unit per area:
     extends: PHP unit coverage
     stage: unit
     rules:
-      - !reference [ .rules, skip ]
-      - !reference [ .rules, skip-in-merge-train ]
-      - if: '$CI_PIPELINE_SOURCE == "pipeline"'
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      - !reference [ .rules, run ]
     script:
       - composer dump-autoload -o
       - bin/console coverage:classes-per-area -g -q
@@ -488,9 +476,6 @@ Coverage per Area summary:
   extends: .base-no-setup
   stage: unit
   rules:
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
   dependencies: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   needs: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]

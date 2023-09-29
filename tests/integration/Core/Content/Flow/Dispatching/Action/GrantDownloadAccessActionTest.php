@@ -382,6 +382,7 @@ class GrantDownloadAccessActionTest extends TestCase
                             'id' => Uuid::randomHex(),
                             'fileName' => $fileName,
                             'fileExtension' => $fileExtension,
+                            'path' => 'media/' . $fileName . '.' . $fileExtension,
                             'private' => true,
                         ],
                     ];

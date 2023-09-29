@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.6.0 - Use AbstractMediaUrlGenerator instead
+ */
 #[Package('buyers-experience')]
 interface UrlGeneratorInterface
 {

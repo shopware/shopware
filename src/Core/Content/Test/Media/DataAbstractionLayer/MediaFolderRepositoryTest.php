@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -119,7 +118,7 @@ class MediaFolderRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
+        $mediaPath = $media->getPath();
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
@@ -185,8 +184,8 @@ class MediaFolderRepositoryTest extends TestCase
         $parentMedia = $media->get($parentMediaId);
         static::assertInstanceOf(MediaEntity::class, $parentMedia);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+        $childMediaPath = $childMedia->getPath();
+        $parentMediaPath = $parentMedia->getPath();
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
@@ -232,6 +231,7 @@ class MediaFolderRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
+                    'path' => 'media/test_media_1.png',
                     'fileName' => $childMediaId . '-' . (new \DateTime())->getTimestamp(),
                     'mediaFolderId' => $childFolderId,
                 ],
@@ -240,6 +240,7 @@ class MediaFolderRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
+                    'path' => 'media/test_media_2.png',
                     'fileName' => $parentMediaId . '-' . (new \DateTime())->getTimestamp(),
                     'mediaFolderId' => $parentFolderId,
                 ],
@@ -254,8 +255,8 @@ class MediaFolderRepositoryTest extends TestCase
         $parentMedia = $media->get($parentMediaId);
         static::assertInstanceOf(MediaEntity::class, $parentMedia);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+        $childMediaPath = $childMedia->getPath();
+        $parentMediaPath = $parentMedia->getPath();
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
@@ -323,8 +324,8 @@ class MediaFolderRepositoryTest extends TestCase
         $parentMedia = $media->get($parentMediaId);
         static::assertInstanceOf(MediaEntity::class, $parentMedia);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+        $childMediaPath = $childMedia->getPath();
+        $parentMediaPath = $parentMedia->getPath();
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
@@ -392,8 +393,8 @@ class MediaFolderRepositoryTest extends TestCase
         $parentMedia = $media->get($parentMediaId);
         static::assertInstanceOf(MediaEntity::class, $parentMedia);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+        $childMediaPath = $childMedia->getPath();
+        $parentMediaPath = $parentMedia->getPath();
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);

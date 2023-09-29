@@ -7,10 +7,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -46,8 +44,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     private GenerateThumbnailsCommand $thumbnailCommand;
 
-    private UrlGeneratorInterface $urlGenerator;
-
     private Context $context;
 
     /**
@@ -59,7 +55,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = Context::createDefaultContext();
 
@@ -91,7 +86,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -119,7 +114,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -148,7 +143,7 @@ class GenerateThumbnailsCommandTest extends TestCase
                 );
 
                 foreach ($thumbnails as $thumbnail) {
-                    $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                    $this->assertThumbnailExists($thumbnail);
                 }
             }
         }
@@ -170,7 +165,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::assertEquals(2, $thumbnails->count());
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -324,13 +319,9 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals($expectedMessageStrict, $envelopes[3]->getMessage());
     }
 
-    protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void
+    protected function assertThumbnailExists(MediaThumbnailEntity $thumbnail): void
     {
-        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-            $media,
-            $thumbnail
-        );
-        static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
+        static::assertTrue($this->getPublicFilesystem()->has($thumbnail->getPath()));
     }
 
     protected function createValidMediaFiles(): void
@@ -339,13 +330,15 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPng = $this->getPngWithFolder();
         $mediaJpg = $this->getJpgWithFolder();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        $filePath = $mediaPng->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        $filePath = $mediaJpg->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
@@ -365,13 +358,15 @@ class GenerateThumbnailsCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        $filePath = $mediaPdf->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        $filePath = $mediaJpg->getPath();
+
         $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 

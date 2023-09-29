@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -43,7 +42,6 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityRepository $thumbnailRepository,
         private readonly MessageBusInterface $messageBus,
@@ -129,9 +127,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
 
             if ($mediaEntity->isPrivate()) {
-                $privatePaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                $privatePaths[] = $mediaEntity->getPath();
             } else {
-                $publicPaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                $publicPaths[] = $mediaEntity->getPath();
             }
 
             if (!$mediaEntity->getThumbnails()) {
@@ -214,9 +212,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
 
             if ($media->isPrivate()) {
-                $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+                $privatePaths[] = $thumbnail->getPath();
             } else {
-                $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+                $publicPaths[] = $thumbnail->getPath();
             }
         }
 

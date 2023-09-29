@@ -30,7 +30,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('sales-channel')]
+#[Package('inventory')]
 final class ProductExportPartialGenerationHandler
 {
     /**
@@ -118,9 +118,12 @@ final class ProductExportPartialGenerationHandler
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 
-        return $this->productExportRepository
+        /** @var ProductExportEntity|null $productExport */
+        $productExport = $this->productExportRepository
             ->search($criteria, $context)
             ->first();
+
+        return $productExport;
     }
 
     private function runExport(

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';

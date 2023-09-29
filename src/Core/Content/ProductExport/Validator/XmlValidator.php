@@ -7,7 +7,7 @@ use Shopware\Core\Content\ProductExport\Error\XmlValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class XmlValidator implements ValidatorInterface
 {
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void

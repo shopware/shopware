@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductStream\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class FilterNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $type)

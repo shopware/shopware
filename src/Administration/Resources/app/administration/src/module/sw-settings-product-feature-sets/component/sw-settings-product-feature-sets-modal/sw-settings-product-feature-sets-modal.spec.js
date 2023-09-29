@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsProductFeatureSetsModal from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';

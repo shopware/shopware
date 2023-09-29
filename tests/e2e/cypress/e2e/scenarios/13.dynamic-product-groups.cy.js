@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 describe('Dynamic Product Groups in categories', () => {
     beforeEach(() => {
         cy.createProductFixture().then(() => {

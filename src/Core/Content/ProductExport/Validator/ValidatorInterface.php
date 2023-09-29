@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 interface ValidatorInterface
 {
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void;

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';

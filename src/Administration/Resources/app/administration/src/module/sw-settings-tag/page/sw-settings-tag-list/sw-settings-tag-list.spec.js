@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsTagList from 'src/module/sw-settings-tag/page/sw-settings-tag-list';
 

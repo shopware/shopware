@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'product_stream_translation';

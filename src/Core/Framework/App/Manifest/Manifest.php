@@ -216,7 +216,7 @@ class Manifest
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }
 
-    public function getShipments(): ?ShippingMethods
+    public function getShippingMethods(): ?ShippingMethods
     {
         return $this->shipments;
     }

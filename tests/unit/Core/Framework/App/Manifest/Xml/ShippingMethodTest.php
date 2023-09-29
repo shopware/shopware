@@ -24,7 +24,7 @@ class ShippingMethodTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
 
-        $shipment = $manifest->getShipments();
+        $shipment = $manifest->getShippingMethods();
         static::assertNotNull($shipment, 'No shipments found in manifest.xml.');
 
         $shippingMethods = $shipment->getShippingMethods();
@@ -56,7 +56,7 @@ class ShippingMethodTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
 
-        $manifestShippingMethod = $manifest->getShipments();
+        $manifestShippingMethod = $manifest->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -102,7 +102,7 @@ class ShippingMethodTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
 
-        $manifestShippingMethod = $manifest->getShipments();
+        $manifestShippingMethod = $manifest->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -126,7 +126,7 @@ class ShippingMethodTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
 
-        $manifestShippingMethod = $manifest->getShipments();
+        $manifestShippingMethod = $manifest->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -150,7 +150,7 @@ class ShippingMethodTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
 
-        $manifestShippingMethod = $manifest->getShipments();
+        $manifestShippingMethod = $manifest->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');

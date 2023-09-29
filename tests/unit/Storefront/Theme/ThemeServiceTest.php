@@ -19,7 +19,7 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
-use Shopware\Storefront\Theme\Exception\ThemeException;
+use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -56,9 +56,15 @@ class ThemeServiceTest extends TestCase
 
     private Context $context;
 
-    private SystemConfigService&MockObject $systemConfigMock;
+    /**
+     * @var SystemConfigService&MockObject
+     */
+    private SystemConfigService $systemConfigMock;
 
-    private MessageBus&MockObject $messageBusMock;
+    /**
+     * @var MessageBus&MockObject
+     */
+    private MessageBus $messageBusMock;
 
     protected function setUp(): void
     {

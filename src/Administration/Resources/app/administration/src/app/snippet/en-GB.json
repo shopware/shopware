@@ -41,6 +41,7 @@
       "from": "From",
       "to": "To",
       "bulkEdit": "Bulk edit",
+      "back": "Back",
       "discard": "Discard"
     },
     "notification": {

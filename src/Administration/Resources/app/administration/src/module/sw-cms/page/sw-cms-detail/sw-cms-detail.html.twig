@@ -32,8 +32,12 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_back_button %}
                         <a
-                            @click="back()"
                             class="sw-cms-detail__back-btn"
+                            role="link"
+                            tabindex="0"
+                            :aria-label="$tc('global.default.back')"
+                            @click="onClickBack"
+                            @keyup.enter="onClickBack"
                         >
                             <sw-icon name="regular-times" />
                         </a>

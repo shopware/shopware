@@ -61,7 +61,7 @@ class ShippingMethodPersister
         Context $context
     ): void {
         $appName = $manifest->getMetadata()->getName();
-        $manifestShipments = $manifest->getShipments();
+        $manifestShipments = $manifest->getShippingMethods();
         $manifestShippingMethods = $manifestShipments?->getShippingMethods() ?? [];
 
         $existingAppShippingMethods = $this->getExistingAppShippingMethods($appName, $context);

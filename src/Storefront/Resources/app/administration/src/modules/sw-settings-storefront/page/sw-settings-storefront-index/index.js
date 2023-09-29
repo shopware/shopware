@@ -12,6 +12,7 @@ Shopware.Component.register('sw-settings-storefront-index', {
             isSaveSuccessful: false,
             storefrontSettings: {
                 'core.storefrontSettings.iconCache': true,
+                'core.storefrontSettings.asyncThemeCompilation': false
             },
         };
     },
@@ -46,6 +47,12 @@ Shopware.Component.register('sw-settings-storefront-index', {
                 };
             }
 
+            if (Object.keys(this.storefrontSettings).length === 0) {
+                this.storefrontSettings = {
+                    'core.storefrontSettings.asyncThemeCompilation': false,
+                };
+            }
+
             this.isLoading = false;
         },
 
@@ -55,6 +62,10 @@ Shopware.Component.register('sw-settings-storefront-index', {
             // Inputs cannot return null
             if (this.storefrontSettings['core.storefrontSettings.iconCache'] === '') {
                 this.storefrontSettings['core.storefrontSettings.iconCache'] = true;
+            }
+
+            if (this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'] === '') {
+                this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'] = false;
             }
 
             await this.systemConfigApiService.saveValues(this.storefrontSettings);

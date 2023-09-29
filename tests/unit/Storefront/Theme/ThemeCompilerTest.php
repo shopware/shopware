@@ -400,7 +400,7 @@ PHP_EOL;
 
         try {
             $pathBuilder->getDecorated();
-        } catch (DecorationPatternException $e) {
+        } catch (\Throwable $e) {
             static::assertInstanceOf(DecorationPatternException::class, $e);
         }
 
@@ -460,7 +460,7 @@ PHP_EOL;
 
         try {
             $pathBuilder->getDecorated();
-        } catch (DecorationPatternException $e) {
+        } catch (\Throwable $e) {
             static::assertInstanceOf(DecorationPatternException::class, $e);
         }
 
@@ -630,16 +630,16 @@ PHP_EOL;
             ->method('saveSeed')
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
-        $expectedEnvelope = new Envelope(
-            new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test'),
-            [new DelayStamp(900000)]
-        );
+        $expectedMessage = new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test');
+        $expectedStamps = [new DelayStamp(900000)];
+
+        $expectedEnvelop = new Envelope($expectedMessage, $expectedStamps);
 
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects(static::once())
             ->method('dispatch')
-            ->with($expectedEnvelope)
-            ->willReturn($expectedEnvelope);
+            ->with($expectedMessage, $expectedStamps)
+            ->willReturn($expectedEnvelop);
 
         $compiler = new ThemeCompiler(
             $fs,

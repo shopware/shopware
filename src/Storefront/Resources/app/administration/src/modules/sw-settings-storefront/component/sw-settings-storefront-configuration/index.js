@@ -4,6 +4,8 @@ import './sw-settings-storefront-configuration.scss';
 Shopware.Component.register('sw-settings-storefront-configuration', {
     template,
 
+    inject: ['feature'],
+
     props: {
         storefrontSettings: {
             type: Object,

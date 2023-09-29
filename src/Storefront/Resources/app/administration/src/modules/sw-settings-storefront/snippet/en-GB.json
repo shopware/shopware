@@ -9,7 +9,11 @@
     "configuration": {
       "cardTitle": "Storefront configuration",
       "iconCache": "Activate icon cache",
-      "iconCacheToolTip": "Controls whether icons are only delivered once per storefront page and additional usages will only be referenced by the icons id."
+      "iconCacheToolTip": "Controls whether icons are only delivered once per storefront page and additional usages will only be referenced by the icons id.",
+      "theme": {
+        "async": "Compile theme in the background",
+        "asyncTooltip": "Controls whether theme compilation is handled via the message queue instead of directly on changes."
+      }
     },
     "helpText": "For more information please check out the <a target=\"_blank\", href=\"https://docs.shopware.com/en/shopware-6-en\">documentation.</a>"
   }

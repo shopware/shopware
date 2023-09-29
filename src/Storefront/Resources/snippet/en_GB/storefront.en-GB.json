@@ -718,5 +718,12 @@
         }
       }
     }
+  },
+  "theme": {
+    "compilation": {
+      "async": {
+        "success": "Compilation for sales channel %salesChannelName% completed"
+      }
+    }
   }
 }

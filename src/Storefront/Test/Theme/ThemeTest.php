@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Storefront\Test\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -135,7 +137,10 @@ class ThemeTest extends TestCase
 
     public function testDefaultThemeConfigTranslated(): void
     {
+        /** @var ThemeEntity $theme */
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($theme);
+
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
 
         static::assertGreaterThan(0, \count($themeConfiguration));
@@ -147,6 +152,7 @@ class ThemeTest extends TestCase
 
     public function testDefaultThemeConfigStructuredFields(): void
     {
+        /** @var ThemeEntity $theme */
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
 
         $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
@@ -665,7 +671,10 @@ class ThemeTest extends TestCase
                 ),
                 $this->getContainer()->get('media.repository'),
             ),
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get(NotificationService::class)
         );
         $themeService->updateTheme(
             $childTheme->getId(),

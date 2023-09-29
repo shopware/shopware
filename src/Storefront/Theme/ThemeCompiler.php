@@ -21,7 +21,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
@@ -135,10 +134,8 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
             }
             $this->messageBus->dispatch(
-                new Envelope(
-                    new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
-                    $stamps
-                )
+                new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
+                $stamps
             );
         }
 

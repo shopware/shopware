@@ -2,7 +2,7 @@ import template from './sw-extension-my-extensions-listing-controls.html.twig';
 import './sw-extension-my-extensions-listing-controls.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

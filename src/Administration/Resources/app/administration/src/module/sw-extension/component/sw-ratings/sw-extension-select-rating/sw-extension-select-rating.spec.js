@@ -10,7 +10,7 @@ Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExten
 Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     /** @type Wrapper */

@@ -1,7 +1,7 @@
 import { defineComponent } from 'vue';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default Shopware.Mixin.register('sw-extension-error', defineComponent({

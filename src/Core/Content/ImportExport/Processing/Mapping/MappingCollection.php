@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-import-type MappingArray from Mapping
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MappingCollection extends Collection
 {
     /**

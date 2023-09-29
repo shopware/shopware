@@ -10,7 +10,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportException extends HttpException
 {
     public static function invalidFileAccessToken(): ShopwareHttpException

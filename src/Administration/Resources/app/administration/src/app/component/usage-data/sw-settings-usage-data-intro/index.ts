@@ -6,7 +6,7 @@ const { Component } = Shopware;
 /**
  * @private
  *
- * @package merchant-services
+ * @package services-settings
  */
 Component.register('sw-settings-usage-data-intro', {
     template,

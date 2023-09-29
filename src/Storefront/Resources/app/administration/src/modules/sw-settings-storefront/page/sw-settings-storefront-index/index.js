@@ -1,6 +1,9 @@
 import template from './sw-settings-storefront-index.html.twig';
 import './sw-settings-storefront-index.scss';
 
+/**
+ * @package services-settings
+ */
 Shopware.Component.register('sw-settings-storefront-index', {
     template,
 

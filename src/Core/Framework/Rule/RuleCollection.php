@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<Rule>
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleCollection extends Collection
 {
     /**

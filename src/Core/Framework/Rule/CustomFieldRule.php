@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * The helper to provider static methods for custom fields rule.
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CustomFieldRule
 {
     /**

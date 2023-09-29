@@ -87,7 +87,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper = null;

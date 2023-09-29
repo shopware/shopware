@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportAfterImportRecordEvent extends Event
 {
     public function __construct(

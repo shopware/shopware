@@ -26,7 +26,7 @@ use Twig\Extension\DebugExtension;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ScriptRule extends Rule
 {
     final public const RULE_NAME = 'scriptRule';

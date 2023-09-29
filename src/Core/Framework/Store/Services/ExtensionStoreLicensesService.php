@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService
 {
     public function __construct(private readonly StoreClient $client)

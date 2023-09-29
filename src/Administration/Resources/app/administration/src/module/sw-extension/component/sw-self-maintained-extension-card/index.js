@@ -1,7 +1,7 @@
 import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

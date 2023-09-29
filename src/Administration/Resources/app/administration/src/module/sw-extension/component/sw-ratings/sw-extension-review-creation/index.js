@@ -4,7 +4,7 @@ import './sw-extension-review-creation.scss';
 const { ShopwareError } = Shopware.Classes;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

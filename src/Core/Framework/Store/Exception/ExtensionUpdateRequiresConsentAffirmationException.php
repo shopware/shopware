@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.6.0 - will be removed. Use StoreException::extensionUpdateRequiresConsentAffirmationException instead.
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionUpdateRequiresConsentAffirmationException extends StoreException
 {
     public function __construct(

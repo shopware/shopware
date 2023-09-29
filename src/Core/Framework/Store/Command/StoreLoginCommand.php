@@ -28,7 +28,7 @@ use Symfony\Component\Console\Question\Question;
     name: 'store:login',
     description: 'Login to the store',
 )]
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreLoginCommand extends Command
 {
     public function __construct(

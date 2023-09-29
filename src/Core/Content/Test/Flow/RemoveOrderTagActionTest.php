@@ -25,7 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RemoveOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;

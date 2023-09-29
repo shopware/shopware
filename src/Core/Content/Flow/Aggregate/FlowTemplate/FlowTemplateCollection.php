@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<FlowTemplateEntity>
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowTemplateCollection extends EntityCollection
 {
     public function getApiAlias(): string

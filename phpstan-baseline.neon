@@ -12366,11 +12366,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php
@@ -13489,13 +13484,3 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Exception\\\\\\\\DecorationPatternException' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Exception\\\\DecorationPatternException will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Storefront/Theme/ThemeCompilerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Storefront/Theme/ThemeServiceTest.php

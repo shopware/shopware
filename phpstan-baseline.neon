@@ -4700,15 +4700,7 @@ parameters:
 			count: 1
 			path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Internal/InternalMethodRule.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FallbackUrlPackage\\:\\:applyFallback\\(\\) has parameter \\$baseUrls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
-		-
-			message: "#^Parameter \\#1 \\$baseUrls of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FallbackUrlPackage\\:\\:applyFallback\\(\\) expects array, array\\<string\\>\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
 		-
 			message: "#^PHPDoc tag @var with type Symfony\\\\Contracts\\\\Cache\\\\ItemInterface is not subtype of native type Symfony\\\\Component\\\\Cache\\\\CacheItem\\.$#"

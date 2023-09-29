@@ -31,6 +31,8 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -417,10 +419,16 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
+        $this->clearRequestStack();
+
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
 
         $kernelMock = $this->createMock(Kernel::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
+
+        $basePath = new UrlPackage(['http://localhost'], new EmptyVersionStrategy());
+        $assets = new Packages($basePath, ['asset' => $basePath]);
+
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -434,7 +442,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
             ]),
             $kernelMock,
-            $this->getContainer()->get('assets.packages'),
+            $assets,
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
@@ -465,7 +473,7 @@ class InfoControllerTest extends TestCase
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertEquals(
-            EnvironmentHelper::getVariable('APP_URL') . '/bundles/adminextensionapipluginwithlocalentrypoint/administration/index.html',
+            'http://localhost/bundles/adminextensionapipluginwithlocalentrypoint/administration/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);

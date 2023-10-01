@@ -32,7 +32,8 @@ export default {
                 normalClearCache: false,
                 updateIndexes: false,
             },
-            skip: [],
+            indexingMethod: 'skip',
+            indexerSelection: [],
             indexers: {
                 'category.indexer': [
                     'category.child-count',
@@ -175,7 +176,37 @@ export default {
 
         updateIndexes() {
             this.processes.updateIndexes = true;
-            this.cacheApiService.index(this.skip).then(() => {
+
+            let skip = [];
+            let only = [];
+
+            if (this.indexingMethod === 'skip') {
+                skip = this.indexerSelection;
+            } else {
+                // eslint-disable-next-line no-restricted-syntax
+                for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+                    if (this.indexerSelection.indexOf(indexerName) > -1) {
+                        only.push(indexerName);
+                    }
+
+                    const selectedUpdaters = [];
+
+                    // eslint-disable-next-line no-restricted-syntax
+                    for (const updater of updaters) {
+                        if (this.indexerSelection.indexOf(updater) > -1) {
+                            selectedUpdaters.push(updater);
+                        }
+                    }
+
+                    if (selectedUpdaters.length > 0) {
+                        only.push(indexerName);
+                    }
+
+                    only.push(...selectedUpdaters);
+                }
+            }
+
+            this.cacheApiService.index(skip, only).then(() => {
                 this.decreaseWorkerPoll();
                 this.createNotificationInfo({
                     message: this.$tc('sw-settings-cache.notifications.index.started'),
@@ -188,18 +219,33 @@ export default {
             });
         },
 
-        changeSkip(selected, name) {
+        changeSelection(selected, name) {
             if (selected) {
-                this.skip.push(name);
+                this.indexerSelection.push(name);
 
                 return;
             }
 
-            const index = this.skip.indexOf(name);
+            const index = this.indexerSelection.indexOf(name);
 
             if (index > -1) {
-                this.skip.splice(index, 1);
+                this.indexerSelection.splice(index, 1);
             }
+        },
+
+        flipIndexers() {
+            const leafs = [];
+
+            // eslint-disable-next-line no-restricted-syntax
+            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+                if (updaters.length > 0) {
+                    leafs.push(...updaters);
+                } else {
+                    leafs.push(indexerName);
+                }
+            }
+
+            this.indexerSelection = leafs.filter(entry => this.indexerSelection.indexOf(entry) === -1);
         },
     },
 };

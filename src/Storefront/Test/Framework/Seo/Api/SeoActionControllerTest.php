@@ -22,6 +22,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
+ *
+ * @phpstan-type Product array{id: string, attributes: array{isModified: boolean, seoPathInfo: string } }
  */
 #[Package('buyers-experience')]
 class SeoActionControllerTest extends TestCase
@@ -43,13 +45,15 @@ class SeoActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate');
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($result['errors']);
         static::assertEquals(400, $response->getStatusCode());
     }
 
-    public function testValidateInvalid(): void
+    public function testValidateInvalidTwigSyntax(): void
     {
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
@@ -59,7 +63,27 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($result['errors'] ?? []);
+        static::assertEquals(400, $response->getStatusCode());
+    }
+
+    public function testValidateInvalidDataUsage(): void
+    {
+        $template = new SeoUrlTemplateEntity();
+        $template->setRouteName('frontend.detail.page');
+        $template->setTemplate('{{ product.undefinedProperty }}');
+        $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
+        $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
+
+        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
+        $response = $this->getBrowser()->getResponse();
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($result['errors'] ?? []);
         static::assertEquals(400, $response->getStatusCode());
@@ -79,7 +103,9 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('errors', $result);
         static::assertEquals(200, $response->getStatusCode());
@@ -117,7 +143,9 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotNull($data['product'] ?? null);
     }
 
@@ -137,9 +165,34 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
-        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('test', $data[0]['seoPathInfo']);
+    }
+
+    public function testPreviewWithBrokenTemplate(): void
+    {
+        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
+        $this->createTestProduct();
+
+        $data = [
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.undefinedProperty }}',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(400, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertEquals('FRAMEWORK__INVALID_SEO_TEMPLATE', $data['errors'][0]['code']);
     }
 
     public function testPreviewWithSalesChannel(): void
@@ -162,8 +215,10 @@ class SeoActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
 
-        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $urls = array_column($data, 'seoPathInfo');
         static::assertContains('B/', $urls);
@@ -179,7 +234,9 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $result);
         static::assertEquals(404, $response->getStatusCode());
@@ -339,6 +396,9 @@ class SeoActionControllerTest extends TestCase
         }
     }
 
+    /**
+     * @return array<Product>
+     */
     private function getSeoUrls(string $id, ?bool $canonical = null, ?string $salesChannelId = null): array
     {
         $params = [];
@@ -354,6 +414,8 @@ class SeoActionControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $content = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertIsString($content);
 
         return json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data'];
     }

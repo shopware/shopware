@@ -49,11 +49,27 @@ class SeoActionControllerTest extends TestCase
         static::assertEquals(400, $response->getStatusCode());
     }
 
-    public function testValidateInvalid(): void
+    public function testValidateInvalidTwigSyntax(): void
     {
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }');
+        $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
+        $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
+
+        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
+        $response = $this->getBrowser()->getResponse();
+        $result = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($result['errors'] ?? []);
+        static::assertEquals(400, $response->getStatusCode());
+    }
+
+    public function testValidateInvalidDataUsage(): void
+    {
+        $template = new SeoUrlTemplateEntity();
+        $template->setRouteName('frontend.detail.page');
+        $template->setTemplate('{{ product.undefinedProperty }}');
         $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
         $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
 
@@ -140,6 +156,27 @@ class SeoActionControllerTest extends TestCase
         $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('test', $data[0]['seoPathInfo']);
+    }
+
+    public function testPreviewWithBrokenTemplate(): void
+    {
+        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
+        $this->createTestProduct();
+
+        $data = [
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.undefinedProperty }}',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(400, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertEquals('FRAMEWORK__INVALID_SEO_TEMPLATE', $data['errors'][0]['code']);
     }
 
     public function testPreviewWithSalesChannel(): void

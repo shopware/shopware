@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo\Api;
 
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
+use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
@@ -317,7 +318,7 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelIdParameterIsMissing();
         }
 
-        $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);
+        $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($seoUrlRoute, $config), $context, $salesChannel);
         if (\is_array($result)) {
             return $result;
         }

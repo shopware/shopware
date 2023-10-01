@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
+use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;

@@ -366,8 +366,8 @@
             justify-content: center;
         }
 
-        .sw-button:not(:last-child) {
-            margin-right: 5px;
+        .sw-button + .sw-button {
+            margin-left: 5px;
         }
     }
 

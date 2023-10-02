@@ -4776,11 +4776,6 @@ parameters:
 			path: src/Core/Content/Test/ProductStream/ProductStreamRepositoryTest.php
 
 		-
-			message: "#^Cannot call method getOptions\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Property/PropertySortTest.php
-
-		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Rule/DataAbstractionLayer/RulePayloadIndexerTest.php

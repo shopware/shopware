@@ -61,28 +61,12 @@
                             v-if="!set.customFields"
                             style="width:100%"
                         />
-                        <template
-                            v-for="customField in set.customFields"
-                            v-else
-                            {% if VUE3 %}
-                            :key="customField.name"
-                            {% endif %}
-                        >
-                            <sw-inherit-wrapper
-                                v-if="entity && customField.config"
-                                {% if VUE2 %}
+                        <template v-else>
+                            <template
+                                v-for="customField in set.customFields"
+                                {% if VUE3 %}
                                 :key="customField.name"
                                 {% endif %}
-                                {% if VUE3 %}
-                                v-model:value="customFields[customField.name]"
-                                {% else %}
-                                v-model="customFields[customField.name]"
-                                {% endif %}
-                                v-bind="getInheritWrapperBind(customField)"
-                                :class="'sw-form-field-renderer-field__' + customField.name"
-                                :has-parent="hasParent"
-                                :required="customField.config.validation === 'required'"
-                                :inherited-value="getInheritedCustomField(customField.name)"
                             >
                                 <sw-inherit-wrapper
                                     v-if="entity && customField.config"

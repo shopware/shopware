@@ -13,56 +13,64 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\Content\ImportExport\ImportExportException
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
-    public function testItThrowsException(ShopwareHttpException|ImportExportException $exception, int $statusCode, string $errorCode, string $message): void
+    public function testItThrowsException(): void
     {
-        try {
-            throw $exception;
-        } catch (ShopwareHttpException|ImportExportException $importExportException) {
-            $caughtException = $importExportException;
-        }
+        $testCases = [
+            [
+                'exception' => ImportExportException::invalidFileAccessToken(),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_INVALID_ACCESS_TOKEN',
+                'message' => 'Access to file denied due to invalid access token',
+            ],
+            [
+                'exception' => ImportExportException::fileNotFound('notFoundFile'),
+                'statusCode' => Response::HTTP_NOT_FOUND,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_NOT_FOUND',
+                'message' => 'Cannot find import/export file with id notFoundFile',
+            ],
+            [
+                'exception' => ImportExportException::processingError('Cannot merge file'),
+                'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION',
+                'message' => 'Cannot merge file',
+            ],
+            [
+                'exception' => ImportExportException::requiredByUser('foo'),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER',
+                'message' => 'foo is set to required by the user but has no value',
+            ],
+            [
+                'exception' => ImportExportException::invalidIdentifier('foo'),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_INVALID_IDENTIFIER',
+                'message' => 'The identifier of foo should not contain pipe character.',
+            ],
+            [
+                'exception' => ImportExportException::decorationPattern('foo'),
+                'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'errorCode' => '500',
+                'message' => 'The getDecorated() function of core class foo cannot be used. This class is the base class.',
+            ],
+        ];
 
-        static::assertEquals($statusCode, $caughtException->getStatusCode());
-        static::assertEquals($errorCode, $caughtException->getErrorCode());
-        static::assertEquals($message, $caughtException->getMessage());
+        foreach ($testCases as $testCase) {
+            $this->runTestCase(
+                $testCase['exception'],
+                $testCase['statusCode'],
+                $testCase['errorCode'],
+                $testCase['message']
+            );
+        }
     }
 
-    /**
-     * @return array<string, array{exception: ImportExportException|ShopwareHttpException, statusCode: int, errorCode: string, message: string}>
-     */
-    public static function exceptionDataProvider(): iterable
+    private function runTestCase(ShopwareHttpException|ImportExportException $exception, int $statusCode, string $errorCode, string $message): void
     {
-        yield 'CONTENT__IMPORT_EXPORT_FILE_INVALID_ACCESS_TOKEN' => [
-            'exception' => ImportExportException::invalidFileAccessToken(),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_INVALID_ACCESS_TOKEN',
-            'message' => 'Access to file denied due to invalid access token',
-        ];
-
-        yield 'CONTENT__IMPORT_EXPORT_FILE_NOT_FOUND' => [
-            'exception' => ImportExportException::fileNotFound('notFoundFile'),
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_NOT_FOUND',
-            'message' => 'Cannot find import/export file with id notFoundFile',
-        ];
-
-        yield 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION' => [
-            'exception' => ImportExportException::processingError('Cannot merge file'),
-            'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
-            'errorCode' => 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION',
-            'message' => 'Cannot merge file',
-        ];
-
-        yield 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER' => [
-            'exception' => ImportExportException::requiredByUser('foo'),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER',
-            'message' => 'foo is set to required by the user but has no value',
-        ];
+        static::assertEquals($statusCode, $exception->getStatusCode());
+        static::assertEquals($errorCode, $exception->getErrorCode());
+        static::assertEquals($message, $exception->getMessage());
     }
 }

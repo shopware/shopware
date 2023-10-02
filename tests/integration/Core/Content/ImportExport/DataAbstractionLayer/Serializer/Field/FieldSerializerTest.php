@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serializer\Field;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,22 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 class FieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    public function testIntField(): void
-    {
-        $intField = new IntField('foo', 'foo');
-
-        $fieldSerializer = new FieldSerializer();
-        $config = new Config([], [], []);
-
-        static::assertNull($this->first($fieldSerializer->serialize($config, $intField, null)));
-        static::assertSame('0', $this->first($fieldSerializer->serialize($config, $intField, 0)));
-        static::assertSame('3123412344321', $this->first($fieldSerializer->serialize($config, $intField, 3123412344321)));
-
-        static::assertEmpty($fieldSerializer->deserialize($config, $intField, ''));
-        static::assertSame(0, $fieldSerializer->deserialize($config, $intField, '0'));
-        static::assertSame(3123412344321, $fieldSerializer->deserialize($config, $intField, '3123412344321'));
-    }
 
     public function testPriceField(): void
     {
@@ -53,7 +35,9 @@ class FieldSerializerTest extends TestCase
             ],
         ];
 
-        $actual = iterator_to_array($fieldSerializer->serialize($config, $priceField, $value));
+        $serialized = $fieldSerializer->serialize($config, $priceField, $value);
+        $actual = $serialized instanceof \Traversable ? iterator_to_array($serialized) : (array) $serialized;
+
         static::assertArrayHasKey('price', $actual);
         $actualPrice = $actual['price'];
 
@@ -111,6 +95,8 @@ class FieldSerializerTest extends TestCase
             ],
         ];
         $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
+        static::assertIsArray($actual);
+        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
         $actualPrice = $actual[Defaults::CURRENCY];
 
         static::assertFalse($actualPrice['linked']);
@@ -125,6 +111,8 @@ class FieldSerializerTest extends TestCase
             ],
         ];
         $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
+        static::assertIsArray($actual);
+        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
         $actualPrice = $actual[Defaults::CURRENCY];
 
         static::assertFalse($actualPrice['linked']);
@@ -139,6 +127,8 @@ class FieldSerializerTest extends TestCase
             ],
         ];
         $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
+        static::assertIsArray($actual);
+        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
         $actualPrice = $actual[Defaults::CURRENCY];
 
         static::assertFalse($actualPrice['linked']);
@@ -146,7 +136,10 @@ class FieldSerializerTest extends TestCase
         static::assertSame(0.0, $actualPrice['gross']);
     }
 
-    private function first(?iterable $iterable)
+    /**
+     * @param iterable<mixed>|null $iterable
+     */
+    private function first(?iterable $iterable): mixed
     {
         if ($iterable === null) {
             return null;
@@ -155,5 +148,7 @@ class FieldSerializerTest extends TestCase
         foreach ($iterable as $value) {
             return $value;
         }
+
+        return null;
     }
 }

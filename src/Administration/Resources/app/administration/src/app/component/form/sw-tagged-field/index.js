@@ -35,7 +35,7 @@ Component.register('sw-tagged-field', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-tagged-field.text-default-placeholder');
+                return Shopware.Snippet.tc('global.sw-tagged-field.text-default-placeholder');
             },
         },
 

@@ -13,7 +13,11 @@
     :disabled="disabled"
     required
     show-clearable-button
+    {% if VUE3 %}
+    @update:value="changeType"
+    {% else %}
     @change="changeType"
+    {% endif %}
     @item-selected="changeItem"
     @search-term-change="typeSearchTerm = $event"
 >

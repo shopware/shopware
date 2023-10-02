@@ -13,6 +13,11 @@ export default {
         'customFieldDataProviderService',
     ],
 
+    emits: [
+        'conditions-changed',
+        'tree-finished-loading',
+    ],
+
     props: {
         rule: {
             type: Object,
@@ -57,10 +62,7 @@ export default {
 
         moduleTypes: {
             get() {
-                if (!this.rule || !this.rule.moduleTypes) {
-                    return [];
-                }
-                return this.rule.moduleTypes.types;
+                return this.rule?.moduleTypes?.types ?? [];
             },
             set(value) {
                 if (value === null || value.length === 0) {
@@ -89,10 +91,6 @@ export default {
             this.customFieldDataProviderService.getCustomFieldSets('rule').then((sets) => {
                 this.customFieldSets = sets;
             });
-        },
-
-        onConditionsChanged(event) {
-            this.$emit('conditions-changed', event);
         },
     },
 };

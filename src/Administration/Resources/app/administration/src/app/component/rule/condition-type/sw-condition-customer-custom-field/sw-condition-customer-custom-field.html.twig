@@ -43,7 +43,6 @@
     {% block sw_condition_customer_custom_field_operator %}
     <sw-condition-operator-select
         v-if="renderedField"
-        v-model="operator"
         v-bind="{ operators, condition }"
         :disabled="disabled"
     />
@@ -53,10 +52,11 @@
     {% block sw_condition_customer_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"
-        v-model="renderedFieldValue"
+        :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
         size="medium"
+        @update="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

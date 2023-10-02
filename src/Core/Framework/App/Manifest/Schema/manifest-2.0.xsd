@@ -505,11 +505,21 @@
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="shipping-methods">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
         <xs:sequence>
             <xs:element name="shipping-method" type="shipping-method" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="shipping-method">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
         <xs:choice maxOccurs="unbounded">
             <xs:element type="xs:string" name="identifier"/>
             <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>

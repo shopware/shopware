@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Event\CacheResponseGenerateHashEvent;
+use Shopware\Storefront\Framework\Cache\Event\CacheResponseSystemStatesEvent;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -19,6 +21,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -43,6 +46,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly CartService $cartService,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
@@ -219,13 +223,18 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(SalesChannelContext $context): string
     {
-        return md5(json_encode([
+        $parts = [
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
             $context->getTaxState(),
             $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ], \JSON_THROW_ON_ERROR));
+        ];
+
+        $event = new CacheResponseGenerateHashEvent($context, $parts);
+        $this->eventDispatcher->dispatch($event);
+
+        return md5(json_encode($event->getParts(), \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -274,7 +283,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $states = $this->switchState($states, self::STATE_CART_FILLED, $cart->getLineItems()->count() > 0);
 
-        return array_keys($states);
+        $event = new CacheResponseSystemStatesEvent($context, $request, $cart, $states);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getStates();
     }
 
     /**

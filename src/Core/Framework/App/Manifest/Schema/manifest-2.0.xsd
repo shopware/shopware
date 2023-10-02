@@ -133,6 +133,7 @@
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="gateways" type="gateways" minOccurs="0"/>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -483,6 +484,11 @@
     <xs:complexType name="payments">
         <xs:sequence>
             <xs:element name="payment-method" type="payment-method" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="gateways">
+        <xs:sequence>
+            <xs:element name="checkout" type="xs:anyURI" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="payment-method">

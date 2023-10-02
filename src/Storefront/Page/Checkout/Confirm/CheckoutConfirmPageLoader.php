@@ -8,14 +8,10 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -42,8 +38,7 @@ class CheckoutConfirmPageLoader
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly StorefrontCartFacade $cartService,
-        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
-        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
@@ -61,10 +56,13 @@ class CheckoutConfirmPageLoader
         $page = CheckoutConfirmPage::createFrom($page);
         $this->setMetaInformation($page);
 
-        $page->setPaymentMethods($this->getPaymentMethods($context));
-        $page->setShippingMethods($this->getShippingMethods($context));
-
         $cart = $this->cartService->get($context->getToken(), $context, false, true);
+
+        $response = $this->checkoutGatewayRoute->load($request, $cart, $context);
+
+        $page->setPaymentMethods($response->getPaymentMethods());
+        $page->setShippingMethods($response->getShippingMethods());
+
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 
@@ -99,22 +97,6 @@ class CheckoutConfirmPageLoader
                 $this->translator->trans('checkout.confirmMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
             );
         }
-    }
-
-    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
-    {
-        $request = new Request();
-        $request->query->set('onlyAvailable', '1');
-
-        return $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
-    }
-
-    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
-    {
-        $request = new Request();
-        $request->query->set('onlyAvailable', '1');
-
-        return $this->shippingMethodRoute->load($request, $context, new Criteria())->getShippingMethods();
     }
 
     /**

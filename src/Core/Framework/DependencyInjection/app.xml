@@ -169,6 +169,22 @@
             <argument type="string">%env(APP_URL)%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+            <argument type="string">%env(APP_URL)%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway">
+            <argument type="service" id="Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>

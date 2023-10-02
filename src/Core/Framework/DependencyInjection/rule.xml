@@ -7,6 +7,8 @@
             <argument type="tagged" tag="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
+
         <service id="Shopware\Core\Framework\Rule\Container\AndRule">
             <tag name="shopware.rule.definition"/>
         </service>

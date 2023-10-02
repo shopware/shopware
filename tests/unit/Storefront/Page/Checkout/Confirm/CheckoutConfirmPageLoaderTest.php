@@ -7,23 +7,18 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -61,8 +56,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
             $pageLoader,
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -89,8 +83,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
             $pageLoader,
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -116,45 +109,22 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             (new ShippingMethodEntity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
         ]);
 
-        $paymentMethodResponse = new PaymentMethodRouteResponse(
-            new EntitySearchResult(
-                PaymentMethodDefinition::ENTITY_NAME,
-                2,
-                $paymentMethods,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
+        $response = new CheckoutGatewayRouteResponse(
+            $paymentMethods,
+            $shippingMethods,
+            new ErrorCollection()
         );
 
-        $shippingMethodResponse = new ShippingMethodRouteResponse(
-            new EntitySearchResult(
-                ShippingMethodDefinition::ENTITY_NAME,
-                2,
-                $shippingMethods,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
-        );
-
-        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
-        $paymentMethodRoute
+        $checkoutGatewayRoute = $this->createMock(CheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
             ->method('load')
             ->withAnyParameters()
-            ->willReturn($paymentMethodResponse);
-
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->method('load')
-            ->withAnyParameters()
-            ->willReturn($shippingMethodResponse);
+            ->willReturn($response);
 
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $shippingMethodRoute,
-            $paymentMethodRoute,
+            $checkoutGatewayRoute,
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -174,8 +144,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -222,8 +191,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $cartService,
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $validator
@@ -278,8 +246,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $cartService,
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $validator
@@ -341,8 +308,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $validator
@@ -367,8 +333,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $eventDispatcher,
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -395,8 +360,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $this->createMock(EventDispatcher::class),
             $cartService,
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $this->createMock(AddressValidationFactory::class),
             $this->createMock(DataValidator::class)
@@ -441,8 +405,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $dispatcher,
             $cartService,
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
             $addressValidation,
             $this->createMock(DataValidator::class),

@@ -106,6 +106,7 @@ class AppDefinition extends EntityDefinition
             new StringField('base_app_url', 'baseAppUrl', 1024),
             new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
+            new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

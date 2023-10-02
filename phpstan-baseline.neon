@@ -551,21 +551,6 @@ parameters:
 			path: src/Core/Content/Cms/SalesChannel/Struct/ImageSliderStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\AbstractFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/AbstractFlowLoader.php
@@ -1494,21 +1479,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\Filter\\:\\:getValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/Filter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:setValue\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:\\$value type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Event\\\\RuleIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"

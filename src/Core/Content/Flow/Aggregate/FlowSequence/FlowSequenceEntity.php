@@ -5,13 +5,14 @@ namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
-class FlowSequenceEntity extends Entity
+class FlowSequenceEntity extends Entity implements IdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
@@ -32,6 +33,9 @@ class FlowSequenceEntity extends Entity
 
     protected ?string $actionName = null;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $config;
 
     protected int $position;
@@ -124,11 +128,17 @@ class FlowSequenceEntity extends Entity
         $this->actionName = $actionName;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;

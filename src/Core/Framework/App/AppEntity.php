@@ -80,6 +80,8 @@ class AppEntity extends Entity
 
     protected ?string $baseAppUrl = null;
 
+    protected ?string $checkoutGatewayUrl = null;
+
     /**
      * @var list<Module>
      */
@@ -326,6 +328,16 @@ class AppEntity extends Entity
     public function setBaseAppUrl(?string $baseAppUrl): void
     {
         $this->baseAppUrl = $baseAppUrl;
+    }
+
+    public function getCheckoutGatewayUrl(): ?string
+    {
+        return $this->checkoutGatewayUrl;
+    }
+
+    public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
+    {
+        $this->checkoutGatewayUrl = $checkoutGatewayUrl;
     }
 
     /**

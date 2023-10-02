@@ -379,6 +379,9 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->prototype('scalar')->end()
                 ->end()
+                ->booleanNode('enforce_throw_exception')
+                    ->defaultFalse()
+                ->end()
             ->end();
 
         return $rootNode;

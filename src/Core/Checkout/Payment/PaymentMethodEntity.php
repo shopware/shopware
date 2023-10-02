@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMet
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\RuleIdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -17,7 +19,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 #[Package('checkout')]
-class PaymentMethodEntity extends Entity
+class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;

@@ -4,17 +4,14 @@ namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -55,8 +52,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $pageLoader,
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(PaymentMethodRoute::class),
-            $this->createMock(ShippingMethodRoute::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
             $this->createMock(CountryRoute::class)
         );
 
@@ -82,8 +78,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $pageLoader,
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(PaymentMethodRoute::class),
-            $this->createMock(ShippingMethodRoute::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
             $this->createMock(CountryRoute::class)
         );
 
@@ -112,26 +107,10 @@ class CheckoutCartPageLoaderTest extends TestCase
             (new CountryEntity())->assign(['_uniqueIdentifier' => Uuid::randomHex(), 'position' => 1]),
         ]);
 
-        $paymentMethodResponse = new PaymentMethodRouteResponse(
-            new EntitySearchResult(
-                PaymentMethodDefinition::ENTITY_NAME,
-                2,
-                $paymentMethods,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
-        );
-
-        $shippingMethodResponse = new ShippingMethodRouteResponse(
-            new EntitySearchResult(
-                ShippingMethodDefinition::ENTITY_NAME,
-                2,
-                $shippingMethods,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
+        $response = new CheckoutGatewayRouteResponse(
+            $paymentMethods,
+            $shippingMethods,
+            new ErrorCollection()
         );
 
         $countryResponse = new CountryRouteResponse(
@@ -145,17 +124,11 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
-        $paymentMethodRoute
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
             ->method('load')
             ->withAnyParameters()
-            ->willReturn($paymentMethodResponse);
-
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->method('load')
-            ->withAnyParameters()
-            ->willReturn($shippingMethodResponse);
+            ->willReturn($response);
 
         $countryRoute = $this->createMock(CountryRoute::class);
         $countryRoute
@@ -167,8 +140,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $paymentMethodRoute,
-            $shippingMethodRoute,
+            $checkoutGatewayRoute,
             $countryRoute
         );
 
@@ -210,8 +182,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(PaymentMethodRoute::class),
-            $this->createMock(ShippingMethodRoute::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
             $countryRoute
         );
 

@@ -46,6 +46,9 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $shippingMethods = $result->getEntities();
 
+        /**
+         * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
+         */
         if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }

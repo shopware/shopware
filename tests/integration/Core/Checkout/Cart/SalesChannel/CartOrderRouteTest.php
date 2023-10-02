@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -67,6 +68,39 @@ class CartOrderRouteTest extends TestCase
         $this->taxProviderRepository = $this->getContainer()->get('tax_provider.repository');
         $this->validSalutationId = $this->getValidSalutationId();
         $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
+
+        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository->create([
+            [
+                'id' => $this->ids->get('shipping-method'),
+                'name' => 'test',
+                'technicalName' => 'test',
+                'active' => true,
+                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'prices' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'calculation' => 1,
+                        'quantityStart' => 1,
+                        'quantityEnd' => 100,
+                        'currencyPrice' => [
+                            [
+                                'gross' => 0,
+                                'net' => 0,
+                                'linked' => false,
+                                'currencyId' => Defaults::CURRENCY,
+                            ],
+                        ],
+                    ],
+                ],
+                'salesChannels' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
+                'salesChannelDefaultAssignments' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
+            ],
+        ], Context::createDefaultContext());
 
         PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
         PreparedTestPaymentHandler::$fail = false;

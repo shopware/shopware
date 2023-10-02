@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
-class PriceRuleEntity extends Entity
+class PriceRuleEntity extends Entity implements IdAware
 {
     use EntityIdTrait;
 

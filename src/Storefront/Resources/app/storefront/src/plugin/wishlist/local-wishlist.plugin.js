@@ -23,7 +23,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
 
     add(productId, router) {
         if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
-            window.location.replace(router.afterLoginPath);
+            window.location.href = router.afterLoginPath;
 
             return;
         }

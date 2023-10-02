@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGenerator;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,7 +28,7 @@ class BCStrategy extends AbstractMediaPathStrategy
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly EntityRepository $thumbnailRepository,
-        private readonly UrlGenerator $generator
+        private readonly UrlGeneratorInterface $generator
     ) {
     }
 

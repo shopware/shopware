@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
@@ -58,5 +59,19 @@ class ManifestTest extends TestCase
             'swag-test.com',
             'payment.app',
         ], $manifest->getAllHosts());
+    }
+
+    public function testGetShippingMethods(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test-manifest.xml');
+
+        static::assertInstanceOf(ShippingMethods::class, $manifest->getShippingMethods());
+    }
+
+    public function testGetShippingMethodsManifestWithoutShoppingMethodsShouldBeNull(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test-manifest-withoutShippingMethods.xml');
+
+        static::assertNull($manifest->getShippingMethods());
     }
 }

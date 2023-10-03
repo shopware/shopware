@@ -488,8 +488,7 @@
     "afterListPrice": "",
     "cheapestPriceLabel": "Varianten ab",
     "addToWishlist": "Zum Merkzettel hinzufügen",
-    "removeFromWishlist": "Vom Merkzettel entfernen",
-    "toggleWishlist": "Merkzettel ein-/ausschalten"
+    "removeFromWishlist": "Vom Merkzettel entfernen"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",

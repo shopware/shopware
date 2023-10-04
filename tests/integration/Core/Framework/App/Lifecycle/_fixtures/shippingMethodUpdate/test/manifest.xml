@@ -19,12 +19,15 @@
     <shipping-methods>
         <shipping-method>
             <identifier>swagFirstShippingMethod</identifier>
-            <name>first Shipping Method</name>
-            <name lang="de-DE">erste Versandmethode</name>
+            <name>new name for first shipping method</name>
+            <name lang="de-DE">ein neuer Name für die erste Versandmethode</name>
+            <description>update of the simple description</description>
+            <description lang="de-DE">eine neue einfache Beschreibung</description>
+            <icon>icons/new-icon.png</icon>
         </shipping-method>
         <shipping-method>
             <identifier>swagSecondShippingMethod</identifier>
-            <name>updated Shipping Method Name</name>
+            <name>new name for the second Shipping Method</name>
         </shipping-method>
     </shipping-methods>
 </manifest>

@@ -1501,52 +1501,7 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\AbstractFieldSerializer\\:\\:deserialize\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\AbstractFieldSerializer\\:\\:deserialize\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\AbstractFieldSerializer\\:\\:serialize\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\AbstractFieldSerializer\\:\\:serialize\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializer\\:\\:deserialize\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializer\\:\\:deserialize\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializer\\:\\:serialize\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializer\\:\\:serialize\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializer.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getIsoCode\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\PriceSerializer\\:\\:deserialize\\(\\) has parameter \\$record with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializer.php
 
@@ -1561,39 +1516,9 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\PriceSerializer\\:\\:serialize\\(\\) has parameter \\$prices with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\PriceSerializer\\:\\:serialize\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializer.php
-
-		-
 			message: "#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:deserialize\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:deserialize\\(\\) has parameter \\$translations with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:serialize\\(\\) has parameter \\$translations with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\TranslationsSerializer\\:\\:serialize\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -3359,26 +3284,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializerTest\\:\\:first\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\FieldSerializerTest\\:\\:first\\(\\) has parameter \\$iterable with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializerTest.php
-
-		-
-			message: "#^Offset 'b7d2554b0ce847cd82f…' might not exist on array\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\PriceSerializerTest\\:\\:first\\(\\) has no return type specified\\.$#"

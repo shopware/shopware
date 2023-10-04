@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
-use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,6 +28,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('core')]
 class FieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * {@inheritDoc}
+     */
     public function serialize(Config $config, Field $field, $value): iterable
     {
         $key = $field->getPropertyName();
@@ -68,7 +71,7 @@ class FieldSerializer extends AbstractFieldSerializer
             }
 
             if (empty($value)) {
-                return null;
+                return;
             }
 
             yield $key => (string) $value;
@@ -77,11 +80,26 @@ class FieldSerializer extends AbstractFieldSerializer
         } elseif ($field instanceof JsonField) {
             yield $key => $value === null ? null : json_encode($value, \JSON_THROW_ON_ERROR);
         } else {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            }
+
+            if (\is_array($value)) {
+                $value = json_encode($value, \JSON_THROW_ON_ERROR);
+            }
+
+            if (!\is_scalar($value) && !$value instanceof \Stringable) {
+                yield $key => null;
+            }
+
             $value = $value === null ? $value : (string) $value;
             yield $key => $value;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function deserialize(Config $config, Field $field, $value)
     {
         if ($value === null) {
@@ -186,7 +204,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if (str_contains($id, '|')) {
-            throw new InvalidIdentifierException($id);
+            throw ImportExportException::invalidIdentifier($id);
         }
 
         return Uuid::fromStringToHex($id);

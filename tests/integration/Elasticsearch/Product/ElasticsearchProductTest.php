@@ -81,9 +81,9 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,11 +128,14 @@ class ElasticsearchProductTest extends TestCase
 
     private AbstractElasticsearchDefinition $definition;
 
+    private ElasticsearchIndexingUtils $utils;
+
     private Context $context;
 
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
 
         $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
 
@@ -2715,12 +2718,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2736,12 +2739,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2758,12 +2761,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2783,12 +2786,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2808,12 +2811,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2833,12 +2836,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
     }
@@ -3605,11 +3608,9 @@ class ElasticsearchProductTest extends TestCase
             $customMapping
         );
 
-        $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
-
-        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
-            $newImplementation,
-            $customMapping
+        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+            $this->utils,
+            ['product' => $customMapping],
         );
 
         $products = [
@@ -3617,7 +3618,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Silk')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->visibility()
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50, 50, 'default', 150, 150)

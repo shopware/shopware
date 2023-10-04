@@ -82,43 +82,34 @@ abstract class AbstractElasticsearchDefinition
         return $bool;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils::stripText instead
+     */
     protected function stripText(string $text): string
     {
-        // Remove all html elements to save up space
-        $text = strip_tags($text);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils::stripText instead')
+        );
 
-        if (mb_strlen($text) >= 32766) {
-            return mb_substr($text, 0, 32766);
-        }
-
-        return $text;
+        return ElasticsearchIndexingUtils::stripText($text);
     }
 
     /**
      * @param array<int, array<string, string>> $items
      *
-     * @return array<int|string, mixed>
+     * @return array<string, string|null>
+     *
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::translated instead
      */
     protected function mapTranslatedField(string $field, bool $stripText = true, ...$items): array
     {
-        $value = [];
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::translated instead')
+        );
 
-        foreach ($items as $item) {
-            if (empty($item['languageId'])) {
-                continue;
-            }
-            $languageId = $item['languageId'];
-            $newValue = $item[$field] ?? null;
-
-            if ($stripText && \is_string($newValue)) {
-                $newValue = $this->stripText($newValue);
-            }
-
-            // if child value is null, it should be inherited from parent
-            $value[$languageId] = $newValue === null ? ($value[$languageId] ?? '') : $newValue;
-        }
-
-        return $value;
+        return ElasticsearchFieldMapper::translated(field: $field, items: array_merge(...$items), stripText: $stripText);
     }
 
     /**
@@ -126,35 +117,17 @@ abstract class AbstractElasticsearchDefinition
      * @param string[] $translatedFields
      *
      * @return array<int, array<string, array<string, string>>>
+     *
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::toManyAssociations instead
      */
     protected function mapToManyAssociations(array $items, array $translatedFields): array
     {
-        $result = [];
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::toManyAssociations instead')
+        );
 
-        foreach ($items as $item) {
-            if (empty($item['languageId'])) {
-                continue;
-            }
-
-            $result[$item['id']] = $result[$item['id']] ?? array_merge([
-                'id' => $item['id'],
-                '_count' => 1,
-            ], $item);
-
-            foreach ($translatedFields as $field) {
-                if (empty($item[$field])) {
-                    continue;
-                }
-
-                if (!\is_array($result[$item['id']][$field])) {
-                    unset($result[$item['id']][$field]);
-                }
-
-                $result[$item['id']][$field][$item['languageId']] = $this->stripText($item[$field]);
-            }
-        }
-
-        return array_values($result);
+        return ElasticsearchFieldMapper::toManyAssociations($items, $translatedFields);
     }
 
     /**
@@ -162,26 +135,37 @@ abstract class AbstractElasticsearchDefinition
      * @param string[] $translatedFields
      *
      * @return array<string, array<string, string>>
+     *
+     * @deprecated tag:v6.6.0 - will be removed
      */
     protected function mapToOneAssociations(array $items, array $translatedFields): array
     {
-        $result = [];
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'will be removed')
+        );
 
-        foreach ($items as $item) {
-            if (empty($item['languageId'])) {
-                continue;
-            }
+        if (!Feature::isActive('v6.6.0.0')) {
+            $result = [];
 
-            foreach ($translatedFields as $field) {
-                if (empty($item[$field])) {
+            foreach ($items as $item) {
+                if (empty($item['languageId'])) {
                     continue;
                 }
 
-                $result[$field][$item['languageId']] = $this->stripText($item[$field]);
+                foreach ($translatedFields as $field) {
+                    if (empty($item[$field])) {
+                        continue;
+                    }
+
+                    $result[$field][$item['languageId']] = $this->stripText($item[$field]);
+                }
             }
+
+            return $result;
         }
 
-        return $result;
+        return [];
     }
 
     /**

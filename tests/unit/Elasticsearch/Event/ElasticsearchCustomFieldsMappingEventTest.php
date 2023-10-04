@@ -1,28 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Elasticsearch\Product\Event;
+namespace Shopware\Tests\Unit\Elasticsearch\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
+use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 
 /**
  * @internal
  *
- * @covers \Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent
+ * @covers \Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent
  */
-class ElasticsearchProductCustomFieldsMappingEventTest extends TestCase
+class ElasticsearchCustomFieldsMappingEventTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-    }
-
     public function testEvent(): void
     {
         $context = Context::createDefaultContext();
-        $event = new ElasticsearchProductCustomFieldsMappingEvent(['field1' => 'text'], $context);
+        $event = new ElasticsearchCustomFieldsMappingEvent(ProductDefinition::ENTITY_NAME, ['field1' => 'text'], $context);
+        static::assertSame('product', $event->getEntity());
         static::assertSame($context, $event->getContext());
 
         static::assertSame('text', $event->getMapping('field1'));

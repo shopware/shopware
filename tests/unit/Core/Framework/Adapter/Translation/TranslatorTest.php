@@ -12,6 +12,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -152,6 +153,45 @@ class TranslatorTest extends TestCase
         $snippetSetId = $translator->getSnippetSetId($locale);
 
         static::assertEquals($expectedSnippetSetId, $snippetSetId);
+    }
+
+    public function testGetSnippetIdUsingInjectSetting(): void
+    {
+        $requestStack = new RequestStack();
+        $domainSnippetSetId = Uuid::randomHex();
+        $injectSnippetSetId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::exactly(3))->method('fetchFirstColumn')->willReturn([$injectSnippetSetId, $domainSnippetSetId]);
+
+        $key1 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
+        $key2 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
+        $snippetService = $this->createMock(SnippetService::class);
+        $snippetService->expects(static::once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
+
+        $translator = new Translator(
+            $this->createMock(SymfonyTranslator::class),
+            $requestStack,
+            new ArrayCache([
+                $key1 => [],
+                $key2 => [],
+            ]),
+            $this->createMock(MessageFormatterInterface::class),
+            'prod',
+            $connection,
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            $snippetService,
+            false
+        );
+
+        $translator->injectSettings(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
+
+        static::assertEquals($injectSnippetSetId, $translator->getSnippetSetId('en-GB'));
+
+        // prioritize snippet from sales channel domain if set
+        $requestStack->push($this->createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
+        $translator->reset();
+        static::assertEquals($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }
 
     /**
@@ -298,10 +338,36 @@ class TranslatorTest extends TestCase
         return new Request(
             [],
             [],
-            [
+            array_filter([
                 SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID => $snippetSetId,
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
-            ]
+            ]),
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class ArrayCache implements CacheInterface
+{
+    /**
+     * @param array<string, array<mixed>> $cacheItems
+     */
+    public function __construct(public readonly array $cacheItems)
+    {
+    }
+
+    public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
+    {
+        // @phpstan-ignore-next-line - $this->cache->get in translator always return array
+        return $this->cacheItems[$key];
+    }
+
+    public function delete(string $key): bool
+    {
+        unset($this->cacheItems[$key]);
+
+        return true;
     }
 }

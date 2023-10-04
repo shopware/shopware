@@ -95,7 +95,7 @@ export default {
                     this.documentTypes = response.map((documentType) => {
                         const option = {
                             value: documentType.id,
-                            name: documentType.name,
+                            name: documentType.translated.name,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 

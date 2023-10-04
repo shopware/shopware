@@ -129,7 +129,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         $products = \array_flip($this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         ));
 
         return $products;

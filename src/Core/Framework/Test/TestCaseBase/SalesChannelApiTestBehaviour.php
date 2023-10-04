@@ -52,7 +52,7 @@ trait SalesChannelApiTestBehaviour
             $connection->executeStatement(
                 'DELETE FROM sales_channel WHERE id IN (:salesChannelIds)',
                 ['salesChannelIds' => $this->salesChannelIds],
-                ['salesChannelIds' => ArrayParameterType::STRING]
+                ['salesChannelIds' => ArrayParameterType::BINARY]
             );
         } catch (\Exception $ex) {
             // nth

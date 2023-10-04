@@ -46,7 +46,7 @@ final class PaymentMethodValidator implements EventSubscriberInterface
         $pluginIds = $this->connection->fetchOne(
             'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
             ['ids' => $ids],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (!empty($pluginIds)) {

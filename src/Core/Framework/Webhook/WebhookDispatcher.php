@@ -386,7 +386,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)
-        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => ArrayParameterType::STRING]);
+        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => ArrayParameterType::BINARY]);
 
         if (!$roles) {
             $this->privileges[$eventName] = [];

@@ -47,7 +47,7 @@ abstract class AbstractUrlProvider
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

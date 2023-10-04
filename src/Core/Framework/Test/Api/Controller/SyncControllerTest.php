@@ -305,7 +305,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $exists);
 
@@ -325,7 +325,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
     }
@@ -366,7 +366,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);
@@ -417,7 +417,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);

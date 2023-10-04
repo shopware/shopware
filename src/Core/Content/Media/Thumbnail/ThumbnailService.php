@@ -230,7 +230,7 @@ class ThumbnailService
         $paths = $this->connection->fetchAllKeyValue(
             'SELECT LOWER(HEX(id)), path FROM media_thumbnail WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         try {

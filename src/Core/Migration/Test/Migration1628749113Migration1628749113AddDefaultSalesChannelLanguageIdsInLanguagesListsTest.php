@@ -80,7 +80,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             FROM sales_channel_language
             WHERE sales_channel_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 
@@ -98,7 +98,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             ON sc.id = scl.sales_channel_id
             WHERE sc.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $languages = [];

@@ -463,7 +463,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

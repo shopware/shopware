@@ -152,7 +152,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 'ids' => array_column($this->sequenceDelete, 'id'),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
     }

@@ -960,7 +960,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::STRING);
+        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::BINARY);
 
         $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
         $offset = $fieldCriteria->getOffset() + 1;

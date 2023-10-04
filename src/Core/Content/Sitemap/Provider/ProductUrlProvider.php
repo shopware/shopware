@@ -138,7 +138,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
-            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::STRING);
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::BINARY);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));

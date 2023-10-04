@@ -54,7 +54,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             WHERE rc.rule_id IN (:ids)
             ORDER BY rc.rule_id, rc.position',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $rules = FetchModeHelper::group($conditions);
@@ -101,7 +101,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                 INNER JOIN app_script_condition rs ON rc.script_id = rs.id
                 WHERE rs.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList(array_values($event->getIds()))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($ruleIds)) {

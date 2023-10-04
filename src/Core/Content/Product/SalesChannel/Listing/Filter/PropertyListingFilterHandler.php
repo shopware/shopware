@@ -132,7 +132,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
              FROM property_group_option
              WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $grouped = FetchModeHelper::group($grouped);

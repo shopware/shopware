@@ -134,7 +134,7 @@ SQL;
                 $this->connection->executeStatement(
                     $resetSql,
                     $parameters,
-                    ['ids' => ArrayParameterType::STRING]
+                    ['ids' => ArrayParameterType::BINARY]
                 );
             });
 
@@ -142,7 +142,7 @@ SQL;
                 $this->connection->executeStatement(
                     $sql,
                     $parameters,
-                    ['ids' => ArrayParameterType::STRING]
+                    ['ids' => ArrayParameterType::BINARY]
                 );
             });
         }

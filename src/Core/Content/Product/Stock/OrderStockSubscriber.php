@@ -210,7 +210,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
         $result = $this->connection->fetchAllAssociativeIndexed(
             $sql,
             ['ids' => $ids, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION), 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE, 'cancelled_state' => OrderStates::STATE_CANCELLED],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return $result;

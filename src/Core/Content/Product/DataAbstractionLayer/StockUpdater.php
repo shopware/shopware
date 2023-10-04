@@ -304,7 +304,7 @@ GROUP BY product_id;
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 
@@ -368,14 +368,14 @@ GROUP BY product_id;
             $this->connection->executeStatement(
                 $sql,
                 ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
         $updated = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM product WHERE available = 0 AND id IN (:ids) AND product.version_id = :version',
             ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (!empty($updated)) {

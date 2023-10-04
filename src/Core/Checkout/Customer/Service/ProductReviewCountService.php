@@ -39,7 +39,7 @@ class ProductReviewCountService
         $affectedCustomers = array_filter($this->connection->fetchFirstColumn(
             'SELECT DISTINCT(`customer_id`) FROM product_review WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($reviewIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         ));
 
         foreach ($affectedCustomers as $customerId) {

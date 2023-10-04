@@ -49,7 +49,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
             FROM media
             WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $locations = [];
@@ -93,7 +93,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
                 INNER JOIN media ON media.id = media_thumbnail.media_id
             WHERE media_thumbnail.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $locations = [];

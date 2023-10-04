@@ -94,7 +94,7 @@ class LockValidator implements EventSubscriberInterface
                 ->select('1')
                 ->from(EntityDefinitionQueryHelper::escape($entityName))
                 ->where('`id` IN (:ids) AND `locked` = 1')
-                ->setParameter('ids', $primaryKeys, ArrayParameterType::STRING)
+                ->setParameter('ids', $primaryKeys, ArrayParameterType::BINARY)
                 ->executeQuery()
                 ->rowCount() > 0;
         }

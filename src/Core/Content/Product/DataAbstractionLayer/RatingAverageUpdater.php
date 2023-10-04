@@ -31,7 +31,7 @@ class RatingAverageUpdater
             $this->connection->executeStatement(
                 'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -46,7 +46,7 @@ class RatingAverageUpdater
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->setParameter('version', $versionId);
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->addGroupBy('IFNULL(product.parent_id, product.id)');
 
         $averages = $query->executeQuery()->fetchAllAssociative();

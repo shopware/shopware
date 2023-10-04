@@ -88,7 +88,7 @@ class ProductStreamIndexer extends EntityIndexer
              WHERE product_stream_id IN (:ids)
              ORDER BY product_stream_id',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $filters = FetchModeHelper::group($filters);

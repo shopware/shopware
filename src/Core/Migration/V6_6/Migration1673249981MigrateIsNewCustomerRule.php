@@ -46,7 +46,7 @@ class Migration1673249981MigrateIsNewCustomerRule extends MigrationStep
         $connection->executeStatement('UPDATE rule SET payload = NULL WHERE id in (:rule_ids)', [
             'rule_ids' => $ruleIds,
         ], [
-            'rule_ids' => ArrayParameterType::STRING,
+            'rule_ids' => ArrayParameterType::BINARY,
         ]);
 
         // rebuild payload on rule (because it contains the conditions serialized)

@@ -188,7 +188,7 @@ class MediaFolderConfigIndexerTest extends TestCase
             ->setParameter(
                 'ids',
                 [Uuid::fromHexToBytes($child1Id), Uuid::fromHexToBytes($child1_1Id)],
-                ArrayParameterType::STRING
+                ArrayParameterType::BINARY
             )
             ->executeStatement();
 

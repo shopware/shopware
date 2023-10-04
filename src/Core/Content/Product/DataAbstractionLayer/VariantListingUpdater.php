@@ -132,7 +132,7 @@ class VariantListingUpdater
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->setParameter('version', $versionBytes);
 
         $configuration = $query->executeQuery()->fetchAllAssociative();

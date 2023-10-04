@@ -103,7 +103,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 'mail_template.mail_template_type_id = mail_template_type.id'
             )
             ->andWhere('mail_template_type.id IN (:ids)')
-            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING)
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY)
             ->executeQuery()
             ->fetchAllAssociative();
 
@@ -128,7 +128,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 'mail_template_sales_channel.mail_template_type_id = mail_template_type.id'
             )
             ->andWhere('mail_template_type.id IN (:ids)')
-            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING)
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY)
             ->executeQuery()
             ->fetchAllAssociative();
 

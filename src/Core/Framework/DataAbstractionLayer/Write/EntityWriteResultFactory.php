@@ -244,7 +244,7 @@ class EntityWriteResultFactory
         $parentIds = $this->connection->fetchAllAssociative(
             $fetchQuery,
             ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $ids = array_unique(array_filter(array_column($parentIds, 'id')));

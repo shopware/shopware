@@ -141,7 +141,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->where('`customer_wishlist_id` = :id');
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
-        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::STRING);
+        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::BINARY);
         $result = $query->executeQuery();
 
         /** @var array<string, string> $values */

@@ -271,7 +271,7 @@ class TreeUpdater
         $query->from($escaped);
         $query->select('id', 'parent_id');
         $query->andWhere($column . ' IN (:ids)');
-        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $fetchedIds = [];

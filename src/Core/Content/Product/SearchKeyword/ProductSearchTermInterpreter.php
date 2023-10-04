@@ -283,7 +283,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $configurations = $this->connection->fetchAllAssociative(
             'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
             ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
-            ['language' => ArrayParameterType::STRING]
+            ['language' => ArrayParameterType::BINARY]
         );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];

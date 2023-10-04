@@ -166,7 +166,7 @@ class MediaFolderIndexer extends EntityIndexer
         $childIds = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media_folder WHERE parent_id IN (:ids) AND use_parent_configuration = 1',
             ['ids' => Uuid::fromHexToBytesList($parentIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $childIds = array_column($childIds, 'id');
@@ -187,7 +187,7 @@ class MediaFolderIndexer extends EntityIndexer
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($parentIds));

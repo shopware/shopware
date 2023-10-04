@@ -77,7 +77,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
-            ['customFieldIds' => ArrayParameterType::STRING]
+            ['customFieldIds' => ArrayParameterType::BINARY]
         );
     }
 

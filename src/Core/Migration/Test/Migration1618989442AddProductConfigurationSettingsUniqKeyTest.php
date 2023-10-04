@@ -126,7 +126,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 Uuid::fromHexToBytes($productConfiguratorSettingId3),
             ],
         ], [
-            'ids' => ArrayParameterType::STRING,
+            'ids' => ArrayParameterType::BINARY,
         ]);
 
         $this->connection->beginTransaction();

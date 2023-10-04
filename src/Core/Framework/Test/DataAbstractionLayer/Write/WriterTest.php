@@ -110,7 +110,7 @@ class WriterTest extends TestCase
         $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $categories);
@@ -118,7 +118,7 @@ class WriterTest extends TestCase
         $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $translations);
@@ -137,7 +137,7 @@ class WriterTest extends TestCase
         $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($categories);
@@ -145,7 +145,7 @@ class WriterTest extends TestCase
         $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($translations);
@@ -170,7 +170,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $exists);
@@ -193,7 +193,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($exists);
@@ -299,7 +299,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
-            ['product' => ArrayParameterType::STRING]
+            ['product' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $exists);
 
@@ -311,7 +311,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
-            ['product' => ArrayParameterType::STRING]
+            ['product' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
 

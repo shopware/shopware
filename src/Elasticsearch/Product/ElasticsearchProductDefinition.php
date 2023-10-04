@@ -462,8 +462,8 @@ SQL;
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
-                'languageIds' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
+                'languageIds' => ArrayParameterType::BINARY,
             ]
         );
 
@@ -558,8 +558,8 @@ SQL;
                 'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
-                'languageIds' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
+                'languageIds' => ArrayParameterType::BINARY,
             ]
         );
 

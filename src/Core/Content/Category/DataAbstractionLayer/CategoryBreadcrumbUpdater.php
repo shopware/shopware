@@ -47,7 +47,7 @@ class CategoryBreadcrumbUpdater
         $query->where('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', $versionId);
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
 
         $paths = $query->executeQuery()->fetchFirstColumn();
 

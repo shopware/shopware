@@ -26,9 +26,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -448,18 +449,24 @@ class ProductSearchQueryBuilderTest extends TestCase
             $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
         });
 
+        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
+            $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
+        });
+
         $definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
         $class = new \ReflectionClass($definition);
-        $reflectionProperty = $class->getProperty('customFieldsTypes');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($definition, null);
-
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $definition = $this->getContainer()->get(EsProductDefinition::class);
-            $class = new \ReflectionClass($definition);
+        if ($class->hasProperty('customFieldsTypes')) {
             $reflectionProperty = $class->getProperty('customFieldsTypes');
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($definition, null);
+        }
+
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+            $class = new \ReflectionClass($definition);
+            $reflectionProperty = $class->getProperty('customFieldsTypes');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($definition, []);
         }
     }
 }

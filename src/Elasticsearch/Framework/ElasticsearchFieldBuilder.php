@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 
+/**
+ * @final
+ */
 #[Package('buyers-experience')]
 class ElasticsearchFieldBuilder
 {

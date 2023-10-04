@@ -26,7 +26,7 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
         if (!EntityDefinitionQueryHelper::columnExists($connection, 'order_line_item', 'states')) {
             $connection->executeStatement('
                 ALTER TABLE `order_line_item`
-                ADD COLUMN `states` JSON NULL AFTER `promotion_id`,
+                ADD COLUMN `states` JSON NULL,
                 ADD CONSTRAINT `json.order_line_item.states` CHECK (JSON_VALID(`states`))
             ');
             $connection->executeStatement('

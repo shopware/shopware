@@ -82,22 +82,27 @@ class ShippingMethodPersister
 
             $existingAppShippingMethod = $existingAppShippingMethods->filterByProperty('identifier', $manifestShippingMethod->getIdentifier())->first();
 
-            $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
-            $payload['deliveryTimeId'] = $this->getDeliveryTimeUuid($context, $appName);
-            $payload['appShippingMethod']['appId'] = $appId;
-            $payload['appShippingMethod']['appName'] = $appName;
-            $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
-            $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
-
             if ($existingAppShippingMethod) {
                 $payload['appShippingMethod']['id'] = $existingAppShippingMethod->getId();
             }
 
+            $payload['appShippingMethod']['appId'] = $appId;
+            $payload['appShippingMethod']['appName'] = $appName;
+
             $shippingMethodEntity = $existingAppShippingMethod?->getShippingMethod();
             if ($shippingMethodEntity) {
                 $payload['id'] = $shippingMethodEntity->getId();
-
+                unset(
+                    $payload['name'],
+                    $payload['description'],
+                    $payload['icon']
+                );
                 $existingShippingMethods->remove($shippingMethodEntity->getId());
+            } else {
+                $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
+                $payload['deliveryTimeId'] = $this->getDeliveryTimeUuid($context, $appName);
+                $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
+                $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
             }
 
             $shippingMethodsToUpdate[] = $payload;

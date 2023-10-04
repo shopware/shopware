@@ -67,6 +67,8 @@ class ShippingMethodPersisterTest extends TestCase
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
+            'appLoader' => $this->createMock(AppLoader::class),
+            'mediaService' => $this->createMock(MediaService::class),
         ]);
 
         $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
@@ -83,24 +85,14 @@ class ShippingMethodPersisterTest extends TestCase
         $rule = new RuleEntity();
         $rule->setId('d4bdfbb82f624c7482b4c16599d31a30');
 
-        $defaultServices = array_merge([
-            'shippingMethodRepository' => $this->createShippingMethodRepositoryMock(),
-            'appShippingMethodRepository' => $this->createAppShippingMethodRepositoryMock(),
-            'ruleRepository' => $this->createRuleRepositoryMock([$rule]),
-            'deliveryTimeRepository' => $this->createDeliveryTimeRepositoryMock([$deliveryTime]),
-            'mediaRepository' => $this->createMediaRepositoryMock(),
-            'mediaService' => $this->createMediaServiceMock(),
-            'appLoader' => $this->createAppLoaderMock(),
-        ], $services);
-
         return new ShippingMethodPersister(
-            $defaultServices['shippingMethodRepository'],
-            $defaultServices['appShippingMethodRepository'],
-            $defaultServices['ruleRepository'],
-            $defaultServices['deliveryTimeRepository'],
-            $defaultServices['mediaRepository'],
-            $defaultServices['mediaService'],
-            $defaultServices['appLoader'],
+            \array_key_exists('shippingMethodRepository', $services) ? $services['shippingMethodRepository'] : $this->createShippingMethodRepositoryMock(),
+            \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
+            \array_key_exists('ruleRepository', $services) ? $services['ruleRepository'] : $this->createRuleRepositoryMock([$rule]),
+            \array_key_exists('deliveryTimeRepository', $services) ? $services['deliveryTimeRepository'] : $this->createDeliveryTimeRepositoryMock([$deliveryTime]),
+            \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
+            \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
+            \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
         );
     }
 

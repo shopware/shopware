@@ -21,6 +21,9 @@
             <identifier>swagFirstShippingMethod</identifier>
             <name>first Shipping Method</name>
             <name lang="de-DE">erste Versandmethode</name>
+            <description>This is a simple description</description>
+            <description lang="de-DE">Das ist eine einfache Beschreibung</description>
+            <icon>icons/TestIcon.png</icon>
         </shipping-method>
         <shipping-method>
             <identifier>swagSecondShippingMethod</identifier>

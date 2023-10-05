@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\DeliveryTime;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -31,6 +32,25 @@ class ShippingMethodTest extends TestCase
         static::assertCount(2, $shippingMethods);
 
         $this->checkShippingMethodValues($shippingMethods);
+    }
+
+    public function testFromXmlWithDeliveryTime(): void
+    {
+        $xmlDocument = XmlUtils::loadFile(self::TEST_MANIFEST, self::XSD_FILE);
+
+        $shippingMethodDomElement = $xmlDocument->getElementsByTagName('shipping-method')->item(0);
+        static::assertInstanceOf(\DOMElement::class, $shippingMethodDomElement);
+
+        $shippingMethod = ShippingMethod::fromXml($shippingMethodDomElement);
+
+        $deliveryTime = $shippingMethod->getDeliveryTime();
+        static::assertInstanceOf(DeliveryTime::class, $deliveryTime);
+
+        static::assertSame('4b00146bdc8b4175b12d3fc36ec114c8', $deliveryTime->getId());
+        static::assertSame('Short delivery time 1-2 days', $deliveryTime->getName());
+        static::assertSame(1, $deliveryTime->getMin());
+        static::assertSame(2, $deliveryTime->getMax());
+        static::assertSame('day', $deliveryTime->getUnit());
     }
 
     public function testFromXmlShouldThrowExceptionWithoutRequiredFields(): void

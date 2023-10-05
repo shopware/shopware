@@ -57,6 +57,8 @@ LUA;
     public function tag(array $tags, string $url, Response $response): void
     {
         foreach ($tags as $tag) {
+            // To avoid duplicates of the same url inside one tag
+            $this->redis->lRem($tag, $url, 1);
             $this->redis->lPush($tag, $url); // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
         }
     }

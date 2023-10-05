@@ -11,6 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -218,12 +219,22 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileHappyPath(): void
     {
         $context = Context::createDefaultContext();
-        $this->setFixtureContext($context);
-        $media = $this->getPng();
 
-        $url = $media->getPath();
+        $ids = new IdsCollection();
+        $data = [
+            'id' => $id = $ids->get('media'),
+            'fileName' => 'original_file_name',
+            'path' => 'media/original_file_name.png',
+            'fileExtension' => 'png',
+        ];
 
-        $this->getPublicFilesystem()->write($url, 'some content');
+        $this->mediaRepository->create([$data], $context);
+        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertNotEmpty($media->getPath());
+
+        $this->getPublicFilesystem()->write($media->getPath(), 'some content');
 
         $url = sprintf(
             '/api/_action/media/%s/rename',
@@ -238,17 +249,18 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['fileName' => 'new file name'], \JSON_THROW_ON_ERROR)
+            json_encode(['fileName' => 'new_file_name'], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
-        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
-        static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
+        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
 
-        static::assertTrue($this->getPublicFilesystem()->has($updatedMedia->getPath()));
+        static::assertInstanceOf(MediaEntity::class, $updated);
+        static::assertNotEquals($media->getFileName(), $updated->getFileName());
+
+        static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
         static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
     }
 

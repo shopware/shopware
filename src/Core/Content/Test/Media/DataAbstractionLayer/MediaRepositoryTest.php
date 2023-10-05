@@ -302,8 +302,6 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
         $mediaPath = $media->getPath();
 
         static::assertNotNull($media->getThumbnails());
@@ -325,7 +323,7 @@ class MediaRepositoryTest extends TestCase
 
         static::assertFalse($this->getPublicFilesystem()->has((string) $mediaPath));
 
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.6.0.0') || Feature::isActive('MEDIA_PATH')) {
             static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
         } else {
             static::assertTrue($this->getPublicFilesystem()->has((string) $thumbnailPath));

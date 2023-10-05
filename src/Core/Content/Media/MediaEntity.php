@@ -425,7 +425,7 @@ class MediaEntity extends Entity
     {
         $hasFile = $this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null;
 
-        return $this->hasFile = $hasFile;
+        return $this->hasFile = $hasFile || $this->path !== null;
     }
 
     public function getFileName(): ?string

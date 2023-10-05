@@ -482,9 +482,19 @@ class FileSaverTest extends TestCase
     public function testRenameMediaRenamesOldFileAndThumbnails(): void
     {
         $context = Context::createDefaultContext();
-        $this->setFixtureContext($context);
 
-        $png = $this->getPng();
+        $data = [
+            'id' => $id = Uuid::randomHex(),
+            'fileName' => 'testRenameMediaRenamesOldFileAndThumbnails',
+            'fileExtension' => 'png',
+            'path' => 'media/test.png',
+        ];
+
+        $this->mediaRepository->create([$data], $context);
+
+        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertInstanceOf(MediaEntity::class, $png);
 
         $thumbnailId = Uuid::randomHex();
         $this->mediaRepository->update([[

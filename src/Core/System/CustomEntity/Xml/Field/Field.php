@@ -16,6 +16,16 @@ abstract class Field extends XmlElement
 
     protected bool $storeApiAware;
 
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -34,6 +44,11 @@ abstract class Field extends XmlElement
         return $this->storeApiAware;
     }
 
+    abstract public static function fromXml(\DOMElement $element): Field;
+
+    /**
+     * @return array<string, mixed>
+     */
     protected static function parse(\DOMElement $element): array
     {
         $values = [];

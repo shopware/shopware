@@ -9,7 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -288,15 +288,13 @@ class MailService extends AbstractMailService
         }
         $criteria = new Criteria($data['mediaIds']);
         $criteria->setTitle('mail-service::resolve-media-ids');
-        $media = null;
-        $mediaRepository = $this->mediaRepository;
-        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
-            /** @var MediaEntity[] $media */
-            $media = $mediaRepository->search($criteria, $context)->getElements();
+        $media = new MediaCollection();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria, &$media): void {
+            $media = $this->mediaRepository->search($criteria, $context)->getEntities();
         });
 
         $urls = [];
-        foreach ($media ?? [] as $mediaItem) {
+        foreach ($media as $mediaItem) {
             $urls[] = $mediaItem->getPath();
         }
 

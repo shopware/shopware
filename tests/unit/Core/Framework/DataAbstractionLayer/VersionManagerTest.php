@@ -183,9 +183,38 @@ class VersionManagerTest extends TestCase
             $this->createMock(EntityWriteGatewayInterface::class)
         );
 
-        $this->versionManager->clone(
-            $registry->getByEntityName('product'),
-            $productId,
+        $this->versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $entityReaderMock,
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $registry,
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $lockFactory
+        );
+
+        $lock = $this->createMock(LockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
+
+        $versionCommit = new VersionCommitEntity();
+        $versionCommitData = new VersionCommitDataEntity();
+        $versionCommitData->setAction('insert');
+        $versionCommitData->setId(Uuid::randomHex());
+        $versionCommitData->setEntityName('product');
+        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
+        $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
+        $versionCommit->setId(Uuid::randomHex());
+
+        $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
+
+        $writeContextMock = $this->createMock(WriteContext::class);
+
+        $this->versionManager->merge(
             Uuid::randomHex(),
             Uuid::randomHex(),
             $this->createMock(WriteContext::class),
@@ -221,9 +250,23 @@ class VersionManagerTest extends TestCase
             $lockFactory
         );
 
-        $versionId = 'version-id';
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId)->getMessage());
+        $lock = $this->createMock(LockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
+
+        $versionCommit = new VersionCommitEntity();
+        $versionCommitData = new VersionCommitDataEntity();
+        $versionCommitData->setAction('upsert');
+        $versionCommitData->setId(Uuid::randomHex());
+        $versionCommitData->setEntityName('product');
+        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
+        $versionCommitData->setPayload(['id' => Uuid::randomHex()]);
+        $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
+        $versionCommit->setId(Uuid::randomHex());
+
+        $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
+
+        $writeContextMock = $this->createMock(WriteContext::class);
 
         $this->versionManager->merge(
             $versionId,

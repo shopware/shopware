@@ -27,7 +27,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -1766,8 +1765,6 @@ class VersioningTest extends TestCase
 
         // check both products are merged
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context)->getEntities();
-
-        static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(2, $products);
         $firstProduct = $products->get($id1);
         static::assertNotNull($firstProduct);

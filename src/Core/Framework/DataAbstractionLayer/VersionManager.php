@@ -550,7 +550,6 @@ class VersionManager
                 continue;
             }
 
-            /** @var Field $pkField */
             if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }

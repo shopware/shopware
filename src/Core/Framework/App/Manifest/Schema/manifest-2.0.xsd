@@ -504,6 +504,42 @@
             </xs:element>
         </xs:choice>
     </xs:complexType>
+    <xs:simpleType name="delivery-time-unit">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="hour|day|week|month|year"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="delivery-time">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element type="xs:string" name="id" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        UUID for the delivery time
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="xs:int" name="min" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="xs:int" name="max" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="delivery-time-unit" name="unit" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Possible values are "hour", "day", "week", "month" or "year"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="shipping-methods">
         <xs:annotation>
             <xs:documentation xml:lang="en">
@@ -525,6 +561,7 @@
             <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:boolean" name="active" minOccurs="0" default="false"/>
+            <xs:element type="delivery-time" name="delivery-time" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

@@ -32,6 +32,8 @@ class ShippingMethod extends XmlElement
 
     protected ?string $icon = null;
 
+    protected ?DeliveryTime $deliveryTime;
+
     /**
      * @param array<int|string, string|array<string, string>> $data
      */
@@ -68,6 +70,10 @@ class ShippingMethod extends XmlElement
 
         unset($data['identifier']);
 
+        if (\array_key_exists('deliveryTime', $data) && $data['deliveryTime'] instanceof DeliveryTime) {
+            $data['deliveryTime'] = $data['deliveryTime']->toArray($defaultLocale);
+        }
+
         return $data;
     }
 
@@ -97,6 +103,11 @@ class ShippingMethod extends XmlElement
         return $this->icon;
     }
 
+    public function getDeliveryTime(): ?DeliveryTime
+    {
+        return $this->deliveryTime;
+    }
+
     /**
      * @return array<int|string, string|array<string, string>>
      */
@@ -111,6 +122,12 @@ class ShippingMethod extends XmlElement
 
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
+
+                continue;
+            }
+
+            if ($child->tagName === 'delivery-time') {
+                $values[self::kebabCaseToCamelCase($child->tagName)] = DeliveryTime::fromXml($child);
 
                 continue;
             }

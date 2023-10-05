@@ -516,8 +516,10 @@ class WriteCommandExtractor
 
     private function validateContextHasPermission(Field $field, KeyValuePair $data, WriteParameterBag $parameters): void
     {
-        /** @var WriteProtected $flag */
         $flag = $field->getFlag(WriteProtected::class);
+        if ($flag === null) {
+            return;
+        }
 
         if ($flag->isAllowed($parameters->getContext()->getContext()->getScope())) {
             return;

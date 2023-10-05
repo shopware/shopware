@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
@@ -181,13 +180,9 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return $this->createJsonObjectType($definition, $field, $flags);
 
                 // association fields
-            case $field instanceof OneToManyAssociationField:
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
-                if (!$field instanceof OneToManyAssociationField) {
-                    throw new \RuntimeException('Field should extend OneToManyAssociationField');
-                }
-
+            case $field instanceof OneToManyAssociationField:
                 $reference = $field->getReferenceDefinition();
                 $localField = $definition->getFields()->getByStorageName($field->getLocalField());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
@@ -209,10 +204,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
             case $field instanceof ParentAssociationField:
             case $field instanceof ManyToOneAssociationField:
-                if (!$field instanceof AssociationField) {
-                    throw new \RuntimeException('Field should extend AssociationField');
-                }
-
                 $reference = $field->getReferenceDefinition();
                 $localField = $definition->getFields()->getByStorageName($field->getStorageName());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());

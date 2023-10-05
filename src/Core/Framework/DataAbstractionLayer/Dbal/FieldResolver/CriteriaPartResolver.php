@@ -283,8 +283,10 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
-        /** @var ReverseInherited $flag */
         $flag = $field->getFlag(ReverseInherited::class);
+        if ($flag === null) {
+            return self::escape($field->getReferenceField());
+        }
 
         return self::escape($flag->getReversedPropertyName());
     }

@@ -88,8 +88,10 @@ class Module extends XmlElement
     {
         $values = [];
 
-        foreach ($element->attributes ?? [] as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
+            }
             $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
         }
 

@@ -46,6 +46,8 @@ class MinimalQuickViewPageLoader
             ->getAssociation('media')
             ->addSorting(new FieldSorting('position'));
 
+        $this->eventDispatcher->dispatch(new MinimalQuickViewPageCriteriaEvent($productId, $criteria, $salesChannelContext));
+
         $result = $this->productRoute->load($productId, new Request(), $salesChannelContext, $criteria);
         $product = $result->getProduct();
 

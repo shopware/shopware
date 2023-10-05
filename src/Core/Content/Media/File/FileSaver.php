@@ -218,9 +218,7 @@ class FileSaver
         $path = $media->getPath();
 
         try {
-            if (\is_resource($stream)) {
-                $this->getFileSystem($media)->writeStream($path, $stream);
-            }
+            $this->getFileSystem($media)->writeStream($path, $stream);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.

@@ -762,9 +762,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return isset($data[$fk->getPropertyName()]);
         }
 
-        /** @var Field $association */
         $association = $definition->getFields()->get('parent');
-        if (isset($data[$association->getPropertyName()])) {
+        if ($association && isset($data[$association->getPropertyName()])) {
             return true;
         }
 

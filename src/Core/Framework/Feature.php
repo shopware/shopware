@@ -193,7 +193,7 @@ class Feature
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 
-        if (!isset(self::$silent[$majorFlag]) || !self::$silent[$majorFlag]) {
+        if (empty(self::$silent[$majorFlag])) {
             if (\PHP_SAPI !== 'cli') {
                 ScriptTraces::addDeprecationNotice($message);
             }
@@ -271,7 +271,7 @@ class Feature
 
         // merge with existing data
 
-        /** @var array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData */
+        /** @var FeatureFlagConfig $metaData */
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],
             $metaData
@@ -286,7 +286,7 @@ class Feature
     }
 
     /**
-     * @param array<string, FeatureFlagConfig>|string[] $registeredFeatures
+     * @param array<string, FeatureFlagConfig>|list<string> $registeredFeatures
      *
      * @internal
      */
@@ -299,7 +299,7 @@ class Feature
                 $data = [];
             }
 
-            self::registerFeature($flag, $data);
+            self::registerFeature((string) $flag, $data);
         }
     }
 

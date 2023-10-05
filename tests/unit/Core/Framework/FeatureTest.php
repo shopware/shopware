@@ -9,6 +9,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  *
+ * @phpstan-import-type FeatureFlagConfig from Feature
+ *
  * @coversDefaultClass \Shopware\Core\Framework\Feature
  */
 class FeatureTest extends TestCase
@@ -24,7 +26,7 @@ class FeatureTest extends TestCase
     private array $envVarsBackup;
 
     /**
-     * @var array<mixed>
+     * @var array<string, FeatureFlagConfig>
      */
     private array $featureConfigBackup;
 
@@ -124,8 +126,7 @@ class FeatureTest extends TestCase
         // no throw
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
 
-        // make phpunit happy
-        static::assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -133,7 +134,7 @@ class FeatureTest extends TestCase
      */
     public function testTriggerDeprecationOrThrowThrows(): void
     {
-        static::expectException(\RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
@@ -149,7 +150,7 @@ class FeatureTest extends TestCase
         yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
             'v6.4.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
-                static::assertTrue(strpos($deprecatedMessage, (string) $errorMessage) !== -1);
+                static::assertFalse(strpos($deprecatedMessage, (string) $errorMessage));
             },
         ];
     }

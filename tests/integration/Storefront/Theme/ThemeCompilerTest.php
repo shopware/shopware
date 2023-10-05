@@ -598,7 +598,6 @@ PHP_EOL;
             'FEATURE_NEXT_1' => ['default' => true],
             'FEATURE_NEXT_2' => ['default' => false],
             'V6_5_0_0' => ['default' => false],
-            'FEATURE_NEXT_17858' => ['default' => false],
         ]);
 
         // Ensure feature flag mixin SCSS file is given

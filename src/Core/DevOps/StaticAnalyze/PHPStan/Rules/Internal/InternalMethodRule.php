@@ -47,7 +47,7 @@ class InternalMethodRule implements Rule
 
         $class = $scope->getClassReflection();
         // complete class is marked as internal
-        if ($class !== null && $class->isInternal()) {
+        if ($class->isInternal()) {
             return [];
         }
 

@@ -59,7 +59,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
             <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
         </service>
 

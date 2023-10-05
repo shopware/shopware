@@ -488,7 +488,7 @@ class EntityDefinitionQueryHelper
 
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
-        if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
+        if (!$field instanceof StorageAware) {
             throw new \RuntimeException(
                 sprintf(
                     'Missing translated storage aware property %s in %s',

@@ -69,9 +69,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
             $this->validate([new UuidConstraint()], $data, $parameters->getPath());
         }
 
-        if ($value !== null) {
-            $value = Uuid::fromHexToBytes($value);
-        }
+        $value = Uuid::fromHexToBytes($value);
 
         yield $field->getStorageName() => $value;
     }

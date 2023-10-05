@@ -63,7 +63,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         $customers = $this->customerRepository->search(new Criteria($ids), $context)->getEntities();
 
         $event->addSuccess(function () use ($customers, $context, $salesChannelId): void {
-            foreach ($customers->getElements() as $customer) {
+            foreach ($customers as $customer) {
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
                         $salesChannelId ?? $customer->getSalesChannelId(),

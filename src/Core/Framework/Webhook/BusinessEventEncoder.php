@@ -151,7 +151,7 @@ class BusinessEventEncoder
      * @param array<string, mixed> $dataType
      * @param Entity|EntityCollection<Entity> $property
      *
-     * @return array<string, mixed>
+     * @return ($property is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
     private function encodeEntity(array $dataType, Entity|EntityCollection $property): array
     {

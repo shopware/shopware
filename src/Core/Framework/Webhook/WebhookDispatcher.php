@@ -240,7 +240,6 @@ class WebhookDispatcher implements EventDispatcherInterface
             $timestamp = time();
             $webhookData['timestamp'] = $timestamp;
 
-            /** @var string $jsonPayload */
             $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
 
             $headers = [

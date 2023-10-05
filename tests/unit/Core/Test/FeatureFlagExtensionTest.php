@@ -10,6 +10,8 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension;
 /**
  * @internal
  *
+ * @phpstan-import-type FeatureFlagConfig from Feature
+ *
  * @covers \Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension
  */
 class FeatureFlagExtensionTest extends TestCase
@@ -25,7 +27,7 @@ class FeatureFlagExtensionTest extends TestCase
     private array $envVarsBackup;
 
     /**
-     * @var array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
+     * @var array<string, FeatureFlagConfig>
      */
     private array $featureConfigBackup;
 

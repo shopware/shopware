@@ -27,7 +27,6 @@ class DiscountFixedPriceCalculator
      */
     public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
     {
-        /** @var AbsolutePriceDefinition|null $priceDefinition */
         $priceDefinition = $discount->getPriceDefinition();
 
         if (!$priceDefinition instanceof AbsolutePriceDefinition) {

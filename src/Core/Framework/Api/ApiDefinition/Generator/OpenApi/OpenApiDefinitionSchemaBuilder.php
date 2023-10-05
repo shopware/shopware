@@ -231,7 +231,6 @@ class OpenApiDefinitionSchemaBuilder
             return false;
         }
 
-        /** @var ApiAware|null $flag */
         $flag = $field->getFlag(ApiAware::class);
         if ($flag === null) {
             return false;
@@ -505,7 +504,6 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isWriteProtected(Field $field): bool
     {
-        /** @var WriteProtected|null $writeProtection */
         $writeProtection = $field->getFlag(WriteProtected::class);
         if ($writeProtection && !$writeProtection->isAllowed(Context::USER_SCOPE)) {
             return true;
@@ -516,7 +514,6 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isDeprecated(Field $field): bool
     {
-        /** @var Deprecated|null $deprecated */
         $deprecated = $field->getFlag(Deprecated::class);
         if ($deprecated) {
             return true;

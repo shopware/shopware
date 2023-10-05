@@ -110,7 +110,6 @@ class FieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        /** @var WriteProtected|null $writeProtection */
         $writeProtection = $field->getFlag(WriteProtected::class);
         if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
             return null;

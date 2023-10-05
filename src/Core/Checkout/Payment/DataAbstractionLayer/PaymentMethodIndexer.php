@@ -33,7 +33,7 @@ class PaymentMethodIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

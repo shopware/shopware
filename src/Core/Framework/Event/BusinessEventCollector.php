@@ -65,7 +65,7 @@ class BusinessEventCollector
             return null;
         }
 
-        $interfaces = class_implements($instance);
+        $interfaces = class_implements($instance) ?: [];
 
         $aware = [];
         foreach ($interfaces as $interface) {

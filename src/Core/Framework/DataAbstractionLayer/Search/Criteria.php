@@ -56,7 +56,7 @@ class Criteria extends Struct implements \Stringable
     protected $postFilters = [];
 
     /**
-     * @var Aggregation[]
+     * @var array<string, Aggregation>
      */
     protected $aggregations = [];
 
@@ -177,7 +177,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return Aggregation[]
+     * @return array<string, Aggregation>
      */
     public function getAggregations(): array
     {

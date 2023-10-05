@@ -15,6 +15,7 @@ class PluginException extends HttpException
     public const CANNOT_EXTRACT_ZIP = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
     public const NO_PLUGIN_IN_ZIP = 'FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP';
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
+    public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -71,6 +72,16 @@ class PluginException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::STORE_NOT_AVAILABLE,
             'Store is not available',
+        );
+    }
+
+    public static function cannotCreateTemporaryDirectory(string $targetDirectory, string $prefix): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_CREATE_TEMPORARY_DIRECTORY,
+            'Could not create temporary directory in "{{ targetDirectory }}" with prefix "{{ prefix }}"',
+            ['targetDirectory' => $targetDirectory, 'prefix' => $prefix]
         );
     }
 }

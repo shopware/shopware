@@ -20,6 +20,7 @@
             <name lang="de-DE">Erste Versandart</name>
             <description>This is a simple description</description>
             <description lang="de-DE">Das ist eine einfache Beschreibung</description>
+            <active>false</active>
             <icon>icons/TestIcon.png</icon>
         </shipping-method>
         <shipping-method>
@@ -28,6 +29,7 @@
             <name lang="de-DE">Zweite Versandart</name>
             <description>This is another simple description</description>
             <description lang="de-DE">Das ist eine andere einfache Beschreibung</description>
+            <active>false</active>
         </shipping-method>
     </shipping-methods>
 </manifest>

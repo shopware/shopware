@@ -2,25 +2,25 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
-use Shopware\Core\Framework\App\Manifest\Xml\Admin;
-use Shopware\Core\Framework\App\Manifest\Xml\AllowedHosts;
-use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
-use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
-use Shopware\Core\Framework\App\Manifest\Xml\Payments;
-use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
-use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
-use Shopware\Core\Framework\App\Manifest\Xml\Setup;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
-use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
-use Shopware\Core\Framework\App\Manifest\Xml\Tax;
-use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
+use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
+use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
+use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
+use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
+use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
+use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
+use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
+use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class Manifest

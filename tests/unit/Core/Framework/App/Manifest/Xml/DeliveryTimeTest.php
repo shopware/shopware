@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Manifest\Xml\DeliveryTime;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\DeliveryTime;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\DeliveryTime
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\DeliveryTime
  */
 class DeliveryTimeTest extends TestCase
 {

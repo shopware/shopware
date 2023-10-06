@@ -4,14 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod
  */
 class ShippingMethodsTest extends TestCase
 {

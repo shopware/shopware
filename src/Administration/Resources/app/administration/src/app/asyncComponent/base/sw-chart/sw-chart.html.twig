@@ -1,0 +1,39 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_line_chart %}
+<div
+    v-if="!isLoading"
+    class="sw-chart"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_line_chart_multiple %}
+    <template v-if="needOneDimensionalArray">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_line_chart_multiple_chart %}
+        <apexchart
+            v-for="(serie, index) in optimizedSeries"
+            v-bind="$attrs"
+            :key="`multiple-chart-${index}`"
+            :type="type"
+            :options="mergedOptions"
+            :series="serie.data"
+            :height="height"
+            v-on="$listeners"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_line_chart_single %}
+    <apexchart
+        v-else
+        v-bind="$attrs"
+        :type="type"
+        :options="mergedOptions"
+        :series="optimizedSeries"
+        :height="height"
+        v-on="$listeners"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

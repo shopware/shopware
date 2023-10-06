@@ -1,9 +1,11 @@
 import template from './sw-cms-stage-section-selection.html.twig';
 import './sw-cms-stage-section-selection.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-stage-section-selection', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     methods: {
@@ -11,4 +13,4 @@ Component.register('sw-cms-stage-section-selection', {
             this.$emit('section-select', type);
         },
     },
-});
+};

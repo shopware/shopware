@@ -1,10 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-custom-field-set-create.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -29,11 +32,28 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             this.$router.push({ name: 'sw.settings.custom.field.detail', params: { id: this.setId } });
         },
         onSave() {
+            this.isLoading = true;
+
+            if (!this.set || !this.set.name) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                });
+
+                this.technicalNameError = {
+                    detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                };
+
+                this.isLoading = false;
+
+                return;
+            }
+
             // Check if a set with the same name exists
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            return this.customFieldSetRepository.search(criteria).then((res) => {
+            this.customFieldSetRepository.search(criteria).then((res) => {
                 if (res.length === 0) {
                     this.$super('onSave');
 
@@ -41,16 +61,18 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
                 }
 
                 this.createNameNotUniqueNotification();
+                this.isLoading = false;
             });
         },
         createNameNotUniqueNotification() {
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
-
             this.createNotificationError({
-                title: titleSaveSuccess,
-                message: messageSaveSuccess,
+                title: this.$tc('global.default.error'),
+                message: this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique'),
             });
+
+            this.technicalNameError = {
+                detail: this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique'),
+            };
         },
     },
-});
+};

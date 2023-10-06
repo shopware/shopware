@@ -5,33 +5,36 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Migration\Migration1599570560FixSlovakiaDisplayedAsSlovenia;
+use Shopware\Core\Migration\V6_3\Migration1599570560FixSlovakiaDisplayedAsSlovenia;
 
+/**
+ * @internal
+ */
 class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private Connection $connection;
+
+    private string $languageEN;
+
+    private string $languageDE;
+
+    private ?string  $countryIdSlovakia = null;
+
+    private Migration1599570560FixSlovakiaDisplayedAsSlovenia $migration;
+
     /**
-     * @var Connection
+     * @var array<string, bool|string>
+     *
+     * no transaction necessary since only this data will be changed and later reset
      */
-    private $connection;
-
-    private $languageEN;
-
-    private $languageENTranslationCode;
-
-    private $languageDE;
-
-    private $languageDETranslationCode;
-
-    private $countryIdSlovakia = null;
-
-    private $migration;
-
-    //no transaction since only this data will be changed and later reset
-    private $resetData = [
-        'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
-        'EnTranslation' => 'Slovakia', 'DeTranslation' => 'Slowakei',
+    private array $resetData = [
+        'SlovakiaAvailable' => true,
+        'languageEnAvailable' => true,
+        'languageDeAvailable' => true,
+        'EnTranslation' => 'Slovakia',
+        'DeTranslation' => 'Slowakei',
     ];
 
     protected function setUp(): void
@@ -41,21 +44,13 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
 
         $this->migration = new Migration1599570560FixSlovakiaDisplayedAsSlovenia();
 
-        $this->languageEN = $this->connection->fetchColumn("SELECT language.id FROM language INNER JOIN locale
-            ON language.translation_code_id = locale.id AND locale.code = 'en-GB'");
-        $this->languageENTranslationCode = $this->connection->fetchColumn(
-            'SELECT translation_code_id FROM language WHERE id = ?',
-            [$this->languageEN]
-        );
+        $this->languageEN = $this->connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
+            ON language.translation_code_id = locale.id AND locale.code = \'en-GB\'');
 
-        $this->languageDE = $this->connection->fetchColumn("SELECT language.id FROM language INNER JOIN locale
-            ON language.translation_code_id = locale.id AND locale.code = 'de-DE'");
-        $this->languageDETranslationCode = $this->connection->fetchColumn(
-            'SELECT translation_code_id FROM language WHERE id = ?',
-            [$this->languageDE]
-        );
+        $this->languageDE = $this->connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
+            ON language.translation_code_id = locale.id AND locale.code = \'de-DE\'');
 
-        $this->countryIdSlovakia = $this->connection->fetchColumn("SELECT id from country WHERE iso3 = 'SVK'");
+        $this->countryIdSlovakia = $this->connection->fetchOne('SELECT id from country WHERE iso3 = \'SVK\'');
     }
 
     protected function tearDown(): void
@@ -67,7 +62,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     /**
      * @dataProvider migrationCases
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @param array<string, bool|string> $data
      */
     public function testMigration(array $data): void
     {
@@ -81,15 +76,15 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         } else {
             $this->migration->update($this->connection);
             if ($data['languageEnAvailable']) {
-                $this->checkMigrationForAvailableLanguage($this->languageEN, $data['expectedEnTranslation'], $data['EnTranslation'], $updated_at['en']);
+                $this->checkMigrationForAvailableLanguage($this->languageEN, (string) $data['expectedEnTranslation'], (string) $data['EnTranslation'], $updated_at['en']);
             } else {
-                //language is not Available so nothing should change for this language
+                // language is not Available so nothing should change for this language
                 $this->checkMigrationForUnavailableLanguage($this->languageEN);
             }
             if ($data['languageDeAvailable']) {
-                $this->checkMigrationForAvailableLanguage($this->languageDE, $data['expectedDeTranslation'], $data['DeTranslation'], $updated_at['de']);
+                $this->checkMigrationForAvailableLanguage($this->languageDE, (string) $data['expectedDeTranslation'], (string) $data['DeTranslation'], $updated_at['de']);
             } else {
-                //language is not Available so nothing should change
+                // language is not Available so nothing should change
                 $this->checkMigrationForUnavailableLanguage($this->languageDE);
             }
         }
@@ -97,8 +92,6 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
 
     /**
      * runs the migration twice, changes should only happen the first time
-     *
-     * @throws \Doctrine\DBAL\DBALException
      */
     public function testMigrationTwice(): void
     {
@@ -116,12 +109,12 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         $this->checkMigrationForAvailableLanguage($this->languageEN, $data['expectedEnTranslation'], $data['EnTranslation'], $updated_at['en']);
         $this->checkMigrationForAvailableLanguage($this->languageDE, $data['expectedDeTranslation'], $data['DeTranslation'], $updated_at['de']);
 
-        //run the migration a second time, nothing should change
+        // run the migration a second time, nothing should change
         $this->checksWithNoChangesExpected();
     }
 
     /**
-     * @return \array[][]
+     * @return list<array{0: array<string, bool|string>}>
      *                    SlovakiaAvailable -> changes if the Migration can find the country
      *                    languageEnAvailable -> English language Available
      *                    languageDeAvailable -> German language Available
@@ -129,10 +122,10 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
      *                    DeTranslation -> sets the name of the country in german
      *                    expectedEnTranslation -> What the translation should be after the Migration
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
-            //already correct/modified, should be no changes
+            // already correct/modified, should be no changes
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -147,7 +140,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'CustomerChangesDE',
                 ],
             ],
-            //Old wrong translations, should be fixed afterwards
+            // Old wrong translations, should be fixed afterwards
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -155,7 +148,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'Slowakei',
                 ],
             ],
-            //Languages not available, no changes should happen
+            // Languages not available, no changes should happen
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => false, 'languageDeAvailable' => true,
@@ -177,7 +170,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'Slowakei',
                 ],
             ],
-            //Country not available, no changes should happen
+            // Country not available, no changes should happen
             [
                 [
                     'SlovakiaAvailable' => false, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -201,24 +194,27 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
      */
     private function checksWithNoChangesExpected(): void
     {
-        $dbData = $this->connection->fetchAll('SELECT * FROM country_translation ORDER BY country_id');
+        $dbData = $this->connection->fetchAllAssociative('SELECT * FROM country_translation ORDER BY country_id');
         $expectedHash = md5(serialize($dbData));
 
         $this->migration->update($this->connection);
 
-        $dbData = $this->connection->fetchAll('SELECT * FROM country_translation ORDER BY country_id');
+        $dbData = $this->connection->fetchAllAssociative('SELECT * FROM country_translation ORDER BY country_id');
         $actualHash = md5(serialize($dbData));
 
         static::assertSame($expectedHash, $actualHash, 'The data has changed');
     }
 
-    private function getUpdatedAt()
+    /**
+     * @return array{de: string, en: string}
+     */
+    private function getUpdatedAt(): array
     {
-        $updated_atEN = $this->connection->fetchColumn(
+        $updated_atEN = $this->connection->fetchOne(
             'SELECT updated_at FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$this->languageEN, $this->countryIdSlovakia]
         );
-        $updated_atDE = $this->connection->fetchColumn(
+        $updated_atDE = $this->connection->fetchOne(
             'SELECT updated_at FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$this->languageDE, $this->countryIdSlovakia]
         );
@@ -226,13 +222,13 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         return ['en' => $updated_atEN, 'de' => $updated_atDE];
     }
 
-    private function checkMigrationForAvailableLanguage($languageId, $expectedTranslation, $oldTranslation, $oldUpdateDate): void
+    private function checkMigrationForAvailableLanguage(string $languageId, string $expectedTranslation, string $oldTranslation, string $oldUpdateDate): void
     {
-        $stmt = $this->connection->prepare('SELECT name,updated_at FROM country_translation WHERE language_id = ? AND country_id = ?');
-        $stmt->execute([$languageId, $this->countryIdSlovakia]);
-        $actualData = $stmt->fetch();
+        $stmt = $this->connection->prepare('SELECT name, updated_at FROM country_translation WHERE language_id = ? AND country_id = ?');
+        /** @var array{name: string, updated_at: string} $actualData */
+        $actualData = $stmt->executeQuery([$languageId, $this->countryIdSlovakia])->fetchAssociative();
         static::assertEquals($expectedTranslation, $actualData['name']);
-        //If the data has changed the updated_at field also has to change
+        // If the data has changed the updated_at field also has to change
         if ($expectedTranslation !== $oldTranslation) {
             static::assertGreaterThan($oldUpdateDate, $actualData['updated_at']);
         } else {
@@ -240,20 +236,20 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         }
     }
 
-    private function checkMigrationForUnavailableLanguage($languageId): void
+    private function checkMigrationForUnavailableLanguage(string $languageId): void
     {
-        $dbData = $this->connection->fetchColumn(
+        $dbData = $this->connection->fetchOne(
             'SELECT * FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$languageId, $this->countryIdSlovakia]
         );
         $expectedHash = md5(serialize($dbData));
         $this->migration->update($this->connection);
-        $dbData = $this->connection->fetchColumn(
+        $dbData = $this->connection->fetchOne(
             'SELECT * FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$languageId, $this->countryIdSlovakia]
         );
         $actualHash = md5(serialize($dbData));
-        //language not available just makes the migration not find the language. actual should be what has been set by data
+        // language not available just makes the migration not find the language. actual should be what has been set by data
         static::assertEquals(
             $expectedHash,
             $actualHash
@@ -261,18 +257,16 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     }
 
     /**
-     * @param array $data
+     * @param array<string, bool|string> $data
      *                    SlovakiaAvailable -> changes if the Migration can find the country
      *                    languageEnAvailable -> English language Available
      *                    languageDeAvailable -> German language Available
      *                    EnTranslation -> sets the name of the country in english
      *                    DeTranslation -> sets the name of the country in german
-     *
-     * @throws \Doctrine\DBAL\DBALException
      */
     private function setDB(array $data): void
     {
-        //assumes the Country is always there in our testDB, changes the iso3 to make country unavailable
+        // assumes the Country is always there in our testDB, changes the iso3 to make country unavailable
         if ($data['SlovakiaAvailable'] !== null) {
             if ($data['SlovakiaAvailable'] === false) {
                 $this->connection->update('country', ['iso3' => 'SV?'], ['iso3' => 'SVK']);

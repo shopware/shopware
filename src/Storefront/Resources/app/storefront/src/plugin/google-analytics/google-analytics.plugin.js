@@ -11,20 +11,25 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
+import Storage from 'src/helper/storage/storage.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 
+/**
+ * @package merchant-services
+ */
 export default class GoogleAnalyticsPlugin extends Plugin
 {
     init() {
         this.cookieEnabledName = 'google-analytics-enabled';
+        this.storage = Storage;
 
+        this.handleTrackingLocation();
         this.handleCookieChangeEvent();
 
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             return;
         }
 
@@ -36,12 +41,8 @@ export default class GoogleAnalyticsPlugin extends Plugin
         gtmScript.src = window.gtagURL;
         document.head.append(gtmScript);
 
-        const gtmSetupScript = document.createElement('script');
-        const gtmScriptTemplate = DomAccess.querySelector(document.head, '#sw-google-tag-manager-init').text;
-        gtmSetupScript.text = gtmScriptTemplate;
-        document.head.append(gtmSetupScript);
-
-        window.gtagCallback();
+        gtag('js', new Date());
+        gtag('config', window.gtagTrackingId, window.gtagConfig);
 
         this.controllerName = window.controllerName;
         this.actionName = window.actionName;
@@ -49,6 +50,27 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         this.registerDefaultEvents();
         this.handleEvents();
+    }
+
+    handleTrackingLocation() {
+        this.trackingUrl = new URL(window.location.href);
+
+        const gclid = this.trackingUrl.searchParams.get('gclid');
+        if (gclid) {
+            this.storage.setItem(
+                this._getGclidStorageKey(),
+                gclid
+            );
+        } else if (this.storage.getItem(this._getGclidStorageKey())) {
+            this.trackingUrl.searchParams.set(
+                'gclid',
+                this.storage.getItem(this._getGclidStorageKey())
+            );
+        }
+
+        if (this.trackingUrl.searchParams.get('gclid')) {
+            window.gtagConfig['page_location'] = this.trackingUrl.toString();
+        }
     }
 
     handleEvents() {
@@ -122,5 +144,12 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.events.forEach(event => {
             event.disable();
         });
+    }
+
+    /**
+     * @private
+     */
+    _getGclidStorageKey() {
+        return 'google-analytics-' + (window.salesChannelId || '') + '-gclid';
     }
 }

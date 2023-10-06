@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,10 +22,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
-use function json_decode;
-use function sprintf;
 
 /**
+ * @internal
+ *
  * @group store-api
  */
 class ProductSearchRouteTest extends TestCase
@@ -37,13 +37,13 @@ class ProductSearchRouteTest extends TestCase
 
     private SearchKeywordUpdater $searchKeywordUpdater;
 
-    private EntityRepositoryInterface $productSearchConfigRepository;
+    private EntityRepository $productSearchConfigRepository;
 
     private string $productSearchConfigId;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->productSearchConfigId = $this->getProductSearchConfigId();
@@ -78,7 +78,6 @@ class ProductSearchRouteTest extends TestCase
      */
     public function testIndexing(): array
     {
-        $this->resetSearchKeywordUpdaterConfig();
         $this->createNavigationCategory();
 
         $browser = $this->createCustomSalesChannelBrowser([
@@ -103,7 +102,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -112,7 +111,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -129,7 +128,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -138,7 +137,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(0, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
@@ -159,7 +158,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
@@ -170,13 +169,14 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider searchOrCases
      */
     public function testSearchOr(string $term, array $expected, array $services): void
@@ -185,13 +185,14 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider searchAndCases
      */
     public function testSearchAnd(string $term, array $expected, array $services): void
@@ -200,7 +201,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => true],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->proceedTestSearch($browser, $term, $expected);
     }
@@ -214,7 +215,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -223,7 +224,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -237,7 +238,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -254,7 +255,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -263,7 +264,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -277,7 +278,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -296,7 +297,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -305,7 +306,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -322,7 +323,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -331,7 +332,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -345,7 +346,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -355,11 +356,16 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @dataProvider searchTestCases
+     *
      * @depends testIndexing
      */
     public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId, array $services): void
     {
         [$browser, $ids] = $services;
+
+        if ($languageId === 'de-DE') {
+            $languageId = $this->getDeDeLanguageId();
+        }
 
         $searchRoute = $this->getContainer()->get(ProductSearchRoute::class);
         $suggestRoute = $this->getContainer()->get(ProductSuggestRoute::class);
@@ -382,7 +388,7 @@ class ProductSearchRouteTest extends TestCase
             static::assertEquals(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
-                sprintf(
+                \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
                     $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
@@ -399,7 +405,7 @@ class ProductSearchRouteTest extends TestCase
             static::assertEquals(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
-                sprintf(
+                \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
                     $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
@@ -409,7 +415,7 @@ class ProductSearchRouteTest extends TestCase
         }
     }
 
-    public function searchTestCases(): array
+    public static function searchTestCases(): array
     {
         return [
             'test it finds product' => [
@@ -437,7 +443,7 @@ class ProductSearchRouteTest extends TestCase
                     'Lorem ipsum' => false, // full name but different language
                     'manufacturer' => false, // manufacturer but different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds product by fallback translations' => [
                 '1002',
@@ -447,7 +453,7 @@ class ProductSearchRouteTest extends TestCase
                     'literature' => true, // part of name
                     'latin literature' => true, // full name
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product' => [
                 '1000',
@@ -482,7 +488,7 @@ class ProductSearchRouteTest extends TestCase
                     'varius' => false, // manufacturer but of parent
                     'Vestibulum' => false, // manufacturer but of parent & different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product by parent translation' => [
                 '1001.1',
@@ -495,7 +501,7 @@ class ProductSearchRouteTest extends TestCase
                     'consectetur adipiscing' => false, // full name but of parent language
                     'varius' => false, // manufacturer but of parent & different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product with inherited data' => [
                 '1001.1',
@@ -513,7 +519,7 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
-    public function searchAndCases(): array
+    public static function searchAndCases(): array
     {
         return [
             [
@@ -569,7 +575,7 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
-    public function searchOrCases(): array
+    public static function searchOrCases(): array
     {
         return [
             [
@@ -654,7 +660,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         /** @var array $entites */
         $entites = $response['elements'];
@@ -674,12 +680,12 @@ class ProductSearchRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 
     private function setupProductsForImplementSearch(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productIds = [];
         $productsNames = [
@@ -801,50 +807,30 @@ class ProductSearchRouteTest extends TestCase
                 ->build();
         }
 
-        $productRepository->create($products, $this->ids->context);
+        $productRepository->create($products, Context::createDefaultContext());
 
-        $this->searchKeywordUpdater->update($productIds, $this->ids->context);
+        $this->searchKeywordUpdater->update($productIds, Context::createDefaultContext());
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'minSearchLength' => 3],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $productRepository->create([
             (new ProductBuilder($this->ids, 'volvo.1'))
                 ->visibility($this->ids->get('sales-channel'))
                 ->parent('volvo')
                 ->build(),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function getProductSearchConfigId(): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsFilter('languageId', $this->ids->getContext()->getLanguageId())
+            new EqualsFilter('languageId', Context::createDefaultContext()->getLanguageId())
         );
 
-        return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
-    }
-
-    private function resetSearchKeywordUpdaterConfig(): void
-    {
-        $class = new \ReflectionClass($this->searchKeywordUpdater);
-        if ($class->hasProperty('decorated')) {
-            $property = $class->getProperty('decorated');
-            $property->setAccessible(true);
-            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
-        } else {
-            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
-        }
-
-        $class = new \ReflectionClass($searchKeywordUpdaterInner);
-        $property = $class->getProperty('config');
-        $property->setAccessible(true);
-        $property->setValue(
-            $searchKeywordUpdaterInner,
-            []
-        );
+        return $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 
     private function createGermanSalesChannelDomain(): void

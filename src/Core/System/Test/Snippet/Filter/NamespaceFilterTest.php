@@ -3,8 +3,13 @@
 namespace Shopware\Core\System\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\NamespaceFilter;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class NamespaceFilterTest extends TestCase
 {
     public function testGetFilterName(): void

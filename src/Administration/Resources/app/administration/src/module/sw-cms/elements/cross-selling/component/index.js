@@ -1,10 +1,14 @@
 import template from './sw-cms-el-cross-selling.html.twig';
 import './sw-cms-el-cross-selling.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { isEmpty } = Shopware.Utils.types;
 
-Component.register('sw-cms-el-cross-selling', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     mixins: [
@@ -126,9 +130,7 @@ Component.register('sw-cms-el-cross-selling', {
                 return;
             }
 
-            if (parseInt(
-                this.element.config.elMinWidth.value.replace('px', ''), 10,
-            ) <= 0) {
+            if (parseInt(this.element.config.elMinWidth.value.replace('px', ''), 10) <= 0) {
                 return;
             }
 
@@ -136,9 +138,7 @@ Component.register('sw-cms-el-cross-selling', {
             const fakeLookWidth = 100;
             const boxWidth = this.$refs.productHolder.offsetWidth;
             const elGap = 32;
-            let elWidth = parseInt(
-                this.element.config.elMinWidth.value.replace('px', ''), 10,
-            );
+            let elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 10);
 
             if (elWidth >= 300) {
                 elWidth -= fakeLookWidth;
@@ -165,4 +165,4 @@ Component.register('sw-cms-el-cross-selling', {
             };
         },
     },
-});
+};

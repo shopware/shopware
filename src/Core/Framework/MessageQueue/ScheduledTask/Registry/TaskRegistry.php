@@ -3,81 +3,91 @@
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[Package('core')]
 class TaskRegistry
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
+     *
+     * @param iterable<int, ScheduledTask> $tasks
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
-    private $scheduledTaskRepository;
-
-    /**
-     * @var iterable
-     */
-    private $tasks;
-
     public function __construct(
-        iterable $tasks,
-        EntityRepositoryInterface $scheduledTaskRepository
+        private readonly iterable $tasks,
+        private readonly EntityRepository $scheduledTaskRepository,
+        private readonly ParameterBagInterface $parameterBag
     ) {
-        $this->tasks = $tasks;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
+    }
+
+    public function getAllTasks(Context $context): ScheduledTaskCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('createdAt'));
+
+        return $this->scheduledTaskRepository
+            ->search($criteria, $context)
+            ->getEntities();
     }
 
     public function registerTasks(): void
     {
-        /** @var ScheduledTaskCollection $alreadyRegisteredTasks */
+        $context = Context::createDefaultContext();
+
         $alreadyRegisteredTasks = $this->scheduledTaskRepository
-            ->search(new Criteria(), Context::createDefaultContext())
+            ->search(new Criteria(), $context)
             ->getEntities();
 
-        $this->insertNewTasks($alreadyRegisteredTasks);
+        $this->upsertTasks($alreadyRegisteredTasks);
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
         if (\count($deletionPayload) > 0) {
-            $this->scheduledTaskRepository->delete($deletionPayload, Context::createDefaultContext());
+            $this->scheduledTaskRepository->delete($deletionPayload, $context);
         }
     }
 
-    private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
+    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
-        /** @var ScheduledTask $task */
+        $updates = [];
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
                     'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
-                    \get_class($task)
+                    $task::class
                 ));
             }
 
-            if ($this->isAlreadyRegistered($alreadyRegisteredTasks, $task)) {
+            $registeredTask = $this->getAlreadyRegisteredTask($alreadyRegisteredTasks, $task);
+            if ($registeredTask !== null) {
+                $updates[] = $this->getUpdatePayload($registeredTask, $task);
+
                 continue;
             }
 
-            try {
-                $this->scheduledTaskRepository->create([
-                    [
-                        'name' => $task::getTaskName(),
-                        'scheduledTaskClass' => \get_class($task),
-                        'runInterval' => $task::getDefaultInterval(),
-                        'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-                    ],
-                ], Context::createDefaultContext());
-            } catch (UniqueConstraintViolationException $e) {
-                // this can happen if the function runs multiple times simultaneously
-                // we just care that the task is registered afterward so we can safely ignore the error
-            }
+            $this->insertTask($task);
+        }
+
+        $updates = array_values(array_filter($updates));
+        if (\count($updates) > 0) {
+            $this->scheduledTaskRepository->update($updates, Context::createDefaultContext());
         }
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
     private function getDeletionPayload(ScheduledTaskCollection $alreadyRegisteredTasks): array
     {
         $deletionPayload = [];
@@ -95,26 +105,90 @@ class TaskRegistry
         return $deletionPayload;
     }
 
-    private function isAlreadyRegistered(
+    private function getAlreadyRegisteredTask(
         ScheduledTaskCollection $alreadyScheduledTasks,
         ScheduledTask $task
-    ): bool {
-        return \count(
-            $alreadyScheduledTasks
-                ->filter(function (ScheduledTaskEntity $registeredTask) use ($task) {
-                    return $registeredTask->getScheduledTaskClass() === \get_class($task);
-                })
-        ) > 0;
+    ): ?ScheduledTaskEntity {
+        return $alreadyScheduledTasks
+                ->filter(fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
+                ->first();
     }
 
     private function taskClassStillAvailable(ScheduledTaskEntity $registeredTask): bool
     {
         foreach ($this->tasks as $task) {
-            if ($registeredTask->getScheduledTaskClass() === \get_class($task)) {
+            if ($registeredTask->getScheduledTaskClass() === $task::class) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
+    {
+        $now = new \DateTimeImmutable();
+
+        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
+        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+
+        if ($newNextExecutionTime < $now) {
+            return $now;
+        }
+
+        return $newNextExecutionTime;
+    }
+
+    private function insertTask(ScheduledTask $task): void
+    {
+        $validTask = $task->shouldRun($this->parameterBag);
+
+        try {
+            $this->scheduledTaskRepository->create([
+                [
+                    'name' => $task->getTaskName(),
+                    'scheduledTaskClass' => $task::class,
+                    'runInterval' => $task->getDefaultInterval(),
+                    'defaultRunInterval' => $task->getDefaultInterval(),
+                    'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
+                ],
+            ], Context::createDefaultContext());
+        } catch (UniqueConstraintViolationException) {
+            // this can happen if the function runs multiple times simultaneously
+            // we just care that the task is registered afterward so we can safely ignore the error
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUpdatePayload(ScheduledTaskEntity $registeredTask, ScheduledTask $task): array
+    {
+        $payload = [];
+        if (!$task->shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SCHEDULED], true)) {
+            $payload['status'] = ScheduledTaskDefinition::STATUS_SKIPPED;
+        }
+
+        if ($task->shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SKIPPED], true)) {
+            $payload['status'] = ScheduledTaskDefinition::STATUS_SCHEDULED;
+            $payload['nextExecutionTime'] = $this->calculateNextExecutionTime($registeredTask);
+        }
+
+        if ($task->getDefaultInterval() !== $registeredTask->getDefaultRunInterval()) {
+            // default run interval changed
+            $payload['defaultRunInterval'] = $task->getDefaultInterval();
+
+            // if the run interval is still the default, update it to the new default
+            if ($registeredTask->getRunInterval() === $registeredTask->getDefaultRunInterval()) {
+                $payload['runInterval'] = $task->getDefaultInterval();
+            }
+        }
+
+        if ($payload !== []) {
+            $payload['id'] = $registeredTask->getId();
+        }
+
+        return $payload;
     }
 }

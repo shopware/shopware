@@ -1,0 +1,72 @@
+{
+    "name": "shopware/web-installer",
+    "license": "proprietary",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "ext-dom": "*",
+        "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-iconv": "*",
+        "composer/composer": "^2.4",
+        "symfony/console": "6.3.*",
+        "symfony/dotenv": "6.3.*",
+        "symfony/framework-bundle": "6.3.*",
+        "symfony/http-client": "^6.3",
+        "symfony/process": "^6.3",
+        "symfony/translation": "^6.3",
+        "symfony/twig-bundle": "^6.3",
+        "symfony/yaml": "^6.3",
+        "twig/twig": "^3.4"
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*"
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Shopware\\WebInstaller\\": ""
+        }
+    },
+    "config": {
+        "platform-check": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "bamarni/composer-bin-plugin": true
+        },
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "build-phar": [
+            "wget -q https://github.com/box-project/box/releases/download/4.2.0/box.phar -O box.phar",
+            "@php -d phar.readonly=0 box.phar compile",
+            "rm box.phar"
+        ],
+        "test": [
+            "../../vendor/bin/phpunit"
+        ]
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "6.2.*"
+        },
+        "bamarni-bin": {
+            "bin-links": true,
+            "forward-command": true
+        }
+    }
+}

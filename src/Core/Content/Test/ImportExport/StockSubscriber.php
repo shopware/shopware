@@ -3,8 +3,13 @@
 namespace Shopware\Core\Content\Test\ImportExport;
 
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class StockSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

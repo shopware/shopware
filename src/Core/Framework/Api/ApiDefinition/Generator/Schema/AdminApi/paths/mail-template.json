@@ -1,0 +1,279 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/mail-template\/send": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Send a mail",
+                "description": "Generates a mail from a mail template and sends it to the customer.\n\nTake a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
+                "operationId": "send",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "recipients",
+                                    "salesChannelId",
+                                    "contentHtml",
+                                    "contentPlain",
+                                    "subject",
+                                    "senderName"
+                                ],
+                                "properties": {
+                                    "recipients": {
+                                        "description": "A list of recipients with name and mail address.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel from which the mail should be send.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "contentHtml": {
+                                        "description": "The content of the mail in HTML format.",
+                                        "type": "string"
+                                    },
+                                    "contentPlain": {
+                                        "description": "The content of the mail as plain text.",
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "description": "Subject of the mail.",
+                                        "type": "string"
+                                    },
+                                    "senderName": {
+                                        "description": "Name of the sender.",
+                                        "type": "string"
+                                    },
+                                    "senderEmail": {
+                                        "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
+                                        "type": "string"
+                                    },
+                                    "mediaIds": {
+                                        "description": "List of media identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "binAttachments": {
+                                        "description": "A list of binary attachments which should be added to the mail.",
+                                        "required": [
+                                            "content",
+                                            "fileName",
+                                            "mimeType"
+                                        ],
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "content": {
+                                                    "description": "Binary content of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "fileName": {
+                                                    "description": "File name of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "mimeType": {
+                                                    "description": "Mime type of the attachment.",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "recipientsBcc": {
+                                        "description": "A list of recipients with name and mail address to be set in BCC.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "recipientsCc": {
+                                        "description": "A list of recipients with name and mail address to be set in CC.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "replyTo": {
+                                        "description": "A list of mail addresses with name and mail address to be set in reply to.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "returnPath": {
+                                        "description": "A list of mail addresses with name and mail address to be set in return path.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient.",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The mail was sent successful",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "size": {
+                                            "description": "Length of the email message",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/_action\/mail-template\/validate": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Validate a mail content",
+                "description": "Validates if content for a mail can be rendered without sending an email.",
+                "operationId": "validate",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "contentHtml",
+                                    "contentPlain"
+                                ],
+                                "properties": {
+                                    "contentHtml": {
+                                        "description": "The content of the mail in HTML format.",
+                                        "type": "string"
+                                    },
+                                    "contentPlain": {
+                                        "description": "The content of the mail as plain text.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Returns a no content response indicating the mail content was rendered successfully."
+                    }
+                }
+            }
+        },
+        "\/_action\/mail-template\/build": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Preview a mail template",
+                "description": "Generates a preview of a mail template.",
+                "operationId": "build",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateType",
+                                    "mailTemplate"
+                                ],
+                                "properties": {
+                                    "mailTemplateType": {
+                                        "description": "Only the property `templateData` is used. It provides additional variables to the templating engine.",
+                                        "properties": {
+                                            "templateData": {
+                                                "description": "An associative array that is handed over to the templating engine and can be used as variables in the mail content.",
+                                                "type": "object",
+                                                "example": {
+                                                    "order": {
+                                                        "orderNumber": 5000,
+                                                        "customerName": "Example Customer"
+                                                    },
+                                                    "messageOfTheDay": "An apple a day keeps the doctor away!"
+                                                },
+                                                "additionalProperties": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "mailTemplate": {
+                                        "description": "The content of the mail as plain text.",
+                                        "properties": {
+                                            "contentHtml": {
+                                                "description": "The content of mail mail template in html format.",
+                                                "type": "string",
+                                                "example": "Hello {{ order.customerName }}, this is example mail content, the current date is {{ 'now'|date('d\/m\/Y') }}"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The rendered preview of the mail template.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

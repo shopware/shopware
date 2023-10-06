@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -22,10 +23,11 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
+#[Package('checkout')]
 class OrderEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -53,6 +55,11 @@ class OrderEntity extends Entity
     protected $billingAddressId;
 
     /**
+     * @var string
+     */
+    protected $billingAddressVersionId;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $orderDateTime;
@@ -73,7 +80,7 @@ class OrderEntity extends Entity
     protected $amountTotal;
 
     /**
-     * @var float|null
+     * @var float
      */
     protected $amountNet;
 
@@ -193,7 +200,7 @@ class OrderEntity extends Entity
     protected $customerComment;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $ruleIds = [];
 
@@ -226,6 +233,8 @@ class OrderEntity extends Entity
      * @var CashRoundingConfig|null
      */
     protected $totalRounding;
+
+    protected ?string $source = null;
 
     public function getCurrencyId(): string
     {
@@ -563,11 +572,27 @@ class OrderEntity extends Entity
         $this->customerComment = $customerComment;
     }
 
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): void
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @return array<string>|null
+     */
     public function getRuleIds(): ?array
     {
         return $this->ruleIds;
     }
 
+    /**
+     * @param array<string>|null $ruleIds
+     */
     public function setRuleIds(?array $ruleIds): void
     {
         $this->ruleIds = $ruleIds;
@@ -641,6 +666,16 @@ class OrderEntity extends Entity
     public function setTotalRounding(?CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
+    }
+
+    public function getBillingAddressVersionId(): string
+    {
+        return $this->billingAddressVersionId;
+    }
+
+    public function setBillingAddressVersionId(string $billingAddressVersionId): void
+    {
+        $this->billingAddressVersionId = $billingAddressVersionId;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

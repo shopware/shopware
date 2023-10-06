@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-product-variants-delivery-media', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -34,15 +37,16 @@ Component.register('sw-product-variants-delivery-media', {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.configuratorGroupConfig && this.product.configuratorGroupConfig.length > 0) {
+            if (this.product.variantListingConfig.configuratorGroupConfig
+                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.configuratorGroupConfig.reduce((acc, configGroup) => {
+                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
                     const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
 
-                        // remove from orignal array
+                        // remove from original array
                         selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
                     }
 
@@ -90,7 +94,7 @@ Component.register('sw-product-variants-delivery-media', {
 
         activeGroup: {
             handler() {
-                this.product.configuratorGroupConfig.find((group) => {
+                this.product.variantListingConfig.configuratorGroupConfig.find((group) => {
                     return group.id === this.activeGroup.id;
                 });
             },
@@ -131,24 +135,25 @@ Component.register('sw-product-variants-delivery-media', {
         },
 
         onChangeGroupListing(value) {
-            const existingIndex = this.product.configuratorGroupConfig
+            const existingIndex = this.product.variantListingConfig.configuratorGroupConfig
                 .findIndex((group) => group.id === this.activeGroup.id);
 
             if (existingIndex >= 0) {
-                const existingConfig = this.product.configuratorGroupConfig[existingIndex];
+                const existingConfig = this.product.variantListingConfig.configuratorGroupConfig[existingIndex];
 
-                this.product.configuratorGroupConfig[existingIndex] = {
+                this.product.variantListingConfig.configuratorGroupConfig[existingIndex] = {
                     id: existingConfig.id,
                     expressionForListings: value,
                     representation: existingConfig.representation,
                 };
             } else {
-                this.product.configuratorGroupConfig = [...this.product.configuratorGroupConfig, {
-                    id: this.activeGroup.id,
-                    expressionForListings: value,
-                    representation: 'box',
-                }];
+                this.product.variantListingConfig.configuratorGroupConfig = [
+                    ...this.product.variantListingConfig.configuratorGroupConfig, {
+                        id: this.activeGroup.id,
+                        expressionForListings: value,
+                        representation: 'box',
+                    }];
             }
         },
     },
-});
+};

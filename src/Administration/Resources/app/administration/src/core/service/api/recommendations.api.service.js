@@ -11,6 +11,13 @@ class RecommendationsApiService extends ApiService {
         this.name = 'recommendationsService';
     }
 
+    getBasicHeaders(additionalHeaders = {}) {
+        return {
+            ...super.getBasicHeaders(additionalHeaders),
+            'sw-language-id': Shopware.Context.api.languageId,
+        };
+    }
+
     /**
      * Get recommendations
      *
@@ -54,4 +61,5 @@ class RecommendationsApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default RecommendationsApiService;

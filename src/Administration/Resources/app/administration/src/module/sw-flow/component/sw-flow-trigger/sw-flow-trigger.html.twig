@@ -1,22 +1,25 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_trigger %}
 <div
     class="sw-flow-trigger"
     :class="swFlowTriggerClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_trigger_select_field %}
     <div class="sw-flow-trigger__select-toolbar">
         <sw-contextual-field
             v-tooltip="{
-                message: getBreadcrumb(eventName),
-                disabled: !eventName,
+                message: getEventName(eventName),
+                disabled: !eventName || isUnknownTrigger,
             }"
             class="sw-flow-trigger__search-field"
-            required
+            :required="!isTemplate"
             :label="$tc('sw-flow.detail.trigger.name')"
             :disabled="disabled"
             :error="flowEventNameError"
         >
             <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_select_field_input %}
                 <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input
@@ -24,12 +27,13 @@
                     v-model="searchTerm"
                     type="text"
                     class="sw-flow-trigger__input-field"
-                    :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
+                    :placeholder="triggerNamePlaceholder"
                     :disabled="disabled"
                     @focus="openDropdown({ setFocusClass, removeFocusClass });"
                 >
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_loader %}
                 <sw-loader
                     v-if="isLoading"
@@ -38,11 +42,12 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_dropdown_icon %}
                 <sw-icon
                     class="sw-flow-trigger__dropdown-icon"
-                    name="small-arrow-medium-down"
-                    small
+                    name="regular-chevron-down-xs"
+                    size="10px"
                     @click="openDropdown({ setFocusClass, removeFocusClass });"
                 />
                 {% endblock %}
@@ -51,17 +56,21 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_trigger_select_transition %}
     <transition name="sw-flow-trigger__fade-down">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_trigger_event_selection %}
         <div
             v-if="isExpanded"
             class="sw-flow-trigger__event-selection"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_trigger_container %}
             <sw-container class="sw-flow-trigger__event-container">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_select_tree %}
                 <sw-tree
                     v-if="showTreeView"
@@ -76,12 +85,14 @@
                     bind-items-to-folder
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_trigger_tree_headline %}
                     <template #headline>
                         <span></span>
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_trigger_tree_search %}
                     <template #search>
                         <span></span>
@@ -110,6 +121,7 @@
                             @check-item="checkItem"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_trigger_tree_item_actions %}
                             <template #actions>
                                 <span></span>
@@ -120,35 +132,42 @@
                 </sw-tree>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_search_list %}
                 <ul
                     v-else-if="searchResult.length > 0 && searchTerm.length > 0"
                     class="sw-flow-trigger__search-results"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_trigger_search_list_item %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <li
                         v-for="item in searchResult"
                         :key="item.id"
                         class="sw-flow-trigger__search-result"
                         :class="{ 'is--focus': isSearchResultInFocus(item)}"
+                        role="button"
+                        tabindex="0"
                         @click="onClickSearchItem(item)"
+                        @keydown.enter="onClickSearchItem(item)"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_trigger_search_list_item_icon %}
                         <div class="sw-flow-trigger__search-result-icon">
                             <sw-icon
-                                name="small-default-circle-small"
+                                name="regular-circle-xxs"
                                 size="18"
                             />
                         </div>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_trigger_search_list_item_name %}
                         <span class="sw-flow-trigger__search-result-name">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_trigger_search_list_item_name_highlight %}
                             <sw-highlight-text
                                 :search-term="searchTerm"
-                                :text="getBreadcrumb(item.name)"
+                                :text="getEventName(item.name)"
                             />
                             {% endblock %}
                         </span>
@@ -158,6 +177,7 @@
                 </ul>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_trigger_search_empty %}
                 <p
                     v-else
@@ -174,6 +194,7 @@
     </transition>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_event_change_confirm_modal %}
     <sw-flow-event-change-confirm-modal
         v-if="showConfirmModal"

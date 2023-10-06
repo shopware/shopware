@@ -1,4 +1,9 @@
-# 2021-08-11 - Make shopware/platform stand-alone for development and testing
+---
+title: Make shopware/platform stand-alone for development and testing
+date: 2021-08-11
+area: product-operations
+tags: [shopware, platform, development, testing]
+--- 
 
 ## Context
 

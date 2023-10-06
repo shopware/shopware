@@ -3,29 +3,27 @@
 {% block page_account_main_content %}
     {% block page_account_overview %}
         <div class="account-overview">
-            {% if feature('FEATURE_NEXT_15707') %}
-                {% block page_account_overview_shipping_warning %}
-                    {% set ableToShipToShippingCountry = context.customer.defaultShippingAddress.country.shippingAvailable %}
+            {% block page_account_overview_shipping_warning %}
+                {% set ableToShipToShippingCountry = context.customer.defaultShippingAddress.country.shippingAvailable %}
 
-                    {% if not ableToShipToShippingCountry %}
-                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                            type: 'warning',
-                            content: 'account.overviewNotAbleToShip'|trans|sw_sanitize
-                        } %}
-                    {% endif %}
-                {% endblock %}
+                {% if not ableToShipToShippingCountry %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: 'warning',
+                        content: 'account.overviewNotAbleToShip'|trans|sw_sanitize
+                    } %}
+                {% endif %}
+            {% endblock %}
 
-                {% block page_account_overview_request_group_info %}
-                    {% if page.customer.requestedGroup %}
-                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                            type: 'info',
-                            content: 'account.overviewCustomerGroupRequest'|trans({
-                                '%group%': page.customer.requestedGroup.translated.name
-                            })
-                        } %}
-                    {% endif %}
-                {% endblock %}
-            {% endif %}
+            {% block page_account_overview_request_group_info %}
+                {% if page.customer.requestedGroup %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: 'info',
+                        content: 'account.overviewCustomerGroupRequest'|trans({
+                            '%group%': page.customer.requestedGroup.translated.name
+                        })
+                    } %}
+                {% endif %}
+            {% endblock %}
 
             {% block page_account_overview_welcome %}
                 <div class="account-welcome">
@@ -33,17 +31,6 @@
                     {% block page_account_overview_welcome_intro %}
                         <p>{{ "account.overviewInfo"|trans|sw_sanitize }}</p>
                     {% endblock %}
-
-                    {% if not feature('FEATURE_NEXT_15707') and page.customer.requestedGroup %}
-
-                        {# @deprecated tag:v6.5.0 - Alert will be removed use block "page_account_overview_request_group_info" instead #}
-                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                            type: 'info',
-                            content: 'account.overviewCustomerGroupRequest'|trans({
-                                '%group%': page.customer.requestedGroup.translated.name
-                            })
-                        } %}
-                    {% endif %}
                 </div>
             {% endblock %}
 
@@ -66,7 +53,7 @@
                                                     {{ context.customer.salutation.translated.displayName }}
                                                 {% endif %}
                                                 {% if context.customer.title %}
-                                                    {{ context.customer.title }}<br/>
+                                                    {{ context.customer.title }}<br>
                                                 {% endif %}
                                                 {{ context.customer.firstName }} {{ context.customer.lastName }}
                                             </p>
@@ -86,11 +73,7 @@
 
                                         {% block page_account_overview_profile_actions %}
                                             <div class="card-actions">
-                                                <a href="{{ path('frontend.account.profile.page') }}"
-                                                   title="{{ "account.overviewChangeProfile"|trans|striptags }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangeProfile"|trans|sw_sanitize }}
-                                                </a>
+                                                {% block page_account_overview_profile_actions_content %}{% endblock %}
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -117,11 +100,7 @@
 
                                         {% block page_account_overview_payment_actions %}
                                             <div class="card-actions">
-                                                <a href="{{ path('frontend.account.payment.page') }}"
-                                                   title="{{ "account.overviewChangePayment"|trans|striptags }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangePayment"|trans|sw_sanitize }}
-                                                </a>
+                                                {% block page_account_overview_payment_actions_content %}{% endblock %}
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -144,11 +123,7 @@
 
                             {% block page_account_overview_newsletter_content %}
                                 <div class="js-newsletter-wrapper">
-                                    {% if feature('FEATURE_NEXT_14001') %}
-                                        {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "newsletterAccountPagelet": page.getNewsletterAccountPagelet() } %}
-                                    {% else %}
-                                        {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "customer": context.customer } %}
-                                    {% endif %}
+                                    {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "newsletterAccountPagelet": page.getNewsletterAccountPagelet() } %}
                                 </div>
                             {% endblock %}
                         </div>
@@ -173,8 +148,7 @@
 
                                 {% block page_account_overview_newest_order_content %}
                                     {% block page_account_overview_newest_order_table %}
-                                        <div class="table order-table">
-
+                                        <div class="order-table">
                                             {% block page_account_overview_newest_order_table_body %}
                                                 <div class="order-table-body"
                                                      data-order-detail-loader="true">

@@ -10,19 +10,23 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
+#[Package('checkout')]
 class ShippingMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
-    public const TAX_TYPE_AUTO = 'auto';
-    public const TAX_TYPE_FIXED = 'fixed';
-    public const TAX_TYPE_HIGHEST = 'highest';
+    final public const TAX_TYPE_AUTO = 'auto';
+    final public const TAX_TYPE_FIXED = 'fixed';
+    final public const TAX_TYPE_HIGHEST = 'highest';
+    final public const POSITION_DEFAULT = 1;
+    final public const ACTIVE_DEFAULT = false;
 
     /**
      * @var string|null
@@ -33,6 +37,11 @@ class ShippingMethodEntity extends Entity
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     /**
      * @var string|null
@@ -142,6 +151,16 @@ class ShippingMethodEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getDescription(): ?string

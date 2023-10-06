@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubCascadeDefinition;
@@ -28,25 +28,22 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDe
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class OneToOneAssociationFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection
      */
     private $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $subRepository;
+    private EntityRepository $subRepository;
 
     protected function setUp(): void
     {
@@ -78,7 +75,8 @@ class OneToOneAssociationFieldTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
+DROP TABLE IF EXISTS `root_sub_many`;
 DROP TABLE IF EXISTS `root_sub_cascade`;
 DROP TABLE IF EXISTS `root_sub`;
 DROP TABLE IF EXISTS `root`;
@@ -145,7 +143,7 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;
@@ -261,7 +259,7 @@ SET FOREIGN_KEY_CHECKS = 1;
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
 
-        /** @var EntityCollection|null $many */
+        /** @var EntityCollection<ArrayEntity>|null $many */
         $many = $sub->get('manies');
         static::assertInstanceOf(EntityCollection::class, $many);
         static::assertCount(2, $many);
@@ -351,12 +349,12 @@ SET FOREIGN_KEY_CHECKS = 1;
 
     public function testCreateVersioning(): void
     {
-        $id = Uuid::randomHex();
+        $id = 'a80c8dc21a424061a4048e457b2732df';
 
         $data = [
             'id' => $id,
             'name' => 'root 1',
-            'sub' => [
+            'subCascade' => [
                 'id' => $id,
                 'name' => 'sub 1',
             ],
@@ -374,7 +372,7 @@ SET FOREIGN_KEY_CHECKS = 1;
             [
                 'id' => $id,
                 'name' => 'updated root',
-                'sub' => [
+                'subCascade' => [
                     'id' => $id,
                     'name' => 'updated sub',
                 ],
@@ -385,14 +383,14 @@ SET FOREIGN_KEY_CHECKS = 1;
         $root = $this->repository->search(new Criteria([$id]), $context)->first();
         static::assertSame('root 1', $root->get('name'));
 
-        $sub = $root->get('sub');
+        $sub = $root->get('subCascade');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('sub 1', $sub->get('name'));
 
         $root = $this->repository->search(new Criteria([$id]), $versionContext)->first();
         static::assertSame('updated root', $root->get('name'));
 
-        $sub = $root->get('sub');
+        $sub = $root->get('subCascade');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('updated sub', $sub->get('name'));
 
@@ -401,7 +399,7 @@ SET FOREIGN_KEY_CHECKS = 1;
         $root = $this->repository->search(new Criteria([$id]), $context)->first();
         static::assertSame('updated root', $root->get('name'));
 
-        $sub = $root->get('sub');
+        $sub = $root->get('subCascade');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('updated sub', $sub->get('name'));
     }
@@ -426,6 +424,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         $delete = $this->repository->delete([['id' => $idRoot]], $context);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
+        static::assertInstanceOf(NestedEventCollection::class, $delete->getEvents());
         static::assertCount(2, $delete->getEvents());
 
         $rootEvent = $delete->getEventByEntityName(RootDefinition::ENTITY_NAME);
@@ -502,6 +501,8 @@ SET FOREIGN_KEY_CHECKS = 1;
         $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
         $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
 
+        static::assertNotNull($updatedRoot);
+        static::assertNotNull($updatedSub);
         static::assertNotNull($updatedRoot->get('sub'));
         static::assertNotNull($updatedSub->get('root'));
 
@@ -514,6 +515,9 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
         $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
+
+        static::assertNotNull($updatedRoot);
+        static::assertNotNull($updatedSub);
 
         static::assertNull($updatedRoot->get('sub'));
         static::assertNull($updatedSub->get('root'));
@@ -528,6 +532,8 @@ SET FOREIGN_KEY_CHECKS = 1;
         $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
         $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
 
+        static::assertNotNull($updatedRoot);
+        static::assertNotNull($updatedSub);
         static::assertNotNull($updatedRoot->get('sub'));
         static::assertNotNull($updatedSub->get('root'));
     }

@@ -1,4 +1,9 @@
-## 2021-11-09 - Introduce increment pattern
+---
+title: Introduce increment pattern
+date: 2021-11-09
+area: system-settings
+tags: [architecture, increment, message-queue-stats]
+--- 
 
 ## Context
 The current `message_queue_stats` table records which messages are in the message queue and how often. This
@@ -25,7 +30,7 @@ So we implement a new gateway with the following methods:
 
 This then enables the following functional flow:
 
-![](./fixtures/message_queue_stats.png "Message queue stats gateway")
+![](./assets/message_queue_stats.png "Message queue stats gateway")
 
 Furthermore, it should also be possible to completely disable the message queue stats or any pool via config file.
 

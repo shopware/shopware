@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 const { Mixin, Data: { Criteria } } = Shopware;
 const { debug } = Shopware.Utils;
 
@@ -26,7 +29,7 @@ Mixin.register('sw-settings-list', {
             return this.repositoryFactory.create(this.entityName);
         },
         listingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.term) {
                 criteria.setTerm(this.term);

@@ -1,0 +1,97 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_custom_field_set_detail_base %}
+<sw-card
+    class="sw-settings-custom-field-set-detail-base"
+    position-identifier="sw-custom-field-detail-base"
+    :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_technical_name %}
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="set.name"
+        {% else %}
+        v-model="set.name"
+        {% endif %}
+        class="sw-settings-custom-field-set-detail-base__technical-name"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+        :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+        :disabled="!set._isNew || !acl.can('custom_field.editor')"
+        :error="technicalNameError"
+        required
+        @change="onTechnicalNameChange"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_position %}
+    <sw-number-field
+        {% if VUE3 %}
+        v-model:value="set.position"
+        {% else %}
+        v-model="set.position"
+        {% endif %}
+        class="sw-settings-custom-field-set-detail-base__base-postion"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_translated %}
+    <sw-switch-field
+        v-if="set.config"
+        {% if VUE3 %}
+        v-model:value="set.config.translated"
+        {% else %}
+        v-model="set.config.translated"
+        {% endif %}
+        class="sw-settings-custom-field-set-detail-base__base-translation"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_labels %}
+    <sw-custom-field-translated-labels
+        v-if="set.config"
+        v-model="set.config"
+        :disabled="!acl.can('custom_field.editor')"
+        :property-names="propertyNames"
+        :locales="locales"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_multi_select %}
+    <sw-multi-select
+        id="entities"
+        class="sw-settings-custom-field-set-detail-base__label-entities"
+        :disabled="!acl.can('custom_field.editor')"
+        :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
+        :options="relationEntityNames"
+        value-property="entityName"
+        label-property="entityName"
+        :value="selectedRelationEntityNames"
+        :search-function="searchRelationEntityNames"
+        @item-add="onAddRelation"
+        @item-remove="onRemoveRelation"
+    >
+
+        <template #result-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
+
+        <template #selection-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
+
+    </sw-multi-select>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_custom_field_set_detail_base_entities %}
+    {% endblock %}
+</sw-card>
+{% endblock %}

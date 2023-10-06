@@ -1,9 +1,13 @@
 import template from './sw-cms-el-product-slider.html.twig';
 import './sw-cms-el-product-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-cms-el-product-slider', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['feature'],
@@ -147,4 +151,4 @@ Component.register('sw-cms-el-product-slider', {
             };
         },
     },
-});
+};

@@ -3,22 +3,26 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
+ */
+#[Package('core')]
 class BucketResult extends AggregationResult
 {
     /**
-     * @var Bucket[]
+     * @param list<Bucket> $buckets
      */
-    protected $buckets;
-
-    public function __construct(string $name, array $buckets)
-    {
+    public function __construct(
+        string $name,
+        protected array $buckets
+    ) {
         parent::__construct($name);
-        $this->buckets = $buckets;
     }
 
     /**
-     * @return Bucket[]
+     * @return list<Bucket>
      */
     public function getBuckets(): array
     {
@@ -30,6 +34,9 @@ class BucketResult extends AggregationResult
         usort($this->buckets, $closure);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getKeys(): array
     {
         $keys = [];
@@ -37,7 +44,7 @@ class BucketResult extends AggregationResult
             $keys[] = $bucket->getKey();
         }
 
-        return $keys;
+        return array_values(array_filter($keys));
     }
 
     public function has(?string $key): bool

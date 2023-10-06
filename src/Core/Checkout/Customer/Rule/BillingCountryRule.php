@@ -3,30 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Shopware\Core\System\Country\CountryDefinition;
 
+#[Package('services-settings')]
 class BillingCountryRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $countryIds;
+    final public const RULE_NAME = 'customerBillingCountry';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $countryIds
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $countryIds = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->countryIds = $countryIds;
     }
 
     public function match(RuleScope $scope): bool
@@ -34,48 +33,49 @@ class BillingCountryRule extends Rule
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
-
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $id = $customer->getActiveBillingAddress()->getCountry()->getId();
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return $id !== null && \in_array($id, $this->countryIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($id, $this->countryIds, true);
-
-            case self::OPERATOR_EMPTY:
-                return empty($id);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if (!$address = $customer->getActiveBillingAddress()) {
+            return RuleComparison::isNegativeOperator($this->operator);
         }
+
+        if (!$country = $address->getCountry()) {
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        $countryId = $country->getId();
+        $parameter = [$countryId];
+        if ($countryId === '') {
+            $parameter = [];
+        }
+
+        return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['countryIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerBillingCountry';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('countryIds', CountryDefinition::ENTITY_NAME, true);
     }
 }

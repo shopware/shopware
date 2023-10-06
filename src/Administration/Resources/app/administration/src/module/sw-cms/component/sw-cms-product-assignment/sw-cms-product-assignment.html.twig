@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_many_to_many_assignment_card %}
 <div
     class="sw-cms-product-assignment"
     v-bind="$attrs"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_product_assignment_content %}
     <div class="sw-cms-product-assignment__select-container">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_product_assignment_select %}
         <slot name="select">
             <sw-select-base
@@ -20,6 +23,7 @@
             >
 
                 <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_product_assignment_search_field %}
                     <input
                         ref="searchInput"
@@ -33,6 +37,7 @@
                 </template>
 
                 <template #results-list>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_product_assignment_results_list %}
                     <sw-select-result-list
                         ref="swSelectResultList"
@@ -44,30 +49,35 @@
                         @item-select="onItemSelect"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_product_assignment_results_list_before %}
                         <template #before-item-list>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_product_assignment_results_list_before_content %}
                             <slot name="before-item-list"></slot>
                         {% endblock %}
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_product_assignment_results_list_result %}
                         <template #result-item="{ item, index }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_product_assignment_results_list_result_content %}
                             <slot
                                 name="result-item"
                                 v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }"
                             >
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_product_assignment_results_list_list_item %}
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     :selected="isSelected(item)"
                                     v-bind="{ item, index }"
                                     @item-select="onItemSelect"
                                 >
 
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_product_assignment_results_list_list_item_label %}
                                     <slot
                                         name="result-label-property"
@@ -85,15 +95,17 @@
                                         </template>
                                     </slot>
                                 {% endblock %}
-                                </li>
+                                </sw-select-result>
                             {% endblock %}
                             </slot>
                         {% endblock %}
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_product_assignment_results_list_after %}
                         <template #after-item-list>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_product_assignment_results_list_after_content %}
                             <slot name="after-item-list"></slot>
                         {% endblock %}
@@ -108,6 +120,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_product_assignment_grid %}
     <sw-data-grid
         class="sw-cms-product-assignment__grid"
@@ -119,11 +132,13 @@
         :plain-appearance="true"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_product_assignment_grid_column %}
         <template
             v-for="column in columns"
             #[`column-${column.property}`]="columnProps"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_product_assignment_grid_column_content %}
             <slot
                 :name="`column-${column.property}`"
@@ -133,8 +148,10 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_product_assignment_grid_column_actions %}
         <template #actions="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_product_assignment_grid_column_actions_content %}
             <sw-context-menu-item
                 variant="danger"
@@ -147,8 +164,10 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_product_assignment_grid_footer %}
         <template #pagination>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_product_assignment_grid_footer_content %}
             <sw-pagination
                 v-if="total > 0"

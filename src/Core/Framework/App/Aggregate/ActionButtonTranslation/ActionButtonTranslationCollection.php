@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method void                                 add(ActionButtonTranslationEntity $entity)
- * @method void                                 set(string $key, ActionButtonTranslationEntity $entity)
- * @method \Generator<AppTranslationEntity>     getIterator()
- * @method array<ActionButtonTranslationEntity> getElements()
- * @method ActionButtonTranslationEntity|null   get(string $key)
- * @method ActionButtonTranslationEntity|null   first()
- * @method ActionButtonTranslationEntity|null   last()
+ * @extends EntityCollection<ActionButtonTranslationEntity>
  */
+#[Package('core')]
 class ActionButtonTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

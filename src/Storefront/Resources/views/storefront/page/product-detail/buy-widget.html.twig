@@ -4,7 +4,7 @@
             {% block page_product_detail_rich_snippets_brand %}
                 {% if page.product.manufacturer %}
                     <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
-                        <meta itemprop="name" content="{{ page.product.manufacturer.translated.name }}" />
+                        <meta itemprop="name" content="{{ page.product.manufacturer.translated.name }}">
                     </div>
                 {% endif %}
             {% endblock %}
@@ -12,56 +12,50 @@
             {% block page_product_detail_rich_snippets_gtin13 %}
                 {% if page.product.ean %}
                     <meta itemprop="gtin13"
-                          content="{{ page.product.ean }}"/>
+                          content="{{ page.product.ean }}">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_mpn %}
                 {% if page.product.manufacturerNumber %}
                     <meta itemprop="mpn"
-                          content="{{ page.product.manufacturerNumber }}"/>
+                          content="{{ page.product.manufacturerNumber }}">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_weight %}
                 {% if page.product.weight %}
                     <meta itemprop="weight"
-                          content="{{ page.product.weight }} kg"/>
+                          content="{{ page.product.weight }} kg">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_height %}
                 {% if page.product.height %}
                     <meta itemprop="height"
-                          content="{{ page.product.height }} mm"/>
+                          content="{{ page.product.height }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_width %}
                 {% if page.product.width %}
                     <meta itemprop="width"
-                          content="{{ page.product.width }} mm"/>
+                          content="{{ page.product.width }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_depth %}
                 {% if page.product.length %}
                     <meta itemprop="depth"
-                          content="{{ page.product.length }} mm"/>
+                          content="{{ page.product.length }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block page_product_detail_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ page.product.releaseDate|format_date(pattern="Y-MM-dd", locale=app.request.locale) }}"/>
+                      content="{{ page.product.releaseDate|format_date(pattern='Y-MM-dd') }}">
             {% endblock %}
         {% endblock %}
-
-        {% if not feature('FEATURE_NEXT_16992') %}
-            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
-            {% block page_product_detail_not_available %}
-            {% endblock %}
-        {% endif %}
 
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"
@@ -70,7 +64,7 @@
                 {% block page_product_detail_data %}
                     {% block page_product_detail_data_rich_snippet_url %}
                         <meta itemprop="url"
-                              content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
+                              content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}">
                     {% endblock %}
 
                     {% block page_product_detail_data_rich_snippet_price_range %}
@@ -87,15 +81,15 @@
                                 {% endif %}
                             {% endfor %}
 
-                            <meta itemprop="lowPrice" content="{{ lowestPrice }}"/>
-                            <meta itemprop="highPrice" content="{{ highestPrice }}"/>
-                            <meta itemprop="offerCount" content="{{ page.product.calculatedPrices|length }}"/>
+                            <meta itemprop="lowPrice" content="{{ lowestPrice }}">
+                            <meta itemprop="highPrice" content="{{ highestPrice }}">
+                            <meta itemprop="offerCount" content="{{ page.product.calculatedPrices|length }}">
                         {% endif %}
                     {% endblock %}
 
                     {% block page_product_detail_data_rich_snippet_price_currency %}
                         <meta itemprop="priceCurrency"
-                              content="{{ context.currency.translated.shortName }}"/>
+                              content="{{ context.currency.translated.shortName }}">
                     {% endblock %}
 
                     {% block page_product_detail_price %}
@@ -115,10 +109,10 @@
                             <p class="product-detail-tax">
                                 {% block page_product_detail_tax_link %}
                                     <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                                       href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-toggle="modal"
-                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                                       data-ajax-modal="true"
+                                       data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
                                 {% endblock %}
@@ -139,13 +133,20 @@
                                     points: page.product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a data-toggle="tab"
-                                   class="product-detail-reviews-link"
-                                   data-offcanvas-tabs="true"
-                                   data-remote-click="true"
-                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="#review-tab-pane"
-                                   aria-controls="review-tab-pane">
+                                <a
+                                    data-bs-toggle="tab"
+                                    class="product-detail-reviews-link"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    data-remote-click="true"
+                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    href="#review-tab-pane"
+                                    aria-controls="review-tab-pane"
+                                >
                                     {{ page.reviews.totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
                                 </a>
@@ -199,7 +200,7 @@
 
                     {% block page_product_detail_ordernumber %}
                         <meta itemprop="productID"
-                              content="{{ page.product.id }}"/>
+                              content="{{ page.product.id }}">
                         <span class="product-detail-ordernumber"
                               itemprop="sku">
                             {{ page.product.productNumber }}

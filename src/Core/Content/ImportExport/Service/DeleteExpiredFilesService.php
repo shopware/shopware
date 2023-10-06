@@ -3,23 +3,19 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal We might break this in v6.2
  */
+#[Package('services-settings')]
 class DeleteExpiredFilesService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $fileRepository;
-
-    public function __construct(EntityRepositoryInterface $fileRepository)
+    public function __construct(private readonly EntityRepository $fileRepository)
     {
-        $this->fileRepository = $fileRepository;
     }
 
     public function countFiles(Context $context): int
@@ -36,9 +32,7 @@ class DeleteExpiredFilesService
         $criteria = $this->buildCriteria();
 
         $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(function ($id) {
-            return ['id' => $id];
-        }, $ids);
+        $ids = array_map(fn ($id) => ['id' => $id], $ids);
         $this->fileRepository->delete($ids, $context);
     }
 

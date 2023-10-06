@@ -4,6 +4,9 @@ import './sw-radio-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description radio input field.
  * @status ready
@@ -23,6 +26,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-radio-field', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -91,6 +96,12 @@ Component.register('sw-radio-field', {
 
             if (this.options[selectedIndex] === undefined) {
                 console.warn(`Selected index "${this.value}" does not exists in given options`);
+            }
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.options[selectedIndex].value);
+
+                return;
             }
 
             this.$emit('change', this.options[selectedIndex].value);

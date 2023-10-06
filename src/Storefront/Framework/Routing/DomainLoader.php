@@ -5,18 +5,20 @@ namespace Shopware\Storefront\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ */
+#[Package('storefront')]
 class DomainLoader extends AbstractDomainLoader
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractDomainLoader
@@ -24,13 +26,16 @@ class DomainLoader extends AbstractDomainLoader
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return array<string, Domain>
+     */
     public function load(): array
     {
         $query = $this->connection->createQueryBuilder();
 
         $query->select([
-            "CONCAT(TRIM(TRAILING '/' FROM domain.url), '/') `key`",
-            "CONCAT(TRIM(TRAILING '/' FROM domain.url), '/') url",
+            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') `key`',
+            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') url',
             'LOWER(HEX(domain.id)) id',
             'LOWER(HEX(sales_channel.id)) salesChannelId',
             'LOWER(HEX(sales_channel.type_id)) typeId',
@@ -55,6 +60,9 @@ class DomainLoader extends AbstractDomainLoader
         $query->andWhere('sales_channel.active');
         $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
-        return FetchModeHelper::groupUnique($query->execute()->fetchAll());
+        /** @var array<string, Domain> $domains */
+        $domains = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
+
+        return $domains;
     }
 }

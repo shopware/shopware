@@ -1,10 +1,14 @@
 import template from './sw-settings-shipping-tax-cost.html.twig';
 
 const { Criteria } = Shopware.Data;
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-shipping-tax-cost', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -54,10 +58,19 @@ Component.register('sw-settings-shipping-tax-cost', {
         },
 
         taxCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('position'));
 
             return criteria;
+        },
+
+        taxType: {
+            get() {
+                return this.shippingMethod.taxType || 'auto';
+            },
+            set(taxType) {
+                this.shippingMethod.taxType = taxType;
+            },
         },
     },
 
@@ -82,4 +95,4 @@ Component.register('sw-settings-shipping-tax-cost', {
             return tax.name;
         },
     },
-});
+};

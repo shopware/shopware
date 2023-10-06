@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_indicators %}
 <div class="sw-import-export-edit-profile-indicators">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_indicators_headline %}
     <h3>{{ $tc('sw-import-export.profile.indicatorHeadline') }}</h3>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_indicators_text %}
     <p class="sw-import-export-edit-profile-indicators__text">
         {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
@@ -15,9 +18,14 @@
         columns="repeat(2, 1fr)"
         gap="0 32px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_indicators_separator_field %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="profile.delimiter"
+            {% else %}
             v-model="profile.delimiter"
+            {% endif %}
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__separator-select"
@@ -28,9 +36,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_indicators_enclosure_field %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="profile.enclosure"
+            {% else %}
             v-model="profile.enclosure"
+            {% endif %}
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__enclosure-select"

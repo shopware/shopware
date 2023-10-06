@@ -1,8 +1,14 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-config.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-sales-channel-config', {
     template,
 
@@ -24,7 +30,7 @@ Component.register('sw-sales-channel-config', {
             type: Object,
             required: false,
             default: () => {
-                return new Criteria();
+                return new Criteria(1, 25);
             },
         },
     },

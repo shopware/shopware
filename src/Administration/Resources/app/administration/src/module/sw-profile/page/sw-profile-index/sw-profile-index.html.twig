@@ -1,18 +1,22 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_profile_index %}
 <sw-page class="sw-profile-index">
     <template #smart-bar-back>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_smart_bar_back %}
         <span></span>
         {% endblock %}
     </template>
 
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_headline %}
         <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
         {% endblock %}
     </template>
 
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_actions %}
         <sw-button-process
             class="sw-profile__save-action"
@@ -20,7 +24,11 @@
             :is-loading="isLoading || isUserLoading"
             :process-success="isSaveSuccessful"
             :disabled="isLoading || isUserLoading || !acl.can('user.update_profile')"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-profile.index.buttonSaveLabel') }}
@@ -30,10 +38,12 @@
 
     <template #content>
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_tabs %}
             <sw-tabs
                 position-identifier="sw-profile-index"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_profile_index_tabs_item_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.general' }"
@@ -43,6 +53,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_profile_index_tabs_item_search_preferences %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.searchPreferences' }"
@@ -54,6 +65,7 @@
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_router_view %}
             <template v-if="isUserLoading">
                 <sw-skeleton />
@@ -81,102 +93,39 @@
                 @media-open="openMediaModal"
             />
             {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-profile-index-general #}
-            {% block sw_profile_index_content %}
-            {% block sw_profile_index_info_card %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_first_name_field %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_last_name_field %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_username_field %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_language %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_email_field %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_info_card_timezone_field %}
-            {% endblock %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_image_card %}
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_image_card_image %}
-            {% endblock %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_password_card %}
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_password_card_new_password_field %}
-            {% endblock %}
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_profile_index_password_card_confirm_new_password_field %}
-            {% endblock %}
-            {% endblock %}
-            {% endblock %}
         </sw-card-view>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_content_confirm_password_modal %}
-        <sw-modal
+        <sw-verify-user-modal
             v-if="confirmPasswordModal"
-            :title="$tc('sw-profile.index.titleConfirmPasswordModal')"
-            variant="small"
-            @modal-close="onCloseConfirmPasswordModal"
-        >
-            {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
-            <sw-password-field
-                v-model="confirmPassword"
-                class="sw-settings-user-detail__confirm-password"
-                required
-                name="sw-field--confirm-password"
-                :password-toggle-able="true"
-                :copy-able="false"
-                :label="$tc('sw-profile.index.labelConfirmPassword')"
-                :placeholder="$tc('sw-profile.index.placeholderConfirmPassword')"
-                @keypress.enter="onSubmitConfirmPassword"
-            />
-            {% endblock %}
+            @verified="onVerifyPasswordFinished"
+            @close="onCloseConfirmPasswordModal"
+        />
 
-            {% block sw_profile_index_content_confirm_password_modal_footer %}
-            <template #modal-footer>
-                {% block sw_profile_index_content_confirm_password_modal_actions_cancel %}
-                <sw-button
-                    size="small"
-                    @click="onCloseConfirmPasswordModal"
-                >
-                    {{ $tc('sw-profile.index.labelButtonCancel') }}
-                </sw-button>
-                {% endblock %}
-
-                {% block sw_profile_index_content_confirm_password_modal_actions_change %}
-                <sw-button
-                    variant="primary"
-                    :disabled="!confirmPassword"
-                    size="small"
-                    @click="onSubmitConfirmPassword"
-                >
-                    {{ $tc('sw-profile.index.labelButtonConfirm') }}
-                </sw-button>
-                {% endblock %}
-            </template>
-            {% endblock %}
-        </sw-modal>
+        {# @deprecated tag:v6.6.0 - will be removed #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
         {% endblock %}
 
+        {# @deprecated tag:v6.6.0 - will be removed #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_profile_index_content_confirm_password_modal_footer %}
+        {% endblock %}
+
+        {# @deprecated tag:v6.6.0 - will be removed #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_profile_index_content_confirm_password_modal_actions_cancel %}
+        {% endblock %}
+
+        {# @deprecated tag:v6.6.0 - will be removed #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_profile_index_content_confirm_password_modal_actions_change %}
+        {% endblock %}
+
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_media_upload_actions_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"
@@ -188,9 +137,5 @@
         />
         {% endblock %}
     </template>
-
-    {# @deprecated tag:v6.5.0 - Will be removed, use `sw-media-modal-v2` instead #}
-    {% block sw_profile_index_sidebar %}
-    {% endblock %}
 </sw-page>
 {% endblock %}

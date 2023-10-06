@@ -1,7 +1,7 @@
 {
   "sw-settings-cache": {
     "general": {
-      "mainMenuItemGeneral": "Caches & Indexes"
+      "mainMenuItemGeneral": "Caches & indexes"
     },
     "toolbar": {
       "environment": "Environment",
@@ -31,7 +31,7 @@
         "error": "Unable to clear caches ."
       },
       "clearCacheAndWarmup": {
-        "started": "Caches cleared - Now warming up. Hint: Watch notifications to keep track of the progress.",
+        "started": "Caches cleared. Now warming up. Hint: Watch the notifications to keep track of the progress.",
         "success": "Warmup completed."
       },
       "index": {
@@ -40,7 +40,7 @@
       }
     },
     "modal": {
-      "title": "Clear Caches",
+      "title": "Clear caches",
       "message": "Are you sure you want to clear all caches?",
       "actions": {
         "cancel": "Cancel",

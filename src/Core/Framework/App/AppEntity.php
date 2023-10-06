@@ -5,24 +5,31 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
- * @internal
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
  */
+#[Package('core')]
 class AppEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -65,24 +72,31 @@ class AppEntity extends Entity
     protected $version;
 
     /**
-     * @internal (flag:FEATURE_NEXT_17950)
+     * @var bool
      */
+    protected $allowDisable;
+
     protected ?string $baseAppUrl = null;
 
     /**
-     * @var array
+     * @var list<Module>
      */
-    protected $modules;
+    protected array $modules;
 
     /**
-     * @var array|null
+     * @var Module|null
      */
-    protected $mainModule;
+    protected ?array $mainModule = null;
 
     /**
-     * @var array
+     * @var list<Cookie>
      */
-    protected $cookies;
+    protected array $cookies;
+
+    /**
+     * @var list<string>|null
+     */
+    protected ?array $allowedHosts = null;
 
     /**
      * @internal
@@ -183,12 +197,36 @@ class AppEntity extends Entity
      */
     protected $paymentMethods;
 
+    protected ?TaxProviderCollection $taxProviders = null;
+
+    /**
+     * @internal
+     *
+     * @var AppScriptConditionCollection|null
+     */
+    protected $scriptConditions;
+
     /**
      * @internal
      *
      * @var AppCmsBlockCollection|null
      */
     protected $cmsBlocks;
+
+    /**
+     * @var AppFlowActionCollection|null
+     */
+    protected $flowActions;
+
+    /**
+     * @var AppFlowEventCollection|null
+     */
+    protected $flowEvents;
+
+    /**
+     * @var int
+     */
+    protected $templateLoadPriority;
 
     public function getId(): string
     {
@@ -273,50 +311,78 @@ class AppEntity extends Entity
         $this->version = $version;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     public function getBaseAppUrl(): ?string
     {
         return $this->baseAppUrl;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     public function setBaseAppUrl(?string $baseAppUrl): void
     {
         $this->baseAppUrl = $baseAppUrl;
     }
 
+    /**
+     * @return list<Module>
+     */
     public function getModules(): array
     {
         return $this->modules;
     }
 
+    /**
+     * @param list<Module> $modules
+     */
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
     }
 
+    /**
+     * @return Module|null
+     */
     public function getMainModule(): ?array
     {
         return $this->mainModule;
     }
 
+    /**
+     * @param Module $mainModule
+     */
     public function setMainModule(array $mainModule): void
     {
         $this->mainModule = $mainModule;
     }
 
+    /**
+     * @return list<Cookie>
+     */
     public function getCookies(): array
     {
         return $this->cookies;
     }
 
+    /**
+     * @param list<Cookie> $cookies
+     */
     public function setCookies(array $cookies): void
     {
         $this->cookies = $cookies;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getAllowedHosts(): ?array
+    {
+        return $this->allowedHosts;
+    }
+
+    /**
+     * @param list<string>|null $allowedHosts
+     */
+    public function setAllowedHosts(?array $allowedHosts): void
+    {
+        $this->allowedHosts = $allowedHosts;
     }
 
     /**
@@ -533,6 +599,34 @@ class AppEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
+    public function getTaxProviders(): ?TaxProviderCollection
+    {
+        return $this->taxProviders;
+    }
+
+    public function setTaxProviders(TaxProviderCollection $taxProviders): void
+    {
+        $this->taxProviders = $taxProviders;
+    }
+
+    /**
+     * @internal
+     */
+    public function getScriptConditions(): ?AppScriptConditionCollection
+    {
+        $this->checkIfPropertyAccessIsAllowed('scriptConditions');
+
+        return $this->scriptConditions;
+    }
+
+    /**
+     * @internal
+     */
+    public function setScriptConditions(AppScriptConditionCollection $scriptConditions): void
+    {
+        $this->scriptConditions = $scriptConditions;
+    }
+
     /**
      * @internal
      */
@@ -549,11 +643,54 @@ class AppEntity extends Entity
         $this->cmsBlocks = $cmsBlocks;
     }
 
+    public function getFlowActions(): ?AppFlowActionCollection
+    {
+        return $this->flowActions;
+    }
+
+    public function setFlowActions(AppFlowActionCollection $flowActions): void
+    {
+        $this->flowActions = $flowActions;
+    }
+
+    public function getFlowEvents(): ?AppFlowEventCollection
+    {
+        return $this->flowEvents;
+    }
+
+    public function setFlowEvents(AppFlowEventCollection $flowEvents): void
+    {
+        $this->flowEvents = $flowEvents;
+    }
+
     public function jsonSerialize(): array
     {
         $serializedData = parent::jsonSerialize();
         unset($serializedData['iconRaw']);
 
         return $serializedData;
+    }
+
+    public function getAllowDisable(): bool
+    {
+        return $this->allowDisable;
+    }
+
+    public function setAllowDisable(bool $allowDisable): void
+    {
+        $this->allowDisable = $allowDisable;
+    }
+
+    public function getTemplateLoadPriority(): int
+    {
+        return $this->templateLoadPriority;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function setTemplateLoadPriority(int $templateLoadPriority): void
+    {
+        $this->templateLoadPriority = $templateLoadPriority;
     }
 }

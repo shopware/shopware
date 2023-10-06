@@ -27,7 +27,7 @@
                                 {% block page_account_orders_table %}
                                     {% block page_account_orders_table_body %}
                                         {% for order in page.orders %}
-                                            <div class="table order-table"
+                                            <div class="order-table"
                                                  data-order-detail-loader="true">
                                                 {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
                                             </div>
@@ -54,15 +54,10 @@
                                               method="post"
                                               data-form-ajax-submit="true"
                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-
-                                            {% block page_account_orders_paging_csrf %}
-                                                {{ sw_csrf('frontend.account.order.page') }}
-                                            {% endblock %}
-
                                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                                 entities: page.orders,
                                                 criteria: criteria
-                                            }  %}
+                                            } %}
                                         </form>
                                     </div>
                                 {% endblock %}
@@ -73,4 +68,10 @@
             {% endblock %}
         </div>
     {% endblock %}
+{% endblock %}
+
+{% block base_footer_inner %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' with {
+        showVatNotice: false
+    } %}
 {% endblock %}

@@ -1,6 +1,18 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-product-heading', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-product-heading', () => import('./component'));
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-heading',
     label: 'sw-cms.blocks.commerce.productHeading.label',

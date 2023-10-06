@@ -1,8 +1,13 @@
+/**
+ * @package services-settings
+ */
+
 import template from './sw-settings-sitemap.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-sitemap', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -46,4 +51,4 @@ Component.register('sw-settings-sitemap', {
             this.isLoading = loading;
         },
     },
-});
+};

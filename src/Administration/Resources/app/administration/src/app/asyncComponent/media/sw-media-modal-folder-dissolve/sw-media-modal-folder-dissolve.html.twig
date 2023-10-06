@@ -1,0 +1,44 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_modal_folder_dissolve %}
+<sw-modal
+    variant="small"
+    class="sw-media-modal-folder-dissolve"
+    :title="$tc('global.default.warning')"
+    @modal-close="closeDissolveModal"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_modal_folder_dissolve_body %}
+    {{ $tc('global.sw-media-modal-folder-dissolve.dissolveMessage', itemsToDissolve.length, { folderName: itemsToDissolve[0].name, count: itemsToDissolve.length }) }}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_modal_folder_dissolve_footer %}
+    <template #modal-footer>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_modal_folder_dissolve__cancel_button %}
+        <sw-button
+            size="small"
+            @click="closeDissolveModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_modal_folder_dissolve_confirm_button %}
+        <sw-button
+            class="sw-media-modal-folder-dissolve__confirm"
+            size="small"
+            variant="danger"
+            @click="dissolveSelection"
+        >
+            {{ $tc('global.sw-media-modal-folder-dissolve.buttonDissolve') }}
+        </sw-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

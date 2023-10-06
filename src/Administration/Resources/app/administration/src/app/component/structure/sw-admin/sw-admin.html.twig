@@ -1,5 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin %}
-<div id="app">
+<!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+<div
+    id="app"
+    @mousemove="onUserActivity"
+    @keyup="onUserActivity"
+>
     <sw-notifications ref="notifications" />
     <sw-duplicated-media-v2 v-if="isLoggedIn" />
     <router-view />
@@ -7,5 +13,6 @@
     <sw-license-violation />
     <sw-hidden-iframes />
     <sw-modals-renderer />
+    <sw-app-wrong-app-url-modal v-if="isLoggedIn" />
 </div>
 {% endblock %}

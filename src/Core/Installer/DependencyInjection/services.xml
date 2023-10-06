@@ -1,0 +1,211 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="shopware.installer.supportedLanguages" type="collection">
+            <parameter key="de">de-DE</parameter>
+            <parameter key="en">en-GB</parameter>
+            <parameter key="us">en-US</parameter>
+            <parameter key="cs">cs-CZ</parameter>
+            <parameter key="es">es-ES</parameter>
+            <parameter key="fr">fr-FR</parameter>
+            <parameter key="it">it-IT</parameter>
+            <parameter key="nl">nl-NL</parameter>
+            <parameter key="pl">pl-PL</parameter>
+            <parameter key="pt">pt-PT</parameter>
+            <parameter key="sv">sv-SE</parameter>
+            <parameter key="da">da-DK</parameter>
+            <parameter key="nb">nb-NO</parameter>
+        </parameter>
+
+        <parameter key="shopware.installer.supportedCurrencies" type="collection">
+            <parameter>EUR</parameter>
+            <parameter>USD</parameter>
+            <parameter>GBP</parameter>
+            <parameter>PLN</parameter>
+            <parameter>CHF</parameter>
+            <parameter>SEK</parameter>
+            <parameter>DKK</parameter>
+            <parameter>NOK</parameter>
+            <parameter>CZK</parameter>
+        </parameter>
+
+        <parameter key="shopware.installer.tosUrls" type="collection">
+            <parameter key="de">https://api.shopware.com/gtc/de_DE.html</parameter>
+            <parameter key="en">https://api.shopware.com/gtc/en_GB.html</parameter>
+        </parameter>
+    </parameters>
+    <services>
+        <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument></argument>
+            </argument>
+            <argument type="service" id="shopware.asset.version_strategy"/>
+            <tag name="assets.package" package="asset"/>
+        </service>
+
+        <service id="shopware.asset.version_strategy" class="Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy"/>
+
+        <service id="Shopware\Core\Installer\Subscriber\InstallerLocaleListener">
+            <argument>%shopware.installer.supportedLanguages%</argument>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Composer\Repository\PlatformRepository"/>
+
+        <service id="Composer\Composer">
+            <factory class="Shopware\Core\Framework\Plugin\Composer\Factory" method="createComposer"/>
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+
+        <service id="Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator">
+            <argument type="service" id="Composer\Composer"/>
+            <argument type="service" id="Composer\Repository\PlatformRepository"/>
+
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Requirements\FilesystemRequirementsValidator">
+            <argument type="string">%kernel.project_dir%</argument>
+
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator">
+            <argument type="service" id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
+
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+
+        <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
+
+        <service id="Shopware\Core\Installer\License\LicenseFetcher">
+            <argument type="service" id="shopware.installer.guzzle"/>
+            <argument>%shopware.installer.tosUrls%</argument>
+
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
+            <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="string">%kernel.project_dir%</argument>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\LicenseController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\License\LicenseFetcher"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\DatabaseConfigurationController" public="true">
+            <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="string">%kernel.project_dir%</argument>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\DatabaseImportController" public="true">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\DatabaseMigrator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\ShopConfigurationController" public="true">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="service" id="Shopware\Core\Installer\Configuration\EnvConfigWriter"/>
+            <argument type="service" id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
+            <argument type="service" id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
+            <argument type="service" id="translator"/>
+            <argument>%shopware.installer.supportedLanguages%</argument>
+            <argument>%shopware.installer.supportedCurrencies%</argument>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\FinishController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
+            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
+            <argument type="service" id="GuzzleHttp\Client"/>
+            <argument>%env(string:APP_URL)%</argument>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+
+        <service id="Shopware\Core\Installer\Database\DatabaseMigrator">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\MigrationCollectionFactory"/>
+            <argument type="string">%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Database\MigrationCollectionFactory">
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Configuration\EnvConfigWriter">
+            <argument type="string">%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
+
+        <service id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
+
+        <service id="Shopware\Core\Installer\Finish\SystemLocker">
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Finish\Notifier">
+            <argument type="string">https://api.shopware.com</argument>
+            <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
+            <argument type="service" id="GuzzleHttp\Client"/>
+            <argument type="string">%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Finish\UniqueIdGenerator">
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+        <service id="GuzzleHttp\Client"/>
+    </services>
+</container>

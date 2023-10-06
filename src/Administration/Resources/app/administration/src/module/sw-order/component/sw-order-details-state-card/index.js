@@ -1,10 +1,14 @@
 import template from './sw-order-details-state-card.html.twig';
 import './sw-order-details-state-card.scss';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
+
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-details-state-card', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -239,4 +243,4 @@ Component.register('sw-order-details-state-card', {
         },
     },
 
-});
+};

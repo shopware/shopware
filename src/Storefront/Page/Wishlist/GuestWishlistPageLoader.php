@@ -2,29 +2,25 @@
 
 namespace Shopware\Storefront\Page\Wishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class GuestWishlistPageLoader
 {
     /**
-     * @var EventDispatcherInterface
+     * @internal
      */
-    private $eventDispatcher;
-
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericPageLoader;
-
     public function __construct(
-        GenericPageLoaderInterface $genericPageLoader,
-        EventDispatcherInterface $eventDispatcher
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericPageLoader = $genericPageLoader;
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPage

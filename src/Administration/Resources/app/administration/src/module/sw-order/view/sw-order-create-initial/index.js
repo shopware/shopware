@@ -1,11 +1,30 @@
 import template from './sw-order-create-initial.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-order-create-initial', {
+const { State } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            const { customer } = this.$route.params;
+
+            if (!customer) {
+                return;
+            }
+
+            State.commit('swOrder/setCustomer', customer);
+        },
+
         onCloseCreateModal() {
             this.$nextTick(() => {
                 this.$router.push({ name: 'sw.order.index' });
@@ -18,4 +37,4 @@ Component.register('sw-order-create-initial', {
             });
         },
     },
-});
+};

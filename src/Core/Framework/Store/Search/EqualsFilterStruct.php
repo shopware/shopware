@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Search;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('services-settings')]
 class EqualsFilterStruct extends FilterStruct
 {
     /**

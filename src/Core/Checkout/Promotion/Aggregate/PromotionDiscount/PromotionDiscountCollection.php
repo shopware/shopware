@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                         add(PromotionDiscountEntity $entity)
- * @method void                         set(string $key, PromotionDiscountEntity $entity)
- * @method PromotionDiscountEntity[]    getIterator()
- * @method PromotionDiscountEntity[]    getElements()
- * @method PromotionDiscountEntity|null get(string $key)
- * @method PromotionDiscountEntity|null first()
- * @method PromotionDiscountEntity|null last()
+ * @extends EntityCollection<PromotionDiscountEntity>
  */
+#[Package('buyers-experience')]
 class PromotionDiscountCollection extends EntityCollection
 {
     public function getApiAlias(): string

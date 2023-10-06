@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_clone_modal %}
 <sw-modal
     v-if="cloningVariants"
@@ -6,12 +7,14 @@
     variant="small"
     class="clone-variant__modal"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_clone_modal_description %}
     <div class="clone-variant__description">
         {{ $tc('sw-product.general.cloneNotice') }}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_clone_modal_progress_bar %}
     <sw-progress-bar
         class="clone-variant-progress-bar"
@@ -19,6 +22,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_clone_modal_progress_bar_description %}
     <div class="clone-variant-progress-bar__description">
         {{ cloneProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ cloneMaxProgress }} {{ $tc('sw-product.general.cloneSuffix') }}

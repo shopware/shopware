@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -15,15 +15,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ProductExportControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -36,26 +36,32 @@ class ProductExportControllerTest extends TestCase
 
         $url = '/api/_action/product-export/validate';
 
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.name }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
         $this->getBrowser()->request(
             'POST',
             $url,
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
-                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'headerTemplate' => '',
-                'bodyTemplate' => '{{ product.name }}',
-                'footerTemplate' => '',
-                'includeVariants' => false,
-                'encoding' => 'UTF-8',
-                'fileFormat' => 'CSV',
-                'fileName' => 'test.csv',
-                'accessKey' => 'test',
-                'currencyId' => Defaults::CURRENCY,
-            ])
+            $content
         );
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
@@ -67,26 +73,32 @@ class ProductExportControllerTest extends TestCase
 
         $url = '/api/_action/product-export/validate';
 
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.name }', // Missing closing curly brace
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
         $this->getBrowser()->request(
             'POST',
             $url,
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
-                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'headerTemplate' => '',
-                'bodyTemplate' => '{{ product.name }', // Missing closing curly brace
-                'footerTemplate' => '',
-                'includeVariants' => false,
-                'encoding' => 'UTF-8',
-                'fileFormat' => 'CSV',
-                'fileName' => 'test.csv',
-                'accessKey' => 'test',
-                'currencyId' => Defaults::CURRENCY,
-            ])
+            $content
         );
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
@@ -96,35 +108,172 @@ class ProductExportControllerTest extends TestCase
     {
         $url = '/api/_action/product-export/validate';
 
+        $content = json_encode([
+            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelDomainId' => Uuid::randomHex(),
+            'productStreamId' => '',
+            'headerTemplate' => '',
+            'bodyTemplate' => '',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
         $this->getBrowser()->request(
             'POST',
             $url,
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'salesChannelId' => Uuid::randomHex(),
-                'salesChannelDomainId' => Uuid::randomHex(),
-                'productStreamId' => '',
-                'headerTemplate' => '',
-                'bodyTemplate' => '',
-                'footerTemplate' => '',
-                'includeVariants' => false,
-                'encoding' => 'UTF-8',
-                'fileFormat' => 'CSV',
-                'fileName' => 'test.csv',
-                'accessKey' => 'test',
-                'currencyId' => Defaults::CURRENCY,
-            ])
+            $content
         );
 
+        $browserResponseContent = $this->getBrowser()->getResponse()->getContent();
+
+        if (!$browserResponseContent) {
+            $browserResponseContent = '';
+        }
+
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $this->getBrowser()->getResponse()->getContent());
+        static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $browserResponseContent);
+    }
+
+    public function testPreview(): void
+    {
+        $this->createProductStream();
+
+        $url = '/api/_action/product-export/preview';
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.salesChannelId }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            $url,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testPreviewFalseDomain(): void
+    {
+        $this->createProductStream();
+
+        $url = '/api/_action/product-export/preview';
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => Uuid::randomHex(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.salesChannelId }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            $url,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        $browserResponseContent = $this->getBrowser()->getResponse()->getContent();
+
+        if (!$browserResponseContent) {
+            $browserResponseContent = '';
+        }
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $browserResponseContent);
+    }
+
+    public function testPreviewFalseSalesChannel(): void
+    {
+        $this->createProductStream();
+
+        $url = '/api/_action/product-export/preview';
+
+        $content = json_encode([
+            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.salesChannelId }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            $url,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        $browserResponseContent = $this->getBrowser()->getResponse()->getContent();
+
+        if (!$browserResponseContent) {
+            $browserResponseContent = '';
+        }
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_NOT_FOUND', $browserResponseContent);
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();
@@ -141,13 +290,13 @@ class ProductExportControllerTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
         ");
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
@@ -162,6 +311,9 @@ class ProductExportControllerTest extends TestCase
     ");
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

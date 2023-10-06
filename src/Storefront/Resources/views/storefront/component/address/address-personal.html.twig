@@ -2,7 +2,7 @@
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
         {% if onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect) %}
-            <div class="form-row">
+            <div class="row g-2">
                 <div class="form-group col-md-3 col-sm-6 contact-type">
                     {% block component_address_personal_account_type_label %}
                         <label class="form-label"
@@ -17,7 +17,7 @@
                                     id="{{ idPrefix ~ prefix }}accountType"
                                     {% if onlyCompanyRegistration %}disabled{% endif %}
                                     required="required"
-                                    class="custom-select contact-select"
+                                    class="form-select contact-select"
                                     data-form-field-toggle="true"
                                     data-form-field-toggle-target=".js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %}"
                                     data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
@@ -29,11 +29,11 @@
                             {% set isCompany = false %}
 
                             {% if page.address.company or data.company is not empty %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% set isLoginPage = false %}
@@ -45,7 +45,7 @@
                                 <option disabled="disabled"
                                         selected="selected"
                                         value="">
-                                    {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                    {{ "account.personalTypePlaceholder"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
 
@@ -74,28 +74,20 @@
     {% endblock %}
 
     {% block component_address_personal_fields_salutation_title %}
-        <div class="form-row">
+        <div class="row g-2">
             {% block component_address_personal_fields_salutation %}
                 <div class="form-group col-md-3 col-sm-6">
                     {% block component_address_personal_fields_salutation_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalSalutation">
-                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_salutation_select %}
                         <select id="{{ idPrefix ~ prefix }}personalSalutation"
-                                class="custom-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
-                                name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}"
-                                required="required">
-                            {% if not data.get('salutationId') %}
-                                <option disabled="disabled"
-                                        selected="selected"
-                                        value="">
-                                    {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}
-                                </option>
-                            {% endif %}
+                                class="form-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
+                                name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}">
                             {% for salutation in page.salutations %}
                                 <option {% if salutation.id == data.get('salutationId') %}
                                     selected="selected"
@@ -143,9 +135,15 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        <div class="form-row">
+        <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
                 <div class="form-group col-sm-6">
+                    {% if formViolations.getViolations("/firstName") is not empty %}
+                        {% set violationPath = "/firstName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalFirstName">
@@ -155,20 +153,20 @@
 
                     {% block component_address_personal_fields_first_name_input %}
                         <input type="text"
-                               class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
+                               class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
                                placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                value="{{ data.get('firstName') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
                     {% block component_address_personal_fields_first_name_input_error %}
-                        {% if formViolations.getViolations('/firstName') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/firstName'
-                            } %}
+                        {% if violationPath %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -176,6 +174,12 @@
 
             {% block component_address_personal_fields_last_name %}
                 <div class="form-group col-sm-6">
+                    {% if formViolations.getViolations("/lastName") is not empty %}
+                        {% set violationPath = "/lastName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+
                     {% block component_address_personal_fields_last_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalLastName">
@@ -185,20 +189,20 @@
 
                     {% block component_address_personal_fields_last_name_input %}
                         <input type="text"
-                               class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
+                               class="form-control{% if violationPath %} is-invalid{% endif %}"
                                autocomplete="section-personal family-name"
                                id="{{ idPrefix ~ prefix }}personalLastName"
                                placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                value="{{ data.get('lastName') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
                     {% block component_address_personal_fields_last_name_input_error %}
-                        {% if formViolations.getViolations('/lastName') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/lastName'
-                            } %}
+                        {% if violationPath %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -210,11 +214,13 @@
         {% if (onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection')) and activeRoute == 'frontend.account.profile.page' %}
             <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %}">
                 {% block component_address_personal_company_fields %}
-                    <div class="form-row">
+                    <div class="row g-2">
                         {% block component_address_personal_company_name %}
                             <div class="form-group col-12">
                                 {% if formViolations.getViolations("/company") is not empty %}
                                     {% set violationPath = "/company" %}
+                                {% else %}
+                                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
                                 {% endif %}
 
                                 {% block component_address_personal_company_name_label %}
@@ -230,6 +236,8 @@
                                            placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                            name="company"
                                            value="{{ data.get('company') }}"
+                                           data-form-validation-required
+                                           {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                            required="required">
                                 {% endblock %}
 
@@ -251,7 +259,7 @@
             {% if config('core.loginRegistration.showAccountTypeSelection') or onlyCompanyRegistration %}
                 <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} js-field-toggle-contact-type-vat-id">
                     {% block component_address_personal_vat_id_fields %}
-                        <div class="form-row">
+                        <div class="row g-2">
                             <div class="form-group col-12">
                                 {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                     'vatIds': data.get('vatIds'),
@@ -274,12 +282,12 @@
             {% endblock %}
 
             {% block component_address_personal_fields_birthday_selects %}
-                <div class="form-row">
+                <div class="row g-2">
                     {% block component_address_personal_fields_birthday_select_day %}
                         <div class="form-group col-md-2 col-4">
                             <select id="{{ idPrefix ~ prefix }}personalBirthday"
                                     name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
-                                    class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
+                                    class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
                                     {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayDay') %}
                                     <option selected="selected"
@@ -308,7 +316,7 @@
                     {% block component_address_personal_fields_birthday_select_month %}
                         <div class="form-group col-md-2 col-4">
                             <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
-                                    class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
+                                    class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                                     {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayMonth') %}
                                     <option selected="selected"
@@ -340,7 +348,7 @@
                             {% set startYear = currentYear - 120 %}
 
                             <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
-                                    class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
+                                    class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
                                     {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayYear') %}
                                     <option selected="selected"

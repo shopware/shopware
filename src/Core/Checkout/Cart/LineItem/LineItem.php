@@ -2,118 +2,62 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @final LineItem class should not be extended because it is serialized into the storage and should not depend on individual implementations.
+ */
+#[Package('checkout')]
 class LineItem extends Struct
 {
-    public const CREDIT_LINE_ITEM_TYPE = 'credit';
-    public const PRODUCT_LINE_ITEM_TYPE = 'product';
-    public const CUSTOM_LINE_ITEM_TYPE = 'custom';
-    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
-    public const DISCOUNT_LINE_ITEM = 'discount';
-    public const CONTAINER_LINE_ITEM = 'container';
+    final public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    final public const PRODUCT_LINE_ITEM_TYPE = 'product';
+    final public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    final public const DISCOUNT_LINE_ITEM = 'discount';
+    final public const CONTAINER_LINE_ITEM = 'container';
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    protected $payload = [];
+    protected array $payload = [];
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected ?string $label = null;
 
-    /**
-     * @var string|null
-     */
-    protected $referencedId;
+    protected int $quantity;
 
-    /**
-     * @var string|null
-     */
-    protected $label;
+    protected ?PriceDefinitionInterface $priceDefinition = null;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
+    protected ?CalculatedPrice $price = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected bool $good = true;
 
-    /**
-     * @var PriceDefinitionInterface|null
-     */
-    protected $priceDefinition;
+    protected ?string $description = null;
 
-    /**
-     * @var CalculatedPrice|null
-     */
-    protected $price;
+    protected ?MediaEntity $cover = null;
 
-    /**
-     * @var bool
-     */
-    protected $good = true;
+    protected ?DeliveryInformation $deliveryInformation = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected LineItemCollection $children;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $cover;
+    protected ?Rule $requirement = null;
 
-    /**
-     * @var DeliveryInformation|null
-     */
-    protected $deliveryInformation;
+    protected bool $removable = false;
 
-    /**
-     * @var LineItemCollection
-     */
-    protected $children;
+    protected bool $stackable = false;
 
-    /**
-     * @var Rule|null
-     */
-    protected $requirement;
+    protected ?QuantityInformation $quantityInformation = null;
 
-    /**
-     * @var bool
-     */
-    protected $removable = false;
-
-    /**
-     * @var bool
-     */
-    protected $stackable = false;
-
-    /**
-     * @var QuantityInformation|null
-     */
-    protected $quantityInformation;
-
-    /**
-     * @var bool
-     */
-    protected $modified = false;
+    protected bool $modified = false;
 
     /**
      * The data timestamp can be used to record when the line item was last updated with data from the database.
@@ -128,30 +72,49 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
-     * @throws InvalidQuantityException
+     * Used as a unique id to identify a line item over multiple nested levels
      */
-    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
-    {
-        $this->id = $id;
-        $this->type = $type;
+    protected string $uniqueIdentifier;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
+
+    protected bool $modifiedByApp = false;
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $payloadProtection = [];
+
+    /**
+     * @throws CartException
+     */
+    public function __construct(
+        protected string $id,
+        protected string $type,
+        protected ?string $referencedId = null,
+        int $quantity = 1
+    ) {
+        $this->uniqueIdentifier = Uuid::randomHex();
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
-            throw new InvalidQuantityException($quantity);
+            throw CartException::invalidQuantity($quantity);
         }
-        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public static function createFromLineItem(LineItem $lineItem): self
     {
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
-            $self->$property = $value;
+            $self->$property = $value; /* @phpstan-ignore-line */
         }
 
         return $self;
@@ -199,17 +162,16 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function setQuantity(int $quantity): self
     {
         if ($quantity < 1) {
-            throw new InvalidQuantityException($quantity);
+            throw CartException::invalidQuantity($quantity);
         }
 
         if (!$this->isStackable()) {
-            throw new LineItemNotStackableException($this->id);
+            throw CartException::lineItemNotStackable($this->id);
         }
 
         if ($this->hasChildren()) {
@@ -237,11 +199,17 @@ class LineItem extends Struct
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
@@ -257,53 +225,96 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function removePayloadValue(string $key): void
     {
         if (!$this->hasPayloadValue($key)) {
-            throw new PayloadKeyNotFoundException($key, $this->getId());
+            throw CartException::payloadKeyNotFound($key, $this->getId());
         }
         unset($this->payload[$key]);
+        unset($this->payloadProtection[$key]);
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protected will be added in v6.6.0
      *
-     * @throws InvalidPayloadException
+     * @param mixed|null $value
+     *
+     * @throws CartException
      */
-    public function setPayloadValue(string $key, $value): self
+    public function setPayloadValue(string $key, $value/* , ?bool $protected = null */): self
     {
-        if ($value !== null && !is_scalar($value) && !\is_array($value)) {
-            throw new InvalidPayloadException($key, $this->getId());
+        $protected = false;
+        if (\func_num_args() === 3) {
+            $protected = func_get_arg(2);
+        }
+
+        if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
+            throw CartException::invalidPayload($key, $this->getId());
         }
 
         $this->payload[$key] = $value;
 
-        return $this;
-    }
-
-    /**
-     * @throws InvalidPayloadException
-     */
-    public function setPayload(array $payload): self
-    {
-        foreach ($payload as $key => $value) {
-            if (!\is_string($key)) {
-                throw new InvalidPayloadException((string) $key, $this->getId());
-            }
-
-            $this->setPayloadValue($key, $value);
+        if ($protected !== null) {
+            $this->addPayloadProtection([$key => $protected]);
         }
 
         return $this;
     }
 
-    public function replacePayload(array $payload): self
+    /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     *
+     * @param array<string, mixed> $payload
+     *
+     * @throws CartException
+     */
+    public function setPayload(array $payload/* , array $protection = [] */): self
     {
-        $this->payload = array_replace_recursive($this->payload, $payload);
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
+
+        foreach ($payload as $key => $value) {
+            if (\is_string($key)) {
+                $this->setPayloadValue($key, $value);
+
+                continue;
+            }
+
+            throw CartException::invalidPayload((string) $key, $this->getId());
+        }
+
+        return $this->addPayloadProtection($protection);
+    }
+
+    /**
+     * @param array<string, bool> $protection
+     */
+    public function addPayloadProtection(array $protection): self
+    {
+        $this->payloadProtection = \array_replace($this->payloadProtection, $protection);
 
         return $this;
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     *
+     * @param array<string, mixed> $payload
+     */
+    public function replacePayload(array $payload/* , array $protection = [] */): self
+    {
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
+
+        $this->payload = \array_replace_recursive($this->payload, $payload);
+
+        return $this->addPayloadProtection($protection);
     }
 
     public function getPriceDefinition(): ?PriceDefinitionInterface
@@ -383,9 +394,6 @@ class LineItem extends Struct
         return $this->children;
     }
 
-    /**
-     * @throws InvalidChildQuantityException
-     */
     public function setChildren(LineItemCollection $children): self
     {
         foreach ($children as $child) {
@@ -402,10 +410,7 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function addChild(LineItem $child): self
     {
@@ -515,8 +520,68 @@ class LineItem extends Struct
         $this->dataContextHash = $dataContextHash;
     }
 
+    public function getUniqueIdentifier(): string
+    {
+        return $this->uniqueIdentifier;
+    }
+
     /**
-     * @throws InvalidQuantityException
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): LineItem
+    {
+        $this->states = $states;
+
+        return $this;
+    }
+
+    public function hasState(string $state): bool
+    {
+        return \in_array($state, $this->states, true);
+    }
+
+    public function markUnModifiedByApp(): void
+    {
+        $this->modifiedByApp = false;
+    }
+
+    public function markModifiedByApp(): void
+    {
+        $this->modifiedByApp = true;
+    }
+
+    public function isModifiedByApp(): bool
+    {
+        return $this->modifiedByApp;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        $payload = [];
+
+        foreach ($data['payload'] as $key => $value) {
+            if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
+                continue;
+            }
+            $payload[$key] = $value;
+        }
+        $data['payload'] = $payload;
+
+        return $data;
+    }
+
+    /**
+     * @throws CartException
      */
     private function refreshChildQuantity(
         LineItemCollection $lineItems,
@@ -539,21 +604,23 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws InvalidChildQuantityException
+     * @throws CartException
      */
     private function validateChildQuantity(LineItem $child): void
     {
         $childQuantity = $child->getQuantity();
         $parentQuantity = $this->getQuantity();
-        if ($childQuantity % $parentQuantity !== 0) {
-            if ($childQuantity !== 1) {
-                throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
-            }
+        if ($childQuantity % $parentQuantity === 0) {
+            return;
+        }
 
-            // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
-            if ($this->isStackable()) {
-                throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
-            }
+        if ($childQuantity !== 1) {
+            throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+        }
+
+        // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
+        if ($this->isStackable()) {
+            throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
         }
     }
 }

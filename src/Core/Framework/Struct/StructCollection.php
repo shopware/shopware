@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @method void        add(Struct $struct)
- * @method void        set(string $key, Struct $struct)
- * @method Struct[]    getIterator()
- * @method Struct[]    getElements()
- * @method Struct|null get(string $key)
- * @method Struct|null first()
- * @method Struct|null last()
+ * @template TElement of Struct
+ *
+ * @extends Collection<TElement>
  */
+#[Package('core')]
 class StructCollection extends Collection
 {
     public function getApiAlias(): string
@@ -18,6 +17,9 @@ class StructCollection extends Collection
         return 'dal_struct_collection';
     }
 
+    /**
+     * @return class-string<Struct>
+     */
     protected function getExpectedClass(): ?string
     {
         return Struct::class;

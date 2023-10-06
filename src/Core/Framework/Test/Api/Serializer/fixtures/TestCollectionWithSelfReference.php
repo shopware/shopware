@@ -4,11 +4,19 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
+/**
+ * @internal
+ */
 class TestCollectionWithSelfReference extends SerializationFixture
 {
-    public function getInput()
+    /**
+     * @return MediaFolderCollection|MediaFolderEntity
+     */
+    public function getInput(): EntityCollection|Entity
     {
         $parent = new MediaFolderEntity();
         $parent->setId('3e352be2d85846dd97529c0f6b544870');
@@ -31,6 +39,9 @@ class TestCollectionWithSelfReference extends SerializationFixture
         return new MediaFolderCollection([$parent]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -148,6 +159,9 @@ class TestCollectionWithSelfReference extends SerializationFixture
         ];
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     protected function getJsonFixtures(): array
     {
         return [

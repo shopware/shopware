@@ -2,53 +2,35 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class CategoryRoute extends AbstractCategoryRoute
 {
-    public const HOME = 'home';
+    final public const HOME = 'home';
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @internal
      */
-    private $categoryRepository;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
-     * @var CategoryDefinition
-     */
-    private $categoryDefinition;
-
     public function __construct(
-        SalesChannelRepositoryInterface $categoryRepository,
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        CategoryDefinition $categoryDefinition
+        private readonly SalesChannelRepository $categoryRepository,
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly CategoryDefinition $categoryDefinition
     ) {
-        $this->categoryRepository = $categoryRepository;
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->categoryDefinition = $categoryDefinition;
     }
 
     public function getDecorated(): AbstractCategoryRoute
@@ -56,43 +38,7 @@ class CategoryRoute extends AbstractCategoryRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *     path="/category/{categoryId}",
-     *     summary="Fetch a single category",
-     *     description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
-     *     operationId="readCategory",
-     *     tags={"Store API", "Category"},
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             description="The product listing criteria only has an effect, if the category contains a product listing.",
-     *             ref="#/components/schemas/ProductListingCriteria"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="categoryId",
-     *         description="Identifier of the category to be fetched",
-     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *         in="path",
-     *         required=true
-     *     ),
-     *     @OA\Parameter(
-     *         name="slots",
-     *         description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character",
-     *         @OA\Schema(type="string"),
-     *         in="query",
-     *     ),
-     *     @OA\Parameter(name="Api-Basic-Parameters"),
-     *     @OA\Response(
-     *          response="200",
-     *          description="The loaded category with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/Category")
-     *     )
-     * )
-     *
-     * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
-     */
+    #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         if ($navigationId === self::HOME) {
@@ -109,7 +55,7 @@ class CategoryRoute extends AbstractCategoryRoute
                 || $category->getType() === CategoryDefinition::TYPE_LINK)
             && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
         ) {
-            throw new CategoryNotFoundException($navigationId);
+            throw CategoryException::categoryNotFound($navigationId);
         }
 
         $pageId = $category->getCmsPageId();
@@ -136,10 +82,12 @@ class CategoryRoute extends AbstractCategoryRoute
         );
 
         if (!$pages->has($pageId)) {
-            throw new PageNotFoundException($pageId);
+            throw CategoryException::pageNotFound($pageId);
         }
 
-        $category->setCmsPage($pages->get($pageId));
+        /** @var CmsPageEntity $page */
+        $page = $pages->get($pageId);
+        $category->setCmsPage($page);
         $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);
@@ -156,8 +104,8 @@ class CategoryRoute extends AbstractCategoryRoute
             ->search($criteria, $context)
             ->get($categoryId);
 
-        if (!$category) {
-            throw new CategoryNotFoundException($categoryId);
+        if (!$category instanceof CategoryEntity) {
+            throw CategoryException::categoryNotFound($categoryId);
         }
 
         return $category;

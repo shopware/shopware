@@ -8,14 +8,21 @@
                         role="tablist">
                         {% block page_product_detail_tabs_navigation_description %}
                             <li class="nav-item">
-                                <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
-                                   id="description-tab"
-                                   data-toggle="tab"
-                                   data-offcanvas-tabs="true"
-                                   href="#description-tab-pane"
-                                   role="tab"
-                                   aria-controls="description-tab-pane"
-                                   aria-selected="true">
+                                <a
+                                    class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
+                                    id="description-tab"
+                                    data-bs-toggle="tab"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    href="#description-tab-pane"
+                                    role="tab"
+                                    aria-controls="description-tab-pane"
+                                    aria-selected="true"
+                                >
                                     <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
                                     <span class="product-detail-tab-navigation-icon">
                                         {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
@@ -39,14 +46,21 @@
                         {% block page_product_detail_tabs_navigation_review %}
                             {% if config('core.listing.showReview') %}
                                 <li class="nav-item">
-                                    <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
-                                       id="review-tab"
-                                       data-toggle="tab"
-                                       data-offcanvas-tabs="true"
-                                       href="#review-tab-pane"
-                                       role="tab"
-                                       aria-controls="review-tab-pane"
-                                       aria-selected="true">
+                                    <a
+                                        class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
+                                        id="review-tab"
+                                        data-bs-toggle="tab"
+                                        {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                        {% if feature('v6.6.0.0') %}
+                                            data-off-canvas-tabs="true"
+                                        {% else %}
+                                            data-offcanvas-tabs="true"
+                                        {% endif %}
+                                        href="#review-tab-pane"
+                                        role="tab"
+                                        aria-controls="review-tab-pane"
+                                        aria-selected="true"
+                                    >
                                         {{ "detail.tabsReview"|trans|sw_sanitize }}
                                         <span class="product-detail-tab-navigation-icon">
                                             {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}

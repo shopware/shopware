@@ -3,16 +3,22 @@
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class AffiliateTrackingListener implements EventSubscriberInterface
 {
-    public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;
-    public const CAMPAIGN_CODE_KEY = OrderService::CAMPAIGN_CODE_KEY;
+    final public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;
+    final public const CAMPAIGN_CODE_KEY = OrderService::CAMPAIGN_CODE_KEY;
 
     public static function getSubscribedEvents(): array
     {
@@ -27,11 +33,11 @@ class AffiliateTrackingListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $request->attributes->get('_routeScope');
+        /** @var list<string> $scopes */
+        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         // Only process storefront routes
-        if ($routeScope && !\in_array('storefront', $routeScope->getScopes(), true)) {
+        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return;
         }
 

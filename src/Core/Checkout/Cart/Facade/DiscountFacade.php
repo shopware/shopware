@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The DiscountFacade is a wrapper around a newly created discount.
@@ -10,16 +11,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
  *
  * @script-service cart_manipulation
  */
+#[Package('checkout')]
 class DiscountFacade
 {
-    private LineItem $item;
-
     /**
      * @internal
      */
-    public function __construct(LineItem $item)
+    public function __construct(private LineItem $item)
     {
-        $this->item = $item;
     }
 
     /**

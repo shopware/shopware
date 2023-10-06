@@ -1,19 +1,59 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_mail_send_modal %}
 <sw-modal
     class="sw-flow-mail-send-modal"
     :title="$tc('sw-flow.modals.mail.titleSendMail')"
+    :closable="false"
     @modal-close="onClose"
 >
+    <sw-single-select
+        :value="replyToSelection"
+        class="sw-flow-mail-send-modal__use-different-reply-to"
+        :options="replyToOptions"
+        :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
+        :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
+        {% if VUE3 %}
+        @update:value="changeShowReplyToField"
+        {% else %}
+        @change="changeShowReplyToField"
+        {% endif %}
+    />
+
+    <sw-text-field
+        v-if="showReplyToField"
+        {% if VUE3 %}
+        v-model:value="replyTo"
+        {% else %}
+        v-model="replyTo"
+        {% endif %}
+        class="sw-flow-mail-send-modal__reply-to"
+        :label="$tc('sw-flow.modals.mail.labelReplyTo')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
+        :error="replyToError"
+        required
+        @change="replyToError = null"
+    />
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="mailRecipient"
+        {% else %}
         v-model="mailRecipient"
+        {% endif %}
         class="sw-flow-mail-send-modal__recipient"
         :options="recipientOptions"
         :label="$tc('sw-flow.modals.mail.labelRecipient')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderRecipient')"
+        {% if VUE3 %}
+        @update:value="onChangeRecipient"
+        {% else %}
         @change="onChangeRecipient"
+        {% endif %}
     />
     {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient_emails_grid %}
     <sw-data-grid
         v-if="showRecipientEmails"
@@ -28,11 +68,16 @@
         @inline-edit-cancel="cancelSaveRecipient"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_grid_column_email %}
         <template #column-email="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.email"
+                {% else %}
                 v-model="item.email"
+                {% endif %}
                 class="sw-flow-mail-send-modal__recipient-email"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorMail"
@@ -44,11 +89,16 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_grid_column_name %}
         <template #column-name="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.name"
+                {% else %}
                 v-model="item.name"
+                {% endif %}
                 class="sw-flow-mail-send-modal__recipient-name"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorName"
@@ -61,6 +111,7 @@
         {% endblock %}
 
         <template #actions="{ item, itemIndex }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_action_edit %}
             <sw-context-menu-item
                 class="sw-flow-mail-send-modal__grid-action-edit"
@@ -70,6 +121,7 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_action_delete %}
             <sw-context-menu-item
                 class="sw-flow-mail-send-modal__grid-action-delete"
@@ -84,9 +136,14 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_select %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="mailTemplateId"
+        {% else %}
         v-model="mailTemplateId"
+        {% endif %}
         class="sw-flow-mail-send-modal__mail-template-select"
         required
         entity="mail_template"
@@ -96,17 +153,24 @@
         :label="$tc('sw-flow.modals.mail.labelEmailTemplate')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderEmailTemplate')"
         :error="mailTemplateIdError"
+        {% if VUE3 %}
+        @update:value="(id, template) => onChangeMailTemplate(id, template)"
+        {% else %}
         @change="(id, template) => onChangeMailTemplate(id, template)"
+        {% endif %}
     >
 
         <template #before-item-list>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
             <ul class="sw-select-result__item-list">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-select-result sw-select-result__create-new-template"
+                    role="button"
+                    tabindex="0"
                     @click="onCreateMailTemplate"
+                    @keydown.enter="onCreateMailTemplate"
                 >
                     {{ $tc('sw-flow.modals.mail.titleNewEmailTemplate') }}
                 </li>
@@ -134,6 +198,7 @@
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_detail_link %}
     <div class="sw-flow-mail-send-modal__mail-template-detail">
         <router-link
@@ -147,9 +212,14 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
+        {% if VUE3 %}
+        v-model:ids="documentTypeIds"
+        {% else %}
         v-model="documentTypeIds"
+        {% endif %}
         :repository="documentTypeRepository"
         class="sw-flow-mail-send-modal__document-types"
         :label="$tc('sw-flow.modals.mail.labelLatestDocuments')"
@@ -157,6 +227,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_create_new_template %}
     <sw-flow-create-mail-template-modal
         v-if="showCreateMailTemplateModal"
@@ -166,6 +237,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_warning %}
     <sw-alert
         class="sw-flow-mail-send-modal__document_warning"
@@ -175,8 +247,14 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_mail_send_modal_custom %}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_mail_send_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-mail-send-modal__cancel-button"
@@ -187,6 +265,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_mail_send_modal_footer_save_button %}
         <sw-button
             class="sw-flow-mail-send-modal__save-button"
@@ -194,9 +273,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id
-                ? $tc('sw-flow.modals.buttonSaveAction')
-                : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
         </sw-button>
         {% endblock %}
     </template>

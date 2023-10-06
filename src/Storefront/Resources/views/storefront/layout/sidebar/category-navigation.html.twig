@@ -1,5 +1,5 @@
 {% block layout_navigation_categories %}
-    {% set navigationMaxDepth = 3 %}
+    {% set navigationMaxDepth = context.salesChannel.navigationCategoryDepth %}
 
     {% if not level %}
         {% set level = 0 %}
@@ -8,7 +8,6 @@
     {% block layout_navigation_categories_list %}
         <ul class="category-navigation level-{{ level }}">
             {% for item in navigationTree %}
-
                 {% block layout_navigation_categories_list_entry %}
                     <li class="category-navigation-entry">
                         {% if (item.category.id in activeResult.id) or (item.category.id in activeResult.path) %}

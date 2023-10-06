@@ -24,16 +24,13 @@ specific styling for elements dependent on their parent block
         height: 100%;
 
         object-fit: none;
-        font-family: 'object-fit: none;';
 
         &.media-mode--contain {
             object-fit: contain;
-            font-family: 'object-fit: contain;';
         }
 
         &.media-mode--cover {
             object-fit: cover;
-            font-family: 'object-fit: cover;';
         }
     }
 
@@ -133,7 +130,7 @@ specific styling for elements dependent on their parent block
     }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
     .cms-block-image-text-gallery,
     .cms-block-image-two-column,
     .cms-block-image-three-column,
@@ -190,5 +187,3 @@ specific styling for elements dependent on their parent block
         }
     }
 }
-
-

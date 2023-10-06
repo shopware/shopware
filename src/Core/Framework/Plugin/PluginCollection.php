@@ -3,16 +3,12 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void              add(PluginEntity $entity)
- * @method void              set(string $key, PluginEntity $entity)
- * @method PluginEntity[]    getIterator()
- * @method PluginEntity[]    getElements()
- * @method PluginEntity|null get(string $key)
- * @method PluginEntity|null first()
- * @method PluginEntity|null last()
+ * @extends EntityCollection<PluginEntity>
  */
+#[Package('core')]
 class PluginCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './mixin/sw-theme.mixin';
 import './page/sw-theme-manager-detail';
 import './page/sw-theme-manager-list';
@@ -14,7 +18,7 @@ Module.register('sw-theme-manager', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ff68b4',
-    icon: 'default-symbol-content',
+    icon: 'regular-content',
     favicon: 'icon-module-content.png',
     entity: 'theme',
 
@@ -49,13 +53,18 @@ Module.register('sw-theme-manager', {
 
     // Add theme route to sales channel
     routeMiddleware(next, currentRoute) {
-        if (currentRoute.name === 'sw.sales.channel.detail') {
+        const name = 'sw.sales.channel.detail.theme';
+        if (
+            currentRoute.name === 'sw.sales.channel.detail'
+            && currentRoute.children.every(child => child.name !== name)
+        ) {
             currentRoute.children.push({
                 component: 'sw-sales-channel-detail-theme',
-                name: 'sw.sales.channel.detail.theme',
+                name,
                 isChildren: true,
                 path: '/sw/sales/channel/detail/:id/theme',
                 meta: {
+                    parentPath: 'sw.sales.channel.list',
                     privilege: 'sales_channel.viewer'
                 }
             });

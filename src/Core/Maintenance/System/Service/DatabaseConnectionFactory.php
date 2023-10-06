@@ -5,11 +5,21 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
+#[Package('core')]
 class DatabaseConnectionFactory
 {
+    /**
+     * non-static implementation of createConnection(), can be mocked in tests
+     */
+    public function getConnection(DatabaseConnectionInformation $connectionInformation, bool $withoutDatabase = false): Connection
+    {
+        return self::createConnection($connectionInformation, $withoutDatabase);
+    }
+
     public static function createConnection(DatabaseConnectionInformation $connectionInformation, bool $withoutDatabase = false): Connection
     {
         $connection = DriverManager::getConnection($connectionInformation->toDBALParameters($withoutDatabase), new Configuration());
@@ -26,6 +36,7 @@ class DatabaseConnectionFactory
         $mariaDBRequiredVersion = '10.3.22';
 
         $version = $connection->fetchOne('SELECT VERSION()');
+        \assert(\is_string($version));
         if (\mb_stripos($version, 'mariadb') !== false) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
                 throw new DatabaseSetupException(sprintf(

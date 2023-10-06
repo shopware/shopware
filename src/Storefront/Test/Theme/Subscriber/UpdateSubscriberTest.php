@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,20 +15,23 @@ use Shopware\Storefront\Theme\Subscriber\UpdateSubscriber;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 
+/**
+ * @internal
+ */
 class UpdateSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme`');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
     }
 
     public function testCompilesAllThemes(): void
     {
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
@@ -42,7 +45,6 @@ class UpdateSubscriberTest extends TestCase
         $themeService->expects(static::atLeast(2))
             ->method('compileThemeById')
             ->willReturnCallback(function ($themeId, $c) use (&$themes, $context) {
-                echo $themeId . 'one' . \PHP_EOL;
                 $this->assertEquals($context, $c);
                 $compiledThemes = [];
                 if (isset($themes['otherTheme']) && $themes['otherTheme']['id'] === $themeId) {
@@ -67,6 +69,29 @@ class UpdateSubscriberTest extends TestCase
 
         $updateSubscriber->updateFinished($event);
         static::assertEmpty($themes, print_r($themes, true));
+    }
+
+    public function testThemesAreNotCompiledWithStateSkipAssetBuilding(): void
+    {
+        $themeService = $this->createMock(ThemeService::class);
+        $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
+
+        /** @var EntityRepository $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        $context = Context::createDefaultContext();
+
+        $this->setupThemes($context);
+
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+
+        $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
+        $event = new UpdatePostFinishEvent($context, 'v6.2.0', 'v6.2.1');
+
+        $themeLifecycleService->expects(static::once())->method('refreshThemes');
+        $themeService->expects(static::never())->method('compileThemeById');
+
+        $updateSubscriber->updateFinished($event);
     }
 
     private function setupThemes(Context $context): array

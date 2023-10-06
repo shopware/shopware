@@ -24,15 +24,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductCrossSellingDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_cross_selling';
-    public const SORT_BY_PRICE = 'price';
-    public const SORT_BY_RELEASE_DATE = 'releaseDate';
-    public const SORT_BY_NAME = 'name';
-    public const TYPE_PRODUCT_STREAM = 'productStream';
-    public const TYPE_PRODUCT_LIST = 'productList';
+    final public const ENTITY_NAME = 'product_cross_selling';
+    final public const SORT_BY_PRICE = 'price';
+    final public const SORT_BY_RELEASE_DATE = 'releaseDate';
+    final public const SORT_BY_NAME = 'name';
+    final public const TYPE_PRODUCT_STREAM = 'productStream';
+    final public const TYPE_PRODUCT_LIST = 'productList';
 
     public function getEntityName(): string
     {
@@ -47,11 +49,6 @@ class ProductCrossSellingDefinition extends EntityDefinition
     public function getCollectionClass(): string
     {
         return ProductCrossSellingCollection::class;
-    }
-
-    public function getParentDefinitionClass(): ?string
-    {
-        return ProductDefinition::class;
     }
 
     public function getDefaults(): array
@@ -76,6 +73,11 @@ class ProductCrossSellingDefinition extends EntityDefinition
         return ProductCrossSellingHydrator::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -92,8 +94,8 @@ class ProductCrossSellingDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class))->addFlags(new ReverseInherited('crossSellings')),
 
-            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class)),
-            (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class)),
+            new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class),
             (new OneToManyAssociationField('assignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'cross_selling_id'))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'))->addFlags(new ApiAware(), new Required()),
         ]);

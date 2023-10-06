@@ -2,67 +2,46 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
     /**
-     * @var EventDispatcherInterface
+     * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param SalesChannelRepository<ProductCollection>    $productRepository
      */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractLoadWishlistRoute
@@ -70,34 +49,11 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.4.0")
-     * @Entity("product")
-     * @OA\Post(
-     *      path="/customer/wishlist",
-     *      summary="Fetch a wishlist",
-     *      description="Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.
-
-**Important constraints**
-
-* Anonymous (not logged-in) customers can not have wishlists.
-* The wishlist feature has to be activated.",
-     *      operationId="readCustomerWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $wishlist = $this->loadWishlist($context, $customer->getId());
@@ -116,14 +72,17 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         ]));
 
         $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());
-
-        if ($wishlist->first() === null) {
-            throw new CustomerWishlistNotFoundException();
+        $result = $wishlist->first();
+        if (!$result instanceof CustomerWishlistEntity) {
+            throw CustomerException::customerWishlistNotFound();
         }
 
-        return $wishlist->first();
+        return $result;
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     private function loadProducts(string $wishlistId, Criteria $criteria, SalesChannelContext $context, Request $request): EntitySearchResult
     {
         $criteria->addFilter(
@@ -162,7 +121,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             return $criteria;
         }
 
-        $criteria->addFilter(new ProductCloseoutFilter());
+        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
+        $criteria->addFilter($closeoutFilter);
 
         return $criteria;
     }

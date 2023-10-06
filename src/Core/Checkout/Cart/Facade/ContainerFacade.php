@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -18,33 +19,37 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @internal
+ * @final
  */
+#[Package('checkout')]
 class ContainerFacade extends ItemFacade
 {
     use DiscountTrait;
-    use SurchargeTrait;
-    use ItemsGetTrait;
-    use ItemsRemoveTrait;
-    use ItemsHasTrait;
     use ItemsCountTrait;
+    use ItemsGetTrait;
+    use ItemsHasTrait;
     use ItemsIteratorTrait;
+    use ItemsRemoveTrait;
+    use SurchargeTrait;
 
     private LineItem $item;
 
-    private CartFacadeHelper $helper;
-
-    private SalesChannelContext $context;
+    private ScriptPriceStubs $priceStubs;
 
     /**
      * @internal
      */
-    public function __construct(LineItem $item, CartFacadeHelper $helper, SalesChannelContext $context)
-    {
-        parent::__construct($item, $helper, $context);
+    public function __construct(
+        LineItem $item,
+        ScriptPriceStubs $priceStubs,
+        CartFacadeHelper $helper,
+        SalesChannelContext $context
+    ) {
+        parent::__construct($item, $priceStubs, $helper, $context);
 
         $this->item = $item;
         $this->helper = $helper;
+        $this->priceStubs = $priceStubs;
         $this->context = $context;
     }
 
@@ -56,7 +61,7 @@ class ContainerFacade extends ItemFacade
      */
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->item->getChildren(), $this->helper, $this->context);
+        return new ProductsFacade($this->item->getChildren(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**

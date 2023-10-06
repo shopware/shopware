@@ -4,15 +4,20 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('inventory')]
 class ProductListResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<ProductCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -20,9 +25,6 @@ class ProductListResponse extends StoreApiResponse
 
     public function getProducts(): ProductCollection
     {
-        /** @var ProductCollection $collection */
-        $collection = $this->object->getEntities();
-
-        return $collection;
+        return $this->object->getEntities();
     }
 }

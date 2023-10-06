@@ -1,0 +1,104 @@
+{
+  "sw-settings-tag": {
+    "general": {
+      "mainMenuItemGeneral": "Tags",
+      "placeholderSearchBar": "Durchsuche Tags ..."
+    },
+    "list": {
+      "textHeadline": "Tags",
+      "textDeleteConfirm": "Bist Du sicher, dass Du den Tag \"{name}\" löschen möchtest?",
+      "columnName": "Tag",
+      "columnConnections": "Zuweisungen",
+      "buttonAddTag": "Tag anlegen",
+      "contextMenuEdit": "Tag bearbeiten",
+      "contextMenuDuplicate": "Tag duplizieren",
+      "contextMenuDelete": "Tag löschen",
+      "messageDeleteSuccess": "Tag \"{name}\" gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "titleEmptyStateList": "Keine Tags gefunden.",
+      "searchPlaceholder": "Durchsuche Tags ...",
+      "filter": "Filter",
+      "filterAssignemnt": "Filter nach zugewiesenen Entitäten",
+      "placeholderFilterAssignemnt": "Zuweisungen suchen ...",
+      "filterEmpty": "Zeige nur Tags ohne Zuweisungen",
+      "filterDuplicate": "Zeige nur Duplikate",
+      "resetFilters": "Filter zurücksetzen",
+      "bulkMerge": "Zusammenführen",
+      "bulkMergeTitle": "Tags zusammenführen",
+      "bulkMergeMessage": "Bist Du sicher, dass die Tags",
+      "bulkMergeMessageAnd": "und",
+      "bulkMergeMessageFinal": "zusammengeführt werden sollen?",
+      "bulkMergeName": "Neuer Tag",
+      "bulkMerging": "Führe die Tags zusammen",
+      "bulkMergeNotice": "Warte bitte, bis der Zusammenführungsprozess abgeschlossen ist. Dies kann eine Weile dauern. Wenn du den Browser-Tab schließt oder den Vorgang vorzeitig abbrichst, werden nicht alle Änderungen übernommen und vorhandene Tags bleiben unverändert. Du kannst den Zusammenführungsprozess jederzeit wiederholen.",
+      "bulkMergeNoUndoNotice": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "bulkMergeTimeNotice": "Abhänging von der Anzahl der Zuordnungen, kann dieser Prozess mehr Zeit benötigen.",
+      "bulkMergeInto": "in",
+      "placeholderTagName": "Tag-Namen eingeben ...",
+      "assignments": {
+        "header": {
+          "products": "Produktzuweisungen",
+          "media": "Medienzuweisungen",
+          "categories": "Kategoriezuweisungen",
+          "customers": "Kundenzuweisungen",
+          "orders": "Bestellungszuweisungen",
+          "shippingMethods": "Versandartenzuweisungen",
+          "newsletterRecipients": "Newsletterempfänger-Zuweisungen",
+          "landingPages": "Landingpagezuweisungen",
+          "rules": "Regelzuweisungen"
+        },
+        "content": {
+          "products": "Produkte | Produkt | Produkte",
+          "media": "Medien | Medium | Medien",
+          "categories": "Kategorien | Kategorie | Kategorien",
+          "customers": "Kunden | Kunde | Kunden",
+          "orders": "Bestellungen | Bestellung | Bestellungen",
+          "shippingMethods": "Versandarten | Versandart | Versandarten",
+          "newsletterRecipients": "Newsletterempfänger",
+          "landingPages": "Landingpages | Landingpage | Landingpages",
+          "rules": "Regeln | Regel | Regeln"
+        },
+        "filter": {
+          "products": "Produkt",
+          "media": "Medien",
+          "categories": "Kategorie",
+          "customers": "Kunde",
+          "orders": "Bestellung",
+          "shippingMethods": "Versandart",
+          "newsletterRecipients": "Newsletterempfänger",
+          "landingPages": "Landingpage",
+          "rules": "Regel"
+        }
+      }
+    },
+    "detail": {
+      "editTitle": "Bearbeite \"{name}\"",
+      "generalTab": "Allgemein",
+      "assignmentsTab": "Zuweisungen",
+      "buttonSave": "Speichern",
+      "assignments": {
+        "searchPlaceholder": "Entitäten durchsuchen ...",
+        "assignments": "zugewiesen",
+        "selected": "zugewiesene Entitäten",
+        "showSelected": "Nicht-zugewiesene Entitäten ausblenden",
+        "products": "Produkte",
+        "media": "Medien",
+        "categories": "Kategorien",
+        "customers": "Kunden",
+        "orders": "Bestellungen",
+        "shippingMethods": "Versandarten",
+        "newsletterRecipients": "Newsletterempfänger",
+        "landingPages": "Landingpages",
+        "rules": "Regeln"
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "tag": {
+        "label": "Tags"
+      }
+    }
+  }
+}

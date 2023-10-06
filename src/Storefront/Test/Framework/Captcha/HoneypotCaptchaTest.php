@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class HoneypotCaptchaTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -15,12 +18,9 @@ class HoneypotCaptchaTest extends TestCase
     private const IS_VALID = true;
     private const IS_INVALID = false;
 
-    /**
-     * @var HoneypotCaptcha
-     */
-    private $captcha;
+    private HoneypotCaptcha $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(HoneypotCaptcha::class);
     }
@@ -36,13 +36,13 @@ class HoneypotCaptchaTest extends TestCase
     public function testIsValid(Request $request, bool $shouldBeValid): void
     {
         if ($shouldBeValid) {
-            static::assertTrue($this->captcha->isValid($request));
+            static::assertTrue($this->captcha->isValid($request, []));
         } else {
-            static::assertFalse($this->captcha->isValid($request));
+            static::assertFalse($this->captcha->isValid($request, []));
         }
     }
 
-    public function requestDataProvider(): array
+    public static function requestDataProvider(): array
     {
         return [
             [

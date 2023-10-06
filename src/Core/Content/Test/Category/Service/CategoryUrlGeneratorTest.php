@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -10,26 +11,20 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class CategoryUrlGeneratorTest extends TestCase
 {
     private const EXTERNAL_URL = 'https://shopware.com/';
 
-    /**
-     * @var CategoryUrlGenerator
-     */
-    private $urlGenerator;
+    private CategoryUrlGenerator $urlGenerator;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $replacer;
+    private MockObject&SeoUrlPlaceholderHandlerInterface $replacer;
 
-    /**
-     * @var SalesChannelEntity
-     */
-    private $salesChannel;
+    private SalesChannelEntity $salesChannel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->replacer = $this->getMockBuilder(SeoUrlPlaceholderHandlerInterface::class)->getMock();
         $this->urlGenerator = new CategoryUrlGenerator($this->replacer);
@@ -88,7 +83,7 @@ class CategoryUrlGeneratorTest extends TestCase
         static::assertSame($route, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
-    public function dataProviderLinkTypes(): array
+    public static function dataProviderLinkTypes(): array
     {
         return [
             [CategoryDefinition::LINK_TYPE_PRODUCT, 'frontend.detail.page'],

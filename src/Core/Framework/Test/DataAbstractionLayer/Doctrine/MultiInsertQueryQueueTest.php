@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class MultiInsertQueryQueueTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,12 +50,12 @@ class MultiInsertQueryQueueTest extends TestCase
 
         $query->execute();
 
-        $actualA = $connection->fetchColumn('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catA]);
+        $actualA = $connection->fetchOne('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catA]);
 
         static::assertNotFalse($actualA);
         static::assertNull($actualA);
 
-        $actualB = $connection->fetchColumn('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catB]);
+        $actualB = $connection->fetchOne('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catB]);
 
         static::assertNotFalse($actualB);
         static::assertSame($date, $actualB);

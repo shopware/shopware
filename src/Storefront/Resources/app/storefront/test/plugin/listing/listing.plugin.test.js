@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 
@@ -11,25 +7,6 @@ describe('ListingPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        // create mocks
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
-
         // mock listing plugins
         const mockElement = document.createElement('div');
         listingPlugin = new ListingPlugin(mockElement);

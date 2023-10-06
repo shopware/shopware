@@ -1,10 +1,32 @@
+@import "~scss/mixins";
 @import "~scss/variables";
 
+/**
+ * @hotfix fixes a bug in safari which leads to disappearing cards
+ */
+@media not all and (min-resolution: 0.001dpcm) {
+    @supports (-webkit-appearance:none) {
+        .sw-card {
+            transform: translateZ(0);
+        }
+    }
+}
+
 .sw-card {
-    max-width: 800px;
-    margin: 0 auto 40px auto;
+    max-width: $content-width;
+    margin: 0 auto 40px;
     position: relative;
     color: $color-darkgray-200;
+
+    .sw-ai-copilot-badge {
+        height: 18px;
+    }
+
+    &:not(.sw-card--hero) {
+        border-radius: $border-radius-lg;
+
+        @include drop-shadow-default;
+    }
 
     &__context-menu {
         position: absolute;
@@ -48,59 +70,96 @@
         }
     }
 
+    &.has--tabs {
+        .sw-card__header {
+            padding-bottom: 0;
+
+            .sw-tabs {
+                flex-basis: 100%;
+            }
+
+            .sw-tabs__content::before {
+                all: unset;
+            }
+
+            .sw-tabs-item {
+                margin-right: 17.5px;
+                padding: 10px 0;
+                border-bottom: 0 none;
+            }
+        }
+    }
+
+    .sw-card__header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        background-color: $color-white;
+        padding: 24px;
+        padding-bottom: 20px;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-card__avatar {
+        overflow: hidden;
+        border-radius: $border-radius-default;
+        width: 40px;
+        height: 40px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
     .sw-card__title,
     .sw-card__subtitle {
-        margin-bottom: 12px;
         color: $color-darkgray-200;
-
-        @media screen and (min-width: 1580px) {
-            width: 200px;
-            position: absolute;
-            left: -240px;
-            text-align: right;
-        }
     }
 
     .sw-card__title {
-        font-size: $font-size-large;
-        line-height: 24px;
-
-        @media screen and (min-width: 1580px) {
-            top: 0;
-        }
+        color: $color-darkgray-300;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        line-height: $line-height-xs;
     }
 
     .sw-card__subtitle {
-        font-size: $font-size-small;
-        line-height: 20px;
+        color: $color-darkgray-50;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
+    }
 
-        @media screen and (min-width: 1580px) {
-            top: 40px;
-        }
+    .sw-card__titles-right-slot {
+        margin-left: auto;
     }
 
     .sw-card__toolbar {
+        flex-basis: 100%;
         padding: 30px;
         background-color: $color-gray-100;
-        border: 1px solid $color-gray-300;
+        border-bottom: 1px solid $color-gray-300;
     }
 
     &.has--header {
         .sw-card__content {
             border-top: none;
-            border-radius: 0 0 $border-radius-default $border-radius-default;
+            border-radius: 0 0 $border-radius-lg $border-radius-lg;
         }
     }
 
     .sw-card__content {
+        display: flow-root;
         padding: 30px;
         background: $color-white;
         background-clip: padding-box;
-        border-radius: $border-radius-default;
-        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-lg;
         position: relative;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: $content-width) {
             padding: 15px;
         }
 
@@ -114,7 +173,7 @@
         }
 
         h1 {
-            font-size: 24px;
+            font-size: $font-size-xl;
         }
 
         h2 {
@@ -122,13 +181,13 @@
         }
 
         h3 {
-            font-size: 20px;
+            font-size: $font-size-l;
         }
 
         h4,
         h5,
         h6 {
-            font-size: 18px;
+            font-size: $font-size-m;
         }
 
         a.sw-card__quick-link {
@@ -138,7 +197,7 @@
             align-items: center;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: 14px;
+            font-size: $font-size-xs;
 
             &:hover {
                 color: $color-shopware-brand-600;
@@ -146,7 +205,7 @@
         }
 
         .sw-tabs {
-            border-width: 0 0 1px 0;
+            border-width: 0 0 1px;
             border-bottom-right-radius: 0;
             border-bottom-left-radius: 0;
             margin-bottom: 0;
@@ -188,13 +247,13 @@
 
 .sw-card.sw-card--tabs {
     .sw-card__content {
-        border-radius: 0 0 $border-radius-default $border-radius-default;
+        border-radius: 0 0 $border-radius-lg $border-radius-lg;
         border-top: none;
     }
 
     & > .sw-tabs {
         border: 1px solid $color-gray-300;
-        border-radius: $border-radius-default $border-radius-default 0 0;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
         border-bottom: none;
         margin-bottom: 0;
 
@@ -207,8 +266,8 @@
         }
 
         .sw-tabs__arrow {
-            top: (56px / 2);
-            padding: 0 12px 0 12px;
+            top: 28px;
+            padding: 0 12px;
         }
 
         &.sw-tabs--scrollable {
@@ -221,8 +280,24 @@
             font-weight: normal;
 
             &.sw-tabs-item--active {
-                font-weight: 600;
+                font-weight: $font-weight-semi-bold;
             }
+        }
+    }
+}
+
+.sw-inherit-wrapper {
+    .sw-card {
+        border: 1px solid transparent;
+    }
+}
+
+.sw-inherit-wrapper.is--inherited {
+    .sw-card {
+        border: 1px solid $color-module-purple-900;
+
+        .sw-card__content {
+            background-color: $color-module-purple-50;
         }
     }
 }

@@ -15,23 +15,6 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
 
         mockElement.appendChild(inputField);
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
-
         googleReCaptchaV3Plugin = new GoogleReCaptchaV3Plugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha_v3-input'
         });

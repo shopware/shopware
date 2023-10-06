@@ -2,15 +2,19 @@
 
 namespace Shopware\Core\Content\Seo\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('buyers-experience')]
 class NoEntitiesForPreviewException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__NO_ENTRIES_FOR_SEO_URL_PREVIEW';
+    final public const ERROR_CODE = 'FRAMEWORK__NO_ENTRIES_FOR_SEO_URL_PREVIEW';
 
-    public function __construct(string $entityName, string $routeName)
-    {
+    public function __construct(
+        string $entityName,
+        string $routeName
+    ) {
         parent::__construct(
             'No entites of type {{ entityName }} could be found to create a preview for route {{ routeName }}',
             ['entityName' => $entityName, 'routeName' => $routeName]

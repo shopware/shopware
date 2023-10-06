@@ -70,6 +70,7 @@
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCollector">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <!-- // inject after product collector(5000) -->
             <tag name="shopware.cart.collector" priority="4900"/>
         </service>
@@ -118,10 +119,7 @@
 
         <!-- API CONTROLLERS -->
         <service id="Shopware\Core\Checkout\Promotion\Api\PromotionActionController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -181,18 +179,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
 
-        <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodeService">
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="promotion_individual_code.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover">
-            <argument type="service" id="promotion_individual_code.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder">
@@ -216,9 +206,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
-        </service>
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>

@@ -5,16 +5,13 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                 add(CalculatedPrice $entity)
- * @method void                 set(string $key, CalculatedPrice $entity)
- * @method CalculatedPrice[]    getIterator()
- * @method CalculatedPrice[]    getElements()
- * @method CalculatedPrice|null first()
- * @method CalculatedPrice|null last()
+ * @extends Collection<CalculatedPrice>
  */
+#[Package('checkout')]
 class PriceCollection extends Collection
 {
     public function get($key): ?CalculatedPrice
@@ -54,7 +51,7 @@ class PriceCollection extends Collection
         $taxes = new CalculatedTaxCollection([]);
 
         foreach ($this->getIterator() as $price) {
-            $taxes->merge($price->getCalculatedTaxes(), true);
+            $taxes->merge($price->getCalculatedTaxes());
         }
 
         return $taxes;
@@ -90,18 +87,14 @@ class PriceCollection extends Collection
 
     private function getUnitPriceAmount(): float
     {
-        $prices = $this->map(function (CalculatedPrice $price) {
-            return $price->getUnitPrice();
-        });
+        $prices = $this->map(fn (CalculatedPrice $price) => $price->getUnitPrice());
 
         return array_sum($prices);
     }
 
     private function getAmount(): float
     {
-        $prices = $this->map(function (CalculatedPrice $price) {
-            return $price->getTotalPrice();
-        });
+        $prices = $this->map(fn (CalculatedPrice $price) => $price->getTotalPrice());
 
         return array_sum($prices);
     }

@@ -1,0 +1,18 @@
+framework:
+    session:
+        name: 'session-'
+        handler_id: ~
+        cookie_secure: 'auto'
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+    default_locale:  en_GB
+    http_method_override: true
+    router:
+        utf8: true
+    php_errors:
+        log: true
+
+twig:
+    debug: '%kernel.debug%'
+    strict_variables: false
+    exception_controller: null

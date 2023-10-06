@@ -4,13 +4,17 @@ namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -30,20 +34,22 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Test\NullConnection;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -102,7 +108,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 
@@ -210,7 +216,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 
@@ -340,7 +346,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->handle(new EntityIndexingMessage([$id]));
@@ -379,7 +385,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 
@@ -444,7 +450,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->setParameter('payload', $payload)
                 ->setParameter('name', 'Rule' . $i)
                 ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-                ->execute();
+                ->executeStatement();
         }
 
         $this->eventDispatcher->dispatch($event);
@@ -452,8 +458,8 @@ class RulePayloadIndexerTest extends TestCase
         $rules = $this->connection->createQueryBuilder()
             ->select(['id', 'payload', 'invalid'])
             ->from('rule')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($rules as $rule) {
             static::assertEquals(0, $rule['invalid']);
@@ -462,25 +468,36 @@ class RulePayloadIndexerTest extends TestCase
         }
     }
 
-    public function dataProviderForTestPostEventNullsPayload(): array
+    public static function dataProviderForTestPostEventNullsPayload(): array
     {
         $plugin = new PluginEntity();
         $plugin->setName('TestPlugin');
         $plugin->setBaseClass(RulePlugin::class);
+        $plugin->setPath('');
 
         $context = Context::createDefaultContext();
         $rulePlugin = new RulePlugin(false, '');
 
+        $collection = new MigrationCollection(
+            new MigrationSource('asd', []),
+            new MigrationRuntime(new NullConnection(), new NullLogger()),
+            new NullConnection()
+        );
+
         return [
-            [new PluginPostInstallEvent($plugin, new InstallContext($rulePlugin, $context, '', '', $this->createMock(MigrationCollection::class)))],
-            [new PluginPostActivateEvent($plugin, new ActivateContext($rulePlugin, $context, '', '', $this->createMock(MigrationCollection::class)))],
-            [new PluginPostUpdateEvent($plugin, new UpdateContext($rulePlugin, $context, '', '', $this->createMock(MigrationCollection::class), ''))],
-            [new PluginPostDeactivateEvent($plugin, new DeactivateContext($rulePlugin, $context, '', '', $this->createMock(MigrationCollection::class)))],
-            [new PluginPostUninstallEvent($plugin, new UninstallContext($rulePlugin, $context, '', '', $this->createMock(MigrationCollection::class), true))],
+            [new PluginPostInstallEvent($plugin, new InstallContext($rulePlugin, $context, '', '', $collection))],
+            [new PluginPostActivateEvent($plugin, new ActivateContext($rulePlugin, $context, '', '', $collection))],
+            [new PluginPostUpdateEvent($plugin, new UpdateContext($rulePlugin, $context, '', '', $collection, ''))],
+            [new PluginPostDeactivateEvent($plugin, new DeactivateContext($rulePlugin, $context, '', '', $collection))],
+            [new PluginPostUninstallEvent($plugin, new UninstallContext($rulePlugin, $context, '', '', $collection, true))],
         ];
     }
 }
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class RulePlugin extends Plugin
 {
 }

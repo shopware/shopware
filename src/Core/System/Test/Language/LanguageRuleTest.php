@@ -4,10 +4,13 @@ namespace Shopware\Core\System\Test\Language;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -19,14 +22,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class LanguageRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -179,9 +186,8 @@ class LanguageRuleTest extends TestCase
     {
         $languageIds = ['kyln123', 'kyln456'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = $this->createMock(Context::class);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
 
-        $context->method('getLanguageId')->willReturn($languageId);
         $salesChannelContext->method('getContext')->willReturn($context);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['languageIds' => $languageIds, 'operator' => $operator]);
@@ -194,7 +200,7 @@ class LanguageRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'operator_eq / not match / language id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],

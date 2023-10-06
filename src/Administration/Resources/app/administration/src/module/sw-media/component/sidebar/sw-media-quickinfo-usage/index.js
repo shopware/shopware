@@ -1,13 +1,15 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
 
-const { Application, Component } = Shopware;
+const { Application } = Shopware;
 const types = Shopware.Utils.types;
 
-Component.register('sw-media-quickinfo-usage', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
-
-    inject: ['feature'],
 
     props: {
         item: {
@@ -31,7 +33,7 @@ Component.register('sw-media-quickinfo-usage', {
             manufacturers: [],
             mailTemplates: [],
             documentBaseConfigs: [],
-            avatarUser: {},
+            avatarUsers: [],
             paymentMethods: [],
             shippingMethods: [],
             layouts: [],
@@ -81,8 +83,10 @@ Component.register('sw-media-quickinfo-usage', {
                 usages.push(this.getLayoutUsage(layout));
             });
 
-            if (!types.isEmpty(this.avatarUser)) {
-                usages.push(this.getAvatarUserUsage(this.avatarUser));
+            if (!types.isEmpty(this.avatarUsers)) {
+                this.avatarUsers.forEach((avatarUser) => {
+                    usages.push(this.getAvatarUserUsage(avatarUser));
+                });
             }
 
             return usages;
@@ -137,7 +141,7 @@ Component.register('sw-media-quickinfo-usage', {
         },
 
         loadAvatarUserAssociations() {
-            this.avatarUser = this.item.avatarUser;
+            this.avatarUsers = this.item.avatarUsers;
         },
 
         loadPaymentMethodAssociations() {
@@ -300,4 +304,4 @@ Component.register('sw-media-quickinfo-usage', {
             };
         },
     },
-});
+};

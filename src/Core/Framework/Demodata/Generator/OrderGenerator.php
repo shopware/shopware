@@ -3,16 +3,12 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
+use Faker\Generator;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
@@ -20,71 +16,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class OrderGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var Connection
+     * @var array<string, SalesChannelContext>
      */
-    private $connection;
-
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
-
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    /**
-     * @var OrderConverter
-     */
-    private $orderConverter;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
-
-    /**
-     * @var OrderDefinition
-     */
-    private $orderDefinition;
-
     private array $contexts = [];
 
-    private AmountCalculator $amountCalculator;
+    private Generator $faker;
 
-    private DeliveryProcessor $deliveryProcessor;
-
-    private CartCalculator $cartCalculator;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        AbstractSalesChannelContextFactory $contextFactory,
-        CartService $cartService,
-        OrderConverter $orderConverter,
-        EntityWriterInterface $writer,
-        OrderDefinition $orderDefinition,
-        AmountCalculator $amountCalculator,
-        DeliveryProcessor $deliveryProcessor,
-        CartCalculator $cartCalculator
+        private readonly Connection $connection,
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
+        private readonly CartService $cartService,
+        private readonly OrderConverter $orderConverter,
+        private readonly EntityWriterInterface $writer,
+        private readonly OrderDefinition $orderDefinition,
+        private readonly CartCalculator $cartCalculator
     ) {
-        $this->connection = $connection;
-        $this->contextFactory = $contextFactory;
-        $this->cartService = $cartService;
-        $this->orderConverter = $orderConverter;
-        $this->writer = $writer;
-        $this->orderDefinition = $orderDefinition;
-        $this->amountCalculator = $amountCalculator;
-        $this->deliveryProcessor = $deliveryProcessor;
-        $this->cartCalculator = $cartCalculator;
     }
 
     public function getDefinition(): string
@@ -94,73 +56,55 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $sql = <<<'SQL'
-SELECT LOWER(HEX(product.id)) AS id, product.price, trans.name
-FROM product
-LEFT JOIN product_translation trans ON product.id = trans.product_id
-LIMIT 150
-SQL;
-
+        $this->faker = $context->getFaker();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
-
-        $products = $this->connection->fetchAll($sql);
-        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
-        $customerIds = array_column($customerIds, 'id');
+        $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
+        $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
+        $customerIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
+        $tags = $this->getIds('tag');
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $context->getConsole()->progressStart($numberOfItems);
 
-        $lineItems = array_map(
-            function ($product) {
-                $productId = $product['id'];
+        $productLineItems = array_map(
+            fn ($productId) => (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $this->faker->randomDigit() + 1))
+                ->setStackable(true)
+                ->setRemovable(true),
+            $productIds
+        );
+        $promotionLineItems = array_map(
+            function ($promotionCode) {
+                $uniqueKey = 'promotion-' . $promotionCode;
 
-                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, random_int(1, 10)))
-                    ->setStackable(true)
-                    ->setRemovable(true);
+                return (new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE))
+                    ->setLabel($uniqueKey)
+                    ->setGood(false)
+                    ->setReferencedId($promotionCode)
+                    ->setPriceDefinition(new PercentagePriceDefinition(0));
             },
-            $products
+            $promotionCodes
         );
 
-        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)]);
-
-        $blueprint = $this->cartService->getCart(Uuid::randomHex(), $salesChannelContext);
-        $blueprint->addLineItems(new LineItemCollection($lineItems));
-        $blueprint->markModified();
-
-        $blueprint = $this->cartCalculator->calculate($blueprint, $salesChannelContext);
-
         $orders = [];
-
-        $lineItems = new LineItemCollection($lineItems);
 
         for ($i = 1; $i <= $numberOfItems; ++$i) {
             $customerId = $context->getFaker()->randomElement($customerIds);
 
             $salesChannelContext = $this->getContext($customerId, $salesChannelIds);
 
-            $itemCount = random_int(3, 5);
+            $cart = $this->cartService->createNew($salesChannelContext->getToken());
+            foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
+                $cart->add($lineItem);
+            }
+            foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
+                $cart->add($lineItem);
+            }
 
-            $offset = random_int(0, $lineItems->count()) - 10;
-
-            $new = $blueprint->getLineItems()->slice($offset, $itemCount);
-
-            $cart = $this->cartService->createNew($salesChannelContext->getToken(), 'demo-data');
-
-            $dataCollection = $blueprint->getData();
-            $shippingMethod = $salesChannelContext->getShippingMethod();
-            $dataCollection->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-            $cart->setData($dataCollection);
-
-            $cart->addLineItems($new);
-            $cart->addExtension(OrderConverter::ORIGINAL_ORDER_NUMBER, new IdStruct(Uuid::randomHex()));
-            $cart->setTransactions($blueprint->getTransactions());
-
-            $this->calculateAmount($salesChannelContext, $cart);
-            $this->deliveryProcessor->process($cart->getData(), $cart, $cart, $salesChannelContext, new CartBehavior());
-
+            $cart = $this->cartCalculator->calculate($cart, $salesChannelContext);
             $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $tempOrder['tags'] = $this->getTags($tags);
 
             $orders[] = $tempOrder;
 
@@ -178,6 +122,40 @@ SQL;
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return list<array{id: string}>
+     */
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    fn (string $id) => ['id' => $id],
+                    $chosenTags
+                );
+            }
+        }
+
+        return array_values($tagAssignments);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getIds(string $table): array
+    {
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+    }
+
+    /**
+     * @param array<string> $salesChannelIds
+     */
     private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
     {
         if (isset($this->contexts[$customerId])) {
@@ -191,16 +169,5 @@ SQL;
         $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 
         return $this->contexts[$customerId] = $context;
-    }
-
-    private function calculateAmount(SalesChannelContext $context, Cart $cart): void
-    {
-        $amount = $this->amountCalculator->calculate(
-            $cart->getLineItems()->getPrices(),
-            $cart->getDeliveries()->getShippingCosts(),
-            $context
-        );
-
-        $cart->setPrice($amount);
     }
 }

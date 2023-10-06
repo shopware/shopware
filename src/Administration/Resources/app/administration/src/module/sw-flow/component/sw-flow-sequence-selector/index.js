@@ -1,9 +1,13 @@
 import template from './sw-flow-sequence-selector.html.twig';
 import './sw-flow-sequence-selector.scss';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
-Component.register('sw-flow-sequence-selector', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     props: {
@@ -61,4 +65,4 @@ Component.register('sw-flow-sequence-selector', {
             });
         },
     },
-});
+};

@@ -1,0 +1,190 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/_action/order/document/download": {
+      "post": {
+        "tags": [
+          "Document Management"
+        ],
+        "summary": "Download a documents",
+        "description": "Download a multiple documents in one pdf file.",
+        "operationId": "downloadDocuments",
+        "requestBody": {
+          "description": "documentIds",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{32}$"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The documents.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document/{documentTypeName}/create": {
+      "post": {
+        "tags": [
+          "Document Management"
+        ],
+        "summary": "Create documents for orders",
+        "description": "Creates documents for orders. Documents can for example be an invoice or a delivery note.",
+        "operationId": "createDocuments",
+        "parameters": [
+          {
+            "name": "documentTypeName",
+            "in": "path",
+            "description": "The type of document to create",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "test",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "orderId",
+                    "type"
+                  ],
+                  "properties": {
+                    "orderId": {
+                      "description": "Identifier of the order.",
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "type": {
+                      "description": "Type of the document to be generated.",
+                      "type": "string"
+                    },
+                    "fileType": {
+                      "description": "Type of document file to be generated.",
+                      "type": "string",
+                      "default": "pdf"
+                    },
+                    "static": {
+                      "description": "Indicate if the document should be static or not.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "referencedDocumentId": {
+                      "description": "Identifier of the reverenced document.",
+                      "type": "string",
+                      "default": "null",
+                      "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "config": {
+                      "description": "Document specific configuration, like documentNumber, documentDate, documentComment.",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Documents created successfully. The `api/_action/order/document/create` route can be used to download the document."
+          }
+        }
+      }
+    },
+    "/_action/order/{orderId}/state/{transition}": {
+      "post": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "Transition an order to a new state",
+        "description": "Changes the order state and informs the customer via email if configured.",
+        "operationId": "orderStateTransition",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "transition",
+            "in": "path",
+            "description": "The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.\n\nNote: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "sendMail": {
+                    "description": "Controls if a mail should be sent to the customer."
+                  },
+                  "documentIds": {
+                    "description": "A list of document identifiers that should be attached",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    }
+                  },
+                  "mediaIds": {
+                    "description": "A list of media identifiers that should be attached",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    }
+                  },
+                  "stateFieldName": {
+                    "description": "This is the state column within the order database table. There should be no need to change it from the default.",
+                    "type": "string",
+                    "default": "stateId"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Todo: Use ref of `state_machine_transition` here"
+          }
+        }
+      }
+    }
+  }
+}

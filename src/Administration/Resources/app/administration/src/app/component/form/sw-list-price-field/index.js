@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-list-price-field.html.twig';
 import './sw-list-price-field.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-list-price-field', {
     template,
 
@@ -93,14 +100,19 @@ Component.register('sw-list-price-field', {
             default: false,
         },
 
-        // FIXME: add property type
-        // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
+            type: Boolean,
             required: false,
             default: false,
         },
 
         hidePurchasePrices: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideRegulationPrices: {
             type: Boolean,
             required: false,
             default: false,
@@ -133,6 +145,7 @@ Component.register('sw-list-price-field', {
                     linked: this.defaultPrice.linked,
                     net: this.convertPrice(this.defaultPrice.net),
                     listPrice: this.defaultPrice.listPrice,
+                    regulationPrice: this.defaultPrice.regulationPrice,
                 };
             },
             set(newValue) {
@@ -167,11 +180,47 @@ Component.register('sw-list-price-field', {
             },
         },
 
-        defaultListPrice() {
-            const price = this.defaultPrice.listPrice;
+        regulationPrice: {
+            get() {
+                const price = this.priceForCurrency;
 
-            if (price) {
-                return price;
+                if (price.regulationPrice) {
+                    return [price.regulationPrice];
+                }
+
+                return [{
+                    gross: null,
+                    currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                    linked: true,
+                    net: null,
+                }];
+            },
+
+            set(newValue) {
+                const price = this.priceForCurrency;
+
+                if (price) {
+                    this.$set(price, 'regulationPrice', newValue);
+                }
+            },
+        },
+
+        defaultListPrice() {
+            if (this.defaultPrice.listPrice) {
+                return this.defaultPrice.listPrice;
+            }
+
+            return {
+                currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                gross: null,
+                net: null,
+                linked: true,
+            };
+        },
+
+        defaultRegulationPrice() {
+            if (this.defaultPrice.regulationPrice) {
+                return this.defaultPrice.regulationPrice;
             }
 
             return {
@@ -197,6 +246,14 @@ Component.register('sw-list-price-field', {
 
             return this.$tc('global.sw-list-price-field.helpTextListPriceGross');
         },
+
+        regulationPriceHelpText() {
+            if (!this.vertical || this.compact) {
+                return null;
+            }
+
+            return this.$tc('global.sw-list-price-field.helpTextRegulationPriceGross');
+        },
     },
 
     methods: {
@@ -206,6 +263,14 @@ Component.register('sw-list-price-field', {
             }
 
             this.listPrice = value;
+        },
+
+        regulationPriceChanged(value) {
+            if (Number.isNaN(value.gross) || Number.isNaN(value.net)) {
+                value = null;
+            }
+
+            this.regulationPrice = value;
         },
 
         convertPrice(value) {

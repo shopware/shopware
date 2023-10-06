@@ -1,4 +1,9 @@
-# 2021-09-22 - Refactor theme inheritance
+---
+title: Refactor theme inheritance
+date: 2021-09-22
+area: storefront
+tags: [theme, storefront, inheritance]
+--- 
 
 ## Context
 Currently the themes can only inherit config fields from the default Storefront theme.

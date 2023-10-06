@@ -1,9 +1,11 @@
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-mapping-field', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['cmsService'],
@@ -127,6 +129,7 @@ Component.register('sw-cms-mapping-field', {
                 Object.keys(this.mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
                         types = [...types, ...this.mappingTypes[type]];
+                        types.sort();
                     }
                 });
             }
@@ -141,4 +144,4 @@ Component.register('sw-cms-mapping-field', {
             );
         },
     },
-});
+};

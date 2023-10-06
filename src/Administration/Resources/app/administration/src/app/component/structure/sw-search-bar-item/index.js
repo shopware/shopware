@@ -3,6 +3,9 @@ import './sw-search-bar-item.scss';
 
 const { Component, Application } = Shopware;
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders the search result items based on the item type.
@@ -12,6 +15,7 @@ const { Component, Application } = Shopware;
  * <sw-search-bar-item :item="{ type: 'customer', entity: [{ name: 'customer name', id: 'uuid' }]}">
  * </sw-search-bar-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-bar-item', {
     template,
 
@@ -157,6 +161,10 @@ Component.register('sw-search-bar-item', {
 
         currentUser() {
             return Shopware.State.get('session').currentUser;
+        },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
         },
     },
 

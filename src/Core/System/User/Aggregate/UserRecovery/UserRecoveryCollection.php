@@ -3,15 +3,12 @@
 namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(UserRecoveryEntity $entity)
- * @method UserRecoveryEntity[]    getIterator()
- * @method UserRecoveryEntity[]    getElements()
- * @method UserRecoveryEntity|null get(string $key)
- * @method UserRecoveryEntity|null first()
- * @method UserRecoveryEntity|null last()
+ * @extends EntityCollection<UserRecoveryEntity>
  */
+#[Package('system-settings')]
 class UserRecoveryCollection extends EntityCollection
 {
     public function getApiAlias(): string

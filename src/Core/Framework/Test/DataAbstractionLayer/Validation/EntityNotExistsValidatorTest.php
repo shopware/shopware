@@ -20,6 +20,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ValidatorBuilder;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class EntityNotExistsValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

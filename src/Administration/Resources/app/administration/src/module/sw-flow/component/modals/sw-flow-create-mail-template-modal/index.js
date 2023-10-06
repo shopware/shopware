@@ -1,12 +1,16 @@
 import template from './sw-flow-create-mail-template-modal.html.twig';
 import './sw-flow-create-mail-template-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
-Component.register('sw-flow-create-mail-template-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
@@ -37,7 +41,7 @@ Component.register('sw-flow-create-mail-template-modal', {
         },
 
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;
@@ -48,9 +52,7 @@ Component.register('sw-flow-create-mail-template-modal', {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix, innerMailTemplateType.availableEntities,
-                        ),
+                        entityMappingService.getEntityMapping(prefix, innerMailTemplateType.availableEntities),
                     ).forEach((val) => {
                         properties.push({
                             value: val,
@@ -63,6 +65,8 @@ Component.register('sw-flow-create-mail-template-modal', {
         },
 
         ...mapPropertyErrors('mailTemplate', [
+            'contentHtml',
+            'contentPlain',
             'mailTemplateTypeId',
             'subject',
         ]),
@@ -156,4 +160,4 @@ Component.register('sw-flow-create-mail-template-modal', {
                 });
         },
     },
-});
+};

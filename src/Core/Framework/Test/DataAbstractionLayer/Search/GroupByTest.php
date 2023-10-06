@@ -21,10 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class GroupByTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,15 +48,14 @@ class GroupByTest extends TestCase
      */
     private $writer;
 
-    /**
-     * @var GroupByDefinition
-     */
-    private $definition;
+    private GroupByTestDefinition $definition;
 
-    /**
-     * @var TestData
-     */
-    private $testData;
+    private \Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestData $testData;
+
+    public static function tearDownAfterClass(): void
+    {
+        KernelLifecycleManager::getKernel()->getContainer()->get(Connection::class)->executeStatement('DROP TABLE IF EXISTS group_by_test');
+    }
 
     protected function setUp(): void
     {
@@ -64,7 +67,7 @@ class GroupByTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS group_by_test;
 
             CREATE TABLE `group_by_test` (
@@ -80,7 +83,7 @@ class GroupByTest extends TestCase
 
         $this->connection->beginTransaction();
 
-        $this->definition = new GroupByDefinition();
+        $this->definition = new GroupByTestDefinition();
         $this->definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $this->getContainer()->set(TestDefinition::class, $this->definition);
 
@@ -165,10 +168,13 @@ class GroupByTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestData
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $ids = [];
 
@@ -200,9 +206,12 @@ class TestData
     }
 }
 
+/**
+ * @internal
+ */
 class TestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'test';
+    final public const ENTITY_NAME = 'test';
 
     public function getEntityName(): string
     {

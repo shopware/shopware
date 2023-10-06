@@ -1,12 +1,14 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-users-permissions-additional-permissions.html.twig';
 import './sw-users-permissions-additional-permissions.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-users-permissions-additional-permissions', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['privileges', 'appAclService'],
+    inject: ['privileges'],
 
     props: {
         role: {
@@ -42,15 +44,7 @@ Component.register('sw-users-permissions-additional-permissions', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.appAclService.addAppPermissions();
-        },
-
         isPrivilegeSelected(privilegeKey) {
             if (!this.role.privileges) {
                 return false;
@@ -85,4 +79,4 @@ Component.register('sw-users-permissions-additional-permissions', {
             });
         },
     },
-});
+};

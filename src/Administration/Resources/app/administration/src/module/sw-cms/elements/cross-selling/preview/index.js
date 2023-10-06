@@ -1,8 +1,16 @@
 import template from './sw-cms-el-preview-cross-selling.html.twig';
 import './sw-cms-el-preview-cross-selling.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-el-preview-cross-selling', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+};

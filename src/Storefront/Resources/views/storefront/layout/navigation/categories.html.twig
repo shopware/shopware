@@ -6,11 +6,7 @@
     {% endif %}
     {% set activeId = page.header.navigation.active.id %}
 
-    {% if page.product is defined %}
-        {% set activePath = page.product.categoryTree %}
-    {% else %}
-        {% set activePath = page.header.navigation.active.path %}
-    {% endif %}
+    {% set activePath = page.header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
@@ -30,7 +26,9 @@
                             <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
                                href="{{ link }}"
                                itemprop="url"
-                               {% if category_linknewtab(treeItem.category) %}target="_blank"{% endif %}
+                               {% if category_linknewtab(treeItem.category) %}target="_blank"
+                                   {% if treeItem.category.linkType == "external" %}rel="noopener noreferrer"{% endif %}
+                               {% endif %}
                                title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
                             </a>

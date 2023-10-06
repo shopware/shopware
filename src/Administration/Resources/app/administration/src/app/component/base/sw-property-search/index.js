@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
@@ -5,6 +9,9 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-property-search', {
     template,
 
@@ -65,10 +72,8 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.groupPage, 10);
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.setPage(this.groupPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
 
             return criteria;
@@ -82,10 +87,8 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupOptionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.optionPage, 10);
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
-            criteria.setPage(this.optionPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
             criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
@@ -93,25 +96,8 @@ Component.register('sw-property-search', {
             return criteria;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-         */
-        propertyGroupOptionSearchCriteria() {
-            const criteria = new Criteria();
-
-            const terms = this.searchTerm.split(' ');
-            terms.forEach((term) => {
-                criteria.addQuery(Criteria.equals('property_group_option.name', term), 5000);
-                criteria.addQuery(Criteria.contains('property_group_option.name', term), 500);
-                criteria.addQuery(Criteria.equals('property_group_option.group.name', term), 100);
-            });
-
-            criteria.setPage(this.optionPage);
-            criteria.setLimit(10);
-            criteria.setTotalCountMode(1);
-            criteria.addAssociation('group');
-
-            return criteria;
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -211,6 +197,10 @@ Component.register('sw-property-search', {
         },
 
         selectOptions(grid) {
+            if (!grid) {
+                return;
+            }
+
             grid.selectAll(false);
 
             this.preventSelection = true;
@@ -229,7 +219,10 @@ Component.register('sw-property-search', {
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
-                    this.selectOptions(this.$refs.optionSearchGrid);
+                }).then(() => {
+                    if (this.$refs.optionSearchGrid) {
+                        this.selectOptions(this.$refs.optionSearchGrid);
+                    }
                 });
         },
 
@@ -238,9 +231,7 @@ Component.register('sw-property-search', {
             this.displayTree = true;
             this.groupPage = 1;
             this.optionPage = 1;
-            if (this.collapsible) {
-                this.groupOptions = [];
-            }
+            this.groupOptions = [];
             this.loadGroups();
         },
 

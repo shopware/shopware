@@ -1,6 +1,20 @@
-import './component';
-import './preview';
+import CMS from '../../../constant/sw-cms.constant';
 
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-image-four-column', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-image-four-column', () => import('./component'));
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-four-column',
     label: 'sw-cms.blocks.image.imageFourColumn.label',
@@ -23,7 +37,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                        value: CMS.MEDIA.previewCamera,
+                        source: 'default',
                     },
                 },
             },
@@ -36,7 +51,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                        value: CMS.MEDIA.previewPlant,
+                        source: 'default',
                     },
                 },
             },
@@ -49,7 +65,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                        value: CMS.MEDIA.previewGlasses,
+                        source: 'default',
                     },
                 },
             },
@@ -62,7 +79,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_mountain_large.jpg',
+                        value: CMS.MEDIA.previewMountain,
+                        source: 'default',
                     },
                 },
             },

@@ -4,14 +4,17 @@ namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class FlowEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $name;
 
@@ -23,8 +26,12 @@ class FlowEntity extends Entity
 
     protected int $priority;
 
+    protected ?string $appFlowEventId = null;
+
+    protected ?AppFlowEventEntity $appFlowEvent = null;
+
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|Flow|null
      */
@@ -85,7 +92,7 @@ class FlowEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @return string|Flow|null
      */
@@ -97,7 +104,7 @@ class FlowEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @param string|Flow|null $payload
      */
@@ -124,5 +131,25 @@ class FlowEntity extends Entity
     public function setSequences(FlowSequenceCollection $sequences): void
     {
         $this->sequences = $sequences;
+    }
+
+    public function getAppFlowEvent(): ?AppFlowEventEntity
+    {
+        return $this->appFlowEvent;
+    }
+
+    public function setAppFlowEvent(?AppFlowEventEntity $appFlowEvent): void
+    {
+        $this->appFlowEvent = $appFlowEvent;
+    }
+
+    public function getAppFlowEventId(): ?string
+    {
+        return $this->appFlowEventId;
+    }
+
+    public function setAppFlowEventId(?string $appFlowEventId): void
+    {
+        $this->appFlowEventId = $appFlowEventId;
     }
 }

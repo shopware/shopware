@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Test\Page;
 
+/**
+ * @internal
+ */
 final class StorefrontPageTestConstants
 {
     public const CUSTOMER_FIRSTNAME = 'Max';

@@ -1,32 +1,49 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_product_select %}
 <span class="sw-order-product-select">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_select_blank_item %}
     <sw-text-field
         v-if="isShownItemLabelInput"
+        {% if VUE3 %}
+        v-model:value="item.label"
+        v-bind="$attrs"
+        {% else %}
         v-model="item.label"
+        {% endif %}
         size="small"
         :placeholder="$tc('sw-order.detailBase.columnProductName')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_select_existing_product %}
     <!-- eslint-disable vue/valid-v-else-if -->
     <sw-entity-single-select
         v-else-if="isShownProductSelect"
+        {% if VUE3 %}
+        v-model:value="product"
+        {% else %}
         v-model="product"
+        {% endif %}
         class="sw-order-product-select__single-select"
         :context="contextWithInheritance"
         :criteria="productCriteria"
         entity="product"
         size="small"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onItemChanged"
+        {% else %}
         @change="onItemChanged"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <slot
                 name="selection-label-property"
                 v-bind="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_select_results_variant_info %}
                 <sw-product-variant-info :variations="item.variation">
                     {{ item.translated.name || item.name }}
@@ -40,21 +57,22 @@
                 name="result-item"
                 v-bind="{ item, index }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-bind="{ item, index }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_product_select_results_list_result_label %}
                     <sw-product-variant-info :variations="item.variation">
                         {{ item.translated.name || item.name }}
                     </sw-product-variant-info>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
         </template>
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_show_product %}
     <template v-else>
         <span class="sw-order-product-select__label">

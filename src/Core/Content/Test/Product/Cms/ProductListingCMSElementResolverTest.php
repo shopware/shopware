@@ -8,7 +8,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
@@ -19,6 +19,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductListingCMSElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,10 +31,7 @@ class ProductListingCMSElementResolverTest extends TestCase
      */
     private $productListingCMSElementResolver;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -107,7 +107,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slot->setType('product-listing');
         $slot->addTranslated('config', $slotConfig);
 
-        static::expectException(ProductSortingNotFoundException::class);
+        static::expectException(ProductException::class);
 
         $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
     }
@@ -146,9 +146,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
-            return $actualSorting->getKey();
-        });
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
 
         $availableSortings = array_keys($availableSortings);
 
@@ -193,9 +191,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
-            return $actualSorting->getKey();
-        });
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
 
         $actualSortings = array_values($actualSortings);
 
@@ -265,7 +261,7 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         foreach ($expectations as $field => $expected) {
             if ($field === ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM) {
-                $value = $request->request->get($field, null);
+                $value = $request->request->all($field);
             } else {
                 $value = $request->request->get($field, true);
             }
@@ -274,7 +270,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         }
     }
 
-    public function filtersProvider()
+    public static function filtersProvider()
     {
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();
@@ -287,7 +283,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -303,7 +299,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -319,7 +315,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -335,7 +331,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -351,7 +347,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -367,7 +363,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -383,7 +379,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -399,7 +395,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [
@@ -415,7 +411,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
                 [
                     'filters' => [

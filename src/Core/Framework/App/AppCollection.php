@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @method void                  add(AppEntity $entity)
- * @method void                  set(string $key, AppEntity $entity)
- * @method \Generator<AppEntity> getIterator()
- * @method array<AppEntity>      getElements()
- * @method AppEntity|null        get(string $key)
- * @method AppEntity|null        first()
- * @method AppEntity|null        last()
+ * @extends EntityCollection<AppEntity>
  */
+#[Package('core')]
 class AppCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

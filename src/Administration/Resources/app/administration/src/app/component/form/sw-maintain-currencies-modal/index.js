@@ -1,9 +1,16 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-maintain-currencies-modal', {
     template,
     inject: ['repositoryFactory'],
@@ -35,6 +42,12 @@ Component.register('sw-maintain-currencies-modal', {
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
+            required: false,
+            default: false,
+        },
+
+        hideRegulationPrices: {
+            type: Boolean,
             required: false,
             default: false,
         },
@@ -98,7 +111,7 @@ Component.register('sw-maintain-currencies-modal', {
         },
 
         loadCurrencies() {
-            this.repositoryFactory.create('currency').search(new Criteria()).then(response => {
+            this.repositoryFactory.create('currency').search(new Criteria(1, 25)).then(response => {
                 this.currencyCollection = response;
                 this.sortCurrencies();
             });

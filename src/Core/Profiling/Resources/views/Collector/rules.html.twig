@@ -1,0 +1,72 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@WebProfiler/Icon/form.svg') }}
+        <span class="sf-toolbar-value">{{ collector.matchingRuleCount }} active rules</span>
+    {% endset %}
+
+    {% if collector.matchingRuleCount > 0 %}
+        {% set text %}
+            {% for rule in collector.data %}
+                {% if loop.index <= 3 %}
+                    <div class="sf-toolbar-info-piece">
+                        <b>{{ rule.name }}</b>
+                        <span>{{ rule.priority }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if collector.matchingRuleCount > 3 %}
+                <div class="sf-toolbar-info-piece">
+                    <span class="sf-toolbar-status">+{{ collector.matchingRuleCount - 3 }} more</span>
+                </div>
+            {% endif %}
+        {% endset %}
+    {% endif %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock %}
+
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label">
+        <span class="icon">{{ include('@WebProfiler/Icon/form.svg') }}</span>
+        <strong>Active Rules</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {# Optional, for showing the most details. #}
+    <h2>Active Rules</h2>
+
+    {% if collector.matchingRuleCount > 0 %}
+        <table class="active-rules" data-filters>
+            <thead>
+            <tr>
+                <th>Priority</th>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Module types</th>
+                <th class="full-width">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rule in collector.data %}
+                <tr>
+                    <td class="text-normal nowrap">{{ rule.priority }}</td>
+                    <td class="font-normal text-small text-bold nowrap">{{ rule.name }}</td>
+                    <td class="text-normal nowrap"><span class="badge text-small">{{ rule.id }}</span></td>
+                    <td class="text-normal nowrap">{% if rule.moduleTypes.types is defined %}{{ rule.moduleTypes.types|join(', ') }}{% endif %}</td>
+                    <td class="font-normal text-small">{{ rule.description }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty">
+            <p>No active rules.</p>
+        </div>
+    {% endif %}
+{% endblock %}

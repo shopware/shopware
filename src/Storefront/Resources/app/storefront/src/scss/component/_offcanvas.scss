@@ -1,62 +1,34 @@
 /*
-Offcanvas
+OffCanvas
 ==============================================
-Move page content like the navigation menu in a sliding offcanvas menu.
+Move page content like the navigation menu in a sliding OffCanvas menu.
 The sliding direction can be left or right.
+
+@see https://getbootstrap.com/docs/5.2/components/offcanvas
 */
 
 .offcanvas {
-    background: $white;
-    height: 100%;
-    width: 90%;
-    overflow-y: auto;
-    position: fixed;
-    top: 0;
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
-    z-index: $offcanvas-zindex;
 
-    &.is-left {
-        left: 0;
-        transform: translateX(-100%);
-
-        .offcanvas-close {
-            align-items: center;
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: space-between;
-        }
+    &.offcanvas-start .offcanvas-close {
+        align-items: center;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
     }
 
-    &.is-right {
-        right: 0;
-        transform: translateX(100%);
-    }
-
-    &.is-open {
-        transform: translateX(0) !important;
+    &.offcanvas-bottom {
+        --#{$prefix}offcanvas-height: 90%;
+        border-radius: 8px 8px 0 0;
     }
 
     &.is-fullwidth {
         width: 100%;
     }
 
-    &.is-bottom {
-        bottom: 0;
-        top: auto;
-        height: 90%;
-        width: 100%;
-        border-radius: 8px 8px 0 0;
-        transform: translateY(100%);
-
-        .offcanvas-close {
-            display: flex;
-            border: 0;
-            padding: 0;
-        }
-    }
-
     .offcanvas-header {
-        padding: $spacer $grid-gutter-width / 2;
+        --#{$prefix}offcanvas-padding-y: 0;
+        --#{$prefix}offcanvas-padding-x: 0;
         background-color: $white;
 
         .offcanvas-title {
@@ -89,7 +61,7 @@ The sliding direction can be left or right.
     }
 
     &,
-    .offcanvas-content-container {
+    .offcanvas-body {
         > .loader {
             position: absolute;
             left: 50%;
@@ -99,18 +71,12 @@ The sliding direction can be left or right.
         }
     }
 
-    .offcanvas-content-container {
-        padding: $grid-gutter-width / 2;
-        width: 100%;
-    }
-}
-
-@include media-breakpoint-up(sm) {
-    .offcanvas {
-        width: auto;
-
-        .offcanvas-content-container {
-            width: 400px;
+    // For horizontal OffCanvas, always reserve some space when the mobile viewport
+    // reaches the width of the OffCanvas itself, so it does not cover the whole viewport.
+    &.offcanvas-end,
+    &.offcanvas-start {
+        @media (max-width: $offcanvas-horizontal-width + ($grid-gutter-width / 2)) {
+            width: calc(100% - #{$grid-gutter-width / 2});
         }
     }
 }

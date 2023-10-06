@@ -3,12 +3,16 @@ import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
-Component.register('sw-settings-shipping-detail', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -45,7 +49,7 @@ Component.register('sw-settings-shipping-detail', {
             isProcessLoading: false,
             isLoading: false,
             currenciesLoading: false,
-            customFieldSets: null,
+            customFieldSets: [],
         };
     },
 
@@ -118,7 +122,7 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -127,11 +131,13 @@ Component.register('sw-settings-shipping-detail', {
                 ],
             ));
 
+            criteria.addAssociation('conditions');
+
             return criteria;
         },
 
         shippingMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('prices');
             criteria.addAssociation('tags');
             criteria.getAssociation('prices').addAssociation('calculationRule');
@@ -187,7 +193,6 @@ Component.register('sw-settings-shipping-detail', {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
             } else {
                 this.loadEntityData();
-                this.loadCustomFieldSets();
             }
             this.loadCurrencies();
         },
@@ -213,12 +218,14 @@ Component.register('sw-settings-shipping-detail', {
                 this.shippingMethodCriteria,
             ).then(res => {
                 Shopware.State.commit('swShippingDetail/setShippingMethod', res);
-                this.isLoading = false;
+                this.loadCustomFieldSets().then(() => {
+                    this.isLoading = false;
+                });
             });
         },
 
         loadCustomFieldSets() {
-            this.customFieldDataProviderService.getCustomFieldSets('shipping_method').then((sets) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('shipping_method').then((sets) => {
                 this.customFieldSets = sets;
             });
         },
@@ -325,4 +332,4 @@ Component.register('sw-settings-shipping-detail', {
             return currencies;
         },
     },
-});
+};

@@ -1,12 +1,16 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
-const { isEmpty } = Shopware.Utils.types;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-category-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
@@ -78,10 +82,8 @@ Component.register('sw-product-category-form', {
                 '/sales-channel',
                 'sales_channel',
                 Shopware.Context.api,
-                new Criteria(),
+                new Criteria(1, 25),
             );
-
-            this.fetchSalesChannelSystemConfig();
         },
 
         displayAdvancedVisibility() {
@@ -111,61 +113,5 @@ Component.register('sw-product-category-form', {
 
             return this.product.visibilities;
         },
-
-        fetchSalesChannelSystemConfig() {
-            if (typeof this.product.isNew !== 'function' || !this.product.isNew()) {
-                return Promise.resolve();
-            }
-
-            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(async (configData) => {
-                if (isEmpty(configData)) {
-                    return;
-                }
-
-                const defaultSalesChannelIds = configData?.['core.defaultSalesChannel.salesChannel'];
-                const defaultVisibilities = configData?.['core.defaultSalesChannel.visibility'];
-                this.product.active = !!configData?.['core.defaultSalesChannel.active'];
-
-                if (!defaultSalesChannelIds || defaultSalesChannelIds.length <= 0) {
-                    return;
-                }
-
-                const salesChannels = await this.fetchSalesChannelByIds(defaultSalesChannelIds);
-
-                if (!salesChannels.length) {
-                    return;
-                }
-
-                salesChannels.forEach((salesChannel) => {
-                    const visibilities = this.createProductVisibilityEntity(defaultVisibilities, salesChannel);
-                    this.product.visibilities.push(visibilities);
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-product.visibility.errorMessage'),
-                });
-            });
-        },
-
-        fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria();
-
-            criteria.addFilter(Criteria.equalsAny('id', ids));
-
-            return this.salesChannelRepository.search(criteria);
-        },
-
-        createProductVisibilityEntity(visibility, salesChannel) {
-            const visibilities = this.productVisibilityRepository.create(Context.api);
-
-            Object.assign(visibilities, {
-                visibility: visibility[salesChannel.id] || this.defaultVisibility,
-                productId: this.product.id,
-                salesChannelId: salesChannel.id,
-                salesChannel: salesChannel,
-            });
-
-            return visibilities;
-        },
     },
-});
+};

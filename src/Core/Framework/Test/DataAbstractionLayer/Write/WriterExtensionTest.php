@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -17,20 +18,17 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Produ
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class WriterExtensionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection|object
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var object
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
@@ -44,7 +42,7 @@ class WriterExtensionTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -65,7 +63,7 @@ class WriterExtensionTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeStatement('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
 
         $this->removeExtension(ProductExtension::class);
@@ -97,11 +95,9 @@ class WriterExtensionTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var EntityCollection $productExtensions */
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
@@ -131,11 +127,9 @@ class WriterExtensionTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var EntityCollection $productExtensions */
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);

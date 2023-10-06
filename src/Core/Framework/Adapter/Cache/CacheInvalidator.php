@@ -3,69 +3,39 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CacheInvalidator extends ScheduledTaskHandler
+/**
+ * @final
+ */
+#[Package('core')]
+class CacheInvalidator
 {
-    private const CACHE_KEY = 'invalidation';
+    /**
+     * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
+     */
+    public function __construct(
+        private readonly int $delay,
+        private readonly array $adapters,
+        private readonly AbstractInvalidatorStorage $cache,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly LoggerInterface $logger
+    ) {
+    }
 
     /**
-     * @var CacheItemPoolInterface[]
+     * @param list<string> $tags
      */
-    private array $adapters;
-
-    private TagAwareAdapterInterface $cache;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private int $delay;
-
-    private int $count;
-
-    public function __construct(
-        int $delay,
-        int $count,
-        array $adapters,
-        TagAwareAdapterInterface $cache,
-        EventDispatcherInterface $dispatcher,
-        EntityRepositoryInterface $scheduledTaskRepository
-    ) {
-        parent::__construct($scheduledTaskRepository);
-        $this->dispatcher = $dispatcher;
-        $this->adapters = $adapters;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->cache = $cache;
-        $this->delay = $delay;
-        $this->count = $count;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [InvalidateCacheTask::class];
-    }
-
-    public function run(): void
-    {
-        try {
-            if ($this->delay <= 0) {
-                $this->invalidateExpired(null);
-
-                return;
-            }
-
-            $time = new \DateTime();
-            $time->modify(sprintf('-%s second', $this->delay));
-            $this->invalidateExpired($time);
-        } catch (\Throwable $e) {
-        }
-    }
-
     public function invalidate(array $tags, bool $force = false): void
     {
+        /** @var list<string> $tags */
         $tags = array_filter(array_unique($tags));
 
         if (empty($tags)) {
@@ -73,7 +43,7 @@ class CacheInvalidator extends ScheduledTaskHandler
         }
 
         if ($this->delay > 0 && !$force) {
-            $this->log($tags);
+            $this->cache->store($tags);
 
             return;
         }
@@ -81,58 +51,31 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->purge($tags);
     }
 
-    public function invalidateExpired(?\DateTime $time): void
+    /**
+     * @deprecated tag:v6.6.0 - The parameter $time is obsolete and will be removed in v6.6.0.0
+     */
+    public function invalidateExpired(?\DateTime $time = null): void
     {
-        $item = $this->cache->getItem(self::CACHE_KEY);
-
-        $values = CacheCompressor::uncompress($item) ?? [];
-
-        $invalidate = [];
-        foreach ($values as $key => $timestamp) {
-            $timestamp = new \DateTime($timestamp);
-
-            if ($time !== null && $timestamp > $time) {
-                continue;
-            }
-
-            $invalidate[] = $key;
-            unset($values[$key]);
-
-            if (\count($invalidate) > $this->count) {
-                break;
-            }
+        if ($time) {
+            Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The parameter $time in \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator::invalidateExpired is obsolete and will be removed in v6.6.0.0');
         }
 
-        $item = CacheCompressor::compress($item, $values);
+        $tags = $this->cache->loadAndDelete();
 
-        $this->cache->save($item);
-        $this->purge($invalidate);
-    }
-
-    private function log(array $logs): void
-    {
-        $item = $this->cache->getItem(self::CACHE_KEY);
-
-        $values = CacheCompressor::uncompress($item) ?? [];
-
-        $time = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        foreach ($logs as $log) {
-            $values[$log] = $time;
-        }
-
-        $item = CacheCompressor::compress($item, $values);
-
-        $this->cache->save($item);
-    }
-
-    private function purge(array $keys): void
-    {
-        $keys = array_unique(array_filter($keys));
-
-        if (empty($keys)) {
+        if (empty($tags)) {
             return;
         }
 
+        $this->logger->debug(sprintf('Purged %d tags', \count($tags)));
+
+        $this->purge($tags);
+    }
+
+    /**
+     * @param list<string> $keys
+     */
+    private function purge(array $keys): void
+    {
         foreach ($this->adapters as $adapter) {
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);

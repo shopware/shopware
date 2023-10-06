@@ -4,12 +4,15 @@ namespace Shopware\Core\Framework\Api\Response\Type;
 
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {
     public function createRedirectResponse(EntityDefinition $definition, string $id, Request $request, Context $context): Response
@@ -30,6 +33,14 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
         return $apiCase . '/' . $this->camelCaseToSnailCase($definition->getEntityName());
     }
 
+    /**
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param EntitySearchResult<TEntityCollection> $searchResult
+     * @param array<string, mixed>                 $parameters
+     *
+     * @return array{first?: string, prev?: string, next?: string, last?: string}
+     */
     protected function createPaginationLinks(EntitySearchResult $searchResult, string $uri, array $parameters): array
     {
         $limit = $searchResult->getCriteria()->getLimit() ?? 0;
@@ -84,6 +95,9 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
         return $pagination;
     }
 
+    /**
+     * @param array<string, mixed>  $parameters
+     */
     protected function buildPaginationUrl(string $uri, array $parameters, int $limit, int $page): string
     {
         $params = array_merge($parameters, ['limit' => $limit, 'page' => $page]);
@@ -100,6 +114,6 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     {
         $input = str_replace('_', '-', $input);
 
-        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 }

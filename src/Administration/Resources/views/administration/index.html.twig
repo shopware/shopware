@@ -19,7 +19,14 @@
         <meta name="referrer" content="always">
     {% endblock %}
 
-    <link rel="stylesheet" href="{{ asset('static/css/vendors-node.css', '@Administration') }}">
+    <script nonce="{{ cspNonce }}" type="text/javascript">
+        window._features_ = {{ features|json_encode|raw }};
+
+        window.__sw__ = {
+            assetPath: '{{ asset('', 'asset') }}',
+        };
+    </script>
+
     <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
 
 </head>
@@ -29,9 +36,6 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/runtime.js', '@Administration') }}"></script>
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/commons.js', '@Administration') }}"></script>
 <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
 <script nonce="{{ cspNonce }}">
@@ -73,10 +77,13 @@
             assetPath: '{{ asset('', 'asset') }}'
         },
         appContext: {
-            features: {{ features|json_encode|raw }},
+            features: window._features_,
             firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
             systemCurrencyId: '{{ systemCurrencyId }}',
-            systemCurrencyISOCode: '{{ systemCurrencyISOCode }}'
+            systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
+            disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
+            adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
+            storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }}
         }
     });
 </script>

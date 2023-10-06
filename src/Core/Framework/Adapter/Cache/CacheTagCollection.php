@@ -2,10 +2,19 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class CacheTagCollection
 {
+    /**
+     * @var array<string, true>
+     */
     private array $keys = ['all' => true];
 
+    /**
+     * @var array<string, array<string, true>>
+     */
     private array $traces = [];
 
     public function reset(): void
@@ -15,9 +24,9 @@ class CacheTagCollection
     }
 
     /**
-     * @param string|array $tags
+     * @param string|array<string> $tags
      */
-    public function add($tags): void
+    public function add(string|array $tags): void
     {
         foreach (array_keys($this->keys) as $trace) {
             if (\is_string($tags)) {
@@ -33,7 +42,11 @@ class CacheTagCollection
     }
 
     /**
-     * @return mixed|null All kind of data could be cached
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
      */
     public function trace(string $key, \Closure $param)
     {
@@ -47,6 +60,9 @@ class CacheTagCollection
         return $result;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];

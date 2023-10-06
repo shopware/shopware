@@ -1,9 +1,11 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-change-type-field-renderer.html.twig';
 import './sw-bulk-edit-change-type-field-renderer.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-bulk-edit-change-type-field-renderer', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['feature'],
@@ -58,8 +60,18 @@ Component.register('sw-bulk-edit-change-type-field-renderer', {
         },
 
         onChangeValue(value, fieldName) {
-            this.bulkEditData[fieldName].value = value;
+            if (!this.bulkEditData[fieldName].isInherited) {
+                this.bulkEditData[fieldName].value = value;
+            }
             this.$emit('change-value', fieldName, value);
         },
+
+        onInheritanceRestore(item) {
+            this.$emit('inheritance-restore', item);
+        },
+
+        onInheritanceRemove(item) {
+            this.$emit('inheritance-remove', item);
+        },
     },
-});
+};

@@ -5,25 +5,26 @@ namespace Shopware\Core\Checkout\Promotion\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class PromotionCodeOfTypeRule extends Rule
 {
-    protected ?string $promotionCodeType;
+    final public const RULE_NAME = 'promotionCodeOfType';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $promotionCodeType = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $promotionCodeType = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->promotionCodeType = $promotionCodeType;
     }
 
     public function match(RuleScope $scope): bool
@@ -63,14 +64,16 @@ class PromotionCodeOfTypeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'promotionCodeType' => [new NotBlank(), new Type('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'promotionCodeType' => RuleConstraints::string(),
+            'operator' => RuleConstraints::stringOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'promotionCodeOfType';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->selectField('promotionCodeType', ['global', 'fixed', 'individual']);
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
@@ -80,15 +83,7 @@ class PromotionCodeOfTypeRule extends Rule
         }
 
         $promotionCodeType = $lineItem->getPayloadValue('promotionCodeType');
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return strcasecmp($promotionCodeType, $this->promotionCodeType) === 0;
 
-            case self::OPERATOR_NEQ:
-                return strcasecmp($promotionCodeType, $this->promotionCodeType) !== 0;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::string($promotionCodeType, $this->promotionCodeType, $this->operator);
     }
 }

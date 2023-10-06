@@ -1,10 +1,20 @@
+{% set searchWidgetOptions = {
+    searchWidgetMinChars: page.header.activeLanguage.productSearchConfig.minSearchLength ?: 3
+} %}
+
 {% block layout_header_search %}
     <div class="collapse"
          id="searchCollapse">
         <div class="header-search">
             <form action="{{ path('frontend.search.page') }}"
                   method="get"
-                  data-search-form="true"
+                  {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-search-form" is deprecated. Use "data-search-widget" instead #}
+                  {% if feature('v6.6.0.0') %}
+                      data-search-widget="true"
+                  {% else %}
+                      data-search-form="true"
+                  {% endif %}
+                  data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
                   data-url="{{ path('frontend.search.suggest') }}?search="
                   class="header-search-form">
                 {% block layout_header_search_input_group %}
@@ -22,15 +32,13 @@
                         {% endblock %}
 
                         {% block layout_header_search_button %}
-                            <div class="input-group-append">
-                                <button type="submit"
-                                        class="btn header-search-btn"
-                                        aria-label="{{ "header.searchButton"|trans|striptags }}">
-                                    <span class="header-search-icon">
-                                        {% sw_icon 'search' %}
-                                    </span>
-                                </button>
-                            </div>
+                            <button type="submit"
+                                    class="btn header-search-btn"
+                                    aria-label="{{ "header.searchButton"|trans|striptags }}">
+                                <span class="header-search-icon">
+                                    {% sw_icon 'search' %}
+                                </span>
+                            </button>
                         {% endblock %}
                     </div>
                 {% endblock %}

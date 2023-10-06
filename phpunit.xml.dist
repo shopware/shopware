@@ -6,7 +6,7 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
             <!--
                 DO NOT change this to a more generic structure.
@@ -18,9 +18,9 @@
             <directory suffix=".php">src/Core/Checkout</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
             <directory suffix=".php">src/Core/Maintenance</directory>
-            <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
-            <directory suffix=".php">src/Elasticsearch</directory>
+            <directory suffix=".php">src/Core/Installer</directory>
+
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -28,40 +28,55 @@
             <file>src/Core/PlatformRequest.php</file>
             <file>src/Core/SalesChannelRequest.php</file>
 
+            <directory suffix=".php">src/Elasticsearch</directory>
+
             <directory suffix=".php">src/Administration/Controller</directory>
             <directory suffix=".php">src/Administration/DependencyInjection</directory>
             <directory suffix=".php">src/Administration/Events</directory>
             <directory suffix=".php">src/Administration/Framework</directory>
+            <directory suffix=".php">src/Administration/Notification</directory>
             <directory suffix=".php">src/Administration/Service</directory>
             <directory suffix=".php">src/Administration/Snippet</directory>
+            <directory suffix=".php">src/Administration/System</directory>
             <file>src/Administration/Administration.php</file>
 
             <directory suffix=".php">src/Storefront/Checkout</directory>
             <directory suffix=".php">src/Storefront/Controller</directory>
             <directory suffix=".php">src/Storefront/DependencyInjection</directory>
-            <directory suffix=".php">src/Storefront/Events</directory>
+            <directory suffix=".php">src/Storefront/Event</directory>
             <directory suffix=".php">src/Storefront/Exception</directory>
             <directory suffix=".php">src/Storefront/Framework</directory>
             <directory suffix=".php">src/Storefront/Page</directory>
             <directory suffix=".php">src/Storefront/Pagelet</directory>
             <directory suffix=".php">src/Storefront/Theme</directory>
             <file>src/Storefront/Storefront.php</file>
+            <file>src/Core/Test/FeatureFlagExtension.php</file>
+            <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
-            <directory suffix=".php">src/Core/Test</directory>
+            <file>src/Core/Framework/Adapter/Twig/functions.php</file>
+            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/Checkout/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
-            <directory suffix=".php">src/Core/Migration</directory>
-            <directory suffix=".php">src/Core/Profiling/Test</directory>
+            <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
 
             <directory suffix=".php">src/Elasticsearch/Test</directory>
 
             <directory suffix=".php">src/Administration/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">./vendor</directory>
+            <directory suffix=".php">./var</directory>
+
+            <directory suffix="Definition.php">src/</directory>
+            <directory suffix="Entity.php">src/</directory>
+            <directory suffix="Event.php">src/</directory>
+            <directory suffix="Field.php">src/</directory>
+            <directory suffix="Struct.php">src/</directory>
+            <directory suffix="Collection.php">src/</directory>
         </exclude>
       </coverage>
     <php>
@@ -70,14 +85,15 @@
         <env name="APP_ENV" value="test" />
         <env name="APP_DEBUG" value="1" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
+        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0" />
 
         <env name="SHELL_VERBOSITY" value="-1" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <!--<env name="SYMFONY_DEPRECATIONS_HELPER" value="/A tree builder without a root node is deprecated since Symfony 4\.2 and will not be supported anymore in 5\.0\./" />-->
+<!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
+         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
     </php>
     <testsuites>
         <testsuite name="administration">
@@ -85,9 +101,6 @@
         </testsuite>
         <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
-        </testsuite>
-        <testsuite name="checkout">
-            <directory>src/Core/Checkout/Test</directory>
         </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
@@ -99,27 +112,28 @@
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
         </testsuite>
-        <testsuite name="profiling">
-            <directory>src/Core/Profiling/Test</directory>
-        </testsuite>
         <testsuite name="maintenance">
             <directory>src/Core/Maintenance/Test</directory>
         </testsuite>
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
-        <testsuite name="elasticsearch">
-            <directory>src/Elasticsearch/Test</directory>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
         </testsuite>
-        <testsuite name="docs">
-            <directory>src/Docs/Test</directory>
-            <directory suffix="example.php">src/Docs/Resources/current/</directory>
+
+        <testsuite name="integration">
+            <directory>tests/integration</directory>
+        </testsuite>
+
+        <testsuite name="migration-tests">
+            <directory>tests/migration</directory>
         </testsuite>
 
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
-            <exclude>src/Recovery/Test</exclude>
+            <directory>tests/unit</directory>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
@@ -130,16 +144,16 @@
                 <array>
                     <!-- set this option to 0 to disable the DebugClassLoader integration -->
                     <element key="debug-class-loader"><integer>0</integer></element>
+                    <element key="time-sensitive"><string>Symfony\Bridge\Doctrine\Middleware\Debug</string></element>
                 </array>
             </arguments>
         </listener>
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
-
-        <!--Enable to see Test structure violations. (Not formatted) -->
-        <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
+        <listener class="Shopware\Core\Test\PHPUnit\Extension\DatadogListener" />
     </listeners>
-    <!--Enable to see the db sideeffects of the tests. -->
-    <!--<extensions>
-        <extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension"></extension>
-    </extensions>-->
+    <extensions>
+        <extension class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension" />
+        <!--Enable to see the db sideeffects of the tests. -->
+        <!--<extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension" />-->
+    </extensions>
 </phpunit>

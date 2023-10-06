@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/form/sw-list-price-field should be rendered correctly 1`] = `
+<div
+  class="sw-list-price-field"
+>
+  <div
+    class="sw-list-price-field__price"
+  >
+    <sw-price-field-stub
+      class="sw-list-price-field__price-field"
+      currency="[object Object]"
+      default-price="[object Object]"
+      label="true"
+      price="[object Object],[object Object]"
+      required=""
+      tax-rate="[object Object]"
+    />
+  </div>
+   
+  <div
+    class="sw-list-price-field__purchase-price"
+  >
+    <sw-price-field-stub
+      class="sw-purchase-price-field"
+      currency="[object Object]"
+      gross-label="sw-product.priceForm.labelPurchasePriceGross"
+      net-label="sw-product.priceForm.labelPurchasePriceNet"
+      price="[object Object]"
+      tax-rate="[object Object]"
+    />
+  </div>
+   
+  <div
+    class="sw-list-price-field__list-price"
+  >
+    <sw-price-field-stub
+      allow-empty=""
+      class="sw-list-price-field__list-price-field"
+      currency="[object Object]"
+      default-price="[object Object]"
+      gross-label="global.sw-list-price-field.labelListPriceGross"
+      label="true"
+      net-label="global.sw-list-price-field.labelListPriceNet"
+      price="[object Object]"
+      tax-rate="[object Object]"
+    />
+  </div>
+   
+  <div
+    class="sw-list-price-field__regulation-price"
+  >
+    <sw-price-field-stub
+      allow-empty=""
+      class="sw-list-price-field__regulation-price-field"
+      currency="[object Object]"
+      default-price="[object Object]"
+      gross-label="global.sw-list-price-field.labelRegulationPriceGross"
+      label="true"
+      net-label="global.sw-list-price-field.labelRegulationPriceNet"
+      price="[object Object]"
+      tax-rate="[object Object]"
+    />
+  </div>
+</div>
+`;

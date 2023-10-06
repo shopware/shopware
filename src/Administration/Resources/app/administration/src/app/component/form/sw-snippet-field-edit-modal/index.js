@@ -4,24 +4,26 @@ import template from './sw-snippet-field-edit-modal.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @status ready
  * @description The modal component used to edit snippet values in `<sw-snippet-field>`.
  * @example-type code-only
  * @component-example
  * <sw-snippet-field-edit-modal
- * :snippets="snippets"
- * :snippetSets="snippetSets"
- * :translationKey="snippet"
- * :fieldType="fieldType"
- * @modal-close="closeEditModal"
- * @save="onSave">
+ *     :snippets="snippets"
+ *     :snippetSets="snippetSets"
+ *     :translationKey="snippet"
+ *     :fieldType="fieldType"
+ *     \@modal-close="closeEditModal"
+ *     \@save="onSave">
  * </sw-snippet-field-edit-modal>
  */
 Component.register('sw-snippet-field-edit-modal', {
     template,
 
     inject: [
-        // @Jonas no usage found, still relevant?
         'acl',
         'repositoryFactory',
     ],
@@ -72,6 +74,14 @@ Component.register('sw-snippet-field-edit-modal', {
 
         snippetRepository() {
             return this.repositoryFactory.create('snippet');
+        },
+
+        textField() {
+            return this.fieldType === 'text';
+        },
+
+        textArea() {
+            return this.fieldType === 'textarea';
         },
     },
 

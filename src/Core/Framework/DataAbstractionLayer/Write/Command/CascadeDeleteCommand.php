@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @final
+ */
+#[Package('core')]
 class CascadeDeleteCommand extends DeleteCommand
 {
     public function isValid(): bool

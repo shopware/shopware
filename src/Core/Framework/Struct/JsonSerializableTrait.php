@@ -2,8 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait JsonSerializableTrait
 {
+    /**
+     * @return array<mixed>
+     */
     public function jsonSerialize(): array
     {
         $vars = get_object_vars($this);
@@ -12,6 +18,9 @@ trait JsonSerializableTrait
         return $vars;
     }
 
+    /**
+     * @param array<mixed> $array
+     */
     protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
     {
         foreach ($array as &$value) {

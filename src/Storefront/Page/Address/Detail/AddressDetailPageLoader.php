@@ -4,61 +4,44 @@ namespace Shopware\Storefront\Page\Address\Detail;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class AddressDetailPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
+     * @internal
      */
-    private $genericLoader;
-
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
-
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    private AbstractListAddressRoute $listAddressRoute;
-
     public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractCountryRoute $countryRoute,
-        AbstractSalutationRoute $salutationRoute,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractListAddressRoute $listAddressRoute
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractCountryRoute $countryRoute,
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractListAddressRoute $listAddressRoute,
+        private readonly AbstractSalutationsSorter $salutationsSorter,
     ) {
-        $this->genericLoader = $genericLoader;
-        $this->countryRoute = $countryRoute;
-        $this->salutationRoute = $salutationRoute;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->listAddressRoute = $listAddressRoute;
     }
 
     /**
@@ -66,7 +49,7 @@ class AddressDetailPageLoader
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidUuidException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext, CustomerEntity $customer): AddressDetailPage
     {
@@ -98,11 +81,7 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
-
-        return $salutations;
+        return $this->salutationsSorter->sort($salutations);
     }
 
     /**
@@ -143,7 +122,7 @@ class AddressDetailPageLoader
         $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
-            throw new AddressNotFoundException($addressId);
+            throw CustomerException::addressNotFound($addressId);
         }
 
         return $address;

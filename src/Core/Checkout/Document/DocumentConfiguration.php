@@ -2,10 +2,23 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[\AllowDynamicProperties]
+#[Package('checkout')]
 class DocumentConfiguration extends Struct
 {
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var array<string>
+     */
+    protected $deliveryCountries;
+
     /**
      * @var bool|null
      */
@@ -30,6 +43,11 @@ class DocumentConfiguration extends Struct
      * @var string|null
      */
     protected $documentNumber;
+
+    /**
+     * @var string|null
+     */
+    protected $documentDate;
 
     /**
      * @var string|null
@@ -104,6 +122,11 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      */
+    protected $companyPhone;
+
+    /**
+     * @var string|null
+     */
     protected $companyUrl;
 
     /**
@@ -157,16 +180,27 @@ class DocumentConfiguration extends Struct
     protected $custom = [];
 
     /**
+     * @var bool
+     */
+    protected $diplayLineItemPosition;
+
+    /**
+     * @var bool
+     */
+    protected $displayInCustomerAccount;
+
+    /**
+     * @var string
+     */
+    protected $documentTypeId;
+
+    /**
      * @param string                     $name
      * @param array|bool|int|string|null $value
-     *
-     * @return $this
      */
-    public function __set($name, $value)
+    public function __set($name, $value): void
     {
-        $this->$name = $value;
-
-        return $this;
+        $this->$name = $value; /* @phpstan-ignore-line */
     }
 
     /**
@@ -176,7 +210,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
-        return $this->$name;
+        return $this->$name; /* @phpstan-ignore-line */
     }
 
     /**
@@ -224,6 +258,11 @@ class DocumentConfiguration extends Struct
         return $this->documentComment;
     }
 
+    public function getDocumentDate(): ?string
+    {
+        return $this->documentDate;
+    }
+
     public function setDocumentComment(?string $documentComment): void
     {
         $this->documentComment = $documentComment;
@@ -247,6 +286,16 @@ class DocumentConfiguration extends Struct
     public function setPageSize(?string $pageSize): void
     {
         $this->pageSize = $pageSize;
+    }
+
+    public function merge(array $config): self
+    {
+        return DocumentConfigurationFactory::mergeConfiguration($this, $config);
+    }
+
+    public function buildName(): string
+    {
+        return $this->filenamePrefix . $this->documentNumber . $this->filenameSuffix;
     }
 
     public function getApiAlias(): string

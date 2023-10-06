@@ -1,9 +1,9 @@
 {
   "global": {
     "error-codes": {
-      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
-      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
-      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",
+      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein.",
       "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
@@ -11,7 +11,9 @@
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
-      "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain."
+      "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
+      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator."
     },
     "default": {
       "add": "Hinzufügen",
@@ -37,7 +39,9 @@
       "open": "Öffnen",
       "close": "Schließen",
       "from": "Von",
-      "to": "Bis"
+      "to": "Bis",
+      "bulkEdit": "Mehrfachänderung",
+      "discard": "Verwerfen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -47,7 +51,8 @@
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
       "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: ",
       "noTitle": "Ein Titel wurde nicht definiert",
-      "noMessage": "Eine Nachricht wurde nicht definiert"
+      "noMessage": "Eine Nachricht wurde nicht definiert",
+      "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -113,6 +118,16 @@
           "title": "Import/Export",
           "message": "Daten werden importiert/exportiert.",
           "messageSuccess": "Alle Importe/Exporte abgeschlossen."
+        },
+        "flow": {
+          "title": "Info/Success",
+          "message": "Flow wird indiziert.",
+          "messageSuccess": "Flows wurden indiziert."
+        },
+        "newsletterRecipient": {
+          "title": "Info/Success",
+          "message": "Indiziere Newsletter-Empfänger.",
+          "messageSuccess": "Newsletter-Empfänger wurden indiziert."
         }
       },
       "plugin-updates-listener": {
@@ -188,7 +203,10 @@
     "sw-list-price-field": {
       "labelListPriceGross": "Streichpreis (Brutto)",
       "helpTextListPriceGross": "Streichpreise weisen auf ein preisreduziertes Produkt hin. Der Streichpreis zeigt den ursprünglichen Preis als durchgestrichenen, roten Text an. Der gültige Preis wird daneben in der Standardtextfarbe dargestellt.",
-      "labelListPriceNet": "Streichpreis (Netto)"
+      "labelListPriceNet": "Streichpreis (Netto)",
+      "labelRegulationPriceGross": "Günstigster Preis (letzten 30 Tage, Brutto)",
+      "helpTextRegulationPriceGross": "Dieses Feld musst Du ausfüllen, wenn Du in der EU mit Preisermäßigungen in Deinem Shop werben möchtest. Diese Angaben sollen von Kunden in der EU überprüft werden können. Bei Preisermäßigungen muss deshalb neben der Preisermäßigung auf den aktuellen Preis auch der niedrigste Preis der Ware in den letzten 30 Tagen vor der Preisermäßigung angegeben werden. Das ist in Art. 6 a der Richtlinie 98/6/EG vorgeschrieben.",
+      "labelRegulationPriceNet": "Günstigster Preis (letzten 30 Tage, Netto)"
     },
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"
@@ -216,7 +234,7 @@
       "labelColumnHide": "Spalte ausblenden",
       "labelSelectionCount": "Ausgewählt:",
       "labelDeSelectAll": "Alle abwählen",
-      "maximumSelectionExceed": "Maximale Anzahl Artikel ausgewählt"
+      "maximumSelectionExceed": "Maximale Anzahl Einträge ausgewählt"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"
@@ -229,7 +247,9 @@
     },
     "sw-time-ago": {
       "justNow": "Gerade eben",
-      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten"
+      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten",
+      "aboutNow": "In Kürze",
+      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",
@@ -345,10 +365,12 @@
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",
       "buttonRename": "Datei umbenennen",
+      "buttonKeep": "Datei verwenden",
       "buttonSkip": "Datei überspringen",
       "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
       "labelOptionReplace": "Hochladen und ersetzen",
       "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionKeep": "Vorhandene Datei verwenden",
       "labelOptionSkip": "Datei überspringen",
       "labelOldFile": "Bereits existierende Datei",
       "labelNewFile": "Hochzuladende Datei"
@@ -397,6 +419,9 @@
         "success": {
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
         },
+        "assigned": {
+          "message": "Mediendatei zugewiesen."
+        },
         "failure": {
           "message": "Fehler beim Hochladen."
         },
@@ -428,6 +453,15 @@
         "illegalFilename": {
           "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        },
+        "invalidUrl": {
+          "message": "Die eingegebene URL ist ungültig."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -459,8 +493,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:",
-      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -507,6 +541,18 @@
         "you": "Du"
       }
     },
+    "sw-entity-advanced-selection-modal": {
+      "link": "Erweiterte Auswahl verwenden",
+      "title": "Erweiterte Auswahl: {entity}",
+      "searchPlaceholder": "Suchen ...",
+      "filter": "Filter",
+      "resetFilters": "Filter zurücksetzen",
+      "applySelection": "Auswahl anwenden",
+      "entity": {
+        "product": "Produkte",
+        "rule": "Regeln"
+      }
+    },
     "sw-entity-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -520,11 +566,12 @@
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
       "placeholderSearchShortcutInfo": "<strong>Tipp:</strong> Drücke <span>f</span> um die Suche von überall zu öffnen.",
+      "placeholderESSearchShortcutInfo": "<strong>Tipp:</strong> Um genauere Ergebnisse zu erhalten können Sie die <a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax\" target=\"_blank\">Elasticsearch Abfragen</a> verwenden.",
       "moduleFiltersHeadline": "Modulfilter",
       "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",
       "moduleFilter": "Modulfilter",
-      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsV2": "Keine genauen Übereinstimmungen mit \"{term}\" gefunden.",
       "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Konfiguration Deiner Suche.",
       "addNew": "neue hinzufügen"
     },
@@ -561,24 +608,25 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
-      "labelShowResultsInModuleV2": "Alle {count} Suchtreffer in {entityName} anzeigen..."
+      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen ..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
-        "lowerThanEquals": "Kleiner/gleich",
-        "equals": "Gleich",
-        "greaterThanEquals": "Größer/gleich",
-        "lowerThan": "Kleiner",
-        "greaterThan": "Größer",
-        "notEquals": "Ungleich",
-        "isOneOf": "Ist eine von",
-        "isNoneOf": "Ist keine von",
+        "placeholder": "Operator auswählen ...",
+        "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
+        "equals": "Ist gleich | Sind gleich",
+        "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
+        "lowerThan": "Ist kleiner | Sind kleiner",
+        "greaterThan": "Ist größer | Sind größer",
+        "notEquals": "Ist ungleich | Sind ungleich",
+        "isOneOf": "Ist eine von | Sind eine von",
+        "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer"
+        "empty": "Ist leer | Sind leer"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -592,8 +640,11 @@
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "languageRule": "Sprache",
+        "customerIsActiveRule": "Kunde ist aktiv",
         "billingCountryRule": "Rechnungsadresse: Land",
+        "billingCityRule": "Rechnungsadresse: Stadt",
         "billingStreetRule": "Rechnungsadresse: Straße",
+        "billingStateRule": "Rechnungsadresse: Bundesland",
         "billingZipCodeRule": "Rechnungsadresse: Postleitzahl",
         "customerGroupRule": "Kundengruppe",
         "customerTagRule": "Kunde mit Tag",
@@ -606,29 +657,49 @@
         "isNewCustomerRule": "Neukunde",
         "lastNameRule": "Kundennachname",
         "isCompanyRule": "Firmenkunde",
+        "cartTaxDisplay": {
+          "label": "Steuerdarstellung",
+          "gross": "Brutto",
+          "net": "Netto"
+        },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
-        "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
+        "daysSinceLastOrderRule": "Zeit seit letzter Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
+        "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
+        "shippingStateRule": "Lieferadresse: Bundesland",
         "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
         "customerLoggedInRule": "Angemeldeter Kunde",
+        "customerAgeRule": "Kundenalter",
+        "customerDaysSinceLastLogin": "Zeit seit der letzten Anmeldung",
+        "customerDaysSinceFirstLogin": "Zeit seit der ersten Anmeldung",
+        "customerAffiliateCodeRule": "Affiliate-Code",
+        "customerCampaignCodeRule": "Kampagnen-Code",
         "cartAmountRule": "Gesamtsumme",
         "cartPositionPrice": "Summe",
         "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
         "goodsPriceRule": "Zwischensumme aller Positionen",
+        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",
           "discount_surcharge": "Rabatt / Aufschlag"
         },
-        "lineItemRule": "Position",
-        "lineItemsInCartRule": "Positionen im Warenkorb",
+        "lineItemRule": "Positionen im Warenkorb",
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
+        "orderTagRule": "Bestellung mit Tag",
+        "orderTrackingCodeRule": "Sendungsnummer",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderTransactionStatusRule": "Zahlungsstatus",
+        "orderStatusRule": "Bestellstatus",
+        "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
+        "orderDocumentTypeRule": "Bestellung mit Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -647,19 +718,22 @@
           "any": "Mind. eine",
           "all": "Alle"
         },
-        "subCondition": "Unterbedingung",
+        "AddAndCondition": "UND-Bedingung hinzufügen",
+        "AddOrCondition": "ODER-Bedingung hinzufügen",
+        "AddSubCondition": "Unterbedingungen hinzufügen",
         "deleteConditions": "Container entfernen",
-        "deleteAllConditions": "Alle entfernen",
+        "deleteAllConditions": "Alle Bedingungen entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
         "hasDeliveryFreeItemRule": "Position ist versandkostenfrei",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Gesamtgewicht aller Produkte",
         "volumeOfCartRule": "Gesamtvolumen aller Produkte",
+        "cartShippingCost": "Versandkosten",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Position mit Tag",
         "alwaysValidRule": "Immer zutreffend",
-        "lineItemPropertyRule": "Position mit Eigenschaft",
+        "lineItemPropertyRule": "Position mit Varianten- oder Eigenschaftsausprägung",
         "lineItemNoveltyRule": "Neuheiten",
         "lineItemCustomFieldRule": "Position mit Zusatzfeld",
         "lineItemIsNewRule": "Position als \"neu\" markiert",
@@ -670,6 +744,7 @@
         "lineItemClearanceSale": "Position im Abverkauf",
         "lineItemPromotedRule": "Position ist hervorgehoben",
         "lineItemInCategoryRule": "Position in Kategorie",
+        "categoryWithProductStreamTooltip": "Produkte in dieser Kategorie werden durch eine dynamische Produktgruppe zugewiesen. Bitte verwende die Bedingung \"Position in dynamischer Produktgruppe\" um dynamisch auf diese Produkte zuzugreifen.",
         "lineItemInProductStreamRule": "Position in dynamischer Produktgruppe",
         "lineItemTaxationRule": "Position mit Steuersatz",
         "lineItemDimensionWidthRule": "Position mit Breite",
@@ -681,6 +756,8 @@
         "lineItemListPriceRatioRule": "Position mit prozentualen Preis/Streichpreis Verhältnis",
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
+        "lineItemProductStates": "Position mit Produktzustand",
+        "numberOfReviews": "Anzahl abgegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
@@ -696,15 +773,174 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Fieldset wählen..."
+              "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen..."
+              "placeholder": "Zusatzfeld wählen ...",
+              "tooltip": "Dieses Zusatzfeld ist aktuell in Warenkörben nicht verfügbar. In den <a href=\"{customFieldSettingsLink}\" target=\"_blank\">Einstellungen</a> dieses Zusatzfeldes kannst du es für Warenkörbe  aktivieren."
             }
           }
         },
         "customerCustomFieldRule": "Kunde mit Zusatzfeld",
-        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ..."
+        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
+        "customerBirthdayRule": "Kundengeburtstag",
+        "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
+        "customerSalutationRule": "Kundenanrede",
+        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
+        "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
+        "lineItemVariantValueRule": "Position mit Variantenausprägung"
+      }
+    },
+    "sw-condition-generic": {
+      "customerEmail": {
+        "email": {
+          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
+        }
+      },
+      "cartLineItemDimensionWidth": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
+        }
+      },
+      "cartLineItemDimensionHeight": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
+        }
+      },
+      "cartLineItemDimensionLength": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderLength"
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
+            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
+          }
+        }
+      },
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "@:global.day-of-week.monday",
+            "2": "@:global.day-of-week.tuesday",
+            "3": "@:global.day-of-week.wednesday",
+            "4": "@:global.day-of-week.thursday",
+            "5": "@:global.day-of-week.friday",
+            "6": "@:global.day-of-week.saturday",
+            "7": "@:global.day-of-week.sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
+            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeOfType": {
+          "options": {
+            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
+            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
+            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-physical": "Physisch",
+            "is-download": "Digital"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          },
+          "placeholder": "Operator auswählen ..."
+        }
+      },
+      "units": {
+        "dimension": "mm",
+        "weight": "kg",
+        "volume": "mm³",
+        "age": "Jahre",
+        "kg": "Killogramm",
+        "g": "Gramm",
+        "mg": "Milligramm",
+        "oz": "Unze",
+        "lb": "Pfund",
+        "m": "Meter",
+        "cm": "Zentimeter",
+        "mm": "Millimeter",
+        "km": "Kilometer",
+        "in": "Zoll",
+        "ft": "Fuß",
+        "mi": "Meilen",
+        "hr": "Stunden",
+        "yr": "Jahre",
+        "mth": "Monate",
+        "wk": "Wochen",
+        "d": "Tage",
+        "min": "Minuten",
+        "m3": "Kubikmeter",
+        "cm3": "Kubikzentimeter",
+        "mm3": "Kubikmillimeter",
+        "in3": "Kubikzoll",
+        "ft3": "Kubikfuß",
+        "short": {
+          "hr": "std",
+          "yr": "j",
+          "mth": "mo",
+          "wk": "w",
+          "d": "t",
+          "min": "min",
+          "kg": "kg",
+          "g": "g",
+          "mg": "mg",
+          "oz": "oz",
+          "lb": "lb",
+          "m": "m",
+          "cm": "cm",
+          "mm": "mm",
+          "km": "km",
+          "in": "in",
+          "ft": "ft",
+          "mi": "mi",
+          "m3": "m³",
+          "cm3": "cm³",
+          "mm3": "mm³",
+          "in3": "in³",
+          "ft3": "ft³"
+        }
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Condition auswählen ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
       }
     },
     "sw-product-image": {
@@ -718,7 +954,8 @@
       "defaultPlaceholder": "Suche ..."
     },
     "sw-tabs-item": {
-      "tooltipTabHasErrors": "Diese Seite enthält Fehler."
+      "tooltipTabHasErrors": "Diese Seite enthält Fehler.",
+      "tooltipTabHasWarnings": "Diese Seite enthält Warnungen."
     },
     "entities": {
       "all": "Alle",
@@ -765,7 +1002,7 @@
       "promotion": "Promotion | Promotions",
       "promotion_order_rule": "Promotion qualifizierte Bestellung | Promotion qualifizierte Bestellungen",
       "promotion_cart_rule": "Promotion qualifizierter Warenkorb | Promotion qualifizierte Warenkörbe",
-      "promotion_persona_rule": "Promotion Zielgruppe | Promotion Zielgruppen",
+      "promotion_persona_rule": "Promotion-Zielgruppe | Promotion-Zielgruppen",
       "rule": "Regel | Regeln",
       "rule_condition": "Bedingung | Bedingungen",
       "sales_channel": "Verkaufskanal | Verkaufskanäle",
@@ -774,6 +1011,7 @@
       "seo_url": "SEO-URL | SEO-URLs",
       "shipping_method": "Versandart | Versandarten",
       "snippet": "Textbaustein | Textbausteine",
+      "tag": "Tag | Tags",
       "tax": "Steuern",
       "tax_rule": "Steuerregel | Steuerregeln",
       "theme": "Theme | Themes",
@@ -783,7 +1021,6 @@
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
-      "event_action": "Business-Events",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
       "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
       "product_feature_set": "Neues Template | Neue Templates",
@@ -792,7 +1029,8 @@
       "flow": "Flow Builder",
       "module": "Modul",
       "frequently_used": "Häufig verwendete",
-      "recently_searched": "Kürzlich gesucht"
+      "recently_searched": "Kürzlich gesucht",
+      "flow_sequence": "Flow"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -816,6 +1054,7 @@
       "checkout_order_placed": "Bestellung ist eingegangen",
       "checkout_order_payment_method_changed": "Zahlungsmethode einer Bestellung wurde geändert",
       "contact_form_send": "Kontaktformular wurde verschickt",
+      "review_form_send": "Produktbewertung wurde verschickt",
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
@@ -888,6 +1127,20 @@
       "description": "Nur die hier ausgewählten Elemente werden als Suchergebnisse angezeigt. Für detailierte Anpassungen der Suche <span id='sw-search-preferences-modal-link'>öffne die Sucheinstellungen &#8594;</span>",
       "columnActive": "Aktiv",
       "columnModuleName": "Modulname"
+    },
+    "sw-help-center": {
+      "title": "Support",
+      "documentation": {
+        "headline": "Brauchst Du Hilfe?",
+        "linkText": "Dokumentation ansehen",
+        "linkUrl": "https://docs.shopware.com/de/shopware-6-de"
+      },
+      "support": {
+        "headline": "Wir sind für dich da!",
+        "paragraph": "Du hast in unserer Dokumentation nichts Hilfreiches gefunden? Dann wende Dich an den Shopware-Support und wir kümmern uns um Dein Problem.",
+        "linkText": "Supportanfrage erstellen",
+        "linkUrl": "https://account.shopware.com/shops/support"
+      }
     }
   },
   "sw-text-editor-toolbar": {
@@ -899,8 +1152,19 @@
       "buttonVariantSecondary": "Sekundär",
       "buttonVariantPrimarySmall": "Primär (klein)",
       "buttonVariantSecondarySmall": "Sekundär (klein)",
+      "linkTo": "Link zu",
       "placeholder": "URL eingeben ...",
-      "linkTo": "Link zu"
+      "labelUrl": "URL",
+      "labelType": "Link-Typ",
+      "labelLink": "Link",
+      "labelProduct": "Produkt",
+      "labelCategory":"Kategorie",
+      "labelEmail": "E-Mail-Adresse",
+      "labelPhoneNumber": "Telefonnummer",
+      "placeholderPhoneNumber": "Telefonnummer eingeben ...",
+      "placeholderEmail": "E-Mail-Adresse eingeben ...",
+      "placeholderProduct": "Produkt auswählen ...",
+      "placeholderCategory": "Kategorie auswählen ..."
     },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
@@ -1022,7 +1286,36 @@
   },
   "locale": {
     "de-DE": "Deutsch",
-    "en-GB": "Englisch"
+    "en-GB": "Englisch (GB)",
+    "bg-BG": "Bulgarisch",
+    "bs-BA": "Bosnisch",
+    "cs-CZ": "Tschechisch",
+    "da-DK": "Dänisch",
+    "el-GR": "Griechisch",
+    "en-US": "Englisch (US)",
+    "es-ES": "Spanisch",
+    "fi-FI": "Finnisch",
+    "fr-FR": "Französisch",
+    "hi-IN": "Hindi",
+    "hr-HR": "Kroatisch",
+    "hu-HU": "Ungarisch",
+    "id-ID": "Indonesisch",
+    "it-IT": "Italienisch",
+    "ko-KR": "Koreanisch",
+    "lv-LV": "Lettisch",
+    "nl-NL": "Niederländisch",
+    "nn-NO": "Norwegisch",
+    "pl-PL": "Polnisch",
+    "pt-PT": "Portugiesisch",
+    "ro-RO": "Rumänisch",
+    "ru-RU": "Russisch",
+    "sk-SK": "Slowakisch",
+    "sl-SI": "Slowenisch",
+    "sr-RS": "Serbisch",
+    "sv-SE": "Schwedisch",
+    "tr-TR": "Türkisch",
+    "uk-UA": "Ukrainisch",
+    "vi-VN": "Vietnamesisch"
   },
   "sw-image-slider": {
     "imageAlt": "Bild {index} / {total}"
@@ -1040,11 +1333,11 @@
     "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
     "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
     "ruleCard": "Bedingungen",
-    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+    "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen..."
+    "addNewRule": "Neue Regel erstellen ..."
   },
   "sw-shortcut-overview": {
     "title": "Tastenkürzel",
@@ -1137,7 +1430,8 @@
   "sw-maintain-currencies-modal": {
     "title": "Währungen pflegen",
     "columnPrice": "Preise (Brutto / Netto)",
-    "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
+    "columnListPriceHeader": "Streichpreise (Brutto / Netto)",
+    "columnReferencePriceHeader": "Günstigster Preis (letzte 30 Tage, Brutto / Netto)"
   },
   "sw-privileges": {
     "tooltip": {
@@ -1187,6 +1481,15 @@
         "cancellation": "Abbrechen",
         "success": "Domain Änderung erfolgreich durchgeführt.",
         "error": "Keine Änderung durchgeführt."
+      },
+      "sw-app-wrong-app-url-modal": {
+        "title": "Fehlerhaft konfigurierte APP_URL",
+        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
+        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
+        "textGetSupport": "Kontaktiere deinen Hoster um Hilfe zu bekommen.",
+        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "labelLearnMoreButton": "Lerne mehr",
+        "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }
     }
   },
@@ -1222,6 +1525,7 @@
   },
   "sw-empty-state": {
     "messageNoResultTitle": "Nichts gefunden",
+    "messageNoResultSublineSimple": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden.",
     "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
     "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
     "messageNoResultSublineLink": "die Konfiguration",
@@ -1236,11 +1540,38 @@
       "shippingMethods": "Versandarten-Regel",
       "paymentMethods": "Zahlarten-Regel",
       "flowSequences": "Flow-Builder-Regeln",
-      "personaPromotions": "Kunden-Regeln",
-      "orderPromotions": "Bestellungs-Regeln",
-      "cartPromotions": "Warenkorb-Regeln",
-      "promotionDiscounts": "Produkt-Regeln",
-      "promotionSetGroups": "Produkt-Regeln"
+      "personaPromotions": "Kunden-Regel|Kunden-Regeln",
+      "orderPromotions": "Bestellungs-Regel|Bestellungs-Regeln",
+      "cartPromotions": "Warenkorb-Regel|Warenkorb-Regeln",
+      "promotionDiscounts": "Produkt-Regel|Produkt-Regeln",
+      "promotionSetGroups": "Produkt-Regel|Produkt-Regeln",
+      "notEqualsViolationTooltip": "Diese Regel verwendet Bedingungen, die die Zuweisung zu {entityLabel} verhindern. Diese Bedingungen sind: {conditions}.",
+      "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um {entityLabel} zugewiesen zu werden: {conditions}."
+    },
+    "restrictedConditions": {
+      "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
+      "relation": {
+        "flowTrigger": "Flows mit Auslöser: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}",
+        "productPrices": "Produkte als: {assignments}",
+        "shippingMethods": "Versandarten als: {assignments}",
+        "shippingMethodPrices": "Versandarten als: {assignments}",
+        "paymentMethods": "Zahlarten als: {assignments}"
+      }
+    },
+    "and": "und",
+    "or": "oder"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI-Antworten können ungenau oder irreführend sein."
+  },
+  "sw-usage-data": {
+    "sw-settings-usage-data-intro": {
+      "title": "Nutzungsdaten",
+      "headline": "Gemeinsam Shopware verbessern",
+      "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
+      "learnMore": "Mehr erfahren",
+      "learnMoreUrl": "https://shopware.com/de/datenschutz/"
     }
   }
 }

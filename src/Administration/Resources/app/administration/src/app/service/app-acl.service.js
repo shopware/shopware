@@ -1,8 +1,11 @@
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @module app/app-acl-service
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppAclService {
     _privileges;
 
@@ -14,7 +17,7 @@ export default class AppAclService {
     }
 
     getAppPermissions() {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addFilter(Criteria.equals('app.active', true));
         const dependencies = [];
 

@@ -11,9 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
+ *
  * @group store-api
  */
 class ProductListRouteTest extends TestCase
@@ -21,19 +25,13 @@ class ProductListRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -54,11 +52,38 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(15, $response['total']);
         static::assertCount(15, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testFetchingTranslations(): void
+    {
+        $this->browser->request(
+            'GET',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('product1')],
+                'associations' => ['translations' => []],
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('elements', $response);
+        static::assertCount(1, $response['elements']);
+        static::assertArrayHasKey('translations', $response['elements'][0]);
+        static::assertCount(2, $response['elements'][0]['translations']);
+
+        $languages = \array_column($response['elements'][0]['translations'], 'languageId');
+        static::assertContains(Defaults::LANGUAGE_SYSTEM, $languages);
+        static::assertContains($this->ids->get('language'), $languages);
+
+        $names = \array_column($response['elements'][0]['translations'], 'name');
+        static::assertContains('Test-Product', $names);
+        static::assertContains('Other translation', $names);
     }
 
     /**
@@ -73,7 +98,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -92,7 +117,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -111,7 +136,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(15, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -130,7 +155,7 @@ class ProductListRouteTest extends TestCase
             ->build();
 
         $this->getContainer()->get('product.repository')
-            ->upsert([$product], $this->ids->context);
+            ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -147,7 +172,7 @@ class ProductListRouteTest extends TestCase
             ],
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -160,7 +185,7 @@ class ProductListRouteTest extends TestCase
 
     public function testListingProductsIncludesOwnInactiveReviews(): void
     {
-        $customerId = $this->login();
+        $customerId = $this->login($this->browser);
 
         $product = (new ProductBuilder($this->ids, 'p1'))
             ->visibility($this->ids->get('sales-channel'))
@@ -170,7 +195,7 @@ class ProductListRouteTest extends TestCase
             ->build();
 
         $this->getContainer()->get('product.repository')
-            ->upsert([$product], $this->ids->context);
+            ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -189,7 +214,7 @@ class ProductListRouteTest extends TestCase
             ],
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -203,28 +228,35 @@ class ProductListRouteTest extends TestCase
 
     private function createData(): void
     {
-        $product = [
-            'name' => 'test',
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'active' => true,
-        ];
-
         $products = [];
-        for ($i = 0; $i < 15; ++$i) {
-            $products[] = array_merge(
+
+        $this->getContainer()->get('language.repository')->create(
+            [
                 [
-                    'id' => $this->ids->create('product' . $i),
-                    'active' => true,
-                    'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
-                    'productNumber' => $this->ids->get('product' . $i),
-                    'name' => 'Test-Product',
+                    'id' => $this->ids->create('language'),
+                    'name' => 'foo',
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'translationCode' => [
+                        'code' => Uuid::randomHex(),
+                        'name' => 'Test locale',
+                        'territory' => 'test',
+                    ],
+                    'salesChannels' => [
+                        ['id' => TestDefaults::SALES_CHANNEL],
+                    ],
                 ],
-                $product
-            );
+            ],
+            Context::createDefaultContext()
+        );
+
+        for ($i = 0; $i < 15; ++$i) {
+            $products[] = (new ProductBuilder($this->ids, 'product' . $i))
+                ->name('Test-Product')
+                ->stock(10)
+                ->price(15)
+                ->translation($this->ids->create('language'), 'name', 'Other translation')
+                ->manufacturer('manufacturer-' . $i)
+                ->build();
         }
 
         $data = [
@@ -253,7 +285,7 @@ class ProductListRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 
     private function setVisibilities(): void
@@ -269,6 +301,6 @@ class ProductListRouteTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
+            ->update($products, Context::createDefaultContext());
     }
 }

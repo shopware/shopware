@@ -3,9 +3,16 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,11 +21,11 @@ class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `property_group`
             ADD COLUMN `filterable` TINYINT(1) NOT NULL DEFAULT 1
         ');

@@ -1,9 +1,13 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin, Utils } = Shopware;
 
-Component.register('sw-cms-block-config', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: [
@@ -88,5 +92,9 @@ Component.register('sw-cms-block-config', {
 
             this.$emit('block-duplicate', this.block);
         },
+
+        onBlockNameChange: Utils.debounce(function debouncedOnChange(value) {
+            this.block.name = value;
+        }, 400),
     },
-});
+};

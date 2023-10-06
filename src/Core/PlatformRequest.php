@@ -2,6 +2,9 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 final class PlatformRequest
 {
     /**
@@ -20,17 +23,24 @@ final class PlatformRequest
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
     public const HEADER_SKIP_TRIGGER_FLOW = 'sw-skip-trigger-flow';
+    public const HEADER_APP_INTEGRATION_ID = 'sw-app-integration-id';
 
     /**
-     * Sync controller headers
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
      */
     public const HEADER_FAIL_ON_ERROR = 'fail-on-error';
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
+     */
     public const HEADER_SINGLE_OPERATION = 'single-operation';
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
 
     /**
      * This header is used in the administration to get all fields
+     *
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
 
@@ -45,9 +55,17 @@ final class PlatformRequest
     public const ATTRIBUTE_CONTEXT_OBJECT = 'sw-context';
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
+
+    public const ATTRIBUTE_ACL = '_acl';
+    public const ATTRIBUTE_CAPTCHA = '_captcha';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
+    public const ATTRIBUTE_ENTITY = '_entity';
+    public const ATTRIBUTE_NO_STORE = '_noStore';
+    public const ATTRIBUTE_HTTP_CACHE = '_httpCache';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
+    public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
+    public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
     /**
      * CSP

@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-inheritance-switch', {
     template,
 

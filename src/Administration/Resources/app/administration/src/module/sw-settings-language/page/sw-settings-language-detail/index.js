@@ -1,13 +1,23 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-language-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -40,6 +50,8 @@ Component.register('sw-settings-language-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            parentTranslationCodeId: null,
+            translationCodeError: null,
         };
     },
 
@@ -129,6 +141,8 @@ Component.register('sw-settings-language-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        ...mapPropertyErrors('language', ['localeId', 'name']),
     },
 
     watch: {
@@ -137,6 +151,9 @@ Component.register('sw-settings-language-detail', {
             if (this.languageId === null) {
                 this.createdComponent();
             }
+        },
+        'language.translationCodeId'() {
+            this.translationCodeError = null;
         },
     },
 
@@ -164,6 +181,10 @@ Component.register('sw-settings-language-detail', {
             this.languageRepository.get(this.languageId).then((language) => {
                 this.isLoading = false;
                 this.language = language;
+
+                if (language.parentId) {
+                    this.setParentTranslationCodeId(language.parentId);
+                }
             }).catch(() => {
                 this.isLoading = false;
             });
@@ -175,7 +196,23 @@ Component.register('sw-settings-language-detail', {
             });
         },
 
-        onInputLanguage() {
+        checkTranslationCodeInheritance(value) {
+            return value === this.parentTranslationCodeId;
+        },
+
+        setParentTranslationCodeId(parentId) {
+            this.languageRepository.get(parentId, Shopware.Context.api).then((parentLanguage) => {
+                this.parentTranslationCodeId = parentLanguage.translationCodeId;
+            });
+        },
+
+        onInputLanguage(parentId) {
+            this.translationCodeError = null;
+
+            if (parentId) {
+                this.setParentTranslationCodeId(parentId);
+            }
+
             const origin = this.language.getOrigin();
             if (this.language.isNew() || !origin.parentId) {
                 return;
@@ -202,23 +239,26 @@ Component.register('sw-settings-language-detail', {
 
         onSave() {
             this.isLoading = true;
+
+            if (!this.language.parentId && !this.language.translationCodeId) {
+                this.translationCodeError = {
+                    detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                };
+            }
+
             this.languageRepository.save(this.language).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (!this.languageId) {
                     this.$router.push({ name: 'sw.settings.language.detail', params: { id: this.language.id } });
                 }
-            }).then(() => {
-                this.loadEntityData();
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.language.index' });
         },
-
-        onChangeLanguage() {
-            this.loadEntityData();
-        },
     },
-});
+};

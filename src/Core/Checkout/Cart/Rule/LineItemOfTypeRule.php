@@ -3,24 +3,28 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemOfTypeRule extends Rule
 {
+    final public const RULE_NAME = 'cartLineItemOfType';
+
     protected string $lineItemType;
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        ?string $lineItemType = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->lineItemType = (string) $lineItemType;
     }
 
@@ -46,27 +50,20 @@ class LineItemOfTypeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'lineItemType' => [new NotBlank(), new Type('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'lineItemType' => RuleConstraints::string(),
+            'operator' => RuleConstraints::stringOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'cartLineItemOfType';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->selectField('lineItemType', [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::PROMOTION_LINE_ITEM_TYPE]);
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return strcasecmp($lineItem->getType(), $this->lineItemType) === 0;
-
-            case self::OPERATOR_NEQ:
-                return strcasecmp($lineItem->getType(), $this->lineItemType) !== 0;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::string($lineItem->getType(), $this->lineItemType, $this->operator);
     }
 }

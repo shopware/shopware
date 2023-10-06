@@ -22,30 +22,32 @@
         "chat": "https://slack.shopware.com"
     },
     "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "forward-command": false
+        },
         "branch-alias": {
-            "dev-master": "6.4.x-dev",
-            "dev-trunk": "6.4.x-dev"
+            "dev-master": "6.5.x-dev",
+            "dev-trunk": "6.5.x-dev"
         }
     },
     "config": {
-        "platform": {
-            "php": "7.4.3"
-        },
         "sort-packages": true,
         "process-timeout": 7200,
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "cweagans/composer-patches": true,
+            "symfony/runtime": true
         }
     },
     "require": {
-        "php": "^7.4.3 || ^8.0",
+        "php": "~8.1.0 || ~8.2.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
         "ext-gd": "*",
-        "ext-iconv": "*",
         "ext-intl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
@@ -59,131 +61,365 @@
         "ext-zip": "*",
         "ext-zlib": "*",
         "composer-runtime-api": "^2.0",
-        "aws/aws-sdk-php": "^3.198.5",
-        "cocur/slugify": "4.0.0",
-        "composer/composer": "^2.1.9",
+        "async-aws/simple-s3": "^1.1",
+        "cocur/slugify": "^4.3.0",
+        "composer/composer": "^2.4.4",
         "composer/semver": "^3.2",
-        "doctrine/annotations": "1.13.1",
-        "doctrine/dbal": "2.13.3",
-        "doctrine/inflector": "~1.4.4",
-        "dompdf/dompdf": "1.0.2",
-        "elasticsearch/elasticsearch": "7.16.0",
-        "enqueue/dbal": "0.10.11",
-        "enqueue/redis": "0.10.9",
+        "doctrine/annotations": "^1.14 || ^2.0",
+        "doctrine/dbal": "^3.6",
+        "doctrine/inflector": "^2.0",
+        "dompdf/dompdf": "2.0.3",
+        "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "0.8.1",
-        "ezyang/htmlpurifier": "4.13.0",
-        "google/cloud-storage": "~1.25.1",
-        "guzzlehttp/guzzle": "~7.2",
-        "guzzlehttp/psr7": "^1.8.0",
-        "jdorn/sql-formatter": "1.2.17",
-        "lcobucci/jwt": "~4.1.5",
-        "league/flysystem": "~1.1.4",
-        "league/flysystem-aws-s3-v3": "~1.0.29",
-        "league/flysystem-memory": "~1.0.2",
-        "league/oauth2-server": "~8.3.2",
-        "marc1706/fast-image-size": "1.1.6",
-        "nyholm/psr7": "1.4.0",
-        "ongr/elasticsearch-dsl": "7.2.2",
-        "padaliyajay/php-autoprefixer": "1.3",
-        "psr/cache": "1.0.1",
-        "psr/event-dispatcher": "1.0.0",
-        "psr/http-factory": "1.0.1",
-        "psr/http-message": "1.0.1",
-        "psr/log": "1.1.2",
-        "scssphp/scssphp": "1.10.0",
-        "sensio/framework-extra-bundle": "~6.2.1",
+        "ezyang/htmlpurifier": "^4.16",
+        "guzzlehttp/guzzle": "^7.5.0",
+        "guzzlehttp/psr7": "^2.4",
+        "lcobucci/jwt": "^4.2",
+        "league/flysystem": "^3.10.3",
+        "league/flysystem-async-aws-s3": "^3.10.3",
+        "league/flysystem-google-cloud-storage": "^3.10.3",
+        "league/flysystem-memory": "^3.10.3",
+        "league/oauth2-server": "^8.5",
+        "meyfa/php-svg": "^0.13.0",
+        "monolog/monolog": "^3.3.1",
+        "nyholm/psr7": "^1.5",
+        "opensearch-project/opensearch-php": "^2.0",
+        "padaliyajay/php-autoprefixer": "^1.4",
+        "psr/cache": "^3.0.0",
+        "psr/event-dispatcher": "^1.0.0",
+        "psr/http-factory": "^1.0.1",
+        "psr/http-message": "^1.1 || ^2.0",
+        "psr/log": "^3.0.0",
+        "ramsey/uuid": "^4.7",
+        "scssphp/scssphp": "v1.11.0",
+        "setasign/fpdi": "^2.3.7",
         "shopware/conflicts": "*",
-        "sroze/messenger-enqueue-transport": "0.4.0",
-        "superbalist/flysystem-google-storage": "~7.2.2",
-        "symfony/asset": "~5.4.0",
-        "symfony/cache": "~5.4.0",
-        "symfony/cache-contracts": "2.2.0",
-        "symfony/config": "~5.4.0",
-        "symfony/console": "~5.4.1",
-        "symfony/debug-bundle": "~5.4.0",
-        "symfony/dependency-injection": "~5.4.1",
-        "symfony/deprecation-contracts": "2.2.0",
-        "symfony/dotenv": "~5.4.0",
-        "symfony/error-handler": "~5.4.1",
-        "symfony/event-dispatcher": "~5.4.0",
-        "symfony/event-dispatcher-contracts": "2.2.0",
-        "symfony/filesystem": "~5.4.0",
-        "symfony/finder": "~5.4.0",
-        "symfony/framework-bundle": "~5.4.1",
-        "symfony/http-foundation": "~5.4.1",
-        "symfony/http-kernel": "~5.4.2",
-        "symfony/inflector": "~5.4.0",
-        "symfony/mailer": "~5.4.0",
-        "symfony/messenger": "~5.4.0",
-        "symfony/mime": "~5.4.0",
-        "symfony/monolog-bridge": "~5.4.0",
-        "symfony/monolog-bundle": "3.6.0",
-        "symfony/options-resolver": "~5.4.0",
-        "symfony/polyfill-php80": "~1.23.1",
-        "symfony/polyfill-php81": "~v1.23.0",
-        "symfony/process": "~5.4.0",
-        "symfony/property-access": "~5.4.0",
-        "symfony/property-info": "~5.4.0",
-        "symfony/proxy-manager-bridge": "~5.4.0",
-        "symfony/psr-http-message-bridge": "2.1.0",
-        "symfony/rate-limiter": "~5.4.0",
-        "symfony/routing": "~5.4.0",
-        "symfony/security-core": "~5.4.0",
-        "symfony/security-csrf": "~5.4.0",
-        "symfony/serializer": "~5.4.0",
-        "symfony/service-contracts": "2.2.0",
-        "symfony/stopwatch": "~5.4.0",
-        "symfony/translation": "~5.4.1",
-        "symfony/translation-contracts": "2.3.0",
-        "symfony/twig-bridge": "~5.4.0",
-        "symfony/twig-bundle": "~5.4.0",
-        "symfony/validator": "~5.4.1",
-        "symfony/var-exporter": "~5.4.0",
-        "symfony/yaml": "~5.4.0",
-        "true/punycode": "2.1.1",
-        "twig/intl-extra": "~3.3.5",
-        "twig/string-extra": "~3.3.5",
-        "twig/twig": "~3.3.8",
-        "zircote/swagger-php": "3.3.2",
-        "squirrelphp/twig-php-syntax": "1.7.0"
+        "shyim/opensearch-php-dsl": "^1.0.1",
+        "squirrelphp/twig-php-syntax": "^1.7.0",
+        "symfony/asset": "~6.3.0",
+        "symfony/cache": "~6.3.0",
+        "symfony/cache-contracts": "~3.1.0",
+        "symfony/clock": "~6.3.0",
+        "symfony/config": "~6.3.0",
+        "symfony/console": "~6.3.0",
+        "symfony/debug-bundle": "~6.3.0",
+        "symfony/dependency-injection": "~6.3.0",
+        "symfony/deprecation-contracts": "~3.1.0",
+        "symfony/doctrine-messenger": "~6.3.0",
+        "symfony/dotenv": "~6.3.0",
+        "symfony/error-handler": "~6.3.0",
+        "symfony/event-dispatcher": "~6.3.0",
+        "symfony/event-dispatcher-contracts": "~3.1.0",
+        "symfony/filesystem": "~6.3.0",
+        "symfony/finder": "~6.3.0",
+        "symfony/framework-bundle": "~6.3.0",
+        "symfony/http-foundation": "~6.3.0",
+        "symfony/http-kernel": "~6.3.0",
+        "symfony/lock": "~6.3.0",
+        "symfony/mailer": "~6.3.0",
+        "symfony/messenger": "~6.3.0",
+        "symfony/mime": "~6.3.0",
+        "symfony/monolog-bridge": "~6.3.0",
+        "symfony/monolog-bundle": "~3.8.0",
+        "symfony/options-resolver": "~6.3.0",
+        "symfony/process": "~6.3.0",
+        "symfony/property-access": "~6.3.0",
+        "symfony/property-info": "~6.3.0",
+        "symfony/proxy-manager-bridge": "~6.3.0",
+        "symfony/psr-http-message-bridge": "~2.1.3",
+        "symfony/rate-limiter": "~6.3.0",
+        "symfony/routing": "~6.3.0",
+        "symfony/runtime": "~6.3.0",
+        "symfony/security-core": "~6.3.0",
+        "symfony/security-csrf": "~6.3.0",
+        "symfony/serializer": "~6.3.0",
+        "symfony/service-contracts": "~3.1.0",
+        "symfony/stopwatch": "~6.3.0",
+        "symfony/translation": "~6.3.0",
+        "symfony/translation-contracts": "~3.1.0",
+        "symfony/twig-bridge": "~6.3.5",
+        "symfony/twig-bundle": "~6.3.0",
+        "symfony/validator": "~6.3.0",
+        "symfony/var-exporter": "~6.3.0",
+        "symfony/yaml": "~6.3.0",
+        "tecnickcom/tcpdf": "^6.6.1",
+        "twig/intl-extra": "^3.4",
+        "twig/string-extra": "^3.4",
+        "twig/twig": "^3.4.3",
+        "zircote/swagger-php": "^4.5.1"
     },
     "require-dev": {
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
-        "bamarni/composer-bin-plugin": "~1.4.1",
-        "brianium/paratest": "^6.2",
-        "dms/phpunit-arraysubset-asserts": "^0.2.1",
-        "fakerphp/faker": "~1.14.1",
+        "bamarni/composer-bin-plugin": "^1.8.2",
+        "brianium/paratest": "^6.6",
+        "dg/bypass-finals": "^1.3",
+        "dominikb/composer-license-checker": "^2.4",
+        "jdorn/sql-formatter": "~1.2.17",
         "johnkary/phpunit-speedtrap": "~4.0.0",
         "league/construct-finder": "^1.1",
-        "maltyxx/images-generator": "~1.0.0",
-        "mbezhanov/faker-provider-collection": "~2.0.1",
-        "nikic/php-parser": "~4.10.4",
-        "opis/json-schema": "~1.0.19",
+        "nikic/php-parser": "^4.15.0",
+        "opis/json-schema": "^2.3.0",
+        "phpbench/phpbench": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.3.0",
-        "phpstan/extension-installer": "^1.1.0",
-        "phpstan/phpstan": "1.3.0",
-        "phpstan/phpstan-doctrine": "1.0.2",
-        "phpstan/phpstan-phpunit": "1.0.0",
-        "phpstan/phpstan-symfony": "1.0.4",
-        "phpunit/php-code-coverage": "~9.2.5",
-        "phpunit/phpunit": "~9.5.6",
-        "smalot/pdfparser": "~0.14.0",
-        "symfony/browser-kit": "~5.4.0",
-        "symfony/css-selector": "~5.4.0",
-        "symfony/dom-crawler": "~5.4.0",
-        "symfony/expression-language": "~5.4.0",
-        "symfony/phpunit-bridge": "~5.4.0",
-        "symfony/var-dumper": "~5.4.0",
-        "symfony/web-profiler-bundle": "~5.4.0"
+        "phpdocumentor/type-resolver": "^1.7.1",
+        "phpstan/extension-installer": "^1.3.1",
+        "phpstan/phpstan": "1.10.32",
+        "phpstan/phpstan-deprecation-rules": "1.1.4",
+        "phpstan/phpstan-doctrine": "1.3.42",
+        "phpstan/phpstan-phpunit": "1.3.14",
+        "phpstan/phpstan-symfony": "1.3.2",
+        "phpunit/phpunit": "^9.6",
+        "predis/predis": "^2.2",
+        "shopware/dev-tools": "^1.0.1",
+        "smalot/pdfparser": "^2.2.2",
+        "symfony/browser-kit": "~6.3.0",
+        "symfony/css-selector": "~6.3.0",
+        "symfony/dom-crawler": "~6.3.0",
+        "symfony/expression-language": "~6.3.0",
+        "symfony/phpunit-bridge": "~6.1.0",
+        "symfony/var-dumper": "~6.3.0",
+        "symplify/phpstan-rules": "12.0.2",
+        "tomasvotruba/type-coverage": "^0.1.3"
+    },
+    "suggest": {
+        "shopware/dev-tools": "For development tools, profiler, faker, etc"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "custom/plugins/*",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "conflict": {
+        "monolog/monolog": "^1.0",
+        "enqueue/enqueue": "<0.10.16"
+    },
+    "scripts-descriptions": {
+        "admin:create:test": " ",
+        "admin:generate-entity-schema-types": " ",
+        "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
+        "admin:unit:prepare-vue3": "Prepares the jest unit test-suite for the Admin with Vue3",
+        "admin:unit:vue3": "Launches the jest unit test-suite for the Admin with Vue3",
+        "admin:unit:watch:vue3": "Launches the interactive jest unit test-suite watcher for the Admin with Vue3",
+        "bc-check": "Checks for backwards compatibility breaks in the current branch",
+        "build:js": "Builds Administration & Storefront",
+        "build:js:admin": "Builds the Administration",
+        "build:js:component-library": "Builds the component library",
+        "build:js:storefront": "Builds the Storefront's JavaScript",
+        "check:license": "Check thrid-party dependency licenses",
+        "e2e:cypress": " ",
+        "e2e:cypress-repeat": " ",
+        "e2e:open": "Launches the Cypress E2E test-suite UI",
+        "e2e:percy": " ",
+        "e2e:prepare": "Installs the Admin Extension SDK test plugin with fixtures and dumps the database",
+        "e2e:sdk-plugin:fixture-to-plugin": " ",
+        "e2e:sdk-plugin:plugin-to-fixture": " ",
+        "e2e:sdk-plugin:prepare-plugin": " ",
+        "e2e:setup": "Installs a clean shopware instance for E2E environment and launches 'e2e:prepare'",
+        "e2e:web-update:open": " ",
+        "e2e:web-update:prepare": " ",
+        "e2e:web-update:start": " ",
+        "ecs": "Checks all files regarding the Easy Coding Standard",
+        "ecs-fix": "Checks all files regarding the Easy Coding Standard and fixes them if possible",
+        "eslint": "Codestyle checks all (Administration/Storefront/E2E) JS/TS files",
+        "eslint:admin": "Codestyle checks Administration JS/TS files",
+        "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
+        "eslint:e2e": "Codestyle checks all E2E JS/TS files",
+        "eslint:e2e:fix": "Codestyle checks all E2E JS/TS files and fixes them if possible",
+        "eslint:storefront": "Codestyle checks all Storefront JS/TS files",
+        "framework:schema:dump": " ",
+        "hook:pre-commit": " ",
+        "hook:pre-commit:install": " ",
+        "hook:pre-push": " ",
+        "hook:pre-push:install": " ",
+        "init:db": " ",
+        "init:e2e": " ",
+        "init:js": " ",
+        "init:testdb": "Initializes the test database",
+        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs', 'lint:changlog' and 'lint:snippets'",
+        "lint:changelog": "Validates changelogs",
+        "lint:snippets": "Validates existence of snippets in all core-supported languages",
+        "locust:init": " ",
+        "locust:run": " ",
+        "npm:admin": " ",
+        "npm:admin:bin": " ",
+        "npm:admin:check-license": "Check thrid-party dependency licenses for administration",
+        "npm:component-library": " ",
+        "npm:component-library:bin": " ",
+        "npm:e2e": " ",
+        "npm:e2e:bin": " ",
+        "npm:storefront": " ",
+        "npm:storefront:bin": " ",
+        "npm:storefront:check-license": "Check thrid-party dependency licenses for storefront",
+        "paratest": " ",
+        "phpbench": " ",
+        "phpstan": "Launches the PHP static analysis tool",
+        "phpunit": "Launches the PHP unit test-suite",
+        "phpunit:quarantined": "Launches the PHP unit test-suite for quarantined tests",
+        "post-install-cmd": " ",
+        "post-update-cmd": " ",
+        "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
+        "setup": "Resets and re-installs this Shopware instance",
+        "static-analyze": " ",
+        "storefront:unit": "Launches the jest unit test-suite for the Storefront",
+        "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
+        "stylelint": " ",
+        "stylelint:admin": " ",
+        "stylelint:storefront": " ",
+        "watch:admin": "Enables hot module reloading for the Admin",
+        "watch:storefront": "Enables hot module reloading for the Storefront"
     },
     "scripts": {
-        "post-install-cmd": [
-            "@composer bin all install --ansi"
+        "admin:create:test": "@npm:admin run create-test",
+        "admin:generate-entity-schema-types": [
+            "@framework:schema:dump",
+            "@npm:admin run convert-entity-schema"
         ],
-        "post-update-cmd": [
-            "@composer bin all update --ansi"
+        "admin:unit": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit"
         ],
+        "admin:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-watch"
+        ],
+        "admin:unit:prepare-vue3": [
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup"
+        ],
+        "admin:unit:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit:vue3"
+        ],
+        "admin:unit:watch:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-watch:vue3"
+        ],
+        "bc-check": [
+            "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
+            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+        ],
+        "build:js": [
+            "@build:js:admin",
+            "@build:js:storefront"
+        ],
+        "build:js:admin": [
+            "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
+            "@admin:generate-entity-schema-types",
+            "@npm:admin run build",
+            "@php bin/console assets:install"
+        ],
+        "build:js:component-library": [
+            "@npm:component-library run generate"
+        ],
+        "build:js:storefront": [
+            "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
+            "@npm:storefront run production",
+            "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
+            "@php bin/console theme:compile"
+        ],
+        "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
+        "e2e:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
+        "e2e:cypress-repeat": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress-repeat"
+        ],
+        "e2e:open": [
+            "Composer\\Config::disableProcessTimeout",
+            "@e2e:cypress open"
+        ],
+        "e2e:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "export CYPRESS_VUE3=\"true\"; export CYPRESS_grepTags=\"VUE3\"; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
+        ],
+        "e2e:percy": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
+        ],
+        "e2e:prepare": [
+            "@putenv APP_ENV=e2e",
+            "@putenv CYPRESS_localUsage=1",
+            "@e2e:sdk-plugin:fixture-to-plugin",
+            "@e2e:sdk-plugin:prepare-plugin",
+            "@php bin/console e2e:dump-db"
+        ],
+        "e2e:sdk-plugin:fixture-to-plugin": [
+            "rm -rf $PWD/custom/plugins/TestPlugin;",
+            "cp -a $PWD/tests/e2e/cypress/fixtures/TestPlugin/. $PWD/custom/plugins/TestPlugin/"
+        ],
+        "e2e:sdk-plugin:plugin-to-fixture": [
+            "rm -rf $PWD/tests/e2e/cypress/fixtures/TestPlugin;",
+            "cp -a $PWD/custom/plugins/TestPlugin/. $PWD/tests/e2e/cypress/fixtures/TestPlugin/"
+        ],
+        "e2e:sdk-plugin:prepare-plugin": [
+            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install --no-audit --prefer-offline;",
+            "bin/console plugin:refresh;",
+            "bin/console plugin:install --activate TestPlugin;",
+            "@build:js:admin"
+        ],
+        "e2e:setup": [
+            "@putenv APP_ENV=e2e",
+            "@setup",
+            "@init:e2e",
+            "@e2e:prepare"
+        ],
+        "e2e:web-update:open": [
+            "Composer\\Config::disableProcessTimeout",
+            "@e2e:web-update:start",
+            "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
+        ],
+        "e2e:web-update:prepare": [
+            "rm -rf shop",
+            "wget -q -O install.zip https://releases.shopware.com/sw6/install_v6.4.17.2_4d2c85fb448571fa4f30edce635f33a67dda1d76.zip",
+            "unzip -q -o -d shop install.zip",
+            "rm install.zip",
+            "cd shop; bin/console system:setup --database-url mysql://${CYPRESS_dbUser-root}:${CYPRESS_dbPassword-root}@${CYPRESS_dbHost-localhost}/${CYPRESS_dbName-shopware} --app-url ${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} -f -n",
+            "echo PROJECT_ROOT=$PWD/shop >> shop/.env",
+            "cd shop; APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} bin/console system:install --basic-setup --create-database --drop-database --force -n",
+            "cd shop; bin/console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'",
+            "cd shop; bin/console system:config:set core.store.apiUri http://localhost:8060",
+            "cd shop; bin/console system:config:set core.update.apiUri http://localhost:8060",
+            "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
+            "cd shop; sed -i '/\\$this->verifyResponseSignature(\\$response);/d' vendor/shopware/core/Framework/Update/Services/ApiClient.php",
+            "cd shop; sed -i 's/\\$signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;/return \\$response;/g' vendor/shopware/core/Framework/Store/Services/VerifyResponseSignatureMiddleware.php",
+            "cd src/WebInstaller; composer install",
+            "cd src/WebInstaller; composer build-phar",
+            "mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php"
+        ],
+        "e2e:web-update:start": [
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
+            "@putenv SW_RECOVERY_NEXT_BRANCH=dev-trunk",
+            "@putenv CYPRESS_SKIP_INIT=1",
+            "symfony local:server:stop --dir=shop",
+            "symfony local:server:stop --dir=tests/e2e/update-api-mock",
+            "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
+            "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d"
+        ],
+        "ecs": "ecs check src tests",
+        "ecs-fix": "ecs check --fix src tests",
+        "eslint": [
+            "@eslint:admin",
+            "@eslint:storefront",
+            "@eslint:e2e"
+        ],
+        "eslint:admin": "@npm:admin run lint:all",
+        "eslint:admin:fix": "@npm:admin run lint:fix",
+        "eslint:e2e": "@npm:e2e run lint",
+        "eslint:e2e:fix": "@npm:e2e run lint:fix",
+        "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
+        "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"
         ],
@@ -197,193 +433,123 @@
             "ln -sf $PWD/bin/pre-push .git/hooks/pre-push"
         ],
         "init:db": [
-            "@php bin/console system:install --drop-database --basic-setup --force"
+            "@php bin/console system:install --drop-database --basic-setup --force --no-assign-theme"
         ],
+        "init:e2e": "@npm:e2e clean-install --no-audit --prefer-offline",
         "init:js": [
-            "@npm:admin clean-install",
-            "@npm:storefront clean-install"
+            "@npm:admin clean-install --no-audit --prefer-offline",
+            "@npm:storefront clean-install --no-audit --prefer-offline",
+            "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
+        ],
+        "init:testdb": [
+            "FORCE_INSTALL=true vendor/bin/phpunit --group=none"
+        ],
+        "lint": [
+            "@stylelint",
+            "@eslint",
+            "@ecs",
+            "@lint:changelog",
+            "@lint:snippets"
+        ],
+        "lint:changelog": "@php bin/shopware changelog:check",
+        "lint:snippets": "@php bin/shopware snippets:validate",
+        "locust:init": "php src/Core/DevOps/Locust/setup.php",
+        "locust:run": "cd src/Core/DevOps/Locust && locust",
+        "npm:admin": "@npm:admin:bin npm",
+        "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:admin:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Administration/Resources/app/administration; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
+        "npm:component-library": "@npm:component-library:bin npm",
+        "npm:component-library:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/build/nuxt-component-library; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:e2e": "@npm:e2e:bin npm",
+        "npm:e2e:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:storefront": "@npm:storefront:bin npm",
+        "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
+        "paratest": [
+            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver,quarantined --processes $(getconf _NPROCESSORS_ONLN)"
+        ],
+        "phpbench": "phpbench run --report=compressed",
+        "phpstan": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "phpstan analyze --memory-limit=2G"
+        ],
+        "phpunit": [
+            "phpunit --exclude-group=quarantined"
+        ],
+        "phpunit:quarantined": [
+            "phpunit --group=quarantined"
+        ],
+        "post-install-cmd": [
+            "@composer bin all install --ansi"
+        ],
+        "post-update-cmd": [
+            "@composer bin all update --ansi"
+        ],
+        "reset": [
+            "@init:db",
+            "@build:js",
+            "@php bin/console theme:change --all Storefront",
+            "@php bin/console assets:install"
         ],
         "setup": [
             "@composer install -o",
-            "@composer install -d src/Recovery",
             "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:compile",
             "@php bin/console theme:change --all Storefront",
             "@php bin/console assets:install"
         ],
-        "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
-        "npm:admin": "@npm:admin:bin npm",
-        "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
-        "npm:storefront": "@npm:storefront:bin npm",
-
-        "npm:e2e:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
-        "npm:e2e": "@npm:e2e:bin npm",
-        "npm:e2e:admin:bin": "@npm:e2e:bin ",
-        "npm:e2e:admin": "@npm:e2e:admin:bin npm",
-        "npm:e2e:recovery:bin": "@npm:e2e:bin ",
-        "npm:e2e:recovery": "@npm:e2e:recovery:bin npm",
-        "npm:e2e:storefront:bin": "@npm:e2e:bin ",
-        "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
-        "build:js:admin": [
-            "@php bin/console bundle:dump",
-            "@npm:admin run build",
-            "@php bin/console assets:install"
+        "static-analyze": [
+            "@phpstan src/"
         ],
-        "build:js:storefront": [
-            "@php bin/console feature:dump",
-            "@npm:storefront run production",
-            "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
+        "storefront:unit": [
+            "@npm:storefront run unit"
         ],
-        "build:js": [
-            "@php bin/console bundle:dump",
-            "@build:js:admin",
-            "@build:js:storefront"
+        "storefront:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run unit-watch"
         ],
-        "watch:admin": [
-            "@php bin/console feature:dump",
-            "@php bin/console bundle:dump",
-            "@npm:admin run dev"
-        ],
-        "watch:storefront": [
-            "@php bin/console feature:dump",
-            "@php bin/console theme:dump",
-            "@npm:storefront run hot-proxy"
-        ],
-        "stylelint:admin": "@npm:admin:bin stylelint --syntax scss",
-        "stylelint:storefront": "@npm:storefront:bin stylelint --syntax scss --config stylelint.config.js",
         "stylelint": [
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
         ],
-        "eslint:admin": "@npm:admin:bin eslint --config .eslintrc.js --ext .js,.vue,.html.twig",
-        "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
-        "eslint": [
-            "@eslint:admin",
-            "@eslint:storefront"
+        "stylelint:admin": "@npm:admin run lint:scss",
+        "stylelint:storefront": "@npm:storefront run lint:scss",
+        "watch:admin": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/console feature:dump",
+            "@php bin/console bundle:dump",
+            "@admin:generate-entity-schema-types",
+            "@npm:admin run dev"
         ],
-        "ecs": "ecs check",
-        "ecs-fix": "ecs check --fix",
-        "lint:changelog": "@php bin/shopware changelog:check",
-        "lint:snippets": "@php bin/shopware snippets:validate",
-        "lint": [
-            "@stylelint",
-            "@eslint",
-            "@ecs src/",
-            "@lint:changelog",
-            "@lint:snippets"
-        ],
-        "phpstan": [
-            "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
-            "phpstan analyze --memory-limit=2G"
-        ],
-        "psalm": "psalm --config=psalm.xml --threads=4",
-        "bc-check": "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)",
-        "static-analyze": [
-            "@phpstan src/",
-            "@psalm src/"
-        ],
-        "phpunit": [
-            "phpunit"
-        ],
-        "paratest": [
-            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
-        ],
-        "locust:init": "php src/Core/DevOps/Locust/setup.php",
-        "locust:run": "cd src/Core/DevOps/Locust && locust",
-        "init:e2e": "@npm:e2e clean-install",
-        "init:e2e:admin": "@npm:e2e:admin clean-install",
-        "init:e2e:storefront": "@npm:e2e:storefront clean-install",
-        "init:e2e:recovery": "@npm:e2e:recovery clean-install",
-        "e2e:setup": [
-            "@putenv APP_ENV=e2e",
-            "@setup",
-            "@e2e:prepare"
-        ],
-        "e2e:prepare": [
-            "@putenv APP_ENV=e2e",
-            "@putenv CYPRESS_localUsage=1",
-            "@php bin/console e2e:dump-db"
-        ],
-
-        "e2e:cypress": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
-        ],
-        "e2e:percy": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
-        ],
-
-        "e2e:admin:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:admin:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:storefront:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:storefront:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:recovery:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:recovery:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:admin:run": [
-            "@e2e:admin:cypress run --browser chrome --headless --spec \"cypress/integration/administration/**/*\""
-        ],
-        "e2e:storefront:run": [
-            "@e2e:storefront:cypress run --browser chrome --headless --spec \"cypress/integration/storefront/**/*\""
-        ],
-        "e2e:recovery:run": [
-            "@e2e:recovery:cypress run --browser chrome --headless --spec \"cypress/integration/recovery/**/*\""
-        ],
-        "e2e:open": [
-            "@e2e:cypress open"
-        ],
-        "e2e:admin:open": [
-            "@e2e:admin:cypress open"
-        ],
-        "e2e:storefront:open": [
-            "@e2e:storefront:cypress open"
-        ],
-        "e2e:recovery:open": [
-            "@e2e:recovery:cypress open"
+        "watch:storefront": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/console feature:dump",
+            "@php bin/console theme:dump",
+            "@npm:storefront run hot-proxy"
         ]
     },
     "autoload": {
+        "files": [
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Adapter/Twig/functions.php"
+        ],
         "psr-4": {
-            "Shopware\\Administration\\": "src/Administration/",
-            "Shopware\\Docs\\": "src/Docs/",
-            "Shopware\\Storefront\\": "src/Storefront/",
-            "Shopware\\Core\\": "src/Core/",
-            "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
+            "Shopware\\": "src/"
         },
         "exclude-from-classmap": [
-            "src/**/Test/"
+            "src/**/Test/",
+            "tests/"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
-             "Shopware\\Administration\\Test\\": "src/Administration/Test",
-             "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
-             "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
-             "Shopware\\Docs\\Test\\": "src/Docs/Test",
-            "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
-             "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
-             "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
-             "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",
-             "Shopware\\Core\\DevOps\\Test\\": "src/Core/DevOps/Test/",
-             "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
-             "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
-             "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
-             "Shopware\\Core\\Test\\": "src/Core/Test/"
+            "Shopware\\Tests\\Unit\\": "tests/unit/",
+            "Shopware\\Tests\\Integration\\": "tests/integration/",
+            "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
+            "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
     }
 }

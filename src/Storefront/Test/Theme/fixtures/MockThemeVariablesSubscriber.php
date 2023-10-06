@@ -3,9 +3,12 @@
 namespace Shopware\Storefront\Test\Theme\fixtures;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
+use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class MockThemeVariablesSubscriber implements EventSubscriberInterface
 {
     /**

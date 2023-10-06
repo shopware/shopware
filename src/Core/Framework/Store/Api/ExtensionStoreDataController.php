@@ -5,12 +5,10 @@ namespace Shopware\Core\Framework\Store\Api;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,31 +18,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @RouteScope(scopes={"api"})
- * @Acl({"system.plugin_maintain"})
  */
+#[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
+#[Package('services-settings')]
 class ExtensionStoreDataController extends AbstractController
 {
-    private AbstractExtensionDataProvider $extensionDataProvider;
-
-    private EntityRepositoryInterface $languageRepository;
-
-    private EntityRepositoryInterface $userRepository;
-
     public function __construct(
-        AbstractExtensionDataProvider $extensionListingProvider,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $languageRepository
+        private readonly AbstractExtensionDataProvider $extensionDataProvider,
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $languageRepository
     ) {
-        $this->extensionDataProvider = $extensionListingProvider;
-        $this->languageRepository = $languageRepository;
-        $this->userRepository = $userRepository;
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/installed", name="api.extension.installed", methods={"GET"})
-     */
+    #[Route(path: '/api/_action/extension/installed', name: 'api.extension.installed', methods: ['GET'])]
     public function getInstalledExtensions(Context $context): Response
     {
         $context = $this->switchContext($context);

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_search_index %}
 <sw-card
     position-identifier="sw-settings-search-search-index"
@@ -5,6 +6,7 @@
     :is-loading="isLoading"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_index_description %}
     <sw-alert
         v-if="isRebuildInProgress"
@@ -12,12 +14,14 @@
         variant="warning"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_search_index_warning_top %}
         <p class="sw-settings-search__search-index-warning-top">
             {{ $tc('sw-settings-search.generalTab.textWarningOpenTab') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_search_index_warning_bottom %}
         <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
         {% endblock %}
@@ -25,6 +29,7 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_index_rebuild_button %}
     <sw-button-process
         variant="ghost"
@@ -32,12 +37,17 @@
         :is-loading="isRebuildInProgress"
         :disabled="isRebuildInProgress || !acl.can('product_search_config.editor')"
         :process-success="isRebuildSuccess"
+        {% if VUE3 %}
+        @update:process-success="buildFinish"
+        {% else %}
         @process-finish="buildFinish"
+        {% endif %}
         @click="rebuildSearchIndex"
     >
         {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
     </sw-button-process>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_index_lastest_build %}
     <span class="sw-settings-search__search-index-latest-build">
         {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} {{ latestBuild }}
@@ -45,18 +55,21 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_index_rebuild_progress %}
     <div
         v-if="progressBarValue"
         class="sw-settings-search__search-index-rebuilding-progress"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_search_index_rebuild_progress_text %}
         <span class="sw-settings-search__search-index-rebuilding-text">
             {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_search_index_rebuild_progress_bar %}
         <sw-progress-bar
             :value="progressBarValue"

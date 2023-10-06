@@ -3,8 +3,10 @@
 namespace Shopware\Elasticsearch;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
+use Shopware\Elasticsearch\DependencyInjection\ElasticsearchMigrationCompilerPass;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -20,13 +22,22 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Elasticsearch extends Bundle
 {
-    protected $name = 'Elasticsearch';
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
 
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
 
         // Needs to run before the ProfilerPass
         $container->addCompilerPass(new ElasticsearchProfileCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 5000);
@@ -34,10 +45,7 @@ class Elasticsearch extends Bundle
         $this->buildConfig($container);
     }
 
-    /**
-     * @return ExtensionInterface
-     */
-    public function createContainerExtension()
+    protected function createContainerExtension(): ?ExtensionInterface
     {
         return new ElasticsearchExtension();
     }

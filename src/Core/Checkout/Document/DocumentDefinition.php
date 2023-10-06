@@ -20,10 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class DocumentDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'document';
+    final public const ENTITY_NAME = 'document';
 
     public function getEntityName(): string
     {

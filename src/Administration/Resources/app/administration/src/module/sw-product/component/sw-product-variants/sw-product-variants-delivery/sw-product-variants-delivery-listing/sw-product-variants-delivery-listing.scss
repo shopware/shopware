@@ -29,6 +29,12 @@
         }
     }
 
+    .sw-product-variants-delivery-listing_variant-selection {
+        .sw-field__radio-option.is--disabled {
+            background-color: transparent;
+        }
+    }
+
     .sw-product-variants-delivery-listing-config {
         display: flex;
         padding: 0;

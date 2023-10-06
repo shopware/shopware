@@ -1,8 +1,26 @@
 {
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment",
+      "mainMenuItemGeneral": "Payment methods",
       "placeholderSearchBar": "Search all payment methods..."
+    },
+    "overview": {
+      "openSortingModalButton": "Edit display order in checkout",
+      "editDetails": "Edit details",
+      "activeToggle": "Active",
+      "missingEditorPermission": "You don't have the permissions, to edit payment methods.",
+      "notification": {
+        "activationSuccess": "{name} successfully activated.",
+        "deactivationSuccess": "{name} successfully deactivated.",
+        "activationError": "{name} could not be activated.",
+        "deactivationError": "{name} could not be deactivated."
+      }
+    },
+    "sorting-modal": {
+      "modalTitle": "Display order in checkout",
+      "subTitle": "Use drag & drop to define the order of payment methods displayed during checkout.",
+      "saveSuccessful": "The order of payment methods has been updated.",
+      "errorMessage": "An error occurred while updating the order of payment methods."
     },
     "list": {
       "textHeadline": "Payment",

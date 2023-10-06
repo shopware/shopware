@@ -4,26 +4,21 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @Decoratable
- */
+#[Package('checkout')]
 class AddressValidationFactory implements DataValidationFactoryInterface
 {
     /**
-     * @var SystemConfigService
+     * @internal
      */
-    private $systemConfigService;
-
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition
@@ -45,10 +40,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         return $definition;
     }
 
-    /**
-     * @param SalesChannelContext|Context $context
-     */
-    private function buildCommonValidation(DataValidationDefinition $definition, $context): DataValidationDefinition
+    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext|Context $context): DataValidationDefinition
     {
         if ($context instanceof SalesChannelContext) {
             $frameworkContext = $context->getContext();
@@ -65,9 +57,8 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('street', new NotBlank())
-            ->add('zipcode', new NotBlank())
             ->add('city', new NotBlank())
-            ->add('countryId', new NotBlank());
+            ->add('countryId', new NotBlank(), new EntityExists(['entity' => 'country', 'context' => $frameworkContext]));
 
         if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required', $salesChannelId)) {

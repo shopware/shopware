@@ -1,20 +1,27 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_general %}
 <div class="sw-import-export-edit-profile-general">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_general_text %}
     <p class="sw-import-export-edit-profile-general__text">
         {{ $tc('sw-import-export.profile.descriptionBlock') }}
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_general_container %}
     <sw-container
         columns="1fr 1fr"
         gap="0 32px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_name %}
-        <sw-field
+        <sw-text-field
+            {% if VUE3 %}
+            v-model:value="profile.label"
+            {% else %}
             v-model="profile.label"
-            type="text"
+            {% endif %}
             :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
             required
             :disabled="profile.systemDefault"
@@ -23,6 +30,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_object_type %}
         <span
             v-tooltip="{
@@ -32,10 +40,15 @@
             }"
             class="sw-import-export-edit-profile-general__object-type-field"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_general_container_object_type_select %}
             <sw-single-select
                 ref="objectTypeSelect"
+                {% if VUE3 %}
+                v-model:value="profile.sourceEntity"
+                {% else %}
                 v-model="profile.sourceEntity"
+                {% endif %}
                 class="sw-import-export-edit-profile-general__object-type-select"
                 :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
                 required
@@ -47,9 +60,9 @@
                 <template
                     #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_general_container_object_type_select_result %}
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         v-tooltip="{
                             showDelay: 300,
                             message: $tc('sw-import-export.profile.objectTypeDisabledText'),
@@ -61,6 +74,7 @@
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_import_export_edit_profile_general_container_object_type_select_result_highlight %}
                         <sw-highlight-text
                             v-if="highlightSearchTerm && !isSelected(item)"
@@ -69,12 +83,13 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_import_export_edit_profile_general_container_object_type_select_result_text %}
                         <template v-else>
                             {{ getKey(item, labelProperty) }}
                         </template>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                     {% endblock %}
                 </template>
             </sw-single-select>
@@ -82,9 +97,14 @@
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_type %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="profile.type"
+            {% else %}
             v-model="profile.type"
+            {% endif %}
             class="sw-import-export-edit-profile-general__type-select"
             :label="$tc('sw-import-export.profile.typeFieldLabel')"
             required
@@ -96,9 +116,9 @@
             <template
                 #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_general_container_type_result %}
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-tooltip="{
                         showDelay: 300,
                         message: $tc('sw-import-export.profile.profileTypeDisabledText'),
@@ -110,6 +130,7 @@
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_general_container_type_result_highlight %}
                     <sw-highlight-text
                         v-if="highlightSearchTerm && !isSelected(item)"
@@ -118,12 +139,13 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_general_container_type_result_text %}
                     <template v-else>
                         {{ getKey(item, labelProperty) }}
                     </template>
                     {% endblock %}
-                </li>
+                </sw-select-result>
                 {% endblock %}
             </template>
         </sw-single-select>

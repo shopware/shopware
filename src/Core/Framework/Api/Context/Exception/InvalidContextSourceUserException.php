@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Context\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('core')]
 class InvalidContextSourceUserException extends ShopwareHttpException
 {
     public function __construct(string $contextSource)

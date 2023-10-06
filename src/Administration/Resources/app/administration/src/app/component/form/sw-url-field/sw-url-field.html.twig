@@ -1,4 +1,6 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_url_field %}
 <sw-contextual-field
     class="sw-field--url"
@@ -9,20 +11,22 @@
     @inheritance-remove="$emit('inheritance-remove', $event)"
 >
     <template #sw-contextual-field-prefix="{ disabled }">
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <span
             class="sw-field__url-input__prefix"
             :class="prefixClass"
+            role="button"
+            tabindex="0"
             @click="changeMode(disabled)"
+            @keydown.enter="changeMode(disabled)"
         >
             <sw-icon
                 v-if="sslActive"
-                name="default-lock-closed"
+                name="regular-lock"
                 :small="true"
             />
             <sw-icon
                 v-else
-                name="default-lock-open"
+                name="regular-lock-open"
                 :small="true"
             />
             {{ urlPrefix }}
@@ -36,10 +40,9 @@
             type="url"
             class="sw-url-input-field__input"
             :name="identification"
-            :value="currentValue|unicodeUri"
+            :value="unicodeUriFilter(currentValue)"
             :placeholder="placeholder"
             :disabled="disabled"
-            @input="onInput"
             @focus="setFocusClass"
             @blur="onBlur($event); removeFocusClass();"
         >
@@ -59,6 +62,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 
 </sw-contextual-field>

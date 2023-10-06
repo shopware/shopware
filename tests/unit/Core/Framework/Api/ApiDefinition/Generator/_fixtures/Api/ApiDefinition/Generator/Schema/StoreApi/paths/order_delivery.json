@@ -1,0 +1,78 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/order_delivery\/{orderDeliveryId}\/state\/{transition}": {
+            "post": {
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Transition an order delivery to a new state",
+                "description": "Changes the order delivery state and informs the customer via email if configured.",
+                "operationId": "orderDeliveryStateTransition",
+                "parameters": [
+                    {
+                        "name": "orderDeliveryId",
+                        "in": "path",
+                        "description": "Identifier of the order delivery.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "transition",
+                        "in": "path",
+                        "description": "The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.\n\nNote: If you choose a transition which is not possible, you will get an error that lists possible transition for the actual state.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "properties": {
+                                    "sendMail": {
+                                        "description": "Controls if a mail should be send to the customer."
+                                    },
+                                    "documentIds": {
+                                        "description": "A list of document identifiers that should be attached",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "mediaIds": {
+                                        "description": "A list of media identifiers that should be attached",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "stateFieldName": {
+                                        "description": "This is the state column within the order delivery database table. There should be no need to change it from the default.",
+                                        "type": "string",
+                                        "default": "stateId"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Todo: Use ref of `state_machine_transition` here"
+                    }
+                }
+            }
+        }
+    }
+}

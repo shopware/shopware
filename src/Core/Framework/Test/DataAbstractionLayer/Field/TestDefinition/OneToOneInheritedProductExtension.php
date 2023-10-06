@@ -8,7 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class OneToOneInheritedProductExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

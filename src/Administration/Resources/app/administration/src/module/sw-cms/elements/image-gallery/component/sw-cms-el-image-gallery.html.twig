@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_gallery %}
 <div
     class="sw-cms-el-image-gallery"
@@ -5,6 +6,7 @@
     :style="verticalAlignStyle"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_gallery_grid %}
     <div
         ref="galleryItemHolder"
@@ -13,23 +15,26 @@
 
         <template v-if="mediaUrls && mediaUrls.length">
             <div class="sw-cms-el-image-gallery__item-holder">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_selection %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                <sw-media-list-selection-item-v2
-                    v-for="(sliderItem, index) in mediaUrls"
-                    v-if="index < galleryLimit"
-                    :key="index"
-                    :item="sliderItem.media"
-                    :class="activeMediaClass(sliderItem.media)"
-                    hide-actions
-                    hide-tooltip
-                    @click="onChangeGalleryImage(sliderItem.media, index)"
-                />
+                <template v-for="(sliderItem, index) in mediaUrls">
+                    <sw-media-list-selection-item-v2
+                        v-if="index < galleryLimit"
+                        :key="index"
+                        :item="sliderItem.media"
+                        :class="activeMediaClass(sliderItem.media)"
+                        hide-actions
+                        hide-tooltip
+                        @click="onChangeGalleryImage(sliderItem.media, index)"
+                    />
+                </template>
                 {% endblock %}
             </div>
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_empty %}
             <div class="sw-cms-el-image-gallery__item-holder">
                 <img
@@ -43,13 +48,14 @@
             {% endblock %}
         </template>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_gallery_nav_arrow %}
         <div
             v-if="element.config.sliderItems.value.length > galleryLimit"
             class="sw-cms-el-image-gallery__grid-arrow"
         >
             <sw-icon
-                name="default-arrow-head-down"
+                name="regular-chevron-down"
                 size="20"
             />
         </div>
@@ -57,6 +63,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_gallery_slider %}
     <sw-cms-el-image-slider
         :element="element"

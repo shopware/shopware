@@ -2,25 +2,18 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
  *
- * @method void                 add(ExtensionStruct $entity)
- * @method void                 set(string $key, ExtensionStruct $entity)
- * @method ExtensionStruct[]    getIterator()
- * @method ExtensionStruct[]    getElements()
- * @method ExtensionStruct|null get(string $key)
- * @method ExtensionStruct|null first()
- * @method ExtensionStruct|null last()
+ * @extends Collection<ExtensionStruct>
  */
+#[Package('services-settings')]
 class ExtensionCollection extends Collection
 {
-    /**
-     * @var int
-     */
-    private $total = 0;
+    private int $total = 0;
 
     public function getTotal(): int
     {
@@ -46,9 +39,7 @@ class ExtensionCollection extends Collection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(function (ExtensionStruct $ext) use ($type) {
-            return $ext->getType() === $type;
-        });
+        return $this->filter(fn (ExtensionStruct $ext) => $ext->getType() === $type);
     }
 
     protected function getExpectedClass(): ?string

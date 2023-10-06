@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ChangesetGenerator from './changeset-generator.data';
 import Criteria from './criteria.data';
 import Entity from './entity.data';
@@ -10,6 +14,7 @@ import ErrorResolver from './error-resolver.data';
 import ErrorStore from './error-store.data';
 import FilterFactory from './filter-factory.data';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     ChangesetGenerator,
     Criteria,

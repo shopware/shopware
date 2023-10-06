@@ -4,6 +4,8 @@ import './sw-text-editor-toolbar-button.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-text-editor-toolbar-button', {
@@ -28,6 +30,12 @@ Component.register('sw-text-editor-toolbar-button', {
         },
     },
 
+    data() {
+        return {
+            flyoutClasses: [],
+        };
+    },
+
     computed: {
         classes() {
             return {
@@ -41,7 +49,16 @@ Component.register('sw-text-editor-toolbar-button', {
         },
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.$device.onResize({
+                listener: this.positionLinkMenu,
+            });
+        },
         buttonHandler(event, button) {
             if (this.disabled) {
                 return null;
@@ -64,6 +81,7 @@ Component.register('sw-text-editor-toolbar-button', {
             }
 
             this.$emit('button-click', button, parent);
+            this.$emit('menu-toggle', null, button);
         },
 
         onToggleMenu(event, button) {
@@ -97,6 +115,20 @@ Component.register('sw-text-editor-toolbar-button', {
             return [positionClass];
         },
 
+        onChildMounted() {
+            const flyoutMenu = this.$refs?.flyoutMenu;
+
+            if (!flyoutMenu || this.flyoutClasses.includes('is--left', 'is--right')) {
+                return;
+            }
+
+            const flyoutMenuRightBound = flyoutMenu.getBoundingClientRect().right;
+            const windowRightBound = this.$root.$el.getBoundingClientRect().right;
+
+            const isOutOfRightBound = flyoutMenuRightBound - windowRightBound > 0;
+            this.flyoutClasses = isOutOfRightBound ? ['is--left'] : ['is--right'];
+        },
+
         getTooltipConfig(buttonConfig, child) {
             return {
                 disabled: !child.title,
@@ -106,6 +138,37 @@ Component.register('sw-text-editor-toolbar-button', {
                 showDelay: buttonConfig.tooltipShowDelay || 100,
                 hideDelay: buttonConfig.tooltipHideDelay || 100,
             };
+        },
+
+        positionLinkMenu() {
+            const flyoutLinkMenu = this.$refs?.flyoutLinkMenu;
+
+            if (!(flyoutLinkMenu instanceof HTMLElement)) {
+                return;
+            }
+
+            const flyoutLinkMenuWidth = flyoutLinkMenu.clientWidth;
+
+            const linkIcon = this.$el;
+            const linkIconWidth = linkIcon.clientWidth;
+
+            const linkIconRightBound = linkIcon.getBoundingClientRect().right;
+
+            const linkFlyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
+            const windowRightBound = this.$device.getViewportWidth();
+
+            const isOutOfRightBound = windowRightBound - linkFlyoutMenuRightBound;
+
+            let flyoutLinkLeftOffset = 0;
+            let arrowPosition = 10;
+
+            if (isOutOfRightBound < 0) {
+                flyoutLinkLeftOffset = isOutOfRightBound - 50;
+                arrowPosition = Math.abs(flyoutLinkLeftOffset) + 10;
+            }
+
+            flyoutLinkMenu.style.setProperty('--flyoutLinkLeftOffset', `${flyoutLinkLeftOffset}px`);
+            flyoutLinkMenu.style.setProperty('--arrow-position', `${arrowPosition}px`);
         },
     },
 });

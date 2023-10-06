@@ -10,26 +10,38 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class SalesChannelTestHook extends Hook implements SalesChannelContextAware
 {
     use SalesChannelContextAwareTrait;
 
-    private string $name;
-
+    /**
+     * @var array<string>
+     */
     private static array $serviceIds;
 
-    public function __construct(string $name, SalesChannelContext $context, array $data = [], array $serviceIds = [])
-    {
+    /**
+     * @param array<string> $serviceIds
+     * @param array<string, mixed> $data
+     */
+    public function __construct(
+        private readonly string $name,
+        SalesChannelContext $context,
+        array $data = [],
+        array $serviceIds = []
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->name = $name;
         self::$serviceIds = $serviceIds;
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 
+    /**
+     * @return array<string>
+     */
     public static function getServiceIds(): array
     {
         return self::$serviceIds;

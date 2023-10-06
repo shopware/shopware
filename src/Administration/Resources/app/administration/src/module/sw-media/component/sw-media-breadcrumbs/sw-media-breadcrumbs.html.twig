@@ -1,13 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_breadcrumbs %}
 <nav
     class="sw-media-breadcrumbs"
     :class="swMediaBreadcrumbsClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_root_folder %}
-    <!-- eslint-disable-next-line  vuejs-accessibility/click-events-have-key-events vuejs-accessibility/anchor-has-content -->
+    <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
     <a
         class="sw-media-breadcrumbs__button-back-to-root"
+        role="button"
+        tabindex="0"
         @click="onBreadcrumbsItemClicked(null)"
+        @keydown.enter="onBreadcrumbsItemClicked(null)"
     >
         <sw-icon
             v-if="!small"
@@ -24,23 +29,25 @@
     </a>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_parent_folder %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <a
         v-if="parentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"
+        role="button"
+        tabindex="0"
         @click="onBreadcrumbsItemClicked(parentFolder.id)"
+        @keydown.enter="onBreadcrumbsItemClicked(parentFolder.id)"
     >
-
         <sw-icon
             class="sw-media-breadcrumbs__arrow-separator"
-            name="small-arrow-small-right"
-            :small="small"
+            name="regular-chevron-right-xxs"
         />
         {{ parentFolder.name }}
     </a>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_current_folder %}
     <span
         v-if="currentFolder"
@@ -48,8 +55,7 @@
     >
         <sw-icon
             class="sw-media-breadcrumbs__arrow-separator"
-            name="small-arrow-small-right"
-            :small="small"
+            name="regular-chevron-right-xxs"
         />
         {{ currentFolder.name }}
     </span>

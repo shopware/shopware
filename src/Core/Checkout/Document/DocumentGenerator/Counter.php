@@ -2,17 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class Counter
 {
-    /**
-     * @var int
-     */
-    private $counter = 0;
-
-    /**
-     * @var int
-     */
-    private $page = 1;
+    private int $counter = 0;
 
     public function getCounter(): int
     {
@@ -22,15 +17,5 @@ class Counter
     public function increment(): void
     {
         $this->counter = $this->counter + 1;
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function incrementPage(): void
-    {
-        $this->page = $this->page + 1;
     }
 }

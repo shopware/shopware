@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
@@ -18,76 +17,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SalesChannelRepository implements SalesChannelRepositoryInterface
+/**
+ * @final
+ *
+ * @template TEntityCollection of EntityCollection
+ */
+#[Package('buyers-experience')]
+class SalesChannelRepository
 {
     /**
-     * @var EntityDefinition
+     * @internal
      */
-    protected $definition;
-
-    /**
-     * @var EntityReaderInterface
-     */
-    protected $reader;
-
-    /**
-     * @var EntitySearcherInterface
-     */
-    protected $searcher;
-
-    /**
-     * @var EntityAggregatorInterface
-     */
-    protected $aggregator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
-
-    private ?EntityLoadedEventFactory $eventFactory;
-
     public function __construct(
-        EntityDefinition $definition,
-        EntityReaderInterface $reader,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher,
-        ?EntityLoadedEventFactory $eventFactory
+        private readonly EntityDefinition $definition,
+        private readonly EntityReaderInterface $reader,
+        private readonly EntitySearcherInterface $searcher,
+        private readonly EntityAggregatorInterface $aggregator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityLoadedEventFactory $eventFactory
     ) {
-        $this->definition = $definition;
-        $this->reader = $reader;
-        $this->searcher = $searcher;
-        $this->aggregator = $aggregator;
-        $this->eventDispatcher = $eventDispatcher;
-
-        if ($eventFactory !== null) {
-            $this->eventFactory = $eventFactory;
-        } else {
-            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $definition->getEntityName()));
-        }
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed,
-     */
-    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
-    {
-        if ($this->eventFactory === null) {
-            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName()));
-        }
-
-        $this->eventFactory = $eventFactory;
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return EntitySearchResult<TEntityCollection>
      */
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
@@ -108,6 +68,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
         if (empty($ids->getIds())) {
+            /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
@@ -119,7 +80,6 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $search = $ids->getData();
 
-        /** @var Entity $element */
         foreach ($entities as $element) {
             if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
@@ -170,15 +130,15 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         return $this->doSearch($criteria, $salesChannelContext);
     }
 
+    /**
+     * @return TEntityCollection
+     */
     private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
         $criteria = clone $criteria;
 
+        /** @var TEntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
-
-        if ($this->eventFactory === null) {
-            throw new \RuntimeException('Event loaded factory was not injected');
-        }
 
         if ($criteria->getFields() === []) {
             $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
@@ -225,7 +185,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 
-            if (isset($processed[\get_class($definition)])) {
+            if (isset($processed[$definition::class])) {
                 continue;
             }
 
@@ -238,7 +198,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
                 $this->eventDispatcher->dispatch($event, $eventName);
             }
 
-            $processed[\get_class($definition)] = true;
+            $processed[$definition::class] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition

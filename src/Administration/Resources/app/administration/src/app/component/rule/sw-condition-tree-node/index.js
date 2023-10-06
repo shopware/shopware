@@ -3,6 +3,10 @@ import './sw-condition-tree-node.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-condition-tree-node', {
     template,
 

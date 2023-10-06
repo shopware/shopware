@@ -12,9 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class JsonDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_nullable';
+    final public const ENTITY_NAME = '_test_nullable';
 
     public function getEntityName(): string
     {

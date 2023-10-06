@@ -5,6 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Shipping\ShippingMethodDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -36,7 +40,11 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.shipping_method_route%</argument>
-            <argument type="service" id="logger" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-2000" public="true">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">

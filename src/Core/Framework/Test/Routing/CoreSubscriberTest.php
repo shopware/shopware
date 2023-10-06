@@ -10,10 +10,13 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\ProductController;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CoreSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testDefaultHeadersHttp(): void
     {
@@ -83,7 +86,7 @@ class CoreSubscriberTest extends TestCase
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
             $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
@@ -107,7 +110,7 @@ class CoreSubscriberTest extends TestCase
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
             $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );

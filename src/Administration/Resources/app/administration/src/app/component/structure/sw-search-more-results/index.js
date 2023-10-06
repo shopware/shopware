@@ -4,15 +4,19 @@ import './sw-search-more-results.scss';
 const { Component, Application } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders the search result show more based on the item type.
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-search-more-results :result="{entity: 'customer', total: 5}" :term="query">
+ * <sw-search-more-results :result="{ entity: 'customer', total: 5 }" :entity="customer" :term="query">
  * </sw-search-more-results>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-more-results', {
     template,
 
@@ -21,9 +25,10 @@ Component.register('sw-search-more-results', {
     ],
 
     props: {
-        result: {
+        entity: {
             required: true,
-            type: Object,
+            type: String,
+            default: '',
         },
         term: {
             type: String,
@@ -42,12 +47,11 @@ Component.register('sw-search-more-results', {
          */
         searchTypeRoute() {
             if (
-                !this.result ||
-                !this.result.entity ||
-                !this.searchTypes[this.result.entity] ||
-                !this.searchTypes[this.result.entity].listingRoute
+                !this.entity ||
+                !this.searchTypes[this.entity] ||
+                !this.searchTypes[this.entity].listingRoute
             ) {
-                const module = this.moduleFactory.getModuleByEntityName(this.result.entity);
+                const module = this.moduleFactory.getModuleByEntityName(this.entity);
 
                 if (module?.manifest?.routes?.index) {
                     return module.manifest.routes.index.name;
@@ -60,7 +64,7 @@ Component.register('sw-search-more-results', {
                 return '';
             }
 
-            return this.searchTypes[this.result.entity].listingRoute;
+            return this.searchTypes[this.entity].listingRoute;
         },
 
         searchTypes() {
@@ -68,12 +72,15 @@ Component.register('sw-search-more-results', {
         },
 
         searchContent() {
-            const { total, entity } = this.result;
+            const entityName = this.$tc(`global.entities.${this.entity}`, 0);
 
             return this.$tc(
                 'global.sw-search-more-results.labelShowResultsInModuleV2',
                 0,
-                { count: total, entityName: this.$tc(`global.entities.${entity}`, 0).toLowerCase() },
+                {
+                    entityName: entityName,
+                    entityNameLower: entityName.toLowerCase(),
+                },
             );
         },
     },

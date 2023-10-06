@@ -1,7 +1,7 @@
 import ApiService from '../api.service';
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
+ * @package business-ops
  *
  * @class
  * @extends ApiService
@@ -34,4 +34,5 @@ class BusinessEventsApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default BusinessEventsApiService;

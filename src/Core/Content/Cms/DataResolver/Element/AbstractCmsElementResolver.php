@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('buyers-experience')]
 abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
 {
     /**
@@ -41,7 +43,23 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             }
 
             try {
-                $value = \is_array($value) ? $value[$part] : $value->get($part);
+                switch (true) {
+                    case \is_array($value):
+                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+
+                        break;
+                    case $value instanceof Entity:
+                        $value = $value->get($part);
+
+                        break;
+                    case $value instanceof Struct:
+                        $value = $value->getVars();
+                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+
+                        break;
+                    default:
+                        $value = null;
+                }
 
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
@@ -77,7 +95,11 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             $content = $dateFormatter->format($content);
         }
 
-        return (string) $content;
+        if ($content === null || \is_scalar($content) || (\is_object($content) && \method_exists($content, '__toString'))) {
+            return (string) $content;
+        }
+
+        return $path;
     }
 
     protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
@@ -151,7 +173,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             function ($matches) use ($resolverContext) {
                 try {
                     return $this->resolveEntityValueToString($resolverContext->getEntity(), $matches['property'], $resolverContext);
-                } catch (\InvalidArgumentException $e) {
+                } catch (\InvalidArgumentException) {
                     return $matches[0];
                 }
             },
@@ -168,9 +190,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToManyAssociationField|null $manyToMany */
         $manyToMany = $field->getToManyReferenceDefinition()->getFields()
             ->filterInstance(ManyToManyAssociationField::class)
-            ->filter(static function (ManyToManyAssociationField $field) use ($referenceDefinition) {
-                return $field->getReferenceDefinition() === $referenceDefinition;
-            })
+            ->filter(static fn (ManyToManyAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
             ->first();
 
         if (!$manyToMany) {
@@ -187,9 +207,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToOneAssociationField|null $manyToOne */
         $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
-            ->filter(static function (ManyToOneAssociationField $field) use ($referenceDefinition) {
-                return $field->getReferenceDefinition() === $referenceDefinition;
-            })
+            ->filter(static fn (ManyToOneAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
             ->first()
         ;
 

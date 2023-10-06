@@ -5,6 +5,7 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 * @constructor
 * @param {Object} Object.userConfigRepository
 */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function SearchPreferencesService({ userConfigRepository: _userConfigRepository }) {
     return {
         getDefaultSearchPreferences,
@@ -41,10 +42,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     * @returns {Promise}
     */
     function getUserSearchPreferences() {
-        return new Promise(async (resolve) => {
-            const response = await Shopware.Service('userConfigService').search([KEY_USER_SEARCH_PREFERENCE]);
-
-            resolve(response.data[KEY_USER_SEARCH_PREFERENCE] || null);
+        return new Promise((resolve) => {
+            Shopware.Service('userConfigService').search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
+                resolve(response.data[KEY_USER_SEARCH_PREFERENCE] || null);
+            });
         });
     }
 
@@ -243,6 +244,12 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
             }
             if (item.fieldName.includes('country.name')) {
                 lastFieldName = 'countryName';
+            }
+            if (item.fieldName.includes('mediaFolder.name')) {
+                lastFieldName = 'mediaFolderName';
+            }
+            if (item.fieldName.includes('payload.code')) {
+                lastFieldName = 'promotionCode';
             }
 
             fieldsGroup[lastFieldName] ??= {

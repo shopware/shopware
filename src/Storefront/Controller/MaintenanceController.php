@@ -2,13 +2,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoader;
@@ -17,40 +14,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class MaintenanceController extends StorefrontController
 {
     /**
-     * @var SystemConfigService
+     * @internal
      */
-    private $systemConfigService;
-
-    /**
-     * @var MaintenancePageLoader
-     */
-    private $maintenancePageLoader;
-
-    /**
-     * @var MaintenanceModeResolver
-     */
-    private $maintenanceModeResolver;
-
     public function __construct(
-        SystemConfigService $systemConfigService,
-        MaintenancePageLoader $maintenancePageLoader,
-        MaintenanceModeResolver $maintenanceModeResolver
+        private readonly SystemConfigService $systemConfigService,
+        private readonly MaintenancePageLoader $maintenancePageLoader,
+        private readonly MaintenanceModeResolver $maintenanceModeResolver
     ) {
-        $this->systemConfigService = $systemConfigService;
-        $this->maintenancePageLoader = $maintenancePageLoader;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @HttpCache()
-     * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"}, defaults={"allow_maintenance"=true})
-     */
+    #[Route(path: '/maintenance', name: 'frontend.maintenance.page', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
         $salesChannel = $context->getSalesChannel();
@@ -89,19 +70,13 @@ class MaintenanceController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0.0")
      * Route for stand alone cms pages during maintenance
-     *
-     * @HttpCache()
-     * @Route("/maintenance/singlepage/{id}", name="frontend.maintenance.singlepage", methods={"GET"}, defaults={"allow_maintenance"=true})
-     *
-     * @throws MissingRequestParameterException
-     * @throws PageNotFoundException
      */
+    #[Route(path: '/maintenance/singlepage/{id}', name: 'frontend.maintenance.singlepage', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
-            throw new MissingRequestParameterException('Parameter id missing');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $cmsPage = $this->maintenancePageLoader->load($id, $request, $salesChannelContext);

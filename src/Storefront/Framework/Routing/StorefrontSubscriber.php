@@ -11,23 +11,20 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -36,58 +33,25 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private RouterInterface $router;
-
-    private ErrorController $errorController;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    private bool $kernelDebug;
-
-    private CsrfPlaceholderHandler $csrfPlaceholderHandler;
-
-    private MaintenanceModeResolver $maintenanceModeResolver;
-
-    private HreflangLoaderInterface $hreflangLoader;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        ErrorController $errorController,
-        SalesChannelContextServiceInterface $contextService,
-        CsrfPlaceholderHandler $csrfPlaceholderHandler,
-        HreflangLoaderInterface $hreflangLoader,
-        bool $kernelDebug,
-        MaintenanceModeResolver $maintenanceModeResolver,
-        ShopIdProvider $shopIdProvider,
-        ActiveAppsLoader $activeAppsLoader,
-        SystemConfigService $systemConfigService,
-        StorefrontPluginRegistryInterface $themeRegistry
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly HreflangLoaderInterface $hreflangLoader,
+        private readonly MaintenanceModeResolver $maintenanceModeResolver,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly StorefrontPluginRegistryInterface $themeRegistry
     ) {
-        $this->requestStack = $requestStack;
-        $this->router = $router;
-        $this->errorController = $errorController;
-        $this->contextService = $contextService;
-        $this->kernelDebug = $kernelDebug;
-        $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
-        $this->hreflangLoader = $hreflangLoader;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->activeAppsLoader = $activeAppsLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->themeRegistry = $themeRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -98,7 +62,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
-                ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
                 ['maintenanceResolver'],
             ],
@@ -112,7 +75,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
-                ['replaceCsrfToken'],
                 ['setCanonicalUrl'],
             ],
             StorefrontRenderEvent::class => [
@@ -206,28 +168,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
-    public function showHtmlExceptionResponse(ExceptionEvent $event): void
-    {
-        if ($this->kernelDebug || $event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)) {
-            return;
-        }
-
-        if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            //When no saleschannel context is resolved, we need to resolve it now.
-            $this->setSalesChannelContext($event);
-        }
-
-        if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            $event->stopPropagation();
-            $response = $this->errorController->error(
-                $event->getThrowable(),
-                $this->requestStack->getMainRequest(),
-                $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
-            );
-            $event->setResponse($response);
-        }
-    }
-
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
     {
         if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
@@ -242,7 +182,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $parameters = [
             'redirectTo' => $request->attributes->get('_route'),
-            'redirectParameters' => json_encode($request->attributes->get('_route_params')),
+            'redirectParameters' => json_encode($request->attributes->get('_route_params'), \JSON_THROW_ON_ERROR),
         ];
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
@@ -268,12 +208,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope $scope */
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => []]));
-        if (!$scope->hasScope(StorefrontRouteScope::ID)) {
+        /** @var list<string> $scope */
+        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 
+        /** @var callable(): Response $controller */
         $controller = $event->getController();
 
         // happens if Controller is a closure
@@ -281,7 +223,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest', false);
+        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
 
         if ($isAllowed) {
             return;
@@ -310,16 +252,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         if ($canonical = $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK)) {
+            \assert(\is_string($canonical));
             $canonical = sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
-    }
-
-    public function replaceCsrfToken(BeforeSendResponseEvent $event): void
-    {
-        $event->setResponse(
-            $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse(), $event->getRequest())
-        );
     }
 
     public function addHreflang(StorefrontRenderEvent $event): void
@@ -345,7 +281,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return;
         }
 
@@ -383,24 +319,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $event->setParameter('themeIconConfig', $iconConfig);
-    }
-
-    private function setSalesChannelContext(ExceptionEvent $event): void
-    {
-        $contextToken = (string) $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = (string) $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        $context = $this->contextService->get(
-            new SalesChannelContextServiceParameters(
-                $salesChannelId,
-                $contextToken,
-                $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-                $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
-                $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
-            )
-        );
-
-        $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null): bool

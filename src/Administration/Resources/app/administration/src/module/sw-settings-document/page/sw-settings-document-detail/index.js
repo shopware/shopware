@@ -6,7 +6,11 @@ const { get, cloneDeep } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-settings-document-detail', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
@@ -289,7 +293,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         documentBaseConfigCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria
                 .addAssociation('documentType')
@@ -436,7 +440,7 @@ Component.register('sw-settings-document-detail', {
             }
 
             this.createSalesChannelSelectOptions();
-            const documentSalesChannelCriteria = new Criteria();
+            const documentSalesChannelCriteria = new Criteria(1, 25);
             documentSalesChannelCriteria.addFilter(
                 Criteria.equals('documentTypeId', documentType.id),
             );
@@ -473,6 +477,20 @@ Component.register('sw-settings-document-detail', {
             });
         },
 
+        abortOnLanguageChange() {
+            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            return this.loadEntityData();
+        },
+
         saveFinish() {
             if (this.documentConfig.isNew()) {
                 this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
@@ -485,7 +503,7 @@ Component.register('sw-settings-document-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
+            return this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {
@@ -528,4 +546,4 @@ Component.register('sw-settings-document-detail', {
             });
         },
     },
-});
+};

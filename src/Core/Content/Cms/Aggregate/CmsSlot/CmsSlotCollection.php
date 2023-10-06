@@ -3,20 +3,18 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method CmsSlotEntity[]    getIterator()
- * @method CmsSlotEntity[]    getElements()
- * @method CmsSlotEntity|null get(string $key)
- * @method CmsSlotEntity|null first()
- * @method CmsSlotEntity|null last()
+ * @extends EntityCollection<CmsSlotEntity>
  */
+#[Package('buyers-experience')]
 class CmsSlotCollection extends EntityCollection
 {
     /**
      * @var CmsSlotEntity[]|null indexed by slot name
      */
-    private $slotCache;
+    private ?array $slotCache = null;
 
     /**
      * @param string        $key

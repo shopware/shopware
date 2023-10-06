@@ -5,37 +5,21 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('checkout')]
 class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
-     * @var Cart
+     * @internal
      */
-    protected $cart;
-
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
-
-    /**
-     * @depretacted tag:6.5.0.0 - This will be required in the future
-     **/
-    protected ?Cart $previousCart;
-
-    public function __construct(Cart $cart, SalesChannelContext $context, ?Cart $previousCart = null)
-    {
-        $this->cart = $cart;
-        $this->context = $context;
-
-        if ($previousCart === null) {
-            Feature::throwException('FEATURE_NEXT_16824', 'The argument $previousCart will be required in future');
-        }
-
-        $this->previousCart = $previousCart;
+    public function __construct(
+        protected Cart $cart,
+        protected SalesChannelContext $context,
+        protected Cart $previousCart
+    ) {
     }
 
     public function getCart(): Cart
@@ -53,7 +37,7 @@ class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
         return $this->context;
     }
 
-    public function getPreviousCart(): ?Cart
+    public function getPreviousCart(): Cart
     {
         return $this->previousCart;
     }

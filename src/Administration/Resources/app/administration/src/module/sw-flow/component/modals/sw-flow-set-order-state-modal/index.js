@@ -4,7 +4,11 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
-Component.register('sw-flow-set-order-state-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
@@ -31,6 +35,7 @@ Component.register('sw-flow-set-order-state-modal', {
                 order: '',
                 order_delivery: '',
                 order_transaction: '',
+                force_transition: false,
             },
         };
     },
@@ -41,7 +46,7 @@ Component.register('sw-flow-set-order-state-modal', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
@@ -102,14 +107,12 @@ Component.register('sw-flow-set-order-state-modal', {
                 return entry.stateMachine.technicalName === stateMachineName;
             });
 
-            const options = entries.map((state) => {
+            return entries.map((state) => {
                 return {
                     id: state.technicalName,
                     name: state.translated.name,
                 };
             });
-
-            return options;
         },
 
         onClose() {
@@ -132,4 +135,4 @@ Component.register('sw-flow-set-order-state-modal', {
             this.$emit('process-finish', sequence);
         },
     },
-});
+};

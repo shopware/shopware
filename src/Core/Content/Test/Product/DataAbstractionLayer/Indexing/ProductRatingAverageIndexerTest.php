@@ -4,21 +4,24 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
+ *
  * @group slow
  */
 class ProductRatingAverageIndexerTest extends TestCase
@@ -26,12 +29,12 @@ class ProductRatingAverageIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $reviewRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -41,7 +44,7 @@ class ProductRatingAverageIndexerTest extends TestCase
     private $salesChannel;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -55,7 +58,7 @@ class ProductRatingAverageIndexerTest extends TestCase
      */
     private $productIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->reviewRepository = $this->getContainer()->get('product_review.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
@@ -68,7 +71,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
      *
-     * @test
      * @group reviews
      */
     public function testUpsertReviewIndexerLogic(): void
@@ -86,13 +88,15 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
-        static::assertEquals($pointsOnAReview, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals($pointsOnAReview, $product->getRatingAverage());
 
         $expected = ($pointsOnAReview + $pointsOnBReview) / 2;
         $this->createReview($reviewBId, $pointsOnBReview, $productId, true);
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
-        static::assertEquals($expected, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals($expected, $product->getRatingAverage());
     }
 
     /**
@@ -100,7 +104,6 @@ class ProductRatingAverageIndexerTest extends TestCase
      * rating would be 3, but because the reviewA is deactivated only reviewB points will
      * be taken for calculation
      *
-     * @test
      * @group reviews
      */
     public function testThatDeactivatedReviewsAreNotCalculated(): void
@@ -119,13 +122,13 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
-        static::assertEquals($pointsOnBReview, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals($pointsOnBReview, $product->getRatingAverage());
     }
 
     /**
      * tests that a deactivating/activating reviews are considered correctly
      *
-     * @test
      * @group reviews
      */
     public function testThatUpdatingReviewsTriggerCalculationProcessCorrectly(): void
@@ -144,7 +147,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
-        static::assertEquals($pointsOnBReview, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals($pointsOnBReview, $product->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => true]]);
 
@@ -152,13 +156,13 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $expected = ($pointsOnAReview + $pointsOnBReview) / 2;
 
-        static::assertEquals($expected, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals($expected, $product->getRatingAverage());
     }
 
     /**
      * tests that a multi save reviews are considered correctly
      *
-     * @test
      * @group reviews
      */
     public function testMultiReviewsSaveProcess(): void
@@ -182,20 +186,24 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productAId, $productBId]), $this->salesChannel->getContext());
 
-        static::assertEquals(2.0, $products->get($productAId)->getRatingAverage());
-        static::assertEquals(0.0, $products->get($productBId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertInstanceOf(ProductEntity::class, $productB = $products->get($productBId));
+
+        static::assertEquals(2.0, $productA->getRatingAverage());
+        static::assertEquals(0.0, $productB->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => true], ['id' => $reviewBId, 'status' => true], ['id' => $reviewCId, 'productId' => $productBId, 'status' => true]]);
         $products = $this->productRepository->search(new Criteria([$productAId, $productBId]), $this->salesChannel->getContext());
 
-        static::assertEquals(5.0, $products->get($productAId)->getRatingAverage());
-        static::assertEquals(2.0, $products->get($productBId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertInstanceOf(ProductEntity::class, $productB = $products->get($productBId));
+        static::assertEquals(5.0, $productA->getRatingAverage());
+        static::assertEquals(2.0, $productB->getRatingAverage());
     }
 
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
      *
-     * @test
      * @group reviews
      */
     public function testCalculateWhenSwitchingReviewStatus(): void
@@ -214,23 +222,23 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
-        static::assertEquals(3.5, $products->get($productAId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertEquals(3.5, $productA->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => false]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
-
-        static::assertEquals(2.0, $products->get($productAId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertEquals(2.0, $productA->getRatingAverage());
 
         $this->updateReview([['id' => $reviewBId, 'status' => false]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
-
-        static::assertEquals(0.0, $products->get($productAId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertEquals(0.0, $productA->getRatingAverage());
     }
 
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
      *
-     * @test
      * @group reviews
      */
     public function testCalculateWhenDeletingReviews(): void
@@ -249,18 +257,19 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
-        static::assertEquals(3.5, $products->get($productAId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertEquals(3.5, $productA->getRatingAverage());
 
         $this->deleteReview([['id' => $reviewAId]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
-        static::assertEquals(2.0, $products->get($productAId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
+        static::assertEquals(2.0, $productA->getRatingAverage());
     }
 
     /**
      * tests that the full index works
      *
-     * @test
      * @group reviews
      */
     public function testFullIndex(): void
@@ -280,19 +289,23 @@ class ProductRatingAverageIndexerTest extends TestCase
         $sql = <<<'SQL'
             UPDATE product SET product.rating_average = 0;
 SQL;
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
-        static::assertEquals(0, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals(0, $product->getRatingAverage());
 
         $this->productIndexer->handle(new EntityIndexingMessage([$productId]));
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
-        static::assertEquals(3, $products->get($productId)->getRatingAverage());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
+        static::assertEquals(3, $product->getRatingAverage());
     }
 
     /**
      * update data in review repository
+     *
+     * @param array<int, array<string, mixed>> $data
      */
     private function updateReview(array $data): void
     {
@@ -301,6 +314,8 @@ SQL;
 
     /**
      * delete data in review repository
+     *
+     * @param array<int, array<string, mixed>> $data
      */
     private function deleteReview(array $data): void
     {
@@ -369,7 +384,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $password = 'foo';
         $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
@@ -395,7 +409,7 @@ SQL;
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

@@ -13,12 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
+#[Package('core')]
 class JsonApiEncoder
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $caseCache = [];
 
@@ -28,7 +30,7 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
-     * @param EntityCollection|Entity|null $data
+     * @param EntityCollection<Entity>|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
@@ -85,9 +87,9 @@ class JsonApiEncoder
             $relationship['links']['related'] = $record->getLink('self') . '/' . $this->camelCaseToSnailCase($propertyName);
 
             try {
-                /** @var Entity|EntityCollection|null $relationData */
+                /** @var Entity|EntityCollection<Entity>|null $relationData */
                 $relationData = $entity->get($propertyName);
-            } catch (\InvalidArgumentException $ex) {
+            } catch (\InvalidArgumentException) {
                 continue;
             }
 
@@ -118,11 +120,11 @@ class JsonApiEncoder
 
         $input = str_replace('_', '-', $input);
 
-        return $this->caseCache[$input] = ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return $this->caseCache[$input] = ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     /**
-     * @param Entity|EntityCollection|null $data
+     * @param Entity|EntityCollection<Entity>|null $data
      */
     private function encodeData(ResponseFields $fields, EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
     {
@@ -143,8 +145,8 @@ class JsonApiEncoder
 
     private function createSerializedEntity(ResponseFields $fields, EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()])) {
-            return clone $this->serializeCache[$definition->getClass()];
+        if (isset($this->serializeCache[$definition->getEntityName()])) {
+            return clone $this->serializeCache[$definition->getEntityName()];
         }
 
         $serialized = new Record();
@@ -206,7 +208,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()] = $serialized;
+        return $this->serializeCache[$definition->getEntityName()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

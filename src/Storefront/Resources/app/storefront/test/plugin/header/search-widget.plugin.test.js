@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import SearchPlugin from 'src/plugin/header/search-widget.plugin';
 
@@ -11,24 +7,6 @@ describe('ListingPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        // create mocks
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
-
         // mock search plugin
         const mockElement = document.createElement('div');
         searchPlugin = new SearchPlugin(mockElement);
@@ -61,7 +39,7 @@ describe('ListingPlugin tests', () => {
     });
 
     test('_registerInputFocus should warn if searchWidgetCollapseButton dosn\'t exist', () => {
-        console.warn = jest.fn();        
+        console.warn = jest.fn();
 
         searchPlugin._registerInputFocus()
         expect(console.warn).toHaveBeenCalledWith(`Called selector '${searchPlugin.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`)

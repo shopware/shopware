@@ -10,10 +10,13 @@ use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SinceDefinit
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var OpenApiDefinitionSchemaBuilder
@@ -29,10 +32,10 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     {
         $definition = $this->registerDefinition(SimpleDefinition::class);
 
-        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false)), true);
+        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('Added since version: 6.0.0.0', $build['SimpleJsonApi']['description']);
-        static::assertSame('Added since version: 6.3.9.9', $build['SimpleJsonApi']['allOf'][1]['properties']['i_am_a_new_field']['description']);
+        static::assertSame('Added since version: 6.3.9.9.', $build['SimpleJsonApi']['allOf'][1]['properties']['i_am_a_new_field']['description']);
     }
 
     public function testFieldIsMarkedAsNewWithJsonType(): void
@@ -45,12 +48,13 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 '',
                 false,
                 false,
-                DefinitionService::TypeJson
-            )
-        ), true);
+                DefinitionService::TYPE_JSON
+            ),
+            \JSON_THROW_ON_ERROR
+        ), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('Added since version: 6.0.0.0', $build['Simple']['description']);
-        static::assertSame('Added since version: 6.3.9.9', $build['Simple']['properties']['i_am_a_new_field']['description']);
+        static::assertSame('Added since version: 6.3.9.9.', $build['Simple']['properties']['i_am_a_new_field']['description']);
         static::assertArrayNotHasKey('SimpleJsonApi', $build);
     }
 
@@ -58,7 +62,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     {
         $definition = $this->registerDefinition(SinceDefinition::class);
 
-        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false)), true);
+        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('Added since version: 6.3.9.9', $build['SinceJsonApi']['description']);
         static::assertArrayNotHasKey('description', $build['SinceJsonApi']['allOf'][1]['properties']['id']);
@@ -74,9 +78,10 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 '',
                 false,
                 false,
-                DefinitionService::TypeJson
-            )
-        ), true);
+                DefinitionService::TYPE_JSON
+            ),
+            \JSON_THROW_ON_ERROR
+        ), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('Added since version: 6.3.9.9', $build['Since']['description']);
         static::assertArrayNotHasKey('description', $build['Since']['properties']['id']);

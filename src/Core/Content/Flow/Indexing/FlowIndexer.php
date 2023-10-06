@@ -5,74 +5,39 @@ namespace Shopware\Core\Content\Flow\Indexing;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
+/**
+ * @final
+ */
+#[Package('services-settings')]
+class FlowIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
+    public const NAME = 'flow.indexer';
 
-    private EntityRepositoryInterface $repository;
-
-    private FlowPayloadUpdater $payloadUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private MessageBusInterface $messageBus;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        FlowPayloadUpdater $payloadUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        MessageBusInterface $messageBus
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly FlowPayloadUpdater $payloadUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->payloadUpdater = $payloadUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->messageBus = $messageBus;
     }
 
     public function getName(): string
     {
-        return 'flow.indexer';
+        return self::NAME;
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PluginPostInstallEvent::class => 'refreshPlugin',
-            PluginPostActivateEvent::class => 'refreshPlugin',
-            PluginPostUpdateEvent::class => 'refreshPlugin',
-            PluginPostDeactivateEvent::class => 'refreshPlugin',
-            PluginPostUninstallEvent::class => 'refreshPlugin',
-        ];
-    }
-
-    public function refreshPlugin(): void
-    {
-        // Schedule indexer to update flows
-        $this->messageBus->dispatch(new IterateEntityIndexerMessage($this->getName(), null));
-    }
-
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
@@ -109,5 +74,15 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->payloadUpdater->update($ids);
 
         $this->eventDispatcher->dispatch(new FlowIndexerEvent($ids, $message->getContext()));
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 }

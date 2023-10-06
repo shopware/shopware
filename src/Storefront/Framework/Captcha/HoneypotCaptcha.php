@@ -2,23 +2,25 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[Package('storefront')]
 class HoneypotCaptcha extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'honeypot';
-    public const CAPTCHA_REQUEST_PARAMETER = 'shopware_surname_confirm';
+    final public const CAPTCHA_NAME = 'honeypot';
+    final public const CAPTCHA_REQUEST_PARAMETER = 'shopware_surname_confirm';
 
-    protected ?string $honeypotValue;
+    protected ?string $honeypotValue = null;
 
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**
@@ -32,7 +34,7 @@ class HoneypotCaptcha extends AbstractCaptcha
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request): bool
+    public function isValid(Request $request, array $captchaConfig): bool
     {
         $this->honeypotValue = $request->get(self::CAPTCHA_REQUEST_PARAMETER, '');
 

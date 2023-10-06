@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -19,8 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
@@ -30,16 +30,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
-class ProductEntity extends Entity
+#[Package('inventory')]
+class ProductEntity extends Entity implements \Stringable
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -207,22 +210,22 @@ class ProductEntity extends Entity
     protected $releaseDate;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $categoryTree;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $streamIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $optionIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $propertyIds;
 
@@ -262,22 +265,17 @@ class ProductEntity extends Entity
     protected $packUnitPlural;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $variantRestrictions;
 
     /**
-     * @var string[]|null
+     * @var VariantListingConfig|null
      */
-    protected $configuratorGroupConfig;
+    protected $variantListingConfig;
 
     /**
-     * @var string|null
-     */
-    protected $mainVariantId;
-
-    /**
-     * @var array
+     * @var array<array<string>>
      */
     protected $variation = [];
 
@@ -300,16 +298,6 @@ class ProductEntity extends Entity
      * @var ProductPriceCollection
      */
     protected $prices;
-
-    /**
-     * The container will be resolved on product.loaded event and
-     * the detected cheapest price will be set for the current context rules
-     *
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPrice|CheapestPriceContainer|null
-     */
-    protected $cheapestPrice;
 
     /**
      * @var ProductMediaEntity|null
@@ -342,7 +330,7 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, array<string, string>>>|null
      */
     protected $slotConfig;
 
@@ -397,12 +385,16 @@ class ProductEntity extends Entity
     protected $coverId;
 
     /**
-     * @var array|null
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @var array<string>|null
      */
     protected $blacklistIds;
 
     /**
-     * @var array|null
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @var array<string>|null
      */
     protected $whitelistIds;
 
@@ -412,12 +404,12 @@ class ProductEntity extends Entity
     protected $visibilities;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $tagIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $categoryIds;
 
@@ -472,7 +464,7 @@ class ProductEntity extends Entity
     protected $customFieldSetSelectionActive;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $customSearchKeywords;
 
@@ -492,23 +484,23 @@ class ProductEntity extends Entity
     protected $canonicalProduct;
 
     /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPriceContainer|null
-     */
-    protected $cheapestPriceContainer;
-
-    /**
      * @var ProductStreamCollection|null
      */
     protected $streams;
+
+    protected ?ProductDownloadCollection $downloads = null;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
 
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->getName();
     }
@@ -772,11 +764,17 @@ class ProductEntity extends Entity
         $this->releaseDate = $releaseDate;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCategoryTree(): ?array
     {
         return $this->categoryTree;
     }
 
+    /**
+     * @param array<string>|null $categoryTree
+     */
     public function setCategoryTree(?array $categoryTree): void
     {
         $this->categoryTree = $categoryTree;
@@ -919,31 +917,49 @@ class ProductEntity extends Entity
         return $this->releaseDate < new \DateTime();
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getStreamIds(): ?array
     {
         return $this->streamIds;
     }
 
+    /**
+     * @param array<string>|null $streamIds
+     */
     public function setStreamIds(?array $streamIds): void
     {
         $this->streamIds = $streamIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getOptionIds(): ?array
     {
         return $this->optionIds;
     }
 
+    /**
+     * @param array<string>|null $optionIds
+     */
     public function setOptionIds(?array $optionIds): void
     {
         $this->optionIds = $optionIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getPropertyIds(): ?array
     {
         return $this->propertyIds;
     }
 
+    /**
+     * @param array<string>|null $propertyIds
+     */
     public function setPropertyIds(?array $propertyIds): void
     {
         $this->propertyIds = $propertyIds;
@@ -979,11 +995,17 @@ class ProductEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    /**
+     * @return array<string, array<string, array<string, string>>>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, array<string, array<string, string>>> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -1129,23 +1151,49 @@ class ProductEntity extends Entity
         $this->coverId = $coverId;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @return array<string>|null
+     */
     public function getBlacklistIds(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->blacklistIds;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @param array<string>|null $blacklistIds
+     */
     public function setBlacklistIds(?array $blacklistIds): void
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->blacklistIds = $blacklistIds;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @return array<string>|null
+     */
     public function getWhitelistIds(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->whitelistIds;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
+     * @param array<string>|null $whitelistIds
+     */
     public function setWhitelistIds(?array $whitelistIds): void
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->whitelistIds = $whitelistIds;
     }
 
@@ -1169,51 +1217,59 @@ class ProductEntity extends Entity
         $this->productNumber = $productNumber;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getTagIds(): ?array
     {
         return $this->tagIds;
     }
 
+    /**
+     * @param array<string> $tagIds
+     */
     public function setTagIds(array $tagIds): void
     {
         $this->tagIds = $tagIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getVariantRestrictions(): ?array
     {
         return $this->variantRestrictions;
     }
 
+    /**
+     * @param array<string>|null $variantRestrictions
+     */
     public function setVariantRestrictions(?array $variantRestrictions): void
     {
         $this->variantRestrictions = $variantRestrictions;
     }
 
-    public function getConfiguratorGroupConfig(): ?array
+    public function getVariantListingConfig(): ?VariantListingConfig
     {
-        return $this->configuratorGroupConfig;
+        return $this->variantListingConfig;
     }
 
-    public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
+    public function setVariantListingConfig(?VariantListingConfig $variantListingConfig): void
     {
-        $this->configuratorGroupConfig = $configuratorGroupConfig;
+        $this->variantListingConfig = $variantListingConfig;
     }
 
-    public function getMainVariantId(): ?string
-    {
-        return $this->mainVariantId;
-    }
-
-    public function setMainVariantId(?string $mainVariantId): void
-    {
-        $this->mainVariantId = $mainVariantId;
-    }
-
+    /**
+     * @return array<array<string>>
+     */
     public function getVariation(): array
     {
         return $this->variation;
     }
 
+    /**
+     * @param array<array<string>> $variation
+     */
     public function setVariation(array $variation): void
     {
         $this->variation = $variation;
@@ -1379,11 +1435,17 @@ class ProductEntity extends Entity
         $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCustomSearchKeywords(): ?array
     {
         return $this->customSearchKeywords;
     }
 
+    /**
+     * @param array<string>|null $customSearchKeywords
+     */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;
@@ -1419,40 +1481,6 @@ class ProductEntity extends Entity
         $this->canonicalProduct = $product;
     }
 
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @return CheapestPrice|CheapestPriceContainer|null
-     */
-    public function getCheapestPrice()
-    {
-        return $this->cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
-    {
-        $this->cheapestPrice = $cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
-    {
-        $this->cheapestPriceContainer = $container;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function getCheapestPriceContainer(): ?CheapestPriceContainer
-    {
-        return $this->cheapestPriceContainer;
-    }
-
     public function getStreams(): ?ProductStreamCollection
     {
         return $this->streams;
@@ -1463,13 +1491,45 @@ class ProductEntity extends Entity
         $this->streams = $streams;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCategoryIds(): ?array
     {
         return $this->categoryIds;
     }
 
+    /**
+     * @param array<string>|null $categoryIds
+     */
     public function setCategoryIds(?array $categoryIds): void
     {
         $this->categoryIds = $categoryIds;
+    }
+
+    public function getDownloads(): ?ProductDownloadCollection
+    {
+        return $this->downloads;
+    }
+
+    public function setDownloads(ProductDownloadCollection $downloads): void
+    {
+        $this->downloads = $downloads;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): void
+    {
+        $this->states = $states;
     }
 }

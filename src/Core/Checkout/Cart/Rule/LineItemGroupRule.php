@@ -2,21 +2,24 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemGroupRule extends FilterRule
 {
+    final public const RULE_NAME = 'cartLineItemInGroup';
+
     protected string $groupId;
 
     protected string $packagerKey;
@@ -25,12 +28,10 @@ class LineItemGroupRule extends FilterRule
 
     protected string $sorterKey;
 
-    protected ?RuleCollection $rules;
+    protected ?RuleCollection $rules = null;
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws LineItemGroupPackagerNotFoundException
      * @throws LineItemGroupSorterNotFoundException
      */
@@ -67,16 +68,11 @@ class LineItemGroupRule extends FilterRule
     public function getConstraints(): array
     {
         return [
-            'groupId' => [new NotBlank(), new Type('string')],
-            'packagerKey' => [new NotBlank(), new Type('string')],
-            'value' => [new NotBlank(), new Type('numeric')],
-            'sorterKey' => [new NotBlank(), new Type('string')],
+            'groupId' => RuleConstraints::string(),
+            'packagerKey' => RuleConstraints::string(),
+            'value' => RuleConstraints::float(),
+            'sorterKey' => RuleConstraints::string(),
             'rules' => [new NotBlank(), new Type('container')],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInGroup';
     }
 }

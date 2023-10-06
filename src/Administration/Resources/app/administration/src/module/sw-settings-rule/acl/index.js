@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
@@ -11,6 +14,7 @@ Shopware.Service('privileges')
                     'customer_group:read',
                     'sales_channel:read',
                     'tax:read',
+                    'tax_provider:read',
                     'payment_method:read',
                     'shipping_method:read',
                     'shipping_method_price:read',
@@ -18,6 +22,7 @@ Shopware.Service('privileges')
                     'product:read',
                     'product_manufacturer:read',
                     'product_price:read',
+                    'property_group:read',
                     'property_group_option:read',
                     'country:read',
                     'tag:read',
@@ -28,7 +33,11 @@ Shopware.Service('privileges')
                     'promotion:read',
                     'promotion_discount:read',
                     'promotion_setgroup:read',
-                    'event_action:read',
+                    'app_script_condition:read',
+                    'flow_sequence:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update',
                 ],
                 dependencies: [],
             },
@@ -38,6 +47,14 @@ Shopware.Service('privileges')
                     'rule_condition:create',
                     'rule_condition:update',
                     'rule_condition:delete',
+                    'shipping_method:update',
+                    'payment_method:update',
+                    'promotion_order_rule:create',
+                    'promotion_order_rule:delete',
+                    'promotion_persona_rule:create',
+                    'promotion_persona_rule:delete',
+                    'promotion_cart_rule:create',
+                    'promotion_cart_rule:delete',
                 ],
                 dependencies: [
                     'rule.viewer',

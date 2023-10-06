@@ -23,13 +23,12 @@ import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
-import ViewportDetection from 'src/helper/viewport-detection.helper';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
-// this event will be published via a global (document) EventEmitter
+// These events will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
+export const COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS = 'CookieConfiguration_CloseOffCanvas';
 
 export default class CookieConfiguration extends Plugin {
 
@@ -56,8 +55,6 @@ export default class CookieConfiguration extends Plugin {
             active: [],
             inactive: [],
         };
-
-        this.ajaxModalExtension = null;
 
         this._httpClient = new HttpClient();
 
@@ -171,11 +168,10 @@ export default class CookieConfiguration extends Plugin {
     openOffCanvas(callback) {
         const { offCanvasPosition } = this.options;
         const url = window.router['frontend.cookie.offcanvas'];
-        const isFullwidth = ViewportDetection.isXS();
 
         this._hideCookieBar();
 
-        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition, undefined, undefined, isFullwidth);
+        AjaxOffCanvas.open(url, false, this._onOffCanvasOpened.bind(this, callback), offCanvasPosition);
     }
 
     /**
@@ -185,8 +181,6 @@ export default class CookieConfiguration extends Plugin {
      */
     closeOffCanvas(callback) {
         AjaxOffCanvas.close();
-
-        this.ajaxModalExtension = null;
 
         if (typeof callback === 'function') {
             callback();
@@ -201,10 +195,9 @@ export default class CookieConfiguration extends Plugin {
      */
     _onOffCanvasOpened(callback) {
         this._registerOffCanvasEvents();
-
-        this.ajaxModalExtension = new AjaxModalExtension(false);
-
         this._setInitialState();
+        this._setInitialOffcanvasState();
+        PluginManager.initializePlugins();
 
         if (typeof callback === 'function') {
             callback();
@@ -221,18 +214,19 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Get current cookie configuration and preselect coherent checkboxes
-     * Required cookies are already checked in the template
+     * Sets the `lastState` of the current cookie configuration, either passed as
+     * parameter `cookies`, otherwise it is loaded by parsing the DOM of the off
+     * canvas sidebar
      *
+     * @param {?Array} cookies
      * @private
      */
-    _setInitialState() {
-        const offCanvas = this._getOffCanvas();
-        const cookies = this._getCookies('all');
+    _setInitialState(cookies = null) {
+        const availableCookies = cookies || this._getCookies('all');
         const activeCookies = [];
         const inactiveCookies = [];
 
-        cookies.forEach(({ cookie, required }) => {
+        availableCookies.forEach(({ cookie, required }) => {
             const isActive = CookieStorage.getItem(cookie);
             if (isActive || required) {
                 activeCookies.push(cookie);
@@ -245,6 +239,16 @@ export default class CookieConfiguration extends Plugin {
             active: activeCookies,
             inactive: inactiveCookies,
         };
+    }
+
+    /**
+     * Preselect coherent checkboxes in the off canvas sidebar
+     *
+     * @private
+     */
+    _setInitialOffcanvasState() {
+        const activeCookies = this.lastState.active;
+        const offCanvas = this._getOffCanvas();
 
         activeCookies.forEach(activeCookie => {
             const target = offCanvas.querySelector(`[data-cookie="${activeCookie}"]`);
@@ -426,7 +430,7 @@ export default class CookieConfiguration extends Plugin {
         CookieStorage.setItem(cookiePreference, '1', '30');
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
-        this.closeOffCanvas();
+        this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
 
     /**
@@ -439,10 +443,9 @@ export default class CookieConfiguration extends Plugin {
         if (!loadIntoMemory) {
             this._handleAcceptAll();
             this.closeOffCanvas();
-                
+
             return;
         }
-
 
         ElementLoadingIndicatorUtil.create(this.el);
 
@@ -482,10 +485,12 @@ export default class CookieConfiguration extends Plugin {
     /**
      * This will set and refresh all registered cookies.
      *
+     * @param {?(Document|HTMLElement)} offCanvas
      * @private
      */
     _handleAcceptAll(offCanvas = null) {
         const allCookies = this._getCookies('all', offCanvas);
+        this._setInitialState(allCookies);
         const { cookiePreference } = this.options;
 
         allCookies.forEach(({ cookie, value, expiration }) => {
@@ -506,7 +511,7 @@ export default class CookieConfiguration extends Plugin {
      * Always excludes "required" cookies, since they are assumed to be set separately.
      *
      * @param type
-     * @param offCanvas
+     * @param {?(Document|HTMLElement)} offCanvas
      * @returns {Array}
      * @private
      */

@@ -10,37 +10,36 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductVisibilityEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $productRepository;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId1;
+    private string $salesChannelId1;
+
+    private string $salesChannelId2;
 
     /**
-     * @var string
-     */
-    private $salesChannelId2;
-
-    /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $visibilityRepository;
 
@@ -75,7 +74,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $event = $container->getEventByEntityName(ProductVisibilityDefinition::ENTITY_NAME);
 
-        //visibility created?
+        // visibility created?
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(2, $event->getWriteResults());
 
@@ -85,19 +84,19 @@ class ProductVisibilityEntityTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //check visibilities can be loaded as association
+        // check visibilities can be loaded as association
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductVisibilityCollection::class, $product->getVisibilities());
         static::assertCount(2, $product->getVisibilities());
 
-        //check read for visibilities
+        // check read for visibilities
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_visibility.productId', $id));
 
         $visibilities = $this->visibilityRepository->search($criteria, $context);
         static::assertCount(2, $visibilities);
 
-        //test filter visibilities over product
+        // test filter visibilities over product
         $criteria = new Criteria([$id]);
 
         $criteria->addFilter(
@@ -114,13 +113,11 @@ class ProductVisibilityEntityTest extends TestCase
 
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //visibilities filtered and loaded?
+        // visibilities filtered and loaded?
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $ids = $visibilities->map(
-            function (ProductVisibilityEntity $visibility) {
-                return ['id' => $visibility->getId()];
-            }
+            fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
         );
 
         $container = $this->visibilityRepository->delete(array_values($ids), $context);

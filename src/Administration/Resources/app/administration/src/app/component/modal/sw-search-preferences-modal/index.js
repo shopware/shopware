@@ -1,9 +1,16 @@
+/**
+ * @package admin
+ */
+
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
 
 const { Component, Mixin, Module } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-search-preferences-modal', {
     template,
 

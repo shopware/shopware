@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Entities/Schema/entity-1.0.xsd">
+    <entity name="custom_entity_blog">
+        <fields>
+            <int name="position" store-api-aware="true" />
+            <float name="rating" store-api-aware="true" />
+            <string name="title" required="true" translatable="true" store-api-aware="true" />
+            <text name="content" allow-html="true" translatable="true" store-api-aware="true" />
+
+            <many-to-many name="products" reference="product" store-api-aware="true" />
+            <many-to-one name="top_seller" reference="product" store-api-aware="true" on-delete="set-null" />
+            <one-to-many name="comments" reference="ce_blog_comment" store-api-aware="true" on-delete="set-null" />
+            <one-to-one name="author" reference="user" store-api-aware="false" on-delete="set-null" />
+        </fields>
+    </entity>
+
+    <entity name="ce_blog_comment">
+        <fields>
+            <string name="title" required="true" translatable="true" store-api-aware="true" />
+            <one-to-many reference="product" name="products" store-api-aware="true" on-delete="set-null"/>
+        </fields>
+    </entity>
+
+    <entity name="custom_entity_to_remove">
+        <fields>
+            <string name="title" required="true" translatable="true" store-api-aware="true" />
+            <one-to-many reference="product" name="products" store-api-aware="true" on-delete="set-null"/>
+        </fields>
+    </entity>
+</entities>

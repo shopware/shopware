@@ -1,8 +1,4 @@
 {
-    "require-dev": {
-        "roave/backward-compatibility-check": "^5.0",
-        "phpunit/phpunit": "^9.5"
-    },
     "bin": [
         "bin/bc-check"
     ],
@@ -11,30 +7,24 @@
             "Shopware\\RoaveBackwardCompatibility\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Shopware\\RoaveBackwardCompatibility\\Tests\\": "tests/"
-        }
-    },
     "config": {
-        "platform": {
-            "php": "7.4.26"
-        },
         "allow-plugins": {
             "ocramius/package-versions": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "bamarni/composer-bin-plugin": true,
+            "phpstan/extension-installer": true
         }
     },
     "require": {
+        "roave/backward-compatibility-check": "^8.0",
         "cweagans/composer-patches": "^1.7"
     },
     "extra": {
         "patches": {
             "roave/backward-compatibility-check": {
+                "Skip experimental annotations": "patches/skip-experimental.patch",
                 "Add exclude errors": "patches/add-exclude-errors.patch",
-                "Add exclude files": "patches/add-exclude-files.patch",
-                "Add Composer 2": "patches/add-composer-2.patch",
-                "Add Annotation check": "patches/add-annotation-check.patch"
+                "Add exclude files": "patches/add-exclude-files.patch"
             }
         }
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\DiscountFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -11,8 +12,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+#[Package('checkout')]
 trait SurchargeTrait
 {
     private LineItemCollection $items;
@@ -30,7 +33,7 @@ trait SurchargeTrait
      * @example add-absolute-surcharge/add-absolute-surcharge.twig Add an absolute surcharge to the cart.#
      * @example add-simple-surcharge/add-simple-surcharge.twig Add a relative surcharge to the cart.
      */
-    public function surcharge(string $key, string $type, $value, string $label): DiscountFacade
+    public function surcharge(string $key, string $type, float|PriceCollection $value, string $label): DiscountFacade
     {
         $definition = $this->buildSurchargeDefinition($type, $value, $key);
 
@@ -49,14 +52,11 @@ trait SurchargeTrait
         return $this->items;
     }
 
-    /**
-     * @param float|PriceCollection|string|int $value
-     */
-    private function buildSurchargeDefinition(string $type, $value, string $key): PriceDefinitionInterface
+    private function buildSurchargeDefinition(string $type, float|PriceCollection|string|int $value, string $key): PriceDefinitionInterface
     {
         if ($type === PercentagePriceDefinition::TYPE) {
             if ($value instanceof PriceCollection) {
-                throw new \RuntimeException('Percentage discounts requires a provided float value');
+                throw CartException::invalidPercentageSurcharge($key);
             }
 
             $value = FloatComparator::cast((float) $value);
@@ -64,13 +64,13 @@ trait SurchargeTrait
             return new PercentagePriceDefinition(abs($value));
         }
         if ($type !== AbsolutePriceDefinition::TYPE) {
-            throw new \InvalidArgumentException(sprintf('Discount type %s not supported', $type));
+            throw CartException::surchargeTypeNotSupported($key, $type);
         }
         if (!$value instanceof PriceCollection) {
-            throw new \RuntimeException(sprintf('Absolute discounts %s requires a provided price collection. Use services.price(...) to create a price', $key));
+            throw CartException::absoluteSurchargeMissingPriceCollection($key);
         }
         if (!$value->has(Defaults::CURRENCY)) {
-            throw new \RuntimeException(sprintf('Absolute discounts %s requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object', $key));
+            throw CartException::missingDefaultPriceCollectionForSurcharge($key);
         }
 
         foreach ($value as $price) {

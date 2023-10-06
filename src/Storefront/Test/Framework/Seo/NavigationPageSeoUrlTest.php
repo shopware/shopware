@@ -2,13 +2,15 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -17,28 +19,22 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
+ * @internal
+ *
  * @group slow
  * @group skip-paratest
  */
+#[Package('buyers-experience')]
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -49,13 +45,13 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testGenerateForNewCategories(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root'],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['root']), null);
         static::assertEmpty($urls);
@@ -67,7 +63,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('b'), 'name' => 'b', 'parentId' => $ids->get('a')],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['a', 'b']), $ids->get('sales-channel'));
 
@@ -78,7 +74,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchNavigationId(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -86,7 +82,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('b'), 'name' => 'b', 'parentId' => $ids->get('a'), 'active' => true],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
@@ -101,7 +97,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
         $this->salesChannelRepository->update([
             ['id' => $ids->get('sales-channel'), 'navigationCategoryId' => $ids->get('a')],
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $this->runWorker();
 
@@ -118,7 +114,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchParentId(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -126,7 +122,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('b'), 'name' => 'b', 'parentId' => $ids->get('a'), 'active' => true],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
@@ -141,7 +137,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
         $this->categoryRepository->update([
             ['id' => $ids->get('b'), 'parentId' => $ids->get('root')],
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['root', 'a', 'b']), $ids->get('sales-channel'));
 
@@ -156,7 +152,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testUpdateName(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -164,7 +160,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('b'), 'name' => 'b', 'parentId' => $ids->get('a'), 'active' => true],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
         $this->runWorker();
@@ -180,7 +176,7 @@ class NavigationPageSeoUrlTest extends TestCase
             [
                 ['id' => $ids->get('b'), 'name' => 'x'],
             ],
-            $ids->getContext()
+            Context::createDefaultContext()
         );
 
         $urls = $this->getSeoUrls($ids->getList(['b']), $ids->get('sales-channel'));
@@ -195,7 +191,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testFooterMenu(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         /**
          * navigation
@@ -225,7 +221,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('partner'), 'name' => 'Partner', 'parentId' => $ids->get('service')],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $this->createSalesChannel(
             $ids->create('sales-channel'),
@@ -254,7 +250,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testServiceMenuNotInFooter(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         /**
          * navigation
@@ -284,7 +280,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('partner'), 'name' => 'Partner', 'parentId' => $ids->get('service')],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $this->createSalesChannel(
             $ids->create('sales-channel'),
@@ -312,7 +308,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testDuplicateUrl(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -320,7 +316,7 @@ class NavigationPageSeoUrlTest extends TestCase
             ['id' => $ids->create('b'), 'name' => 'a', 'parentId' => $ids->get('a'), 'active' => true],
         ];
 
-        $this->categoryRepository->create($categories, $ids->getContext());
+        $this->categoryRepository->create($categories, Context::createDefaultContext());
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
         $this->runWorker();
@@ -334,7 +330,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
         $this->categoryRepository->update([
             ['id' => $ids->get('b'), 'parentId' => $ids->get('root')],
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['a', 'b']), $ids->get('sales-channel'));
 
@@ -411,11 +407,11 @@ class NavigationPageSeoUrlTest extends TestCase
             $query->setParameter('salesChannel', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $query->setParameter('ids', Uuid::fromHexToBytesList(array_values($ids)), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList(array_values($ids)), ArrayParameterType::STRING);
         $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
         $query->setParameter('language', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
 
-        $urls = $query->execute()->fetchAll();
+        $urls = $query->executeQuery()->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($urls);
     }

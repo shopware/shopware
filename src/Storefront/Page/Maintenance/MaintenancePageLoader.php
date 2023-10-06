@@ -2,39 +2,30 @@
 
 namespace Shopware\Storefront\Page\Maintenance;
 
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class MaintenancePageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
+     * @internal
      */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
     public function __construct(
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->cmsPageLoader = $cmsPageLoader;
     }
 
     /**
@@ -46,7 +37,8 @@ class MaintenancePageLoader
             $page = $this->genericLoader->load($request, $context);
             $page = MaintenancePage::createFrom($page);
 
-            $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context);
+            /** @var CmsPageCollection $pages */
+            $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context)->getEntities();
 
             if (!$pages->has($cmsErrorLayoutId)) {
                 throw new PageNotFoundException($cmsErrorLayoutId);
@@ -57,7 +49,7 @@ class MaintenancePageLoader
             $this->eventDispatcher->dispatch(new MaintenancePageLoadedEvent($page, $context, $request));
 
             return $page;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new PageNotFoundException($cmsErrorLayoutId);
         }
     }

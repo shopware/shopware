@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -15,6 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
+ */
+#[Package('storefront')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -22,26 +28,17 @@ class ErrorController extends StorefrontController
      */
     protected $errorTemplateResolver;
 
-    private HeaderPageletLoaderInterface $headerPageletLoader;
-
-    private ErrorPageLoaderInterface $errorPageLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private FooterPageletLoaderInterface $footerPageletLoader;
-
+    /**
+     * @internal
+     */
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
-        HeaderPageletLoaderInterface $headerPageletLoader,
-        SystemConfigService $systemConfigService,
-        ErrorPageLoaderInterface $errorPageLoader,
-        FooterPageletLoaderInterface $footerPageletLoader
+        private readonly HeaderPageletLoaderInterface $headerPageletLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ErrorPageLoaderInterface $errorPageLoader,
+        private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
-        $this->headerPageletLoader = $headerPageletLoader;
-        $this->errorPageLoader = $errorPageLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->footerPageletLoader = $footerPageletLoader;
     }
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
@@ -83,7 +80,7 @@ class ErrorController extends StorefrontController
             if ($exception instanceof HttpException) {
                 $response->setStatusCode($exception->getStatusCode());
             }
-        } catch (\Exception $e) { //final Fallback
+        } catch (\Exception $e) { // final Fallback
             $response = $this->renderStorefront(
                 '@Storefront/storefront/page/error/index.html.twig',
                 ['exception' => $exception, 'followingException' => $e]

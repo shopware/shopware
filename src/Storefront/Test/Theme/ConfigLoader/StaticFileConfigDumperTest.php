@@ -10,6 +10,9 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+/**
+ * @internal
+ */
 class StaticFileConfigDumperTest extends TestCase
 {
     public function testDumping(): void
@@ -18,7 +21,7 @@ class StaticFileConfigDumperTest extends TestCase
         $loader->method('load')->willReturn(new StorefrontPluginConfiguration('Test'));
 
         $fs = $this->createMock(Filesystem::class);
-        $fs->expects(static::exactly(4))->method('put')->willReturn(true);
+        $fs->expects(static::exactly(4))->method('write');
 
         $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);

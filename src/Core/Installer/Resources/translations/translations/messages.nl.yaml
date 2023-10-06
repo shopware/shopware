@@ -1,0 +1,138 @@
+shopware.installer:
+    header_title: Installatie
+    menuitem_language-selection: Start
+    menuitem_requirements: Systeemvereisten
+    menuitem_database-configuration: 'Configuratie databank'
+    menuitem_database-import: Installatie
+    menuitem_edition: Shopware-licentie
+    menuitem_configuration: Configuratie
+    menuitem_finish: Gereed
+    menuitem_license: 'Algemene voorwaarden'
+    license_incorrect: 'De ingevoerde licentiesleutel is ongeldig.'
+    license_does_not_match: 'De ingevoerde licentiesleutel past niet bij een commerciële Shopware-versie'
+    license_domain_error: 'De ingevoerde licentiesleutel is niet geldig voor het domein: '
+    version_text: 'Versie:'
+    back: Terug
+    forward: Verder
+    start: Starten
+    start_installation: 'Installatie starten'
+    select_language_de: Duits
+    select_language_en: Engels (Verenigd Koninkrijk)
+    select_language_us: Engels (Verenigde Staten van Amerika)
+    select_language_nl: Nederlands
+    select_language_it: Italiaans
+    select_language_fr: Frans
+    select_language_es: Spaans
+    select_language_pt: Portugees
+    select_language_pl: Pools
+    select_language_cs: Tsjechisch
+    select_language_sv: Zweeds
+    select_language_nb: Noors
+    language-selection_welcome_title: 'Welkom bij Shopware 6'
+    language-selection_select_language: 'Taal van de installatie-assistent'
+    language-selection_header: 'Je Shopware-installatie'
+    language-selection_info_message: 'Deze selectie heeft alleen betrekking op de taal van de installatie-assistent. De standaardtaal van je shop kun je later vastleggen.'
+    language-selection_welcome_message: 'We zijn blij dat je deel wilt uitmaken van onze wereldwijde Shopware-community! Nu begeleiden we je stap voor stap door het installatieproces. Ga voor vragen naar ons <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, bel ons op <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> of schrijf een <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    requirements_header: Systeemvereisten
+    requirements_header_files: 'Bestanden en mappen'
+    requirements_header_system: Systeem
+    requirements_files_info: 'De volgende bestanden en mappen moeten aanwezig zijn met schrijfrechten.'
+    requirements_table_files_col_check: Bestand/map
+    requirements_table_files_col_status: Status
+    requirements_error: 'Er is niet aan alle voorwaarden voor een succesvolle installatie voldaan.'
+    requirements_error_title: 'Je systeem is nog niet gereed voor Shopware 6'
+    requirements_success: 'Er is niet aan alle voorwaarden voor een succesvolle installatie voldaan.'
+    requirements_success_title: 'Je systeem is gereed voor Shopware 6'
+    requirements_php_info: 'Je server moet aan de volgende systeemvereisten voldoen, om Shopware in zijn geheel te kunnen gebruiken.'
+    requirements_php_max_compatible_version: 'Deze versie van shopware ondersteunt PHP tot versie %s. Een volledige functionaliteit kan met een nieuwere PHP-versie niet worden gegarandeerd.'
+    requirements_system_col_check: Voorwaarde
+    requirements_system_col_required: Vereist
+    requirements_system_col_found: 'Je systeem'
+    requirements_system_col_status: Status
+    requirements_show_all: '(alles tonen)'
+    requirements_hide_all: '(alles verbergen)'
+    requirements_status_error: Fout
+    requirements_status_warning: Waarschuwing
+    requirements_status_ready: Gereed
+    license_agreement_header: 'Algemene voorwaarden'
+    license_agreement_info: 'Lees hier de algemene voorwaarden. Lees en accepteer eerst de algemene voorwaarden om de installatie van Shopware 6 voort te zetten. De community edition van Shopware 6 is volgens de voorwaarden van de MIT-licentie vrijgegeven.'
+    license_agreement_error: 'Geef toestemming voor onze algemene voorwaarden!'
+    license_agreement_checkbox: 'Ik ga akkoord met de algemene voorwaarden.'
+    database-configuration_header: 'Databank configureren'
+    database-configuration_field_host: 'Server:'
+    database-configuration_advanced_settings: 'Meer instellingen'
+    database-configuration_field_port: 'Port:'
+    database-configuration_field_user: 'Gebruiker:'
+    database-configuration_field_password: 'Wachtwoord:'
+    database-configuration_field_database: 'Naam databank:'
+    database-configuration_field_new_database: 'Nieuwe databank:'
+    database-configuration_info: 'Je hebt de toegangsgegevens van de databank nodig om Shopware op je systeem te installeren. Neem contact op met je beheerder/hoster, als je niet zeker weet wat je hier moet invullen.'
+    database-configuration-create_new_database: 'Nieuwe databank aanleggen'
+    database-configuration_non_empty_database: 'De uitgekozen databank bevat al gegevens Kies een lege databank uit of maak een nieuwe.'
+    database-configuration_error_required_fields: 'Vul alle velden in.'
+    database-import_header: Installatie
+    database-import_skip_import: Overslaan
+    database-import_progress: 'Voortgang: '
+    database-import-hint: '<strong>Opmerking</strong> Bestaan er in de geconfigureerde databank al Shopware-tabellen, dan worden die door de installatie / de update verwijderd.'
+    database-import_info_text: 'Shopware 6 wordt op de door jou gekozen databank geïnstalleerd. Dit proces kan enige minuten duren, afhankelijk van je systeem.'
+    database_import_success: 'De installatie van Shopware 6 is geslaagd.'
+    database_import_install_label: 'Installatie databank:'
+    database_import_install_step_text: Stap
+    database_import_install_from_text: van
+    migration_counter_text_migrations: 'Databank-update wordt uitgevoerd'
+    migration_counter_text_snippets: 'Tekstbouwstenen worden bijgewerkt'
+    migration_update_success: 'Installatie databank is geslaagd!'
+    edition_header: 'Heb je al een Shopware-licentie?'
+    edition_info: 'Shopware is verkrijgbaar in de gratis <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a> en in de professionele betaalversies <a href="https://de.shopware.com/versionen/" target="_blank">Professional en Enterprise</a>.'
+    edition_ce: 'Nee, ik wil de gratis <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a> gebruiken.'
+    edition_cm: 'Ja, ik heb een betaalde Shopware-licentie (<a href="https://de.shopware.com/versionen/" target="_blank">Professional of Enterprise</a>).'
+    edition_license: 'Voer hier je licentiecode in. Deze is te vinden in uw Shopware-account bij ''Licenties'' → ''Productlicenties'' → ''Details / Download'':'
+    edition_license_error: 'Voor de installatie van een gratis Shopware-versie is een geldige licentie nodig.'
+    configuration_header: Configuratie
+    configuration_sconfig_text: 'Bijna klaar. Nu hoef je alleen nog een paar basisinstellingen voor je shop vast te leggen, dan is de installatie voltooid.'
+    configuration_sconfig_name: Shopnaam
+    configuration_sconfig_name_info: 'Geef de naam van je shop aan'
+    configuration_sconfig_mail: 'Shop-e-mailadres:'
+    configuration_sconfig_mail_info: 'Geef het e-mailadres voor uitgaande mails aan'
+    configuration_sconfig_domain: 'Shop-domein:'
+    configuration_sconfig_language: 'Systeem-standaardtaal:'
+    configuration_sconfig_currency: 'Standaardmunteenheid:'
+    configuration_sconfig_currency_info: 'Deze wordt standaard voor productprijzen gebruikt.'
+    configuration_admin_currency_eur: Euro
+    configuration_admin_currency_usd: 'Dollar (US)'
+    configuration_admin_currency_gbp: 'Britse pond (GB)'
+    configuration_admin_currency_pln: 'Poolse zloty'
+    configuration_admin_currency_chf: 'Zwitserse frank'
+    configuration_admin_currency_sek: 'Zweedse kroon'
+    configuration_admin_currency_dkk: 'Deense kroon'
+    configuration_admin_currency_nok: 'Noorse kroon'
+    configuration_admin_currency_czk: 'Tsjechische kroon'
+    configuration_admin_username: 'Gebruikersnaam beheerder:'
+    configuration_admin_mail: 'E-mailadres beheerder:'
+    configuration_admin_firstName: 'Voornaam beheerder:'
+    configuration_admin_lastName: 'Achternaam beheerder:'
+    configuration_defaults_warning: 'De systeem-standaardtaal en standaardmunteenheid kunnen achteraf niet gewijzigd worden.'
+    configuration_email_help_text: 'Dit e-mailadres wordt voor uitgaande shop-mails gebruikt.'
+    configuration_admin_currency_headline: 'Beschikbare valuta''s'
+    configuration_admin_currency_text: 'Voeg meer valuta toe aan uw Shopware shop. Als u achteraf valuta''s wilt toevoegen, kunt u dit op elk gewenst moment in de administratie doen.'
+    configuration_admin_language_de: Duits
+    configuration_admin_language_en: Engels
+    configuration_admin_password: 'Beheerderswachtwoord:'
+    finish_header: 'Installatie voltooid'
+    finish_info: 'De installatie van Shopware is geslaagd.'
+    finish_info_heading: Jippie!
+    finish_first_steps: 'Handleiding ''Eerste stappen'''
+    finish_frontend: 'Ga naar storefront'
+    finish_backend: 'Ga naar Administration (beheer)'
+    finish_message: "
+        <p>
+            <strong>Hartelijk welkom bij Shopware,</strong>
+        </p>
+        <p>
+            we zijn blij je in onze community te mogen begroeten. Je installatie van Shopware is geslaagd.
+        <p>
+            Je shop is nu gereed voor gebruik. Ben je nieuw bij Shopware, dan raden we de handleiding <a href=\"https://docs.shopware.com/en/shopware-6-en/first-steps/welcome-to-shopware\" target=\"_blank\">'Eerste stappen bij Shopware'</a> aan. Ben je voor de eerste keer als beheerder aangemeld, dan zal de First Run Wizard je door de basisprincipes van je shop geleiden.
+        </p>
+        <p>
+            Veel plezier en succes met je nieuwe onlineshop!
+        </p>"

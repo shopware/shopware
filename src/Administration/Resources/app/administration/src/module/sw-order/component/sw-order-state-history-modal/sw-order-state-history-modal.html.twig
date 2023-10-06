@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_history_modal %}
 <sw-modal
     :title="$tc('sw-order.stateHistoryModal.modalTitle')"
@@ -5,6 +6,7 @@
     variant="large"
     @modal-close="onClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_history_modal_content %}
     <sw-data-grid
         :columns="columns"
@@ -15,24 +17,28 @@
         :show-actions="false"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_created_at %}
         <template #column-createdAt="{ item }">
             <sw-time-ago :date="item.createdAt" />
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_entity %}
         <template #column-entity="{ item }">
             {{ $tc('global.entities.' + item.entity) }}
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_user %}
         <template #column-user="{ item }">
             {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_order_state %}
         <template #column-order="{ item }">
             <sw-label
@@ -44,9 +50,11 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_delivery_state %}
         <template #column-delivery="{ item }">
             <sw-label
+                v-if="item.delivery"
                 :variant="getVariantState('order_delivery', item.delivery)"
                 appearance="badged"
             >
@@ -55,6 +63,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_transaction_state %}
         <template #column-transaction="{ item }">
             <sw-label
@@ -65,11 +74,23 @@
             </sw-label>
         </template>
         {% endblock %}
+
+        <template #pagination>
+            <sw-pagination
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :steps="steps"
+                @page-change="onPageChange"
+            />
+        </template>
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_history_modal_actions %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_action_close %}
         <sw-button
             size="small"

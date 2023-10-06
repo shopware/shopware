@@ -1,12 +1,15 @@
 import template from './sw-category-detail-products.html.twig';
 import './sw-category-detail-products.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const ShopwareError = Shopware.Classes.ShopwareError;
 
-Component.register('sw-category-detail-products', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -126,6 +129,10 @@ Component.register('sw-category-detail-products', {
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
                     </sw-external-link>`;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -165,4 +172,4 @@ Component.register('sw-category-detail-products', {
             this.manualAssignedProductsCount = assignment.total;
         },
     },
-});
+};

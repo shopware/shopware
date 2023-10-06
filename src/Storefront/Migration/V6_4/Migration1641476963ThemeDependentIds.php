@@ -4,11 +4,18 @@ namespace Shopware\Storefront\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1641476963ThemeDependentIds extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'theme.viewer' => [
             'theme_child:read',
         ],
@@ -30,8 +37,8 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
-            CREATE TABLE `theme_child` (
+        $connection->executeStatement('
+            CREATE TABLE IF NOT EXISTS `theme_child` (
               `parent_id` BINARY(16) NOT NULL,
               `child_id` BINARY(16) NOT NULL,
               PRIMARY KEY (`parent_id`, `child_id`),
@@ -44,13 +51,13 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
 
         $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
         foreach ($roles as $role) {
-            $currentPrivileges = json_decode($role['privileges']);
+            $currentPrivileges = json_decode((string) $role['privileges'], null, 512, \JSON_THROW_ON_ERROR);
             $newPrivileges = array_values($this->fixRolePrivileges($currentPrivileges));
             if ($currentPrivileges === $newPrivileges) {
                 continue;
             }
 
-            $role['privileges'] = json_encode($newPrivileges);
+            $role['privileges'] = json_encode($newPrivileges, \JSON_THROW_ON_ERROR);
             $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
             $connection->update('acl_role', $role, ['id' => $role['id']]);
@@ -61,6 +68,11 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
     {
     }
 
+    /**
+     * @param list<string> $rolePrivileges
+     *
+     * @return list<string>
+     */
     private function fixRolePrivileges(array $rolePrivileges): array
     {
         foreach (self::NEW_PRIVILEGES as $key => $new) {

@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
 describe('GoogleReCaptchaBasePlugin tests', () => {
@@ -16,23 +13,6 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         const inputField = document.createElement('input');
         inputField.className = 'grecaptcha-input';
         mockElement.appendChild(inputField);
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
 
         googleReCaptchaBasePlugin = new GoogleReCaptchaBasePlugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha-input'

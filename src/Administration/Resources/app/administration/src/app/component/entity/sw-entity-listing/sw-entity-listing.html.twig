@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_pagination %}
 <sw-pagination
     v-bind="{ page, limit, total, steps }"
@@ -6,36 +7,51 @@
 />
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_selected_actions_content %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_edit_content %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
     v-if="allowBulkEdit"
     class="link link-primary"
+    role="button"
+    tabindex="0"
     @click="onClickBulkEdit"
+    @keydown.enter="onClickBulkEdit"
 >
     {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
 </a>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_delete_content %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
     v-if="allowDelete"
     class="link link-danger"
+    role="button"
+    tabindex="0"
     @click="showBulkDeleteModal = true"
+    @keydown.enter="showBulkDeleteModal = true"
 >
     {{ $tc('global.default.delete') }}
 </a>
 {% endblock %}
+
+<slot
+    name="bulk-additional"
+    v-bind="{ selectionCount }"
+></slot>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_bulk_modals %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_edit_modal %}
 <slot
     name="bulk-edit-modal"
     v-bind="{ selection }"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_slot_bulk_edit_modal %}
     <sw-bulk-edit-modal
         v-if="showBulkEditModal"
@@ -47,6 +63,7 @@
 </slot>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_bulk_delete_modal %}
 <sw-modal
     v-if="showBulkDeleteModal"
@@ -89,8 +106,14 @@
     </template>
 </sw-modal>
 {% endblock %}
+
+<slot
+    name="bulk-modals-additional"
+    v-bind="{ selection, ids: Object.keys(selection) }"
+></slot>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_actions %}
 <slot
     name="detail-action"
@@ -138,6 +161,7 @@
 </slot>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_action_modals %}
 <sw-modal
     v-if="deleteId === item.id"

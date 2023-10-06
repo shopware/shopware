@@ -28,6 +28,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 
+/**
+ * @internal
+ */
 class EntityDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -96,7 +99,7 @@ class EntityDefinitionTest extends TestCase
         static::assertSame($baseDefinition, $translationDefinition->getParentDefinition());
     }
 
-    public function provideTranslatedDefinitions(): array
+    public static function provideTranslatedDefinitions(): array
     {
         return [
             [CmsPageDefinition::class, CmsPageTranslationDefinition::class],

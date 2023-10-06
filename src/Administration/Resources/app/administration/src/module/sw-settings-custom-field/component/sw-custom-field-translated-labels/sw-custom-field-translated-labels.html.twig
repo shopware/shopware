@@ -1,24 +1,34 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_translated_labels %}
 <div class="sw-custom-field-translated-labels">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_translated_labels_single %}
     <template v-if="localeCount == 1">
         <div
             v-for="locale in locales"
             :key="locale"
         >
-            <sw-field
+            <sw-text-field
                 v-for="(label, name) in propertyNames"
                 :key="getInlineSnippet(name)"
+                {% if VUE3 %}
+                v-model:value="config[name][locale]"
+                {% else %}
                 v-model="config[name][locale]"
+                {% endif %}
                 :disabled="disabled"
                 :label="getLabel(label, locale)"
-                type="text"
+                {% if VUE3 %}
+                @update:value="onInput($event, name, locale)"
+                {% else %}
                 @input="onInput($event, name, locale)"
+                {% endif %}
             />
         </div>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_translated_labels_translated %}
     <sw-tabs
         v-else
@@ -26,8 +36,9 @@
         position-identifier="sw-custom-field-translated-labels"
         :default-item="fallbackLocale"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_tabs %}
-        <template slot-scope="{ active }">
+        <template #default="{ active }">
             <sw-tabs-item
                 v-for="locale in locales"
                 :key="locale"
@@ -41,10 +52,10 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_content %}
         <template
-            slot="content"
-            slot-scope="{ active }"
+            #content="{ active }"
         >
             <!-- eslint-disable vue/no-use-v-if-with-v-for -->
             <div
@@ -52,16 +63,24 @@
                 v-if="active === locale"
                 :key="locale"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_translated_labels_translated_content_field %}
-                <sw-field
+                <sw-text-field
                     v-for="(label, name) in propertyNames"
                     :key="getInlineSnippet(name)"
+                    {% if VUE3 %}
+                    v-model:value="config[name][locale]"
+                    {% else %}
                     v-model="config[name][locale]"
+                    {% endif %}
                     class="sw-custom-field-translated-labels__translated-content-field"
                     :disabled="disabled"
                     :label="getLabel(label, locale)"
-                    type="text"
+                    {% if VUE3 %}
+                    @update:value="onInput($event, name, locale)"
+                    {% else %}
                     @input="onInput($event, name, locale)"
+                    {% endif %}
                 />
                 {% endblock %}
             </div>

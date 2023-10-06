@@ -3,9 +3,9 @@
     style="display: none;"
 >
     <sw-iframe-renderer
-        v-for="iFrame in iFrames"
-        :key="iFrame"
-        :src="iFrame"
+        v-for="extension in extensions"
+        :key="extension.baseUrl"
+        :src="extension.baseUrl"
         :location-id="MAIN_HIDDEN"
     />
 </div>

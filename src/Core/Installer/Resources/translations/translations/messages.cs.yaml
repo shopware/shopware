@@ -1,0 +1,136 @@
+shopware.installer:
+    header_title: Instalace
+    menuitem_language-selection: Spustit
+    menuitem_requirements: 'Systémové předpoklady'
+    menuitem_database-configuration: 'Konfigurace databáze'
+    menuitem_database-import: Instalace
+    menuitem_edition: 'Licence softwaru Shopware'
+    menuitem_configuration: Konfigurace
+    menuitem_finish: Hotovo
+    menuitem_license: VOP
+    license_incorrect: 'Zadaný licenční klíč je neplatný.'
+    license_does_not_match: 'Zadaný licenční klíč neodpovídá žádné komerční verzi softwaru Shopware'
+    license_domain_error: 'Zadaný licenční klíč je neplatný pro doménu: '
+    version_text: 'Verze:'
+    back: Zpět
+    forward: Další
+    start: Spustit
+    start_installation: 'Spustit instalaci'
+    select_language_de: Německy
+    select_language_en: Anglicky (Spojené království)
+    select_language_us: Anglicky (Spojené státy americké)
+    select_language_nl: Holandsky
+    select_language_it: Italsky
+    select_language_fr: Francouzsky
+    select_language_es: Španělsky
+    select_language_pt: Portugalsky
+    select_language_pl: Polsky
+    select_language_cs: český
+    select_language_sv: švédský
+    select_language_nb: norský
+    language-selection_welcome_title: 'Vítejte v aplikaci Shopware 6'
+    language-selection_select_language: 'Jazyk průvodce instalací'
+    language-selection_header: 'Vaše instalace softwaru Shopware'
+    language-selection_info_message: 'Tato volba se vztahuje jen na jazyk průvodce instalací. Systémový standardní jazyk svého obchodu můžete ještě definovat později.'
+    language-selection_welcome_message: 'Těší nás, že chcete být součástí naší celosvětové komunity Shopware! Nyní vás provedeme krok za krokem procesem instalace. Pokud budete mít otázky, podívejte se nejdříve na naše <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, kontaktujte nás telefonicky na čísle <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> nebo nám napište <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    requirements_header: 'Systémové předpoklady'
+    requirements_header_files: 'Soubory a adresáře'
+    requirements_header_system: Systém
+    requirements_files_info: 'Následující soubory a adresáře musí existovat a nesmí být chráněny proti zápisu.'
+    requirements_table_files_col_check: Soubor/adresář
+    requirements_table_files_col_status: Stav
+    requirements_error: 'Nejsou splněny všechny předpoklady úspěšné instalace.'
+    requirements_error_title: 'Váš systém ještě není připraven na Shopware 6'
+    requirements_success: 'Jsou splněny všechny předpoklady úspěšné instalace.'
+    requirements_success_title: 'Váš systém je připraven na Shopware 6'
+    requirements_php_info: 'Váš server by měl splňovat následující systémové předpoklady, aby mohl využívat Shopware v plném rozsahu.'
+    requirements_php_max_compatible_version: 'Tato verze Shopware podporuje PHP do verze %s. S novější verzí PHP nelze zaručit úplnou funkčnost systému Shopware.'
+    requirements_system_col_check: Předpoklad
+    requirements_system_col_required: Nutný
+    requirements_system_col_found: 'Váš systém'
+    requirements_system_col_status: Stav
+    requirements_show_all: '(zobrazit vše)'
+    requirements_hide_all: '(skrýt vše)'
+    requirements_status_error: Chyba
+    requirements_status_warning: Varování
+    requirements_status_ready: Připraven
+    license_agreement_header: 'Všeobecné obchodní podmínky („VOP“)'
+    license_agreement_info: 'Zde najdete naše Všeobecné obchodní podmínky. Aby bylo možné pokračovat v instalaci softwaru Shopware 6, musíte si nejdříve přečíst naše VOP a poté je přijmout. Vydání Community Edition softwaru Shopware 6 je uvolněno podle podmínek licence MIT.'
+    license_agreement_error: 'Vyjádřete svůj souhlas s našimi VOP!'
+    license_agreement_checkbox: 'Souhlasím s VOP!'
+    database-configuration_header: 'Konfigurovat databázi'
+    database-configuration_field_host: 'Server:'
+    database-configuration_advanced_settings: 'Rozšířená nastavení'
+    database-configuration_field_port: 'Port:'
+    database-configuration_field_user: 'Uživatel:'
+    database-configuration_field_password: 'Heslo:'
+    database-configuration_field_database: 'Název databáze:'
+    database-configuration_field_new_database: 'Nová databáze:'
+    database-configuration_info: 'Aby bylo možné instalovat Shopware ve vašem systému, potřebujete přístupové údaje ke své databázi. Nejste-li si jisti, co sem máte zadat, obraťte se na svého správce/hostitele.'
+    database-configuration-create_new_database: 'Založit novou databázi'
+    database-configuration_non_empty_database: 'Vybraná databáze již obsahuje data. Vyberte prázdnou databázi nebo vytvořte novou.'
+    database-configuration_error_required_fields: 'Vyplňte všechna pole.'
+    database-import_header: Instalace
+    database-import_skip_import: Přeskočit
+    database-import_progress: 'Pokrok: '
+    database-import-hint: '<strong>Upozornění:</strong> Jestliže jsou v konfigurované databázi již tabulky Shopware, budou instalací/aktualizací odebrány!'
+    database-import_info_text: 'Software Shopware 6 bude instalován ve vámi vybrané databázi. Tento proces může v závislosti na vašem systému několik minut trvat.'
+    database_import_success: 'Software Shopware 6 byl úspěšně nainstalován!'
+    database_import_install_label: 'Instalace databáze:'
+    database_import_install_step_text: Krok
+    database_import_install_from_text: z
+    migration_counter_text_migrations: 'Provádí se aktualizace databáze'
+    migration_counter_text_snippets: 'Aktualizují se textové bloky'
+    migration_update_success: 'Databáze úspěšně importována!'
+    edition_header: 'Máte již licenci softwaru Shopware?'
+    edition_info: 'Shopware existuje v bezplatném vydání <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> a také v hrazených verzích <a href="https://de.shopware.com/versionen/" target="_blank">Professional a Enterprise</a>.'
+    edition_ce: 'Ne, chci používat bezplatnou verzi <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a>.'
+    edition_cm: 'Ano, mám hrazenou licenci softwaru Shopware (<a href="https://de.shopware.com/versionen/" target="_blank">Professional nebo Enterprise</a>).'
+    edition_license: 'Sem zadejte svůj licenční klíč. Ten najdete na svém účtu Shopware v části "Licence" → "Licence produktů" → "Podrobnosti/stažení":'
+    edition_license_error: 'Pro instalaci hrazené verze softwaru Shopware je nutná platná licence.'
+    configuration_header: Konfigurace
+    configuration_sconfig_text: 'Už je to téměř hotovo. Nyní musíte ještě provést několik základních nastavení svého obchodu, poté je instalace dokončena.'
+    configuration_sconfig_name: 'Název obchodu'
+    configuration_sconfig_name_info: 'Zadejte název svého obchodu.'
+    configuration_sconfig_mail: 'E-mailová adresa obchodu:'
+    configuration_sconfig_mail_info: 'Zadejte e-mailovou adresu odchozích zpráv e-mailem.'
+    configuration_sconfig_domain: 'Doména obchodu:'
+    configuration_sconfig_language: 'Standardní jazyk systému:'
+    configuration_sconfig_currency: 'Standardní měna:'
+    configuration_sconfig_currency_info: 'Tato měna se použije standardně na ceny produktů.'
+    configuration_admin_currency_eur: Euro
+    configuration_admin_currency_usd: 'Dolar (US)'
+    configuration_admin_currency_gbp: 'Britská libra (GB)'
+    configuration_admin_currency_pln: 'Polský zlotý'
+    configuration_admin_currency_chf: 'Švýcarský frank'
+    configuration_admin_currency_sek: 'Švédská koruna'
+    configuration_admin_currency_dkk: 'Dánská koruna'
+    configuration_admin_currency_nok: 'Norská koruna'
+    configuration_admin_currency_czk: 'Koruna česká'
+    configuration_admin_username: 'Přihlašovací jméno správce:'
+    configuration_admin_mail: 'E-mailová adresa správce:'
+    configuration_admin_firstName: 'Jméno správce:'
+    configuration_admin_lastName: 'Příjmení správce:'
+    configuration_defaults_warning: 'Standardní jazyk systému a standardní měnu nelze později měnit.'
+    configuration_email_help_text: 'Tato e-mailová adresa se použije pro odchozí e-maily obchodu.'
+    configuration_admin_language_de: Německy
+    configuration_admin_language_en: Anglicky
+    configuration_admin_password: 'Heslo správce:'
+    finish_header: 'Instalace je dokončena.'
+    finish_info: 'Úspěšně jste instalovali software Shopware!'
+    finish_info_heading: Jupí!
+    finish_first_steps: 'Příručka "První kroky"'
+    finish_frontend: 'K rozhraní obchodu'
+    finish_backend: 'Ke Administration (správě)'
+    finish_message: "
+        <p>
+            <strong>Vítejte v aplikaci Shopware,</strong>
+        </p>
+        <p>
+            těší nás, že vás můžeme uvítat v naší komunitě. Úspěšně jste instalovali software Shopware.
+        <p>
+            Váš obchod je nyní připraven k využívání. Jestliže jste v Shopware ještě nováčci, doporučujeme vám průvodce <a href=\"https://docs.shopware.com/en/shopware-6-en/first-steps/welcome-to-shopware\" target=\"_blank\">\"První kroky v Shopware\"</a>. Jakmile se poprvé přihlásíte ke správě obchodu, náš průvodce prvním přihlášením vás provede základním nastavením vašeho obchodu.
+        </p>
+        <p>
+            Přejeme hodně zábavy a úspěchů s vaším novým online obchodem!
+        </p>"

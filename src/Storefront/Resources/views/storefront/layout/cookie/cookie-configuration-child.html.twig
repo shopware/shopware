@@ -1,9 +1,9 @@
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+    <div class="offcanvas-cookie-entry form-check">
         <input
             type="checkbox"
-            class="custom-control-input"
+            class="form-check-input"
             id="cookie_{{ cookie }}"
             {% if isRequired %}
                 checked="checked"
@@ -24,7 +24,6 @@
             class="custom-control-label">
             {{ child.snippet_name ? child.snippet_name|trans|sw_sanitize : cookie }}
         </label>
-
 
         {% if child.snippet_description %}
             <p>{{ child.snippet_description|trans|sw_sanitize }}</p>

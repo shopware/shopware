@@ -18,31 +18,25 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonD
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class ConfigJsonFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var ConfigJsonFieldSerializer
      */
     private $serializer;
 
-    /**
-     * @var ConfigJsonField
-     */
-    private $field;
+    private ConfigJsonField $field;
 
-    /**
-     * @var EntityExistence
-     */
-    private $existence;
+    private EntityExistence $existence;
 
-    /**
-     * @var WriteParameterBag
-     */
-    private $parameters;
+    private WriteParameterBag $parameters;
 
     protected function setUp(): void
     {
@@ -61,7 +55,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
         );
     }
 
-    public function serializerProvider(): array
+    public static function serializerProvider(): array
     {
         return [
             [['string']],

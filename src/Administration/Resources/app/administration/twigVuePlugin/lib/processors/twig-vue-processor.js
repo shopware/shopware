@@ -1,30 +1,14 @@
+/**
+ * @package admin
+ */
+
 const eslintPluginVueProcessor = require('eslint-plugin-vue/lib/processor');
 
 const templateTagBefore = '<template>\n';
 const templateTagAfter = '</template>';
 
 function twigPreParser(code) {
-    const addedTemplate = `${templateTagBefore}${code}${templateTagAfter}`;
-
-    /**
-     * convert twig block syntax with html comments to avoid parsing problems
-     * in the abstract syntax tree (AST) they would be VText elements when `{% block %}`
-     * and ignored when `<!--blck -->`
-     * the slight abbreviation is on purpose, so the character count of eslint stays same.
-     * Replacing with html elements, so nesting and block names are available to the linter
-     * failed, because it might lead to invalid vue templates for example slot-templates
-     */
-    const newCode = addedTemplate
-        .replace('{% parent() %}', '<!--prent()-->')
-        .replace(/({# @?)(.*)( #})/gm, (match, p1, p2) => {
-            // parse twig comments @see https://regex101.com/r/vyx15C/1
-            return `<!--${p1.length === 3 ? p2.substr(1) : p2}-->`;
-        })
-        .replace(/{% block/g, '<!--blck')
-        .replace(/{% endblock/g, '<!--endblck')
-        .replace(/ %}/g, '-->');
-
-    return newCode;
+    return `${templateTagBefore}${code}${templateTagAfter}`;
 }
 
 module.exports = {
@@ -32,10 +16,14 @@ module.exports = {
         'twig-vue': {
             // takes text of the file and filename
             preprocess(text, filename) {
-                const parsedText = twigPreParser(text);
+                /**
+                 * ESLint parses changed text again. To prevent an endless loop we only
+                 * process .twig files which weren't parsed before to a Vue SFC.
+                 */
+                const parsedText = text.startsWith(templateTagBefore) ? text : twigPreParser(text);
 
                 return [
-                    { text: parsedText, filename: filename }
+                    { text: parsedText, filename: filename },
                 ];
             },
 
@@ -59,7 +47,8 @@ module.exports = {
                 const templateTagBeforeLength = templateTagBefore.length;
 
                 finalMessagesFiltered.forEach(m => {
-                    if (!m.fix) {
+                    // No fix available or already processed?
+                    if (!m.fix || m.twigVue) {
                         return;
                     }
 
@@ -67,6 +56,12 @@ module.exports = {
                         m.fix.range[0] - templateTagBeforeLength,
                         m.fix.range[1] - templateTagBeforeLength,
                     ];
+
+                    /**
+                     * Altering messages will cause this postprocess to run again.
+                     * Therefor add an identifier that this given message got altered already.
+                     */
+                    m.twigVue = true;
                 });
 
                 return finalMessagesFiltered;

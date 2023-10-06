@@ -1,19 +1,10 @@
-/**
- * @jest-environment jsdom
- */
-import $ from 'jquery';
-import 'bootstrap';
 import Fading from 'src/plugin/fading/fading.plugin.js';
-import template from "./fading.template.html";
-
-/* eslint-disable-next-line */
-global.$ = global.jQuery = $;
+import template from './fading.template.html';
 
 describe('Fading plugin test', () => {
     let fadingPlugin;
     let collapseSpy;
     let linkSpy;
-
     let fadingEntryPoint;
     let collapse;
     let container;
@@ -23,24 +14,7 @@ describe('Fading plugin test', () => {
 
     beforeEach(() => {
         document.body.innerHTML = template;
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return [
-                    {
-                        refreshRegistry: () => {}
-                    }
-                ];
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
+
         fadingEntryPoint = document.querySelector('#entryPoint');
         collapse = fadingEntryPoint.querySelector('.collapse');
         container = fadingEntryPoint.querySelector('#container');
@@ -48,7 +22,7 @@ describe('Fading plugin test', () => {
         less = fadingEntryPoint.querySelector('#less');
 
         eventTriggered = new Promise((resolve) => {
-            $(collapse).on('shown.bs.collapse', () => {
+            collapse.addEventListener('shown.bs.collapse', () => {
                 resolve();
             });
         });
@@ -57,6 +31,7 @@ describe('Fading plugin test', () => {
         linkSpy = jest.spyOn(Fading.prototype, '_onLinkClick');
         fadingPlugin = new Fading(fadingEntryPoint);
     });
+
     afterEach(() => {
         fadingPlugin = null;
         collapseSpy = null;
@@ -68,14 +43,16 @@ describe('Fading plugin test', () => {
         more = null;
         less = null;
     });
+
     test('fading plugin exists', () => {
         expect(typeof fadingPlugin).toBe('object');
     });
+
     test('collapse show, if scrolling is active', async () => {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });
 
-        $(collapse).collapse('show');
+        new bootstrap.Collapse(collapse, { show: true });
         await eventTriggered;
 
         expect(collapseSpy).toHaveBeenCalled();
@@ -84,22 +61,24 @@ describe('Fading plugin test', () => {
         expect(more.classList.contains('swag-fade-link-hidden')).toBe(false);
         expect(less.classList.contains('swag-fade-link-hidden')).toBe(true);
     });
+
     test('collapse show, if scrolling is inactive', async () => {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 50 });
 
-        $(collapse).collapse('show');
+        new bootstrap.Collapse(collapse, { show: true });
         await eventTriggered;
 
         expect(collapseSpy).toHaveBeenCalled();
         expect(more.classList.contains('swag-fade-link-hidden')).toBe(true);
         expect(less.classList.contains('swag-fade-link-hidden')).toBe(true);
     });
+
     test('show more', async () => {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });
 
-        $(collapse).collapse('show');
+        new bootstrap.Collapse(collapse, { show: true });
         await eventTriggered;
 
         more.dispatchEvent(new Event('click'));
@@ -109,11 +88,12 @@ describe('Fading plugin test', () => {
         expect(more.classList.contains('swag-fade-link-hidden')).toBe(true);
         expect(less.classList.contains('swag-fade-link-hidden')).toBe(false);
     });
+
     test('show less', async () => {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });
 
-        $(collapse).collapse('show');
+        new bootstrap.Collapse(collapse, { show: true });
         await eventTriggered;
 
         less.dispatchEvent(new Event('click'));

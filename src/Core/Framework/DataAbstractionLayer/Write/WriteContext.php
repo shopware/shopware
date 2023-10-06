@@ -3,10 +3,18 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 
+/**
+ * @internal
+ *
+ * @phpstan-import-type LanguageData from LanguageLoaderInterface
+ */
+#[Package('core')]
 class WriteContext
 {
     use StateAwareTrait;
@@ -14,42 +22,39 @@ class WriteContext
     private const SPACER = '::';
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    private $paths = [];
+    private array $paths = [];
 
     /**
-     * @var Context
+     * @var LanguageData
      */
-    private $context;
+    private array $languages;
 
     /**
-     * @var array
+     * @var array<string, string>|null
      */
-    private $languages;
+    private ?array $languageCodeIdMapping;
 
-    /**
-     * @var string[]|null
-     */
-    private $languageCodeIdMapping;
+    private WriteException $exceptions;
 
-    /**
-     * @var WriteException
-     */
-    private $exceptions;
-
-    private function __construct(Context $context)
+    private function __construct(private Context $context)
     {
-        $this->context = $context;
         $this->exceptions = new WriteException();
     }
 
+    /**
+     * @param LanguageData $languages
+     */
     public function setLanguages(array $languages): void
     {
         $this->languages = $languages;
         $this->languageCodeIdMapping = null;
     }
 
+    /**
+     * @return LanguageData
+     */
     public function getLanguages(): array
     {
         if (empty($this->languages)) {
@@ -72,30 +77,30 @@ class WriteContext
     public static function createFromContext(Context $context): self
     {
         $self = new self($context);
-        $self->set(LanguageDefinition::class, 'id', $context->getLanguageId());
+        $self->set(LanguageDefinition::ENTITY_NAME, 'id', $context->getLanguageId());
 
         return $self;
     }
 
-    public function set(string $className, string $propertyName, string $value): void
+    public function set(string $entity, string $propertyName, string $value): void
     {
-        $this->paths[$this->buildPathName($className, $propertyName)] = $value;
+        $this->paths[$this->buildPathName($entity, $propertyName)] = $value;
     }
 
-    public function get(string $className, string $propertyName)
+    public function get(string $entity, string $propertyName): string
     {
-        $path = $this->buildPathName($className, $propertyName);
+        $path = $this->buildPathName($entity, $propertyName);
 
-        if (!$this->has($className, $propertyName)) {
+        if (!$this->has($entity, $propertyName)) {
             throw new \InvalidArgumentException(sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
         }
 
         return $this->paths[$path];
     }
 
-    public function has(string $className, string $propertyName): bool
+    public function has(string $entity, string $propertyName): bool
     {
-        $path = $this->buildPathName($className, $propertyName);
+        $path = $this->buildPathName($entity, $propertyName);
 
         return isset($this->paths[$path]);
     }
@@ -108,7 +113,7 @@ class WriteContext
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(LanguageDefinition::class, 'id', $this->context->getLanguageId());
+        $this->set(LanguageDefinition::ENTITY_NAME, 'id', $this->context->getLanguageId());
     }
 
     public function createWithVersionId(string $versionId): self
@@ -121,6 +126,9 @@ class WriteContext
         return $this->exceptions;
     }
 
+    /**
+     * @param callable(WriteContext): void $callback
+     */
     public function scope(string $scope, callable $callback): void
     {
         $originalContext = $this->context;
@@ -137,6 +145,9 @@ class WriteContext
         $this->exceptions = new WriteException();
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getLanguageCodeToIdMapping(): array
     {
         if ($this->languageCodeIdMapping !== null) {

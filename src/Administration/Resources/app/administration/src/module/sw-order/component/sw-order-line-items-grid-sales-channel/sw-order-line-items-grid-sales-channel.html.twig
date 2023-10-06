@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_line_items_grid_sales_channel %}
 <sw-container
     type="row"
     class="sw-order-line-items-grid-sales-channel"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_sales_channel_actions %}
     <sw-container
         class="sw-order-line-items-grid-sales-channel__actions-container"
@@ -11,8 +13,10 @@
         gap="16px"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_header %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
         <div align="left">
             <sw-card-filter
@@ -23,12 +27,15 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
         <div align="right">
-            <sw-button-group v-if="!feature.isActive('FEATURE_NEXT_7530')">
+            <sw-button-group>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
                 <sw-button
+                    class="sw-order-line-items-grid-sales-channel__add-product"
                     variant="ghost"
                     size="small"
                     :disabled="isAddNewItemButtonDisabled"
@@ -38,6 +45,7 @@
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
                 <sw-context-button>
                     <template #button>
@@ -48,35 +56,30 @@
                             :disabled="isAddNewItemButtonDisabled"
                         >
                             <sw-icon
-                                name="small-arrow-small-down"
+                                name="regular-chevron-down-xxs"
                                 decorative
                             />
                         </sw-button>
                     </template>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
-                    <sw-context-menu-item @click="onInsertBlankItem">
+                    <sw-context-menu-item
+                        class="sw-order-line-items-grid-sales-channel__add-custom-item"
+                        @click="onInsertBlankItem"
+                    >
                         {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
                     </sw-context-menu-item>
-                    <sw-context-menu-item @click="onInsertCreditItem">
+                    <sw-context-menu-item
+                        class="sw-order-line-items-grid-sales-channel__add-credit-item"
+                        @click="onInsertCreditItem"
+                    >
                         {{ $tc('sw-order.createBase.buttonAddCredit') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
                 {% endblock %}
             </sw-button-group>
-
-            {% block sw_order_line_items_grid_sales_channel_add_items %}
-            <sw-button
-                v-if="feature.isActive('FEATURE_NEXT_7530')"
-                variant="ghost"
-                size="small"
-                :disabled="isAddNewItemButtonDisabled"
-                @click="openItemsModal"
-            >
-                {{ $tc('sw-order.createBase.buttonAddItems') }}
-            </sw-button>
-            {% endblock %}
         </div>
         {% endblock %}
 
@@ -84,7 +87,9 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_sales_channel_grid %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
     <sw-empty-state
         v-if="cartLineItems.length === 0"
@@ -93,13 +98,14 @@
     >
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-order.createBase.messageEmptyItem')"
             >
         </template>
     </sw-empty-state>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_sales_channel_grid_item_table %}
     <sw-data-grid
         v-else
@@ -122,9 +128,12 @@
         @selection-change="onSelectionChanged"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns_label %}
         <template #column-label="{ item, isInlineEdit}">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
             <sw-order-product-select
                 v-if="isInlineEdit"
@@ -134,39 +143,56 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
-            <router-link
+            <div
                 v-else-if="!isInlineEdit && isProductItem(item)"
-                target="_blank"
-                rel="noopener"
-                :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_column_payload_options %}
-                <div
+                <router-link
                     v-if="item.payload && item.payload.options"
-                    class="sw-order-line-items-grid__item-payload-options"
+                    target="_blank"
+                    class="sw-order-line-items-grid-sales-channel__item-payload-options"
+                    :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                    :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
-                        {{ item.label }}
+                        <div class="sw-order-line-items-grid__item-label">
+                            {{ item.label }}
+                        </div>
                     </sw-product-variant-info>
+                </router-link>
+
+                <div
+                    v-else
+                    class="sw-order-line-items-grid-sales-channel__item-payload-options"
+                >
+                    <span class="sw-order-line-items-grid__item-label">
+                        {{ item.label }}
+                    </span>
                 </div>
                 {% endblock %}
-            </router-link>
+            </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_label_content %}
             <template v-else>
-                {{ item.label }}
+                <span class="sw-order-line-items-grid-sales-channel__item-label">
+                    {{ item.label }}
+                </span>
             </template>
             {% endblock %}
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price %}
         <template #column-unitPrice="{ item, isInlineEdit}">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !itemCreatedFromProduct(item)"
@@ -174,41 +200,56 @@
                 size="small"
                 :min="getMinItemPrice(item)"
                 :value="item.priceDefinition.price"
+                {% if VUE3 %}
+                @update:value="checkItemPrice($event, item)"
+                {% else %}
                 @change="checkItemPrice($event, item)"
+                {% endif %}
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
             <template v-else>
-                {{ item.price.unitPrice | currency(currency.shortName) }}
+                {{ currencyFilter(item.price.unitPrice,  currency.shortName) }}
             </template>
             {% endblock %}
 
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price %}
         <template #column-totalPrice="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
-            {{ item.price.totalPrice | currency(currency.shortName) }}
+            {{ currencyFilter(item.price.totalPrice, currency.shortName) }}
             {% endblock %}
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity %}
         <template #column-quantity="{ item, isInlineEdit }">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !isCreditItem(item)"
-                v-model="item.quantity"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
+                :value="item.quantity"
+                {% if VUE3 %}
+                @update:value="changeItemQuantity($event, item)"
+                {% else %}
+                @change="changeItemQuantity($event, item)"
+                {% endif %}
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
             <template v-else>
                 <span class="sw-order-line-items-grid-sales-channel__quantity">
@@ -219,9 +260,11 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_columns_tax %}
         <template #column-tax="{ item, isInlineEdit }">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit &&
@@ -230,13 +273,18 @@
                     item.priceDefinition.taxRules &&
                     !isCreditItem(item)"
                 key="order-line-item-tax-edit-default"
+                {% if VUE3 %}
+                v-model:value="item.priceDefinition.taxRules[0].taxRate"
+                {% else %}
                 v-model="item.priceDefinition.taxRules[0].taxRate"
+                {% endif %}
                 size="small"
                 placeholder="0"
                 :min="0"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}
             <span
                 v-else-if="hasMultipleTaxes(item)"
@@ -247,6 +295,7 @@
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
             <template v-else-if="item.price && item.price.taxRules.length">
                 {{ showTaxValue(item) }}
@@ -256,16 +305,19 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_grid_actions %}
         <template #actions="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
             <sw-context-menu-item
                 :disabled="!isProductItem(item)"
-                icon="default-eye-open"
+                icon="regular-eye"
                 :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
                 target="_blank"
                 rel="noopener"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
                 {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
                 {% endblock %}
@@ -274,13 +326,17 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_bulk_actions %}
         <template #bulk>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="link link-danger"
+                role="link"
+                tabindex="0"
                 @click="onDeleteSelectedItems"
+                @keydown.enter="onDeleteSelectedItems"
             >
                 {{ $tc('global.default.delete') }}
             </a>
@@ -291,7 +347,6 @@
         {% endblock %}
     </sw-data-grid>
     {% endblock %}
-
     {% endblock %}
 </sw-container>
 {% endblock %}

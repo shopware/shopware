@@ -3,11 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @deprecated tag:v6.5.0 - getDecorated, getTotal will be abstract with 6.5.0 and has to be implemented in all implementations
- */
+#[Package('core')]
 abstract class EntityIndexer
 {
     /**
@@ -20,11 +18,9 @@ abstract class EntityIndexer
      * Called when a full entity index is required. This function should generate a list of message for all records which
      * are indexed by this indexer.
      *
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     * @param array{offset: int|null}|null $offset
      */
-    abstract public function iterate(/*?array */$offset): ?EntityIndexingMessage;
+    abstract public function iterate(?array $offset): ?EntityIndexingMessage;
 
     /**
      * Called when entities are updated over the DAL. This function should react to the provided entity written events
@@ -38,26 +34,14 @@ abstract class EntityIndexer
      */
     abstract public function handle(EntityIndexingMessage $message): void;
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
-     */
-    public function getTotal(): int
-    {
-        return 1;
-    }
+    abstract public function getTotal(): int;
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
-     */
-    public function getDecorated(): EntityIndexer
-    {
-        throw new DecorationPatternException(static::class);
-    }
+    abstract public function getDecorated(): EntityIndexer;
 
     /**
      * Returns a list of known indexers
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getOptions(): array
     {

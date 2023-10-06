@@ -2,40 +2,48 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class AppCookieProvider implements CookieProviderInterface
 {
     /**
-     * @var CookieProviderInterface
+     * @internal
+     *
+     * @param EntityRepository<AppCollection> $appRepository
      */
-    private $inner;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
-
-    public function __construct(CookieProviderInterface $inner, EntityRepositoryInterface $appRepository)
-    {
-        $this->inner = $inner;
-        $this->appRepository = $appRepository;
+    public function __construct(
+        private readonly CookieProviderInterface $inner,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array
     {
-        $result = $this->appRepository->search(
-            (new Criteria())->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-                new EqualsFilter('app.cookies', null),
-            ])),
-            Context::createDefaultContext()
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('active', true),
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('app.cookies', null),
+                ]
+            )
         );
+
+        $result = $this->appRepository->search(
+            $criteria,
+            Context::createDefaultContext()
+        )->getEntities();
 
         $cookies = array_values($this->inner->getCookieGroups());
 
@@ -49,8 +57,12 @@ class AppCookieProvider implements CookieProviderInterface
     /**
      * merges cookie groups by the snippet name of the group
      * and only iterates once over every cookie
+     *
+     * @param array<string|int, mixed> $cookies
+     *
+     * @return array<string|int, mixed>
      */
-    private function mergeCookies(array $cookies, EntitySearchResult $apps): array
+    private function mergeCookies(array $cookies, AppCollection $apps): array
     {
         $cookieGroups = [];
         // build an array with the snippetName of a cookie group and the index in the cookies array
@@ -61,8 +73,7 @@ class AppCookieProvider implements CookieProviderInterface
             }
         }
 
-        /** @var AppEntity $app */
-        foreach ($apps->getEntities() as $app) {
+        foreach ($apps as $app) {
             foreach ($app->getCookies() as $cookie) {
                 // cookies that are not part of a group can simply be added to the cookies array
                 if (!\array_key_exists('entries', $cookie)) {

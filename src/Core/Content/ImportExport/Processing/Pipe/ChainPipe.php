@@ -3,17 +3,16 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class ChainPipe extends AbstractPipe
 {
     /**
-     * @var AbstractPipe[]
+     * @param AbstractPipe[] $chain
      */
-    private $chain;
-
-    public function __construct(array $pipeChain)
+    public function __construct(private readonly array $chain)
     {
-        $this->chain = $pipeChain;
     }
 
     public function in(Config $config, iterable $record): iterable

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import './page/index';
 import './view/sw-login-login';
 import './view/sw-login-recovery';
@@ -9,6 +13,7 @@ import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-login', {
     type: 'core',
     name: 'login',

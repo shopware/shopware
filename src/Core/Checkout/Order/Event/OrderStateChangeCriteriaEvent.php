@@ -3,24 +3,16 @@
 namespace Shopware\Core\Checkout\Order\Event;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('checkout')]
 class OrderStateChangeCriteriaEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $orderId;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    public function __construct(string $orderId, Criteria $criteria)
-    {
-        $this->orderId = $orderId;
-        $this->criteria = $criteria;
+    public function __construct(
+        private readonly string $orderId,
+        private readonly Criteria $criteria
+    ) {
     }
 
     public function getOrderId(): string

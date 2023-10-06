@@ -2,12 +2,17 @@
 
 namespace Shopware\Core\Content\Cms\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('buyers-experience')]
 class UnexpectedFieldConfigValueType extends ShopwareHttpException
 {
-    public function __construct(string $fieldConfigName, string $expectedType, string $givenType)
-    {
+    public function __construct(
+        string $fieldConfigName,
+        string $expectedType,
+        string $givenType
+    ) {
         parent::__construct(
             'Expected to load value of "{{ fieldConfigName }}" with type "{{ expectedType }}", but value with type "{{ givenType }}" given.',
             [

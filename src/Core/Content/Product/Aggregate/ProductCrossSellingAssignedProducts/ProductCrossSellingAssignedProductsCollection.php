@@ -3,39 +3,34 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                           add(ProductCrossSellingAssignedProductsEntity $entity)
- * @method void                                           set(string $key, ProductCrossSellingAssignedProductsEntity $entity)
- * @method ProductCrossSellingAssignedProductsEntity[]    getIterator()
- * @method ProductCrossSellingAssignedProductsEntity[]    getElements()
- * @method ProductCrossSellingAssignedProductsEntity|null get(string $key)
- * @method ProductCrossSellingAssignedProductsEntity|null first()
- * @method ProductCrossSellingAssignedProductsEntity|null last()
+ * @extends EntityCollection<ProductCrossSellingAssignedProductsEntity>
  */
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsCollection extends EntityCollection
 {
-    public function getExpectedClass(): string
-    {
-        return ProductCrossSellingAssignedProductsEntity::class;
-    }
-
     public function getApiAlias(): string
     {
         return 'product_cross_selling_assigned_products_collection';
     }
 
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductCrossSellingAssignedProductsEntity $entity) {
-            return $entity->getProductId();
-        });
+        return $this->fmap(fn (ProductCrossSellingAssignedProductsEntity $entity) => $entity->getProductId());
     }
 
     public function sortByPosition(): void
     {
-        $this->sort(function (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $this->sort(fn (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) => $a->getPosition() <=> $b->getPosition());
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ProductCrossSellingAssignedProductsEntity::class;
     }
 }

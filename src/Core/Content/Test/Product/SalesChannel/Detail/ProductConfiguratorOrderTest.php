@@ -5,39 +5,38 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ProductConfiguratorOrderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $salesChannelProductRepository;
-
-    /**
-     * @var string
-     */
-    private $productId;
 
     /**
      * @var SalesChannelContext
@@ -87,7 +86,10 @@ class ProductConfiguratorOrderTest extends TestCase
         static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
-    private static function ashuffle(array &$a)
+    /**
+     * @param array<string, string> $a
+     */
+    private static function ashuffle(array &$a): bool
     {
         $keys = array_keys($a);
         shuffle($keys);
@@ -100,6 +102,12 @@ class ProductConfiguratorOrderTest extends TestCase
         return true;
     }
 
+    /**
+     * @param array<string>|null $groupPositionOrder
+     * @param array<string>|null $configuratorGroupConfigOrder
+     *
+     * @return array<int, string|null>
+     */
     private function getOrder(?array $groupPositionOrder = null, ?array $configuratorGroupConfigOrder = null): array
     {
         // create product with property groups and 1 variant and get its configurator settings
@@ -168,7 +176,9 @@ class ProductConfiguratorOrderTest extends TestCase
                 'active' => true,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
                 'configuratorSettings' => $configuratorSettings,
-                'configuratorGroupConfig' => $configuratorGroupConfig,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $configuratorGroupConfig,
+                ],
                 'visibilities' => [
                     [
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -182,10 +192,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 
@@ -193,14 +200,13 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $data[0]['tax']);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
+        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);
+        $propertyGroupNames = array_map(fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
 
-        // return array of group names
-        return array_values(array_map(function (PropertyGroupEntity $propertyGroupEntity) {
-            return $propertyGroupEntity->getName();
-        }, $groups->getElements()));
+        return array_values($propertyGroupNames);
     }
 }

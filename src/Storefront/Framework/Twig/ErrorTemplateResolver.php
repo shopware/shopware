@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
+#[Package('storefront')]
 class ErrorTemplateResolver
 {
     /**
@@ -13,6 +15,9 @@ class ErrorTemplateResolver
      */
     protected $twig;
 
+    /**
+     * @internal
+     */
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;
@@ -42,8 +47,6 @@ class ErrorTemplateResolver
 
         $template .= '.html.twig';
 
-        $result = new ErrorTemplateStruct($template, ['exception' => $exception]);
-
-        return $result;
+        return new ErrorTemplateStruct($template, ['exception' => $exception]);
     }
 }

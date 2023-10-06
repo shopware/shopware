@@ -1,9 +1,11 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-live-search-keyword.html.twig';
 import './sw-settings-search-live-search-keyword.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-settings-search-live-search-keyword', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -43,4 +45,4 @@ Component.register('sw-settings-search-live-search-keyword', {
             return index ? this.highlightClass : {};
         },
     },
-});
+};

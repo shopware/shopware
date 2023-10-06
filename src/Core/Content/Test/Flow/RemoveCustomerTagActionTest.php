@@ -10,30 +10,35 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class RemoveCustomerTagActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -43,16 +48,13 @@ class RemoveCustomerTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testRemoveCustomerTagAction(): void
@@ -60,8 +62,7 @@ class RemoveCustomerTagActionTest extends TestCase
         $this->createDataTest();
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -125,7 +126,7 @@ class RemoveCustomerTagActionTest extends TestCase
 
         static::assertCount(2, $customerTag);
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         $customerTag = $this->connection->fetchAllAssociative(
             'SELECT * FROM customer_tag WHERE customer_id = (:customerId)',
@@ -147,14 +148,16 @@ class RemoveCustomerTagActionTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(string $password, ?string $email = null): void
+    private function createCustomer(?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -174,7 +177,7 @@ class RemoveCustomerTagActionTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -186,7 +189,7 @@ class RemoveCustomerTagActionTest extends TestCase
                     ['tagId' => $this->ids->get('tag_id2'), 'name' => 'tag2'],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -204,6 +207,6 @@ class RemoveCustomerTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

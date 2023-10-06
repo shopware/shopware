@@ -1,8 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_modal_mapping %}
 <div class="sw-import-export-edit-profile-modal-mapping">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_toolbar %}
     <div class="sw-import-export-edit-profile-modal-mapping__toolbar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
         <sw-simple-search-field
             v-model="searchTerm"
@@ -13,6 +16,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
         <sw-button
             v-tooltip="{
@@ -32,6 +36,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_grid %}
     <sw-data-grid
         v-if="mappingsExist"
@@ -44,21 +49,30 @@
         class="sw-import-export-edit-profile-modal-mapping__grid"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
-            <sw-field
+            <sw-text-field
+                {% if VUE3 %}
+                v-model:value="item.mappedKey"
+                {% else %}
                 v-model="item.mappedKey"
+                {% endif %}
                 :name="`mappedKey-${itemIndex}`"
-                type="text"
                 :disabled="profile.systemDefault"
             />
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
         <template #column-entry="{ item }">
             <sw-import-export-entity-path-select
+                {% if VUE3 %}
+                v-model:value="item.key"
+                {% else %}
                 v-model="item.key"
+                {% endif %}
                 :languages="languages"
                 :currencies="currencies"
                 :entity-type="profile.sourceEntity"
@@ -68,6 +82,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
         <template #column-required="{ item }">
             <sw-switch-field
@@ -79,61 +94,80 @@
             />
             <sw-switch-field
                 v-show="!isRequiredBySystem(item)"
+                {% if VUE3 %}
+                v-model:value="item.requiredByUser"
+                {% else %}
                 v-model="item.requiredByUser"
+                {% endif %}
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :disabled="profile.systemDefault"
             />
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="item.useDefaultValue"
+                {% else %}
                 v-model="item.useDefaultValue"
+                {% endif %}
                 :name="`useDefaultValue-${itemIndex}`"
                 :disabled="isDefaultValueCheckboxDisabled()"
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
             />
 
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="item.defaultValue"
+                {% else %}
                 v-model="item.defaultValue"
+                {% endif %}
                 :name="`defaultValue-${itemIndex}`"
                 :disabled="isDefaultValueTextFieldDisabled(item)"
             />
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_position_column %}
         <template #column-position="{ item, itemIndex }">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
             <sw-button-group>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
                 <sw-button
                     size="x-small"
                     square
                     :disabled="isFirstMapping(item) || !!searchTerm"
-                    @click="updateSorting(item, itemIndex, 'up')"
+                    @click="updateSorting(itemIndex, 'up')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
                     <sw-icon
-                        name="small-arrow-small-up"
+                        name="regular-chevron-up-xxs"
                         size="14px"
                     />
                     {% endblock %}
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
                 <sw-button
                     size="x-small"
                     square
                     :disabled="isLastMapping(item) || !!searchTerm"
-                    @click="updateSorting(item, itemIndex, 'down')"
+                    @click="updateSorting(itemIndex, 'down')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
                     <sw-icon
-                        name="small-arrow-small-down"
+                        name="regular-chevron-down-xxs"
                         size="14px"
                     />
                     {% endblock %}
@@ -144,6 +178,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
         <template #actions="{ item }">
             <sw-context-menu-item
@@ -159,6 +194,7 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_mapping_empty_state %}
     <sw-empty-state
         v-else

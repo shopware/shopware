@@ -4,43 +4,46 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CleanupVersionTaskHandler extends ScheduledTaskHandler
+/**
+ * @internal
+ */
+#[AsMessageHandler(handles: CleanupVersionTask::class)]
+#[Package('core')]
+final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
-    private Connection $connection;
-
-    private int $days;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EntityRepositoryInterface $repository,
-        Connection $connection,
-        int $days
+        EntityRepository $repository,
+        private readonly Connection $connection,
+        private readonly int $days
     ) {
         parent::__construct($repository);
-        $this->connection = $connection;
-        $this->days = $days;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [CleanupVersionTask::class];
     }
 
     public function run(): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%s day', $this->days));
+        $time->modify(sprintf('-%d day', $this->days));
 
-        $this->connection->executeStatement(
-            'DELETE FROM version WHERE created_at <= :timestamp',
-            ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
-        );
+        do {
+            $result = $this->connection->executeStatement(
+                'DELETE FROM version WHERE created_at <= :timestamp LIMIT 1000',
+                ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+        } while ($result > 0);
 
-        $this->connection->executeStatement(
-            'DELETE FROM version_commit WHERE created_at <= :timestamp',
-            ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
-        );
+        do {
+            $result = $this->connection->executeStatement(
+                'DELETE FROM version_commit WHERE created_at <= :timestamp LIMIT 1000',
+                ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+        } while ($result > 0);
     }
 }

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_quickinfo %}
 <div class="sw-media-quickinfo">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_broken_file %}
     <sw-alert
         v-if="!item.hasFile"
@@ -11,6 +13,7 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_quickactions %}
     <sw-media-collapse
         v-if="editable"
@@ -19,10 +22,11 @@
     >
 
         <template #content>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_quickinfo_quickactions_content %}
             <ul class="sw-media-sidebar__quickactions-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_replace %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -32,17 +36,21 @@
                     }"
                     class="quickaction--replace"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalReplace"
+                    @keydown.enter="openModalReplace"
                 >
                     <sw-icon
                         small
-                        name="default-action-replace"
+                        name="regular-files"
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.replace') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_download %}
                 <li
                     v-if="item.hasFile"
@@ -56,15 +64,15 @@
 
                         <sw-icon
                             small
-                            name="default-action-cloud-download"
+                            name="regular-cloud-download"
                             class="sw-media-sidebar__quickactions-icon"
                         />
                         {{ $tc('sw-media.sidebar.actions.download') }}
                     </sw-external-link>
                 </li>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -73,37 +81,43 @@
                     }"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
 
                     <sw-icon
                         small
-                        name="default-action-move-file"
+                        name="regular-file-export"
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.move') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_copy_link %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="item.hasFile"
                     class="sw-media-sidebar__quickaction quickaction--copy-link"
+                    role="button"
+                    tabindex="0"
                     @click="copyLinkToClipboard"
+                    @keydown.enter="copyLinkToClipboard"
                 >
 
                     <sw-icon
                         small
-                        name="default-web-link"
+                        name="regular-link"
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.copyLink') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -113,11 +127,14 @@
                     }"
                     class="quickaction--delete"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
                     <sw-icon
                         small
-                        name="default-action-trash"
+                        name="regular-trash"
                         class="sw-media-sidebar__quickactions-icon is--danger"
                     />
                     {{ $tc('sw-media.sidebar.actions.delete') }}
@@ -129,6 +146,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_preview %}
     <sw-media-collapse
         v-if="item.hasFile"
@@ -136,9 +154,11 @@
         :title="$tc('sw-media.sidebar.sections.preview')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_preview_content %}
         <template #content>
             <div>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_preview_item %}
                 <sw-media-preview-v2
                     class="sw-media-quickinfo__media-preview"
@@ -153,6 +173,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_metadata %}
     <sw-media-collapse
         v-if="item.hasFile"
@@ -160,12 +181,15 @@
         :title="$tc('sw-media.sidebar.sections.metadata')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_metadata_content %}
         <template #content>
             <dl class="sw-media-sidebar__metadata-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_metadata_content_base %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
+                    :class="fileNameClasses"
                     :label-name="$tc('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
@@ -173,10 +197,13 @@
                     <sw-confirm-field
                         v-if="editable"
                         ref="inlineEditFieldName"
+                        class="sw-media-quickinfo-metadata-name"
                         :disabled="!acl.can('media.editor')"
                         compact
                         :value="item.fileName"
+                        :error="fileNameError"
                         @input="onChangeFileName"
+                        @remove-error="onRemoveFileNameError"
                     /><template v-else>
                         {{ item.fileName }}
                     </template>
@@ -250,8 +277,10 @@
                 {% endblock %}
 
                 <template v-if="item.metaData">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_quickinfo_metadata_specific_meta_data %}
                     <template v-if="item.mediaType.name === 'IMAGE'">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_quickinfo_metadata_content_image %}
                         <sw-media-quickinfo-metadata-item
                             v-if="item.metaData.width"
@@ -278,6 +307,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_tags %}
     <sw-media-tag
         :disabled="!acl.can('media.editor')"
@@ -285,6 +315,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_usage %}
     <sw-media-collapse
         v-if="editable && item.hasFile"
@@ -298,6 +329,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_modal_replace %}
     <sw-media-modal-replace
         v-if="showModalReplace"
@@ -307,6 +339,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_modal_delete %}
     <sw-media-modal-delete
         v-if="showModalDelete"
@@ -316,6 +349,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_move_modal %}
     <sw-media-modal-move
         v-if="showModalMove"
@@ -325,6 +359,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_custom_field_sets %}
     <sw-custom-field-set-renderer
         :disabled="!acl.can('media.editor')"

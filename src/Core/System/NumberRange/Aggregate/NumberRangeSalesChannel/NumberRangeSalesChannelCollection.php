@@ -3,15 +3,12 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                               add(NumberRangeSalesChannelEntity $entity)
- * @method NumberRangeSalesChannelEntity[]    getIterator()
- * @method NumberRangeSalesChannelEntity[]    getElements()
- * @method NumberRangeSalesChannelEntity|null get(string $key)
- * @method NumberRangeSalesChannelEntity|null first()
- * @method NumberRangeSalesChannelEntity|null last()
+ * @extends EntityCollection<NumberRangeSalesChannelEntity>
  */
+#[Package('checkout')]
 class NumberRangeSalesChannelCollection extends EntityCollection
 {
     public function getApiAlias(): string

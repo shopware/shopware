@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void               add(SnippetEntity $entity)
- * @method void               set(string $key, SnippetEntity $entity)
- * @method SnippetEntity[]    getIterator()
- * @method SnippetEntity[]    getElements()
- * @method SnippetEntity|null get(string $key)
- * @method SnippetEntity|null first()
- * @method SnippetEntity|null last()
+ * @extends EntityCollection<SnippetEntity>
  */
+#[Package('core')]
 class SnippetCollection extends EntityCollection
 {
     public function getApiAlias(): string

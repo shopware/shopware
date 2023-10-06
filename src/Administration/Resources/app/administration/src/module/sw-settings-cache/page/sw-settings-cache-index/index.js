@@ -1,10 +1,14 @@
+/**
+ * @package services-settings
+ */
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-settings-cache-index.html.twig';
 import './sw-settings-cache-index.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-cache-index', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -76,6 +80,8 @@ Component.register('sw-settings-cache-index', {
                 'sales_channel.indexer': [
                     'sales_channel.many-to-many',
                 ],
+                'flow.indexer': [],
+                'newsletter_recipient.indexer': [],
             },
         };
     },
@@ -219,4 +225,4 @@ Component.register('sw-settings-cache-index', {
             }
         },
     },
-});
+};

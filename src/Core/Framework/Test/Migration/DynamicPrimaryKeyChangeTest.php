@@ -5,20 +5,22 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @internal
+ *
  * @group slow
  */
 class DynamicPrimaryKeyChangeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testPrimaryKeyExistsEverywhere(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
 
         $tables = $schemaManager->listTableNames();
 
@@ -32,10 +34,9 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     public function testFullConversionAgainstFixtures(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->rollBack();
 
         $this->importFixtureSchema();
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
 
         $tableName = '_dpkc_main';
 
@@ -55,10 +56,8 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         }
 
         foreach ($playbook as $query) {
-            $connection->exec($query);
+            $connection->executeStatement($query);
         }
-
-        $connection->beginTransaction();
 
         foreach ($this->getExpectationsAfter() as $tableName => $expectation) {
             $indexes = $schemaManager->listTableIndexes($tableName);
@@ -80,14 +79,47 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $this->importAfterChangeFixtures();
     }
 
+    /**
+     * @after
+     */
+    public function cleanupTables(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+
+        $tables = [
+            '_dpkc_main',
+            '_dpkc_main_translation',
+            '_dpkc_1n_relation1',
+            '_dpkc_1n_relation2',
+            '_dpkc_other',
+            '_dpkc_other_multi_pk',
+            '_dpkc_mn_relation1',
+            '_dpkc_mn_relation2',
+            '_dpkc_mn_relation_multi_pk',
+            '_dpkc_1n_multi_relation',
+            '_dpkc_1n_relation_on_another_id',
+            '_dpkc_1n_relation_double_constraint',
+            '_dpkc_1n_relation3',
+            '_dpkc_1n_relation_double_constraint_two',
+        ];
+
+        foreach ($tables as $table) {
+            $connection->executeStatement(\sprintf('DROP TABLE IF EXISTS %s', $table));
+        }
+
+        $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
     private function importFixtureSchema(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
         $fixture = file_get_contents(__DIR__ . '/_dynamicPrimaryKeyChange.sql');
+        static::assertIsString($fixture);
 
         foreach (array_filter(array_map('trim', explode(';', $fixture))) as $stmt) {
-            $connection->exec($stmt);
+            $connection->executeStatement($stmt);
         }
     }
 
@@ -99,12 +131,12 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $fixture .= file_get_contents(__DIR__ . '/_dynamicPrimaryKeyChangeAfterWithAdditionalColumn.sql');
 
         foreach (array_filter(array_map('trim', explode(';', $fixture))) as $stmt) {
-            $connection->exec($stmt);
+            $connection->executeStatement($stmt);
         }
     }
 
     /**
-     * @return \int[][]
+     * @return int[][]
      */
     private function getExpectationsAfter(): array
     {
@@ -173,7 +205,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     }
 
     /**
-     * @return \int[][]
+     * @return int[][]
      */
     private function getExpectationsBefore(): array
     {

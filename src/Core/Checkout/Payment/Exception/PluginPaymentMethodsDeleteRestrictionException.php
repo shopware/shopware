@@ -2,14 +2,25 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-class PluginPaymentMethodsDeleteRestrictionException extends ShopwareHttpException
+#[Package('checkout')]
+/**
+ * @decrecated tag:v6.6.0 - use PaymentException::pluginPaymentMethodDeleteRestriction instead
+ */
+class PluginPaymentMethodsDeleteRestrictionException extends PaymentException
 {
-    public function __construct()
+    public function __construct(?\Throwable $e = null)
     {
-        parent::__construct('Plugin payment methods can not be deleted via API.');
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            'CHECKOUT__PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION',
+            'Plugin payment methods can not be deleted via API.',
+            [],
+            $e
+        );
     }
 
     public function getErrorCode(): string

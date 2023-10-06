@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -11,38 +12,28 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+#[Package('sales-channel')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
-    public const CHANGE_FREQ = 'daily';
+    final public const CHANGE_FREQ = 'daily';
 
-    private ConfigHandler $configHandler;
-
-    private Connection $connection;
-
-    private IteratorFactory $iteratorFactory;
-
-    private CategoryDefinition $definition;
-
-    private RouterInterface $router;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        ConfigHandler $configHandler,
-        Connection $connection,
-        CategoryDefinition $definition,
-        IteratorFactory $iteratorFactory,
-        RouterInterface $router
+        private readonly ConfigHandler $configHandler,
+        private readonly Connection $connection,
+        private readonly CategoryDefinition $definition,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly RouterInterface $router
     ) {
-        $this->configHandler = $configHandler;
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->router = $router;
     }
 
     public function getDecorated(): AbstractUrlProvider
@@ -138,16 +129,18 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('`category`.version_id = :versionId');
         $query->andWhere('`category`.active = 1');
+        $query->andWhere('`category`.type != :linkType');
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
-            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::STRING);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array

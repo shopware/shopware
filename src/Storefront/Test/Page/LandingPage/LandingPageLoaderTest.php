@@ -3,10 +3,13 @@
 namespace Shopware\Storefront\Test\Page\LandingPage;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
@@ -15,19 +18,20 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class LandingPageLoaderTest extends TestCase
 {
-    use StorefrontPageTestBehaviour;
     use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     public function testLoadWithoutId(): void
     {
-        $this->expectExceptionObject(new MissingRequestParameterException('landingPageId', '/landingPageId'));
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('landingPageId', '/landingPageId'));
 
         $context = $this->createSalesChannelContextWithNavigation();
         $this->getPageLoader()->load(new Request(), $context);
@@ -35,7 +39,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoad(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->get('landing-page'),
@@ -52,13 +56,17 @@ class LandingPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(LandingPage::class, $page);
-        static::assertSame($this->ids->get('cms-page'), $page->getCmsPage()->getId());
+
+        static::assertInstanceOf(LandingPageEntity::class, $page->getLandingPage());
+        static::assertInstanceOf(CmsPageEntity::class, $page->getLandingPage()->getCmsPage());
+        static::assertSame($this->ids->get('cms-page'), $page->getLandingPage()->getCmsPage()->getId());
+
         self::assertPageEvent(LandingPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
     public function testLoadWithInactiveLandingPage(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -74,7 +82,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithoutCmsPage(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -134,6 +142,6 @@ class LandingPageLoaderTest extends TestCase
         }
 
         $this->getContainer()->get('landing_page.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

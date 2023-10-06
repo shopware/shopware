@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\CustomField;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -16,12 +16,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @internal
+ */
 class CustomFieldServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $attributeRepository;
 
@@ -30,13 +33,13 @@ class CustomFieldServiceTest extends TestCase
      */
     private $attributeService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->attributeRepository = $this->getContainer()->get('custom_field.repository');
         $this->attributeService = $this->getContainer()->get(CustomFieldService::class);
     }
 
-    public function attributeFieldTestProvider(): array
+    public static function attributeFieldTestProvider(): array
     {
         return [
             [

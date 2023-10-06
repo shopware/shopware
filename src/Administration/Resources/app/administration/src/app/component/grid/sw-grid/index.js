@@ -5,6 +5,9 @@ const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -26,6 +29,7 @@ const { dom } = Shopware.Utils;
  *     </template>
  * </sw-grid>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-grid', {
     template,
 

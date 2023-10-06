@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_existence_filter %}
 <div class="sw-existence-filter">
     <sw-base-filter
@@ -6,11 +7,16 @@
         :active="active"
         @filter-reset="resetFilter"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_existence_filter_content %}
         <sw-select-field
             :value="value"
             :placeholder="filter.placeholder"
+            {% if VUE3 %}
+            @update:value="changeValue"
+            {% else %}
             @change="changeValue"
+            {% endif %}
         >
             <option :value="true">
                 {{ filter.optionHasCriteria }}

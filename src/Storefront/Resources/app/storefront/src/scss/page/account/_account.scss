@@ -9,7 +9,7 @@
     .account-content-main {
         @extend .col-lg-9;
         @extend .offset-xl-1;
-        @extend .col-xl-7;
+        @extend .col-xl-9;
     }
 }
 
@@ -118,7 +118,7 @@
     }
 }
 
-@include media-breakpoint-down(md) {
+@include media-breakpoint-down(lg) {
     .account-content-aside {
         display: none;
     }

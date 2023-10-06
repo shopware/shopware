@@ -19,10 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class OrderDeliveryPositionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_delivery_position';
+    final public const ENTITY_NAME = 'order_delivery_position';
 
     public function getEntityName(): string
     {

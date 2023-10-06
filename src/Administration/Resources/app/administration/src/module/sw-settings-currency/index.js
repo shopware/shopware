@@ -1,19 +1,25 @@
-import './page/sw-settings-currency-list';
-import './page/sw-settings-currency-detail';
-import './component/sw-settings-price-rounding';
-import './component/sw-settings-currency-country-modal';
-
+/**
+ * @package buyers-experience
+ */
 import './acl';
 
 const { Module } = Shopware;
 
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-currency-list', () => import('./page/sw-settings-currency-list'));
+Shopware.Component.register('sw-settings-currency-detail', () => import('./page/sw-settings-currency-detail'));
+Shopware.Component.register('sw-settings-price-rounding', () => import('./component/sw-settings-price-rounding'));
+Shopware.Component.register('sw-settings-currency-country-modal', () => import('./component/sw-settings-currency-country-modal'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-currency', {
     type: 'core',
     name: 'settings-currency',
     title: 'sw-settings-currency.general.mainMenuItemGeneral',
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'currency',
 
@@ -54,7 +60,7 @@ Module.register('sw-settings-currency', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.currency.index',
-        icon: 'default-symbol-euro',
+        icon: 'regular-euro',
         privilege: 'currencies.viewer',
     },
 });

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Store\Command\StoreLoginCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class StoreLoginCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

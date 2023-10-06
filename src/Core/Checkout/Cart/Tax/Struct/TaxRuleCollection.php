@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method TaxRule[]    getIterator()
- * @method TaxRule[]    getElements()
- * @method TaxRule|null first()
- * @method TaxRule|null last()
+ * @extends Collection<TaxRule>
  */
+#[Package('checkout')]
 class TaxRuleCollection extends Collection
 {
     /**
@@ -67,9 +66,7 @@ class TaxRuleCollection extends Collection
 
     public function highestRate(): ?TaxRule
     {
-        return $this->reduce(function ($result, $item) {
-            return $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result;
-        });
+        return $this->reduce(fn ($result, $item) => $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result);
     }
 
     public function getApiAlias(): string

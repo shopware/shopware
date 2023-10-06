@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
 use Shopware\Core\Framework\Adapter\Asset\PrefixVersionStrategy;
 
+/**
+ * @internal
+ */
 class PrefixVersionStrategyTest extends TestCase
 {
     /**
@@ -24,7 +27,7 @@ class PrefixVersionStrategyTest extends TestCase
         static::assertSame($expected, $prefixVersion->getVersion($fileName));
     }
 
-    public function dataProvider(): iterable
+    public static function dataProvider(): iterable
     {
         yield 'One file' => [
             'prefix', // Prefix

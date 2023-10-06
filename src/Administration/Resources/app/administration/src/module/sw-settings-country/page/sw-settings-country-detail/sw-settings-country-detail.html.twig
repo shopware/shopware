@@ -1,14 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_detail %}
 <sw-page class="sw-settings-country-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="{
@@ -22,6 +26,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -30,7 +35,11 @@
             :process-success="isSaveSuccessful"
             :disabled="!country || !allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-country.detail.buttonSave') }}
@@ -39,6 +48,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -49,66 +59,21 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_detail_content %}
     <template #content>
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))"
             />
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_card %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_name %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_position %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_iso %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_iso3 %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_active %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_shipping_available %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_tax_free %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_force_state_on_registration %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_tax_free_companies %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_check_vat_id_format %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_tax_free_from %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
-            {% block sw_settings_country_detail_content_field_vat_id_required %}{% endblock %}
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
-            {% block sw_settings_country_detail_state_list_card %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
-            {% block sw_attribute_list_toolbar_searchfield %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
-            {% block sw_country_state_list_toolbar_delete %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
-            {% block sw_country_state_list_toolbar_add %}{% endblock %}
-
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
-            {% block sw_settings_country_detail_state_list_listing %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
-            {% block sw_settings_country_detail_state_list_listing_column_name %}{% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
-            {% block sw_settings_country_detail_state_list_listing_action_edit %}{% endblock %}
-            {% endblock %}
-
-            {% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
-            {% block sw_settings_country_detail_state_detail %}{% endblock %}
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_tabs_header %}
             <sw-tabs position-identifier="sw-settings-country-detail-header">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_setting %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -119,6 +84,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_country_tabs_state %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -128,6 +94,20 @@
                     {{ $tc('sw-settings-country.page.stateTab') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_country_tabs_address_handling %}
+                <sw-tabs-item
+                    v-bind="$props"
+                    class="sw-settings-country__address-handling-tab"
+                    :route="{ name: isNewCountry ? 'sw.settings.country.create.address-handling' : 'sw.settings.country.detail.address-handling' }"
+                >
+                    {{ $tc('sw-settings-country.page.addressHandlingTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_country_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
@@ -137,6 +117,7 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_tabs_content %}
                 <router-view
                     :country="country"
@@ -148,6 +129,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

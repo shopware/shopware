@@ -2,21 +2,26 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class TranslatedFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof TranslatedField) {
-            throw new InvalidSerializerFieldException(TranslatedField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslatedField::class, $field);
         }
         $key = $field->getPropertyName();
         if (!\array_key_exists($key, $data)) {
@@ -29,14 +34,19 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
 
         if (\is_array($value) && $translatedField instanceof JsonField === false) {
             foreach ($value as $translationKey => $translationValue) {
-                $data['translations'][$translationKey][$key] = $translationValue;
+                if (!isset($data['translations'][$translationKey][$key])) {
+                    $data['translations'][$translationKey][$key] = $translationValue;
+                }
             }
 
             return $data;
         }
 
-        // use the default language from the context
-        $data['translations'][$parameters->getContext()->getContext()->getLanguageId()][$key] = $value;
+        $contextLanguage = $parameters->getContext()->getContext()->getLanguageId();
+        if (!isset($data['translations'][$contextLanguage][$key])) {
+            // use the default language from the context
+            $data['translations'][$contextLanguage][$key] = $value;
+        }
 
         return $data;
     }
@@ -50,11 +60,12 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
-        return $value;
+        if ($value === null) {
+            return $value;
+        }
+
+        return (string) $value;
     }
 }

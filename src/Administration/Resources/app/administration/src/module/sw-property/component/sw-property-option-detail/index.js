@@ -1,6 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-option-detail.html.twig';
 
-Shopware.Component.register('sw-property-option-detail', {
+const { Component } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -21,14 +29,27 @@ Shopware.Component.register('sw-property-option-detail', {
         },
     },
 
+    emits: [
+        'cancel-option-edit',
+        'save-option-edit',
+    ],
+
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
+
+        ...mapPropertyErrors('currentOption', ['name']),
     },
 
     methods: {
         onCancel() {
+            // Remove all property group options
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                { expression: 'property_group_option' },
+            );
+
             this.$emit('cancel-option-edit', this.currentOption);
         },
 
@@ -49,4 +70,4 @@ Shopware.Component.register('sw-property-option-detail', {
             this.currentOption.mediaId = selection[0].id;
         },
     },
-});
+};

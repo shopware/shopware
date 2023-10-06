@@ -1,10 +1,15 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
-const { Component, Mixin, Context, Feature } = Shopware;
+const { Mixin, Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
-Component.register('sw-sales-channel-detail-products', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature', 'acl'],
@@ -44,13 +49,12 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             criteria.setTotalCountMode(1);
 
             criteria.addAssociation('visibilities.salesChannel');
+            criteria.addAssociation('options.group');
             criteria.addFilter(
                 Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             );
@@ -69,7 +73,6 @@ Component.register('sw-sales-channel-detail-products', {
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                     primary: true,
-                    routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'active',
@@ -83,6 +86,10 @@ Component.register('sw-sales-channel-detail-products', {
                     allowResize: true,
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -106,8 +113,11 @@ Component.register('sw-sales-channel-detail-products', {
                 return Promise.reject();
             }
 
+            const context = { ...Context.api };
+            context.inheritance = true;
+
             this.isLoading = true;
-            return this.productRepository.search(this.productCriteria, Context.api)
+            return this.productRepository.search(this.productCriteria, context)
                 .then((products) => {
                     this.products = products;
                     this.total = products.total;
@@ -206,9 +216,8 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         onChangeSearchTerm(searchTerm) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.searchTerm = searchTerm;
-            }
+            this.searchTerm = searchTerm;
+
             if (searchTerm) {
                 this.page = 1;
             }
@@ -272,5 +281,13 @@ Component.register('sw-sales-channel-detail-products', {
 
             return this.productVisibilityRepository.saveAll(data, Context.api);
         },
+
+        isProductRemovable(product) {
+            const relevantVisibility = product.visibilities.find(
+                visibility => visibility.salesChannelId === this.salesChannel.id,
+            );
+
+            return product.parentId !== relevantVisibility.productId;
+        },
     },
-});
+};

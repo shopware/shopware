@@ -1,0 +1,4 @@
+{% set productId = hook.request['productId'] %}
+
+{% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
+{% do hook.setResponse(response) %}

@@ -2,147 +2,53 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use OpenApi\Annotations as OA;
+use Doctrine\DBAL\ConnectionException;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class SyncController extends AbstractController
 {
-    public const ACTION_UPSERT = 'upsert';
-    public const ACTION_DELETE = 'delete';
+    final public const ACTION_UPSERT = 'upsert';
+    final public const ACTION_DELETE = 'delete';
 
-    private Serializer $serializer;
-
-    private SyncServiceInterface $syncService;
-
-    public function __construct(SyncServiceInterface $syncService, Serializer $serializer)
-    {
-        $this->serializer = $serializer;
-        $this->syncService = $syncService;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly SyncServiceInterface $syncService,
+        private readonly DecoderInterface $serializer
+    ) {
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @OA\Post(
-     *     path="/_action/sync",
-     *     summary="Bulk edit entities",
-     *     description="Starts a sync process for the list of provided actions. This can be inserts, upserts, updates and deletes on different entities.
-
-to an asynchronous process in the background. You can control the behaviour with the `single-operation` and `indexing-behavior` header.",
-     *     operationId="sync",
-     *     tags={"Admin API", "Bulk Operations"},
-     *     @OA\Parameter(
-     *          name="fail-on-error",
-     *          description="To continue upcoming actions on errors, set the `fail-on-error` header to `false`.",
-     *          in="header",
-     *          @OA\Schema(type="boolean", default=true)
-     *     ),
-     *     @OA\Parameter(
-     *          name="single-operation",
-     *          description="Controls weather the data is written at once or in seperate transactions.
-- `true`: Data will be written in a single transaction",
-     *          in="header",
-     *          @OA\Schema(type="boolean", default=false)
-     *     ),
-     *     @OA\Parameter(
-     *          name="indexing-behavior",
-     *          description="Controls the indexing behavior.
-- `disable-indexing`: Data indexing is completely disabled",
-     *          in="header",
-     *          @OA\Schema(type="string", enum={"use-queue-indexing", "disable-indexing"})
-     *     ),
-     *     @OA\Header(
-     *          header="indexing-skip",
-     *          description="Contains indexer names that should be skipped comma seperated",
-     *          @OA\Schema(type="string")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(
-     *                  type="object",
-     *                  required={"action", "entity", "payload"},
-     *                  @OA\Property(
-     *                      property="action",
-     *                      description="The action indicates what should happen with the provided payload.
-* `upsert`: The Sync API does not differ between create and update operations,
-but always performs an upsert operation. During an upsert, the system checks whether the entity already exists in the
-system and updates it if an identifier has been passed, otherwise a new entity is created with this identifier.
-* `delete`: Deletes entites with the provided identifiers",
-     *                      type="string",
-     *                      enum={"upsert", "delete"}
-     *                  ),
-     *                  @OA\Property(
-     *                      property="entity",
-     *                      description="The entity that should be processed with the payload.",
-     *                      example="product",
-     *                      type="string"
-     *                  ),
-     *                  @OA\Property(
-     *                      property="payload",
-     *                      description="Contains a list of changesets for an entity. If the action type is `delete`,
-a list of identifiers can be provided.",
-     *                      type="array",
-     *                      @OA\Items(type="object")
-     *                  ),
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a sync result containing information about the updated entities",
-     *         @OA\JsonContent(
-     *               @OA\Property(
-     *                  property="data",
-     *                  description="Object with information about the updated entites",
-     *                  type="object"
-     *              ),
-     *              @OA\Property(
-     *                  property="success",
-     *                  description="Indicator if the sync was successful.",
-     *                  type="boolean"
-     *              )
-     *         )
-     *     )
-     * )
-     * @Route("/api/_action/sync", name="api.action.sync", methods={"POST"})
-     *
-     * @throws \Throwable
+     * @throws ConnectionException
+     * @throws InvalidSyncOperationException
      */
+    #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        /** @var list<string> $indexingSkips */
+        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            $behavior = new SyncBehavior(
-                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
-                $indexingSkips
-            );
-        } else {
-            $behavior = new SyncBehavior(
-                filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), \FILTER_VALIDATE_BOOLEAN),
-                filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), \FILTER_VALIDATE_BOOLEAN),
-                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null),
-                $indexingSkips
-            );
-        }
+        $behavior = new SyncBehavior(
+            $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
+            $indexingSkips
+        );
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
@@ -151,20 +57,21 @@ a list of identifiers can be provided.",
             if (isset($operation['key'])) {
                 $key = $operation['key'];
             }
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
+            $key = (string) $key;
+            $operations[] = new SyncOperation(
+                $key,
+                $operation['entity'],
+                $operation['action'],
+                $operation['payload'] ?? [],
+                $operation['criteria'] ?? []
+            );
+
+            if (empty($operation['entity'])) {
+                throw ApiException::invalidSyncOperationException(sprintf('Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.', (string) $key));
+            }
         }
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($operations, $behavior): SyncResult {
-            return $this->syncService->sync($operations, $context, $behavior);
-        });
-
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            return $this->createResponse($result, Response::HTTP_OK);
-        }
-
-        if ($behavior->failOnError() && !$result->isSuccess()) {
-            return $this->createResponse($result, Response::HTTP_BAD_REQUEST);
-        }
+        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));
 
         return $this->createResponse($result, Response::HTTP_OK);
     }

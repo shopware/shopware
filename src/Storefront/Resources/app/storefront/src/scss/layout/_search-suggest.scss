@@ -59,8 +59,14 @@ Contains styles for the search suggest popover in the shop header.
     text-overflow: ellipsis;
 }
 
+.search-suggest-product-price {
+    text-align: right;
+}
+
+.search-suggest-product-list-price,
 .search-suggest-product-reference-price {
-    color: $gray-400;
+    color: $gray-600;
+    text-align: right;
     display: block;
 }
 

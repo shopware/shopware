@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
@@ -13,46 +14,32 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal We might break this in v6.2
+ *
+ * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
  */
+#[Package('services-settings')]
 class ImportExportService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $logRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
-
-    private AbstractFileService $fileService;
-
     public function __construct(
-        EntityRepositoryInterface $logRepository,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $profileRepository,
-        AbstractFileService $fileService
+        private readonly EntityRepository $logRepository,
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $profileRepository,
+        private readonly AbstractFileService $fileService
     ) {
-        $this->logRepository = $logRepository;
-        $this->userRepository = $userRepository;
-        $this->profileRepository = $profileRepository;
-        $this->fileService = $fileService;
     }
 
+    /**
+     * @param Config $config
+     */
     public function prepareExport(
         Context $context,
         string $profileId,
@@ -78,11 +65,13 @@ class ImportExportService
         }
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
+    /**
+     * @param Config $config
+     */
     public function prepareImport(
         Context $context,
         string $profileId,
@@ -104,9 +93,8 @@ class ImportExportService
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
         $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
     public function cancel(Context $context, string $logId): void
@@ -125,9 +113,10 @@ class ImportExportService
 
     public function getProgress(string $logId, int $offset): Progress
     {
-        /** @var ImportExportLogEntity|null $current */
-        $current = $this->logRepository->search(new Criteria([$logId]), Context::createDefaultContext())->first();
-        if ($current === null) {
+        $criteria = new Criteria([$logId]);
+        $criteria->addAssociation('file');
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        if (!$current instanceof ImportExportLogEntity) {
             throw new \RuntimeException('ImportExportLog "' . $logId . '" not found');
         }
 
@@ -145,6 +134,9 @@ class ImportExportService
         return $progress;
     }
 
+    /**
+     * @param array<array<mixed>>|null $result
+     */
     public function saveProgress(Progress $progress, ?array $result = null): void
     {
         $logData = [
@@ -167,22 +159,16 @@ class ImportExportService
         });
     }
 
-    /**
-     * @deprecated tag:v6.5.0 Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
-     */
-    public function updateFile(Context $context, string $fileId, array $data): void
-    {
-        $this->fileService->updateFile($context, $fileId, $data);
-    }
-
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
-        $criteria->addAssociation('invalidRecordsLog');
-        $result = $this->logRepository->search($criteria, $context);
+        $criteria->addAssociation('file');
+        $criteria->addAssociation('invalidRecordsLog.file');
+        /** @var ImportExportLogCollection $result */
+        $result = $this->logRepository->search($criteria, $context)->getEntities();
 
-        return $result->getEntities()->get($logId);
+        return $result->get($logId);
     }
 
     private function findProfile(Context $context, string $profileId): ImportExportProfileEntity
@@ -198,6 +184,9 @@ class ImportExportService
         throw new ProfileNotFoundException($profileId);
     }
 
+    /**
+     * @param Config $config
+     */
     private function createLog(
         Context $context,
         string $activity,
@@ -223,9 +212,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
-                return $value !== null;
-            });
+            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 
@@ -240,7 +227,12 @@ class ImportExportService
         return $this->userRepository->search(new Criteria([$userId]), $context)->first();
     }
 
-    private function getConfig(ImportExportProfileEntity $profileEntity, array $config)
+    /**
+     * @param Config $config
+     *
+     * @return Config
+     */
+    private function getConfig(ImportExportProfileEntity $profileEntity, array $config): array
     {
         $parameters = $profileEntity->getConfig();
 

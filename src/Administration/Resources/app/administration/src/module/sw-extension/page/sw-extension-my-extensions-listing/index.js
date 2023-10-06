@@ -1,12 +1,13 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
-const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
+ * @package services-settings
  * @private
  */
-Component.register('sw-extension-my-extensions-listing', {
+export default {
     template,
 
     inject: ['shopwareExtensionService'],
@@ -19,6 +20,10 @@ Component.register('sw-extension-my-extensions-listing', {
     },
 
     computed: {
+        ...mapState('context', {
+            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
+        }),
+
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
 
@@ -113,6 +118,10 @@ Component.register('sw-extension-my-extensions-listing', {
 
             return 'extension-apps';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -139,6 +148,12 @@ Component.register('sw-extension-my-extensions-listing', {
         openStore() {
             this.$router.push({
                 name: 'sw.extension.store.listing',
+            });
+        },
+
+        openThemesStore() {
+            this.$router.push({
+                name: 'sw.extension.store.listing.theme',
             });
         },
 
@@ -244,4 +259,4 @@ Component.register('sw-extension-my-extensions-listing', {
             });
         },
     },
-});
+};

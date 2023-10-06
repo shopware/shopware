@@ -4,24 +4,16 @@ namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('services-settings')]
 class EnrichExportCriteriaEvent extends Event
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var ImportExportLogEntity
-     */
-    private $logEntity;
-
-    public function __construct(Criteria $criteria, ImportExportLogEntity $logEntity)
-    {
-        $this->criteria = $criteria;
-        $this->logEntity = $logEntity;
+    public function __construct(
+        private Criteria $criteria,
+        private ImportExportLogEntity $logEntity
+    ) {
     }
 
     public function getCriteria(): Criteria

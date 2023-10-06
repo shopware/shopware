@@ -2,30 +2,35 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\ScheduledTask;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Test\ImportExport\ImportExportTestCase;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class CleanupImportExportFileTaskHandlerTest extends ImportExportTestCase
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
-    private EntityRepositoryInterface $logRepository;
+    private EntityRepository $logRepository;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private MessageBusInterface $messageBus;
 
     private DeleteFileHandler $deleteFileHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->logRepository = $this->getContainer()->get('import_export_log.repository');
         $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
@@ -63,7 +68,7 @@ class CleanupImportExportFileTaskHandlerTest extends ImportExportTestCase
         static::assertFalse($this->fileEntityExists($fileIdB));
 
         // Actual file should get deleted from filesystem
-        static::assertTrue($this->filesystem->has($expiredFilePath));
+        static::assertTrue($this->filesystem->fileExists($expiredFilePath));
 
         $messages = $this->messageBus->getDispatchedMessages();
         $deleteFileMessage = null;
@@ -74,8 +79,8 @@ class CleanupImportExportFileTaskHandlerTest extends ImportExportTestCase
         }
         static::assertNotNull($deleteFileMessage);
 
-        $this->deleteFileHandler->handle($deleteFileMessage);
-        static::assertFalse($this->filesystem->has($expiredFilePath));
+        $this->deleteFileHandler->__invoke($deleteFileMessage);
+        static::assertFalse($this->filesystem->fileExists($expiredFilePath));
     }
 
     private function logEntityExists(string $id): bool

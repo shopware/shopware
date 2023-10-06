@@ -1,12 +1,13 @@
 import template from './sw-order-nested-line-items-row.html.twig';
 import './sw-order-nested-line-items-row.scss';
 
-const { Component } = Shopware;
-
 /**
+ * @package checkout
+ *
  * @private
  */
-Component.register('sw-order-nested-line-items-row', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -31,6 +32,12 @@ Component.register('sw-order-nested-line-items-row', {
         },
     },
 
+    computed: {
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+    },
+
     methods: {
         getNestingClasses(nestingLevel) {
             return [
@@ -38,4 +45,4 @@ Component.register('sw-order-nested-line-items-row', {
             ];
         },
     },
-});
+};

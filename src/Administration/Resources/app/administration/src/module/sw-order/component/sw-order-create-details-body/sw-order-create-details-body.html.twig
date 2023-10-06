@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details_body %}
 <sw-container
     class="sw-order-create-details-body"
@@ -5,9 +6,14 @@
     gap="0 32px"
 >
     <div>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_email %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="email"
+            {% else %}
             v-model="email"
+            {% endif %}
             disabled
             size="small"
             class="sw-order-create-details-body__item"
@@ -16,6 +22,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_billing_address %}
         <div
             v-if="isCustomerActive"
@@ -43,9 +50,14 @@
     </div>
 
     <div>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_phone_number %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="phoneNumber"
+            {% else %}
             v-model="phoneNumber"
+            {% endif %}
             disabled
             size="small"
             class="sw-order-create-details-body__item"
@@ -54,12 +66,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_shipping_address %}
         <div
             v-if="isCustomerActive"
             class="sw-order-create-details-body__item is-shipping"
         >
             <template v-if="isAddressIdentical">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_details_body_shipping_address_identical %}
                 <p class="sw-order-create-details-body__item-label">
                     {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
@@ -78,6 +92,7 @@
                 {% endblock %}
             </template>
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_details_body_shipping_address_content %}
                 <p class="sw-order-create-details-body__item-label">
                     {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}

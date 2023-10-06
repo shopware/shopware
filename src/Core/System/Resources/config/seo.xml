@@ -7,10 +7,10 @@
 
         <input-field type="bool">
             <name>redirectToCanonicalUrl</name>
-            <label>Instead of setting Canonical URLs directly redirect via HTTP 301 to the current URL</label>
-            <label lang="de-DE">Statt Canonical URLs direkt per HTTP 301 auf die aktuellste URL leiten</label>
-            <helpText>This option affects all entities whose name can change. If deactivated, the redirection is initiated by Canonical. Activated it redirects to the current URL directly via HTTP 301.</helpText>
-            <helpText lang="de-DE">Diese Option betrifft alle Entitäten, deren Name sich ändern kann. Die Weiterleitung wird im deaktivierten Zustand per Canonical angestoßen, während im aktiven Zustand direkt bei HTTP 301 auf die aktuellste URL weitergeleitet wird.</helpText>
+            <label>Instead of setting canonical URLs, redirect to the most recent URL via HTTP 301.</label>
+            <label lang="de-DE">Statt canonical URLs zu verwenden, per HTTP 301 auf die aktuellste URL umleiten</label>
+            <helpText>This option affects all entities whose name can change. If deactivated, one of the possible URLs is tagged as canonical. If activated, redirects to the most recent URL are performed directly via HTTP 301.</helpText>
+            <helpText lang="de-DE">Diese Option betrifft alle Entitäten, deren Name sich ändern kann. Wenn deaktiviert, wird eine der möglichen URLs als canonical markiert. Wenn aktiviert, wird direkt über HTTP 301 auf die aktuellste URL weitergeleitet.</helpText>
         </input-field>
     </card>
 </config>

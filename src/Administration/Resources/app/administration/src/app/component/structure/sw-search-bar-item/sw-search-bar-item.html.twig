@@ -1,11 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_search_bar_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
     class="sw-search-bar-item sw-search-bar-item--v2"
     :class="componentClasses"
     @mouseenter="onMouseEnter($event)"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_icon %}
     <sw-icon
         v-if="iconName"
@@ -14,6 +16,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_customer %}
     <router-link
         v-if="type === 'customer'"
@@ -22,10 +25,12 @@
         :to="{ name: 'sw.customer.detail.base', params: { id: item.id } }"
         @click.native="onClickSearchResult('customer', item.id)"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_customer_label %}
         <span
             class="sw-search-bar-item__label"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_customer_label_name %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -33,6 +38,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_customer_label_number %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -45,6 +51,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_product %}
     <router-link
         v-else-if="type === 'product'"
@@ -54,10 +61,12 @@
         @click.native="onClickSearchResult('product', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_product_label %}
         <span
             class="sw-search-bar-item__label"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_product_label_name %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -65,6 +74,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_product_label_number %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -77,6 +87,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_category %}
     <router-link
         v-else-if="type === 'category'"
@@ -86,6 +97,7 @@
         @click.native="onClickSearchResult('category', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_category_label %}
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
@@ -98,6 +110,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_order %}
     <router-link
         v-else-if="type === 'order'"
@@ -107,10 +120,12 @@
         @click.native="onClickSearchResult('order', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_order_label %}
         <span
             class="sw-search-bar-item__label"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_order_label_name %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -118,6 +133,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_order_label_number %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -130,6 +146,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_media %}
     <router-link
         v-else-if="type === 'media'"
@@ -139,11 +156,12 @@
         @click.native="onClickSearchResult('media', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_media_label %}
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
                 :search-term="searchTerm"
-                :text="item | mediaName"
+                :text="mediaNameFilter(item)"
             />
         </span>
         {% endblock %}
@@ -151,6 +169,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_cms_page %}
     <router-link
         v-else-if="type === 'cms_page'"
@@ -160,6 +179,7 @@
         @click.native="onClickSearchResult('cms_page', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_cms_page_label %}
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
@@ -172,6 +192,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_landing_page %}
     <router-link
         v-else-if="type === 'landing_page'"
@@ -181,6 +202,7 @@
         @click.native="onClickSearchResult('landing_page', item.id)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_cms_landing_page_label %}
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
@@ -193,6 +215,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_module %}
     <router-link
         v-else-if="['frequently_used', 'module'].includes(type)"
@@ -200,10 +223,12 @@
         class="sw-search-bar-item__link"
         :to="routeName"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_module_label %}
         <span
             class="sw-search-bar-item__label"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_module_label_module %}
             <sw-highlight-text
                 :search-term="searchTerm"
@@ -211,6 +236,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_module_label_shortcut %}
             <sw-shortcut-overview-item
                 v-if="shortcut"
@@ -219,6 +245,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_item_module_label_action %}
             <sw-highlight-text
                 :text="$tc(`global.sw-search-bar-item.${item.action ? 'typeLabelAction': 'typeLabelModule'}`)"
@@ -229,6 +256,7 @@
     </router-link>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_item_other_entity %}
     <router-link
         v-else-if="detailRoute && displayValue.length > 0"
@@ -237,6 +265,7 @@
         :to="{ name: detailRoute, params: { id: item.id } }"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_item_other_entity_label %}
         <span class="sw-search-bar-item__label">
             <sw-highlight-text

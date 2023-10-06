@@ -6,10 +6,13 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class MockThemeCompilerConcatenatedSubscriber implements EventSubscriberInterface
 {
-    public const STYLES_CONCAT = '.mock-selector {}';
-    public const SCRIPTS_CONCAT = 'console.log(\'bar\');';
+    final public const STYLES_CONCAT = '.mock-selector {}';
+    final public const SCRIPTS_CONCAT = 'console.log(\'bar\');';
 
     public static function getSubscribedEvents(): array
     {

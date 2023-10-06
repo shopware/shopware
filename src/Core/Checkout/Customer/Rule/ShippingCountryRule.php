@@ -3,30 +3,30 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Shopware\Core\System\Country\CountryDefinition;
 
+#[Package('services-settings')]
 class ShippingCountryRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $countryIds;
+    final public const RULE_NAME = 'customerShippingCountry';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $countryIds
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $countryIds = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->countryIds = $countryIds;
     }
 
     /**
@@ -43,41 +43,33 @@ class ShippingCountryRule extends Rule
             ->getCountry()
             ->getId();
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($countryId, $this->countryIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($countryId, $this->countryIds, true);
-
-            case self::OPERATOR_EMPTY:
-                return empty($countryId);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        $parameter = [$countryId];
+        if ($countryId === '') {
+            $parameter = [];
         }
+
+        return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['countryIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerShippingCountry';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('countryIds', CountryDefinition::ENTITY_NAME, true);
     }
 }

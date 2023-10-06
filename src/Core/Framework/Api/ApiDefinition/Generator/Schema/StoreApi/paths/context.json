@@ -1,0 +1,103 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/context": {
+            "get": {
+                "tags": [
+                    "System & Context"
+                ],
+                "summary": "Fetch the current context",
+                "description": "Fetches the current context. This includes for example the `customerGroup`, `currency`, `taxRules` and many more.",
+                "operationId": "readContext",
+                "responses": {
+                    "200": {
+                        "description": "Returns the current context.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelContext"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "System & Context"
+                ],
+                "summary": "Modify the current context",
+                "description": "Used for switching the context. A typical example would be changing the language or changing the currency.",
+                "operationId": "updateContext",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "currencyId": {
+                                        "description": "Currency",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "languageId": {
+                                        "description": "Language",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "billingAddressId": {
+                                        "description": "Billing Address",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "shippingAddressId": {
+                                        "description": "Shipping Address",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "paymentMethodId": {
+                                        "description": "Payment Method",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "shippingMethodId": {
+                                        "description": "Shipping Method",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "countryId": {
+                                        "description": "Country",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "countryStateId": {
+                                        "description": "Country State",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

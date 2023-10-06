@@ -1,0 +1,36 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_sortable_list_container %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_sortable_list %}
+<ul
+    v-if="hasItems"
+    class="sw-sortable-list"
+>
+    <slot v-bind="{ sortedItems, sortable }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_sortable_list_item %}
+        <li
+            v-for="item in sortedItems"
+            :key="item.id"
+            v-draggable="{ ...mergedDragConfig, data: item }"
+            v-droppable="{ ...mergedDragConfig, data: item }"
+            class="sw-sortable-list__item"
+        >
+            <slot
+                name="item"
+                v-bind="{ item, sortable }"
+            ></slot>
+        </li>
+        {% endblock %}
+    </slot>
+</ul>
+{% endblock %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_sortable_list_empty_state %}
+<sw-empty-state
+    v-else
+    class="sw-sortable-list__empty-state"
+    :title="$tc('sw-empty-state.messageNoResultTitle')"
+/>
+{% endblock %}
+{% endblock %}

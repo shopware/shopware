@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "infoConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "string",
+                        "description": "The Shopware version."
+                    },
+                    "versionRevision": {
+                        "type": "string",
+                        "description": "The Shopware version revision."
+                    },
+                    "adminWorker": {
+                        "type": "object",
+                        "description": "Information about the admin worker.",
+                        "properties": {
+                            "enableAdminWorker": {
+                                "type": "boolean",
+                                "description": "State of the admin worker."
+                            },
+                            "transports": {
+                                "type": "array",
+                                "description": "Configured transports.",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "bundles": {
+                        "type": "object",
+                        "description": "Asset files of active extensions",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "css": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Url to the css file."
+                                    }
+                                },
+                                "js": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Url to the js file."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "settings": {
+                        "type": "object",
+                        "properties": {
+                            "enableUrlFeature": {
+                                "type": "boolean",
+                                "description": "State of the `urlFeature` setting."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

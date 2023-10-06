@@ -2,48 +2,48 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class PaymentMethodRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected array $paymentMethodIds;
+    final public const RULE_NAME = 'paymentMethod';
 
-    protected string $operator;
+    /**
+     * @param list<string> $paymentMethodIds
+     *
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = RULE::OPERATOR_EQ,
+        protected array $paymentMethodIds = []
+    ) {
+        parent::__construct();
+    }
 
     public function match(RuleScope $scope): bool
     {
-        $paymentMethodId = $scope->getSalesChannelContext()->getPaymentMethod()->getId();
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($paymentMethodId, $this->paymentMethodIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($paymentMethodId, $this->paymentMethodIds, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getPaymentMethod()->getId()], $this->paymentMethodIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'paymentMethodIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'paymentMethodIds' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'paymentMethod';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('paymentMethodIds', PaymentMethodDefinition::ENTITY_NAME, true);
     }
 }

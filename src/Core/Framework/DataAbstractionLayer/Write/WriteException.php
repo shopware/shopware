@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class WriteException extends ShopwareHttpException
 {
     private const MESSAGE = "There are {{ errorCount }} error(s) while writing data.\n\n{{ messagesString }}";
@@ -13,7 +15,7 @@ class WriteException extends ShopwareHttpException
     /**
      * @var \Throwable[]
      */
-    private $exceptions = [];
+    private array $exceptions = [];
 
     public function __construct()
     {
@@ -73,6 +75,8 @@ class WriteException extends ShopwareHttpException
 
         foreach ($this->getErrors() as $index => $error) {
             $pointer = $error['source']['pointer'] ?? '/';
+            \assert(\is_string($pointer));
+            \assert(\is_string($error['detail']));
             $messages[] = sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
         }
 

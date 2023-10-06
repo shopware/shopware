@@ -1,11 +1,15 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-promotion-v2-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -128,9 +132,19 @@ Component.register('sw-promotion-v2-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-promotion-detail__promotion',
+                path: 'promotion',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.promotionId) {
+                // set language to system language
+                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                    Shopware.State.commit('context/resetLanguageToDefault');
+                }
+
                 this.promotion = this.promotionRepository.create();
                 this.isLoading = false;
 
@@ -197,7 +211,7 @@ Component.register('sw-promotion-v2-detail', {
             });
         },
 
-        savePromotion() {
+        async savePromotion() {
             this.isLoading = true;
 
             if (this.cleanUpIndividualCodes === true) {
@@ -220,26 +234,23 @@ Component.register('sw-promotion-v2-detail', {
                 });
             }
 
-            return this.promotionRepository.save(this.promotion)
-                .then(() => {
-                    return this.savePromotionSetGroups();
-                })
-                .then(() => {
-                    Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
-                    this.isSaveSuccessful = true;
-                })
-                .catch(() => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.promotion.name,
-                        }),
-                    });
-                })
-                .finally(() => {
-                    this.loadEntityData();
-                    this.cleanUpCodes(false, false);
+            try {
+                await this.promotionRepository.save(this.promotion);
+                await this.savePromotionSetGroups();
+
+                Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
+                this.isSaveSuccessful = true;
+                await this.loadEntityData();
+            } catch (e) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
+                        entityName: this.promotion.name,
+                    }),
                 });
+            } finally {
+                this.cleanUpCodes(false, false);
+            }
         },
 
         savePromotionSetGroups() {
@@ -281,4 +292,4 @@ Component.register('sw-promotion-v2-detail', {
             this.savePromotion();
         },
     },
-});
+};

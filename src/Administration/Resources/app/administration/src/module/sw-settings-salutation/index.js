@@ -1,10 +1,16 @@
-import './page/sw-settings-salutation-list';
-import './page/sw-settings-salutation-detail';
-
+/**
+ * @package buyers-experience
+ */
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-salutation-list', () => import('./page/sw-settings-salutation-list'));
+Shopware.Component.register('sw-settings-salutation-detail', () => import('./page/sw-settings-salutation-detail'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-salutation', {
     type: 'core',
     name: 'settings-salutation',
@@ -13,7 +19,7 @@ Module.register('sw-settings-salutation', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'salutation',
 
@@ -54,7 +60,7 @@ Module.register('sw-settings-salutation', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.salutation.index',
-        icon: 'default-communication-speech-bubbles',
+        icon: 'regular-comments',
         privilege: 'salutation.viewer',
     },
 });

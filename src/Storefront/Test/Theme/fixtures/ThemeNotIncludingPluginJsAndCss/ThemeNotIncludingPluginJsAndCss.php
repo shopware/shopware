@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Theme\fixtures\ThemeNotIncludingPluginJsAndCs
 use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\Framework\ThemeInterface;
 
+/**
+ * @internal
+ */
 class ThemeNotIncludingPluginJsAndCss extends Bundle implements ThemeInterface
 {
 }

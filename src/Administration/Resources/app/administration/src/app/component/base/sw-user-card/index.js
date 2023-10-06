@@ -1,9 +1,14 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-user-card.html.twig';
 import './sw-user-card.scss';
 
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a compact user information card using the provided user data.
  * @status ready
@@ -31,14 +36,14 @@ const { Component } = Shopware;
  *     city: 'Anytown',
  *     country: { name: 'Germany' }
  * }">
- * <template slot="actions">
+ * <template #actions>
  *     <sw-button size="small" disabled>
- *         <sw-icon name="small-pencil" small></sw-icon>
+ *         <sw-icon name="regular-pencil-s" small></sw-icon>
  *         Edit user
  *     </sw-button>
  *
  *     <sw-button size="small" disabled>
- *         <sw-icon name="default-lock-key" small></sw-icon>
+ *         <sw-icon name="regular-key" small></sw-icon>
  *         Change password
  *      </sw-button>
  * </template>
@@ -83,6 +88,10 @@ Component.register('sw-user-card', {
                 return '';
             }
             return this.$route.meta.$module.color;
+        },
+
+        salutationFilter() {
+            return Shopware.Filter.getByName('salutation');
         },
     },
 });

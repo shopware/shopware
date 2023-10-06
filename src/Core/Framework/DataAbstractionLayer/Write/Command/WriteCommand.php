@@ -4,43 +4,27 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 abstract class WriteCommand
 {
-    /**
-     * @var array
-     */
-    protected $payload;
-
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
-
-    /**
-     * @var array
-     */
-    protected $primaryKey;
-
-    /**
-     * @var EntityExistence
-     */
-    protected $existence;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
     protected bool $failed = false;
 
-    public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence, string $path)
-    {
-        $this->payload = $payload;
-        $this->definition = $definition;
-        $this->primaryKey = $primaryKey;
-        $this->existence = $existence;
-        $this->path = $path;
+    /**
+     * @param array<string, mixed> $payload
+     * @param array<string> $primaryKey
+     */
+    public function __construct(
+        protected EntityDefinition $definition,
+        protected array $payload,
+        protected array $primaryKey,
+        protected EntityExistence $existence,
+        protected string $path
+    ) {
     }
 
     abstract public function getPrivilege(): ?string;
@@ -50,9 +34,20 @@ abstract class WriteCommand
         return (bool) \count($this->payload);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
+    }
+
+    /**
+     * @internal
+     */
+    public function addPayload(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
     }
 
     public function getDefinition(): EntityDefinition
@@ -60,6 +55,14 @@ abstract class WriteCommand
         return $this->definition;
     }
 
+    public function getEntityName(): string
+    {
+        return $this->definition->getEntityName();
+    }
+
+    /**
+     * @return array<string>
+     */
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;

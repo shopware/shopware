@@ -1,9 +1,14 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-sales-channel-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -112,7 +117,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         storefrontSalesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
         },
@@ -151,6 +156,11 @@ Component.register('sw-sales-channel-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-sales-channel-detail__salesChannel',
+                path: 'salesChannel',
+                scope: this,
+            });
             this.loadEntityData();
             this.loadProductExportTemplates();
         },
@@ -192,12 +202,13 @@ Component.register('sw-sales-channel-detail', {
         },
 
         getLoadSalesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
-            criteria.addAssociation('currencies');
+            criteria.getAssociation('currencies')
+                .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria.addAssociation('languages');
             criteria.addAssociation('analytics');
@@ -341,4 +352,4 @@ Component.register('sw-sales-channel-detail', {
             this.loadEntityData();
         },
     },
-});
+};

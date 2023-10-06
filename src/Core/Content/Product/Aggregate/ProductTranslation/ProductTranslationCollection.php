@@ -3,44 +3,38 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                          add(ProductTranslationEntity $entity)
- * @method void                          set(string $key, ProductTranslationEntity $entity)
- * @method ProductTranslationEntity[]    getIterator()
- * @method ProductTranslationEntity[]    getElements()
- * @method ProductTranslationEntity|null get(string $key)
- * @method ProductTranslationEntity|null first()
- * @method ProductTranslationEntity|null last()
+ * @extends EntityCollection<ProductTranslationEntity>
  */
+#[Package('inventory')]
 class ProductTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
-            return $productTranslation->getProductId();
-        });
+        return $this->fmap(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getProductId());
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
-            return $productTranslation->getProductId() === $id;
-        });
+        return $this->filter(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getProductId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
-            return $productTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
-            return $productTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

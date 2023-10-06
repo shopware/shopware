@@ -1,9 +1,13 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
-Component.register('sw-cms-el-image-slider', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['feature'],
@@ -109,14 +113,6 @@ Component.register('sw-cms-el-image-slider', {
     },
 
     watch: {
-        // @deprecated tag:v6.5.0 use sliderItems instead
-        'element.data.sliderItems': {
-            handler() {
-                return null;
-            },
-            deep: true,
-        },
-
         sliderItems: {
             handler() {
                 if (this.sliderItems && this.sliderItems.length > 0) {
@@ -183,4 +179,4 @@ Component.register('sw-cms-el-image-slider', {
             this.$emit('active-image-change', this.sliderItems[this.sliderPos].media, this.sliderPos);
         },
     },
-});
+};

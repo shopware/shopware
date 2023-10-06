@@ -10,7 +10,7 @@ export default class BuyBoxPlugin extends Plugin {
 
     static options = {
         elementId: '',
-        modalTriggerSelector: 'a[data-toggle="modal"]',
+        modalTriggerSelector: 'a[data-bs-toggle="modal"]',
         buyWidgetSelector: '.product-detail-buy',
         urlAttribute: 'data-url',
     };

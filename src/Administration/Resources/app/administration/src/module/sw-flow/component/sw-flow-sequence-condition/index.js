@@ -7,7 +7,11 @@ const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
-Component.register('sw-flow-sequence-condition', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
@@ -21,6 +25,7 @@ Component.register('sw-flow-sequence-condition', {
             type: Object,
             required: true,
         },
+
         disabled: {
             type: Boolean,
             required: false,
@@ -39,6 +44,8 @@ Component.register('sw-flow-sequence-condition', {
     },
 
     computed: {
+        ...mapState('swFlowState', ['restrictedRules', 'flow']),
+
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
         },
@@ -48,7 +55,10 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         ruleCriteria() {
-            return new Criteria();
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
 
         showHelpElement() {
@@ -68,7 +78,13 @@ Component.register('sw-flow-sequence-condition', {
             return this.sequence.rule.description.replace(/\n/g, '<br>');
         },
 
-        ...mapState('swFlowState', ['invalidSequences', 'restrictedRules']),
+        advanceSelectionParameters() {
+            return {
+                ruleAwareGroupKey: `flowTrigger.${this.flow.eventName}`,
+            };
+        },
+
+        ...mapState('swFlowState', ['invalidSequences', 'flow']),
         ...mapGetters('swFlowState', ['sequences']),
     },
 
@@ -300,14 +316,8 @@ Component.register('sw-flow-sequence-condition', {
             this.showCreateRuleModal = true;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        getTooltipConfig(itemId) {
-            return {
-                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
-                    relation: this.$tc('sw-restricted-rules.restrictedAssignment.flowSequences'),
-                }),
-                disabled: !this.restrictedRules.includes(itemId),
-            };
+        isRuleDisabled(rule) {
+            return this.restrictedRules.includes(rule.id);
         },
     },
-});
+};

@@ -8,9 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class EmailDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'email';
+    final public const ENTITY_NAME = 'email';
 
     public function getEntityName(): string
     {

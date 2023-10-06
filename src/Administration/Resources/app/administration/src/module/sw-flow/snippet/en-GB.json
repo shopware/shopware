@@ -1,9 +1,15 @@
 {
   "sw-flow": {
+    "labelDescription": {
+      "labelEntity": "Entity",
+      "labelTag": "Tag"
+    },
     "general": {
       "mainMenuItemGeneral": "Flow Builder",
       "descriptionTextModule": "Flow Builder",
-      "placeholderSearchBar": "Search Flow Builder..."
+      "placeholderSearchBar": "Search flows...",
+      "tabMyFlows": "My flows",
+      "tabFlowTemplates": "Flow templates"
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -12,75 +18,96 @@
       "labelColumnName": "Name",
       "labelColumnTrigger": "Trigger",
       "labelColumnDescription": "Description",
-      "confirmText": "Are you sure you want to delete this item?",
+      "warningDeleteText": "If you delete this flow, no more actions will be performed for the trigger.",
+      "confirmText": "Are you sure you want to delete this flow?",
       "emptyStateTitle": "No flows yet",
-      "emptyStateSubTitle": "Add flows by clicking the \"add\" button."
+      "emptyStateSubTitle": "Add flows by clicking the \"Add flow\" button.",
+      "unknownTrigger": "Unknown trigger"
+    },
+    "template": {
+      "create": "Create new flow from template"
     },
     "detail": {
       "textHeadline": "New flow",
       "labelGeneralCard": "General information",
       "labelLogCard": "Log",
       "labelGeneralInformationName": "Name",
-      "placeholderGeneralInformationName": "Enter flow name ...",
+      "placeholderGeneralInformationName": "Enter name...",
       "labelGeneralInformationDescription": "Description",
-      "placeholderGeneralInformationDescription": "Enter flow description ...",
+      "placeholderGeneralInformationDescription": "Enter description...",
       "labelGeneralInformationPriority": "Priority",
       "labelGeneralInformationActive": "Active",
       "trigger": {
         "name": "Trigger",
-        "placeholder": "Select a trigger ...",
-        "title": "Select a trigger",
-        "helpText": "Triggers are used to begin a flow. After selecting a trigger you will be given the chance to add conditions to refine the trigger or add actions to be executed with the trigger.",
+        "placeholder": "Select event...",
+        "title": "Define trigger",
+        "helpText": "Triggers are the initial starting point of a flow and are tied to a certain event. Following the trigger you can add further conditions and define actions. What actions are available depends on the selected event.",
         "textNoEvent": "No events found",
-        "textHint": "At the moment this trigger can’t be used because there are no actions for it."
+        "textHint": "At the moment this event can’t be used as a trigger, because there are no available actions.",
+        "unknownTriggerPlaceholder": "Unknown trigger"
       },
       "sequence": {
-        "selectorTitle": "Add condition or action",
-        "selectorHelpTextTrueCondition": "This action or condition is applied if the expression on the left is \"true\".",
-        "selectorHelpTextFalseCondition": "This action or condition is applied if the expression above is \"false\".",
-        "selectorHelpText": "Conditions are used to refine a flow and can either become \"true\" or \"false\".<br/><br/>Actions can be used to send emails, create documents or add tags. They can be executed on \"true\" as well as \"false\" conditions.",
-        "selectorTitleAddSequence": "Add new sequence",
-        "selectorHelpTextAddSequence": "Flows are started by a single trigger, but can consist of multiple sequences.<br/><br/>Sequences will be executed one after the other. You can end a flow at any stage by adding a \"stop\" action.",
+        "selectorTitle": "Add condition or actions",
+        "selectorHelpTextTrueCondition": "These actions or conditions are applied if the expression on the left is \"true\".",
+        "selectorHelpTextFalseCondition": "These actions or conditions are applied if the expression above is \"false\".",
+        "selectorHelpText": "Conditions refine a flow's initial trigger and can either be \"true\" or \"false\".<br/><br/>Actions attach to the trigger or the \"true\" or \"false\" side of a condition. They can be used to send emails, create documents or add tags.",
+        "selectorTitleAddSequence": "Add sequence",
+        "selectorHelpTextAddSequence": "Flows are started by a single trigger, but can consist of multiple sequences.<br/><br/>Sequences will be executed one after the other. You can end a flow completely at any stage by adding a \"stop\" action.",
         "selectorIfCondition": "Add condition (IF)",
         "selectorThenAction": "Add action (THEN)",
-        "conditionTitle": "Condition (IF)",
-        "conditionExplainsTitle": "Create conditions",
-        "conditionExplainsDescription": "Conditions are made using the Rule Builder. You can either select an existing rule or create a new one to set up this flow's condition.",
-        "actionTitle": "Action (THEN)",
+        "conditionTitle": "Condition",
+        "conditionDescription": "(IF)",
+        "conditionExplainsTitle": "Create condition",
+        "conditionExplainsDescription": "Conditions are made up of rules. You can either select an existing rule or create a new one to set up a condition.",
+        "actionTitle": "Action",
+        "actionDescription": "(THEN)",
         "contextButton": {
           "deleteCondition": "Delete condition",
-          "deleteActionContainer": "Delete action container"
+          "deleteActionContainer": "Delete all actions"
         },
         "labelTrue": "True",
         "labelFalse": "False",
         "noActions": "No actions added yet",
         "noRule": "No rule defined yet"
-      }
+      },
+      "warningText": "This flow uses actions that are unavailable due to an edition change, inactive, uninstalled or updated extensions. When the flow is triggered, unavailable actions will not be executed."
     },
     "page": {
       "tabGeneral": "General",
       "tabFlow": "Flow"
     },
     "flowNotification": {
-      "messageDeleteSuccess": "The flow has been deleted.",
-      "messageDeleteError": "The flow could not be deleted.",
-      "messageSaveError": "The flow could not be saved.",
+      "messageDeleteSuccess": "Flow deleted.",
+      "messageDeleteError": "Flow could not be deleted.",
+      "messageSaveError": "Flow could not be saved.",
+      "messageWarningSave": "Flow templates cannot be edited.",
       "messageError": "An error occurred.",
-      "messageRequiredEventName": "Please choose trigger event before saving.",
-      "messageRequiredEmptyFields": "Please enter a rule or action name before saving."
+      "messageRequiredEventName": "Please choose a trigger event before saving.",
+      "messageRequiredEmptyFields": "Please enter a rule or action name before saving.",
+      "messageDuplicateSuccess": "Flow duplicated.",
+      "messageDuplicateError": "Flow could not be duplicated.",
+      "messageCreateSuccess": "Flow created.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
+      "messageCreateError": "Flow could not be created.",
+      "messageUnknownTriggerWarning": "This flow has been deactivated because it uses a trigger that is no longer available. This is likely caused, because the edition has been changed, or the extension, that is providing this trigger, is either inactive or has been uninstalled.",
+      "textIntroduce": "Try one of the following solutions to make the trigger available again:",
+      "textGuide1": "Reinstall the extension, that made the trigger available",
+      "textGuide2": "Reactivate the extension that made the trigger available",
+      "textGuide3": "Select an appropriate edition"
     },
     "actions": {
       "addTag": "Add tag",
-      "generateDocument": "Generate document",
+      "generateDocument": "Generate documents",
       "removeTag": "Remove tag",
       "mailSend": "Send email",
-      "setOrderState": "Set status",
+      "grantDownloadAccess": "Set download access",
+      "setOrderState": "Assign status",
       "stopFlow": "Stop flow",
-      "changeCustomerGroup": "Change customer group",
-      "changeCustomerStatus": "Change customer status",
+      "changeCustomerGroup": "Assign customer group",
+      "changeCustomerStatus": "Assign account status",
       "changeCustomFieldContent": "Change custom field content",
-      "addAffiliateAndCampaignCode": "Add affiliate and campaign code",
-      "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
+      "addAffiliateAndCampaignCode": "Assign affiliate and campaign code",
+      "textStopFlowDescription": "Subsequent actions or sequences will not be executed.",
       "labelDescription": "Description: {description}",
       "contextButton": {
         "editAction": "Edit action",
@@ -89,15 +116,28 @@
         "moveDownAction": "Move down"
       },
       "addAction": "Add action",
-      "labelTo": "To: {entity}",
+      "labelTo": "Entity: {entity}",
       "labelTag": "Tag: {tagNames}",
       "labelTemplate": "Template: {template}",
       "labelCustomFieldSet": "Custom field set: {customFieldSet}",
       "labelCustomField": "Custom field: {customField}",
-      "labelCustomFieldOption": "Custom field option: {customFieldOption}",
+      "labelCustomFieldOption": "Mode: {customFieldOption}",
       "placeholderSelectAction": "Select action...",
       "labelAffiliateCode": "Affiliate code: {affiliateCode}",
-      "labelCampaignCode": "Campaign code: {campaignCode}"
+      "labelCampaignCode": "Campaign code: {campaignCode}",
+      "tooltipActionDisabled": "This action is provided by an extension that has been deactivated or deleted. Activate or reinstall the extension in order to be able to use this action.",
+      "group": {
+        "tag": "Tags",
+        "customer": "Customers",
+        "general": "General",
+        "order": "Order"
+      },
+      "unknownLabel": "Unknown action",
+      "warningText": "This action was provided by an extension that is inactive or no longer installed.",
+      "downloadAccessLabel": {
+        "granted": "Granted",
+        "revoked": "Revoked"
+      }
     },
     "rule": {
       "addRule": "Add rule",
@@ -107,7 +147,7 @@
         "changeRule": "Change rule",
         "deleteRule": "Delete rule"
       },
-      "placeholderSelectRule": "Select rule ..."
+      "placeholderSelectRule": "Select rule..."
     },
     "modals": {
       "buttonAddAction": "Add action",
@@ -115,107 +155,120 @@
       "rule": {
         "labelAddNewRule": "Add new rule",
         "labelEditRule": "Edit rule",
-        "tabRule": "Rule",
-        "tabDetail": "Detail",
+        "tabRule": "Condition",
+        "tabDetail": "General",
         "buttonAddRule": "Save and apply",
         "labelName": "Name",
-        "placeholderName": "Enter rule name ...",
+        "placeholderName": "Enter rule name...",
         "labelPriority": "Priority",
-        "placeholderPriority": "Enter rule priority ...",
+        "placeholderPriority": "Enter rule priority...",
         "labelDescription": "Description",
-        "placeholderDescription": "Enter rule description ...",
+        "placeholderDescription": "Enter rule description...",
         "labelType": "Type",
-        "placeholderType": "Select rule type ..."
+        "placeholderType": "Select rule type...",
+        "placeholderDelayType": "Select delay..."
       },
       "tag": {
-        "labelAddTag": "Tag information",
+        "labelAddTag": "Add tag",
+        "labelRemoveTag": "Remove tag",
         "labelToField": "Entity",
-        "placeholderToField": "Select entity ...",
+        "placeholderToField": "Select entity...",
         "labelTagsField": "Tags",
-        "placeholderTagsField": "Enter tags ..."
+        "placeholderTagsField": "Enter/select tags..."
       },
       "status": {
-        "titleSetStatus": "Set status",
+        "titleSetStatus": "Assign status",
         "labelOrderStatus": "Order status",
         "labelPaymentStatus": "Payment status",
         "labelDeliveryStatus": "Shipping status",
-        "placeholderOrderStatus": "Select order status ...",
-        "placeholderPaymentStatus": "Select payment status ...",
-        "placeholderDeliveryStatus": "Select shipping status ...",
-        "messageNoStatusError": "At least one status should be selected"
+        "placeholderOrderStatus": "Select order status...",
+        "placeholderPaymentStatus": "Select payment status...",
+        "placeholderDeliveryStatus": "Select shipping status...",
+        "messageNoStatusError": "At least one status must be selected",
+        "forceTransition": "Force status transitions",
+        "forceTransitionHelpText": "Status changes will be made regardless of their starting point and neglecting the usually required transition paths (state machine)."
       },
       "document": {
-        "titleCreateDocument": "Create document",
-        "labelDocumentType": "Document type",
-        "placeholderDocumentType": "Select document type ...",
-        "documentDescription": "Document type: {documentType}"
+        "titleCreateDocument": "Generate documents",
+        "labelDocumentType": "Documents",
+        "placeholderDocumentType": "Select documents..."
+      },
+      "downloadAccess": {
+        "titleSetDownloadAccess": "Set download access",
+        "labelValueField": "Access",
+        "placeholderValueField": "Select operation...",
+        "options": {
+          "grant": "Grant",
+          "revoke": "Revoke"
+        }
       },
       "customerGroup": {
-        "titleChangeCustomerGroup": "Change customer group",
+        "titleChangeCustomerGroup": "Assign customer group",
         "labelCustomerGroup": "Customer group",
-        "placeholderCustomerGroup": "Select customer group ...",
-        "customerGroupDescription": "Customer group: {customerGroup}"
+        "placeholderCustomerGroup": "Select customer group..."
       },
       "customerStatus": {
-        "titleChangeCustomerStatus": "Change customer status",
-        "labelCustomerStatus": "Customer status",
-        "placeholderCustomerStatus": "Select customer status ...",
-        "customerStatusDescriptionActive": "Active customer",
-        "customerStatusDescriptionInactive": "Inactive customer",
+        "titleChangeCustomerStatus": "Assign account status",
+        "labelCustomerStatus": "Account status",
+        "placeholderCustomerStatus": "Select account status...",
         "active": "Active",
         "inactive": "Inactive"
       },
       "mail": {
         "columnRecipientName": "Name",
         "columnRecipientMail": "Email address",
-        "placeholderRecipientEmailAddress": "Enter email address ...",
-        "placeholderRecipientName": "Enter recipient name ...",
+        "placeholderRecipientEmailAddress": "Enter email address...",
+        "placeholderRecipientName": "Enter name...",
         "fieldMailTemplateDetailLink": "Open email template",
-        "titleSendMail": "Send mail",
+        "titleSendMail": "Send email",
         "labelEmailTemplate": "Email template",
-        "placeholderEmailTemplate": "Select email template ...",
+        "placeholderEmailTemplate": "Select email template...",
         "titleNewEmailTemplate": "New email template",
         "tabGeneral": "General",
         "tabMailText": "Mail text",
         "labelMailType": "Type",
-        "placeholderMailType": "Select a type ...",
+        "placeholderMailType": "Select a type...",
         "labelSubject": "Subject",
         "labelSenderName": "Sender name",
-        "placeholderSubject": "Enter subject ...",
+        "placeholderSubject": "Enter subject...",
         "placeholderSenderName": "Enter sender name ...",
         "labelDescription": "Description",
-        "placeholderDescription": "Enter email template description ...",
+        "placeholderDescription": "Enter description...",
         "labelContentPlain": "Plain text",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Enter email template plain text ...",
-        "placeholderHtml": "Enter email template HTML text ...",
+        "placeholderPlain": "Enter email template plain text...",
+        "placeholderHtml": "Enter email template HTML text...",
         "buttonAddMailTemplate": "Add email template",
-        "labelDefault": "Standard",
+        "labelDefault": "Default",
+        "labelCustomer": "Customer",
         "labelAdmin": "Admin",
-        "labelCustom": "Custom",
+        "labelCustom": "Custom recipient",
+        "labelContactFormMail": "Inquirer",
         "labelRecipient": "Recipient",
-        "placeholderRecipient": "Select email recipient ...",
-        "labelLatestDocuments": "Add (latest) documents",
-        "placeholderLatestDocuments": "Add documents...",
-        "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be sent."
+        "placeholderRecipient": "Select email recipient...",
+        "useDifferentReplyToLabel": "Use different reply-to address",
+        "labelReplyTo": "Reply-to address",
+        "placeholderReplyTo": "Enter email address...",
+        "tooltipDifferentReplyTo": "Emails are sent from the shop owner’s email address. You can edit the shop owner’s email address in the <a href=\"{settingsLink}\">settings</a>.",
+        "labelLatestDocuments": "Attached documents",
+        "placeholderLatestDocuments": "Select documents...",
+        "documentDescription": "If the selected documents do not exist, they won't be sent. You will have to generate documents before this action is triggered."
       },
       "setEntityCustomField": {
         "labelToField": "Entity",
-        "placeholderToField": "Select entity ...",
-        "title": "Change custom field",
+        "placeholderToField": "Select entity...",
+        "title": "Assign custom field",
         "customFieldSet": "Custom field set",
         "customFieldSetPlaceHolder": "Select custom field set...",
         "customField": "Custom field",
         "customFieldPlaceHolder": "Select custom field...",
         "requiredMessageError": "\"{item}\" should not be empty!",
-        "customFieldOption": "Field options",
-        "prefixFieldName": "Change: ",
+        "customFieldOption": "Mode",
+        "prefixFieldName": "Content: ",
         "options": {
           "overwrite": "Overwrite",
           "notOverwrite": "Do not overwrite",
-          "clear": "Clear",
-          "add": "Add",
-          "remove": "Remove"
+          "clear": "Clear"
         }
       },
       "affiliateAndCampaignCode": {
@@ -229,8 +282,76 @@
         "overwrite": "Overwrite"
       },
       "confirmation": {
-        "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."
+        "textConfirmChangeTrigger": "Are you sure you want to change the trigger? <br> The flow will be reset completely if you confirm."
       }
+    },
+    "leavePageModal": {
+      "headline": "Warning",
+      "description": "There are unsaved changes. Are you sure you want to leave this page?",
+      "confirmButton": "Leave page"
+    },
+    "triggers": {
+      "checkout": "Checkout",
+      "customer": "Customer",
+      "before": "Before",
+      "order": "Order",
+      "paymentMethod": "Payment method",
+      "contactForm": "Contact form",
+      "reviewForm": "Product review",
+      "group": "Group",
+      "recovery": "Recovery",
+      "registration": "Registration",
+      "mail": "Email",
+      "after": "After",
+      "create": "Create",
+      "newsletter": "Newsletter",
+      "productExport": "Product export",
+      "stateEnter": "State enter",
+      "state": "State",
+      "orderDelivery": "Order delivery",
+      "orderTransaction": "Order transaction",
+      "orderTransactionCapture": "Order transaction capture",
+      "orderTransactionCaptureRefund": "Order transaction capture refund",
+      "stateLeave": "State leave",
+      "user": "User",
+      "login": "Login",
+      "logout": "Logout",
+      "register": "Sign-up",
+      "changedPaymentMethod": "Payment method changed",
+      "deleted": "Deleted",
+      "doubleOptInGuestOrder": "Double opt-in guest order",
+      "doubleOptInRegistration": "Double opt-in sign-up",
+      "guestRegister": "Guest sign-up",
+      "placed": "Placed",
+      "send": "Send",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "request": "Request",
+      "message": "Message",
+      "sent": "Sent",
+      "confirm": "Confirm",
+      "unsubscribe": "Unsubscribe",
+      "log": "Log",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "open": "Open",
+      "returned": "Returned",
+      "returnedPartially": "Returned partially",
+      "shipped": "Shipped",
+      "shippedPartially": "Shipped partially",
+      "authorized": "Authorized",
+      "chargeback": "Chargeback",
+      "failed": "Failed",
+      "paid": "Paid",
+      "paidPartially": "Paid partially",
+      "refunded": "Refunded",
+      "refundedPartially": "Refunded partially",
+      "reminded": "Reminded",
+      "unconfirmed": "Unconfirmed",
+      "pending": "Pending",
+      "changed": "Changed",
+      "update": "Update"
     }
   },
   "sw-privileges": {

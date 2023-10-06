@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "user"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class UserApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {
@@ -44,14 +45,18 @@ class UserApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .patch('/_info/me', data,
+            .patch(
+                '/_info/me',
+                data,
                 {
                     headers,
-                })
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default UserApiService;

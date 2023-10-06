@@ -6,6 +6,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -24,8 +25,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+#[Package('core')]
 abstract class EntityDefinition
 {
     protected ?CompiledFieldCollection $fields = null;
@@ -65,9 +68,12 @@ abstract class EntityDefinition
         $this->className = static::class;
     }
 
+    /**
+     * @return class-string<EntityDefinition>
+     */
     final public function getClass(): string
     {
-        return $this->className;
+        return static::class;
     }
 
     final public function isInstanceOf(EntityDefinition $other): bool
@@ -95,7 +101,7 @@ abstract class EntityDefinition
     final public function removeExtension(EntityExtension $toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {
-            if (\get_class($extension) === \get_class($toDelete)) {
+            if ($extension::class === $toDelete::class) {
                 unset($this->extensions[$key]);
                 $this->fields = null;
 
@@ -202,7 +208,7 @@ abstract class EntityDefinition
             return $this->fieldVisibility;
         }
 
-        /** @var string[] $internalProperties */
+        /** @var array<string> $internalProperties */
         $internalProperties = $this->getFields()
             ->fmap(function (Field $field): ?string {
                 if ($field->is(ApiAware::class)) {
@@ -216,7 +222,10 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return class-string<EntityCollection>
+     * PHPStan will complain that we should specify the generic type if we hint that class strings
+     * of EntityCollection should be returned.
+     *
+     * @return class-string
      */
     public function getCollectionClass(): string
     {
@@ -243,7 +252,9 @@ abstract class EntityDefinition
             return $this->parentDefinition = null;
         }
 
-        return $this->parentDefinition = $this->registry->get($parentDefinitionClass);
+        $this->parentDefinition = $this->registry->getByClassOrEntityName($parentDefinitionClass);
+
+        return $this->parentDefinition;
     }
 
     final public function getTranslationDefinition(): ?EntityDefinition
@@ -266,6 +277,11 @@ abstract class EntityDefinition
         return $this->translationField;
     }
 
+    final public function hasAutoIncrement(): bool
+    {
+        return $this->getField('autoIncrement') instanceof AutoIncrementField;
+    }
+
     final public function getPrimaryKeys(): CompiledFieldCollection
     {
         if ($this->primaryKeys !== null) {
@@ -283,11 +299,17 @@ abstract class EntityDefinition
         return $this->primaryKeys = $fields;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDefaults(): array
     {
         return [];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getChildDefaults(): array
     {
         return [];
@@ -295,7 +317,7 @@ abstract class EntityDefinition
 
     public function isChildrenAware(): bool
     {
-        //used in VersionManager
+        // used in VersionManager
         return $this->getFields()->getChildrenAssociationField() !== null;
     }
 
@@ -325,7 +347,7 @@ abstract class EntityDefinition
     {
         $field = $this->getFields()->get('seoUrls');
 
-        return $field instanceof OneToManyAssociationField && $field->getReferenceClass() === SeoUrlDefinition::class;
+        return $field instanceof OneToManyAssociationField && $field->getReferenceDefinition() instanceof SeoUrlDefinition;
     }
 
     public function since(): ?string
@@ -354,11 +376,17 @@ abstract class EntityDefinition
         return $field->getSerializer()->decode($field, $value);
     }
 
+    /**
+     * @return array<string, TranslatedField>
+     */
     public function getTranslatedFields(): array
     {
         return $this->getFields()->getTranslatedFields();
     }
 
+    /**
+     * @return array<string, Field>
+     */
     public function getExtensionFields(): array
     {
         return $this->getFields()->getExtensionFields();
@@ -370,7 +398,7 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return Field[]
+     * @return list<Field>
      */
     protected function defaultFields(): array
     {
@@ -387,6 +415,9 @@ abstract class EntityDefinition
         return new EntityProtectionCollection();
     }
 
+    /**
+     * @return list<Field>
+     */
     protected function getBaseFields(): array
     {
         return [];

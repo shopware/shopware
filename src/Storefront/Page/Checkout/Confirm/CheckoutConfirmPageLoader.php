@@ -4,14 +4,18 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -19,41 +23,27 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class CheckoutConfirmPageLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private StorefrontCartFacade $cartService;
-
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private GenericPageLoaderInterface $genericPageLoader;
-
-    private DataValidationFactoryInterface $addressValidationFactory;
-
-    private DataValidator $validator;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        StorefrontCartFacade $cartService,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        GenericPageLoaderInterface $genericPageLoader,
-        DataValidationFactoryInterface $addressValidationFactory,
-        DataValidator $validator
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StorefrontCartFacade $cartService,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly DataValidationFactoryInterface $addressValidationFactory,
+        private readonly DataValidator $validator
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->genericPageLoader = $genericPageLoader;
-        $this->addressValidationFactory = $addressValidationFactory;
-        $this->validator = $validator;
     }
 
     /**
@@ -72,9 +62,12 @@ class CheckoutConfirmPageLoader
         $page->setPaymentMethods($this->getPaymentMethods($context));
         $page->setShippingMethods($this->getShippingMethods($context));
 
-        $cart = $this->cartService->get($context->getToken(), $context);
+        $cart = $this->cartService->get($context->getToken(), $context, false, true);
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
+
+        $page->setShowRevocation($cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
+        $page->setHideShippingAddress(!$cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request)
@@ -96,15 +89,7 @@ class CheckoutConfirmPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', '1');
 
-        $shippingMethods = $this->shippingMethodRoute
-            ->load($request, $context, new Criteria())
-            ->getShippingMethods();
-
-        if (!$shippingMethods->has($context->getShippingMethod()->getId())) {
-            $shippingMethods->add($context->getShippingMethod());
-        }
-
-        return $shippingMethods;
+        return $this->shippingMethodRoute->load($request, $context, new Criteria())->getShippingMethods();
     }
 
     /**
@@ -114,7 +99,7 @@ class CheckoutConfirmPageLoader
     {
         $customer = $context->getCustomer();
         if ($customer === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $billingAddress = $customer->getActiveBillingAddress();
@@ -130,6 +115,10 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        if ($billingAddress) {
+            $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
+        }
+
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 
@@ -151,6 +140,10 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        if ($shippingAddress) {
+            $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
+        }
+
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent);
 

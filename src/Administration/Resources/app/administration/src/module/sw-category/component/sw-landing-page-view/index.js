@@ -1,8 +1,12 @@
 import template from './sw-landing-page-view.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-landing-page-view', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -28,4 +32,4 @@ Component.register('sw-landing-page-view', {
             return Shopware.State.get('cmsPageState').currentPage;
         },
     },
-});
+};

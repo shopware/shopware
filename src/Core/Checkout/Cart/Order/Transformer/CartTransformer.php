@@ -4,12 +4,17 @@ namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class CartTransformer
 {
+    /**
+     * @return array<string, mixed>
+     */
     public static function transform(Cart $cart, SalesChannelContext $context, string $stateId, bool $setOrderDate = true): array
     {
         $currency = $context->getCurrency();
@@ -27,14 +32,15 @@ class CartTransformer
             'customerComment' => $cart->getCustomerComment(),
             'affiliateCode' => $cart->getAffiliateCode(),
             'campaignCode' => $cart->getCampaignCode(),
+            'source' => $cart->getSource(),
         ];
 
         if ($setOrderDate) {
             $data['orderDateTime'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 
-        $data['itemRounding'] = json_decode(JsonFieldSerializer::encodeJson($context->getItemRounding()), true);
-        $data['totalRounding'] = json_decode(JsonFieldSerializer::encodeJson($context->getTotalRounding()), true);
+        $data['itemRounding'] = json_decode(Json::encode($context->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR);
+        $data['totalRounding'] = json_decode(Json::encode($context->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR);
 
         return $data;
     }

@@ -3,44 +3,38 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                 add(ShippingMethodTranslationEntity $entity)
- * @method void                                 set(string $key, ShippingMethodTranslationEntity $entity)
- * @method ShippingMethodTranslationEntity[]    getIterator()
- * @method ShippingMethodTranslationEntity[]    getElements()
- * @method ShippingMethodTranslationEntity|null get(string $key)
- * @method ShippingMethodTranslationEntity|null first()
- * @method ShippingMethodTranslationEntity|null last()
+ * @extends EntityCollection<ShippingMethodTranslationEntity>
  */
+#[Package('checkout')]
 class ShippingMethodTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {
-            return $shippingMethodTranslation->getShippingMethodId();
-        });
+        return $this->fmap(fn (ShippingMethodTranslationEntity $shippingMethodTranslation) => $shippingMethodTranslation->getShippingMethodId());
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationEntity $shippingMethodTranslation) use ($id) {
-            return $shippingMethodTranslation->getShippingMethodId() === $id;
-        });
+        return $this->filter(fn (ShippingMethodTranslationEntity $shippingMethodTranslation) => $shippingMethodTranslation->getShippingMethodId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {
-            return $shippingMethodTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ShippingMethodTranslationEntity $shippingMethodTranslation) => $shippingMethodTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationEntity $shippingMethodTranslation) use ($id) {
-            return $shippingMethodTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ShippingMethodTranslationEntity $shippingMethodTranslation) => $shippingMethodTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -46,6 +46,14 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             }
         }
 
+        .sw-product-variants-overview__digital-indicator {
+            height: 24px;
+            padding: 4px 8px;
+            margin: 0 0 0 8px;
+            min-width: auto;
+            vertical-align: middle;
+        }
+
         .sw-price-field .sw-field .sw-field__addition {
             display: none;
         }
@@ -63,7 +71,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         display: inline-flex;
 
         &::after {
-            content: '-';
+            content: "-";
             margin: 0 5px;
         }
 
@@ -132,8 +140,26 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         padding-left: 10px;
     }
 
+    .icon--regular-checkmark-xs {
+        color: $color-emerald-500;
+    }
+
+    .icon--regular-times-s {
+        color: $color-crimson-500;
+    }
+
+    .icon--regular-link-horizontal {
+        color: $color-module-purple-900;
+    }
+
     .sw-data-grid .sw-data-grid__body {
         .sw-data-grid__cell--media {
+            .sw-data-grid__cell-content {
+                height: auto;
+            }
+        }
+
+        .sw-data-grid__cell--downloads {
             .sw-data-grid__cell-content {
                 height: auto;
             }
@@ -142,5 +168,44 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         .sw-media-preview-v2 {
             @include square(32px);
         }
+    }
+
+    &__bulk-edit-modal {
+        .sw-product-variants-overview__variation-link {
+            &:hover {
+                .sw-product-variants-overview__variation-link-icon {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .sw-product-variants-overview__variation-link-icon {
+            @include square(12px);
+
+            opacity: 0;
+            margin-right: 5px;
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+            height: auto;
+        }
+
+        .sw-product-variants-media-upload.sw-media-upload-v2,
+        .sw-product-variants-media-upload.sw-media-upload-v2 .sw-media-upload-v2__dropzone {
+            width: 100%;
+        }
+
+        .sw-inheritance-switch {
+            margin-right: 8px;
+        }
+
+        .sw-media-upload-v2__content {
+            width: 330px;
+        }
+    }
+
+    .sw-media-upload-v2__content {
+        width: 330px;
     }
 }

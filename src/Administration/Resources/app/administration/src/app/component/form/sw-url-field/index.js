@@ -1,7 +1,7 @@
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
-const { Component, Utils } = Shopware;
+const { Component } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 
 const URL_REGEX = {
@@ -12,8 +12,11 @@ const URL_REGEX = {
 };
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
- * @description Url field component which supports a switch for https and http.
+ * @description URL field component which supports a switch for https and http.
  * @status ready
  * @example-type dynamic
  * @component-example
@@ -23,6 +26,8 @@ const URL_REGEX = {
 Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     props: {
         error: {
@@ -78,6 +83,10 @@ Component.extend('sw-url-field', 'sw-text-field', {
         combinedError() {
             return this.errorUrl || this.error;
         },
+
+        unicodeUriFilter() {
+            return Shopware.Filter.getByName('unicodeUri');
+        },
     },
 
     watch: {
@@ -97,31 +106,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
         onBlur(event) {
             this.checkInput(event.target.value);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use onBlur() instead
-         */
-        onInput(event) {
-            /**
-             * @deprecated tag:v6.5.0 - Use "input" event instead
-             */
-            this.$emit('beforeDebounce', this.url);
-            this.onDebounceInput(event);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use checkInput() instead
-         */
-        onDebounceInput: Utils.debounce(function debouncedHandleInput(event) {
-            this.handleInput(event);
-        }, 2000),
-
-        /**
-         * @deprecated tag:v6.5.0 - Use checkInput() instead
-         */
-        handleInput() {
-
         },
 
         checkInput(inputValue) {
@@ -144,12 +128,22 @@ Component.extend('sw-url-field', 'sw-text-field', {
             } else {
                 this.currentValue = validated;
 
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', this.url);
+                    return;
+                }
+
                 this.$emit('input', this.url);
             }
         },
 
         handleEmptyUrl() {
             this.currentValue = '';
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', '');
+                return;
+            }
 
             this.$emit('input', '');
         },
@@ -178,7 +172,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 .toString()
                 .replace(URL_REGEX.PROTOCOL, '')
                 .replace(removeTrailingSlash, '')
-                .replace(url.host, this.$options.filters.unicodeUri(url.host));
+                .replace(url.host, this.unicodeUriFilter(url.host));
         },
 
         changeMode(disabled) {
@@ -187,6 +181,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.url);
+                return;
+            }
+
             this.$emit('input', this.url);
         },
 

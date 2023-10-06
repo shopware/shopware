@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_specifications %}
 <div v-if="isLoading">
     <sw-skeleton />
@@ -5,13 +6,15 @@
 </div>
 
 <div v-else>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_measures_packaging %}
     <sw-card
-        v-show="showProductCard('measures_packaging')"
+        v-show="showProductCard('measures_packaging') && !productStates.includes('is-download')"
         class="sw-product-detail-specification__measures-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
         :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_specifications_measures_packaging_content %}
         <sw-product-packaging-form
             :show-setting-packaging="showModeSetting"
@@ -21,16 +24,14 @@
     </sw-card>
     {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-product-properties #}
-    {% block sw_product_detail_specifications_properties %}
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_property %}
     <sw-product-properties
         v-show="showProductCard('properties')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_essential_characteristics %}
     <sw-card
         v-show="showProductCard('essential_characteristics')"
@@ -38,15 +39,18 @@
         position-identifier="sw-product-detail-specifications-essential-characteristics"
         :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_specifications_essential_characteristics_content %}
         <sw-product-feature-set-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_custom_products %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_custom_fields %}
     <sw-card
         v-show="showCustomFieldsCard"
@@ -54,6 +58,7 @@
         position-identifier="sw-product-detail-specifications-custom-fields"
         :title="$tc('sw-product.specifications.cardTitleCustomFields')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_specifications_custom_fields_content %}
         <sw-custom-field-set-renderer
             show-custom-field-set-selection

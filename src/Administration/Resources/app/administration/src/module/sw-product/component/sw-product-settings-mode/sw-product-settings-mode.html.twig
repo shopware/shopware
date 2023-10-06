@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_settings_mode %}
 <sw-context-button
     v-tooltip="{ message: $tc('sw-product.general.tooltipModeSettings') }"
@@ -6,6 +7,7 @@
     :auto-close="false"
 >
     <template #button>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_mode_trigger %}
         <sw-button
             class="sw-product-settings-mode__trigger"
@@ -13,53 +15,77 @@
             square
             :aria-label="$tc('sw-product.general.tooltipModeSettings')"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_settings_mode_trigger_icon %}
             <sw-icon
-                name="small-default-stack-line"
-                size="14px"
+                name="regular-bars-s"
+                size="16px"
             />
             {% endblock %}
         </sw-button>
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_mode_content %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_mode_main %}
     <div class="sw-product-settings-mode__container">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_mode_advanced_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="advancedMode.enabled"
+            {% else %}
             v-model="advancedMode.enabled"
+            {% endif %}
             class="sw-product-settings-mode__advanced-mode"
             size="medium"
             :label="$tc(advancedMode.label)"
+            {% if VUE3 %}
+            @update:value="onChangeSetting"
+            {% else %}
             @change="onChangeSetting"
+            {% endif %}
         />
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_mode_devider %}
     <sw-context-menu-divider />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_mode_list %}
     <transition-group
         class="sw-product-settings-mode__container sw-product-settings-mode__list"
         name="item-list"
         tag="div"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_mode_item %}
         <div
             v-for="(item, index) in settings"
             :key="item.key"
             class="sw-product-settings-mode__item"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_settings_mode_item_visibility_checkbox %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="item.enabled"
+                {% else %}
                 v-model="item.enabled"
+                {% endif %}
                 :disabled="!advancedMode.enabled"
                 :label="$tc(item.label)"
+                {% if VUE3 %}
+                @update:value="onChangeSettingItem"
+                {% else %}
                 @change="onChangeSettingItem"
+                {% endif %}
             />
             {% endblock %}
         </div>
@@ -67,6 +93,7 @@
     </transition-group>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_mode_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

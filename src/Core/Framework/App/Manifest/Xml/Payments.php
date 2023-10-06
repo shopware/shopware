@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class Payments extends XmlElement
 {
     /**
@@ -28,6 +31,23 @@ class Payments extends XmlElement
     public function getPaymentMethods(): array
     {
         return $this->paymentMethods;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getUrls(): array
+    {
+        $urls = [];
+
+        foreach ($this->paymentMethods as $paymentMethod) {
+            $urls[] = $paymentMethod->getCaptureUrl();
+            $urls[] = $paymentMethod->getFinalizeUrl();
+            $urls[] = $paymentMethod->getValidateUrl();
+            $urls[] = $paymentMethod->getPayUrl();
+        }
+
+        return array_filter($urls);
     }
 
     /**

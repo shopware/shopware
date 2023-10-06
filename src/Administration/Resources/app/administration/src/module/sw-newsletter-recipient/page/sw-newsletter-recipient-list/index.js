@@ -1,9 +1,14 @@
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
+/**
+ * @package buyers-experience
+ */
 
-Component.register('sw-newsletter-recipient-list', {
+const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -48,6 +53,10 @@ Component.register('sw-newsletter-recipient-list', {
         tagRepository() {
             return this.repositoryFactory.create('tag');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {
@@ -56,7 +65,7 @@ Component.register('sw-newsletter-recipient-list', {
 
     methods: {
         createdComponent() {
-            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria());
+            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
 
             const criteria = new Criteria(1, 100);
             this.repositoryFactory.create('language').search(criteria, Shopware.Context.api).then((items) => {
@@ -87,6 +96,10 @@ Component.register('sw-newsletter-recipient-list', {
                 this.total = 0;
 
                 return;
+            }
+
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
             }
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
@@ -211,4 +224,4 @@ Component.register('sw-newsletter-recipient-list', {
             }];
         },
     },
-});
+};

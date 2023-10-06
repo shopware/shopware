@@ -1,13 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail_toolbar_language_switch %}
-<sw-language-switch
-    slot="language-switch"
-    disabled
-/>
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #language-switch>
+    <sw-language-switch disabled />
+</template>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail_toolbar_actions_sales_channel %}
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail_toolbar_actions_save %}
 <sw-button-process
     v-tooltip.bottom="tooltipSave"
@@ -21,6 +24,7 @@
 </sw-button-process>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail_stage_container %}
 <sw-cms-create-wizard
     :page="page"

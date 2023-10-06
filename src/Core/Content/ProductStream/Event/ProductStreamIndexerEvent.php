@@ -4,26 +4,20 @@ namespace Shopware\Core\Content\ProductStream\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductStreamIndexerEvent extends NestedEvent
 {
     /**
-     * @var Context
+     * @param array<string> $ids
+     * @param array<string> $skip
      */
-    private $context;
-
-    /**
-     * @var array
-     */
-    private $ids;
-
-    private array $skip;
-
-    public function __construct(array $ids, Context $context, array $skip = [])
-    {
-        $this->context = $context;
-        $this->ids = $ids;
-        $this->skip = $skip;
+    public function __construct(
+        private readonly array $ids,
+        private readonly Context $context,
+        private readonly array $skip = []
+    ) {
     }
 
     public function getContext(): Context
@@ -31,11 +25,17 @@ class ProductStreamIndexerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSkip(): array
     {
         return $this->skip;

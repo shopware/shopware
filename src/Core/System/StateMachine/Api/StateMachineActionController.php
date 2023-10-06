@@ -2,21 +2,13 @@
 
 namespace Shopware\Core\System\StateMachine\Api;
 
-use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
-use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,9 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class StateMachineActionController extends AbstractController
 {
     /**
@@ -36,26 +27,16 @@ class StateMachineActionController extends AbstractController
     protected $stateMachineRegistry;
 
     /**
-     * @var DefinitionInstanceRegistry
+     * @internal
      */
-    private $definitionInstanceRegistry;
-
     public function __construct(
         StateMachineRegistry $stateMachineRegistry,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->stateMachineRegistry = $stateMachineRegistry;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/state-machine/{entityName}/{entityId}/state", name="api.state_machine.states", methods={"GET"})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws ResourceNotFoundException
-     * @throws StateMachineNotFoundException
-     */
+    #[Route(path: '/api/_action/state-machine/{entityName}/{entityId}/state', name: 'api.state_machine.states', methods: ['GET'])]
     public function getAvailableTransitions(
         Request $request,
         Context $context,
@@ -94,17 +75,7 @@ class StateMachineActionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/state-machine/{entityName}/{entityId}/state/{transition}", name="api.state_machine.transition_state", methods={"POST"})
-     *
-     * @throws IllegalTransitionException
-     * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
-     * @throws DefinitionNotFoundException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
-     */
+    #[Route(path: '/api/_action/state-machine/{entityName}/{entityId}/state/{transition}', name: 'api.state_machine.transition_state', methods: ['POST'])]
     public function transitionState(
         Request $request,
         Context $context,

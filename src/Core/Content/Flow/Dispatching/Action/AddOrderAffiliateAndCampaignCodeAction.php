@@ -3,23 +3,27 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepositoryInterface $orderRepository;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        EntityRepositoryInterface $orderRepository
+        private readonly Connection $connection,
+        private readonly EntityRepository $orderRepository
     ) {
-        $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string
@@ -27,33 +31,51 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
         return 'action.add.order.affiliate.and.campaign.code';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [OrderAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $config = $event->getConfig();
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
+            return;
+        }
 
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getAffiliateAndCampaignCodeFromOrderId(string $orderId): array
+    {
+        $data = $this->connection->fetchAssociative(
+            'SELECT affiliate_code, campaign_code FROM `order` WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+            ]
+        );
+
+        if (!$data) {
+            return [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $orderId): void
+    {
         if (!\array_key_exists('affiliateCode', $config) || !\array_key_exists('campaignCode', $config)) {
             return;
         }
 
-        $baseEvent = $event->getEvent();
-
-        if (!$baseEvent instanceof OrderAware) {
-            return;
-        }
-
-        $orderId = $baseEvent->getOrderId();
         $orderData = $this->getAffiliateAndCampaignCodeFromOrderId($orderId);
 
         if (empty($orderData)) {
@@ -85,21 +107,6 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
 
         $data['id'] = $orderId;
 
-        $this->orderRepository->update([$data], $baseEvent->getContext());
-    }
-
-    private function getAffiliateAndCampaignCodeFromOrderId(string $orderId): array
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['affiliate_code', 'campaign_code']);
-        $query->from('`order`');
-        $query->where('id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($orderId));
-
-        if (!$data = $query->execute()->fetchAssociative()) {
-            return [];
-        }
-
-        return $data;
+        $this->orderRepository->update([$data], $context);
     }
 }

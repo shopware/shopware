@@ -1,6 +1,20 @@
-import './component';
-import './preview';
+import CMS from '../../../constant/sw-cms.constant';
 
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-image', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-image', () => import('./component'));
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image',
     label: 'sw-cms.blocks.image.image.label',
@@ -23,7 +37,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_mountain_large.jpg',
+                        value: CMS.MEDIA.previewMountain,
+                        source: 'default',
                     },
                 },
             },

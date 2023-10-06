@@ -7,6 +7,8 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
+ * @internal
+ *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
 class MockedKernel extends Kernel

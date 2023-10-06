@@ -1,22 +1,37 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_list_item %}
 <div
     class="sw-cms-list-item"
     :class="componentClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_item_options %}
     <slot name="contextMenu"></slot>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_item_image %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="page"
         class="sw-cms-list-item__image"
         :style="previewMedia"
+        role="button"
+        tabindex="0"
         @click="onItemClick(page)"
-    ></div>
-
+        @keydown.enter="onItemClick(page)"
+    >
+        <div v-if="isDefault">
+            <span
+                v-if="page.type === 'product_list'"
+                class="sw-cms-list-item__is-default"
+            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductList') }}</span>
+            <span
+                v-else-if="page.type === 'product_detail'"
+                class="sw-cms-list-item__is-default"
+            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductDetail') }}</span>
+        </div>
+    </div>
     <div
         v-else
         class="sw-cms-list-item__image is--empty"
@@ -25,6 +40,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_item_info %}
     <div class="sw-cms-list-item__info">
         <div
@@ -32,18 +48,20 @@
             class="sw-cms-list-item__status"
             :class="statusClasses"
         ></div>
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-if="page"
             class="sw-cms-list-item__title"
+            role="button"
+            tabindex="0"
             @click="onElementClick"
+            @keydown.enter="onElementClick"
         >
             {{ page.translated.name }}
         </div>
         <sw-icon
             v-if="page && page.locked"
             class="sw-cms-list-item__locked"
-            name="small-lock-closed"
+            name="solid-lock"
             small
         />
     </div>

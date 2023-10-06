@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
 
@@ -8,7 +11,7 @@ const { format } = Shopware.Utils;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-activity', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'importExport', 'feature'],
@@ -82,7 +85,8 @@ Shopware.Component.register('sw-import-export-activity', {
                         Criteria.equals('activity', 'dryrun'),
                     ],
                 ));
-                criteria.addAssociation('invalidRecordsLog');
+                criteria.getAssociation('invalidRecordsLog')
+                    .addAssociation('file');
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
@@ -190,6 +194,10 @@ Shopware.Component.register('sw-import-export-activity', {
                 this.$tc('sw-import-export.activity.emptyState.titleExport') :
                 this.$tc('sw-import-export.activity.emptyState.titleImport');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -242,6 +250,7 @@ Shopware.Component.register('sw-import-export-activity', {
         async updateActivitiesInProgress() {
             const criteria = Criteria.fromCriteria(this.activityCriteria);
             criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
+            criteria.addAssociation('file');
             const currentInProgress = await this.logRepository.search(criteria);
 
             this.updateActivitiesFromLogs(currentInProgress);
@@ -322,22 +331,6 @@ Shopware.Component.register('sw-import-export-activity', {
             this.showResultModal = false;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
-         */
-        getDownloadUrl() {
-            Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
-
-            return '';
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
-         */
-        async openDownload(id) {
-            return window.open(await this.importExport.getDownloadUrl(id), '_blank');
-        },
-
         async openProcessFileDownload(item) {
             if (this.type === 'export' && item.state !== 'succeeded') {
                 return null;
@@ -378,4 +371,4 @@ Shopware.Component.register('sw-import-export-activity', {
             };
         },
     },
-});
+};

@@ -22,7 +22,7 @@
 
         <tr
             v-for="violation in violations"
-            :key="violation"
+            :key="violation.name"
         >
 
             <td class="sw-license-violation__table-name">
@@ -32,9 +32,9 @@
                         :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
                         alt=""
                     >
-                    <strong>{{ (getPluginForViolation(violation).translated &&
-                        getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label
-                    }}</strong>
+                    <strong>
+                        {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
+                    </strong>
                 </template>
 
                 <template v-else>
@@ -73,10 +73,13 @@
         </tr>
     </table>
 
-    <template slot="modal-footer">
-        <sw-field
+    <template #modal-footer>
+        <sw-checkbox-field
+            {% if VUE3 %}
+            v-model:value="readNotice"
+            {% else %}
             v-model="readNotice"
-            type="checkbox"
+            {% endif %}
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 

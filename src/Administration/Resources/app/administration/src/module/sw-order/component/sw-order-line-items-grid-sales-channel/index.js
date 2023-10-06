@@ -1,10 +1,16 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
+import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-const { Component, Utils, State, Service } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Utils, State, Service } = Shopware;
 const { get, format } = Utils;
 
-Component.register('sw-order-line-items-grid-sales-channel', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['feature'],
@@ -41,7 +47,6 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         return {
             selectedItems: {},
             searchTerm: '',
-            showItemsModal: false,
         };
     },
 
@@ -67,7 +72,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         lineItemTypes() {
-            return Service('cartStoreService').getLineItemTypes();
+            return LineItemType;
         },
 
         isCartTokenAvailable() {
@@ -110,7 +115,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
-                width: '200px',
+                multiLine: true,
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -143,6 +148,14 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 width: '80px',
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     methods: {
@@ -158,6 +171,11 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             if (item._isNew) {
                 this.initLineItem(item);
                 delete item.identifier;
+            }
+
+            // Reset quantity
+            if (item.initialQuantity) {
+                item.quantity = item.initialQuantity;
             }
         },
 
@@ -230,10 +248,10 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             });
 
             if (selectedIds.length > 0) {
-                this.$refs.dataGrid.resetSelection();
-
                 this.$emit('on-remove-items', selectedIds);
             }
+
+            this.$refs.dataGrid.resetSelection();
         },
 
         itemCreatedFromProduct(item) {
@@ -304,9 +322,12 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
 
-        openItemsModal() {
-            // TODO: This data will show add items modal handled by NEXT-16663
-            this.showItemsModal = true;
+        changeItemQuantity(value, item) {
+            if (!item.initialQuantity) {
+                item.initialQuantity = item.quantity;
+            }
+
+            item.quantity = value;
         },
     },
-});
+};

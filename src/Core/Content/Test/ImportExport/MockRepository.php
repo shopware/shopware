@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,8 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
-class MockRepository implements EntityRepositoryInterface
+/**
+ * @internal can only be used in test setups where bypass finals is activated
+ */
+#[Package('services-settings')]
+class MockRepository extends EntityRepository
 {
     public $createCalls = 0;
 
@@ -21,14 +26,8 @@ class MockRepository implements EntityRepositoryInterface
 
     public $upsertCalls = 0;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityDefinition $definition)
+    public function __construct(private readonly EntityDefinition $definition)
     {
-        $this->definition = $definition;
     }
 
     public function getDefinition(): EntityDefinition

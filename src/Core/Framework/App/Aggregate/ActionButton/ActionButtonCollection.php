@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\App\Aggregate\ActionButton;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @method void                           add(ActionButtonEntity $entity)
- * @method void                           set(string $key, ActionButtonEntity $entity)
- * @method \Generator<ActionButtonEntity> getIterator()
- * @method array<ActionButtonEntity>      getElements()
- * @method ActionButtonEntity|null        get(string $key)
- * @method ActionButtonEntity|null        first()
- * @method ActionButtonEntity|null        last()
+ * @extends EntityCollection<ActionButtonEntity>
  */
+#[Package('core')]
 class ActionButtonCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

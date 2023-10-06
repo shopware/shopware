@@ -5,39 +5,33 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_map;
-use function implode;
-use function iterator_to_array;
-use function sprintf;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked internal
+ * @internal
+ *
+ * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('core')]
 class ChangelogProcessor
 {
-    protected Filesystem $filesystem;
+    private ?string $platformRoot = null;
 
-    protected ChangelogParser $parser;
-
-    protected ValidatorInterface $validator;
-
-    protected array $featureFlags;
-
-    private string $projectDir;
-
-    private ?string $platformRoot;
-
-    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir, array $featureFlags)
-    {
-        $this->parser = $parser;
-        $this->validator = $validator;
-        $this->filesystem = $filesystem;
-        $this->projectDir = $projectDir;
-        $this->featureFlags = $featureFlags;
+    /**
+     * @param array<string, FeatureFlagConfig> $featureFlags
+     */
+    public function __construct(
+        protected ChangelogParser $parser,
+        protected ValidatorInterface $validator,
+        protected Filesystem $filesystem,
+        private readonly string $projectDir,
+        protected array $featureFlags
+    ) {
     }
 
     /**
@@ -50,6 +44,8 @@ class ChangelogProcessor
 
     /**
      * @internal
+     *
+     * @param array<string, FeatureFlagConfig> $flags
      */
     public function setActiveFlags(array $flags): void
     {
@@ -110,7 +106,7 @@ class ChangelogProcessor
 
     protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . \sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
     }
 
     /**
@@ -118,7 +114,7 @@ class ChangelogProcessor
      */
     protected function getTargetNextMajorUpgradeFile(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getNextMajorVersion($version));
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . \sprintf('UPGRADE-%s.md', $this->getNextMajorVersion($version));
     }
 
     /**
@@ -134,14 +130,11 @@ class ChangelogProcessor
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
 
-                /** @var \Countable&\IteratorAggregate<ConstraintViolation> $issues */
                 $issues = $this->validator->validate($definition);
                 if ($issues->count()) {
-                    $messages = array_map(static function (ConstraintViolation $violation) {
-                        return $violation->getMessage();
-                    }, iterator_to_array($issues));
+                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($issues));
 
-                    throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
+                    throw new \InvalidArgumentException(\sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages)));
                 }
 
                 $featureFlagDefaultOn = false;
@@ -170,7 +163,7 @@ class ChangelogProcessor
     {
         if (!isset($this->platformRoot)) {
             $platformRoot = $this->projectDir;
-            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
+            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
                 $platformRoot .= '/platform';

@@ -2,39 +2,30 @@
 
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductExportEventListener implements EventSubscriberInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $productExportRepository;
-
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $fileSystem;
-
     public function __construct(
-        EntityRepositoryInterface $productExportRepository,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem
+        private readonly EntityRepository $productExportRepository,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly FilesystemOperator $fileSystem
     ) {
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem = $fileSystem;
     }
 
     public static function getSubscribedEvents(): array
@@ -65,10 +56,11 @@ class ProductExportEventListener implements EventSubscriberInterface
             );
             $productExportResult = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext());
             if ($productExportResult->getTotal() !== 0) {
+                /** @var ProductExportEntity $productExport */
                 $productExport = $productExportResult->first();
 
                 $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->has($filePath)) {
+                if ($this->fileSystem->fileExists($filePath)) {
                     $this->fileSystem->delete($filePath);
                 }
             }

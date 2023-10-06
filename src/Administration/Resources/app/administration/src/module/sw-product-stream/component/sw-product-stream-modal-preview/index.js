@@ -1,10 +1,17 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Context, Feature } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-product-stream-modal-preview', {
+/**
+ * @private
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamPreviewService'],
@@ -19,10 +26,6 @@ Component.register('sw-product-stream-modal-preview', {
         return {
             products: [],
             selectedSalesChannel: null,
-            /* @deprecated tag:v6.5.0 - property systemCurrency will be removed */
-            systemCurrency: null,
-            /* @deprecated tag:v6.5.0 - property criteria will be removed */
-            criteria: null,
             searchTerm: '',
             page: 1,
             total: false,
@@ -32,32 +35,19 @@ Component.register('sw-product-stream-modal-preview', {
     },
 
     computed: {
-        /* @deprecated tag:v6.5.0 - computed property productRepository will be removed */
-        productRepository() {
-            return this.repositoryFactory.create('product');
-        },
-
-        /* @deprecated tag:v6.5.0 - computed property currencyRepository will be removed */
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(1);
+            const criteria = new Criteria(1, 1);
             criteria.addSorting(Criteria.sort('type.iconName', 'ASC'));
 
             return criteria;
         },
 
         previewCriteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(this.limit);
-            criteria.setPage(this.page);
+            const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.searchTerm);
 
             return criteria;
@@ -88,19 +78,13 @@ Component.register('sw-product-stream-modal-preview', {
                 },
             ];
         },
-    },
 
-    watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
         },
     },
 
@@ -109,15 +93,14 @@ Component.register('sw-product-stream-modal-preview', {
     },
 
     methods: {
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.isLoading = true;
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
         },
         onSalesChannelChange() {
             this.page = 1;
@@ -156,15 +139,6 @@ Component.register('sw-product-stream-modal-preview', {
                 this.products = Object.values(result.elements);
                 this.total = result.total;
             });
-        },
-
-        /* @deprecated tag:v6.5.0 - method loadSystemCurrency will be removed */
-        loadSystemCurrency() {
-            return this.currencyRepository
-                .get(Shopware.Context.app.systemCurrencyId, Context.api)
-                .then((systemCurrency) => {
-                    this.systemCurrency = systemCurrency;
-                });
         },
 
         loadSalesChannels() {
@@ -225,4 +199,4 @@ Component.register('sw-product-stream-modal-preview', {
                 });
         },
     },
-});
+};

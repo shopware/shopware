@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+#[Package('inventory')]
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_search_config_field';
+    final public const ENTITY_NAME = 'product_search_config_field';
 
     public function getEntityName(): string
     {
@@ -53,12 +55,17 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return ProductSearchConfigFieldHydrator::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductSearchConfigDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('product_search_config_id', 'searchConfigId', ProductSearchConfigDefinition::class))->addFlags(new Required()),
-            (new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class)),
+            new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class),
             (new StringField('field', 'field'))->addFlags(new Required()),
             (new BoolField('tokenize', 'tokenize'))->addFlags(new Required()),
             (new BoolField('searchable', 'searchable'))->addFlags(new Required()),

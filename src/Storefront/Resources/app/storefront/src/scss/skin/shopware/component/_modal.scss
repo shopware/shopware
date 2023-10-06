@@ -3,14 +3,14 @@ Modal
 ==============================================
 Custom skin styling for bootstrap modal component.
 
-https://getbootstrap.com/docs/4.3/components/modal/
+https://getbootstrap.com/docs/5.2/components/modal
 */
 
 .modal-content {
-    border: 0;
-    box-shadow: 0 43px 43px -6px rgba($black, 0.2);
+    box-shadow: var(--#{$prefix}modal-box-shadow);
 
     .modal-title {
         margin: 0;
+        line-height: $modal-title-line-height;
     }
 }

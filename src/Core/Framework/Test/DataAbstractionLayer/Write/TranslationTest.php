@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -19,11 +19,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -31,48 +32,32 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class TranslationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use ArraySubsetAsserts;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyRepository;
+    private EntityRepository $currencyRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepository $languageRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Context $context;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private IdsCollection $ids;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private string $deLanguageId;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
 
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
@@ -87,8 +72,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -100,16 +85,20 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationViaLanguageIdSimpleNotation(): void
@@ -122,8 +111,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -137,17 +126,21 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
 
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationMergeViaLocaleAndLanguageId(): void
@@ -160,8 +153,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -176,17 +169,21 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
 
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationMergeOverwriteViaLocaleAndLanguageId(): void
@@ -199,16 +196,16 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 'en-GB' => [
-                    'name' => $name,
-                    'shortName' => 'should be overwritten',
+                    'shortName' => $shortName,
                 ],
 
                 Defaults::LANGUAGE_SYSTEM => [
-                    'shortName' => $shortName,
+                    'name' => $name,
+                    'shortName' => 'should be overwritten',
                 ],
             ],
         ];
@@ -216,16 +213,20 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationViaLocaleAndLanguageId(): void
@@ -260,8 +261,8 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'isoCode' => 'FOO',
             'translations' => [
                 'en-GB' => [
@@ -279,9 +280,11 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains($germanLanguageId, $languageIds);
@@ -290,21 +293,15 @@ class TranslationTest extends TestCase
         $payload1 = $translations->getPayloads()[0];
         $payload2 = $translations->getPayloads()[1];
 
-        static::assertArraySubset(
-            [
-                'shortName' => $germanShortName,
-                'name' => $germanName,
-            ],
-            $payload1
-        );
+        static::assertArrayHasKey('name', $payload1);
+        static::assertArrayHasKey('shortName', $payload1);
+        static::assertSame($germanName, $payload1['name']);
+        static::assertSame($germanShortName, $payload1['shortName']);
 
-        static::assertArraySubset(
-            [
-                'shortName' => $englishShortName,
-                'name' => $englishName,
-            ],
-            $payload2
-        );
+        static::assertArrayHasKey('name', $payload2);
+        static::assertArrayHasKey('shortName', $payload2);
+        static::assertSame($englishName, $payload2['name']);
+        static::assertSame($englishShortName, $payload2['shortName']);
     }
 
     public function testCurrencyTranslationWithCachingAndInvalidation(): void
@@ -317,8 +314,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -330,16 +327,20 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $englishName], $payload);
-        static::assertArraySubset(['shortName' => $englishShortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($englishName, $payload['name']);
+        static::assertSame($englishShortName, $payload['shortName']);
 
         $germanLanguageId = Uuid::randomHex();
         $data = [
@@ -363,8 +364,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'BAR',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',
@@ -380,20 +381,26 @@ class TranslationTest extends TestCase
         $result = $this->currencyRepository->create([$data], $this->context);
 
         $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $currencies);
         static::assertCount(1, $currencies->getIds());
 
         $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains($germanLanguageId, $languageIds);
 
         $payload = $translations->getPayloads();
 
-        static::assertArraySubset(['name' => 'default'], $payload[0]);
-        static::assertArraySubset(['shortName' => 'def'], $payload[0]);
+        static::assertArrayHasKey('name', $payload[0]);
+        static::assertArrayHasKey('shortName', $payload[0]);
+        static::assertSame('default', $payload[0]['name']);
+        static::assertSame('def', $payload[0]['shortName']);
 
-        static::assertArraySubset(['name' => $nlName], $payload[1]);
-        static::assertArraySubset(['shortName' => $nlShortName], $payload[1]);
+        static::assertArrayHasKey('name', $payload[1]);
+        static::assertArrayHasKey('shortName', $payload[1]);
+        static::assertSame($nlName, $payload[1]['name']);
+        static::assertSame($nlShortName, $payload[1]['shortName']);
     }
 
     public function testTranslationsOfUnknownLanguageCodesAreSkipped(): void
@@ -403,8 +410,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'TST',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'US Dollar',
@@ -421,6 +428,8 @@ class TranslationTest extends TestCase
         $writtenCurrencies = $events->getEventByEntityName('currency');
         $writtenCurrencyTranslations = $events->getEventByEntityName('currency_translation');
 
+        static::assertInstanceOf(EntityWrittenEvent::class, $writtenCurrencies);
+        static::assertInstanceOf(EntityWrittenEvent::class, $writtenCurrencyTranslations);
         static::assertCount(1, $writtenCurrencies->getIds());
         static::assertCount(1, $writtenCurrencyTranslations->getIds());
     }
@@ -450,6 +459,7 @@ class TranslationTest extends TestCase
         );
 
         $languages = $result->getEventByEntityName(LanguageDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $languages);
         static::assertCount(1, array_unique($languages->getIds()));
         static::assertContains($germanLanguageId, $languages->getIds());
 
@@ -512,14 +522,17 @@ class TranslationTest extends TestCase
         $result = $this->productRepository->create([$data], $this->context);
 
         $products = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $products);
         static::assertCount(1, $products->getIds());
 
         $translations = $result->getEventByEntityName(ProductManufacturerTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $translations = $result->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $translations);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -719,6 +732,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         $result = $pageRepository->create([$page], $this->context);
 
         $events = $result->getEventByEntityName(CmsSlotDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $events);
         $ids = $events->getIds();
 
         static::assertCount(3, $ids);
@@ -787,6 +801,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         $result = $pageRepository->create([$page], $this->context);
 
         $events = $result->getEventByEntityName(CmsSlotDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $events);
         $ids = $events->getIds();
 
         static::assertCount(3, $ids);
@@ -823,5 +838,282 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][2]['id']);
         static::assertNull($slot->getConfig());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValueWithIsoCodes(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'default',
+            'translations' => [
+                'en-GB' => [
+                    'name' => 'en translation',
+                ],
+                'de-DE' => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(CategoryTranslationCollection::class, $category->getTranslations());
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValueWithIds(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'default',
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(CategoryTranslationCollection::class, $category->getTranslations());
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValuesWithIds(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                Defaults::LANGUAGE_SYSTEM => 'default',
+            ],
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(CategoryTranslationCollection::class, $category->getTranslations());
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testDefaultValueWithLocaleHasPriorityOverTranslationValueWithId(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+            ],
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(CategoryTranslationCollection::class, $category->getTranslations());
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testWriteWithInheritedTranslationCode(): void
+    {
+        $this->languageRepository->upsert([
+            [
+                'id' => $this->ids->get('language-parent'),
+                'name' => 'parent',
+                'locale' => [
+                    'id' => $this->ids->get('language-locale'),
+                    'code' => 'language-locale',
+                    'name' => 'language-locale',
+                    'territory' => 'language-locale',
+                ],
+                'translationCodeId' => $this->ids->get('language-locale'),
+            ],
+            [
+                'id' => $this->ids->get('language-child'),
+                'name' => 'child',
+                'parentId' => $this->ids->get('language-parent'),
+                'localeId' => $this->ids->get('language-locale'),
+                'translationCodeId' => null,
+            ],
+        ], $this->context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+                'language-locale' => 'parent language',
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $this->context)->first();
+
+        $translations = $category->getTranslations();
+        static::assertInstanceOf(CategoryTranslationCollection::class, $translations);
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
+        static::assertEquals('parent language', $childTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
+        static::assertNull($childTranslation->getName());
+    }
+
+    public function testWriteWithInheritedTranslationCodeAndChildLanguage(): void
+    {
+        $this->languageRepository->upsert([
+            [
+                'id' => $this->ids->get('language-parent'),
+                'name' => 'parent',
+                'locale' => [
+                    'id' => $this->ids->get('language-locale'),
+                    'code' => 'language-locale',
+                    'name' => 'language-locale',
+                    'territory' => 'language-locale',
+                ],
+                'translationCodeId' => $this->ids->get('language-locale'),
+            ],
+            [
+                'id' => $this->ids->get('language-child'),
+                'name' => 'child',
+                'parentId' => $this->ids->get('language-parent'),
+                'localeId' => $this->ids->get('language-locale'),
+                'translationCodeId' => null,
+            ],
+        ], $this->context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+                'language-locale' => 'parent language',
+                $this->ids->get('language-child') => 'child language',
+            ],
+        ];
+
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $this->context)->first();
+
+        $translations = $category->getTranslations();
+        static::assertInstanceOf(CategoryTranslationCollection::class, $translations);
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
+        static::assertEquals('parent language', $childTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
+        static::assertEquals('child language', $childTranslation->getName());
     }
 }

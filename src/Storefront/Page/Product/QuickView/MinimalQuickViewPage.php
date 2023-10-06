@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Page\Product\QuickView;
 
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('storefront')]
 class MinimalQuickViewPage extends Struct
 {
     /**
@@ -12,6 +14,9 @@ class MinimalQuickViewPage extends Struct
      */
     protected $product;
 
+    /**
+     * @internal
+     */
     public function __construct(ProductEntity $product)
     {
         $this->product = $product;

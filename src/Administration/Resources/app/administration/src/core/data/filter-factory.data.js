@@ -1,3 +1,8 @@
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default class FilterFactory {
     constructor() {
         this.STRING_FILTER_INPUT = 'string-filter';

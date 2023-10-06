@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
-$sw-sidebar-item-headline-color:   $color-darkgray-200;
-$sw-sidebar-item-color-border:     $color-gray-300;
+$sw-sidebar-item-headline-color: $color-darkgray-200;
+$sw-sidebar-item-color-border: $color-gray-300;
 $sw-sidebar-item-width-navigation: 64px;
-$sw-sidebar-item-width-content:    400px;
+$sw-sidebar-item-width-content: 400px;
 
 .sw-sidebar-item {
     width: $sw-sidebar-item-width-content;
@@ -21,7 +21,7 @@ $sw-sidebar-item-width-content:    400px;
 
     .sw-sidebar-item__title {
         margin: 0;
-        font-size: 18px;
+        font-size: $font-size-m;
         color: $sw-sidebar-item-headline-color;
     }
 
@@ -34,6 +34,12 @@ $sw-sidebar-item-width-content:    400px;
         border: none;
         outline: none;
         cursor: pointer;
+
+        .sw-icon {
+            width: 20px;
+            height: 20px;
+            padding: 4px;
+        }
     }
 
     .sw-sidebar-item__content {

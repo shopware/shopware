@@ -4,14 +4,16 @@ import template from './sw-hidden-iframes.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-hidden-iframes', {
     template,
 
     computed: {
-        iFrames() {
-            return Shopware.State.getters['extensions/allBaseUrls'];
+        extensions() {
+            return Shopware.State.getters['extensions/privilegedExtensions'];
         },
 
         MAIN_HIDDEN() {

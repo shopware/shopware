@@ -47,11 +47,18 @@
         <service id="Shopware\Core\Checkout\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
+            <argument>%shopware.cart.compress%</argument>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
+        <service id="Shopware\Core\Checkout\Cart\CartSerializationCleaner">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true" lazy="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>
@@ -59,10 +66,17 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartFactory"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\CartFactory">
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute" public="true">
@@ -74,8 +88,9 @@
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute" public="true">
@@ -94,6 +109,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">
@@ -103,6 +119,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PreparedPaymentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -142,6 +159,42 @@
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
 
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator" />
+
+        <!-- Tax providers -->
+        <!-- ==================================================================================================================== -->
+
+        <service id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor">
+            <argument type="service" id="tax_provider.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry" public="true">
+            <argument type="tagged_iterator" tag="shopware.tax.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator"/>
+
+        <service id="shopware.tax.adjustment_calculator" class="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment">
+            <argument type="service" id="shopware.tax.adjustment_calculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="string">%env(APP_URL)%</argument>
+        </service>
+
+        <!-- ==================================================================================================================== -->
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
 
@@ -186,10 +239,15 @@
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
             <argument type="service" id="country.repository"/>
             <tag name="shopware.cart.validator"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Validator">
             <argument type="tagged" tag="shopware.cart.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cart\ProductLineItemValidator">
+            <tag name="shopware.cart.validator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Processor">
@@ -207,7 +265,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.cart.processor" priority="5000"/>
             <tag name="shopware.cart.collector" priority="5000"/>
@@ -256,13 +314,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartFactory"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CachedRuleLoader" decorates="Shopware\Core\Checkout\Cart\RuleLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CachedRuleLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\RuleLoader">
@@ -300,11 +359,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\PriceDefinitionFactory"/>
             <argument type="service" id="media.repository"/>
             <tag name="shopware.cart.line_item.factory"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerDefaultSalutationSubscriber">
-            <argument type="service" id="salutation.repository"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- LINE ITEM GROUPS -->
@@ -354,12 +408,24 @@
 
         <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\PriceFactoryFactory" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Processor\ContainerCartProcessor">
@@ -373,6 +439,28 @@
             <tag name="shopware.cart.processor" priority="3700"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\RedisCartPersister">
+            <argument type="service" id="shopware.cart.redis"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
+            <argument>%shopware.cart.compress%</argument>
+            <argument>%shopware.cart.expire_days%</argument>
+        </service>
+
+        <service id="shopware.cart.redis" class="Redis">
+            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+            <argument>%shopware.cart.redis_url%</argument>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Command\CartMigrateCommand">
+            <argument type="service" id="shopware.cart.redis" on-invalid="null"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.cart.compress%</argument>
+            <argument>%shopware.cart.expire_days%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

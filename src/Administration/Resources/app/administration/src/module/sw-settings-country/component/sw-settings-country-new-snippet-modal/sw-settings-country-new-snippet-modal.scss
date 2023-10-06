@@ -1,0 +1,115 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-settings-country-new-snippet-modal {
+    .sw-tree {
+        border: none;
+        margin-bottom: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .sw-tree .sw-tree__content {
+        max-height: unset;
+        min-height: unset;
+    }
+
+    .sw-tree .sw-tree__content .tree-items {
+        padding: 0;
+    }
+
+    .sw-tree .sw-tree__content .sw-tree-item__element {
+        grid-template-columns: 30px 0 20px auto 150px;
+    }
+
+    .sw-tree .sw-tree__content .sw-tree-item__children .sw-tree-item__element {
+        grid-template-columns: 10px 0 20px auto 150px;
+    }
+
+    .sw-tree-item .sw-tree-item__element {
+        & > .sw-tree-item__actions .sw-button {
+            display: none;
+        }
+
+        &:hover > .sw-tree-item__actions .sw-button {
+            display: block;
+        }
+
+        & > .sw-tree-item__actions .sw-tree-item__context_button {
+            display: none;
+        }
+    }
+
+    .sw-tree-item {
+        .icon--regular-circle-xxs {
+            width: 16px;
+            height: 16px;
+        }
+
+        .sw-tree-item__label {
+            text-transform: capitalize;
+        }
+
+        .sw-field--checkbox {
+            display: none;
+        }
+    }
+
+    &__search-field {
+        position: relative;
+
+        &.sw-field {
+            margin-bottom: 8px;
+        }
+
+        .sw-field__label label {
+            font-weight: $font-weight-semi-bold;
+        }
+
+        .sw-block-field__block input {
+            text-overflow: ellipsis;
+            text-transform: capitalize;
+
+            &::placeholder {
+                text-transform: none;
+            }
+        }
+    }
+
+    &__loader.sw-loader {
+        @include size(16px);
+
+        position: static;
+        margin-right: 10px;
+
+        .sw-loader__container {
+            transform: none;
+            left: 0;
+            top: 0;
+        }
+    }
+
+    &__search-icon {
+        position: absolute;
+        right: 10px;
+        top: 16px;
+        background: $color-white;
+        cursor: pointer;
+    }
+
+    .sw-select .sw-select__selection-indicators {
+        display: none;
+    }
+
+    .sw-select .sw-label .sw-label__caption {
+        text-align: center;
+    }
+
+    .sw-tree > ::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sw-icon.icon--regular-circle-xxs {
+        padding: 4px;
+    }
+}

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @internal
+ */
 class CriteriaCollectionTest extends TestCase
 {
     public function testAddSingleCriteria(): void

@@ -6,11 +6,18 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
+#[Package('inventory')]
 class ProductAvailableFilter extends MultiFilter
 {
-    public function __construct(string $salesChannelId, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL)
-    {
+    public function __construct(
+        string $salesChannelId,
+        int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL
+    ) {
         parent::__construct(
             self::CONNECTION_AND,
             [

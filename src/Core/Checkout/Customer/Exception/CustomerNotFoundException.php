@@ -2,26 +2,20 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-class CustomerNotFoundException extends ShopwareHttpException
+#[Package('checkout')]
+class CustomerNotFoundException extends CustomerException
 {
     public function __construct(string $email)
     {
         parent::__construct(
+            Response::HTTP_NOT_FOUND,
+            self::CUSTOMER_NOT_FOUND,
             'No matching customer for the email "{{ email }}" was found.',
             ['email' => $email]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__CUSTOMER_NOT_FOUND';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
     }
 }

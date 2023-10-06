@@ -1,0 +1,42 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_flow_leave_page_modal %}
+<sw-modal
+    :title="$tc('sw-flow.leavePageModal.headline')"
+    class="sw-flow-leave-page-modal"
+    variant="small"
+    @modal-close="onCancel"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_leave_page_modal_content %}
+    {{ $tc('sw-flow.leavePageModal.description') }}
+    {% endblock %}
+
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_leave_page_modal_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_leave_page_modal_action_cancel %}
+        <sw-button
+            size="small"
+            class="sw-flow-leave-page-modal__stay-on-page"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_leave_page_modal_action_confirm %}
+        <sw-button
+            variant="primary"
+            size="small"
+            class="sw-flow-leave-page-modal__leave-page"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-flow.leavePageModal.confirmButton') }}
+        </sw-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_item %}
 <div
     v-if="showContent"
     class="sw-sidebar-item"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_item_headline %}
     <div class="sw-sidebar-item__headline">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_item_title %}
         <h3 class="sw-sidebar-item__title">
             {{ title }}
@@ -12,28 +15,31 @@
         {% endblock %}
 
         <slot name="headline-content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sidebar_item_headline_slot%}{% endblock %}
         </slot>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_item_close_button %}
         <button
             class="sw-sidebar-item__close-button"
             aria-label="closeContent"
             @click="closeContent"
         >
-            <sw-icon
-                name="small-default-x-line-small"
-                size="20px"
-            />
+            <sw-icon name="regular-times-xs" />
         </button>
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_item_content %}
     <div class="sw-sidebar-item__content">
         <div class="sw-sidebar-item__scrollable-container">
-            <slot>{% block sw_sidebar_item_default_slot%}{% endblock %}</slot>
+            <slot>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_sidebar_item_default_slot%}{% endblock %}
+            </slot>
         </div>
     </div>
     {% endblock %}

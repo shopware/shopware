@@ -5,15 +5,20 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Middleware;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
+use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,63 +28,46 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
+/**
+ * @psalm-import-type Params from DriverManager
+ */
+#[Package('core')]
 class HttpKernel
 {
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     /**
      * @var class-string<Kernel>
      */
-    protected static $kernelClass = Kernel::class;
+    protected static string $kernelClass = Kernel::class;
 
     /**
-     * @var ClassLoader|null
+     * @var class-string<HttpCache>
      */
-    protected $classLoader;
+    protected static string $httpCacheClass = HttpCache::class;
 
-    /**
-     * @var string
-     */
-    protected $environment;
+    protected ?string $projectDir = null;
 
-    /**
-     * @var bool
-     */
-    protected $debug;
+    protected ?KernelPluginLoader $pluginLoader = null;
 
-    /**
-     * @var string
-     */
-    protected $projectDir;
+    protected ?KernelInterface $kernel = null;
 
-    /**
-     * @var KernelPluginLoader|null
-     */
-    protected $pluginLoader;
-
-    /**
-     * @var KernelInterface|null
-     */
-    protected $kernel;
-
-    public function __construct(string $environment, bool $debug, ?ClassLoader $classLoader = null)
-    {
-        $this->classLoader = $classLoader;
-        $this->environment = $environment;
-        $this->debug = $debug;
+    public function __construct(
+        protected string $environment,
+        protected bool $debug,
+        protected ?ClassLoader $classLoader = null
+    ) {
     }
 
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): HttpKernelResult
     {
         try {
-            return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (DBALException $e) {
+            return $this->doHandle($request, $type, $catch);
+        } catch (Exception $e) {
+            /** @var Params|array{url?: string} $connectionParams */
             $connectionParams = self::getConnection()->getParams();
 
-            $message = str_replace([$connectionParams['url'], $connectionParams['password'], $connectionParams['user'], $connectionParams['dbname'], $connectionParams['host']], '******', $e->getMessage());
+            $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
 
             throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
         }
@@ -98,13 +86,18 @@ class HttpKernel
         $this->pluginLoader = $pluginLoader;
     }
 
-    public static function getConnection(): Connection
+    /**
+     * @param array<Middleware> $middlewares
+     */
+    public static function getConnection(array $middlewares = []): Connection
     {
         if (self::$connection) {
             return self::$connection;
         }
 
-        return self::$connection = self::$kernelClass::getConnection();
+        self::$connection = MySQLFactory::create($middlewares);
+
+        return self::$connection;
     }
 
     public function terminate(Request $request, Response $response): void
@@ -144,7 +137,7 @@ class HttpKernel
         $enabled = $container->hasParameter('shopware.http.cache.enabled')
             && $container->getParameter('shopware.http.cache.enabled');
         if ($enabled && $container->has(CacheStore::class)) {
-            $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
+            $kernel = new static::$httpCacheClass($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }
 
         $response = $kernel->handle($transformed, $type, $catch);
@@ -170,15 +163,17 @@ class HttpKernel
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
 
-        $connection = self::getConnection();
-
-        if ($this->environment !== 'prod') {
-            $connection->getConfiguration()->setSQLLogger(new DebugStack());
+        $middlewares = [];
+        if (\PHP_SAPI !== 'cli' && $this->environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+            $middlewares = [new ProfilingMiddleware()];
         }
+
+        $connection = self::getConnection($middlewares);
 
         $pluginLoader = $this->createPluginLoader($connection);
 
-        $cacheId = (new CacheIdLoader($connection))->load();
+        $storage = new MySQLKeyValueStorage($connection);
+        $cacheId = (new CacheIdLoader($storage))->load();
 
         return $this->kernel = new static::$kernelClass(
             $this->environment,
@@ -191,7 +186,7 @@ class HttpKernel
         );
     }
 
-    private function getProjectDir()
+    private function getProjectDir(): string
     {
         if ($this->projectDir === null) {
             if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
@@ -200,7 +195,9 @@ class HttpKernel
 
             $r = new \ReflectionObject($this);
 
-            if (!file_exists($dir = $r->getFileName())) {
+            /** @var string $dir */
+            $dir = $r->getFileName();
+            if (!file_exists($dir)) {
                 throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
             }
 

@@ -1,26 +1,34 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_base %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_stream_filter %}
 <div
     class="sw-product-stream-filter"
     :class="conditionClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_filter_container %}
     <div class="sw-product-stream-filter__container">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_filter_selects %}
         <div class="sw-product-stream-filter__selects">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_fields %}
             <template v-for="(definition, index) in fieldDefinitions">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_filter_field_select %}
                 <sw-product-stream-field-select
                     :key="index"
                     v-bind="{ field: fields[index], definition, index }"
                     :disabled="!acl.can('product_stream.editor')"
+                    :has-error="hasError"
                     @field-changed="updateFields"
                 />
                 {% endblock %}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_value %}
             <sw-product-stream-value
                 v-bind="{ condition, ...lastField }"
@@ -33,12 +41,14 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_filter_field_actions %}
         <sw-context-button
             v-tooltip="getNoPermissionsTooltip('product_stream.editor', false)"
             class="sw-product-stream-filter__context-button"
             :disabled="!acl.can('product_stream.editor')"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_field_create_before_action %}
             <sw-context-menu-item
                 class="sw-product-stream-filter__create-before-action"
@@ -48,6 +58,7 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_field_create_after_action %}
             <sw-context-menu-item
                 class="sw-product-stream-filter__create-after-action"
@@ -57,6 +68,7 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_field_delete_action %}
             <sw-context-menu-item
                 variant="danger"
@@ -70,6 +82,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_filter_error %}
     <sw-field-error :error="currentError" />
     {% endblock %}

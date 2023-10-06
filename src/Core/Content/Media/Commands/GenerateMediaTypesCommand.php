@@ -3,48 +3,40 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'media:generate-media-types',
+    description: 'Generates media types for all media files',
+)]
+#[Package('buyers-experience')]
 class GenerateMediaTypesCommand extends Command
 {
-    protected static $defaultName = 'media:generate-media-types';
+    private ShopwareStyle $io;
+
+    private ?int $batchSize = null;
 
     /**
-     * @var SymfonyStyle
+     * @internal
      */
-    private $io;
-
-    /**
-     * @var TypeDetector
-     */
-    private $typeDetector;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
-     * @var int
-     */
-    private $batchSize;
-
-    public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
-    {
+    public function __construct(
+        private readonly TypeDetector $typeDetector,
+        private readonly EntityRepository $mediaRepository
+    ) {
         parent::__construct();
-
-        $this->typeDetector = $typeDetector;
-        $this->mediaRepository = $mediaRepository;
     }
 
     /**
@@ -52,9 +44,7 @@ class GenerateMediaTypesCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates the media type for all media entities')
-            ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
+        $this->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;
     }
 
@@ -86,7 +76,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw new \RuntimeException('BatchSize is not numeric');
+            throw MediaException::invalidBatchSize();
         }
 
         return (int) $batchSize;
@@ -108,7 +98,10 @@ class GenerateMediaTypesCommand extends Command
 
         do {
             $result = $this->mediaRepository->search($criteria, $context);
-            foreach ($result->getEntities() as $media) {
+
+            /** @var MediaCollection $medias */
+            $medias = $result->getEntities();
+            foreach ($medias as $media) {
                 $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
@@ -124,9 +117,9 @@ class GenerateMediaTypesCommand extends Command
 
         $file = new MediaFile(
             $media->getUrl(),
-            $media->getMimeType(),
-            $media->getFileExtension(),
-            $media->getFileSize()
+            $media->getMimeType() ?? '',
+            $media->getFileExtension() ?? '',
+            $media->getFileSize() ?? 0
         );
 
         $type = $this->typeDetector->detect($file);

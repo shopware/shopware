@@ -1,9 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create %}
 <sw-page class="sw-order-create">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_smart_bar_header %}
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_smart_bar_header_title %}
         <h2 v-if="!showInitialModal">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_smart_bar_header_title_text %}
             {{ $tc('sw-order.create.textNewOrder') }}
             {% endblock %}
@@ -12,22 +16,30 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_smart_bar_actions_slot %}
         <template v-if="!showInitialModal">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_smart_bar_actions_cancel %}
             <sw-button @click="onCancelOrder">
                 {{ $tc('sw-order.create.buttonCancelOrder') }}
             </sw-button>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_smart_bar_actions_add %}
             <sw-button-process
                 variant="primary"
                 :disabled="isLoading"
                 :is-loading="isLoading"
                 :process-success="isSaveSuccessful"
+                {% if VUE3 %}
+                @update:process-success="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSaveOrder"
             >
                 {{ $tc('sw-order.create.buttonSaveOrder') }}
@@ -38,16 +50,29 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_order_create_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            disabled
+        />
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_content_view %}
-        <sw-card-view v-if="feature.isActive('FEATURE_NEXT_7530')">
+        <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_content_tabs %}
             <sw-tabs
                 v-if="!showInitialModal"
                 class="sw-order-create__tabs"
                 position-identifier="sw-order-create"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_content_tabs_general %}
                 <sw-tabs-item
                     class="sw-order-create__tab-general"
@@ -58,6 +83,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_content_tabs_details %}
                 <sw-tabs-item
                     class="sw-order-create__tab-details"
@@ -70,6 +96,7 @@
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_content_view %}
             <router-view
                 @error="showError"
@@ -78,11 +105,7 @@
         </sw-card-view>
         {% endblock %}
 
-        <router-view
-            v-if="!feature.isActive('FEATURE_NEXT_7530')"
-            @error="showError"
-        />
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_invalid_promotion_modal %}
         <sw-order-create-invalid-promotion-modal
             v-if="showInvalidCodeModal"
@@ -91,6 +114,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_remind_payment_modal %}
         <sw-modal
             v-if="showRemindPaymentModal"
@@ -99,11 +123,13 @@
             :is-loading="remindPaymentModalLoading"
             @modal-close="onRemindPaymentModalClose"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_remind_payment_modal_content %}
             <p>{{ $tc('sw-order.create.remindPaymentModal.text', 0, {paymentMethodName: paymentMethodName }) }}</p>
             {% endblock %}
 
             <template #modal-footer>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_remind_payment_modal_footer %}
                 <sw-button
                     class="sw-order-create__remind-payment-modal-decline"

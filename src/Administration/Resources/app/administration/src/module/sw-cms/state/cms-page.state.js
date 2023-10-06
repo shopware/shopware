@@ -1,11 +1,17 @@
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.State.registerModule('cmsPageState', {
     namespaced: true,
 
     state: {
         currentPage: null,
+        currentPageType: null,
         currentMappingEntity: null,
         currentMappingTypes: {},
         currentDemoEntity: null,
+        currentDemoProducts: [],
         pageEntityName: 'cms_page',
         defaultMediaFolderId: null,
         currentCmsDeviceView: 'desktop',
@@ -21,6 +27,10 @@ Shopware.State.registerModule('cmsPageState', {
 
         removeCurrentPage(state) {
             state.currentPage = null;
+        },
+
+        setCurrentPageType(state, type) {
+            state.currentPageType = type;
         },
 
         setCurrentMappingEntity(state, entity) {
@@ -45,6 +55,14 @@ Shopware.State.registerModule('cmsPageState', {
 
         removeCurrentDemoEntity(state) {
             state.currentDemoEntity = null;
+        },
+
+        setCurrentDemoProducts(state, products) {
+            state.currentDemoProducts = products;
+        },
+
+        removeCurrentDemoProducts(state) {
+            state.currentDemoProducts = [];
         },
 
         setPageEntityName(state, entity) {
@@ -98,6 +116,7 @@ Shopware.State.registerModule('cmsPageState', {
             commit('removeCurrentMappingEntity');
             commit('removeCurrentMappingTypes');
             commit('removeCurrentDemoEntity');
+            commit('removeCurrentDemoProducts');
         },
 
         setSection({ commit }, section) {

@@ -3,30 +3,25 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                           add(ShippingMethodPriceEntity $entity)
- * @method void                           set(string $key, ShippingMethodPriceEntity $entity)
- * @method ShippingMethodPriceEntity[]    getIterator()
- * @method ShippingMethodPriceEntity[]    getElements()
- * @method ShippingMethodPriceEntity|null get(string $key)
- * @method ShippingMethodPriceEntity|null first()
- * @method ShippingMethodPriceEntity|null last()
+ * @extends EntityCollection<ShippingMethodPriceEntity>
  */
+#[Package('checkout')]
 class ShippingMethodPriceCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (ShippingMethodPriceEntity $shippingMethodPrice) {
-            return $shippingMethodPrice->getShippingMethodId();
-        });
+        return $this->fmap(fn (ShippingMethodPriceEntity $shippingMethodPrice) => $shippingMethodPrice->getShippingMethodId());
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodPriceEntity $shippingMethodPrice) use ($id) {
-            return $shippingMethodPrice->getShippingMethodId() === $id;
-        });
+        return $this->filter(fn (ShippingMethodPriceEntity $shippingMethodPrice) => $shippingMethodPrice->getShippingMethodId() === $id);
     }
 
     public function getApiAlias(): string

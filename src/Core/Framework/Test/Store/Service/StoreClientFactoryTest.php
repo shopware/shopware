@@ -2,43 +2,35 @@
 
 namespace Shopware\Core\Framework\Test\Store\Service;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
+use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     private const TEST_STORE_URI = 'http://test-store';
 
     private const STORE_URI_CONFIG_KEY = 'core.store.apiUri';
 
-    private StoreClientFactory $clientFactory;
-
-    private ?string $originalStoreUri;
-
-    public function setUp(): void
-    {
-        // create new sbp client factory as it is inlined in test environment because clients are created as mocks
-        $this->clientFactory = new StoreClientFactory(
-            $this->getSystemConfigService(),
-            $this->getContainer()->get(OpenSSLVerifier::class)
-        );
-    }
+    private ?string $originalStoreUri = null;
 
     /**
      * @before
      */
     public function updateStoreUri(): void
     {
-        $this->originalStoreUri = $this->getSystemConfigService()->get(self::STORE_URI_CONFIG_KEY);
+        $this->originalStoreUri = $this->getApiUrlFromSystemConfig();
         $this->getSystemConfigService()->set(self::STORE_URI_CONFIG_KEY, self::TEST_STORE_URI);
     }
 
@@ -52,7 +44,9 @@ class StoreClientFactoryTest extends TestCase
 
     public function testItCreatesAnClientWithBaseConfig(): void
     {
-        $client = $this->clientFactory->create();
+        $storeClientFactory = new StoreClientFactory($this->getSystemConfigService());
+
+        $client = $storeClientFactory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
         $config = $this->getConfigFromClient($client);
 
         static::assertEquals(self::TEST_STORE_URI, $config['base_uri']);
@@ -74,7 +68,10 @@ class StoreClientFactoryTest extends TestCase
         return $this->getContainer()->get(SystemConfigService::class);
     }
 
-    private function getConfigFromClient(Client $client): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function getConfigFromClient(ClientInterface $client): array
     {
         $reflObject = new \ReflectionObject($client);
         $reflProp = $reflObject->getProperty('config');
@@ -82,5 +79,14 @@ class StoreClientFactoryTest extends TestCase
         $reflProp->setAccessible(true);
 
         return $reflProp->getValue($client);
+    }
+
+    private function getApiUrlFromSystemConfig(): string
+    {
+        $apiUrl = $this->getSystemConfigService()->get(self::STORE_URI_CONFIG_KEY);
+
+        static::assertIsString($apiUrl);
+
+        return $apiUrl;
     }
 }

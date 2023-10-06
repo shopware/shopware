@@ -1,0 +1,66 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-media-folder-content-border-color-listing: $color-gray-300;
+$sw-media-folder-content-border-radius-listing: $border-radius-default;
+$sw-media-folder-content-border-radius-list-item: $border-radius-default;
+$sw-media-folder-content-color-buttons: $color-darkgray-200;
+$sw-media-folder-content-parent-color: $color-gray-300;
+$sw-media-folder-content-background-color: $color-white;
+
+.sw-media-folder-content {
+    .sw-media-folder-content__folder-listing {
+        border: 1px solid $sw-media-folder-content-border-color-listing;
+        border-radius: $sw-media-folder-content-border-radius-listing;
+        background-color: $sw-media-folder-content-background-color;
+        padding: 8px;
+        list-style: none;
+    }
+
+    .sw-media-folder-content__list-item {
+        border-radius: $sw-media-folder-content-border-radius-list-item;
+        padding-right: 10px;
+        height: 48px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $color-shopware-brand-50;
+
+            .sw-media-folder-content__folder-button {
+                color: $color-shopware-brand-500;
+            }
+        }
+
+        &.is--selected {
+            background-color: $color-shopware-brand-50;
+        }
+    }
+
+    .sw-media-folder-content__folder-icon {
+        margin-right: 16px;
+    }
+
+    .sw-media-folder-content__button {
+        background: none;
+        border: none;
+        outline: none;
+        padding: 8px;
+        color: $sw-media-folder-content-color-buttons;
+    }
+
+    .sw-media-folder-content__folder-button {
+        text-align: left;
+
+        @include truncate;
+    }
+
+    .sw-media-folder-content__parent-folder {
+        color: $sw-media-folder-content-parent-color;
+        text-align: left;
+
+        @include truncate;
+    }
+}

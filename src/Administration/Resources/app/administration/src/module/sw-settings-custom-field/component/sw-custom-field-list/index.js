@@ -1,11 +1,15 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
-Component.register('sw-custom-field-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -60,13 +64,6 @@ Component.register('sw-custom-field-list', {
     },
 
     watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        term() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.loadCustomFields();
-            }
-        },
-
         isLoading(value) {
             this.$emit('loading-changed', value);
         },
@@ -78,9 +75,7 @@ Component.register('sw-custom-field-list', {
 
     methods: {
         onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.loadCustomFields();
-            }
+            this.loadCustomFields();
         },
 
         createdComponent() {
@@ -90,12 +85,10 @@ Component.register('sw-custom-field-list', {
         loadCustomFields() {
             this.isLoading = true;
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
             criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -176,7 +169,7 @@ Component.register('sw-custom-field-list', {
 
         isCustomFieldNameUnique(customField) {
             // Search the server for the customField name
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', customField.name));
             return this.globalCustomFieldRepository.search(criteria).then((res) => {
                 return res.length === 0;
@@ -215,4 +208,4 @@ Component.register('sw-custom-field-list', {
             });
         },
     },
-});
+};

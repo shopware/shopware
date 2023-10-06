@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_list %}
 <sw-page class="sw-order-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -10,14 +12,18 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_smart_bar_header %}
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_smart_bar_header_title_text %}
             {{ $tc('sw-order.list.textOrders') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -31,10 +37,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_list_smart_bar_actions_slot %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip="{
@@ -55,19 +64,22 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_content %}
     <template #content>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_list_content_slot %}
         <div class="sw-order-list__content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_grid %}
             <sw-data-grid
                 v-if="entitySearchable"
@@ -77,27 +89,31 @@
                 :full-page="true"
                 :show-settings="true"
                 :show-selection="true"
-                :sort-by="sortBy"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 :is-loading="isLoading"
                 :allow-column-edit="true"
                 identifier="sw-order-list"
                 :disable-data-fetching="true"
-                :maximum-select-items="1000"
+                :maximum-select-items="100"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
                 @selection-change="updateSelection"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_order_number %}
                 <template #column-orderNumber="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_grid_order_number_link %}
                     <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
                         {{ item.orderNumber }}
                     </router-link>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_grid_label_manual_order %}
                     <sw-label
                         v-if="item.createdById"
@@ -108,17 +124,37 @@
                         {{ $tc('sw-order.list.labelManualOrder') }}
                     </sw-label>
                     {% endblock %}
+
+                    <sw-button
+                        v-if="item.customerComment"
+                        v-tooltip="{ message: item.customerComment }"
+                        class="sw-order-list__tooltip-order-comment"
+                        size="x-small"
+                    >
+                        <sw-icon
+                            name="regular-comments"
+                            size="14px"
+                        />
+                    </sw-button>
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_customer_name %}
                 <template #column-orderCustomer.firstName="{ item }">
-                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                    <router-link
+                        v-if="item.orderCustomer && item.orderCustomer.customerId"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
+                    >
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                     </router-link>
+                    <template v-else-if="item.orderCustomer">
+                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                    </template>
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_billing_address %}
                 <template #column-billingAddressId="{ item }">
                     {{ item.billingAddress.street }},
@@ -127,24 +163,17 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_amount %}
                 <template #column-amountTotal="{ item }">
-                    {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                    {{ currencyFilter(item.amountTotal, item.currency.translated.shortName) }}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_state %}
                 <template #column-stateMachineState.name="{ item }">
-                    <sw-label
-                        v-if="!feature.isActive('FEATURE_NEXT_7530')"
-                        :variant="getVariantFromOrderState(item)"
-                        appearance="pill"
-                    >
-                        {{ item.stateMachineState.translated.name }}
-                    </sw-label>
-
                     <div
-                        v-if="feature.isActive('FEATURE_NEXT_7530')"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -157,18 +186,11 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_transaction_state %}
                 <template #column-transactions.last().stateMachineState.name="{ item }">
-                    <sw-label
-                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
-                        :variant="getVariantFromPaymentState(item)"
-                        appearance="pill"
-                    >
-                        {{ item.transactions.last().stateMachineState.translated.name }}
-                    </sw-label>
-
                     <div
-                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
+                        v-if="item.transactions && item.transactions[0]"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -177,23 +199,16 @@
                             rounded
                         />
 
-                        {{ item.transactions.last().stateMachineState.translated.name }}
+                        {{ transaction(item).stateMachineState.translated.name }}
                     </div>
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-deliveries[0].stateMachineState.name="{ item }">
-                    <sw-label
-                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
-                        :variant="getVariantFromDeliveryState(item)"
-                        appearance="pill"
-                    >
-                        {{ item.deliveries[0].stateMachineState.translated.name }}
-                    </sw-label>
-
                     <div
-                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
+                        v-if="item.deliveries && item.deliveries[0]"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -207,6 +222,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_order_date %}
                 <template #column-orderDateTime="{ item }">
                     <sw-time-ago :date="item.orderDateTime" />
@@ -214,8 +230,10 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_actions %}
                 <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_grid_columns_actions_view %}
                     <sw-context-menu-item
                         class="sw-order-list__order-view-action"
@@ -225,6 +243,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
@@ -237,8 +256,10 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_action_modals %}
                 <template #action-modals="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -246,14 +267,17 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_delete_modal_confirm_delete_text %}
                         <p class="sw-order-list__confirm-delete-text">
                             {{ $tc('sw-order.list.textDeleteConfirm', 0, { orderNumber: `${item.orderNumber}` }) }}
                         </p>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_delete_modal_footer %}
                         <template #modal-footer>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_list_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -263,6 +287,7 @@
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_list_delete_modal_confirm %}
                             <sw-button
                                 variant="danger"
@@ -280,6 +305,7 @@
                 {% endblock %}
 
                 <template #pagination>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_grid_pagination %}
                     <sw-pagination
                         :page="page"
@@ -291,14 +317,18 @@
                     {% endblock %}
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_bulk_selected_actions_content %}
                 <template #bulk>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_bulk_selected_actions_content_bulk_edit %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="acl.can('order.editor')"
                         class="link link-primary"
+                        role="link"
+                        tabindex="0"
                         @click="showBulkEditModal = true"
+                        @keydown.enter="showBulkEditModal = true"
                     >
                         {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
                     </a>
@@ -306,6 +336,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_bulk_edit_modal %}
                 <template #bulk-modals="{ selection }">
                     <sw-bulk-edit-modal
@@ -317,8 +348,10 @@
                         @edit-items="onBulkEditItems"
                         @modal-close="showBulkEditModal = false"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_order_number %}
                         <template #column-orderNumber="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_list_bulk_edit_grid_order_number_link %}
                             <router-link
                                 :to="{ name: 'sw.order.detail', params: { id: item.id } }"
@@ -329,6 +362,7 @@
                             </router-link>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_list_bulk_edit_grid_label_manual_order %}
                             <sw-label
                                 v-if="item.createdById"
@@ -342,9 +376,11 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_customer_name %}
                         <template #column-orderCustomer.firstName="{ item }">
                             <router-link
+                                v-if="item.orderCustomer"
                                 :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
                                 target="_blank"
                                 rel="noreferrer noopener"
@@ -354,6 +390,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_billing_address %}
                         <template #column-billingAddressId="{ item }">
                             {{ item.billingAddress.street }},
@@ -362,12 +399,14 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_amount %}
                         <template #column-amountTotal="{ item }">
-                            {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                            {{ currencyFilter(item.amountTotal, item.currency.translated.shortName) }}
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_state %}
                         <template #column-stateMachineState.name="{ item }">
                             <sw-label
@@ -379,6 +418,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_transaction_state %}
                         <template #column-transactions.last().stateMachineState.name="{ item }">
                             <sw-label
@@ -391,6 +431,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
                         <template #column-deliveries[0].stateMachineState.name="{ item }">
                             <sw-label
@@ -403,9 +444,10 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_order_date %}
                         <template #column-orderDateTime="{ item }">
-                            {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                            {{ dateFilter(item.orderDateTime, { hour: '2-digit', minute: '2-digit' }) }}
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
@@ -414,6 +456,7 @@
             </sw-data-grid>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -422,7 +465,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -444,7 +487,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                             :alt="$tc('sw-order.list.messageEmpty')"
                         >
                     </template>
@@ -455,17 +498,20 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_sidebar %}
     <template #sidebar>
         <sw-sidebar class="sw-order-list__sidebar">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-order.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_sidebar_filter %}
             <sw-sidebar-filter-panel
                 entity="customer"

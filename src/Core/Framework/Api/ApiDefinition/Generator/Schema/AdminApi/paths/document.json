@@ -1,0 +1,146 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/document\/{documentId}\/{deepLinkCode}": {
+            "get": {
+                "tags": [
+                    "Document Management"
+                ],
+                "summary": "Download a document",
+                "description": "Download a document by its identifier and deep link code.",
+                "operationId": "downloadDocument",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "description": "Identifier of the document to be downloaded.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "deepLinkCode",
+                        "in": "path",
+                        "description": "A unique hash code which was generated when the document was created.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "download",
+                        "in": "query",
+                        "description": "This parameter controls the `Content-Disposition` header. If set to `true` the header will be set to `attachment` else `inline`.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The document.",
+                        "content": {
+                            "application\/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/_action\/document\/{documentId}\/upload": {
+            "post": {
+                "tags": [
+                    "Document Management"
+                ],
+                "summary": "Upload a file for a document",
+                "description": "Uploads a file for a document. This prevents the document from being dynamically generated and delivers the uploaded file instead, when the document is downloaded.\n\nNote:\n* The document is required to be `static`\n* A document can only have one media file\n\nThe are two methods of providing a file to this route:\n * Use a typical file upload and provide the file in the request\n * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.\nTo use file upload via url, the content type has to be `application\/json` and the parameter `url` has to be provided.",
+                "operationId": "uploadToDocument",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "description": "Identifier of the document the new file should be added to.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "fileName",
+                        "in": "query",
+                        "description": "Name of the uploaded file.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "extension",
+                        "in": "query",
+                        "description": "Extension of the uploaded file. For example `pdf`",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application\/octet-stream": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        },
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "url"
+                                ],
+                                "properties": {
+                                    "url": {
+                                        "description": "The url of the document that will be downloaded.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Document uploaded successful",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "documentId": {
+                                            "description": "Identifier of the document.",
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "documentDeepLink": {
+                                            "description": "A unique hash code which is required to open the document.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

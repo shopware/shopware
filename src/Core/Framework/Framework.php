@@ -2,23 +2,28 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -29,6 +34,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -38,8 +44,17 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Framework extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
+
     public function getContainerExtension(): Extension
     {
         return new FrameworkExtension();
@@ -51,13 +66,14 @@ class Framework extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');
-        $environment = $container->getParameter('kernel.environment');
+        $environment = (string) $container->getParameter('kernel.environment');
 
         $this->buildConfig($container, $environment);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
         $loader->load('acl.xml');
+        $loader->load('cache.xml');
         $loader->load('api.xml');
         $loader->load('app.xml');
         $loader->load('custom-field.xml');
@@ -83,6 +99,7 @@ class Framework extends Bundle
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
             $loader->load('seo_test.xml');
+            $loader->load('app_test.xml');
         }
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
@@ -96,10 +113,12 @@ class Framework extends Bundle
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
+        $container->addCompilerPass(new AssetBundleRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
-        $container->addCompilerPass(new AnnotationReaderCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
+        $container->addCompilerPass(new RedisPrefixCompilerPass());
+        $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());
@@ -108,6 +127,8 @@ class Framework extends Bundle
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
 
+        $container->addCompilerPass(new DemodataCompilerPass());
+
         parent::build($container);
     }
 
@@ -115,25 +136,33 @@ class Framework extends Bundle
     {
         parent::boot();
 
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+
         $featureFlags = $this->container->getParameter('shopware.feature.flags');
         if (!\is_array($featureFlags)) {
             throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
         }
+        Feature::registerFeatures($featureFlags);
 
         $cacheDir = $this->container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
 
-        Feature::registerFeatures($featureFlags);
-
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
             $this->container->get(ExtensionRegistry::class)
         );
+
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+
+        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
     }
 
+    /**
+     * @return string[]
+     */
     protected function getCoreMigrationPaths(): array
     {
         return [
@@ -141,7 +170,7 @@ class Framework extends Bundle
         ];
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $cacheDir = $container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {

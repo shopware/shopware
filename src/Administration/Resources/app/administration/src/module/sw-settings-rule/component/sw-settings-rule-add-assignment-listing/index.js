@@ -1,11 +1,15 @@
 import template from './sw-settings-rule-add-assignment-listing.html.twig';
 import './sw-settings-rule-add-assignment-listing.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
-Component.register('sw-settings-rule-add-assignment-listing', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     props: {
@@ -34,9 +38,7 @@ Component.register('sw-settings-rule-add-assignment-listing', {
 
     computed: {
         criteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(this.limit);
-            criteria.setPage(this.page);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.entityContext.addContext.association) {
                 criteria.addAssociation(this.entityContext.addContext.association);
@@ -122,4 +124,4 @@ Component.register('sw-settings-rule-add-assignment-listing', {
             return tax?.label;
         },
     },
-});
+};

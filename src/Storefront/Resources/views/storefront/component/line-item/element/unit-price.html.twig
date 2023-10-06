@@ -1,0 +1,14 @@
+{% block component_line_item_unit_price %}
+    {% block component_line_item_unit_price_label %}
+        <div class="line-item-unit-price-label">
+            {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
+        </div>
+    {% endblock %}
+
+    {% block component_line_item_unit_price_inner %}
+        <div class="line-item-unit-price-value">
+            {{ lineItem.price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+            <span class="line-item-unit-price-value-descriptor"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
+        </div>
+     {% endblock %}
+{% endblock %}

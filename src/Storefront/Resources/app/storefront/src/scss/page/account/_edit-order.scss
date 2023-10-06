@@ -27,7 +27,7 @@
     padding-right: 20px;
 }
 
-@include media-breakpoint-down(md) {
+@include media-breakpoint-down(lg) {
     .edit-order {
         padding-top: 0;
     }

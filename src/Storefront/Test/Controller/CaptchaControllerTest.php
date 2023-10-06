@@ -7,24 +7,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Controller\CaptchaController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPagelet;
 
+/**
+ * @internal
+ */
 class CaptchaControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use StorefrontControllerTestBehaviour;
-
-    private CaptchaController $controller;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->controller = $this->getContainer()->get(CaptchaController::class);
-    }
 
     public function testLoadBasicCaptchaContent(): void
     {
@@ -34,7 +28,7 @@ class CaptchaControllerTest extends TestCase
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(BasicCaptchaPagelet::class, $response->getData()['page']);
     }
@@ -55,7 +49,7 @@ class CaptchaControllerTest extends TestCase
 
         $formId = 'Kyln-test';
         $basicCaptchaSession = 'kylnsession';
-        $this->getContainer()->get('session')->set($formId . 'basic_captcha_session', 'kylnsession');
+        $this->getSession()->set($formId . 'basic_captcha_session', 'kylnsession');
 
         $payload = [
             'formId' => $formId,
@@ -67,14 +61,14 @@ class CaptchaControllerTest extends TestCase
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
-        static::assertArrayHasKey('session', json_decode($response->getContent(), true));
+        static::assertArrayHasKey('session', json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
 
         // BasicCaptcha Invalid
-        $this->getContainer()->get('session')->set($formId . 'basic_captcha_session', 'invalid');
+        $this->getSession()->set($formId . 'basic_captcha_session', 'invalid');
         $browser->request('POST', $_SERVER['APP_URL'] . '/basic-captcha-validate', $payload);
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
-        static::assertArrayHasKey('error', json_decode($response->getContent(), true)[0]);
+        static::assertArrayHasKey('error', json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)[0]);
     }
 }

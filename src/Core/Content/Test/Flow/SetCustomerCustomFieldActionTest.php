@@ -2,43 +2,49 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    use OrderActionTrait;
     use CacheTestBehaviour;
+    use OrderActionTrait;
+
+    private EntityRepository $flowRepository;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**
+     * @param array<int, mixed>|null $existedData
+     * @param array<int, mixed>|null $updateData
+     * @param array<int, mixed>|null $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testCreateCustomFieldForCustomer(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
@@ -48,8 +54,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, ['customFields' => [$customFieldName => $existedData]]);
+        $this->prepareCustomer($email, ['customFields' => [$customFieldName => $existedData]]);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -77,16 +82,20 @@ class SetCustomerCustomFieldActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
+        static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), $this->ids->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertEquals($customer->getCustomFields(), $expect);
     }
 
-    public function createDataProvider(): array
+    /**
+     * @return array<string, mixed>
+     */
+    public static function createDataProvider(): array
     {
         return [
             'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],

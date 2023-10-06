@@ -1,10 +1,15 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-
-Component.register('sw-product-stream-value', {
+/*
+ * @private
+ */
+export default {
     template,
 
     inject: [
@@ -149,9 +154,20 @@ Component.register('sw-product-stream-value', {
             });
         },
 
+        productStateOptions() {
+            return [
+                { label: this.$tc('sw-product-stream.filter.values.productStates.physical'), value: 'is-physical' },
+                { label: this.$tc('sw-product-stream.filter.values.productStates.digital'), value: 'is-download' },
+            ];
+        },
+
         fieldType() {
             if (!this.fieldDefinition) {
                 return null;
+            }
+
+            if (this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+                return 'product_state_list';
             }
 
             if (this.definition.isJsonField(this.fieldDefinition)) {
@@ -245,8 +261,19 @@ Component.register('sw-product-stream-value', {
             set(value) { this.actualCondition.parameters.operator = this.getParameterName(value); },
         },
 
-        isEmptyValue() {
-            return this.filterType === 'equals';
+        emptyValue: {
+            get() {
+                return this.condition.type !== null ? this.filterType === 'equals' : null;
+            },
+            set(value) {
+                if (value === undefined || value === null) {
+                    this.$emit('empty-change', { type: null });
+
+                    return;
+                }
+
+                this.$emit('empty-change', { type: value ? 'equals' : 'notEquals' });
+            },
         },
 
         stringValue: {
@@ -276,14 +303,14 @@ Component.register('sw-product-stream-value', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         propertyCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.definition.entity === 'property_group_option') {
                 criteria.addAssociation('group');
@@ -297,7 +324,7 @@ Component.register('sw-product-stream-value', {
         },
 
         visibilitiesCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('product');
 
@@ -310,7 +337,7 @@ Component.register('sw-product-stream-value', {
         },
 
         resultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -436,10 +463,6 @@ Component.register('sw-product-stream-value', {
             this.$emit('boolean-change', { type: +value ? 'equals' : 'notEquals', value });
         },
 
-        setEmptyValue(value) {
-            this.$emit('empty-change', { type: value ? 'equals' : 'notEquals' });
-        },
-
         setSearchTerm(value) {
             this.searchTerm = value;
         },
@@ -447,5 +470,13 @@ Component.register('sw-product-stream-value', {
         onSelectCollapsed() {
             this.searchTerm = '';
         },
+
+        getCategoryBreadcrumb(category) {
+            if (!category.breadcrumb || Object.keys(category.breadcrumb).length === 0) {
+                return category.name;
+            }
+
+            return Object.values(category.breadcrumb).join(' / ');
+        },
     },
-});
+};

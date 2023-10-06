@@ -4,6 +4,8 @@ import './sw-empty-state.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-empty-state', {

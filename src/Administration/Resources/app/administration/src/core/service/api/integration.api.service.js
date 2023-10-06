@@ -3,6 +3,7 @@ const ApiService = Shopware.Classes.ApiService;
 /**
  * Gateway for the API end point "integration"
  * @class
+ * @package system-settings
  * @extends ApiService
  */
 class IntegrationApiService extends ApiService {
@@ -34,4 +35,5 @@ class IntegrationApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default IntegrationApiService;

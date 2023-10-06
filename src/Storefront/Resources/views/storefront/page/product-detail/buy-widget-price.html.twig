@@ -35,9 +35,8 @@
 
                                                 {% block page_product_detail_price_block_table_body_cell_quantity %}
                                                     <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
-                                                        <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.translated.shortName }}" />
-                                                        <meta itemprop="price" content="{{ price.unitPrice }}" />
-                                                        <link itemprop="availability" href="https://schema.org/InStock" />
+                                                        <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.translated.shortName }}">
+                                                        <meta itemprop="price" content="{{ price.unitPrice }}">
 
                                                         {% if loop.last %}
                                                             {{ "detail.priceDataInfoFrom"|trans|sw_sanitize }}
@@ -87,12 +86,14 @@
 
         {% block page_product_detail_price_content %}
             {% set listPrice = price.listPrice %}
+            {% set isListPrice = listPrice.percentage > 0 %}
+            {% set isRegulationPrice = price.regulationPrice != null %}
 
-            <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
+            <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
                 {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
             </p>
 
-            {% if listPrice.percentage > 0 %}
+            {% if isListPrice %}
                 {% block page_product_detail_was_price %}
 
                     {% block page_product_detail_was_price_badge %}
@@ -117,6 +118,11 @@
                     {% endblock %}
                 {% endblock %}
             {% endif %}
+            {% if isRegulationPrice %}
+                <span class="product-detail-list-price-wrapper">
+                    <span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                </span>
+            {% endif %}
         {% endblock %}
 
         {% if page.product.purchaseUnit %}
@@ -130,7 +136,7 @@
 
                     {% block page_product_detail_price_unit_content %}
                         <span class="price-unit-content">
-                            {{ page.product.purchaseUnit }} {{ page.product.unit.name }}
+                            {{ page.product.purchaseUnit }} {{ page.product.unit.translated.name }}
                         </span>
                     {% endblock %}
 

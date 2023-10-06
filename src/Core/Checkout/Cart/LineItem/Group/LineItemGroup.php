@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class LineItemGroup
 {
     /**
@@ -9,6 +12,9 @@ class LineItemGroup
      */
     private $items;
 
+    /**
+     * @internal
+     */
     public function __construct()
     {
         $this->items = [];

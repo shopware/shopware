@@ -2,9 +2,10 @@ import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
 const { Component, Utils } = Shopware;
-const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-text-editor-toolbar', {
@@ -84,6 +85,14 @@ Component.register('sw-text-editor-toolbar', {
                 });
             },
         },
+
+        position: {
+            handler(newValue) {
+                if (newValue.top.replace('px', '') < 0) {
+                    this.closeExpandedMenu();
+                }
+            },
+        },
     },
 
     created() {
@@ -92,13 +101,6 @@ Component.register('sw-text-editor-toolbar', {
 
     mounted() {
         this.mountedComponent();
-    },
-
-    /**
-     * @deprecated tag:v6.5.0 - Use unmounted instead.
-     */
-    beforeDestroy() {
-        this.beforeDestroyComponent();
     },
 
     unmounted() {
@@ -124,7 +126,7 @@ Component.register('sw-text-editor-toolbar', {
                     this.setToolbarPosition();
                 }, 16);
 
-                document.querySelector('#app').addEventListener('scroll', this.scrollEventHandler, true);
+                document.addEventListener('scroll', this.scrollEventHandler, true);
 
                 this.$device.onResize({
                     listener: this.setToolbarPosition,
@@ -165,29 +167,23 @@ Component.register('sw-text-editor-toolbar', {
             }
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
-         */
-        beforeDestroyComponent() {
-            this.beforeUnmountedComponent();
-        },
-
         destroyedComponent() {
             this.closeExpandedMenu();
 
             document.removeEventListener('scroll', this.scrollEventListener, true);
             document.removeEventListener('mouseup', this.onMouseUp);
 
+            if (this.$el?.parentElement?.contains(this.$el)) {
+                this.$el.parentElement.removeChild(this.$el);
+            }
+
             this.$emit('destroyed-el');
         },
 
-        beforeUnmountedComponent() {
-            const body = document.querySelector('body');
-
-            if (body.contains(this.$el)) {
-                body.removeChild(this.$el);
-            }
-        },
+        /*
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        beforeUnmountedComponent() {},
 
         onMouseUp(event) {
             const path = [];
@@ -196,6 +192,10 @@ Component.register('sw-text-editor-toolbar', {
             while (source) {
                 path.push(source);
                 source = source.parentNode;
+            }
+
+            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
             }
 
             if (!path.includes(this.$el)) {
@@ -273,6 +273,8 @@ Component.register('sw-text-editor-toolbar', {
             if (button.type === 'link') {
                 button.value = this.currentLink?.url ?? '';
                 button.newTab = this.currentLink?.newTab ?? false;
+                button.displayAsButton = this.currentLink?.displayAsButton ?? false;
+                button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
             this.$set(button, 'active', !!this.activeTags.includes(button.tag));
@@ -296,6 +298,9 @@ Component.register('sw-text-editor-toolbar', {
             this.keepSelection();
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will emit hypernated `remove-link` event only.
+         */
         onButtonClick(button, parent = null) {
             if (button.type === 'link') {
                 this.handleTextStyleChangeLink(button);
@@ -303,6 +308,7 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             if (button.type === 'linkRemove') {
+                this.$emit('remove-link');
                 this.$emit('removeLink');
             }
 
@@ -368,7 +374,15 @@ Component.register('sw-text-editor-toolbar', {
                 }
 
                 if (parentNode.tagName === 'A') {
-                    this.currentLink = { url: parentNode.getAttribute('href'), newTab: parentNode.target === '_blank' };
+                    const buttonType = parentNode.classList.contains('btn-secondary') ? 'secondary' : 'primary';
+                    const buttonSizeSuffix = parentNode.classList.contains('btn-sm') ? '-sm' : '';
+
+                    this.currentLink = {
+                        url: parentNode.getAttribute('href'),
+                        newTab: parentNode.target === '_blank',
+                        displayAsButton: parentNode.classList.contains('btn'),
+                        buttonVariant: `${buttonType}${buttonSizeSuffix}`,
+                    };
                 }
 
                 if (parentNode.tagName === 'TABLE') {
@@ -409,7 +423,7 @@ Component.register('sw-text-editor-toolbar', {
 
             this.keepSelection(true);
 
-            if (button.value && (!button.displayAsButton || button.buttonVariant.length > 0)) {
+            if (button.value) {
                 if (!this.selection || this.selection.rangeCount < 1) {
                     button.expanded = false;
                     return;
@@ -417,40 +431,15 @@ Component.register('sw-text-editor-toolbar', {
 
                 this.$emit(
                     'on-set-link',
-                    this.prepareLink(button.value),
+                    button.value,
                     target,
-                    button.displayAsButton ? button.buttonVariant : '',
+                    button.displayAsButton,
+                    button.buttonVariant,
                 );
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;
             }
-        },
-
-        prepareLink(link) {
-            link = link.trim();
-
-            if (!link.startsWith(domainPlaceholderId)) {
-                link = this.addProtocol(link);
-            }
-
-            return link;
-        },
-
-        addProtocol(link) {
-            if (/(^(\w+):\/\/)|(mailto:)|(fax:)|(tel:)/.test(link)) {
-                return link;
-            }
-
-            const isInternal = /^\/[^\/\s]/.test(link);
-            const isAnchor = link.substring(0, 1) === '#';
-            const isProtocolRelative = /^\/\/[^\/\s]/.test(link);
-
-            if (!isInternal && !isAnchor && !isProtocolRelative) {
-                link = `http://${link}`;
-            }
-
-            return link;
         },
 
         keepSelection(keepRange) {

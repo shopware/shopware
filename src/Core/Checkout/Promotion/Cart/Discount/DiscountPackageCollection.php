@@ -5,14 +5,13 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method DiscountPackage[]    getIterator()
- * @method DiscountPackage[]    getElements()
- * @method DiscountPackage|null first()
- * @method DiscountPackage|null last()
+ * @extends Collection<DiscountPackage>
  */
+#[Package('buyers-experience')]
 class DiscountPackageCollection extends Collection
 {
     /**

@@ -10,6 +10,9 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class OrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

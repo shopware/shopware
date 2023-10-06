@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_generate_codes_modal %}
 <sw-modal
     class="sw-promotion-v2-generate-codes-modal"
@@ -5,9 +6,11 @@
     @modal-close="onClose"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_generate_codes_modal_content %}
     <div class="sw-promotion-v2-generate-codes-modal__content">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_warning %}
         <sw-alert
             v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
@@ -18,13 +21,16 @@
         </sw-alert>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_description %}
         <p class="sw-promotion-v2-generate-codes-modal__description">
             {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.description') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_container_pattern %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_container_pattern_simple %}
         <sw-container
             v-if="!customPatternMode"
@@ -33,18 +39,28 @@
             gap="0px 32px"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_prefix %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="pattern.prefix"
+                {% else %}
                 v-model="pattern.prefix"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__prefix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_replacement %}
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="pattern.codeLength"
+                {% else %}
                 v-model="pattern.codeLength"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__replacement"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
@@ -52,9 +68,14 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_suffix %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="pattern.suffix"
+                {% else %}
                 v-model="pattern.suffix"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__suffix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
@@ -64,10 +85,15 @@
         </sw-container>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_container_pattern_custom %}
         <sw-text-field
             v-else
+            {% if VUE3 %}
+            v-model:value="promotion.individualCodePattern"
+            {% else %}
             v-model="promotion.individualCodePattern"
+            {% endif %}
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
             :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
@@ -76,15 +102,21 @@
         {% endblock %}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_custom_pattern_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="customPatternMode"
+            {% else %}
             v-model="customPatternMode"
+            {% endif %}
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
             bordered
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_container_generate %}
         <sw-container
             class="sw-promotion-v2-generate-codes-modal__container-generate"
@@ -92,18 +124,28 @@
             gap="0px 32px"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_preview %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="preview"
+                {% else %}
                 v-model="preview"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__preview"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
                 disabled
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_code_amount %}
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="codeAmount"
+                {% else %}
                 v-model="codeAmount"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"
@@ -116,9 +158,11 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_generate_codes_modal_footer %}
     <template #modal-footer>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_cancel %}
         <sw-button
             class="sw-promotion-v2-generate-codes-modal__button-cancel"
@@ -129,6 +173,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_generate %}
         <sw-button-process
             class="sw-promotion-v2-generate-codes-modal__button-generate"

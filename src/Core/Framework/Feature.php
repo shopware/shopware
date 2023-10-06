@@ -4,13 +4,24 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
+/**
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string}
+ */
+#[Package('core')]
 class Feature
 {
-    public const ALL_MAJOR = 'major';
+    final public const ALL_MAJOR = 'major';
 
     /**
-     * @var array[]
+     * @var array<bool>
+     */
+    private static array $silent = [];
+
+    /**
+     * @var array<string, FeatureFlagConfig>
      */
     private static array $registeredFeatures = [];
 
@@ -24,6 +35,45 @@ class Feature
          * - v6.5.0.0 => v6_5_0_0
          */
         return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param array<string> $features
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function fake(array $features, \Closure $closure)
+    {
+        $before = self::$registeredFeatures;
+        $serverVarsBackup = $_SERVER;
+
+        $result = null;
+
+        try {
+            self::$registeredFeatures = [];
+            foreach ($_SERVER as $key => $value) {
+                if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
+                    // set to false so that $_ENV is not checked
+                    $_SERVER[$key] = false;
+                }
+            }
+
+            if ($features) {
+                foreach ($features as $feature) {
+                    $_SERVER[Feature::normalizeName($feature)] = true;
+                }
+            }
+
+            $result = $closure();
+        } finally {
+            self::$registeredFeatures = $before;
+            $_SERVER = $serverVarsBackup;
+        }
+
+        return $result;
     }
 
     public static function isActive(string $feature): bool
@@ -64,13 +114,48 @@ class Feature
         self::isActive($flagName) && $closure();
     }
 
-    public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
+    public static function ifNotActive(string $flagName, \Closure $closure): void
     {
-        $closure = function () use ($object, $methodName, $arguments): void {
-            $object->{$methodName}(...$arguments);
-        };
+        !self::isActive($flagName) && $closure();
+    }
 
-        self::ifActive($flagName, \Closure::bind($closure, $object, $object));
+    public static function callSilentIfInactive(string $flagName, \Closure $closure): void
+    {
+        $before = isset(self::$silent[$flagName]);
+        self::$silent[$flagName] = true;
+
+        try {
+            if (!self::isActive($flagName)) {
+                $closure();
+            }
+        } finally {
+            if (!$before) {
+                unset(self::$silent[$flagName]);
+            }
+        }
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function silent(string $flagName, \Closure $closure): mixed
+    {
+        $before = isset(self::$silent[$flagName]);
+        self::$silent[$flagName] = true;
+
+        try {
+            $result = $closure();
+        } finally {
+            if (!$before) {
+                unset(self::$silent[$flagName]);
+            }
+        }
+
+        return $result;
     }
 
     public static function skipTestIfInActive(string $flagName, TestCase $test): void
@@ -79,7 +164,7 @@ class Feature
             return;
         }
 
-        $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
     }
 
     public static function skipTestIfActive(string $flagName, TestCase $test): void
@@ -88,29 +173,64 @@ class Feature
             return;
         }
 
-        $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
-    }
-
-    /**
-     * Triggers a silenced deprecation notice.
-     *
-     * @param string $sinceVersion  The version of the package that introduced the deprecation
-     * @param string $removeVersion The version of the package when the deprectated code will be removed
-     * @param string $message       The message of the deprecation
-     * @param mixed  ...$args       Values to insert in the message using printf() formatting
-     */
-    public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
-    {
-        if (self::isActive($flag) || !self::has($flag)) {
-            trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
-        }
+        $test->markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void
     {
-        if (self::isActive($flag) === $state || !self::has($flag)) {
+        if (self::isActive($flag) === $state || (self::$registeredFeatures !== [] && !self::has($flag))) {
             throw new \RuntimeException($message);
         }
+
+        if (\PHP_SAPI !== 'cli') {
+            ScriptTraces::addDeprecationNotice($message);
+        }
+    }
+
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
+    {
+        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
+            throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
+        }
+
+        if (!isset(self::$silent[$majorFlag]) || !self::$silent[$majorFlag]) {
+            if (\PHP_SAPI !== 'cli') {
+                ScriptTraces::addDeprecationNotice($message);
+            }
+
+            trigger_deprecation('shopware/core', '', $message);
+        }
+    }
+
+    public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
+    {
+        $message = \sprintf(
+            'Method "%s::%s()" is deprecated and will be removed in %s.',
+            $class,
+            $method,
+            $majorVersion
+        );
+
+        if ($replacement) {
+            $message = \sprintf('%s Use "%s" instead.', $message, $replacement);
+        }
+
+        return $message;
+    }
+
+    public static function deprecatedClassMessage(string $class, string $majorVersion, ?string $replacement = null): string
+    {
+        $message = \sprintf(
+            'Class "%s" is deprecated and will be removed in %s.',
+            $class,
+            $majorVersion
+        );
+
+        if ($replacement) {
+            $message = \sprintf('%s Use "%s" instead.', $message, $replacement);
+        }
+
+        return $message;
     }
 
     public static function has(string $flag): bool
@@ -120,18 +240,29 @@ class Feature
         return isset(self::$registeredFeatures[$flag]);
     }
 
-    public static function getAll(): array
+    /**
+     * @return array<string, bool>
+     */
+    public static function getAll(bool $denormalized = true): array
     {
         $resolvedFlags = [];
 
         foreach (self::$registeredFeatures as $name => $_) {
-            $resolvedFlags[$name] = self::isActive($name);
+            $active = self::isActive($name);
+            $resolvedFlags[$name] = $active;
+
+            if (!$denormalized) {
+                continue;
+            }
+            $resolvedFlags[self::denormalize($name)] = $active;
         }
 
         return $resolvedFlags;
     }
 
     /**
+     * @param FeatureFlagConfig $metaData
+     *
      * @internal
      */
     public static function registerFeature(string $name, array $metaData = []): void
@@ -139,6 +270,8 @@ class Feature
         $name = self::normalizeName($name);
 
         // merge with existing data
+
+        /** @var array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData */
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],
             $metaData
@@ -153,6 +286,8 @@ class Feature
     }
 
     /**
+     * @param array<string, FeatureFlagConfig>|string[] $registeredFeatures
+     *
      * @internal
      */
     public static function registerFeatures(iterable $registeredFeatures): void
@@ -178,6 +313,8 @@ class Feature
 
     /**
      * @internal
+     *
+     * @return array<string, FeatureFlagConfig>
      */
     public static function getRegisteredFeatures(): array
     {
@@ -186,9 +323,11 @@ class Feature
 
     private static function isTrue(string $value): bool
     {
-        return $value
-            && $value !== 'false'
-            && $value !== '0'
-            && $value !== '';
+        return $value && $value !== 'false';
+    }
+
+    private static function denormalize(string $name): string
+    {
+        return \strtolower(\str_replace(['_'], '.', $name));
     }
 }

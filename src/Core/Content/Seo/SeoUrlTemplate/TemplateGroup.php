@@ -2,34 +2,20 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('buyers-experience')]
 class TemplateGroup
 {
     /**
-     * @var string
+     * @param array<string> $salesChannelIds
      */
-    private $languageId;
-
-    /**
-     * @var string
-     */
-    private $template;
-
-    /**
-     * @var array
-     */
-    private $salesChannelIds;
-
-    /**
-     * @var array
-     */
-    private $salesChannels;
-
-    public function __construct(string $languageId, string $template, array $salesChannelIds, array $salesChannels = [])
-    {
-        $this->languageId = $languageId;
-        $this->template = $template;
-        $this->salesChannels = $salesChannels;
-        $this->salesChannelIds = $salesChannelIds;
+    public function __construct(
+        private readonly string $languageId,
+        private readonly string $template,
+        private readonly array $salesChannelIds,
+        private array $salesChannels = []
+    ) {
     }
 
     public function getLanguageId(): string

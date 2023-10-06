@@ -2,56 +2,46 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * Defines the current state of an entity in relation to the parent-child inheritance and
  * existence in the storage or command queue.
  */
+#[Package('core')]
 class EntityExistence
 {
     /**
-     * @var array
+     * @param array<string, mixed> $primaryKey
+     * @param array<string, mixed> $state
      */
-    private $primaryKey;
-
-    /**
-     * @var bool
-     */
-    private $exists;
-
-    /**
-     * @var bool
-     */
-    private $isChild;
-
-    /**
-     * @var bool
-     */
-    private $wasChild;
-
-    /**
-     * @var array
-     */
-    private $state;
-
-    /**
-     * @var string|null
-     */
-    private $entityName;
-
     public function __construct(
-        ?string $entityName, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
-        array $primaryKey,
-        bool $exists,
-        bool $isChild,
-        bool $wasChild,
-        array $state
+        private readonly ?string $entityName,
+        // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
+        private readonly array $primaryKey,
+        private readonly bool $exists,
+        private readonly bool $isChild,
+        private readonly bool $wasChild,
+        private readonly array $state
     ) {
-        $this->entityName = $entityName;
-        $this->primaryKey = $primaryKey;
-        $this->exists = $exists;
-        $this->isChild = $isChild;
-        $this->wasChild = $wasChild;
-        $this->state = $state;
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<string, mixed> $primaryKey
+     */
+    public static function createForEntity(?string $entity, array $primaryKey): self
+    {
+        return new self($entity, $primaryKey, false, false, false, []);
+    }
+
+    /**
+     * @internal
+     */
+    public static function createEmpty(): self
+    {
+        return new self(null, [], false, false, false, []);
     }
 
     public function exists(): bool
@@ -59,6 +49,9 @@ class EntityExistence
         return $this->exists;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;
@@ -93,6 +86,9 @@ class EntityExistence
         return !$this->isChild();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getState(): array
     {
         return $this->state;

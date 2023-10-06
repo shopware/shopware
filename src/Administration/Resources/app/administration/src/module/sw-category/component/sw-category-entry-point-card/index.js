@@ -1,10 +1,14 @@
 import template from './sw-category-entry-point-card.html.twig';
 import './sw-category-entry-point-card.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-Component.register('sw-category-entry-point-card', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -81,7 +85,7 @@ Component.register('sw-category-entry-point-card', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.hasExistingNavigation) {
                 criteria.addFilter(Criteria.not('or', [
@@ -169,4 +173,4 @@ Component.register('sw-category-entry-point-card', {
             this.configureHomeModalVisible = false;
         },
     },
-});
+};

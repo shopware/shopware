@@ -1,3 +1,4 @@
+/* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
 @import "~scss/mixins";
 
@@ -25,7 +26,7 @@
             width: 110px;
         }
 
-        .icon--small-arrow-large-right {
+        .icon--regular-chevron-right-s {
             position: absolute;
             top: -7px;
             right: 0;
@@ -35,9 +36,9 @@
         &.is--disabled {
             .arrow-action {
                 &.sw-context-button .sw-context-button__button {
-                    background: $color-shopware-brand-500;
-                    color: $color-white;
-                    border: none;
+                    background: $color-white;
+                    color: $color-darkgray-200;
+                    border: 1px solid $color-gray-500;
                 }
             }
 
@@ -72,11 +73,11 @@
         left: 50px;
 
         &.sw-label {
-            background: $color-emerald-600;
+            background: $color-emerald-700;
             color: $color-white;
             border: none;
-            text-transform: uppercase;
             font-weight: $font-weight-semi-bold;
+            line-height: 16px;
         }
     }
 
@@ -93,7 +94,7 @@
             height: 70px;
         }
 
-        .icon--small-arrow-large-down {
+        .icon--regular-chevron-down-s {
             position: absolute;
             bottom: 0;
             left: -9px;
@@ -103,9 +104,9 @@
         &.is--disabled {
             .arrow-action {
                 &.sw-context-button .sw-context-button__button {
-                    background: $color-shopware-brand-500;
-                    color: $color-white;
-                    border: none;
+                    background: $color-white;
+                    color: $color-darkgray-200;
+                    border: 1px solid $color-gray-500;
                 }
             }
         }
@@ -119,8 +120,8 @@
             background: $color-crimson-600;
             color: $color-white;
             border: none;
-            text-transform: uppercase;
             font-weight: $font-weight-semi-bold;
+            line-height: 16px;
         }
     }
 
@@ -135,14 +136,15 @@
 
             &:hover,
             &:focus {
-                background: $color-shopware-brand-500;
-                color: $color-white;
-                border: none;
+                background: $color-gray-100;
             }
         }
 
         .sw-icon {
             display: inline-block;
+            padding: 0;
+
+            @include size(12px);
         }
     }
 
@@ -181,22 +183,41 @@
         background: $color-white;
         border-radius: 8px;
         border: 1px solid $color-gray-300;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.2);
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
         grid-row: span 1;
         overflow: hidden;
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
+        }
     }
 
     &__header {
         display: flex;
-        background: $color-gray-100;
-        padding: 16px 23px;
+        padding: 16px 12px 12px 20px;
         justify-content: space-between;
-        max-height: 55px;
+        align-items: baseline;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &__title-description {
+        display: flex;
+        gap: 4px;
     }
 
     &__title {
-        font-size: $font-size-default;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+        margin-bottom: 0;
+    }
+
+    &__description {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+        margin-bottom: 0;
     }
 
     &__rule {
@@ -215,16 +236,16 @@
 
     &__no-rule {
         color: $color-gray-400;
-        font-size: 15px;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
         margin-left: 8px;
     }
 
     &__rule-info {
-        padding: 12px 24px;
+        padding: 12px 12px 16px 20px;
 
         p {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             color: $color-darkgray-200;
             margin-left: 20px;
         }
@@ -233,14 +254,21 @@
     &__rule-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 9px;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    &__rule-icon {
+        align-self: baseline;
     }
 
     &__rule-name {
-        @include flex-centering-vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+        flex-basis: 100%;
 
         h3 {
-            font-size: 15px;
+            font-size: $font-size-xs;
             font-weight: $font-weight-semi-bold;
             color: $color-darkgray-200;
             margin-bottom: 0;
@@ -249,7 +277,8 @@
     }
 
     &__rule-description {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
+        line-height: $line-height-sm;
         margin-left: 20px;
     }
 
@@ -259,63 +288,33 @@
         display: flex;
     }
 
-    &__add-button {
-        @include flex-centering-vertical;
-
-        padding-left: 24px;
-        cursor: pointer;
-
-        p {
-            color: $color-shopware-brand-500;
-            text-decoration: underline;
-            font-size: $font-size-small;
-        }
-    }
-
-    &__add-icon {
-        @include circle(12px);
-        @include flex-centering;
-
-        background: $color-shopware-brand-500;
-        color: $color-white;
-        margin-right: 9px;
-    }
-
     &__select {
         @include flex-centering-vertical;
 
-        justify-content: start;
-        padding: 0 24px;
-        margin-bottom: 0;
+        padding: 16px 24px;
+        border-top: 1px solid $color-gray-300;
         width: 100%;
-
-        .icon--small-default-x-circle {
-            cursor: pointer;
-        }
-    }
-
-    &__selection-rule {
-        margin-left: 9px;
     }
 
     &__explains {
         position: absolute;
         width: 340px;
         left: 360px;
-        padding: 32px;
+        padding: 24px;
         border: 2px dashed $color-gray-300;
         border-radius: 8px;
         color: $color-darkgray-200;
         top: 0;
 
-        h3 {
-            font-size: $font-size-large;
-            font-weight: normal;
+        h4 {
+            font-weight: $font-weight-semi-bold;
             color: $color-darkgray-200;
+            margin-bottom: 12px;
         }
 
         p {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
+            line-height: $line-height-sm;
             color: $color-darkgray-200;
         }
     }

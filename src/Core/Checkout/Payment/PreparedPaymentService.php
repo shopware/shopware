@@ -7,42 +7,34 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+#[Package('checkout')]
 class PreparedPaymentService
 {
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
-    private StateMachineRegistry $stateMachineRegistry;
-
-    private EntityRepositoryInterface $appPaymentMethodRepository;
-
-    private LoggerInterface $logger;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        StateMachineRegistry $stateMachineRegistry,
-        EntityRepositoryInterface $appPaymentMethodRepository,
-        LoggerInterface $logger
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
+        private readonly EntityRepository $appPaymentMethodRepository,
+        private readonly LoggerInterface $logger,
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
     ) {
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->stateMachineRegistry = $stateMachineRegistry;
-        $this->appPaymentMethodRepository = $appPaymentMethodRepository;
-        $this->logger = $logger;
     }
 
     public function handlePreOrderPayment(
@@ -53,7 +45,7 @@ class PreparedPaymentService
         try {
             $paymentHandler = $this->getPaymentHandlerFromSalesChannelContext($salesChannelContext);
             if (!$paymentHandler) {
-                throw new UnknownPaymentMethodException($salesChannelContext->getPaymentMethod()->getId());
+                throw PaymentException::unknownPaymentMethod($salesChannelContext->getPaymentMethod()->getId());
             }
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface)) {
@@ -61,7 +53,7 @@ class PreparedPaymentService
             }
 
             return $paymentHandler->validate($cart, $dataBag, $salesChannelContext);
-        } catch (PaymentProcessException|ValidatePreparedPaymentException $e) {
+        } catch (PaymentException $e) {
             $customer = $salesChannelContext->getCustomer();
             $customerId = $customer !== null ? $customer->getId() : '';
             $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage()]);
@@ -89,7 +81,7 @@ class PreparedPaymentService
                 return;
             }
 
-            $preparedTransactionStruct = new PreparedPaymentTransactionStruct($transaction, $order);
+            $preparedTransactionStruct = $this->paymentTransactionStructFactory->prepared($transaction, $order);
             $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
         } catch (PaymentProcessException $e) {
             $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage()]);
@@ -102,14 +94,11 @@ class PreparedPaymentService
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw new InvalidOrderException($order->getId());
+            throw PaymentException::invalidOrder($order->getId());
         }
 
         $transactions = $transactions->filterByStateId(
-            $this->stateMachineRegistry->getInitialState(
-                OrderTransactionStates::STATE_MACHINE,
-                $salesChannelContext->getContext()
-            )->getId()
+            $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)
         );
 
         return $transactions->last();
@@ -119,12 +108,12 @@ class PreparedPaymentService
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
         }
 
-        $paymentHandler = $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         if (!$paymentHandler) {
-            throw new UnknownPaymentMethodException($paymentMethod->getId());
+            throw PaymentException::unknownPaymentMethod($paymentMethod->getId());
         }
 
         return $paymentHandler;
@@ -135,16 +124,18 @@ class PreparedPaymentService
         $paymentMethod = $salesChannelContext->getPaymentMethod();
 
         if (($appPaymentMethod = $paymentMethod->getAppPaymentMethod()) && $appPaymentMethod->getApp()) {
-            return $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+            return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('prepared-payment-handler');
         $criteria->addAssociation('app');
         $criteria->addFilter(new EqualsFilter('paymentMethodId', $paymentMethod->getId()));
 
+        /** @var AppPaymentMethodEntity $appPaymentMethod */
         $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext->getContext())->first();
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        return $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
     }
 }

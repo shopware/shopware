@@ -8,10 +8,18 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class DeliveryTransformer
 {
+    /**
+     * @param array<string, array<string, mixed>> $lineItems
+     * @param array<string, mixed> $addresses
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public static function transformCollection(
         DeliveryCollection $deliveries,
         array $lineItems,
@@ -27,6 +35,12 @@ class DeliveryTransformer
         return $output;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $lineItems
+     * @param array<string, mixed> $addresses
+     *
+     * @return array<string, mixed>
+     */
     public static function transform(
         Delivery $delivery,
         array $lineItems,
@@ -54,9 +68,7 @@ class DeliveryTransformer
             'stateId' => $stateId,
         ];
 
-        $deliveryData = array_filter($deliveryData, function ($item) {
-            return $item !== null;
-        });
+        $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
             $deliveryData['positions'][] = [

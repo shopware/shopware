@@ -12,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class PromotionIndividualCodeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_individual_code';
+    final public const ENTITY_NAME = 'promotion_individual_code';
 
     public function getEntityName(): string
     {
@@ -48,7 +50,7 @@ class PromotionIndividualCodeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required()),
             (new StringField('code', 'code'))->addFlags(new Required()),
-            (new JsonField('payload', 'payload')),
+            new JsonField('payload', 'payload'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
         ]);
     }

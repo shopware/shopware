@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_radio_field %}
 <sw-base-field
     class="sw-field--radio"
@@ -16,7 +17,7 @@
                 v-for="(option, index) in options"
                 :key="index"
                 class="sw-field__radio-option group-bordered"
-                :class="{ 'sw-field__radio-option-checked': currentIndex === index }"
+                :class="{ 'sw-field__radio-option-checked': currentIndex === index, 'is--disabled': disabled || option.disabled }"
             >
 
                 <div class="sw-field__radio-input">
@@ -33,8 +34,13 @@
                 </div>
 
                 <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-                <label :for="`${identification}-${index}`">
+                <label
+                    class="sw-field__radio-option-label"
+                    :class="{'error--selection': !!error && currentIndex === index}"
+                    :for="`${identification}-${index}`"
+                >
                     <span>{{ option.name }}</span>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_radio_field_help_text %}
                     <sw-help-text
                         v-if="option.helpText"
@@ -67,6 +73,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-base-field>
 {% endblock %}

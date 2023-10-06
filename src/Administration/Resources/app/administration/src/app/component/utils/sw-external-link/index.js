@@ -4,6 +4,9 @@ import './sw-external-link.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Link to another website outside the admin, that opens in a new browser tab
  * @status ready
@@ -14,6 +17,7 @@ const { Component } = Shopware;
  *   Ask google
  * </sw-external-link>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-external-link', {
     template,
 
@@ -29,7 +33,7 @@ Component.register('sw-external-link', {
         icon: {
             type: String,
             required: false,
-            default: 'small-arrow-small-external',
+            default: 'regular-external-link-s',
         },
 
         rel: {

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_base %}
 <sw-block-field
     class="sw-select"
@@ -7,6 +8,7 @@
     v-on="$listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             ref="selectWrapper"
             class="sw-select__selection"
@@ -36,14 +38,14 @@
                 >
                     <sw-icon
                         class="sw-select__select-indicator sw-select__select-indicator-clear"
-                        name="small-default-x-line-medium"
+                        name="regular-times-s"
                         small
                     />
                 </button>
 
                 <sw-icon
-                    class="sw-select__select-indicator"
-                    name="small-arrow-medium-down"
+                    class="sw-select__select-indicator sw-select__select-indicator-expand"
+                    name="regular-chevron-down-xs"
                     small
                 />
             </div>
@@ -61,6 +63,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-block-field>
 {% endblock %}

@@ -9,13 +9,15 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
+ *
  * @group store-api
  */
 class CategoryRouteTest extends TestCase
@@ -33,7 +35,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->route = $this->getContainer()->get(CategoryRoute::class);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -70,7 +72,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -132,7 +134,7 @@ class CategoryRouteTest extends TestCase
 
     public function testHomeWithSalesChannelOverride(): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[
             'id' => $this->ids->get('sales-channel'),
@@ -151,7 +153,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertError(string $categoryId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = new CategoryNotFoundException($categoryId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),
@@ -164,7 +166,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertCmsPage(string $categoryId, string $cmsPageId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($categoryId, $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -259,7 +261,7 @@ class CategoryRouteTest extends TestCase
         unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')
-            ->create([$homeData, $childData, $folderData, $linkData], $this->ids->context);
+            ->create([$homeData, $childData, $folderData, $linkData], Context::createDefaultContext());
     }
 
     private function setVisibilities(): void
@@ -275,6 +277,6 @@ class CategoryRouteTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
+            ->update($products, Context::createDefaultContext());
     }
 }

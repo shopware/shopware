@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_cross_selling %}
 <div v-if="isLoading">
     <sw-skeleton />
@@ -8,8 +9,10 @@
     v-else
     class="sw-product-detail-cross-selling"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_items %}
         <ul class="sw-product-detail-cross-selling__cross-selling-list">
             <sw-product-cross-selling-form
@@ -21,6 +24,7 @@
         </ul>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_add %}
         <sw-button
             v-tooltip="{
@@ -39,6 +43,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_empty_state %}
     <sw-card
         v-else
@@ -52,11 +57,12 @@
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-product.crossselling.cardTitleCrossSelling')"
                 >
             </template>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_empty_state_cross_selling_add %}
             <template #actions>
                 <sw-button

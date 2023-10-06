@@ -27,8 +27,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -43,10 +42,11 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
+#[Package('buyers-experience')]
 class SalesChannelEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -84,12 +84,17 @@ class SalesChannelEntity extends Entity
     protected $navigationCategoryId;
 
     /**
+     * @var string
+     */
+    protected $navigationCategoryVersionId;
+
+    /**
      * @var int
      */
     protected $navigationCategoryDepth;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $homeSlotConfig;
 
@@ -97,6 +102,11 @@ class SalesChannelEntity extends Entity
      * @var string|null
      */
     protected $homeCmsPageId;
+
+    /**
+     * @var string|null
+     */
+    protected $homeCmsPageVersionId;
 
     /**
      * @var CmsPageEntity|null
@@ -136,7 +146,17 @@ class SalesChannelEntity extends Entity
     /**
      * @var string|null
      */
+    protected $footerCategoryVersionId;
+
+    /**
+     * @var string|null
+     */
     protected $serviceCategoryId;
+
+    /**
+     * @var string|null
+     */
+    protected $serviceCategoryVersionId;
 
     /**
      * @var string|null
@@ -164,7 +184,7 @@ class SalesChannelEntity extends Entity
     protected $languages;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $configuration;
 
@@ -179,7 +199,7 @@ class SalesChannelEntity extends Entity
     protected $maintenance;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $maintenanceIpWhitelist;
 
@@ -339,7 +359,7 @@ class SalesChannelEntity extends Entity
     protected $mainCategories;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $paymentMethodIds;
 
@@ -364,12 +384,12 @@ class SalesChannelEntity extends Entity
     protected $hreflangDefaultDomain;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $analyticsId;
 
     /**
-     * @var SalesChannelAnalyticsEntity
+     * @var SalesChannelAnalyticsEntity|null
      */
     protected $analytics;
 
@@ -377,13 +397,6 @@ class SalesChannelEntity extends Entity
      * @var CustomerGroupCollection|null
      */
     protected $customerGroupsRegistrations;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var EventActionCollection|null
-     */
-    protected $eventActions;
 
     /**
      * @var CustomerCollection|null
@@ -520,11 +533,17 @@ class SalesChannelEntity extends Entity
         $this->languages = $languages;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getConfiguration(): ?array
     {
         return $this->configuration;
     }
 
+    /**
+     * @param array<mixed> $configuration
+     */
     public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
@@ -550,11 +569,17 @@ class SalesChannelEntity extends Entity
         $this->maintenance = $maintenance;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getMaintenanceIpWhitelist(): ?array
     {
         return $this->maintenanceIpWhitelist;
     }
 
+    /**
+     * @param array<mixed>|null $maintenanceIpWhitelist
+     */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
         $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
@@ -730,11 +755,17 @@ class SalesChannelEntity extends Entity
         $this->navigationCategory = $navigationCategory;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getHomeSlotConfig(): ?array
     {
         return $this->homeSlotConfig;
     }
 
+    /**
+     * @param array<mixed>|null $homeSlotConfig
+     */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
         $this->homeSlotConfig = $homeSlotConfig;
@@ -961,7 +992,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getPaymentMethodIds(): ?array
     {
@@ -969,7 +1000,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param string[] $paymentMethodIds
+     * @param array<string> $paymentMethodIds
      */
     public function setPaymentMethodIds(array $paymentMethodIds): void
     {
@@ -1066,26 +1097,6 @@ class SalesChannelEntity extends Entity
         $this->customerGroupsRegistrations = $customerGroupsRegistrations;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function getEventActions(): ?EventActionCollection
-    {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
-
-        return $this->eventActions;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function setEventActions(EventActionCollection $eventActions): void
-    {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
-
-        $this->eventActions = $eventActions;
-    }
-
     public function getBoundCustomers(): ?CustomerCollection
     {
         return $this->boundCustomers;
@@ -1114,5 +1125,45 @@ class SalesChannelEntity extends Entity
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
+    }
+
+    public function getNavigationCategoryVersionId(): string
+    {
+        return $this->navigationCategoryVersionId;
+    }
+
+    public function setNavigationCategoryVersionId(string $navigationCategoryVersionId): void
+    {
+        $this->navigationCategoryVersionId = $navigationCategoryVersionId;
+    }
+
+    public function getHomeCmsPageVersionId(): ?string
+    {
+        return $this->homeCmsPageVersionId;
+    }
+
+    public function setHomeCmsPageVersionId(?string $homeCmsPageVersionId): void
+    {
+        $this->homeCmsPageVersionId = $homeCmsPageVersionId;
+    }
+
+    public function getFooterCategoryVersionId(): ?string
+    {
+        return $this->footerCategoryVersionId;
+    }
+
+    public function setFooterCategoryVersionId(?string $footerCategoryVersionId): void
+    {
+        $this->footerCategoryVersionId = $footerCategoryVersionId;
+    }
+
+    public function getServiceCategoryVersionId(): ?string
+    {
+        return $this->serviceCategoryVersionId;
+    }
+
+    public function setServiceCategoryVersionId(?string $serviceCategoryVersionId): void
+    {
+        $this->serviceCategoryVersionId = $serviceCategoryVersionId;
     }
 }

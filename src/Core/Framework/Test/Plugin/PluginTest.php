@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use PHPUnit\Framework\TestCase;
 use SwagTest\SwagTest;
 
+/**
+ * @internal
+ */
 class PluginTest extends TestCase
 {
     /**
@@ -12,10 +15,7 @@ class PluginTest extends TestCase
      */
     private static $swagTestPluginPath;
 
-    /**
-     * @var string
-     */
-    private static $symlinkedSwagTestPluginPath;
+    private static string $symlinkedSwagTestPluginPath;
 
     public static function setUpBeforeClass(): void
     {

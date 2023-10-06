@@ -1,10 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-price-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -110,6 +115,7 @@ Component.register('sw-product-price-form', {
                     net: defaultRefPrice.net,
                     linked: defaultRefPrice.linked,
                     listPrice: defaultRefPrice.listPrice ? defaultRefPrice.listPrice : null,
+                    regulationPrice: defaultRefPrice.regulationPrice ? defaultRefPrice.regulationPrice : null,
                 });
             }
 
@@ -150,4 +156,4 @@ Component.register('sw-product-price-form', {
             return tax.name;
         },
     },
-});
+};

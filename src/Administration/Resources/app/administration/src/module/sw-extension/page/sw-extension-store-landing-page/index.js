@@ -2,9 +2,10 @@ import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
 /**
+ * @package services-settings
  * @private
  */
-Shopware.Component.register('sw-extension-store-landing-page', {
+export default {
     template,
 
     inject: ['extensionHelperService'],
@@ -21,10 +22,13 @@ Shopware.Component.register('sw-extension-store-landing-page', {
         extensionName() {
             return 'SwagExtensionStore';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     methods: {
-
         activateStore() {
             this.isLoading = true;
             this.activationStatus = null;
@@ -51,4 +55,4 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 });
         },
     },
-});
+};

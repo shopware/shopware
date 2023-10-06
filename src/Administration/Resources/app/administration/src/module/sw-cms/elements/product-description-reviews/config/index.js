@@ -2,9 +2,13 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-cms-el-config-product-description-reviews.html.twig';
 import './sw-cms-el-config-product-description-reviews.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-cms-el-config-product-description-reviews', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -26,14 +30,14 @@ Component.register('sw-cms-el-config-product-description-reviews', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         selectedProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('properties');
 
             return criteria;
@@ -73,4 +77,4 @@ Component.register('sw-cms-el-config-product-description-reviews', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

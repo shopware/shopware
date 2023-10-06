@@ -4,10 +4,14 @@ import './sw-compact-colorpicker.scss';
 const { Component } = Shopware;
 
 /**
-* @private
-*/
+ * @package admin
+ *
+ * @private
+ */
 Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
     template,
+
+    inject: ['feature'],
 
     computed: {
         colorValue: {
@@ -22,6 +26,13 @@ Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
 
     methods: {
         emitColor() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.localValue);
+                this.visible = false;
+
+                return;
+            }
+
             this.$emit('input', this.localValue);
             this.visible = false;
         },

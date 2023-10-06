@@ -1,0 +1,351 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ShippingMethodPageRouteResponse": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "active": {
+                            "type": "boolean"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "deliveryTimeId": {
+                            "type": "string"
+                        },
+                        "deliveryTime": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "min": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "max": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "translations": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "shippingMethodId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "orderDeliveries": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "orderId": {
+                                        "type": "string"
+                                    },
+                                    "shippingOrderAddressId": {
+                                        "type": "string"
+                                    },
+                                    "shippingMethodId": {
+                                        "type": "string"
+                                    },
+                                    "shippingDateEarliest": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "shippingDateLatest": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "stateId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "salesChannelDefaultAssignments": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "typeId": {
+                                        "type": "string"
+                                    },
+                                    "languageId": {
+                                        "type": "string"
+                                    },
+                                    "currencyId": {
+                                        "type": "string"
+                                    },
+                                    "paymentMethodId": {
+                                        "type": "string"
+                                    },
+                                    "shippingMethodId": {
+                                        "type": "string"
+                                    },
+                                    "countryId": {
+                                        "type": "string"
+                                    },
+                                    "navigationCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "navigationCategoryDepth": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "footerCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "serviceCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "shortName": {
+                                        "type": "string"
+                                    },
+                                    "accessKey": {
+                                        "type": "string"
+                                    },
+                                    "active": {
+                                        "type": "boolean"
+                                    },
+                                    "maintenance": {
+                                        "type": "boolean"
+                                    },
+                                    "maintenanceIpWhitelist": {
+                                        "type": "string"
+                                    },
+                                    "mailHeaderFooterId": {
+                                        "type": "string"
+                                    },
+                                    "customerGroupId": {
+                                        "type": "string"
+                                    },
+                                    "hreflangActive": {
+                                        "type": "boolean"
+                                    },
+                                    "hreflangDefaultDomainId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "salesChannels": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "typeId": {
+                                        "type": "string"
+                                    },
+                                    "languageId": {
+                                        "type": "string"
+                                    },
+                                    "currencyId": {
+                                        "type": "string"
+                                    },
+                                    "paymentMethodId": {
+                                        "type": "string"
+                                    },
+                                    "shippingMethodId": {
+                                        "type": "string"
+                                    },
+                                    "countryId": {
+                                        "type": "string"
+                                    },
+                                    "navigationCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "navigationCategoryDepth": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "footerCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "serviceCategoryId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "shortName": {
+                                        "type": "string"
+                                    },
+                                    "accessKey": {
+                                        "type": "string"
+                                    },
+                                    "active": {
+                                        "type": "boolean"
+                                    },
+                                    "maintenance": {
+                                        "type": "boolean"
+                                    },
+                                    "maintenanceIpWhitelist": {
+                                        "type": "string"
+                                    },
+                                    "mailHeaderFooterId": {
+                                        "type": "string"
+                                    },
+                                    "customerGroupId": {
+                                        "type": "string"
+                                    },
+                                    "hreflangActive": {
+                                        "type": "boolean"
+                                    },
+                                    "hreflangDefaultDomainId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "availabilityRule": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "priority": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "invalid": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "availabilityRuleId": {
+                            "type": "string"
+                        },
+                        "prices": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "shippingMethodId": {
+                                        "type": "string"
+                                    },
+                                    "currencyId": {
+                                        "type": "string"
+                                    },
+                                    "ruleId": {
+                                        "type": "string"
+                                    },
+                                    "calculation": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "quantityStart": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "quantityEnd": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "calculationRuleId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "mediaId": {
+                            "type": "string"
+                        },
+                        "media": {
+                            "type": "object",
+                            "properties": {
+                                "userId": {
+                                    "type": "string"
+                                },
+                                "mimeType": {
+                                    "type": "string"
+                                },
+                                "fileExtension": {
+                                    "type": "string"
+                                },
+                                "fileSize": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "metaDataRaw": {
+                                    "type": "string"
+                                },
+                                "mediaTypeRaw": {
+                                    "type": "string"
+                                },
+                                "uploadedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "alt": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "fileName": {
+                                    "type": "string"
+                                },
+                                "mediaFolderId": {
+                                    "type": "string"
+                                },
+                                "private": {
+                                    "type": "boolean"
+                                },
+                                "thumbnailsRo": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "tags": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

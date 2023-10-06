@@ -1,10 +1,15 @@
 import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
 
-const { Component, Filter } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-nested-line-items-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -74,7 +79,7 @@ Component.register('sw-order-nested-line-items-modal', {
             }
 
             const parentIds = nestedLineItems.map(lineItem => lineItem.id);
-            const criteria = (new Criteria())
+            const criteria = (new Criteria(1, 25))
                 .addFilter(Criteria.equalsAny('parentId', parentIds));
 
             criteria
@@ -110,4 +115,4 @@ Component.register('sw-order-nested-line-items-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

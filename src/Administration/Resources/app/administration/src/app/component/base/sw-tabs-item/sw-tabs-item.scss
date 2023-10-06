@@ -13,11 +13,15 @@ $sw-side-navigation-item-link-distance: 10px;
     user-select: none;
 
     .sw-tabs-item__error-badge {
-        position: relative;
-        bottom: 0;
-        right: -5px;
-        color: $color-crimson-300;
-        transform: translateY(-12%);
+        color: $color-crimson-500;
+        transform: translateY(-9%);
+        margin-left: 4px;
+    }
+
+    .sw-tabs-item__warning-badge {
+        color: $color-pumpkin-spice-300;
+        transform: translateY(-9%);
+        margin-left: 4px;
     }
 
     &.sw-tabs-item--active {
@@ -29,7 +33,7 @@ $sw-side-navigation-item-link-distance: 10px;
     }
 
     &.sw-tabs-item--has-error {
-        color: $color-crimson-300;
+        color: $color-crimson-500;
 
         &.sw-tabs-item--active {
             color: $color-crimson-500;

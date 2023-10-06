@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductFeatureSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                         add(ProductFeatureSetEntity $entity)
- * @method void                         set(string $key, ProductFeatureSetEntity $entity)
- * @method ProductFeatureSetEntity[]    getIterator()
- * @method ProductFeatureSetEntity[]    getElements()
- * @method ProductFeatureSetEntity|null get(string $key)
- * @method ProductFeatureSetEntity|null first()
- * @method ProductFeatureSetEntity|null last()
+ * @extends EntityCollection<ProductFeatureSetEntity>
  */
+#[Package('inventory')]
 class ProductFeatureSetCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

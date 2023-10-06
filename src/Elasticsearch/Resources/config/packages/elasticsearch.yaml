@@ -2,18 +2,104 @@ elasticsearch:
     enabled: "%env(bool:SHOPWARE_ES_ENABLED)%"
     indexing_enabled: "%env(bool:SHOPWARE_ES_INDEXING_ENABLED)%"
     indexing_batch_size: "%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%"
-    hosts: "%env(string:SHOPWARE_ES_HOSTS)%"
+    hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    search:
+        timeout: 5s
+        term_max_length: 300
+    administration:
+        hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
+        enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
+        refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
+        index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        search:
+            timeout: 5s
+            term_max_length: 300
+        index_settings:
+            number_of_shards: 3
+            number_of_replicas: 3
+            'mapping.total_fields.limit': 50000
+            'mapping.nested_fields.limit': 500
+            'mapping.nested_objects.limit': 1000000
+        analysis:
+            normalizer:
+                sw_lowercase_normalizer:
+                    type: custom
+                    filter: [ 'lowercase' ]
+        dynamic_templates:
+            - keywords:
+                match_mapping_type: string
+                mapping:
+                    type: keyword
+                    normalizer: sw_lowercase_normalizer
+                    fields:
+                        text:
+                            type: text
+    product:
+        custom_fields_mapping:
     ssl:
         verify_server_cert: true
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+        'mapping.total_fields.limit': 50000
+        'mapping.nested_fields.limit': 500
+        'mapping.nested_objects.limit': 1000000
+    analysis:
+        normalizer:
+            sw_lowercase_normalizer:
+                type: custom
+                filter: ['lowercase']
+        analyzer:
+            sw_ngram_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['lowercase', 'sw_ngram_filter']
+            sw_english_analyzer:
+                type: custom
+                tokenizer: standard
+                filter: ['lowercase', 'sw_english_stop_filter']
+            sw_german_analyzer:
+                type: custom
+                tokenizer: standard
+                filter: ['lowercase', 'sw_german_stop_filter']
+        filter:
+            sw_ngram_filter:
+                type: ngram
+                min_gram: 4
+                max_gram: 5
+            sw_english_stop_filter:
+                type: 'stop'
+                stopwords: '_english_'
+            sw_german_stop_filter:
+                type: 'stop'
+                stopwords: '_german_'
+    language_analyzer_mapping:
+        en: sw_english_analyzer
+        de: sw_german_analyzer
+        gsw: sw_german_analyzer
+        nds: sw_german_analyzer
+    dynamic_templates:
+        - keywords:
+            match_mapping_type: string
+            mapping:
+                type: keyword
+                normalizer: sw_lowercase_normalizer
+                fields:
+                    text:
+                        type: text
 
 parameters:
     default_elasticsearch_prefix: "sw"
     default_whitespace: " "
     env(SHOPWARE_ES_ENABLED): ""
     env(SHOPWARE_ES_INDEXING_ENABLED): ""
-    env(SHOPWARE_ES_HOSTS): ""
+    env(OPENSEARCH_URL): ""
     env(SHOPWARE_ES_INDEX_PREFIX): "sw"
-    env(SHOPWARE_ES_THROW_EXCEPTION): ""
+    env(SHOPWARE_ES_THROW_EXCEPTION): "1"
+    env(SHOPWARE_ADMIN_ES_ENABLED): ""
+    env(ADMIN_OPENSEARCH_URL): ""
+    env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
+    env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100

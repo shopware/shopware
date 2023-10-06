@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
@@ -28,40 +27,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
+ * @internal
+ *
  * Builds the command queue for write operations.
  *
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
  */
+#[Package('core')]
 class WriteCommandExtractor
 {
-    private EntityWriteGatewayInterface $entityExistenceGateway;
-
     /**
-     * @var DefinitionInstanceRegistry
+     * @internal
      */
-    private $definitionRegistry;
-
-    private array $fieldsForPrimaryKeyMapping = [];
-
-    public function __construct(
-        EntityWriteGatewayInterface $entityExistenceGateway,
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
-        $this->entityExistenceGateway = $entityExistenceGateway;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(private readonly EntityWriteGatewayInterface $entityExistenceGateway)
+    {
     }
 
+    /**
+     * @param array<mixed> $rawData
+     *
+     * @return array<mixed>
+     */
     public function normalize(EntityDefinition $definition, array $rawData, WriteParameterBag $parameters): array
     {
         foreach ($rawData as $i => $row) {
@@ -75,6 +71,11 @@ class WriteCommandExtractor
         return $rawData;
     }
 
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<mixed>
+     */
     public function normalizeSingle(EntityDefinition $definition, array $data, WriteParameterBag $parameters): array
     {
         $done = [];
@@ -177,6 +178,11 @@ class WriteCommandExtractor
         return $data;
     }
 
+    /**
+     * @param array<string, mixed> $rawData
+     *
+     * @return string[]
+     */
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
         $definition = $parameters->getDefinition();
@@ -187,63 +193,49 @@ class WriteCommandExtractor
 
         /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
-            $parameters->getContext()->set($parameters->getDefinition()->getClass(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
+            $parameters->getContext()->set(
+                $parameters->getDefinition()->getEntityName(),
+                $pkField->getPropertyName(),
+                $pkField->getSerializer()->decode($pkField, $pkData[$pkField->getStorageName()]),
+            );
         }
 
         if ($definition instanceof MappingEntityDefinition) {
             // gateway will execute always a replace into
-            $existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
+            $existence = EntityExistence::createForEntity($definition->getEntityName(), []);
         } else {
             $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
         }
 
-        if (!$existence->exists()) {
-            $defaults = $existence->isChild() ? $definition->getChildDefaults() : $definition->getDefaults();
-            $rawData = $this->fillRawDataWithDefaults($definition, $parameters, $rawData, $defaults);
-        }
+        $stack = $this->createDataStack($existence, $definition, $parameters, $rawData);
 
         $mainFields = $this->getMainFields($fields);
 
         // without child association
-        $data = $this->map($mainFields, $rawData, $existence, $parameters);
+        $data = $this->map($mainFields, $stack, $existence, $parameters);
 
         $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
 
         $translation = $definition->getField('translations');
         if ($translation instanceof TranslationsAssociationField) {
-            $this->map([$translation], $rawData, $existence, $parameters);
+            $this->map([$translation], $stack, $existence, $parameters);
         }
 
         // call map with child associations only
-        $children = array_filter($fields, static function (Field $field) {
-            return $field instanceof ChildrenAssociationField;
-        });
+        $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
         if (\count($children) > 0) {
-            $this->map($children, $rawData, $existence, $parameters);
+            $this->map($children, $stack, $existence, $parameters);
         }
 
         return $pkData;
     }
 
-    public function extractJsonUpdate($data, EntityExistence $existence, WriteParameterBag $parameters): void
-    {
-        foreach ($data as $storageName => $attributes) {
-            $definition = $this->definitionRegistry->getByEntityName($existence->getEntityName());
-
-            $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
-            $jsonUpdateCommand = new JsonUpdateCommand(
-                $definition,
-                $storageName,
-                $attributes,
-                $pks,
-                $existence,
-                $parameters->getPath()
-            );
-            $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
-        }
-    }
-
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
     private function normalizeTranslations(TranslationsAssociationField $translationsField, array $data, WriteParameterBag $parameters, bool $hasNormalizedTranslations): array
     {
         if (!$hasNormalizedTranslations) {
@@ -297,10 +289,13 @@ class WriteCommandExtractor
         return $fk;
     }
 
-    private function map(array $fields, array $rawData, EntityExistence $existence, WriteParameterBag $parameters): array
+    /**
+     * @param array<Field> $fields
+     *
+     * @return array<string, mixed>
+     */
+    private function map(array $fields, DataStack $stack, EntityExistence $existence, WriteParameterBag $parameters): array
     {
-        $stack = new DataStack($rawData);
-
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
             if ($kvPair === null) {
@@ -308,7 +303,7 @@ class WriteCommandExtractor
             }
 
             try {
-                if ($field->is(WriteProtected::class)) {
+                if ($field->is(WriteProtected::class) && !$kvPair->isDefault()) {
                     $this->validateContextHasPermission($field, $kvPair, $parameters);
                 }
 
@@ -328,7 +323,7 @@ class WriteCommandExtractor
     private function skipField(Field $field, EntityExistence $existence): bool
     {
         if ($existence->isChild() && $field->is(Inherited::class)) {
-            //inherited field of a child is never required
+            // inherited field of a child is never required
             return true;
         }
 
@@ -364,10 +359,19 @@ class WriteCommandExtractor
         return new KeyValuePair($field->getPropertyName(), null, true);
     }
 
-    private function fillRawDataWithDefaults(EntityDefinition $definition, WriteParameterBag $parameters, array $rawData, array $defaults): array
+    /**
+     * @param array<string, mixed> $rawData
+     */
+    private function createDataStack(EntityExistence $existence, EntityDefinition $definition, WriteParameterBag $parameters, array $rawData): DataStack
     {
+        if ($existence->exists()) {
+            return new DataStack($rawData);
+        }
+
+        $defaults = $existence->isChild() ? $definition->getChildDefaults() : $definition->getDefaults();
+
         if ($defaults === []) {
-            return $rawData;
+            return new DataStack($rawData);
         }
 
         $toBeNormalized = $rawData;
@@ -383,17 +387,22 @@ class WriteCommandExtractor
         $parameters = new WriteParameterBag($definition, clone $parameters->getContext(), $parameters->getPath(), $parameters->getCommandQueue(), $parameters->getPrimaryKeyBag());
         $normalized = $this->normalizeSingle($definition, $toBeNormalized, $parameters);
 
+        $stack = new DataStack($rawData);
         foreach ($defaults as $key => $_) {
             if (\array_key_exists($key, $rawData)) {
                 continue;
             }
 
-            $rawData[$key] = $normalized[$key];
+            $stack->add($key, $normalized[$key], true);
         }
 
-        return $rawData;
+        return $stack;
     }
 
+    /**
+     * @param array<string, string> $pkData
+     * @param array<string, mixed> $data
+     */
     private function updateCommandQueue(
         EntityDefinition $definition,
         WriteParameterBag $parameterBag,
@@ -441,6 +450,11 @@ class WriteCommandExtractor
         return $sorted;
     }
 
+    /**
+     * @param array<string, mixed> $rawData
+     *
+     * @return array<string, string>
+     */
     private function getPrimaryKey(array $rawData, WriteParameterBag $parameters): array
     {
         $pk = [];
@@ -450,9 +464,10 @@ class WriteCommandExtractor
         foreach ($pkFields as $pkField) {
             $id = $rawData[$pkField->getPropertyName()] ?? null;
 
+            /** @var array<string, string> $values */
             $values = $pkField->getSerializer()->encode(
                 $pkField,
-                new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []),
+                EntityExistence::createForEntity($parameters->getDefinition()->getEntityName(), []),
                 new KeyValuePair($pkField->getPropertyName(), $id, true),
                 $parameters
             );
@@ -462,73 +477,6 @@ class WriteCommandExtractor
         }
 
         return $pk;
-    }
-
-    /**
-     * Returns all fields which are relevant to extract and map the primary key data of an entity definition data array.
-     * In case a primary key consist of Foreign Key fields, the corresponding association for these foreign keys must be
-     * returned in order to guarantee the creation of these sub entities and to extract the corresponding foreign key value
-     * from the nested data array
-     *
-     * Example: ProductCategoryDefinition
-     * Primary key:   product_id, category_id
-     *
-     * Both fields are defined as foreign key field.
-     * It is now possible to create both related entities (product and category), providing a nested data array:
-     * [
-     *      'product' => ['id' => '..', 'name' => '..'],
-     *      'category' => ['id' => '..', 'name' => '..']
-     * ]
-     *
-     * To extract the primary key data of the ProductCategoryDefinition it is required to extract first the product
-     * and category association and their foreign key fields.
-     *
-     * @param Field[] $fields
-     *
-     * @return Field[]
-     */
-    private function getFieldsForPrimaryKeyMapping(array $fields, EntityDefinition $definition): array
-    {
-        if (isset($this->fieldsForPrimaryKeyMapping[$definition->getEntityName()])) {
-            return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()];
-        }
-
-        $primaryKeys = $definition->getPrimaryKeys()->getElements();
-
-        $references = array_filter($fields, static function (Field $field) {
-            return $field instanceof ManyToOneAssociationField;
-        });
-
-        foreach ($primaryKeys as $primaryKey) {
-            if (!$primaryKey instanceof FkField) {
-                continue;
-            }
-
-            $association = $this->getAssociationByStorageName($primaryKey->getStorageName(), $references);
-            if ($association) {
-                $primaryKeys[] = $association;
-            }
-        }
-
-        usort($primaryKeys, static function (Field $a, Field $b) {
-            return $b->getExtractPriority() <=> $a->getExtractPriority();
-        });
-
-        return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()] = $primaryKeys;
-    }
-
-    private function getAssociationByStorageName(string $name, array $fields): ?ManyToOneAssociationField
-    {
-        /** @var ManyToOneAssociationField $association */
-        foreach ($fields as $association) {
-            if ($association->getStorageName() !== $name) {
-                continue;
-            }
-
-            return $association;
-        }
-
-        return null;
     }
 
     /**

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-goods-total">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_goods_total_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -7,38 +9,48 @@
     />
     {% endblock %}
 
-    {% block sw_condition_line_item_goods_total_field_count %}
-    <sw-number-field
-        v-model="count"
-        size="medium"
-        number-type="int"
-        :step="1"
+    <div class="sw-condition-line-item-goods-total__value">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_condition_line_item_goods_total_field_count %}
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="count"
+            {% else %}
+            v-model="count"
+            {% endif %}
+            class="sw-contidion-line-item-goods-total__numfield"
+            size="medium"
+            number-type="int"
+            :step="1"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_condition_line_item_goods_total_filter_button %}
+        <div class="sw-condition-line-item-goods-total__filter">
+            <sw-button
+                v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
+                :disabled="disabled"
+                @click="showFilterModal = true"
+            >
+                <sw-icon
+                    name="regular-filter-s"
+                    small
+                />
+            </sw-button>
+        </div>
+        {% endblock %}
+    </div>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_line_item_goods_total_condition_modal %}
+    <sw-condition-modal
+        v-if="showFilterModal"
         :disabled="disabled"
+        v-bind="{ condition, conditionDataProviderService }"
+        @modal-close="showFilterModal = false"
     />
     {% endblock %}
-
-    {% block sw_condition_line_item_goods_total_filter_button %}
-    <div class="sw-condition-line-item-goods-total__filter">
-        <sw-button
-            v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
-            :disabled="disabled"
-            @click="showFilterModal = true"
-        >
-            <sw-icon
-                name="default-action-filter"
-                small
-            />
-        </sw-button>
-    </div>
-    {% endblock %}
 </div>
-
-{% block sw_condition_line_item_goods_total_condition_modal %}
-<sw-condition-modal
-    v-if="showFilterModal"
-    :disabled="disabled"
-    v-bind="{ condition, conditionDataProviderService }"
-    @modal-close="showFilterModal = false"
-/>
-    {% endblock %}
 {% endblock %}

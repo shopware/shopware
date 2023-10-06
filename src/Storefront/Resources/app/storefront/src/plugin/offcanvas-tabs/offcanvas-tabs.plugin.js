@@ -8,8 +8,7 @@ export default class OffCanvasTabs extends Plugin {
     static options = {
 
         /**
-         * from which direction the
-         * offcanvas opens
+         * from which direction the offcanvas opens
          */
         offcanvasPostion: 'right',
     };
@@ -50,7 +49,7 @@ export default class OffCanvasTabs extends Plugin {
                 this.options.offcanvasPostion,
                 true,
                 OffCanvas.REMOVE_OFF_CANVAS_DELAY(),
-                true
+                false
             );
         }
 

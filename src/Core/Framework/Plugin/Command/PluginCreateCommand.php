@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,10 +11,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand(
+    name: 'plugin:create',
+    description: 'Creates a new plugin',
+)]
+#[Package('core')]
 class PluginCreateCommand extends Command
 {
-    protected static $defaultName = 'plugin:create';
-
     private string $composerTemplate = <<<EOL
 {
   "name": "swag/plugin-skeleton",
@@ -77,15 +82,54 @@ EOL;
 </config>
 EOL;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $testBootstrap = <<<EOL
+<?php declare(strict_types=1);
 
-    public function __construct(string $projectDir)
+use Shopware\Core\TestBootstrapper;
+
+\$loader = (new TestBootstrapper())
+    ->addCallingPlugin()
+    ->addActivePlugins('#name#')
+    ->setForceInstallPlugins(true)
+    ->bootstrap()
+    ->getClassLoader();
+
+\$loader->addPsr4('#name#\\\\Tests\\\\', __DIR__);
+EOL;
+
+    private string $phpUnitXml = <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         bootstrap="tests/TestBootstrap.php"
+         executionOrder="random">
+    <coverage>
+        <include>
+            <directory>./src/</directory>
+        </include>
+    </coverage>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+    </php>
+    <testsuites>
+        <testsuite name="#name# Testsuite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+
+EOL;
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -95,8 +139,7 @@ EOL;
     {
         $this
             ->addArgument('name', InputArgument::OPTIONAL)
-            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml')
-            ->setDescription('Creates a plugin skeleton');
+            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml');
     }
 
     /**
@@ -111,7 +154,7 @@ EOL;
             $name = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        $name = ucfirst($name);
+        $name = ucfirst((string) $name);
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;
 
@@ -120,10 +163,13 @@ EOL;
         }
 
         mkdir($directory . '/src/Resources/config/', 0777, true);
+        mkdir($directory . '/tests/', 0777, true);
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
         $servicesXmlFile = $directory . '/src/Resources/config/services.xml';
+        $testFile = $directory . '/tests/TestBootstrap.php';
+        $phpUnitXmlFile = $directory . '/phpunit.xml';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
@@ -137,9 +183,23 @@ EOL;
             $this->bootstrapTemplate
         );
 
+        $test = str_replace(
+            ['#name#'],
+            [$name],
+            $this->testBootstrap
+        );
+
+        $xml = str_replace(
+            ['#name#'],
+            [$name],
+            $this->phpUnitXml
+        );
+
         file_put_contents($composerFile, $composer);
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
+        file_put_contents($testFile, $test);
+        file_put_contents($phpUnitXmlFile, $xml);
 
         if ($input->getOption('create-config')) {
             $configXmlFile = $directory . '/src/Resources/config/config.xml';

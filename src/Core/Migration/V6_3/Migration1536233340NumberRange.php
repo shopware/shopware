@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1536233340NumberRange extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -26,7 +33,7 @@ class Migration1536233340NumberRange extends MigrationStep
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `number_range_translation` (
@@ -45,7 +52,7 @@ SQL;
                 REFERENCES `language` (`id`)    ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `number_range_state` (
@@ -61,7 +68,7 @@ SQL;
 SQL;
         // No Foreign Key here is intended. It should be possible to handle the state with another Persistence so
         // we can force MySQL to expect a Dependency here
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `number_range_type` (
@@ -75,7 +82,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `number_range_type_translation` (
@@ -94,7 +101,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `number_range_sales_channel` (
@@ -114,7 +121,7 @@ SQL;
                 FOREIGN KEY (number_range_type_id) REFERENCES `number_range_type` (id) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

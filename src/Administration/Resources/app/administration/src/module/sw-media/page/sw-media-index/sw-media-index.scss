@@ -1,28 +1,29 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-index-font-size-navigation:     $font-size-large;
-$sw-media-index-color-breadcrumb-icon:    $color-darkgray-200;
-$sw-media-index-color-navigation-parent:  $color-gray-300;
-$sw-media-index-page-background-color:    $color-white;
+$sw-media-index-font-size-navigation: $font-size-m;
+$sw-media-index-color-breadcrumb-icon: $color-shopware-brand-500;
+$sw-media-index-color-navigation-parent: $color-gray-300;
+$sw-media-index-page-background-color: $color-white;
 
 .sw-media-index {
     .sw-media-index__navigation {
         display: grid;
         grid-template-columns: auto 1fr;
-        grid-column-gap: 8px;
+        grid-column-gap: 16px;
         align-items: center;
-        padding-left: 20px;
+        padding-left: 26px;
         min-width: 150px;
         font-size: $sw-media-index-font-size-navigation;
     }
 
     .sw-media-index__navigation-breadcrumb {
         color: $sw-media-index-color-breadcrumb-icon;
+        height: 28px;
     }
 
     .sw-media-index__navigation-label {
-        @include truncate();
+        @include truncate;
 
         color: $sw-media-index-color-navigation-parent;
         text-decoration: none;

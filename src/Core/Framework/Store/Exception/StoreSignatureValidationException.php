@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('services-settings')]
 class StoreSignatureValidationException extends ShopwareHttpException
 {
     public function __construct(string $reason)

@@ -1,9 +1,11 @@
+@use "sass:math";
+@import "~scss/mixins";
 @import "~scss/variables";
 
-$sw-modal-color-backdrop: rgba(0, 0, 0, 0.4);
+$sw-modal-color-backdrop: rgba(0, 0, 0, 40%);
 $sw-modal-gap: 64px;
 $sw-modal-loader-z-index: $z-index-modal + 1;
-$sw-modal-title-font-size: 18px;
+$sw-modal-title-font-size: $font-size-m;
 $sw-modal-transition-duration: 0.4s;
 $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
@@ -24,11 +26,13 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 0 ($sw-modal-gap / 2);
+    padding: 0 math.div($sw-modal-gap, 2);
 
     .sw-modal__dialog {
+        @include drop-shadow-default;
+
         background-color: $color-white;
-        border-radius: $border-radius-default;
+        border-radius: $border-radius-lg;
         color: $color-darkgray-200;
         max-height: calc(100vh - #{$sw-modal-gap});
         min-height: 200px;
@@ -60,7 +64,11 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
             height: 100%;
             width: 100%;
             max-height: 100%;
-            grid-template-rows: auto 1fr auto;
+            grid-template-rows: 1fr auto;
+
+            &.has--header {
+                grid-template-rows: auto 1fr auto;
+            }
         }
 
         .sw-modal__body {
@@ -85,20 +93,38 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         justify-content: space-between;
         align-items: center;
         position: relative;
-        padding: 0 16px 0 32px;
-        height: 64px;
+        padding: 24px 16px 24px 32px;
+        min-height: 65px;
+    }
+
+    .sw-modal__titles {
+        max-width: 90%;
     }
 
     .sw-modal__title {
         margin: 0;
-        font-weight: normal;
-        font-size: $sw-modal-title-font-size;
+        color: $color-darkgray-300;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .sw-modal__subtitle {
+        margin: 0;
+        color: $color-darkgray-50;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-regular;
+        line-height: $line-height-xs;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
     }
 
     .sw-modal__close {
+        position: absolute;
+        right: 24px;
         background: 0 none;
         color: $color-darkgray-100;
         cursor: pointer;
@@ -118,6 +144,12 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
             background-color: $color-gray-200;
             color: $color-darkgray-200;
         }
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
     }
 
     .sw-modal__body {
@@ -134,7 +166,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-modal__footer {
-        border-radius: 0 0 $border-radius-default $border-radius-default;
+        border-radius: 0 0 $border-radius-lg $border-radius-lg;
         background-color: $color-gray-100;
         display: grid;
         grid-auto-columns: min-content;

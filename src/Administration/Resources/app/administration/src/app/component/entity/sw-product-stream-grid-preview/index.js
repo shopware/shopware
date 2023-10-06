@@ -1,9 +1,12 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context, Feature } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-product-stream-grid-preview', {
     template,
 
@@ -99,26 +102,28 @@ Component.register('sw-product-stream-grid-preview', {
             }
 
             if (this.searchTerm.length) {
-                return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
+                return this.$tc(
+                    'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
                         term: this.searchTerm,
-                    });
+                    },
+                );
             }
 
             return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.loadProducts();
-            }
-        },
-
         async filters(filtersValue) {
             if (!filtersValue) {
                 this.total = 0;
@@ -136,11 +141,10 @@ Component.register('sw-product-stream-grid-preview', {
     },
 
     methods: {
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.loadProducts();
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.loadProducts();
         },
         async createdComponent() {
             if (!this.filters) {
@@ -157,8 +161,11 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         loadProducts() {
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.term = this.searchTerm || null;
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.filters = [...this.filters];
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.limit = this.limit;
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');

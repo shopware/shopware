@@ -1,11 +1,16 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
-Component.register('sw-sales-channel-detail-product-comparison', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -181,4 +186,4 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             this.isValidateSuccessful = false;
         },
     },
-});
+};

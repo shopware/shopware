@@ -2,27 +2,30 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class LockValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
+    final public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
 
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -65,6 +68,8 @@ class LockValidator implements EventSubscriberInterface
 
     /**
      * @param WriteCommand[] $writeCommands
+     *
+     * @return array<string, bool>
      */
     private function containsLockedEntities(array $writeCommands): array
     {
@@ -83,13 +88,14 @@ class LockValidator implements EventSubscriberInterface
             $ids[$command->getDefinition()->getEntityName()][] = $command->getPrimaryKey()['id'];
         }
 
+        /** @var string $entityName */
         foreach ($ids as $entityName => $primaryKeys) {
             $locked[$entityName] = $this->connection->createQueryBuilder()
                 ->select('1')
                 ->from(EntityDefinitionQueryHelper::escape($entityName))
                 ->where('`id` IN (:ids) AND `locked` = 1')
-                ->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY)
-                ->execute()
+                ->setParameter('ids', $primaryKeys, ArrayParameterType::STRING)
+                ->executeQuery()
                 ->rowCount() > 0;
         }
 

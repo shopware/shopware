@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "\/_action\/index": {
+      "post": {
+        "tags": [
+          "System Operations"
+        ],
+        "summary": "Run indexer",
+        "description": "Runs all registered indexer in the shop asynchronously.",
+        "operationId": "index",
+        "requestBody": {
+          "content": {
+            "application\/json": {
+              "schema": {
+                "properties": {
+                  "skip": {
+                    "description": "Array of indexers\/updaters to be skipped.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Returns a no content response indicating that the indexing progress startet."
+          }
+        }
+      }
+    }
+  }
+}

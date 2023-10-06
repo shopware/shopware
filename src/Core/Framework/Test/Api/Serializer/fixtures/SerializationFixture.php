@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @internal
+ */
 abstract class SerializationFixture
 {
     public const API_BASE_URL = 'http://localhost/api';
@@ -12,9 +15,9 @@ abstract class SerializationFixture
     public const API_VERSION = 1;
 
     /**
-     * @return EntityCollection|Entity
+     * @return EntityCollection<Entity>|Entity
      */
-    abstract public function getInput();
+    abstract public function getInput(): EntityCollection|Entity;
 
     public function getAdminJsonApiFixtures(): array
     {

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_stream_modal_preview %}
 <sw-modal
     class="sw-product-stream-modal-preview"
@@ -6,12 +7,16 @@
     variant="full"
     @modal-close="closeModal"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_modal_preview_content %}
     <div class="sw-product-stream-modal-preview__content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_modal_preview_content_header %}
         <sw-container class="sw-product-stream-modal-preview__content-header">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_modal_preview_search_field_label %}
             <sw-label class="sw-product-stream-modal-preview__search-field-label">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_search_field %}
                 <sw-simple-search-field
                     v-model="searchTerm"
@@ -23,16 +28,26 @@
                 {% endblock %}
             </sw-label>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_modal_preview_sales_channel_field_label %}
             <sw-label class="sw-product-stream-modal-preview__sales-channel-field-label">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_sales_channel_field %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="selectedSalesChannel"
+                    {% else %}
                     v-model="selectedSalesChannel"
+                    {% endif %}
                     :disabled="isLoading"
                     entity="sales_channel"
                     class="sw-product-stream-modal-preview__sales-channel-field"
                     :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                    {% if VUE3 %}
+                    @update:value="onSalesChannelChange"
+                    {% else %}
                     @change="onSalesChannelChange"
+                    {% endif %}
                 />
                 {% endblock %}
             </sw-label>
@@ -40,6 +55,7 @@
         </sw-container>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_modal_preview_grid %}
         <sw-data-grid
             v-if="total"
@@ -53,6 +69,7 @@
         >
 
             <template #column-name="{ item, column }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_name %}
                 <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
                     <sw-product-variant-info :variations="item.variation">
@@ -63,6 +80,7 @@
             </template>
 
             <template #column-active="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_active %}
                 <sw-data-grid-column-boolean
                     :value="item.active"
@@ -72,19 +90,22 @@
             </template>
 
             <template #column-price="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_price %}
-                {{ getPriceForDefaultCurrency(item).unitPrice | currency('EUR') }}
+                {{ currencyFilter(getPriceForDefaultCurrency(item).unitPrice, 'EUR') }}
                 {% endblock %}
             </template>
 
             <template #column-stock="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_stock %}
                 {{ item.stock }}
-                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 {% endblock %}
             </template>
 
             <template #pagination>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_pagination %}
                 <sw-pagination
                     v-bind="{ total, page, limit }"
@@ -97,6 +118,7 @@
         </sw-data-grid>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_modal_preview_empty_state %}
         <sw-empty-state
             v-if="!total && !isLoading"
@@ -107,8 +129,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_modal_preview_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_modal_preview_close_button %}
         <sw-button
             class="sw-product-stream-modal-preview__close-action"

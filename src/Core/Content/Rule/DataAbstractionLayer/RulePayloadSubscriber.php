@@ -5,18 +5,29 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Container\FilterRule;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\ScriptRule;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var RulePayloadUpdater
+     * @internal
      */
-    private $updater;
-
-    public function __construct(RulePayloadUpdater $updater)
-    {
-        $this->updater = $updater;
+    public function __construct(
+        private readonly RulePayloadUpdater $updater,
+        private readonly ScriptTraces $traces,
+        private readonly string $cacheDir,
+        private readonly bool $debug
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -37,7 +48,11 @@ class RulePayloadSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $entity->setPayload(unserialize($payload));
+            $payload = unserialize($payload);
+
+            $this->enrichConditions([$payload]);
+
+            $entity->setPayload($payload);
         }
     }
 
@@ -60,6 +75,28 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
         foreach ($updated as $id => $entity) {
             $rules[$id]->assign($entity);
+        }
+    }
+
+    /**
+     * @param list<Rule> $conditions
+     */
+    private function enrichConditions(array $conditions): void
+    {
+        foreach ($conditions as $condition) {
+            if ($condition instanceof ScriptRule) {
+                $condition->assign([
+                    'traces' => $this->traces,
+                    'cacheDir' => $this->cacheDir,
+                    'debug' => $this->debug,
+                ]);
+
+                continue;
+            }
+
+            if ($condition instanceof Container || $condition instanceof FilterRule) {
+                $this->enrichConditions($condition->getRules());
+            }
         }
     }
 }

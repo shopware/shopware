@@ -1,6 +1,10 @@
 import template from './sw-extension-store-recommendation.html.twig';
 
-Shopware.Component.register('sw-extension-my-extensions-recommendation', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
 
     data() {
@@ -14,4 +18,4 @@ Shopware.Component.register('sw-extension-my-extensions-recommendation', {
             this.isLoading = false;
         },
     },
-});
+};

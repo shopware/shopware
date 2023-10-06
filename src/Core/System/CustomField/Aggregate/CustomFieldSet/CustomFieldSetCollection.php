@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                      add(CustomFieldSetEntity $entity)
- * @method void                      set(string $key, CustomFieldSetEntity $entity)
- * @method CustomFieldSetEntity[]    getIterator()
- * @method CustomFieldSetEntity[]    getElements()
- * @method CustomFieldSetEntity|null get(string $key)
- * @method CustomFieldSetEntity|null first()
- * @method CustomFieldSetEntity|null last()
+ * @extends EntityCollection<CustomFieldSetEntity>
  */
+#[Package('system-settings')]
 class CustomFieldSetCollection extends EntityCollection
 {
     public function getApiAlias(): string

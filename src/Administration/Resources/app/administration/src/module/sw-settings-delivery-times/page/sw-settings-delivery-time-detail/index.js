@@ -1,10 +1,15 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
 
+/**
+ * @package checkout
+ */
+
 const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-settings-delivery-time-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -53,6 +58,9 @@ Component.register('sw-settings-delivery-time-detail', {
 
         deliveryTimeUnits() {
             return [{
+                value: 'hour',
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitHour'),
+            }, {
                 value: 'day',
                 label: this.$tc('sw-settings-delivery-time.detail.selectionUnitDay'),
             }, {
@@ -189,4 +197,4 @@ Component.register('sw-settings-delivery-time-detail', {
             this.$router.push({ name: 'sw.settings.delivery.time.index' });
         },
     },
-});
+};

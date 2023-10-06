@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -16,63 +16,33 @@ use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('services-settings')]
 class ImportExportFactory
 {
-    private ImportExportService $importExportService;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private FilesystemInterface $filesystem;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepositoryInterface $logRepository;
-
-    private Connection $connection;
-
     /**
-     * @var \IteratorAggregate<AbstractReaderFactory>
+     * @internal
+     *
+     * @param \IteratorAggregate<mixed, AbstractReaderFactory> $readerFactories
+     * @param \IteratorAggregate<mixed, AbstractWriterFactory> $writerFactories
+     * @param \IteratorAggregate<mixed, AbstractPipeFactory> $pipeFactories
      */
-    private \IteratorAggregate $readerFactories;
-
-    /**
-     * @var \IteratorAggregate<AbstractWriterFactory>
-     */
-    private \IteratorAggregate $writerFactories;
-
-    /**
-     * @var \IteratorAggregate<AbstractPipeFactory>
-     */
-    private \IteratorAggregate $pipeFactories;
-
-    private AbstractFileService $fileService;
-
     public function __construct(
-        ImportExportService $importExportService,
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        FilesystemInterface $filesystem,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $logRepository,
-        Connection $connection,
-        AbstractFileService $fileService,
-        \IteratorAggregate $readerFactories,
-        \IteratorAggregate $writerFactories,
-        \IteratorAggregate $pipeFactories
+        private readonly ImportExportService $importExportService,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $logRepository,
+        private readonly Connection $connection,
+        private readonly AbstractFileService $fileService,
+        private readonly \IteratorAggregate $readerFactories,
+        private readonly \IteratorAggregate $writerFactories,
+        private readonly \IteratorAggregate $pipeFactories
     ) {
-        $this->importExportService = $importExportService;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->filesystem = $filesystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logRepository = $logRepository;
-        $this->connection = $connection;
-        $this->fileService = $fileService;
-        $this->readerFactories = $readerFactories;
-        $this->writerFactories = $writerFactories;
-        $this->pipeFactories = $pipeFactories;
     }
 
     public function create(string $logId, int $importBatchSize = 250, int $exportBatchSize = 250): ImportExport
@@ -100,7 +70,8 @@ class ImportExportFactory
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
-        $criteria->addAssociation('invalidRecordsLog');
+        $criteria->addAssociation('file');
+        $criteria->addAssociation('invalidRecordsLog.file');
         $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($logEntity === null) {
@@ -110,9 +81,12 @@ class ImportExportFactory
         return $logEntity;
     }
 
-    private function getRepository(ImportExportLogEntity $logEntity): EntityRepositoryInterface
+    private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
-        return $this->definitionInstanceRegistry->getRepository($logEntity->getProfile()->getSourceEntity());
+        /** @var ImportExportProfileEntity $profile */
+        $profile = $logEntity->getProfile();
+
+        return $this->definitionInstanceRegistry->getRepository($profile->getSourceEntity());
     }
 
     private function getPipe(ImportExportLogEntity $logEntity): AbstractPipe

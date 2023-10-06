@@ -1,37 +1,46 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_options %}
 <div class="sw-order-create-options">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_container %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_headline %}
-    <h3>{{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}</h3>
+    <h3 class="sw-order-create-options__headline">
+        {{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}
+    </h3>
     {% endblock %}
 
-    {% block sw_order_create_options_order_switch_test_order %}
-    <sw-switch-field
-        v-model="testOrder"
-        class="sw-order-create-options__test-order"
-        :label="$tc('sw-order.initialModal.options.labelTestOrder')"
-        :help-text="$tc('sw-order.initialModal.options.helpTextTestOrder')"
-    />
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_switch_disable_auto_promotion %}
     <sw-switch-field
         class="sw-order-create-options__disable-auto-promotion"
-        :value="disabledAutoPromotions"
+        :value="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-        @change="toggleAutoPromotions"
+        {% if VUE3 %}
+        @update:value="onToggleAutoPromotion"
+        {% else %}
+        @change="onToggleAutoPromotion"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_field_container %}
     <sw-container
-        gap="0px 30px"
+        class="sw-order-create-options__order-container"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_language %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.languageId"
+            {% else %}
             v-model="context.languageId"
+            {% endif %}
             entity="language"
             class="sw-order-create-options__order-language"
             :criteria="salesChannelCriteria"
@@ -41,24 +50,18 @@
         />
         {% endblock %}
 
-        {% block sw_order_create_options_order_sales_channel %}
-        <sw-entity-single-select
-            v-model="salesChannelId"
-            disabled
-            entity="sales_channel"
-            class="sw-order-create-options__sales-channel"
-            :label="$tc('sw-order.createBase.labelSalesChannel')"
-            :placeholder="$tc('sw-order.createBase.placeholderSalesChannel')"
-        />
-        {% endblock %}
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_promotions %}
         <sw-multi-tag-select
             class="sw-order-create-options__promotion-code"
             :value="promotionCodes"
             :label="$tc('sw-order.createBase.labelPromotions')"
             :validate="validatePromotions"
+            {% if VUE3 %}
+            @update:value="changePromotionCodes"
+            {% else %}
             @change="changePromotionCodes"
+            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.initialModal.options.placeholderAddPromotion') }}</span>
@@ -72,94 +75,63 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlinePayment') }}</h3>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_container %}
     <sw-container
         class="sw-order-create-options__payment-container"
-        gap="0px 30px"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_payment_method %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.paymentMethodId"
+            {% else %}
             v-model="context.paymentMethodId"
+            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             class="sw-order-create-options__payment-method"
             :criteria="paymentMethodCriteria"
             :label="$tc('sw-order.createBase.labelPaymentMethod')"
-            :help-text="$tc('sw-order.createBase.helpTextPaymentMethod')"
             :placeholder="$tc('sw-order.createBase.placeholderPaymentMethod')"
             show-clearable-button
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_billing_address %}
-        <sw-single-select
-            ref="billingAddress"
-            v-model="billingAddressId"
+        <sw-order-customer-address-select
+            {% if VUE3 %}
+            v-model:value="context.billingAddressId"
+            {% else %}
+            v-model="context.billingAddressId"
+            {% endif %}
             class="sw-order-create-options__billing-address"
-            value-property="id"
-            required
-            disable-search-function
-            show-clearable-button
-            :is-loading="isLoadingBillingAddress"
-            :options="customerAddresses"
             :label="$tc('sw-order.createBase.labelBillingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
-            @search="searchBillingAddress"
-            @change="changeBillingAddress"
-        >
-            <template #before-item-list>
-                {% block sw_order_create_options_select_same_shipping_address %}
-                <ul
-                    v-if="shippingAddressId !== billingAddressId"
-                    class="sw-select-result__item-list"
-                >
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <li
-                        class="sw-select-result sw-select-result__option-same-address"
-                        @click="setSameAddress('shippingAddressId', 'billingAddress')"
-                    >
-                        {{ $tc('sw-order.initialModal.options.textSameAsShippingAddress') }}
-                    </li>
-                </ul>
-            {% endblock %}
-            </template>
-
-            <template #selection-label-property="{ item }">
-                {{ getCustomerAddress(item) }}
-            </template>
-
-            <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                <li
-                    is="sw-select-result"
-                    :selected="isSelected(item)"
-                    v-bind="{ item, index }"
-                    @item-select="setValue"
-                >
-                    {% block sw_order_create_options_select_billing_address_result_label %}
-                    <sw-highlight-text
-                        v-if="highlightSearchTerm && !isSelected(item)"
-                        :text="getCustomerAddress(item)"
-                        :search-term="searchTerm"
-                    />
-
-                    <template v-else>
-                        {{ getCustomerAddress(item) }}
-                    </template>
-                    {% endblock %}
-                </li>
-            </template>
-        </sw-single-select>
+            :same-address-value="context.shippingAddressId"
+            :customer="customer"
+        />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.currencyId"
+            {% else %}
             v-model="context.currencyId"
+            {% endif %}
+            class="sw-order-create-options__currency-select"
             entity="currency"
             :criteria="salesChannelCriteria"
             :label="$tc('sw-order.createBase.labelCurrency')"
@@ -171,19 +143,26 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlineShipment') }}</h3>
     {% endblock %}
 
     <sw-container
         class="sw-order-create-options__shipping-container"
-        gap="0px 30px"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
-        {% block sw_orderaddr_create_options_shipping_method %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_create_options_shipping_method %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.shippingMethodId"
+            {% else %}
             v-model="context.shippingMethodId"
+            {% endif %}
             class="sw-order-create-options__shipping-method"
             entity="shipping_method"
             show-clearable-button
@@ -193,63 +172,53 @@
         />
         {% endblock %}
 
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="shippingCost"
+            {% else %}
+            v-model="shippingCost"
+            {% endif %}
+            class="sw-order-create-options__shipping-cost"
+            :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
+            {% if VUE3 %}
+            @update:value="onChangeShippingCost"
+            {% else %}
+            @change="onChangeShippingCost"
+            {% endif %}
+        >
+            <template #suffix>
+                {{ currency.symbol }}
+            </template>
+        </sw-number-field>
+
+        <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="isSameAsBillingAddress"
+            {% else %}
+            v-model="isSameAsBillingAddress"
+            {% endif %}
+            {% if VUE3 %}
+            name="sw-field--isSameAsBillingAddress"
+            {% endif %}
+            :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
+        />
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
-        <sw-single-select
-            ref="shippingAddress"
-            v-model="shippingAddressId"
+        <sw-order-customer-address-select
+            {% if VUE3 %}
+            v-model:value="context.shippingAddressId"
+            {% else %}
+            v-model="context.shippingAddressId"
+            {% endif %}
             class="sw-order-create-options__shipping-address"
-            value-property="id"
-            disable-search-function
-            show-clearable-button
-            :is-loading="isLoadingShippingAddress"
-            :options="customerAddresses"
             :label="$tc('sw-order.createBase.labelShippingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
-            @change="changeShippingAddress"
-            @search="searchShippingAddress"
-        >
-            <template #before-item-list>
-                {% block sw_order_create_options_select_same_billing_address %}
-                <ul
-                    v-if="shippingAddressId !== billingAddressId"
-                    class="sw-select-result__item-list"
-                >
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <li
-                        class="sw-select-result sw-select-result__option-same-address"
-                        @click="setSameAddress('billingAddressId', 'shippingAddress')"
-                    >
-                        {{ $tc('sw-order.initialModal.options.textSameAsBillingAddress') }}
-                    </li>
-                </ul>
-            {% endblock %}
-            </template>
-
-            <template #selection-label-property="{ item }">
-                {{ getCustomerAddress(item) }}
-            </template>
-
-            <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                <li
-                    is="sw-select-result"
-                    :selected="isSelected(item)"
-                    v-bind="{ item, index }"
-                    @item-select="setValue"
-                >
-                    {% block sw_order_create_options_select_shipping_address_result_label %}
-                    <sw-highlight-text
-                        v-if="highlightSearchTerm && !isSelected(item)"
-                        :text="getCustomerAddress(item)"
-                        :search-term="searchTerm"
-                    />
-
-                    <template v-else>
-                        {{ getCustomerAddress(item) }}
-                    </template>
-                    {% endblock %}
-                </li>
-            </template>
-        </sw-single-select>
+            :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
+            :same-address-value="context.billingAddressId"
+            :customer="customer"
+            :disabled="isSameAsBillingAddress"
+        />
         {% endblock %}
     </sw-container>
     {% endblock %}

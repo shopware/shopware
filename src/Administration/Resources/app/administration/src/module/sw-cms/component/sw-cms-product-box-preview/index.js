@@ -1,9 +1,11 @@
 import template from './sw-cms-product-box-preview.html.twig';
 import './sw-cms-product-box-preview.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-product-box-preview', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     props: {
@@ -15,4 +17,10 @@ Component.register('sw-cms-product-box-preview', {
             required: false,
         },
     },
-});
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+};

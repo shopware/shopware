@@ -1,10 +1,10 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
-$sw-context-menu-color-border:           $color-gray-300;
+$sw-context-menu-color-border: $color-gray-300;
 $sw-context-menu-color-background-hover: $color-gray-100;
-$sw-context-menu-color-text:             $color-darkgray-200;
-$sw-context-menu-color-active:           $color-shopware-brand-500;
-$sw-context-menu-z-index:                $z-index-context-menu;
+$sw-context-menu-color-text: $color-darkgray-200;
+$sw-context-menu-color-active: $color-shopware-brand-500;
+$sw-context-menu-z-index: $z-index-context-menu;
 
 .sw-context-menu {
     position: relative;
@@ -25,16 +25,16 @@ $sw-context-menu-z-index:                $z-index-context-menu;
     .sw-context-menu__content {
         padding: 8px;
         background: $color-white;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.3);
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
         border: 1px solid $sw-context-menu-color-border;
         border-radius: 4px;
         text-align: left;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $sw-context-menu-color-text;
         position: relative;
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             top: -5px;
             left: 28px;
@@ -48,7 +48,7 @@ $sw-context-menu-z-index:                $z-index-context-menu;
 
         .currency-symbol {
             font-weight: bold;
-            font-size: 18px;
+            font-size: $font-size-m;
         }
 
         .sw-context-menu__group {

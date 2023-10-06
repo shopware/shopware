@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin_menu_user_actions_items %}
 <li
     v-if="acl.can('user.update_profile')"
@@ -9,7 +10,7 @@
     >
         <sw-icon
             class="sw-admin-menu__navigation-link-icon"
-            name="default-avatar-single"
+            name="regular-user"
             small
         />
         {{ $tc('sw-profile.general.headlineProfile') }}

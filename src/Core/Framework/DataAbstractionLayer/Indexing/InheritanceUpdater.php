@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -16,26 +17,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class InheritanceUpdater
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
-    {
-        $this->connection = $connection;
-        $this->registry = $registry;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry
+    ) {
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(string $entity, array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
@@ -45,36 +44,41 @@ class InheritanceUpdater
 
         $definition = $this->registry->getByEntityName($entity);
 
-        $inherited = $definition->getFields()->filter(function (Field $field) {
-            return $field->is(Inherited::class) && $field instanceof AssociationField;
-        });
+        $inherited = $definition->getFields()->filter(fn (Field $field) => $field->is(Inherited::class) && $field instanceof AssociationField);
 
-        $associations = $inherited->filter(function (Field $field) {
-            return $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField;
-        });
+        $associations = $inherited->filter(fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField);
 
         if ($associations->count() > 0) {
             $this->updateToManyAssociations($definition, $ids, $associations, $context);
         }
 
-        $associations = $inherited->filter(function (Field $field) {
-            return $field instanceof ManyToOneAssociationField;
-        });
+        $associations = $inherited->filter(fn (Field $field) => $field instanceof ManyToOneAssociationField);
 
         if ($associations->count() > 0) {
             $this->updateToOneAssociations($definition, $ids, $associations, $context);
         }
     }
 
+    /**
+     * @param array<string> $ids
+     */
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(function ($id) {
-            return Uuid::fromHexToBytes($id);
-        }, $ids);
+        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var AssociationField $association */
         foreach ($associations as $association) {
             $reference = $association->getReferenceDefinition();
+
+            $flag = $association->getFlag(Inherited::class);
+
+            if (!$flag instanceof Inherited) {
+                throw new \RuntimeException(\sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+            }
+
+            $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');
+
+            $versionKey = \substr($foreignKey, 0, -3) . '_version_id';
 
             $sql = sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
@@ -95,8 +99,8 @@ class InheritanceUpdater
 
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-                '#entity_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
-                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_version_id'),
+                '#entity_id#' => EntityDefinitionQueryHelper::escape($foreignKey),
+                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($versionKey),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference->getEntityName()),
             ];
@@ -110,25 +114,26 @@ class InheritanceUpdater
 
             $sql = str_replace(
                 array_keys($parameters),
-                array_values($parameters),
+                $parameters,
                 $sql
             );
 
             RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }
     }
 
+    /**
+     * @param array<string> $ids
+     */
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(function ($id) {
-            return Uuid::fromHexToBytes($id);
-        }, $ids);
+        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
@@ -159,15 +164,15 @@ class InheritanceUpdater
 
             $sql = str_replace(
                 array_keys($parameters),
-                array_values($parameters),
+                $parameters,
                 $sql
             );
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
 
@@ -191,10 +196,10 @@ class InheritanceUpdater
             );
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }

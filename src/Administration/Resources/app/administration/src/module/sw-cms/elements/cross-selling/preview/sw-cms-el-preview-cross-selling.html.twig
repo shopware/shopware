@@ -1,17 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_cross_selling_preview %}
 <div class="sw-cms-el-preview-cross-selling">
     <h4>{{ $tc('sw-cms.elements.crossSelling.preview.label.crossSellingTitle') }}</h4>
     <div class="sw-cms-el-preview-cross-selling__slider">
         <sw-icon
-            name="default-arrow-head-left"
+            name="regular-chevron-left"
             size="10"
         />
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_cross_selling_preview_box %}
         <div class="sw-cms-el-preview-cross-selling-box">
             <div class="sw-cms-el-preview-cross-selling-box__image">
                 <img
-                    :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset"
+                    :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
                     alt=""
                 >
             </div>
@@ -26,7 +28,7 @@
         {% endblock %}
 
         <sw-icon
-            name="default-arrow-head-right"
+            name="regular-chevron-right"
             size="10"
         />
     </div>

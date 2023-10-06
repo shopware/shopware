@@ -3,11 +3,14 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,6 +25,9 @@ use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class EditOrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -65,7 +71,7 @@ class EditOrderPageTest extends TestCase
         static::assertCount(1, $page->getPaymentMethods());
 
         // set Payment active to false and assert it will not be loaded
-        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        /** @var EntityRepository $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
@@ -98,7 +104,7 @@ class EditOrderPageTest extends TestCase
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoader::class, $event);
 
-        $this->expectException(OrderPaidException::class);
+        $this->expectException(OrderException::class);
 
         $request->request->set('orderId', $orderId);
         $this->getPageLoader()->load($request, $context);
@@ -152,6 +158,7 @@ class EditOrderPageTest extends TestCase
         static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
 
         // default payment method of customer should be second
+        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
         static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
     }
 
@@ -190,10 +197,15 @@ class EditOrderPageTest extends TestCase
 
         $stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
 
+        static::assertInstanceOf(OrderTransactionCollection::class, $order->getTransactions());
+
+        $orderTransactionEntity = $order->getTransactions()->last();
+        static::assertInstanceOf(OrderTransactionEntity::class, $orderTransactionEntity);
+
         $stateMachineRegistry->transition(
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
-                $order->getTransactions()->last()->getId(),
+                $orderTransactionEntity->getId(),
                 $transactionState,
                 'stateId'
             ),
@@ -203,10 +215,11 @@ class EditOrderPageTest extends TestCase
 
     private function getOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+
+        $criteria->addAssociations(['stateMachineState', 'transactions.stateMachineState']);
 
         return $orderRepository->search($criteria, $context->getContext())->first();
     }
@@ -234,6 +247,9 @@ class EditOrderPageTest extends TestCase
         return $paymentId;
     }
 
+    /**
+     * @param array<string, int> $options
+     */
     private function createCustomPaymentMethod(SalesChannelContext $context, array $options): PaymentMethodEntity
     {
         $paymentId = Uuid::randomHex();

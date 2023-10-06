@@ -15,6 +15,20 @@
       "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
       "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
+      "alertInheritance": {
+        "message": "Diese Varianten besitzen vererbte Felder. Der Inhalt der vererbten Felder wird vom jeweiligen Hauptprodukt übernommen. Sie können Vererbungen aktivieren und deaktivieren, indem Sie auf das Kettensymbol anklicken."
+      },
+      "alertRestrictedFields": {
+        "title": "Eingeschränkte Mehrfachänderung",
+        "message": "Mehrfachänderungen können nur für Felder vorgenommen werden, die für alle ausgewählten Produkte verfügbar sind.<br><br>Nicht für alle ausgewählten Produkte verfügbar:",
+        "stock": "Lagerbestand",
+        "isCloseout": "Im Abverkauf",
+        "restockTime": "Dauer der Wiederauffüllung",
+        "maxPurchase": "Maximale Bestellmenge",
+        "purchaseSteps": "Staffelung",
+        "minPurchase": "Minimale Bestellmenge",
+        "shippingFree": "Versandkostenfrei"
+      },
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
         "description": {
@@ -39,17 +53,28 @@
           "changeLabel": "Ändern: Steuersatz",
           "placeholderTax": "Steuersatz auswählen ..."
         },
+        "isPriceInherited": {
+          "changeLabel": "Ändern: Preisvererbung"
+        },
         "price": {
+          "label": "Preis",
           "changeLabel": "Ändern: Preis",
           "placeholderPrice": "Preis eingeben ..."
         },
         "purchasePrices": {
+          "label": "Einkaufspreis",
           "changeLabel": "Ändern: Einkaufspreis",
           "placeholderPurchasePrices": "Einkaufspreis eingeben ..."
         },
         "listPrice": {
+          "label": "Streichpreis",
           "changeLabel": "Ändern: Streichpreis",
           "placeholderListPrice": "Streichpreis eingeben ..."
+        },
+        "regulationPrice": {
+          "label": "Günstigster Preis (letzten 30 Tage)",
+          "changeLabel": "Ändern: Günstigster Preis (letzten 30 Tage)",
+          "placeholderRegulationPrice": "Günstigsten Preis eingeben ..."
         }
       },
       "advancedPrices": {
@@ -169,11 +194,11 @@
           "placeholder": "Maßeinheit eingeben ..."
         },
         "packUnitTitle": {
-          "changeLabel": "Ändern: Packaging unit",
+          "changeLabel": "Ändern: Verpackungseinheit",
           "placeholder": "Verpackungseinheit eingeben ..."
         },
         "packUnitPluralTitle": {
-          "changeLabel": "Ändern: Packaging unit plural",
+          "changeLabel": "Ändern: Verpackungseinheit-Mehrzahl",
           "placeholder": "Verpackungseinheit-Mehrzahl eingeben ..."
         },
         "basicUnitTitle": {
@@ -190,6 +215,9 @@
         "cardTitle": "Zusatzfelder",
         "changeLabel": "Ändern: {name}"
       }
+    },
+    "variant": {
+      "textTitle": "Mehrfachänderung: {variantTotal} Variante | Mehrfachänderung: {variantTotal} Varianten"
     },
     "modal": {
       "confirm": {
@@ -230,7 +258,10 @@
       },
       "success": {
         "title": "Mehrfachänderung - Erfolg",
-        "description": "Mehrfachänderung abgeschlossen."
+        "description": "Mehrfachänderung abgeschlossen.",
+        "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
+        "buttonDownload": "Download",
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",
@@ -246,6 +277,11 @@
       "textTitle": "Mehrfachänderung: {orderTotal} Bestellung | Mehrfachänderung: {orderTotal} Bestellungen",
       "messageEmptyTitle": "Keine Bestellungen ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Bestellungen aus.",
+      "alertRestrictedFields": {
+        "title": "Eingeschränkte Mehrfachänderungen",
+        "message": "Mehrfachänderungen können nur für Felder vorgenommen werden, die für alle ausgewählten Bestellungen verfügbar sind.<br><br>Nicht für alle ausgewählten Bestellungen verfügbar:",
+        "orderDeliveries": "Versandstatus"
+      },
       "status": {
         "cardTitle": "Status",
         "payment": {
@@ -253,8 +289,8 @@
           "placeholder": "Zahlungsstatus auswählen ..."
         },
         "shipping": {
-          "label": "Ändern: Versandstatus",
-          "placeholder": "Versandstatus auswählen ..."
+          "label": "Ändern: Lieferstatus",
+          "placeholder": "Lieferstatus auswählen ..."
         },
         "order": {
           "label": "Ändern: Bestellstatus",
@@ -266,7 +302,7 @@
         },
         "documents": {
           "label": "Verschicken: Dokumente",
-          "helpText": "Option verfügbar, wenn \"Versende: Status-E-Mails\" angehakt ist.",
+          "helpText": "Vorhandene Belege können als Anhang mit den Status E-Mails versandt werden. Es wird immer der aktuellste Beleg verwendet. Sollten Belege über diese Mehrfachänderung generiert werden, werden diese verwendet.",
           "options": {
             "newest": "Neueste",
             "all": "Alle"
@@ -282,12 +318,13 @@
       },
       "documents": {
         "cardTitle": "Dokumente",
+        "warning": "Die Mehrfachänderung verwendet jetzt eine verbesserte Dokumentenerstellung. Eine oder mehrere Erweiterungen auf Deinem System könnten jedoch abweichende Ergebnisse mit der neuen Dokumentenerstellung erzeugen.\nÜberprüfe daher bitte, ob Deine Dokumente mit und ohne Verwendung der Mehrfachänderung Unterschiede aufweisen.",
         "generateInvoice": {
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
           "labelTextarea": "Kommentar",
-          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+          "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",
@@ -295,7 +332,7 @@
           "changeSubLabel": "Die aktuell letzte Referenzrechnungsnummer wird verwendet."
         },
         "generateDeliveryNote": {
-          "label": "Erstellen: Versandbestätigung",
+          "label": "Erstellen: Lieferschein",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDeliveryDatePicker": "Lieferdatum"
         },
@@ -303,6 +340,10 @@
           "label": "Erstellen: Gutschrift",
           "helpText": "Gutschriften verwenden im Allgemeinen die letzte zugehörige Rechnungsnummer als Referenz.",
           "changeSubLabel": "Dieses Dokument wird nur erstellt, wenn sich eine Gutschriftposition in der Bestellung befindet."
+        },
+        "downloadDocuments": {
+          "label": "Herunterladen: Dokumente",
+          "helpText": "Mit dieser Option werden die aktuellsten, zur Verfügung stehenden Belege zum Download angeboten. Mehrere Belege werden in derselben Datei zusammengeführt. Der Download steht nach Abschluss der Mehrfachänderung zur Verfügung"
         }
       },
       "customFields": {

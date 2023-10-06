@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -21,7 +17,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -31,42 +26,19 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
- */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        DataValidator $validator
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly DataValidator $validator
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->validator = $validator;
     }
 
     public function getDecorated(): AbstractChangePasswordRoute
@@ -74,45 +46,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/change-password",
-     *      summary="Change the customer's password",
-     *      description="Changes a customer's password using their current password as a validation.",
-     *      operationId="changePassword",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "password",
-     *                  "newPassword",
-     *                  "newPasswordConfirm"
-     *              },
-     *              @OA\Property(
-     *                  property="password",
-     *                  description="Current password of the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPassword",
-     *                  description="New Password for the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPasswordConfirm",
-     *                  description="Confirmation of the new password",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/change-password', name: 'store-api.account.change-password', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
         $this->validatePasswordFields($requestDataBag, $context);
@@ -185,7 +119,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_config_product_listing_delete_modal %}
 <sw-modal>
     <template #modal-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_header %}
         <h4 class="sw-modal__title">
             {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.heading', { productSortingName: productSorting.label } ) }}
@@ -8,18 +10,20 @@
         {% endblock %}
     </template>
 
-    <template>
-        {% block sw_cms_config_product_listing_delete_modal_body %}
-        <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
-            {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
-        </p>
-        {% endblock %}
-    </template>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_config_product_listing_delete_modal_body %}
+    <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
+        {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
+    </p>
+    {% endblock %}
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_footer %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_footer_button_cancel %}
         <sw-button
+            class="sw-cms-el-config-product-listing-config-delete-modal__cancel"
             size="small"
             @click="onCancel"
         >
@@ -27,8 +31,10 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_footer_button_confirm %}
         <sw-button
+            class="sw-cms-el-config-product-listing-config-delete-modal__confirm"
             variant="danger"
             size="small"
             @click="onConfirm"

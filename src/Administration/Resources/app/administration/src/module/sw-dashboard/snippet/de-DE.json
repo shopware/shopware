@@ -68,7 +68,7 @@
     "todayStats": {
       "headline": "Statistik des Tages",
       "orders": "Bestellungen",
-      "turnover": "Umsatz",
+      "turnover": "Gesamtwert",
       "orderTime": "Zeitpunkt"
     },
     "monthStats": {
@@ -83,7 +83,10 @@
       "orderNumber": "Bestellungen",
       "turnover": "Umsatz",
       "numberOfOrders": "Anzahl",
-      "totalTurnover": "Gesamt"
+      "totalTurnover": "Gesamt",
+      "helperText": "Die Umsatzgrafik zeigt nur Bestellungen an, deren Zahlungsstatus auf \"bezahlt\" steht.",
+      "linkOrders": "Bestellungen anzeigen",
+      "linkPaidOrders": "Bezahlte Bestellungen anzeigen"
     }
   }
 }

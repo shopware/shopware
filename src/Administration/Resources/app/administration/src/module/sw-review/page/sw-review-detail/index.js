@@ -1,10 +1,13 @@
 import template from './sw-review-detail.html.twig';
 import './sw-review-detail.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-review-detail', {
+/**
+ * @package inventory
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -59,7 +62,7 @@ Component.register('sw-review-detail', {
         },
 
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
@@ -93,6 +96,10 @@ Component.register('sw-review-detail', {
         showCustomFields() {
             return this.review && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -107,6 +114,11 @@ Component.register('sw-review-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-review-detail__review',
+                path: 'review',
+                scope: this,
+            });
             if (this.$route.params.id) {
                 this.reviewId = this.$route.params.id;
 
@@ -117,7 +129,7 @@ Component.register('sw-review-detail', {
 
         loadEntityData() {
             this.isLoading = true;
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('customer');
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('product');
@@ -160,4 +172,4 @@ Component.register('sw-review-detail', {
             this.$router.push({ name: 'sw.review.index' });
         },
     },
-});
+};

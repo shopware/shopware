@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -11,38 +12,32 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+#[Package('sales-channel')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
-    public const CHANGE_FREQ = 'hourly';
+    final public const CHANGE_FREQ = 'hourly';
 
-    private IteratorFactory $iteratorFactory;
+    private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
-    private ConfigHandler $configHandler;
-
-    private Connection $connection;
-
-    private ProductDefinition $definition;
-
-    private RouterInterface $router;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        ConfigHandler $configHandler,
-        Connection $connection,
-        ProductDefinition $definition,
-        IteratorFactory $iteratorFactory,
-        RouterInterface $router
+        private readonly ConfigHandler $configHandler,
+        private readonly Connection $connection,
+        private readonly ProductDefinition $definition,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly RouterInterface $router,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->configHandler = $configHandler;
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->router = $router;
     }
 
     public function getDecorated(): AbstractUrlProvider
@@ -116,6 +111,8 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query = $iterator->getQuery();
         $query->setMaxResults($limit);
 
+        $showAfterCloseout = !$this->systemConfigService->get(self::CONFIG_HIDE_AFTER_CLOSEOUT, $context->getSalesChannelId());
+
         $query->addSelect([
             '`product`.created_at as created_at',
             '`product`.updated_at as updated_at',
@@ -125,7 +122,13 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->innerJoin('`product`', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
 
         $query->andWhere('`product`.version_id = :versionId');
-        $query->andWhere('`product`.available = 1');
+
+        if ($showAfterCloseout) {
+            $query->andWhere('(`product`.available = 1 OR `product`.is_closeout)');
+        } else {
+            $query->andWhere('`product`.available = 1');
+        }
+
         $query->andWhere('IFNULL(`product`.active, parent.active) = 1');
         $query->andWhere('(`product`.child_count = 0 OR `product`.parent_id IS NOT NULL)');
         $query->andWhere('(`product`.parent_id IS NULL OR parent.canonical_product_id IS NULL OR parent.canonical_product_id = `product`.id)');
@@ -135,13 +138,13 @@ class ProductUrlProvider extends AbstractUrlProvider
         $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
-            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::STRING);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array

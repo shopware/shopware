@@ -4,10 +4,12 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+#[Package('checkout')]
 class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;
@@ -51,6 +53,11 @@ class TaxRuleEntity extends Entity
      * @var array|null
      */
     protected $data;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $activeFrom;
 
     public function getTaxId(): string
     {
@@ -112,6 +119,9 @@ class TaxRuleEntity extends Entity
         $this->type = $type;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTaxRate(): float
     {
         return $this->taxRate;
@@ -130,5 +140,15 @@ class TaxRuleEntity extends Entity
     public function setData(?array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getActiveFrom(): ?\DateTimeInterface
+    {
+        return $this->activeFrom;
+    }
+
+    public function setActiveFrom(?\DateTimeInterface $activeFrom): void
+    {
+        $this->activeFrom = $activeFrom;
     }
 }

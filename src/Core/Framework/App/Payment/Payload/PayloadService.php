@@ -4,56 +4,43 @@ namespace Shopware\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class PayloadService
 {
-    protected Client $client;
-
-    protected ShopIdProvider $shopIdProvider;
-
-    private JsonEntityEncoder $entityEncoder;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private string $shopUrl;
-
     public function __construct(
-        JsonEntityEncoder $entityEncoder,
-        DefinitionInstanceRegistry $definitionRegistry,
-        Client $client,
-        ShopIdProvider $shopIdProvider,
-        string $shopUrl
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        protected Client $client,
+        protected ShopIdProvider $shopIdProvider,
+        private readonly string $shopUrl
     ) {
-        $this->entityEncoder = $entityEncoder;
-        $this->definitionRegistry = $definitionRegistry;
-        $this->client = $client;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->shopUrl = $shopUrl;
     }
 
     /**
      * @param class-string<AbstractResponse> $responseClass
      */
-    public function request(string $url, SourcedPayloadInterface $payload, AppEntity $app, string $responseClass, SalesChannelContext $context): ?Struct
+    public function request(string $url, SourcedPayloadInterface $payload, AppEntity $app, string $responseClass, Context $context): ?Struct
     {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
@@ -67,33 +54,36 @@ class PayloadService
                 $transactionId = $payload->getOrderTransaction()->getId();
             }
 
-            return $responseClass::create($transactionId, json_decode($content, true));
-        } catch (GuzzleException $ex) {
+            return $responseClass::create($transactionId, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        } catch (GuzzleException) {
             return null;
         }
     }
 
-    private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, SalesChannelContext $context): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context): array
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
-        $jsonPayload = json_encode($encoded);
+        $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
 
         if (!$jsonPayload) {
             if ($payload instanceof PaymentPayloadInterface) {
-                throw new AsyncPaymentProcessException($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
+                throw PaymentException::asyncProcessInterrupted($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
             }
 
-            throw new ValidatePreparedPaymentException(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
+            throw PaymentException::validatePreparedPaymentInterrupted(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
         }
 
         $secret = $app->getAppSecret();
         if ($secret === null) {
-            throw new AppRegistrationException('App secret missing');
+            throw AppException::registrationFailed($app->getName(), 'App secret is missing');
         }
 
         return [
-            AuthMiddleware::APP_REQUEST_CONTEXT => $context->getContext(),
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             AuthMiddleware::APP_REQUEST_TYPE => [
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
@@ -114,6 +104,9 @@ class PayloadService
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function encode(SourcedPayloadInterface $payload): array
     {
         $array = $payload->jsonSerialize();
@@ -143,6 +136,9 @@ class PayloadService
         return $array;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function encodeEntity(Entity $entity): array
     {
         $definition = $this->definitionRegistry->getByEntityName($entity->getApiAlias());

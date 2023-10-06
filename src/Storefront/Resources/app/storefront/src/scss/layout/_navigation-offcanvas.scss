@@ -6,11 +6,9 @@ Based on custom offcanvas component.
 */
 
 .navigation-offcanvas {
+    --bs-offcanvas-padding-x: 0;
+    --bs-offcanvas-padding-y: 0;
     overflow-x: hidden;
-
-    .offcanvas-content-container {
-        padding: 0;
-    }
 }
 
 .navigation-offcanvas-container {

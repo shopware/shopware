@@ -1,11 +1,15 @@
+/**
+ * @package inventory
+ */
 // eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-product-feature-sets-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -171,5 +175,5 @@ Component.register('sw-settings-product-feature-sets-list', {
             return features.length > 4 ? `${preview}, ...` : preview;
         },
     },
-});
+};
 

@@ -1,8 +1,9 @@
 import template from './sw-settings-cart.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-cart', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -40,4 +41,4 @@ Component.register('sw-settings-cart', {
             this.isLoading = loading;
         },
     },
-});
+};

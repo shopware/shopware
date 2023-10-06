@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_save_modal_error %}
 <div class="sw-bulk-edit-save-modal-error">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_error_icon %}
     <sw-label
         class="sw-bulk-edit-save-modal__icon"
@@ -7,12 +9,13 @@
         variant="danger"
     >
         <sw-icon
-            name="default-badge-error"
+            name="regular-times-hexagon"
             size="30px"
         />
     </sw-label>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_error_content %}
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $tc('sw-bulk-edit.modal.error.description') }}

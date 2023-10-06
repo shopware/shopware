@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class Price extends Struct
 {
     /**
@@ -36,14 +38,27 @@ class Price extends Struct
      */
     protected $percentage;
 
-    public function __construct(string $currencyId, float $net, float $gross, bool $linked, ?Price $listPrice = null, ?array $percentage = null)
-    {
+    /**
+     * @var Price|null
+     */
+    protected $regulationPrice;
+
+    public function __construct(
+        string $currencyId,
+        float $net,
+        float $gross,
+        bool $linked,
+        ?Price $listPrice = null,
+        ?array $percentage = null,
+        ?Price $regulationPrice = null
+    ) {
         $this->net = $net;
         $this->gross = $gross;
         $this->linked = $linked;
         $this->currencyId = $currencyId;
         $this->listPrice = $listPrice;
         $this->percentage = $percentage;
+        $this->regulationPrice = $regulationPrice;
     }
 
     public function getNet(): float
@@ -115,5 +130,15 @@ class Price extends Struct
     public function getApiAlias(): string
     {
         return 'price';
+    }
+
+    public function getRegulationPrice(): ?Price
+    {
+        return $this->regulationPrice;
+    }
+
+    public function setRegulationPrice(?Price $regulationPrice): void
+    {
+        $this->regulationPrice = $regulationPrice;
     }
 }

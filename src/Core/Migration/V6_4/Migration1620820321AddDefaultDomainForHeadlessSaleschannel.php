@@ -4,10 +4,17 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +29,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
             ['headlessType' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API)]
         );
 
-        $snippetSetId = $connection->fetchOne('SELECT id from snippet_set WHERE iso = :iso UNION SELECT id FROM snippet_set LIMIT 1', [
+        $snippetSetId = $connection->fetchOne('SELECT id from snippet_set WHERE iso = :iso', [
             'iso' => 'en-GB',
         ]);
 

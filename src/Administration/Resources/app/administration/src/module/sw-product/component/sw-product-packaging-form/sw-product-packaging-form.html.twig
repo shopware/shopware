@@ -1,19 +1,24 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_packaging_form %}
 <div class="sw-product-packaging-form">
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_width_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.width"
+            {% else %}
             v-model="product.width"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.width"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWidth')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
@@ -22,27 +27,35 @@
                     :error="productWidthError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_height_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.height"
+            {% else %}
             v-model="product.height"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.height"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelHeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
@@ -51,27 +64,35 @@
                     :error="productHeightError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_length_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.length"
+            {% else %}
             v-model="product.length"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.length"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelLength')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
@@ -80,12 +101,16 @@
                     :error="productLengthError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -95,16 +120,20 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_weight_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.weight"
+            {% else %}
             v-model="product.weight"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.weight"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
@@ -114,28 +143,36 @@
                     :error="productWeightError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>kg</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_purchase_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.purchaseUnit"
+            {% else %}
             v-model="product.purchaseUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.purchaseUnit"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     class="sw-product-packaging-form__purchase-unit-field"
                     :map-inheritance="props"
                     number-type="float"
@@ -148,17 +185,26 @@
                     :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
                     :help-text="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.unitId"
+            {% else %}
             v-model="product.unitId"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :label="$tc('sw-product.packagingForm.labelUnit')"
             :inherited-value="parentProduct.unitId"
@@ -174,7 +220,11 @@
                     pointer="product.unit"
                     :placeholder="$tc('sw-product.packagingForm.placeholderUnit')"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -185,17 +235,21 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_pack_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.packUnit"
+            {% else %}
             v-model="product.packUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.packUnit"
         >
             <template #content="props">
 
-                <sw-field
-                    type="text"
+                <sw-text-field
                     class="sw-product-packaging-form__pack-unit-field"
                     :map-inheritance="props"
                     :error="productPackUnitError"
@@ -204,24 +258,32 @@
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_pack_unit_plural_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.packUnitPlural"
+            {% else %}
             v-model="product.packUnitPlural"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.packUnitPlural"
         >
             <template #content="props">
 
-                <sw-field
-                    type="text"
+                <sw-text-field
                     class="sw-product-packaging-form__pack-unit-plural-field"
                     :map-inheritance="props"
                     :error="productPackUnitPluralError"
@@ -230,24 +292,32 @@
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_reference_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.referenceUnit"
+            {% else %}
             v-model="product.referenceUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.referenceUnit"
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     class="sw-product-packaging-form__reference-unit-field"
                     :map-inheritance="props"
                     number-type="float"
@@ -260,7 +330,11 @@
                     :label="$tc('sw-product.priceForm.labelReferenceUnit')"
                     :value="props.currentValue"
                     :help-text="$tc('sw-product.packagingForm.referenceUnitHelpText')"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_app_app_url_changed_modal %}
 <sw-modal
     class="sw-app-app-url-changed-modal"
@@ -7,7 +8,9 @@
     @modal-close="closeModal"
 >
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_app_app_url_changed_modal_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_app_app_url_changed_modal_content_description %}
         <div class="sw-app-app-url-changed-modal__content-description">
             <h3>{{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanationHeader') }}</h3>
@@ -22,12 +25,14 @@
                     {{ urlDiff.newUrl }}
                 </span>
             </div>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_app_app_url_changed_modal_description_explanation %}
             {{ $tc('sw-app.component.sw-app-app-url-changed-modal.explanation') }}
             {% endblock %}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_app_app_url_changed_modal_content_strategies %}
         <div
             v-for="(strategy, index) in strategies"
@@ -58,7 +63,7 @@
                 <sw-icon
                     v-else
                     small
-                    name="default-basic-shape-circle"
+                    name="regular-circle"
                 />
 
                 <span class="sw-app-app-url-changed-modal__content-choices-label">

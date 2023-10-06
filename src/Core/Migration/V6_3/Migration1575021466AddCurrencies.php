@@ -4,20 +4,21 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1575021466AddCurrencies extends MigrationStep
 {
-    /**
-     * @var string|null
-     */
-    private $deLanguage = null;
+    private ?string $deLanguage = null;
 
-    /**
-     * @var string|null
-     */
-    private $defaultLanguage = null;
+    private ?string $defaultLanguage = null;
 
     public function getCreationTimestamp(): int
     {
@@ -37,7 +38,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
 
     private function createCurrencyUniqueConstraint(Connection $connection): void
     {
-        $connection->exec('ALTER TABLE `currency` ADD  CONSTRAINT `uniq.currency.iso_code` UNIQUE (`iso_code`)');
+        $connection->executeStatement('ALTER TABLE `currency` ADD  CONSTRAINT `uniq.currency.iso_code` UNIQUE (`iso_code`)');
     }
 
     private function createCurrencies(Connection $connection): void
@@ -63,7 +64,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
         $languageEN = $this->getEnLanguageId($connection);
         $languageDE = $this->getDeLanguageId($connection);
 
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `currency`.`id` FROM `currency` WHERE `iso_code` = :code LIMIT 1
         ', ['code' => $isoCode]);
 
@@ -99,7 +100,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 

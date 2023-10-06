@@ -1,0 +1,150 @@
+---
+
+.rule_branch_rufus_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  when: on_success
+
+.rule_branch_commercial_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+  when: on_success
+
+.rule_exclude_on_branch_rufus_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  when: never
+
+.rule_exclude_on_branch_commercial_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+  when: never
+
+.rule_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  when: on_success
+
+.rule_exclude_on_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  when: never
+
+.downstream-job:
+  stage: downstream
+  needs: [ ]
+  variables:
+    PLATFORM_BRANCH: 'trunk'
+  inherit:
+    default: false
+    variables:
+      - PLATFORM_BRANCH
+      - CI_COMMIT_TAG
+  allow_failure: false
+
+rufus source branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_branch_rufus_match ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/rufus
+    branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    strategy: depend
+
+commercial source branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_branch_commercial_match ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/commercial
+    branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    strategy: depend
+
+rufus target branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_rufus_match ]
+    - !reference [ .rule_deployment_branch ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+    PLUGIN_DEPENDENCIES:
+      value: >
+        [
+          { "name": "SwagExtensionStore", "url": "gitlab.shopware.com/shopware/6/product/SwagExtensionStore", "branch": "trunk" },
+          { "name": "SwagCommercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
+        ]
+  trigger:
+    project: shopware/6/product/rufus
+    branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    strategy: depend
+
+commercial target branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_commercial_match ]
+    - !reference [ .rule_deployment_branch ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/commercial
+    branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    strategy: depend
+
+rufus trunk:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_rufus_match ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/rufus
+    strategy: depend
+
+commercial trunk:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_commercial_match ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/commercial
+    strategy: depend
+
+commercial tag:
+  extends: .downstream-job
+  needs: [Prepare commercial release]
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  variables:
+    PLATFORM_BRANCH: '$CI_COMMIT_TAG'
+  trigger:
+    project: shopware/6/product/commercial
+    strategy: depend
+    branch: $CI_COMMIT_TAG

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_purchase_price_field %}
 <sw-price-field
     name="sw-purchase-price-field"
@@ -11,6 +12,10 @@
     :label="label"
     :error="error"
     :currency="currency"
+    {% if VUE3 %}
+    @update:price="purchasePriceChanged"
+    {% else %}
     @change="purchasePriceChanged"
+    {% endif %}
 />
 {% endblock %}

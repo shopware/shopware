@@ -13,7 +13,7 @@
         {% set keepAspectRatioOnZoom = sliderConfig.keepAspectRatioOnZoom.value %}
         {% set magnifierOverGallery = sliderConfig.magnifierOverGallery.value %}
         {% set zoomModal = sliderConfig.fullScreen.value %}
-        {% set minHeight = sliderConfig.minHeight.value %}
+        {% set minHeight = sliderConfig.minHeight.value|trim|replace({' ':''}) %}
         {% set displayMode = sliderConfig.displayMode.value %}
         {% set navigationArrows = sliderConfig.navigationArrows.value %}
         {% set navigationDots = sliderConfig.navigationDots.value %}
@@ -99,6 +99,9 @@
                                 },
                                 xl: {
                                     axis: 'vertical'
+                                },
+                                xxl: {
+                                    axis: 'vertical'
                                 }
                             }
                         }
@@ -133,7 +136,7 @@
                                                             {% for image in mediaItems %}
                                                                 {% block element_image_gallery_inner_item %}
                                                                     <div class="gallery-slider-item-container">
-                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and  (displayMode == "cover" or displayMode == "contain" ) %} style="min-height: {{ minHeight }}"{% endif %}>
+                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}>
                                                                             {% set attributes = {
                                                                                 'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
@@ -225,9 +228,12 @@
                                                 {% block element_image_gallery_slider_dots_buttons %}
                                                     {% for image in mediaItems %}
                                                         {% block element_image_gallery_slider_dots_button %}
-                                                            <button class="base-slider-dot"
-                                                                    data-nav-dot="{{ loop.index }}"
-                                                                    tabindex="-1"></button>
+                                                            <button
+                                                                class="base-slider-dot"
+                                                                data-nav-dot="{{ loop.index }}"
+                                                                aria-label="{{ 'component.cms.imageGallery.sliderDotLabel'|trans({ '%index%': loop.index, '%total%': mediaItems|length })|striptags }}"
+                                                                tabindex="-1">
+                                                            </button>
                                                         {% endblock %}
                                                     {% endfor %}
                                                 {% endblock %}
@@ -319,13 +325,10 @@
                                                         <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true"{% endif %}>
                                                             {% block element_image_gallery_inner_zoom_modal_close_button %}
                                                                 <button type="button"
-                                                                        class="modal-close close"
-                                                                        data-dismiss="modal"
+                                                                        class="btn-close close"
+                                                                        data-bs-dismiss="modal"
                                                                         aria-label="Close">
                                                                     {% block element_image_gallery_inner_zoom_modal_close_icon %}
-                                                                        <span aria-hidden="true">
-                                                                            {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                                        </span>
                                                                     {% endblock %}
                                                                 </button>
                                                             {% endblock %}

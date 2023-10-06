@@ -1,8 +1,14 @@
-import './page/sw-integration-list';
+/**
+ * @package services-settings
+ */
 import './acl';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {
     type: 'core',
     name: 'integration',
@@ -11,7 +17,7 @@ Module.register('sw-integration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'integration',
 
@@ -29,7 +35,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'default-action-settings',
+        icon: 'regular-cog',
         privilege: 'integration.viewer',
     },
 });

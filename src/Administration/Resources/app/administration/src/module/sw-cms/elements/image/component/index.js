@@ -1,10 +1,17 @@
+import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
-Component.register('sw-cms-el-image', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -33,29 +40,47 @@ Component.register('sw-cms-el-image', {
             };
         },
 
-        mediaUrl() {
-            const elemData = this.element.data.media;
-            const mediaSource = this.element.config.media.source;
+        horizontalAlign() {
+            return {
+                'justify-content': this.element.config.horizontalAlign?.value || null,
+            };
+        },
 
-            if (mediaSource === 'mapped') {
-                const demoMedia = this.getDemoValue(this.element.config.media.value);
+        mediaUrl() {
+            const fallBackImageFileName = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
+            const staticFallBackImage = this.assetFilter(`administration/static/img/cms/${fallBackImageFileName}`);
+            const elemData = this.element.data.media;
+            const elemConfig = this.element.config.media;
+
+            if (elemConfig.source === 'mapped') {
+                const demoMedia = this.getDemoValue(elemConfig.value);
 
                 if (demoMedia?.url) {
                     return demoMedia.url;
                 }
 
-                return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+                return staticFallBackImage;
+            }
+
+            if (elemConfig.source === 'default') {
+                // use only the filename
+                const fileName = elemConfig.value?.slice(elemConfig.value.lastIndexOf('/') + 1) ?? '';
+                return this.assetFilter(`/administration/static/img/cms/${fileName}`);
             }
 
             if (elemData?.id) {
-                return this.element.data.media.url;
+                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
+                    return this.element.data.media.url;
+                }
+
+                return `${this.element.data.media.url}?${Shopware.Utils.createId()}`;
             }
 
             if (elemData?.url) {
-                return this.assetFilter(elemData.url);
+                return this.assetFilter(elemConfig.url);
             }
 
-            return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+            return staticFallBackImage;
         },
 
         assetFilter() {
@@ -95,4 +120,4 @@ Component.register('sw-cms-el-image', {
             this.initElementData('image');
         },
     },
-});
+};

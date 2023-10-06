@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -11,38 +12,15 @@ use Shopware\Core\Framework\Plugin\PluginService;
 /**
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
-    /**
-     * @var AbstractStoreAppLifecycleService
-     */
-    private $storeAppLifecycleService;
-
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
     public function __construct(
-        AbstractStoreAppLifecycleService $storeAppLifecycleService,
-        PluginService $pluginService,
-        PluginLifecycleService $pluginLifecycleService,
-        PluginManagementService $pluginManagementService
+        private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService,
+        private readonly PluginService $pluginService,
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly PluginManagementService $pluginManagementService
     ) {
-        $this->storeAppLifecycleService = $storeAppLifecycleService;
-        $this->pluginService = $pluginService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->pluginManagementService = $pluginManagementService;
     }
 
     public function install(string $type, string $technicalName, Context $context): void
@@ -57,7 +35,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
         $this->storeAppLifecycleService->installExtension($technicalName, $context);
     }
 
-    public function update(string $type, string $technicalName, Context $context): void
+    public function update(string $type, string $technicalName, bool $allowNewPermissions, Context $context): void
     {
         if ($type === 'plugin') {
             $plugin = $this->pluginService->getPluginByName($technicalName, $context);
@@ -66,7 +44,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->updateExtension($technicalName, true, $context);
+        $this->storeAppLifecycleService->updateExtension($technicalName, $allowNewPermissions, $context);
     }
 
     public function uninstall(string $type, string $technicalName, bool $keepUserData, Context $context): void

@@ -1,0 +1,151 @@
+{% set label = lineItem.label|trans|sw_sanitize %}
+{% set label = label !== '' ? label : lineItem.label %}
+
+{% if displayMode is not defined %}
+    {% set displayMode = 'default' %}
+{% endif %}
+
+{% if showRemoveButton is not defined %}
+    {% set showRemoveButton = true %}
+{% endif %}
+
+{% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
+
+{% if displayMode === 'offcanvas' %}
+    {% set lineItemClasses = lineItemClasses ~ ' js-cart-item' %}
+{% endif %}
+
+{% if not showRemoveButton %}
+    {% set lineItemClasses = lineItemClasses ~ ' no-remove-button' %}
+{% endif %}
+
+{% block component_line_item_type_product %}
+    <div class="{{ lineItemClasses }}">
+        <div class="row line-item-row">
+
+            {% block component_line_item_type_product_col_info %}
+                <div class="line-item-info">
+                    <div class="row line-item-row">
+                        {% set showLineItemModal = controllerAction is same as('confirmPage') %}
+
+                        {% if nestingLevel < 1 %}
+                            {% block component_line_item_type_product_image %}
+                                <div class="col-auto line-item-info-img">
+                                    <div class="line-item-img-container">
+                                        {% block component_line_item_type_product_image_inner %}
+                                            {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
+                                            {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
+                                                productLink: true,
+                                                lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                                lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
+                                            } %}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+
+                        {% block component_line_item_type_product_details %}
+                            <div class="line-item-details">
+                                <div class="line-item-details-container">
+                                    {% block component_line_item_type_product_label %}
+                                        {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
+                                        {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
+                                            productLink: true,
+                                            lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                            lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
+                                        } %}
+                                    {% endblock %}
+
+                                    {% if lineItem.payload.options is not empty %}
+                                        {% block component_line_item_type_product_variant_characteristics %}
+                                            {% sw_include '@Storefront/storefront/component/line-item/element/variant-characteristics.html.twig' %}
+                                        {% endblock %}
+                                    {% endif %}
+
+                                    {% if lineItem.payload.features is not empty %}
+                                        {% block component_line_item_type_product_features %}
+                                            {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                                'features': lineItem.payload.features
+                                            } %}
+                                        {% endblock %}
+                                    {% endif %}
+
+                                    {% if lineItem.payload.productNumber %}
+                                        {% block component_line_item_type_product_order_number %}
+                                            <div class="line-item-ordernumber">
+                                                {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
+                                            </div>
+                                        {% endblock %}
+                                    {% endif %}
+
+                                    {% if config('core.cart.showDeliveryTime') %}
+                                        {% block component_line_item_type_product_delivery_date %}
+                                            {% sw_include '@Storefront/storefront/component/line-item/element/delivery-date.html.twig' %}
+                                        {% endblock %}
+                                    {% endif %}
+
+                                    {% if config('core.cart.wishlistEnabled') %}
+                                        {% block component_line_item_type_product_wishlist %}
+                                            {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                                                showText: true,
+                                                size: 'sm',
+                                                productId: lineItem.referencedId
+                                            } %}
+                                        {% endblock %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block component_line_item_type_product_col_quantity %}
+                <div class="line-item-quantity">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/quantity.html.twig' %}
+                </div>
+            {% endblock %}
+
+            {% if showTaxPrice %}
+                {% block component_line_item_type_product_col_tax_price %}
+                    <div class="line-item-tax-price">
+                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                            {% sw_include '@Storefront/storefront/component/line-item/element/tax-price.html.twig' %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block component_line_item_type_product_col_unit_price %}
+                    <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %}">
+                        {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+
+            {% block component_line_item_type_product_col_total_price %}
+                <div class="line-item-total-price line-item-price">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' %}
+                </div>
+            {% endblock %}
+
+            {% if showRemoveButton %}
+                {% block component_line_item_type_product_col_remove %}
+                    <div class="line-item-remove">
+                        {% if lineItem.removable and nestingLevel < 1 %}
+                            {% sw_include '@Storefront/storefront/component/line-item/element/remove.html.twig' %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        </div>
+
+        {% if displayMode === 'order' %}
+            {% block component_line_item_type_product_downloads_table %}
+                <div class="order-detail-content-list">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/downloads.html.twig' %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ */
 class ErrorControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,12 +32,9 @@ class ErrorControllerTest extends TestCase
 
     private ErrorController $controller;
 
-    /**
-     * @var string
-     */
-    private $domain = 'http://kyln.shopware';
+    private string $domain = 'http://kyln.shopware';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->controller = $this->getContainer()->get(ErrorController::class);
@@ -66,8 +66,8 @@ class ErrorControllerTest extends TestCase
         $apiRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
         $response = $this->controller->onCaptchaFailure($violations, $apiRequest);
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
-        $type = $content[0]->type;
+        $content = json_decode((string) $responseContent, true, 512, \JSON_THROW_ON_ERROR);
+        $type = $content[0]['type'];
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
         static::assertCount(1, $content);
@@ -77,7 +77,7 @@ class ErrorControllerTest extends TestCase
     private function createRequest(): Request
     {
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         $session = $request->getSession();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
@@ -98,7 +98,7 @@ class ErrorControllerTest extends TestCase
     private function addDomain(string $url): void
     {
         $snippetSetId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

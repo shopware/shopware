@@ -4,18 +4,22 @@ import './sw-sidebar-item.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type code-only
  * @component-example
  * <sw-sidebar-item
- *     title="Product"
- *     icon="default-symbol-products"
- *     hasSimpleBadge
- *     badgeType='error'>
+ *         title="Product"
+ *         icon="regular-products"
+ *         hasSimpleBadge
+ *         badgeType='error'>
  *     Product in sidebar
  * </sw-sidebar-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar-item', {
     template,
 

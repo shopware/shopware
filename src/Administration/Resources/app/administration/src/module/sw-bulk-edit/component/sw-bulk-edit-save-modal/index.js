@@ -1,12 +1,12 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-save-modal.html.twig';
 import './sw-bulk-edit-save-modal.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-bulk-edit-save-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
-
-    inject: ['feature'],
 
     props: {
         itemTotal: {
@@ -121,10 +121,7 @@ Component.register('sw-bulk-edit-save-modal', {
         },
 
         beforeUnloadListener(event) {
-            if (
-                !this.feature.isActive('FEATURE_NEXT_17261') ||
-                !this.isLoading
-            ) {
+            if (!this.isLoading) {
                 return '';
             }
 
@@ -145,6 +142,7 @@ Component.register('sw-bulk-edit-save-modal', {
         redirect(routeName) {
             if (!routeName) {
                 this.$emit('modal-close');
+                return;
             }
 
             this.$router.push({ path: routeName });
@@ -171,4 +169,4 @@ Component.register('sw-bulk-edit-save-modal', {
             action.call();
         },
     },
-});
+};

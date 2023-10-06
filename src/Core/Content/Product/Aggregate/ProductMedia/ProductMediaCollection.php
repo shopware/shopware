@@ -4,52 +4,44 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(ProductMediaEntity $entity)
- * @method void                    set(string $key, ProductMediaEntity $entity)
- * @method ProductMediaEntity[]    getIterator()
- * @method ProductMediaEntity[]    getElements()
- * @method ProductMediaEntity|null get(string $key)
- * @method ProductMediaEntity|null first()
- * @method ProductMediaEntity|null last()
+ * @extends EntityCollection<ProductMediaEntity>
  */
+#[Package('inventory')]
 class ProductMediaCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductMediaEntity $productMedia) {
-            return $productMedia->getProductId();
-        });
+        return $this->fmap(fn (ProductMediaEntity $productMedia) => $productMedia->getProductId());
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductMediaEntity $productMedia) use ($id) {
-            return $productMedia->getProductId() === $id;
-        });
+        return $this->filter(fn (ProductMediaEntity $productMedia) => $productMedia->getProductId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
-        return $this->fmap(function (ProductMediaEntity $productMedia) {
-            return $productMedia->getMediaId();
-        });
+        return $this->fmap(fn (ProductMediaEntity $productMedia) => $productMedia->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ProductMediaEntity $productMedia) use ($id) {
-            return $productMedia->getMediaId() === $id;
-        });
+        return $this->filter(fn (ProductMediaEntity $productMedia) => $productMedia->getMediaId() === $id);
     }
 
     public function getMedia(): MediaCollection
     {
         return new MediaCollection(
-            $this->fmap(function (ProductMediaEntity $productMedia) {
-                return $productMedia->getMedia();
-            })
+            $this->fmap(fn (ProductMediaEntity $productMedia) => $productMedia->getMedia())
         );
     }
 

@@ -9,29 +9,24 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @internal
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class TestProductSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'test.product.page';
-    public const DEFAULT_TEMPLATE = '{{ product.id }}';
+    final public const ROUTE_NAME = 'test.product.page';
+    final public const DEFAULT_TEMPLATE = '{{ product.id }}';
 
-    private ProductDefinition $productDefinition;
-
-    public function __construct(ProductDefinition $productDefinition)
+    public function __construct(private readonly ProductDefinition $productDefinition)
     {
-        $this->productDefinition = $productDefinition;
     }
 
-    /**
-     * @Route("/test/{productId}", name="test.product.page", options={"seo"=true}, methods={"GET"})
-     */
+    #[Route(path: '/test/{productId}', name: 'test.product.page', options: ['seo' => true], methods: ['GET'])]
     public function route(): Response
     {
         return new Response();
@@ -47,7 +42,7 @@ class TestProductSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
         // no-op, dummy implementation
     }

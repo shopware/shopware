@@ -2,36 +2,57 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
+use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
+use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal not intended for decoration or replacement
  */
+#[Package('services-settings')]
 class FlowExecutor
 {
-    private EventDispatcherInterface $dispatcher;
+    /**
+     * @var array<string, mixed>
+     */
+    private readonly array $actions;
 
-    public function __construct(EventDispatcherInterface $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
+    /**
+     * @param FlowAction[] $actions
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly AppFlowActionProvider $appFlowActionProvider,
+        private readonly AbstractRuleLoader $ruleLoader,
+        private readonly FlowRuleScopeBuilder $scopeBuilder,
+        $actions
+    ) {
+        $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
 
-    public function execute(Flow $flow, FlowEventAware $event): void
+    public function execute(Flow $flow, StorableFlow $event): void
     {
-        $state = new FlowState($event);
+        $state = new FlowState();
+
+        $event->setFlowState($state);
         $state->flowId = $flow->getId();
         foreach ($flow->getSequences() as $sequence) {
-            $state->sequenceId = $sequence->sequenceId;
+            $state->delayed = false;
 
             try {
-                $this->executeSequence($sequence, $state);
+                $this->executeSequence($sequence, $event);
             } catch (\Exception $e) {
                 throw new ExecuteSequenceException($sequence->flowId, $sequence->sequenceId, $e->getMessage(), $e->getCode(), $e);
             }
@@ -42,52 +63,116 @@ class FlowExecutor
         }
     }
 
-    public function executeSequence(?Sequence $sequence, FlowState $state): void
+    public function executeSequence(?Sequence $sequence, StorableFlow $event): void
     {
         if ($sequence === null) {
             return;
         }
 
+        $event->getFlowState()->currentSequence = $sequence;
+
         if ($sequence instanceof IfSequence) {
-            $this->executeIf($sequence, $state);
+            $this->executeIf($sequence, $event);
 
             return;
         }
 
         if ($sequence instanceof ActionSequence) {
-            $this->executeAction($sequence, $state);
+            $this->executeAction($sequence, $event);
         }
     }
 
-    public function executeAction(ActionSequence $sequence, FlowState $state): void
+    public function executeAction(ActionSequence $sequence, StorableFlow $event): void
     {
         $actionName = $sequence->action;
         if (!$actionName) {
             return;
         }
 
-        if ($state->stop) {
+        if ($event->getFlowState()->stop) {
             return;
         }
 
-        $globalEvent = new FlowEvent($actionName, $state, $sequence->config);
-        $this->dispatcher->dispatch($globalEvent, $actionName);
+        $event->setConfig($sequence->config);
+
+        $this->callHandle($sequence, $event);
+
+        if ($event->getFlowState()->delayed) {
+            return;
+        }
+
+        $event->getFlowState()->currentSequence = $sequence;
 
         /** @var ActionSequence $nextAction */
         $nextAction = $sequence->nextAction;
         if ($nextAction !== null) {
-            $this->executeAction($nextAction, $state);
+            $this->executeAction($nextAction, $event);
         }
     }
 
-    public function executeIf(IfSequence $sequence, FlowState $state): void
+    public function executeIf(IfSequence $sequence, StorableFlow $event): void
     {
-        if (\in_array($sequence->ruleId, $state->event->getContext()->getRuleIds(), true)) {
-            $this->executeSequence($sequence->trueCase, $state);
+        if ($this->sequenceRuleMatches($event, $sequence->ruleId)) {
+            $this->executeSequence($sequence->trueCase, $event);
 
             return;
         }
 
-        $this->executeSequence($sequence->falseCase, $state);
+        $this->executeSequence($sequence->falseCase, $event);
+    }
+
+    private function callHandle(ActionSequence $sequence, StorableFlow $event): void
+    {
+        if ($sequence->appFlowActionId) {
+            $this->callApp($sequence, $event);
+
+            return;
+        }
+
+        $action = $this->actions[$sequence->action] ?? null;
+
+        if (!$action instanceof FlowAction) {
+            return;
+        }
+
+        $action->handleFlow($event);
+    }
+
+    private function callApp(ActionSequence $sequence, StorableFlow $event): void
+    {
+        if (!$sequence->appFlowActionId) {
+            return;
+        }
+
+        $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
+
+        $globalEvent = new AppFlowActionEvent(
+            $sequence->action,
+            $eventData['headers'],
+            $eventData['payload'],
+        );
+
+        $this->dispatcher->dispatch($globalEvent, $sequence->action);
+    }
+
+    private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool
+    {
+        if (!$event->hasData(OrderAware::ORDER)) {
+            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+        }
+
+        $order = $event->getData(OrderAware::ORDER);
+
+        if (!$order instanceof OrderEntity) {
+            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+        }
+
+        $rule = $this->ruleLoader->load($event->getContext())->filterForFlow()->get($ruleId);
+
+        if (!$rule || !$rule->getPayload() instanceof Rule) {
+            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+        }
+
+        return $rule->getPayload()->match($this->scopeBuilder->build($order, $event->getContext()));
     }
 }

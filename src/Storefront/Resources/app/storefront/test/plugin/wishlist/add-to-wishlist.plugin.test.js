@@ -1,10 +1,9 @@
-/**
- * @jest-environment jsdom
- */
-
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
 
+/**
+ * @package checkout
+ */
 describe('AddToWishlistPlugin tests', () => {
     let addToWishlistPlugin = undefined;
     let spyInitializePlugins = jest.fn();
@@ -16,22 +15,9 @@ describe('AddToWishlistPlugin tests', () => {
         // mock search plugin
         const mockElement = document.createElement('div');
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new WishlistLocalStoragePlugin(mockElement);
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            getPluginInstances: () => {
-                return new Map();
-            }
-        };
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new WishlistLocalStoragePlugin(mockElement);
+        }
 
         const wishlistBasket = document.createElement('div');
         wishlistBasket.setAttribute('id', 'wishlist-basket');

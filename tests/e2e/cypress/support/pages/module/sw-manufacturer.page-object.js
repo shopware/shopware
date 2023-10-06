@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import elements from '../sw-general.page-object';
 
 export default class ManufacturerPageObject {

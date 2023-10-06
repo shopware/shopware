@@ -91,7 +91,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
     &.is-nav-prev-outside,
     &.is-nav-next-outside {
         border: 0;
-        background: none;
+        background-color: rgba($white, 0.8);
     }
 
     &[disabled] {
@@ -102,10 +102,18 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
 .base-slider-controls-prev {
     border-radius: 0 $border-radius $border-radius 0;
+
+    &.is-nav-prev-outside {
+        border-radius: $border-radius 0 0 $border-radius;
+    }
 }
 
 .base-slider-controls-next {
     border-radius: $border-radius 0 0 $border-radius;
+
+    &.is-nav-next-outside {
+        border-radius: 0 $border-radius $border-radius 0;
+    }
 }
 
 @include media-breakpoint-up(md) {
@@ -124,11 +132,12 @@ based on: https://github.com/ganlanyuan/tiny-slider
     }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
     .base-slider {
         .tns-nav,
         .base-slider-dots {
             width: 55%;
+            text-align: center;
 
             &.hide-dots,
             &.hide-dots-mobile {

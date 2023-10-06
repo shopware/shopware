@@ -1,10 +1,15 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-discounts.html.twig';
 import './sw-promotion-v2-discounts.scss';
 
-const { Component } = Shopware;
 const { createId } = Shopware.Utils;
 
-Component.register('sw-promotion-v2-discounts', {
+/**
+ * @deprecated tag:v6.6.0 - Will be removed in v6.6.0. This component currently is not registered anywhere.
+ */
+export default {
     template,
 
     inject: [
@@ -35,6 +40,10 @@ Component.register('sw-promotion-v2-discounts', {
     computed: {
         promotionDiscountRepository() {
             return this.repositoryFactory.create('promotion_discount');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -101,4 +110,4 @@ Component.register('sw-promotion-v2-discounts', {
             });
         },
     },
-});
+};

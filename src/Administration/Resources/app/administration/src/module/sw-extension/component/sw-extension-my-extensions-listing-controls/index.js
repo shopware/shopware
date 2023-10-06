@@ -1,7 +1,11 @@
 import template from './sw-extension-my-extensions-listing-controls.html.twig';
 import './sw-extension-my-extensions-listing-controls.scss';
 
-Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
 
     data() {
@@ -34,4 +38,4 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
             this.$emit('update:sorting-option', value);
         },
     },
-});
+};

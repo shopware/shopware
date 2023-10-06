@@ -47,8 +47,19 @@ $sw-order-line-item-border: $color-gray-300;
         height: 16px;
     }
 
-    .sw-product-variant-info {
-        max-width: 240px;
+    .sw-order-line-items-grid__item-payload-options {
+        .sw-product-variant-info {
+            white-space: normal;
+            text-overflow: unset;
+        }
+
+        .sw-product-variant-info__product-name > div {
+            width: 100%;
+        }
+    }
+
+    .sw-entity-single-select__selection-text .sw-product-variant-info {
+        max-width: 280px;
     }
 
     .sw-data-grid .sw-data-grid__cell--selection {

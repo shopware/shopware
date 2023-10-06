@@ -1,0 +1,98 @@
+# requires /.gitlab/base.yml
+
+Build:
+    extends: .base-no-setup
+    stage: lint
+    needs: []
+    services:
+      -   name: mariadb:10.10
+          alias: database
+          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    rules:
+        - when: always
+    script:
+      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+      - composer config version "${LATEST_TAG#"v"}"
+      - !reference [ .scripts, init, composer ]
+      - bin/console debug:container --parameter 'kernel.shopware_version'
+      - mkdir -p config/jwt custom/plugins || true
+      - echo -e "\e[0Ksection_start:$(date +%s):initdb[collapsed=true]\r\e[0KDatabase init"
+      - composer run init:db
+      - echo -e "\e[0Ksection_end:`date +%s`:initdb\r\e[0K"
+      - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, npm, admin ]
+      - !reference [ .scripts, init, npm, storefront ]
+      - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
+      - composer run e2e:sdk-plugin:fixture-to-plugin
+      - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)'
+      - bin/console plugin:refresh
+      - bin/console plugin:install --activate TestPlugin
+      - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
+      - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
+      - composer run build:js
+      - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
+      - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
+      - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
+      - bin/console theme:compile
+      - bin/console theme:change --all Storefront
+      - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
+      - 'mysqldump -uroot -papp -hdatabase root > var/database.sql'
+    artifacts:
+        paths:
+            - src/Administration/Resources/public
+            - src/Storefront/Resources/public
+            - src/Storefront/Resources/app/storefront/dist
+            - src/Storefront/Resources/app/storefront/vendor
+            - var/database.sql
+            - custom/plugins/TestPlugin
+            - public/theme/
+
+Component Library:
+  extends: .base
+  stage: lint
+  image: node:18.15
+  before_script: []
+  needs: []
+  variables:
+    PROJECT_ROOT: $CI_PROJECT_DIR
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, run ]
+    - changes:
+        - src/Administration/**/*
+        - src/Storefront/**/*
+  script:
+    - npm install --prefix src/Administration/Resources/app/administration
+    - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+    - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
+    - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
+  artifacts:
+    paths:
+      - build/artifacts/component-library/
+
+Prepare commercial release:
+  extends: .base-no-setup
+  stage: lint
+  image: alpine:latest
+  needs: []
+  environment:
+    name: 'Gitlab - Commercial'
+    url: 'https://gitlab.shopware.com/shopware/6/product/commercial'
+  variables:
+    GIT_USER: shopwareBot
+    GIT_EMAIL: shopwareBot@shopware.com
+    COMMERCIAL_REMOTE_URL: "https://bot:${GITLAB_MANYREPO_SYNC_TOKEN}@gitlab.shopware.com/shopware/6/product/commercial"
+  rules:
+      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script:
+    - apk add composer git bash
+    - git config --global user.email $GIT_EMAIL
+    - git config --global user.name $GIT_USER
+    # fetch saas branches
+    - git fetch --tags origin 'refs/heads/saas/*:refs/remotes/origin/saas/*'
+    # track saas branches
+    - 'git branch --all | grep remotes/origin/saas/ | sort | sed -e "s|remotes/origin/||" | xargs -n1 -i{} git fetch origin "{}:{}"'
+  script:
+    - '.gitlab/bin/commercial_release.bash "$CI_COMMIT_TAG" "$COMMERCIAL_REMOTE_URL"'
+    - git -C commercial log -n 2
+    - git -C commercial diff @^..

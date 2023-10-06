@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1601539530IntergrationRoleEntity extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1601539530IntergrationRoleEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `integration_role` (
               `integration_id` BINARY(16) NOT NULL,
               `acl_role_id` BINARY(16) NOT NULL,
@@ -26,7 +33,7 @@ class Migration1601539530IntergrationRoleEntity extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('ALTER TABLE `integration` ADD `admin` tinyint(1) NOT NULL DEFAULT \'1\' AFTER `label`;');
+        $connection->executeStatement('ALTER TABLE `integration` ADD `admin` tinyint(1) NOT NULL DEFAULT \'1\' AFTER `label`;');
     }
 
     public function updateDestructive(Connection $connection): void

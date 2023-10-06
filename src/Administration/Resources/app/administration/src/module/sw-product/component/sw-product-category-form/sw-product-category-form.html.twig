@@ -1,22 +1,30 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_category_form %}
 <div class="sw-product-category-form">
     <sw-container class="sw-product-category-form__description">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_title %}
         <span class="sw-product-category-form__visibility-title">
             {{ $tc('sw-product.visibility.labelVisibility') }}
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_body %}
         <p class="sw-product-category-form__visibility-body">
             {{ $tc('sw-product.visibility.bodyVisibility') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_field %}
         <sw-inherit-wrapper
             ref="productVisibilitiesInheritance"
+            {% if VUE3 %}
+            v-model:value="product.visibilities"
+            {% else %}
             v-model="product.visibilities"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             class="sw-product-category-form__visibility_field"
             :inherited-value="parentProduct.visibilities"
@@ -33,21 +41,31 @@
                     :entity-collection="currentValue"
                     :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
                     :disabled="isInherited || !allowEdit"
+                    {% if VUE3 %}
+                    @update:entity-collection="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
     </sw-container>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_visibility_field_link %}
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         align="center"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_active_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.active"
+            {% else %}
             v-model="product.active"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.active"
         >
@@ -59,20 +77,26 @@
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="hasSelectedVisibilities && showModeSetting"
             class="sw-card__quick-link advanced-visibility"
             style="text-align: right; display: block"
+            role="button"
+            tabindex="0"
             @click="displayAdvancedVisibility"
+            @keydown.enter="displayAdvancedVisibility"
         >
             {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
-                name="default-arrow-simple-right"
+                name="regular-long-arrow-right"
                 small
             />
         </a>
@@ -88,7 +112,7 @@
 
         <sw-product-visibility-detail :disabled="!allowEdit" />
 
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 variant="primary"
                 size="small"
@@ -100,17 +124,20 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_category_field %}
     <sw-container
         rows="2em 4em 4em"
         class="sw-product-feature-set-form__description"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_categories_title %}
         <span class="sw-product-category-form__visibility-title">
             {{ $tc('sw-product.categoryForm.categoriesTitle') }}
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_categories_body %}
         <p class="sw-product-category-form__categories-body">
             {{ $tc('sw-product.categoryForm.descriptionCategories') }}
@@ -120,7 +147,11 @@
         </p>
         {% endblock %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.categories"
+            {% else %}
             v-model="product.categories"
+            {% endif %}
             is-association
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.categories"
@@ -139,10 +170,15 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_tags_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
+        {% if VUE3 %}
+        v-model:value="product.tags"
+        {% else %}
         v-model="product.tags"
+        {% endif %}
         class="sw-product-category-form__tag-field-wrapper"
         :inherited-value="parentProduct.tags"
         :has-parent="!!parentProduct.id"
@@ -166,10 +202,15 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_search_keyword_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
+        {% if VUE3 %}
+        v-model:value="product.customSearchKeywords"
+        {% else %}
         v-model="product.customSearchKeywords"
+        {% endif %}
         :help-text="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
         :inherited-value="parentProduct.customSearchKeywords"
         :has-parent="!!parentProduct.id"
@@ -180,7 +221,11 @@
                 class="sw-product-category-form__search-keyword-field"
                 :value="currentValue ? currentValue : []"
                 :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                {% if VUE3 %}
+                @update:value="updateCurrentValue"
+                {% else %}
                 @change="updateCurrentValue"
+                {% endif %}
             >
                 <template #message-add-data>
                     <span>{{ $tc('sw-product.categoryForm.textAddSearchKeyword') }}</span>

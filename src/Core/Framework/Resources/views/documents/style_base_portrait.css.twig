@@ -8,12 +8,12 @@
         }
 
         .letter-header {
-            position: absolute;
-            top: -100px;
+            position: relative;
+            height: 80px;
         }
 
         .letter-body {
-            margin-top: 150px;
+            clear: right;
         }
 
         div.page_break {
@@ -57,8 +57,12 @@
         }
 
         .logo {
-            width: 30%;
+            position: absolute;
+            top: 0;
+            left: 0;
             max-height: 150px;
+            width: auto;
+            clear: right;
         }
 
         /* Document title */
@@ -68,22 +72,41 @@
 
         /* Sender info section (top right) */
         .sender-address-container {
-            top: 0;
-            right: 30px;
             position: absolute;
+            right: 0;
+            bottom: 0;
         }
 
         /* Receipt address section */
         .recipient-address-container {
-            margin-top: 100px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            clear: right;
         }
 
         /* Line item section */
         .line-item-table {
             width: 100%;
             border-spacing: 0 2px;
+            border-collapse: collapse;
         }
 
+        .line-item-table tbody tr:first-child > td {
+            padding-top: 20px;
+        }
+
+        .line-item-table tbody tr > td {
+            padding-bottom: 5px;
+        }
+
+        .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
+            top: 20px;
+        }
+
+        .line-item-table-header {
+            vertical-align: top;
+        }
 
         .line-item-table-header > th, .line-item-table:last-child {
             padding-bottom: 20px;
@@ -91,33 +114,57 @@
             text-align: left;
         }
 
+        .line-item-table-header > th.product-number {
+            width: 200px;
+        }
+
+        .line-item-table-header > th.product-label {
+            width: 240px;
+        }
+
         .line-item-table-header > th.numbers {
             text-align: right;
+        }
+
+        .line-item-table-header > th.incl-vat {
+            position: relative;
+            width: auto;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            display: inline-block;
+            position: absolute;
+            font-size: 10px;
+            font-weight: normal;
+            margin-top: 12px;
+            right: 0;
         }
 
         .line-item, .sum-container, .payment-shipping-container, .document-comment-container {
             line-height: 16px;
         }
 
-        .line-item.first > td {
-            padding-top: 20px;
+        .line-item.nested > td {
+            position: relative;
+            overflow: hidden;
         }
 
         .line-item-breakable {
             word-wrap: break-word;
+            vertical-align: top;
         }
 
         .line-item .label-wrapper {
             display: inline-block;
             position: absolute;
-            width: 6px;
-            height: 20px;
-            top: 0;
-            border-left:  2px solid rgba(0, 0, 0, 0.15);
+            top: 0.05%;
+            bottom: 0;
+            left: 0;
+            border-left: 2px solid rgba(0, 0, 0, 0.15);
         }
 
-        .wrapper-wrapper {
-            position: relative;
+        .line-item > td {
+            vertical-align: top;
         }
 
         .label-wrapper.level-2 { margin-left: 10px; }
@@ -166,14 +213,25 @@
         }
 
         /* Payment/shipping details*/
-        .payment-shipping-container, .document-comment-container {
+        .payment-shipping-container, .sum-container, .document-comment-container {
             padding-top: 25px;
         }
 
-        /* Page count */
+        .payment-shipping-container, .shipping-address-container, .sum-container {
+            page-break-inside: avoid;
+        }
+
+        .payment-shipping-container {
+            clear: right;
+        }
+
+        .shipping-address-container .bold {
+            margin: 0;
+        }
+
         .page-count {
             width: 100%;
-            text-align: center;
+            float: left;
         }
 
         .pagenum:after {
@@ -182,10 +240,9 @@
 
         /* Subtotal/Total section */
         .sum-container {
-            margin-top: 20px;
             text-align: right;
             float: right;
-            right: 30px;
+            right: 0;
         }
 
         .sum-table {
@@ -195,21 +252,23 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 50px;
+            bottom: 30px;
             font-size: 8px;
-        }
-
-        footer:after {
-            clear: both;
+            padding-top: 30px;
+            line-height: 9px;
+            width: 100%;
         }
 
         footer > ul {
+            width: 20%;
+            display: block;
+            float: left;
             list-style-type: none;
             margin: 0;
-            padding-top: 10px;
-            display: block;
-            height: 100px;
-            float: left;
+        }
+
+        footer > ul:first-child {
+            padding: 0;
         }
     {% endblock %}
 </style>

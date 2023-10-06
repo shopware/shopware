@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\SalesChannel\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('buyers-experience')]
 class DefaultSalesChannelTypeCannotBeDeleted extends ShopwareHttpException
 {
     public function __construct(string $id)

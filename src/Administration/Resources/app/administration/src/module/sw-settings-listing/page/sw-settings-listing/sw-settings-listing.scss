@@ -10,7 +10,7 @@
     }
 
     .sw-data-grid__cell-content span.is--truncate {
-        @include truncate();
+        @include truncate;
 
         display: block;
         max-width: 300px;

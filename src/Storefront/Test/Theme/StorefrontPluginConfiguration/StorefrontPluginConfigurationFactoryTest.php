@@ -9,22 +9,23 @@ use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 
+/**
+ * @internal
+ */
 class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var StorefrontPluginConfigurationFactory
-     */
-    private $configFactory;
+    private StorefrontPluginConfigurationFactory $configFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
 
     public function testCreateThemeConfig(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/ThemeConfig');
 
         $theme = $this->getBundle('TestTheme', $basePath, true);
@@ -74,6 +75,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasSingleScssEntryPoint(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePlugin');
         $bundle = $this->getBundle('SimplePlugin', $basePath);
 
@@ -88,6 +90,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPoint(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePluginWithoutCompilation');
 
         $bundle = $this->getBundle('SimplePluginWithoutCompilation', $basePath);
@@ -98,6 +101,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPointButDifferentScssFiles(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimpleWithoutStyleEntryPoint');
 
         $bundle = $this->getBundle('SimpleWithoutStyleEntryPoint', $basePath);
@@ -108,12 +112,14 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $this->assertFileCollection([], $config->getStyleFiles());
     }
 
-    private function getBundle(string $name, string $basePath, bool $isTheme = false)
+    private function getBundle(string $name, string $basePath, bool $isTheme = false): Bundle
     {
         if ($isTheme) {
             return new class($name, $basePath) extends Bundle implements ThemeInterface {
-                public function __construct($name, $basePath)
-                {
+                public function __construct(
+                    string $name,
+                    string $basePath
+                ) {
                     $this->name = $name;
                     $this->path = $basePath;
                 }
@@ -121,14 +127,19 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         return new class($name, $basePath) extends Bundle {
-            public function __construct($name, $basePath)
-            {
+            public function __construct(
+                string $name,
+                string $basePath
+            ) {
                 $this->name = $name;
                 $this->path = $basePath;
             }
         };
     }
 
+    /**
+     * @param array<string, array<string, string>>$expected
+     */
     private function assertFileCollection(array $expected, FileCollection $files): void
     {
         $flatFiles = [];
@@ -143,7 +154,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        if (\strpos($path, $projectDir) === 0) {
+        if (str_starts_with($path, $projectDir)) {
             return substr($path, \strlen($projectDir) + 1);
         }
 

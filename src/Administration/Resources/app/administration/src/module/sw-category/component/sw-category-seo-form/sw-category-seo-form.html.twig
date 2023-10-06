@@ -1,29 +1,46 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_seo_form %}
 <div class="sw-category-seo-form">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_title %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="category.metaTitle"
+        {% else %}
         v-model="category.metaTitle"
-        type="text"
+        {% endif %}
+        maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaTitle')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$tc('sw-category.base.seo.placeholderMetaTitle')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_description %}
-    <sw-field
+    <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="category.metaDescription"
+        {% else %}
         v-model="category.metaDescription"
-        type="textarea"
+        {% endif %}
+        maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaDescription')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-category.base.seo.placeholderMetaDescription')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_keywords %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="category.keywords"
+        {% else %}
         v-model="category.keywords"
-        type="text"
+        {% endif %}
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelKeywords')"
         :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"

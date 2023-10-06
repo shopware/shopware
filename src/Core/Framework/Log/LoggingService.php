@@ -2,44 +2,34 @@
 
 namespace Shopware\Core\Framework\Log;
 
+use Monolog\Level;
 use Monolog\Logger;
-use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\BusinessEvents;
+use Shopware\Core\Framework\Event\FlowLogEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class LoggingService implements EventSubscriberInterface
 {
     /**
-     * @var Logger
+     * @internal
      */
-    protected $logger;
-
-    /**
-     * @var array
-     */
-    protected $subscribedEvents;
-
-    /**
-     * @var string
-     */
-    protected $environment;
-
     public function __construct(
-        string $kernelEnv,
-        Logger $logger
+        private readonly string $environment,
+        private readonly Logger $logger
     ) {
-        $this->logger = $logger;
-        $this->environment = $kernelEnv;
     }
 
-    public function logBusinessEvent(BusinessEvent $event): void
+    public function logFlowEvent(FlowLogEvent $event): void
     {
         $innerEvent = $event->getEvent();
 
         $additionalData = [];
-        $logLevel = Logger::DEBUG;
+        $logLevel = Level::Debug;
 
-        if ($innerEvent instanceof LogAwareBusinessEventInterface) {
+        if ($innerEvent instanceof LogAware) {
             $logLevel = $innerEvent->getLogLevel();
             $additionalData = $innerEvent->getLogData();
         }
@@ -57,6 +47,6 @@ class LoggingService implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [BusinessEvents::GLOBAL_EVENT => 'logBusinessEvent'];
+        return [FlowLogEvent::NAME => 'logFlowEvent'];
     }
 }

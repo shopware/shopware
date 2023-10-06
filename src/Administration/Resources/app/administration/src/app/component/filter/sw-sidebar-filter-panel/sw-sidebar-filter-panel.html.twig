@@ -1,20 +1,25 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_filter_panel %}
 <sw-sidebar-item
     class="sw-sidebar-filter-panel"
-    icon="default-action-filter"
+    icon="regular-filter"
     :badge="activeFilterNumber"
     :title="$tc('sw-filter-panel.titleSidebarItemFilter')"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_filter_panel_headline %}
     <template #headline-content>
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="activeFilterNumber"
+            role="button"
+            tabindex="0"
             @click="resetAll"
+            @keydown.enter="resetAll"
         >{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_filter_panel_content %}
     <sw-filter-panel
         ref="filterPanel"

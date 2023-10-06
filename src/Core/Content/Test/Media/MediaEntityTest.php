@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
@@ -13,29 +12,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MediaEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var EntityRepository
      */
     private $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
@@ -61,10 +54,11 @@ class MediaEntityTest extends TestCase
         $searchResult = $this->repository->search($criteria, $this->context);
         $fetchedMedia = $searchResult->getEntities()->get($media->getId());
 
-        static::assertEquals(MediaThumbnailCollection::class, \get_class($fetchedMedia->getThumbnails()));
+        static::assertInstanceOf(MediaEntity::class, $fetchedMedia);
+        static::assertInstanceOf(MediaThumbnailCollection::class, $fetchedMedia->getThumbnails());
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
-        static::assertEquals(MediaThumbnailEntity::class, \get_class($persistedThumbnail));
+        static::assertInstanceOf(MediaThumbnailEntity::class, $persistedThumbnail);
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
     }

@@ -4,25 +4,28 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class EmailRule extends Rule
 {
-    protected ?string $email;
+    final public const RULE_NAME = 'customerEmail';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $email = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $email = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->email = $email;
     }
 
     public function match(RuleScope $scope): bool
@@ -32,7 +35,7 @@ class EmailRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if ($this->email && mb_strpos($this->email, '*') !== false) {
@@ -45,17 +48,16 @@ class EmailRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'operator' => [
-                new NotBlank(),
-                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ]),
-            ],
-            'email' => [new NotBlank(), new Type('string')],
+            'operator' => RuleConstraints::stringOperators(false),
+            'email' => RuleConstraints::string(),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerEmail';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->stringField('email');
     }
 
     private function matchPartially(CustomerEntity $customer): bool
@@ -67,16 +69,11 @@ class EmailRule extends Rule
         $email = str_replace('\*', '(.*?)', preg_quote($this->email, '/'));
         $regex = sprintf('/^%s$/i', $email);
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return preg_match($regex, $customer->getEmail()) === 1;
-
-            case Rule::OPERATOR_NEQ:
-                return preg_match($regex, $customer->getEmail()) !== 1;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            Rule::OPERATOR_EQ => preg_match($regex, $customer->getEmail()) === 1,
+            Rule::OPERATOR_NEQ => preg_match($regex, $customer->getEmail()) !== 1,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     private function matchExact(CustomerEntity $customer): bool
@@ -85,15 +82,6 @@ class EmailRule extends Rule
             throw new UnsupportedValueException(\gettype($this->email), self::class);
         }
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return strcasecmp($this->email, $customer->getEmail()) === 0;
-
-            case Rule::OPERATOR_NEQ:
-                return strcasecmp($this->email, $customer->getEmail()) !== 0;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::string($customer->getEmail(), $this->email, $this->operator);
     }
 }

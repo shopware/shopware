@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -12,24 +12,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var WriteCommandExtractor
+     * @internal
      */
-    protected $writeExtractor;
-
     public function __construct(
-        WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof OneToManyAssociationField) {
-            throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(OneToManyAssociationField::class, $field);
         }
 
         $key = $field->getPropertyName();
@@ -38,10 +40,14 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
             return $data;
         }
 
-        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $field->getLocalField());
         $reference = $field->getReferenceDefinition();
 
         $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
+        if (!$fkField) {
+            throw new \RuntimeException(sprintf('Can not find fk field for accessor %s.%s', $reference->getEntityName(), $field->getReferenceField()));
+        }
 
         // allows to reset the association for a none cascade delete
         $fk = $fkField->getPropertyName();
@@ -84,7 +90,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof OneToManyAssociationField) {
-            throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(OneToManyAssociationField::class, $field);
         }
         $value = $data->getValue();
 
@@ -103,11 +109,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     * @never
-     */
-    public function decode(Field $field, /*?string */$value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }

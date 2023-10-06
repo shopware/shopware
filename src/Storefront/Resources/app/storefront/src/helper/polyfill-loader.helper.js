@@ -1,16 +1,7 @@
-import objectFitImages from 'object-fit-images';
-import '@babel/polyfill';
-import 'form-association-polyfill/dist/form-association-polyfill-register-with-shims';
-import 'mdn-polyfills/NodeList.prototype.forEach';
-import 'mdn-polyfills/CustomEvent';
-import 'mdn-polyfills/MouseEvent';
-import 'picturefill';
-import 'picturefill/dist/plugins/mutation/pf.mutation';
-import ElementClosestPolyfill from 'element-closest';
-import 'formdata-polyfill';
-import 'object-fit-polyfill';
-import 'intersection-observer';
-import 'report-validity';
+/**
+ * @package storefront
+ */
 
-ElementClosestPolyfill(window);
-objectFitImages();
+// polyfill only stable features - ES and web standards:, see: https://github.com/zloirock/core-js#commonjs-api
+// The babel "useBuiltIns" config will transform this import into the needed polyfills based on .browserslistrc, see: https://babeljs.io/docs/en/babel-preset-env#usebuiltins
+import 'core-js/stable';

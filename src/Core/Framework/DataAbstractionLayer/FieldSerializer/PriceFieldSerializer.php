@@ -3,8 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -14,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -22,17 +23,13 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        ValidatorInterface $validator
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -40,7 +37,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof PriceField) {
-            throw new InvalidSerializerFieldException(PriceField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(PriceField::class, $field);
         }
 
         $value = $data->getValue();
@@ -100,18 +97,13 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($value !== null) {
-            $value = JsonFieldSerializer::encodeJson($value);
+            $value = Json::encode($value);
         }
 
         yield $field->getStorageName() => $value;
     }
 
-    /**
-     * @return PriceCollection|null
-     *
-     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
-     */
-    public function decode(Field $field, /*?string */$value)/*: ?PriceCollection*/
+    public function decode(Field $field, mixed $value): ?PriceCollection
     {
         if ($value === null) {
             return null;
@@ -119,13 +111,13 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         // used for nested hydration (example cheapest-price-hydrator)
         if (\is_string($value)) {
-            $value = json_decode($value, true);
+            $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
         $collection = new PriceCollection();
 
         foreach ($value as $row) {
-            if (!isset($row['listPrice']) || !isset($row['listPrice']['gross'])) {
+            if ((!isset($row['listPrice']) || !isset($row['listPrice']['gross'])) && (!isset($row['regulationPrice']) || !isset($row['regulationPrice']['gross']))) {
                 $collection->add(
                     new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked'])
                 );
@@ -133,7 +125,26 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 continue;
             }
 
-            $data = $row['listPrice'];
+            $listPrice = $regulationPrice = null;
+            if (isset($row['listPrice']) && isset($row['listPrice']['gross'])) {
+                $data = $row['listPrice'];
+                $listPrice = new Price(
+                    $row['currencyId'],
+                    (float) $data['net'],
+                    (float) $data['gross'],
+                    (bool) $data['linked'],
+                );
+            }
+
+            if (isset($row['regulationPrice']) && isset($row['regulationPrice']['gross'])) {
+                $data = $row['regulationPrice'];
+                $regulationPrice = new Price(
+                    $row['currencyId'],
+                    (float) $data['net'],
+                    (float) $data['gross'],
+                    (bool) $data['linked'],
+                );
+            }
 
             $collection->add(
                 new Price(
@@ -141,13 +152,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     (float) $row['net'],
                     (float) $row['gross'],
                     (bool) $row['linked'],
-                    new Price(
-                        $row['currencyId'],
-                        (float) $data['net'],
-                        (float) $data['gross'],
-                        (bool) $data['linked'],
-                    ),
-                    $row['percentage'] ?? null
+                    $listPrice,
+                    $row['percentage'] ?? null,
+                    $regulationPrice
                 )
             );
         }
@@ -167,6 +174,19 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     'net' => [new NotBlank(), new Type(['numeric'])],
                     'linked' => [new Type('boolean')],
                     'listPrice' => [
+                        new Optional(
+                            new Collection([
+                                'allowExtraFields' => true,
+                                'allowMissingFields' => false,
+                                'fields' => [
+                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                                    'net' => [new NotBlank(), new Type('numeric')],
+                                    'linked' => [new Type('boolean')],
+                                ],
+                            ])
+                        ),
+                    ],
+                    'regulationPrice' => [
                         new Optional(
                             new Collection([
                                 'allowExtraFields' => true,

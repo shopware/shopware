@@ -11,10 +11,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class CleanupVersionTaskHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private CleanupVersionTaskHandler $handler;
 
@@ -35,7 +38,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
 
         $this->createVersion($ids->create('version-1'), $date);
 
-        $date->modify(sprintf('-%s day', 31));
+        $date->modify(sprintf('-%d day', 31));
         $this->createVersion($ids->create('version-2'), $date);
 
         $this->handler->run();

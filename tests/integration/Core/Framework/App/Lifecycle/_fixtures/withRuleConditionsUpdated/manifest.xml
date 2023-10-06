@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>withRuleConditions</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.1</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/withRuleConditions/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <rule-conditions>
+        <rule-condition>
+            <identifier>testcondition0</identifier>
+            <name>Custom int</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <int name="number">
+                    <required>true</required>
+                </int>
+            </constraints>
+        </rule-condition>
+    </rule-conditions>
+</manifest>

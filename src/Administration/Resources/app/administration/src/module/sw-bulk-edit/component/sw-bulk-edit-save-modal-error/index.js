@@ -1,8 +1,10 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-save-modal-error.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-bulk-edit-save-modal-error', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     created() {
@@ -34,4 +36,4 @@ Component.register('sw-bulk-edit-save-modal-error', {
             this.$emit('buttons-update', buttonConfig);
         },
     },
-});
+};

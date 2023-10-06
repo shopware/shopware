@@ -7,33 +7,29 @@ use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class ImportExportHandler extends AbstractMessageHandler
+/**
+ * @internal
+ */
+#[AsMessageHandler]
+#[Package('services-settings')]
+final class ImportExportHandler
 {
-    private MessageBusInterface $messageBus;
-
-    private ImportExportFactory $importExportFactory;
-
-    public function __construct(MessageBusInterface $messageBus, ImportExportFactory $importExportFactory)
-    {
-        $this->messageBus = $messageBus;
-        $this->importExportFactory = $importExportFactory;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ImportExportMessage::class,
-        ];
-    }
-
     /**
-     * @param ImportExportMessage $message
+     * @internal
      */
-    public function handle($message): void
+    public function __construct(
+        private readonly MessageBusInterface $messageBus,
+        private readonly ImportExportFactory $importExportFactory
+    ) {
+    }
+
+    public function __invoke(ImportExportMessage $message): void
     {
+        $context = $message->getContext();
         $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50);
         $logEntity = $importExport->getLogEntity();
 
@@ -45,20 +41,22 @@ class ImportExportHandler extends AbstractMessageHandler
             $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
             || $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN
         ) {
-            $progress = $importExport->import($message->getContext(), $message->getOffset());
+            $progress = $importExport->import($context, $message->getOffset());
         } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
-            $progress = $importExport->export($message->getContext(), new Criteria(), $message->getOffset());
+            $progress = $importExport->export($context, new Criteria(), $message->getOffset());
         } else {
             throw new ProcessingException('Unknown activity');
         }
 
         if (!$progress->isFinished()) {
-            $this->messageBus->dispatch(new ImportExportMessage(
-                $message->getContext(),
+            $nextMessage = new ImportExportMessage(
+                $context,
                 $logEntity->getId(),
                 $logEntity->getActivity(),
                 $progress->getOffset()
-            ));
+            );
+
+            $this->messageBus->dispatch($nextMessage);
         }
     }
 }

@@ -1,17 +1,21 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_section_actions %}
 <div
     class="sw-cms-section__actions"
     :class="componentClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_section_action_select %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-cms-section__action sw-cms-section-select"
+        role="button"
+        tabindex="0"
         @click="selectSection"
+        @keydown.enter="selectSection"
     >
         <sw-icon
-            name="default-web-layout"
+            name="regular-layout"
             size="20"
         />
     </div>

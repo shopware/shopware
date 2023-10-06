@@ -15,15 +15,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
+/**
+ * @internal
+ */
 class ListFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -39,14 +39,14 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 )  DEFAULT CHARSET=utf8mb4;
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
 
         parent::tearDown();
     }
@@ -63,7 +63,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(ListDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -82,7 +82,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(ListDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -101,7 +101,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(ListDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -129,17 +129,17 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/0', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/1', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/3', $fieldException->getViolations()->get(0)->getPropertyPath());
     }

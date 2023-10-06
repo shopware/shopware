@@ -2,57 +2,48 @@
 
 namespace Shopware\Core\System\Currency\Rule;
 
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 
+#[Package('business-ops')]
 class CurrencyRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $currencyIds;
+    final public const RULE_NAME = 'currency';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $currencyIds
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $currencyIds = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->currencyIds = $currencyIds;
     }
 
     public function match(RuleScope $scope): bool
     {
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$scope->getContext()->getCurrencyId()], $this->currencyIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'currencyIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'currencyIds' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'currency';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('currencyIds', CurrencyDefinition::ENTITY_NAME, true);
     }
 }

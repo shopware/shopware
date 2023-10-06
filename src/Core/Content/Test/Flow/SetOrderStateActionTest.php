@@ -14,29 +14,33 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
-use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
-use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private ?StateMachineRegistry $stateMachineRegistry;
+    private EntityRepository $orderRepository;
 
-    private ?EntityRepositoryInterface $orderRepository;
+    private EntityRepository $flowRepository;
 
-    private ?AbstractFlowLoader $flowLoader;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -46,24 +50,15 @@ class SetOrderStateActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
-
         $this->orderRepository = $this->getContainer()->get('order.repository');
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
-
-        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
-
-        $this->resetCachedFlows();
     }
 
     public function testSetAvailableOrderState(): void
@@ -109,7 +104,10 @@ class SetOrderStateActionTest extends TestCase
     }
 
     /**
-     * @dataProvider setStatusProvider
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $expects
+     *
+     * @dataProvider statusProvider
      */
     public function testSetOrderStatus(array $config, array $expects): void
     {
@@ -118,16 +116,20 @@ class SetOrderStateActionTest extends TestCase
 
         $this->orderRepository->create($this->getOrderData($orderId, $context), $context);
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('logger'),
-            $this->getContainer()->get(StateMachineRegistry::class),
             $this->getContainer()->get(OrderService::class)
         );
 
-        $subscriber->handle(new FlowEvent(CheckoutOrderPlacedEvent::EVENT_NAME, new FlowState($event), $config));
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
+
+        $subscriber->handleFlow($flow);
 
         $orderStateAfterAction = $this->getOrderState(Uuid::fromHexToBytes($orderId));
         static::assertSame($expects['order'], $orderStateAfterAction);
@@ -139,7 +141,10 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame($expects['order_transaction'], $orderTransactionStateAfterAction);
     }
 
-    public function setStatusProvider(): array
+    /**
+     * @return array<string, mixed>
+     */
+    public static function statusProvider(): array
     {
         return [
             'Set three states success' => [
@@ -167,6 +172,68 @@ class SetOrderStateActionTest extends TestCase
             'Set state not success' => [
                 [
                     'order' => 'done',
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state allow force transition' => [
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                ],
+            ],
+            'Set state allow force transition only one state' => [
+                [
+                    'order_delivery' => 'returned',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state allow force transition with not existing state' => [
+                [
+                    'open' => '',
+                    'order_delivery' => 'fake_state',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state not allow force transition' => [
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                    'force_transition' => false,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state not allow force transition with not existing state' => [
+                [
+                    'order' => 'fake_state',
+                    'order_delivery' => '',
+                    'order_transaction' => false,
+                    'force_transition' => false,
                 ],
                 [
                     'order' => 'open',
@@ -206,7 +273,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderId(): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT id
             FROM `order`
@@ -217,7 +284,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -230,7 +297,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOderDeliveryState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -244,7 +311,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderTransactionState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -256,6 +323,9 @@ class SetOrderStateActionTest extends TestCase
         );
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function getOrderData(string $orderId, Context $context): array
     {
         $addressId = Uuid::randomHex();
@@ -265,14 +335,17 @@ class SetOrderStateActionTest extends TestCase
         return [
             [
                 'id' => $orderId,
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),
+                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'orderNumber' => Uuid::randomHex(),
                 'transactions' => [
                     [
                         'id' => Uuid::randomHex(),
@@ -289,7 +362,7 @@ class SetOrderStateActionTest extends TestCase
                 ],
                 'deliveries' => [
                     [
-                        'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
+                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(\DATE_ISO8601),
@@ -327,7 +400,7 @@ class SetOrderStateActionTest extends TestCase
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [
@@ -374,7 +447,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -382,12 +455,12 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('state_machine_state.repository');
 
         $criteria = new Criteria();
@@ -396,21 +469,6 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('technicalName', $state))
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 }

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/utils/sw-external-link should render correctly 1`] = `
+<a
+  class="sw-external-link"
+  href="https://google.com"
+  rel="noopener"
+  target="_blank"
+>
+  test external link 
+  <sw-icon-stub
+    class="sw-external-link__icon"
+    name="regular-external-link-s"
+    size="10px"
+  />
+</a>
+`;

@@ -7,10 +7,7 @@
         <parameter key="env(INSTANCE_ID)"/>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
         <parameter key="shopware.store_endpoints" type="collection">
-            <parameter key="ping">/ping</parameter>
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
-            <parameter key="my_licenses">/swplatform/licenses</parameter><!-- TODO @deprecated tag:v6.5.0 Unused parameter will be removed -->
-            <parameter key="my_plugin_licenses">/swplatform/pluginlicenses</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
             <parameter key="environment_information">/swplatform/environmentinformation</parameter>
             <parameter key="updater_extension_compatibility">/swplatform/autoupdate</parameter>
@@ -20,13 +17,12 @@
             <parameter key="cancel_license">/swplatform/pluginlicenses/%s/cancel</parameter>
             <parameter key="login">/swplatform/login</parameter>
             <parameter key="create_rating">/swplatform/extensionstore/extensions/%s/ratings</parameter>
+            <parameter key="user_info">/swplatform/userinfo</parameter>
         </parameter>
     </parameters>
     <services>
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
-            <argument type="service" id="plugin.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="user.repository" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" />
             <call method="setContainer">
@@ -35,17 +31,28 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="plugin.repository" />
+            <argument type="service" id="app.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%shopware.store.frw%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument>%shopware.store_endpoints%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
-            <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" />
@@ -54,21 +61,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument>%shopware.store.frw%</argument>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="shopware.frw_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
-            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">
-            <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\InstanceService">
@@ -88,6 +88,9 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
+            <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
+
             <tag name="console.command"/>
         </service>
 
@@ -102,7 +105,7 @@
             <argument type="service" id="user.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider">
+        <service id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" public="true">
             <argument type="service" id="user.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
@@ -114,15 +117,11 @@
             <argument type="service" id="user_config.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">
-            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
@@ -154,6 +153,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService" class="Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService">
@@ -171,6 +171,8 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">
@@ -192,13 +194,51 @@
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
         </service>
 
-        <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true">
+        <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true" public="true">
             <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="shopware.frw_client" class="GuzzleHttp\Client" lazy="true" public="true">
+            <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.frw_client.middleware"/>
         </service>
 
         <service id="shopware.store_download_client" class="GuzzleHttp\Client" />
+
+        <service id="Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+
+            <tag name="shopware.store_client.middleware" priority="9999"/>
+            <tag name="shopware.frw_client.middleware" priority="9999"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="request_stack"/>
+
+            <tag name="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\TrackingEventClient">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+        </service>
     </services>
 </container>

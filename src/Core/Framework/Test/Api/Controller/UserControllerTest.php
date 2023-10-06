@@ -7,16 +7,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class UserControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->resetBrowser();
     }
@@ -32,7 +38,7 @@ class UserControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode((string) $client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('attributes', $content['data']);
         static::assertSame('user', $content['data']['type']);
@@ -47,9 +53,9 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
         $client->request('POST', '/api/user', $data);
@@ -57,12 +63,12 @@ class UserControllerTest extends TestCase
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate("DELETE FROM user WHERE email = 'admin@example.com'");
+            ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
@@ -81,9 +87,9 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [
                 ['id' => $ids->get('role-1'), 'name' => 'role-1'],
                 ['id' => $ids->get('role-2'), 'name' => 'role-2'],
@@ -97,11 +103,11 @@ class UserControllerTest extends TestCase
         $client->request('DELETE', '/api/user/' . $ids->get('user') . '/acl-roles/' . $ids->get('role-1'));
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
         $assigned = $this->getContainer()->get(Connection::class)
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id',
                 ['id' => Uuid::fromHexToBytes($ids->get('user'))]
             );
@@ -119,9 +125,9 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 
@@ -141,11 +147,11 @@ class UserControllerTest extends TestCase
         );
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
         $assigned = $this->getContainer()->get(Connection::class)
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id ORDER BY acl_role_id ASC',
                 ['id' => Uuid::fromHexToBytes($ids->get('user'))]
             );
@@ -165,9 +171,9 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
         $this->getContainer()->get('user.repository')
@@ -178,19 +184,19 @@ class UserControllerTest extends TestCase
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate("DELETE FROM user WHERE email = 'admin@example.com'");
+            ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
         $client->request('DELETE', '/api/user/' . $id);
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
     }
 
@@ -200,13 +206,13 @@ class UserControllerTest extends TestCase
         $this->getBrowser()->request('PATCH', '/api/_info/me', ['firstName' => 'newName']);
         $responsePatch = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), $responsePatch->getContent());
+        static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), (string) $responsePatch->getContent());
 
         $this->getBrowser()->request('GET', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals('newName', json_decode($response->getContent(), true)['data']['attributes']['firstName']);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertEquals('newName', json_decode((string) $response->getContent(), true)['data']['attributes']['firstName']);
     }
 
     public function testSetOwnProfileNoPermission(): void
@@ -215,9 +221,11 @@ class UserControllerTest extends TestCase
         $this->getBrowser()->request('PATCH', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
-        static::assertEquals(['user_change_me'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
+        $content = (string) $response->getContent();
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertEquals(['user_change_me'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
     public function testSetOwnProfilePermissionButNotAllowedField(): void
@@ -226,9 +234,11 @@ class UserControllerTest extends TestCase
         $this->getBrowser()->request('PATCH', '/api/_info/me', ['title' => 'newTitle']);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
-        static::assertEquals(['user:update'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
+        $content = (string) $response->getContent();
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertEquals(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
     public function testPreventChangeOfUSerWithoutPermission(): void
@@ -240,9 +250,9 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 

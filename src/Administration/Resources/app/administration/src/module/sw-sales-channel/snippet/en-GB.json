@@ -20,6 +20,7 @@
       "columnType": "Type",
       "columnStatus": "Status",
       "columnCreatedAt": "Created at",
+      "columnFavourite": "My favourites",
       "status": {
         "maintenance": "Maintenance",
         "online": "Online",
@@ -56,18 +57,23 @@
       "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
       "messageAPIError": "Unable to generate API access key.",
-      "titleGeneralSettings": "General Settings",
+      "titleGeneralSettings": "General settings",
       "labelInputName": "Name",
       "labelInputActive": "Active",
       "labelInputShippingMethods": "Shipping methods",
       "labelInputPaymentMethods": "Payment methods",
       "labelInputCountries": "Countries",
       "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
+      "helpTextTaxCalculation": {
+        "label": "If a tax provider is activated, these settings may be overwritten. You can check this in {link}.",
+        "linkText": "settings"
+      },
       "labelInputTaxCalculation": "Tax calculation",
       "labelOptionTaxVertical": "Vertical",
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
+      "labelInputUrl": "URL",
       "labelInputCategories": "Categories",
       "titleOptionsCard": "Options",
       "labelInputDefaultShippingMethod": "Default shipping method",
@@ -79,9 +85,10 @@
       "tooltipDisabledPaymentMethod": "This payment method must be activated in order to be selected as the default payment method.",
       "tooltipDisabledCountry": "This country must be activated in order to be selected as the default country.",
       "warningDisabledCountries": "The country <b>{name}</b> is not active. | The countries <b>{name}</b> and <b>{addition}</b> are not active.",
-      "warningDisabledPaymentMethod": "Some of the payment methods assigned to this Sales Channel are currently not available. Please check your settings for these payment methods:<br/> <b>{seperatedList}</b>",
+      "warningDisabledPaymentMethod": "Some of the payment methods assigned to this Sales Channel are currently not available. Please check your <a href=\"{paymentSettingsLink}\">settings</a> for these payment methods:<br/> <b>{separatedList}</b>",
       "warningDisabledShippingMethod": "The shipping method <b>{name}</b> is not active. | The shipping methods <b>{name}</b> and <b>{addition}</b> are not active.",
       "warningDisabledAddition": "{amount} others",
+      "warningUnservedLanguage": "The language <b>{list}</b> is not assigned to a domain. In order to use this language in your Sales Channel, create a respective domain first. | The languages <b>{list}</b> are not assigned to any domain. In order to use these languages in your Sales Channel, create the respective domains first.",
       "textDeleteInfo": "Careful, you are about to delete this Sales Channel permanently! If you proceed, the Sales Channel and all its settings will no longer be available. However, deleting the Sales Channel will not affect existing orders and categories.",
       "buttonDelete": "Delete Sales Channel",
       "deleteModalTitle": "Delete Sales Channel",
@@ -103,22 +110,23 @@
       "buttonCloseDeleteDomainModal": "Cancel",
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
+      "favouriteLabel": "Mark Sales Channel as favourite",
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
-      "serviceCategory": "Entry point service navigation",
+      "serviceCategory": "Entry point footer service navigation",
       "titleOptionsApiKey": "API access",
       "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",
       "titleStatus": "Status",
-      "titleGeneralInformation": "General Information",
+      "titleGeneralInformation": "General information",
       "titleAccount": "Account",
       "titleDeleteSalesChannel": "Delete Sales Channel",
-      "titleProductSync": "Product Sync",
-      "titleSyncedProducts": "Synced Products",
-      "titleCategoryMapping": "Category Mapping",
+      "titleProductSync": "Product sync",
+      "titleSyncedProducts": "Synced products",
+      "titleCategoryMapping": "Category mapping",
       "titleTemplate": "Template",
       "titleDomainHeadline": "Create domain URLs",
       "buttonEditDomain": "Edit domain",
@@ -143,7 +151,8 @@
         "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
         "columnProductName": "Product name",
         "columnActive": "Active",
-        "columnProductNumber": "Product number"
+        "columnProductNumber": "Product number",
+        "inheritVariantNotRemovableTooltip": "The sales channel assignment of this variant product is inherited by its main product."
       },
       "productComparison": {
         "inputHeaderLabel": "Header row",
@@ -226,7 +235,7 @@
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang integration",
-        "titleDescription": "The hreflang metatag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
+        "titleDescription": "The hreflang meta tag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
         "enableCheckbox": "Enable hreflang",
         "defaultDomain": "Default domain for hreflang",
         "domainSettings": {
@@ -234,13 +243,13 @@
           "byIso": "Localisation according to ISO standard",
           "byIsoHelpText": "The localization is done via the exact ISO. In addition to the language, the country of destination is also supplied.",
           "byAbbreviation": "Localisation according to language",
-          "byAbbreviationHelpText": "Localization is only done via the language. Here, several countries of destination are addressed via the output language"
+          "byAbbreviationHelpText": "Localisation is only done via the language. Here, several countries of destination are addressed via the output language"
         }
       },
       "analytics": {
         "cardTitle": "Google Analytics",
         "headline": "Google Analytics integration",
-        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the intergration.",
+        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the integration.",
         "fields": {
           "trackingId": {
             "label": "Tracking ID",

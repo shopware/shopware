@@ -1,4 +1,6 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button_router_link %}
 <router-link
     v-if="routerLink"
@@ -8,14 +10,19 @@
     :class="buttonClasses"
     v-bind="$attrs"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_button_router_link_content %}
     <span class="sw-button__content">
-        <slot>{% block sw_button_router_link_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_router_link_slot_default %}{% endblock %}
+        </slot>
     </span>
     {% endblock %}
 </router-link>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button_link %}
 <a
     v-else-if="link"
@@ -26,14 +33,19 @@
     :class="buttonClasses"
     v-bind="$attrs"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_button_link_content %}
     <span class="sw-button__content">
-        <slot>{% block sw_button_link_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_link_slot_default %}{% endblock %}
+        </slot>
     </span>
     {% endblock %}
 </a>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button_button %}
 <button
     v-else
@@ -43,18 +55,21 @@
     v-bind="$attrs"
     v-on="disabled ? null : $listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_button_button_content %}
-    <sw-icon
+    <sw-loader
         v-if="isLoading"
-        name="default-web-loading-circle"
-        class="sw-button__loader"
+        class="sw-button_loader"
         size="20px"
     />
     <span
         class="sw-button__content"
         :class="contentVisibilityClass"
     >
-        <slot>{% block sw_button_button_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_button_slot_default %}{% endblock %}
+        </slot>
     </span>
     {% endblock %}
 </button>

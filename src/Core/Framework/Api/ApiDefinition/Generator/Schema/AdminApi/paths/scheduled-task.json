@@ -1,0 +1,62 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/scheduled-task\/run": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Run scheduled tasks.",
+                "description": "Starts the scheduled task worker to handle the next scheduled tasks.",
+                "operationId": "runScheduledTasks",
+                "responses": {
+                    "200": {
+                        "description": "Returns a success message indicating a successful run.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Success message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/_action\/scheduled-task\/min-run-interval": {
+            "get": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Get the minimum schedules task interval",
+                "description": "Fetches the smallest interval that a scheduled task uses.",
+                "operationId": "getMinRunInterval",
+                "responses": {
+                    "200": {
+                        "description": "Returns the minimum interval.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "minRunInterval": {
+                                            "description": "Minimal interval in seconds.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

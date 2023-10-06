@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('buyers-experience')]
 abstract class AbstractLandingPageRoute
 {
     abstract public function getDecorated(): AbstractLandingPageRoute;

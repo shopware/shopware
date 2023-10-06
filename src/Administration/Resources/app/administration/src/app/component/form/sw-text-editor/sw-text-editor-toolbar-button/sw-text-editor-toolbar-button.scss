@@ -1,8 +1,8 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 0.5);
-$sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
+$sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 50%);
+$sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 50%);
 
 .sw-text-editor-toolbar-button {
     position: relative;
@@ -22,15 +22,15 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     }
 
     .sw-text-editor-toolbar-button__icon {
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
-
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
 
         .sw-icon {
             margin-left: 5px;
@@ -43,7 +43,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     border-radius: 4px;
     flex-direction: column;
     position: absolute;
-    left: 0;
+    left: var(--flyoutLinkLeftOffset, 0);
     top: calc(100% + 6px);
     white-space: nowrap;
     border: 1px solid $color-gray-300;
@@ -51,10 +51,10 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     z-index: 260;
 
     &::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -5px;
-        left: 10px;
+        left: var(--arrow-position, 10px);
         height: 8px;
         width: 8px;
         transform: rotate(45deg);
@@ -88,7 +88,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         border-radius: $border-radius-default;
 
         &-content {
-            @include truncate();
+            @include truncate;
 
             width: 100%;
         }
@@ -108,25 +108,41 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         }
     }
 
-    &.sw-text-editor-toolbar-button__link-menu {
-        padding: 15px;
+    .sw-text-editor-toolbar-button__link-menu {
+        width: 500px;
         cursor: initial;
         color: $color-darkgray-200;
 
-        .sw-text-editor-toolbar-button__link-menu-text {
-            padding-bottom: 5px;
+        .sw-text-editor-toolbar-button__link-menu-content {
+            padding: 16px;
+
+            .sw-block-field {
+                margin-bottom: 19px;
+            }
+
+            .sw-category-tree-field__results {
+                height: 300px;
+            }
         }
 
         .sw-text-editor-toolbar-button__link-menu-buttons {
+            background-color: $color-gray-100;
             display: grid;
             grid-auto-flow: column;
-            justify-content: end;
-            gap: 8px;
-            margin-top: 10px;
+            justify-content: space-between;
+            padding: 15px;
         }
 
         .sw-text-editor-toolbar-button__link-menu-switch {
             margin: 0;
+
+            .sw-field--switch__input {
+                padding: 10px;
+            }
+
+            .sw-field__label label {
+                padding: 10px 15px;
+            }
         }
 
         .sw-field {

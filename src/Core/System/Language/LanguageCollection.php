@@ -3,53 +3,45 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
- * @method void                add(LanguageEntity $entity)
- * @method void                set(string $key, LanguageEntity $entity)
- * @method LanguageEntity[]    getIterator()
- * @method LanguageEntity[]    getElements()
- * @method LanguageEntity|null get(string $key)
- * @method LanguageEntity|null first()
- * @method LanguageEntity|null last()
+ * @extends EntityCollection<LanguageEntity>
  */
+#[Package('core')]
 class LanguageCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getParentIds(): array
     {
-        return $this->fmap(function (LanguageEntity $language) {
-            return $language->getParentId();
-        });
+        return $this->fmap(fn (LanguageEntity $language) => $language->getParentId());
     }
 
     public function filterByParentId(string $id): LanguageCollection
     {
-        return $this->filter(function (LanguageEntity $language) use ($id) {
-            return $language->getParentId() === $id;
-        });
+        return $this->filter(fn (LanguageEntity $language) => $language->getParentId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (LanguageEntity $language) {
-            return $language->getLocaleId();
-        });
+        return $this->fmap(fn (LanguageEntity $language) => $language->getLocaleId());
     }
 
     public function filterByLocaleId(string $id): LanguageCollection
     {
-        return $this->filter(function (LanguageEntity $language) use ($id) {
-            return $language->getLocaleId() === $id;
-        });
+        return $this->filter(fn (LanguageEntity $language) => $language->getLocaleId() === $id);
     }
 
     public function getLocales(): LocaleCollection
     {
         return new LocaleCollection(
-            $this->fmap(function (LanguageEntity $language) {
-                return $language->getLocale();
-            })
+            $this->fmap(fn (LanguageEntity $language) => $language->getLocale())
         );
     }
 

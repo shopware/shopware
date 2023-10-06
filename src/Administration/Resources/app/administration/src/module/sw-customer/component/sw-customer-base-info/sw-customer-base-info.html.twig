@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_base_info %}
 <sw-container
     class="sw-customer-base-info"
     columns="repeat(auto-fit, minmax(250px, 1fr))"
     gap="0px 15px"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_left %}
     <sw-loader v-if="isLoading" />
 
@@ -12,41 +15,75 @@
         v-else
         class="sw-customer-base-info-columns"
     >
+        <template v-if="isBusinessAccountType && !customerEditMode">
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelCompany') }}
+                </dt>
+
+                <dd>
+                    {{ customer.company }}
+                </dd>
+            </sw-description-list>
+
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelVatId') }}
+                </dt>
+
+                <dd>
+                    {{ customer.vatIds[0] || '-' }}
+                </dd>
+            </sw-description-list>
+        </template>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_group %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_content %}
             <dd v-if="!customerEditMode">
                 {{ customer.group.translated.name }}
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.groupId"
+                    {% else %}
                     v-model="customer.groupId"
+                    {% endif %}
                     entity="customer_group"
                     size="small"
                     show-clearable-button
+                    :error="customerGroupIdError"
                 />
             </dd>
             {% endblock %}
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_default_payment %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_content %}
             <dd
                 v-if="!customerEditMode"
@@ -56,28 +93,38 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.defaultPaymentMethodId"
+                    {% else %}
                     v-model="customer.defaultPaymentMethodId"
+                    {% endif %}
+                    class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
                     size="small"
                     show-clearable-button
+                    :error="customerDefaultPaymentMethodIdError"
                 />
             </dd>
             {% endblock %}
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_active %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelActive') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_content %}
             <dd
                 v-if="!customerEditMode"
@@ -87,12 +134,17 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="customer.active"
+                    {% else %}
                     v-model="customer.active"
+                    {% endif %}
                     class="sw-customer-base-info__checkbox-field"
-                    :label="$tc('sw-customer.baseInfo.contentActive', customer.active)"
+                    :label="$tc('sw-customer.baseInfo.contentActive')"
                     size="small"
                 />
             </dd>
@@ -100,24 +152,36 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_language %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelLanguage') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_content %}
-            <dd v-if="!customerEditMode">
+            <dd
+                v-if="!customerEditMode"
+                class="sw-customer-base__label-language"
+            >
                 {{ customerLanguageName }}
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.languageId"
+                    {% else %}
                     v-model="customer.languageId"
+                    {% endif %}
+                    class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"
                     size="small"
@@ -128,6 +192,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
@@ -135,6 +200,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
@@ -144,8 +210,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_right %}
     <div class="sw-customer-base-info-columns">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_number %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -157,8 +225,10 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_bound_sales_channel %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_sales_channel_label %}
             <dt class="sw-customer-base-info__label sw-bound-sales-channel__label">
                 {{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}
@@ -166,6 +236,7 @@
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_saleschannel_content %}
             <dd class="sw-customer-base__label-bound-sales-channel">
                 <template v-if="customer.boundSalesChannelId">
@@ -179,6 +250,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_last_login %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -186,7 +258,7 @@
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
-                    {{ customer.lastLogin | date }}
+                    {{ dateFilter(customer.lastLogin) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
@@ -195,16 +267,20 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_turnover %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelTurnover') }}
             </dt>
             {# price aggregations do not support currencies yet, see NEXT-5069 #}
-            <dd>{{ orderAmount | currency('EUR') }}</dd>
+            <dd class="sw-customer-base__label-turnover">
+                {{ currencyFilter(orderAmount, 'EUR') }}
+            </dd>
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_orders %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -214,21 +290,24 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_birthday %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelBirthday') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_content %}
             <dd
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date({ minute: undefined, hour: undefined }) }}
+                    {{ dateFilter(customer.birthday, { minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
@@ -236,11 +315,15 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker
-                    slot="inline-edit"
+                    {% if VUE3 %}
+                    v-model:value="customer.birthday"
+                    {% else %}
                     v-model="customer.birthday"
+                    {% endif %}
                     size="small"
                     date-type="date"
                 />

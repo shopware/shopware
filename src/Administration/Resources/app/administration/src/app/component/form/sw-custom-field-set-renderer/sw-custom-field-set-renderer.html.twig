@@ -1,114 +1,64 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_set_renderer %}
 <div class="sw-custom-field-set-renderer">
-    <template v-if="customFieldSetSelectionAvailable">
-        <sw-inherit-wrapper
-            v-model="entity.customFieldSetSelectionActive"
-            class="sw-custom-field-set-renderer__custom-field-set-selection-switch"
-            :inherited-value="getInheritValue('customFieldSetSelectionActive')"
-            :has-parent="hasParent"
-        >
-            <template #content="props">
-                <sw-field
-                    type="switch"
-                    :map-inheritance="props"
-                    class="sw-custom-field-set-renderer__selection-switch"
-                    :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')"
-                    :value="props.currentValue"
-                    @change="props.updateCurrentValue"
-                />
-            </template>
-        </sw-inherit-wrapper>
-
-        <template v-if="filterCustomFields">
-            <sw-inherit-wrapper
-                v-model="entity.customFieldSets"
-                :inherited-value="getInheritValue('customFieldSets')"
-                is-association
-                :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelect')"
-            >
-                <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                    <sw-entity-multi-select
-                        :criteria="customFieldSetCriteria"
-                        :disabled="isInherited"
-                        :placeholder="$tc('sw-custom-field-set-renderer.placeholderCustomFieldSetSelect')"
-                        :entity-collection="currentValue"
-                        @change="(value) => onChangeCustomFieldSets(value, updateCurrentValue)"
-                    >
-                        <template #selection-label-property="{ item, index, labelProperty, valueProperty, getKey}">
-                            {{ getInlineSnippet(item.config.label) || item.name }}
-                        </template>
-
-                        <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
-                            <sw-highlight-text
-                                :text="getInlineSnippet(item.config.label) || item.name"
-                                :search-term="searchTerm"
-                            />
-                        </template>
-
-                    </sw-entity-multi-select>
-                </template>
-            </sw-inherit-wrapper>
-
-            <template v-if="globalCustomFieldSets.length > 0">
-                <h3>{{ $tc('sw-custom-field-set-renderer.messagePluginSets') }}</h3>
-                <ul class="sw-custom-field-set-renderer__global-custom-field-list">
-                    <li
-                        v-for="set in globalCustomFieldSets"
-                        :key="set.name"
-                    >
-                        {{ getInlineSnippet(set.config.label) || set.name }}
-                    </li>
-                </ul>
-            </template>
-        </template>
-
-    </template>
-
     <template v-if="visibleCustomFieldSets.length > 0">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_card %}
         <sw-tabs
             v-if="variant === 'tabs'"
             ref="tabComponent"
             class="sw-custom-field-set-renderer__card-tabs"
             variant="minimal"
-            :default-item="visibleCustomFieldSets[0].name"
+            :default-item="visibleCustomFieldSets[0].id"
             :position-identifier="'sw-custom-field-set-renderer'"
+            @new-item-active="(tab) => loadCustomFieldSet(tab.name)"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_tabs %}
-            <template slot-scope="{ active }">
+            <template #default="{ active }">
                 <template v-for="set in visibleCustomFieldSets">
                     <sw-tabs-item
-                        v-if="set.customFields"
                         :key="`sw-tab--${set.id}`"
                         variant="minimal"
-                        :name="set.name"
+                        :name="set.id"
                         :class="'sw-tab--name-' + set.name"
                         :active-tab="active"
                     >
-                        {{ getInlineSnippet(set.config.label) || set.name }}
+                        {{ getTabLabel(set) }}
                     </sw-tabs-item>
                 </template>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_tabs_content %}
             <template
-                slot="content"
-                slot-scope="{ active }"
+                #content="{ active }"
             >
                 <template v-for="set in visibleCustomFieldSets">
                     <div
-                        v-if="set.customFields"
-                        v-show="active === set.name"
-                        :key="set.name"
+                        v-show="active === set.id"
+                        :key="set.id"
                         :class="'sw-custom-field-set-renderer-tab-content__' + set.name"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_card_form_renderer %}
-                        <template v-for="customField in set.customFields">
+                        <sw-skeleton
+                            v-if="!set.customFields"
+                            style="width:100%"
+                        />
+                        <template
+                            v-for="customField in set.customFields"
+                            v-else
+                        >
                             <sw-inherit-wrapper
                                 v-if="entity && customField.config"
                                 :key="customField.name"
-                                v-model="entity.customFields[customField.name]"
+                                {% if VUE3 %}
+                                v-model:value="customFields[customField.name]"
+                                {% else %}
+                                v-model="customFields[customField.name]"
+                                {% endif %}
                                 v-bind="getInheritWrapperBind(customField)"
                                 :class="'sw-form-field-renderer-field__' + customField.name"
                                 :has-parent="hasParent"
@@ -136,43 +86,51 @@
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_media %}
         <template v-else-if="variant === 'media-collapse'">
-            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-            <sw-media-collapse
-                v-for="set in visibleCustomFieldSets"
-                v-if="set.customFields.length > 0"
-                :key="`sw-media-collapse--${set.id}`"
-                :expand-on-loading="false"
-                :title="getInlineSnippet(set.config.label) || set.name"
-            >
-                <template slot="content">
-                    <template v-for="customField in set.customFields">
+            <template v-for="set in visibleCustomFieldSets">
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <sw-media-collapse
+                    v-if="set.customFields && set.customFields.length > 0"
+                    :key="`sw-media-collapse--${set.id}`"
+                    :expand-on-loading="false"
+                    :title="getInlineSnippet(set.config.label) || set.name"
+                >
+                    <template #content>
+                        <template v-for="customField in set.customFields">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
-                        <sw-form-field-renderer
-                            :key="customField.name"
-                            v-model="entity.customFields[customField.name]"
-                            v-bind="customField"
-                            :disabled="disabled"
-                            :required="customField.config.validation === 'required'"
-                        />
+                            <sw-form-field-renderer
+                                :key="customField.name"
+                                v-model="customFields[customField.name]"
+                                v-bind="customField"
+                                :disabled="disabled"
+                                :required="customField.config.validation === 'required'"
+                            />
                         {% endblock %}
-                    </template>
+                        </template>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_set_renderer_media_button_save %}
-                    <sw-button-process
-                        :is-loading="isLoading"
-                        :process-success="isSaveSuccessful"
-                        :disabled="isLoading || disabled"
-                        variant="primary"
-                        size="small"
-                        @process-finish="$emit('process-finish')"
-                        @click="$emit('save')"
-                    >
-                        {{ $tc('global.default.save') }}
-                    </sw-button-process>
+                        <sw-button-process
+                            :is-loading="isLoading"
+                            :process-success="isSaveSuccessful"
+                            :disabled="isLoading || disabled"
+                            variant="primary"
+                            size="small"
+                        {% if VUE3 %}
+                            @update:process-success="$emit('process-finish')"
+                        {% else %}
+                            @process-finish="$emit('process-finish')"
+                        {% endif %}
+                            @click="$emit('save')"
+                        >
+                            {{ $tc('global.default.save') }}
+                        </sw-button-process>
                     {% endblock %}
-                </template>
-            </sw-media-collapse>
+                    </template>
+                </sw-media-collapse>
+            </template>
         </template>
         {% endblock %}
     </template>

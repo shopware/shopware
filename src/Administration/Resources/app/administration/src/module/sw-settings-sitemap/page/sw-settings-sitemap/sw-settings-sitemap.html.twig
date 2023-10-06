@@ -1,20 +1,25 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_sitemap_index %}
 <sw-page class="sw-settings-sitemap">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_sitemap_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_sitemap_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-settings-sitemap.general.textHeadline') }}
@@ -24,8 +29,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_sitemap_actions_save %}
         <sw-button-process
             class="sw-settings-sitemap__save-action"
@@ -33,7 +40,11 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-sitemap.general.buttonSave') }}
@@ -42,8 +53,9 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_content %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 

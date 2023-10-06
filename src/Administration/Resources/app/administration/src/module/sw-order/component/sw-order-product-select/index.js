@@ -1,10 +1,16 @@
 import template from './sw-order-product-select.html.twig';
+import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
-const { Component, Service } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-product-select', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -38,11 +44,11 @@ Component.register('sw-order-product-select', {
         },
 
         lineItemTypes() {
-            return Service('cartStoreService').getLineItemTypes();
+            return LineItemType;
         },
 
         lineItemPriceTypes() {
-            return Service('cartStoreService').getLineItemPriceTypes();
+            return PriceType;
         },
 
         isShownProductSelect() {
@@ -58,7 +64,7 @@ Component.register('sw-order-product-select', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('options.group');
 
@@ -100,4 +106,4 @@ Component.register('sw-order-product-select', {
             });
         },
     },
-});
+};

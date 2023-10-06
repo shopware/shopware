@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_products_assignment_modal %}
 <sw-modal
     class="sw-sales-channel-products-assignment-modal"
@@ -5,6 +6,7 @@
     @modal-close="onCloseModal"
 >
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_products_assignment_modal_tabs %}
         <sw-tabs
             class="sw-sales-channel-products-assignment-modal__tabs"
@@ -12,6 +14,7 @@
             default-item="singleProducts"
         >
             <template #default="{ active }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
                 <sw-tabs-item
                     name="singleProducts"
@@ -22,6 +25,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
                 <sw-tabs-item
                     name="categories"
@@ -32,6 +36,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
                 <sw-tabs-item
                     name="dynamicProductGroups"
@@ -48,6 +53,7 @@
                     class="sw-sales-channel-products-assignment-modal__content"
                     :height="tabContentHeight"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_modal_tab_content_single_products %}
                     <sw-sales-channel-products-assignment-single-products
                         ref="product"
@@ -58,6 +64,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
                     <sw-sales-channel-product-assignment-categories
                         ref="category"
@@ -69,6 +76,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
                     <sw-sales-channel-products-assignment-dynamic-product-groups
                         ref="productGroup"
@@ -86,6 +94,7 @@
     </template>
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_products_assignment_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -95,6 +104,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_products_assignment_modal_footer_submit %}
         <sw-button
             size="small"

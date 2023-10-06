@@ -24,10 +24,9 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
         this.el.addEventListener('click', this._onClickCollapseTrigger.bind(this));
 
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
-        const $collapse = $(collapse);
 
-        $collapse.on('show.bs.collapse', this._onCollapseShow.bind(this));
-        $collapse.on('hide.bs.collapse', this._onCollapseHide.bind(this));
+        collapse.addEventListener('show.bs.collapse', this._onCollapseShow.bind(this));
+        collapse.addEventListener('hide.bs.collapse', this._onCollapseHide.bind(this));
     }
 
     /**
@@ -39,9 +38,10 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
         event.preventDefault();
 
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
-        const $collapse = $(collapse);
 
-        $collapse.collapse('toggle');
+        new bootstrap.Collapse(collapse, {
+            toggle: true,
+        });
 
         this.$emitter.publish('onClickCollapseTrigger');
     }

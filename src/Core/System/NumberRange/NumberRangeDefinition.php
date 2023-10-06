@@ -17,14 +17,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 
+#[Package('checkout')]
 class NumberRangeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'number_range';
+    final public const ENTITY_NAME = 'number_range';
 
     public function getEntityName(): string
     {
@@ -59,7 +61,7 @@ class NumberRangeDefinition extends EntityDefinition
             (new IntField('start', 'start'))->addFlags(new Required()),
             new TranslatedField('customFields'),
 
-            (new ManyToOneAssociationField('type', 'type_id', NumberRangeTypeDefinition::class)),
+            new ManyToOneAssociationField('type', 'type_id', NumberRangeTypeDefinition::class),
             (new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'number_range_id'))->addFlags(new CascadeDelete()),
             (new OneToOneAssociationField('state', 'id', 'number_range_id', NumberRangeStateDefinition::class, true))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(NumberRangeTranslationDefinition::class, 'number_range_id'))->addFlags(new Required()),

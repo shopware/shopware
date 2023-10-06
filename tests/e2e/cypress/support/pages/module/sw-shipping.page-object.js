@@ -7,7 +7,7 @@ export default class ShippingMethodPageObject {
             ...elements,
             ...{
                 shippingSaveAction: '.sw-settings-shipping-method-detail__save-action',
-                shippingBackToListViewAction: '.sw-icon.icon--default-action-settings.sw-icon--small'
+                shippingBackToListViewAction: '.sw-icon.icon--regular-cog.sw-icon--small'
             }
         };
     }
@@ -60,17 +60,20 @@ export default class ShippingMethodPageObject {
     createShippingMethodTax() {
         cy.window().then((win) => {
             // Fixed
+            cy.get('.sw-settings-shipping__tax-type-selection').scrollIntoView();
             cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
                 'Fixed',
                 '.sw-settings-shipping__tax-type-selection'
             );
             cy.get('.sw-settings-shipping__tax-rate').should('exist');
+            cy.get('.sw-settings-shipping__tax-rate').scrollIntoView();
             cy.get('.sw-settings-shipping__tax-rate').typeSingleSelectAndCheck(
                 'Standard rate',
                 '.sw-settings-shipping__tax-rate'
             );
 
             // Auto
+            cy.get('.sw-settings-shipping__tax-type-selection').scrollIntoView();
             cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
                 'Auto',
                 '.sw-settings-shipping__tax-type-selection'
@@ -78,6 +81,7 @@ export default class ShippingMethodPageObject {
             cy.get('.sw-settings-shipping__tax-rate').should('not.exist');
 
             // Highest
+            cy.get('.sw-settings-shipping__tax-type-selection').scrollIntoView();
             cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
                 'Highest',
                 '.sw-settings-shipping__tax-type-selection'

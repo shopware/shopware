@@ -5,11 +5,15 @@
         display: flex;
         align-items: center;
         line-height: 16px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 8px;
         color: $color-darkgray-200;
 
         label {
+            &.has--error {
+                color: $color-crimson-500;
+            }
+
             flex-grow: 1;
         }
 

@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class RefreshableAppDryRun extends AbstractAppLifecycle
 {
     /**
@@ -22,7 +24,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     private array $toBeUpdated = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $toBeDeleted = [];
 
@@ -85,7 +87,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getToBeDeleted(): array
     {
@@ -100,10 +102,10 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAppNames(): array
     {
-        return array_merge(array_keys($this->toBeInstalled), array_keys($this->toBeUpdated), array_keys($this->toBeDeleted));
+        return [...array_keys($this->toBeInstalled), ...array_keys($this->toBeUpdated), ...array_keys($this->toBeDeleted)];
     }
 }

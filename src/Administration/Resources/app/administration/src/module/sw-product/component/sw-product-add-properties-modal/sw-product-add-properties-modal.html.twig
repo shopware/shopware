@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_add_properties_modal %}
 <sw-modal
     v-if="properties"
@@ -5,33 +6,38 @@
     :title="$tc('sw-product.properties.addPropertiesModal.title')"
     @modal-close="onCancel"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_add_properties_modal_filled_state %}
     <div v-if="propertiesAvailable">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_add_properties_modal_filled_state_header %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_add_properties_modal_filled_state_search_field %}
         <sw-property-search
             ref="propertySearch"
+            class="sw-product-add-properties-modal__search"
             :options="newProperties"
             :overlay="false"
             :collapsible="false"
             @option-select="onSelectOption"
         >
             <template
-                slot="toolbar"
-                slot-scope="{focus, input}"
+                #toolbar="{ focus, input, searchTerm }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_field %}
                 <div class="sw-property-search__toolbar sw-product-add-properties-modal__toolbar">
                     <slot name="toolbar">
                         <div class="sw-property-search__search-field-container">
                             <slot name="toolbar-search-field">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_productadd_properties_selection_search_field %}
                                 <sw-simple-search-field
                                     ref="searchField"
-                                    v-model="searchTerm"
                                     size="small"
                                     variant="form"
                                     class="sw-property-search__search-field sw-product-add-properties-modal__search-field"
+                                    :value="searchTerm"
                                     :placeholder="$tc('sw-property-search.placeholderSearch')"
                                     @focus="focus"
                                     @input="input"
@@ -47,49 +53,10 @@
         </sw-property-search>
         {% endblock %}
         {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_filled_state_search_empty %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_filled_state_search_empty_image %}
-        {% endblock %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_filled_state_body %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_filled_state_body_content %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_properties %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_properties_name %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_properties_assigned %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_properties_pagination %}
-        {% endblock %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_values %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_values_pagination %}
-        {% endblock %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_values_empty_primary %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_values_empty_secondary %}
-        {% endblock %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        {% block sw_product_add_properties_modal_values_loading %}
-        {% endblock %}
-        {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_add_properties_modal_empty_state %}
     <sw-empty-state
         v-if="!propertiesAvailable"
@@ -98,15 +65,17 @@
         :subline="$tc('sw-product.properties.addPropertiesModal.descriptionEmptyState')"
     >
         <template #icon>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_add_properties_modal_empty_state_image %}
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
             >
             {% endblock %}
         </template>
 
         <template #actions>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_properties_empty_state_button_property %}
             <sw-button
                 variant="ghost"
@@ -120,6 +89,7 @@
     {% endblock %}
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_add_properties_modal_button_cancel %}
         <sw-button
             size="small"
@@ -129,6 +99,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_add_properties_modal_button_save %}
         <sw-button
             v-if="showSaveButton"

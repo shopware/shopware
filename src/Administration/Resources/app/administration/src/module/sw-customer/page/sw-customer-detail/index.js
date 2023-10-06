@@ -1,16 +1,22 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-customer-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
-        'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
@@ -75,7 +81,7 @@ Component.register('sw-customer-detail', {
         },
 
         defaultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
                 .addAssociation('group')
@@ -132,6 +138,23 @@ Component.register('sw-customer-detail', {
             return origin.email !== this.customer.email;
         },
 
+        validCompanyField() {
+            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
+                this.customer.company?.trim().length : true;
+        },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
+        },
+
         ...mapPageErrors(errorConfig),
     },
 
@@ -146,7 +169,14 @@ Component.register('sw-customer-detail', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
+            const defaultSalutationId = await this.getDefaultSalutation();
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-customer-detail__customer',
+                path: 'customer',
+                scope: this,
+            });
             this.isLoading = true;
 
             this.customerRepository.get(
@@ -155,7 +185,18 @@ Component.register('sw-customer-detail', {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
-                this.customer.vatIds = this.customer.vatIds || [];
+                if (!this.customer?.salutationId) {
+                    this.customer.salutationId = defaultSalutationId;
+                }
+
+                this.customer.addresses?.map((address) => {
+                    if (!address.salutationId) {
+                        address.salutationId = defaultSalutationId;
+                    }
+
+                    return address;
+                });
+
                 this.isLoading = false;
             });
         },
@@ -163,6 +204,8 @@ Component.register('sw-customer-detail', {
         saveFinish() {
             this.isSaveSuccessful = false;
             this.editMode = false;
+            this.createdComponent();
+            this.isLoading = false;
         },
 
         validateEmail() {
@@ -174,21 +217,25 @@ Component.register('sw-customer-detail', {
                 boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch('error/addApiError',
+                    Shopware.State.dispatch(
+                        'error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        });
+                        },
+                    );
                 }
 
                 return emailIsValid;
             }).catch((exception) => {
                 this.emailIsValid = false;
-                Shopware.State.dispatch('error/addApiError',
+                Shopware.State.dispatch(
+                    'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: exception.response.data.errors[0],
-                    });
+                        error: new ShopwareError(exception.response.data.errors[0]),
+                    },
+                );
             });
         },
 
@@ -199,13 +246,30 @@ Component.register('sw-customer-detail', {
                 return false;
             }
 
+            let hasError = false;
             if (this.customer.email && this.emailHasChanged) {
                 const response = await this.validateEmail();
 
                 if (!response || !response.isValid) {
-                    this.isLoading = false;
-                    return false;
+                    hasError = true;
                 }
+            }
+
+            if (!this.validCompanyField) {
+                this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (!(await this.validPassword(this.customer))) {
+                hasError = true;
+            }
+
+            if (hasError) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                });
+                this.isLoading = false;
+                return false;
             }
 
             this.isSaveSuccessful = false;
@@ -214,19 +278,16 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
-            if (!(await this.validPassword(this.customer))) {
-                this.isLoading = false;
-                return false;
-            }
-
             if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
+                this.customer.vatIds = [];
+            }
+
             return this.customerRepository.save(this.customer).then(() => {
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
-                this.createdComponent();
                 this.createNotificationSuccess({
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
                         name: `${this.customer.firstName} ${this.customer.lastName}`,
@@ -250,30 +311,36 @@ Component.register('sw-customer-detail', {
             this.editMode = true;
         },
 
-        async validPassword(customer) {
-            const config = await this.systemConfigApiService.getValues('core.register');
+        abortOnLanguageChange() {
+            return this.customerRepository.hasChanges(this.customer);
+        },
 
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.createdComponent();
+        },
+
+        async validPassword(customer) {
             const { passwordNew, passwordConfirm } = customer;
             const passwordSet = (passwordNew || passwordConfirm);
             const passwordNotEquals = (passwordNew !== passwordConfirm);
-            const invalidLength = (passwordNew && passwordNew.length < config['core.register.minPasswordLength']);
 
-            if (passwordSet) {
-                if (passwordNotEquals) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage'),
-                    });
+            if (passwordSet && passwordNotEquals) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer.${this.customer.id}.passwordConfirm`,
+                    error: new ShopwareError(
+                        {
+                            detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
+                            code: 'password_not_match',
+                        },
+                    ),
+                });
 
-                    return false;
-                }
-
-                if (invalidLength) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
-                    });
-
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -306,5 +373,23 @@ Component.register('sw-customer-detail', {
                 this.createdComponent();
             });
         },
+
+        createErrorMessageForCompanyField() {
+            this.isLoading = false;
+            Shopware.State.dispatch('error/addApiError', {
+                expression: `customer.${this.customer.id}.company`,
+                error: new ShopwareError(
+                    {
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    },
+                ),
+            });
+        },
+
+        async getDefaultSalutation() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
+        },
     },
-});
+};

@@ -2,28 +2,16 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
-use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,36 +19,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class OrderRecalculationController extends AbstractController
 {
     /**
-     * @var RecalculationService
+     * @internal
      */
-    protected $recalculationService;
-
-    public function __construct(RecalculationService $recalculationService)
+    public function __construct(protected RecalculationService $recalculationService)
     {
-        $this->recalculationService = $recalculationService;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws InvalidOrderException
-     * @throws OrderRecalculationException
-     * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
-     * @throws InconsistentCriteriaIdsException
-     */
+    #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', methods: ['POST'])]
     public function recalculateOrder(string $orderId, Context $context): Response
     {
         $this->recalculationService->recalculateOrder($orderId, $context);
@@ -68,21 +38,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
-     *
-     * @throws DeliveryWithoutAddressException
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
-     * @throws ProductNotFoundException
-     * @throws MissingOrderRelationException
-     */
+    #[Route(path: '/api/_action/order/{orderId}/product/{productId}', name: 'api.action.order.add-product', methods: ['POST'])]
     public function addProductToOrder(string $orderId, string $productId, Request $request, Context $context): Response
     {
         $quantity = $request->request->getInt('quantity', 1);
@@ -91,12 +47,8 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
-     *
-     * */
-    public function addCreditItemToOrder(string $orderId, Request $request, Context $context)
+    #[Route(path: '/api/_action/order/{orderId}/creditItem', name: 'api.action.order.add-credit-item', methods: ['POST'])]
+    public function addCreditItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = (string) $request->request->get('identifier');
         $type = LineItem::CREDIT_LINE_ITEM_TYPE;
@@ -111,11 +63,11 @@ class OrderRecalculationController extends AbstractController
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw new InvalidRequestParameterException('label');
+            throw RoutingException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw new InvalidRequestParameterException('description');
+            throw RoutingException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);
@@ -136,20 +88,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
-     *
-     * @throws DeliveryWithoutAddressException
-     * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingOrderRelationException
-     */
+    #[Route(path: '/api/_action/order/{orderId}/lineItem', name: 'api.action.order.add-line-item', methods: ['POST'])]
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = (string) $request->request->get('identifier');
@@ -166,10 +105,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.4.0")
-     * @Route("/api/_action/order/{orderId}/promotion-item", name="api.action.order.add-promotion-item", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/order/{orderId}/promotion-item', name: 'api.action.order.add-promotion-item', methods: ['POST'])]
     public function addPromotionItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $code = (string) $request->request->get('code');
@@ -179,10 +115,7 @@ class OrderRecalculationController extends AbstractController
         return new CartResponse($cart);
     }
 
-    /**
-     * @Since("6.4.4.0")
-     * @Route("/api/_action/order/{orderId}/toggleAutomaticPromotions", name="api.action.order.toggle-automatic-promotions", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', methods: ['POST'])]
     public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
         $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
@@ -192,13 +125,7 @@ class OrderRecalculationController extends AbstractController
         return new CartResponse($cart);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
-     *
-     * @throws OrderRecalculationException
-     * @throws InconsistentCriteriaIdsException
-     */
+    #[Route(path: '/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}', name: 'api.action.order.replace-order-address', methods: ['POST'])]
     public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): JsonResponse
     {
         $this->recalculationService->replaceOrderAddressWithCustomerAddress($orderAddressId, $customerAddressId, $context);
@@ -207,7 +134,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
-     * @throws InvalidPayloadException
+     * @throws CartException
      */
     private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
@@ -219,11 +146,11 @@ class OrderRecalculationController extends AbstractController
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw new InvalidRequestParameterException('label');
+            throw RoutingException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw new InvalidRequestParameterException('description');
+            throw RoutingException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);

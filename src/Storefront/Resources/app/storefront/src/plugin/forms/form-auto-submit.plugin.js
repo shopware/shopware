@@ -3,13 +3,16 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
+import querystring from 'query-string';
+import Debouncer from 'src/helper/debouncer.helper';
 
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
+ *
+ * @package content
  */
 export default class FormAutoSubmitPlugin extends Plugin {
-
     static options = {
         useAjax: false,
         ajaxContainerSelector: false,
@@ -21,6 +24,13 @@ export default class FormAutoSubmitPlugin extends Plugin {
          * @type null|[]String
          */
         changeTriggerSelectors: null,
+        /**
+         * When this option is used the submitting of the form is delayed
+         * for the given time in milliseconds
+         *
+         * @type null|number
+         */
+        delayChangeEvent: null,
     };
 
     init() {
@@ -66,11 +76,19 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _registerEvents() {
         if (this.options.useAjax) {
-            const onSubmit = this._onSubmit.bind(this);
+            const onSubmit =
+                this.options.delayChangeEvent ?
+                    Debouncer.debounce(this._onSubmit.bind(this), this.options.delayChangeEvent) :
+                    this._onSubmit.bind(this);
+
             this._form.removeEventListener('change', onSubmit);
             this._form.addEventListener('change', onSubmit);
         } else {
-            const onChange = this._onChange.bind(this);
+            const onChange =
+                this.options.delayChangeEvent ?
+                    Debouncer.debounce(this._onChange.bind(this), this.options.delayChangeEvent) :
+                    this._onChange.bind(this);
+
             this._form.removeEventListener('change', onChange);
             this._form.addEventListener('change', onChange);
         }
@@ -99,19 +117,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
             return;
         }
 
-        if (window.csrf.enabled && window.csrf.mode === 'ajax') {
-            // A new csrf token needs to be appended to the form if ajax csrf mode is used
-            this._client.fetchCsrfToken((token) => {
-                const csrfInput = document.createElement('input');
-                csrfInput.name = '_csrf_token';
-                csrfInput.value = token;
-                csrfInput.type = 'hidden';
-                this._form.appendChild(csrfInput);
-                this._submitNativeForm();
-            });
-        } else {
-            this._submitNativeForm();
-        }
+        this._submitNativeForm();
 
     }
 
@@ -141,7 +147,6 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();
-
     }
 
     sendAjaxFormSubmit() {
@@ -169,10 +174,12 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const params = Object.fromEntries(urlParams.entries());
+        const params = querystring.parse(window.location.search);
+        const formData = FormSerializeUtil.serialize(this._form);
 
-        Object.keys(params).map(param => this._createInputForRedirectParameter(param, params[param]))
+        Object.keys(params)
+            .filter(param => !formData.has(`redirectParameters[${param}]`))
+            .map(param => this._createInputForRedirectParameter(param, params[param]))
             .forEach((input) => {
                 this._form.appendChild(input);
             });

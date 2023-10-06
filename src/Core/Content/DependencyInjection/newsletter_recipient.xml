@@ -36,6 +36,8 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="shopware.rate_limiter" />
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" public="true">
@@ -64,6 +66,11 @@
 
         <service id="Shopware\Core\Content\Newsletter\Event\Subscriber\NewsletterRecipientDeletedSubscriber">
             <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

@@ -6,8 +6,9 @@ $sw-page-divider-background-color: $color-gray-300;
 $sw-page-smart-bar-background-color: $color-white;
 $sw-page-smart-bar-headline-color: $color-darkgray-200;
 $sw-page-side-content-default-width: 440px;
-$sw-page-smart-bar-headline-font-size: 18px;
-$sw-page-smart-bar-headline-font-weight: 600;
+$sw-page-smart-bar-headline-font-size: $font-size-m;
+$sw-page-smart-bar-headline-font-weight: $font-weight-semi-bold;
+$sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
 .sw-page {
     width: 100%;
@@ -24,7 +25,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
         position: relative;
         display: grid;
         grid-column-gap: 8px;
-        grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, 800px) [header-content-end] 1fr [smart-bar-end];
+        grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;
         border-bottom: 2px solid $sw-page-smart-bar-border-color;
@@ -33,7 +34,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
     .sw-page__search-bar {
         grid-row: 1;
         grid-column: header-content-start / header-content-end;
-        z-index: 800;
+        z-index: $sw-page-search-bar-z-index;
 
         @media screen and (max-width: 500px) {
             grid-column: head-start / smart-bar-end;
@@ -47,6 +48,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
+        gap: 16px;
     }
 
     .sw-page__smart-bar-divider {
@@ -65,27 +67,26 @@ $sw-page-smart-bar-headline-font-weight: 600;
     .smart-bar__back-btn {
         width: 54px;
         height: 24px;
-        line-height: 24px;
+        line-height: $line-height-md;
         display: grid;
         grid-template-columns: 30px 24px;
         align-items: center;
         margin-left: 20px;
 
-        .sw-icon.icons--small-arrow-large-left {
-            line-height: 24px;
+        .sw-icon.icons--regular-chevron-left-s {
+            line-height: $line-height-md;
             margin: auto;
         }
     }
 
     .smart-bar__content {
         min-height: 70px;
-        max-width: 800px;
+        max-width: $content-width;
         padding: 15px 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         grid-column: header-content-start / header-content-end;
-        grid-row: 2;
 
         @media screen and (max-width: 1360px) {
             padding: 15px;
@@ -108,7 +109,12 @@ $sw-page-smart-bar-headline-font-weight: 600;
 
         .sw-icon {
             position: relative;
-            top: -2px;
+            top: -1px;
+
+            &.icon--regular-chevron-right-xs {
+                width: 10px;
+                height: 10px;
+            }
         }
     }
 

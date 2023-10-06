@@ -1,9 +1,11 @@
 import template from './sw-first-run-wizard-plugins.html.twig';
 import './sw-first-run-wizard-plugins.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard-plugins', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['recommendationsService'],
@@ -69,7 +71,7 @@ Component.register('sw-first-run-wizard-plugins', {
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },
                 {
@@ -112,14 +114,12 @@ Component.register('sw-first-run-wizard-plugins', {
         },
 
         getRecommendations() {
-            const language = Shopware.State.get('session').currentLocale;
             const region = this.selectedRegion.name;
             const category = this.selectedCategory.name;
 
             this.isLoading = true;
 
             this.recommendationsService.getRecommendations({
-                language,
                 region,
                 category,
             }).then((response) => {
@@ -130,12 +130,9 @@ Component.register('sw-first-run-wizard-plugins', {
         },
 
         getRecommendationRegions() {
-            const language = Shopware.State.get('session').currentLocale;
             this.isLoading = true;
 
-            this.recommendationsService.getRecommendationRegions({
-                language,
-            }).then((response) => {
+            this.recommendationsService.getRecommendationRegions().then((response) => {
                 this.regions = response.items;
             }).finally(() => {
                 this.isLoading = false;
@@ -147,4 +144,4 @@ Component.register('sw-first-run-wizard-plugins', {
             this.getRecommendations();
         },
     },
-});
+};

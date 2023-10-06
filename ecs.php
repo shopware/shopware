@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff;
 use PhpCsFixer\Fixer\Basic\NonPrintableCharacterFixer;
 use PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer;
 use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
@@ -12,6 +13,7 @@ use PhpCsFixer\Fixer\FunctionNotation\NullableTypeDeclarationForDefaultNullValue
 use PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer;
 use PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer;
 use PhpCsFixer\Fixer\LanguageConstruct\ExplicitIndirectVariableFixer;
+use PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer;
 use PhpCsFixer\Fixer\Operator\ConcatSpaceFixer;
 use PhpCsFixer\Fixer\Operator\OperatorLinebreakFixer;
 use PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer;
@@ -20,10 +22,13 @@ use PhpCsFixer\Fixer\Phpdoc\PhpdocAlignFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocAnnotationWithoutDotFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocLineSpanFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocNoPackageFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocTrimConsecutiveBlankLineSeparationFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
+use PhpCsFixer\Fixer\PhpTag\LinebreakAfterOpeningTagFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertInternalTypeFixer;
@@ -33,85 +38,94 @@ use PhpCsFixer\Fixer\PhpUnit\PhpUnitTestCaseStaticMethodCallsFixer;
 use PhpCsFixer\Fixer\ReturnNotation\NoUselessReturnFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer;
+use PhpCsFixer\Fixer\StringNotation\SingleQuoteFixer;
 use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
 use PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer;
-use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer;
 use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer;
+use PhpCsFixerCustomFixers\Fixer\PhpdocTypesCommaSpacesFixer;
 use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer;
+use Symplify\CodingStandard\Fixer\Spacing\StandaloneLineConstructorParamFixer;
+use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
-use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $containerConfigurator->import(SetList::SYMFONY);
-    $containerConfigurator->import(SetList::SYMFONY_RISKY);
-    $containerConfigurator->import(SetList::ARRAY);
-    $containerConfigurator->import(SetList::CONTROL_STRUCTURES);
-    $containerConfigurator->import(SetList::STRICT);
-    $containerConfigurator->import(SetList::PSR_12);
+return static function (ECSConfig $ecsConfig): void {
+    $ecsConfig->dynamicSets([
+        '@Symfony',
+        '@Symfony:risky',
+    ]);
 
-    $services = $containerConfigurator->services();
+    $ecsConfig->sets([
+        SetList::ARRAY,
+        SetList::CONTROL_STRUCTURES,
+        SetList::STRICT,
+        SetList::PSR_12,
+    ]);
 
-    $services->set(ModernizeTypesCastingFixer::class);
-    $services->set(ClassAttributesSeparationFixer::class)
-        ->call('configure', [['elements' => ['property' => 'one', 'method' => 'one']]]);
-    $services->set(FopenFlagsFixer::class);
-    $services->set(MethodArgumentSpaceFixer::class)
-        ->call('configure', [['on_multiline' => 'ensure_fully_multiline']]);
-    $services->set(NativeFunctionInvocationFixer::class)
-        ->call('configure', [[
-            'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
-            'scope' => 'namespaced',
-            'strict' => false,
-        ]]);
-    $services->set(NativeConstantInvocationFixer::class);
-    $services->set(NullableTypeDeclarationForDefaultNullValueFixer::class);
-    $services->set(VoidReturnFixer::class);
-    $services->set(ConcatSpaceFixer::class)
-        ->call('configure', [['spacing' => 'one']]);
-    $services->set(OperatorLinebreakFixer::class);
-    $services->set(GeneralPhpdocAnnotationRemoveFixer::class)
-        ->call('configure', [['annotations' => ['copyright', 'category']]]);
-    $services->set(NoSuperfluousPhpdocTagsFixer::class)
-        ->call('configure', [['allow_unused_params' => true, 'allow_mixed' => true,]]);
-    $services->set(PhpdocLineSpanFixer::class);
-    $services->set(PhpdocOrderFixer::class);
-    $services->set(PhpUnitConstructFixer::class);
-    $services->set(PhpUnitDedicateAssertFixer::class)
-        ->call('configure', [['target' => 'newest']]);
-    $services->set(PhpUnitDedicateAssertInternalTypeFixer::class);
-    $services->set(PhpUnitMockFixer::class);
-    $services->set(PhpUnitMockShortWillReturnFixer::class);
-    $services->set(PhpUnitTestCaseStaticMethodCallsFixer::class);
-    $services->set(NoUselessReturnFixer::class);
-    $services->set(DeclareStrictTypesFixer::class);
-    $services->set(BlankLineBeforeStatementFixer::class);
-    $services->set(CompactNullableTypehintFixer::class);
-    $services->set(NoImportFromGlobalNamespaceFixer::class);
-    $services->set(NoSuperfluousConcatenationFixer::class);
-    $services->set(NoUselessCommentFixer::class);
-    $services->set(SingleSpaceAfterStatementFixer::class);
-    $services->set(NoUselessParenthesisFixer::class);
-    $services->set(NoUselessStrlenFixer::class);
+    $ecsConfig->rules([
+        ModernizeTypesCastingFixer::class,
+        FopenFlagsFixer::class,
+        NativeConstantInvocationFixer::class,
+        NullableTypeDeclarationForDefaultNullValueFixer::class,
+        VoidReturnFixer::class,
+        OperatorLinebreakFixer::class,
+        PhpdocLineSpanFixer::class,
+        PhpdocOrderFixer::class,
+        PhpUnitConstructFixer::class,
+        PhpUnitDedicateAssertInternalTypeFixer::class,
+        PhpUnitMockFixer::class,
+        PhpUnitMockShortWillReturnFixer::class,
+        PhpUnitTestCaseStaticMethodCallsFixer::class,
+        NoUselessReturnFixer::class,
+        DeclareStrictTypesFixer::class,
+        BlankLineBeforeStatementFixer::class,
+        CompactNullableTypehintFixer::class,
+        NoImportFromGlobalNamespaceFixer::class,
+        NoSuperfluousConcatenationFixer::class,
+        NoUselessCommentFixer::class,
+        SingleSpaceAfterStatementFixer::class,
+        NoUselessParenthesisFixer::class,
+        NoUselessStrlenFixer::class,
+        PhpdocTypesCommaSpacesFixer::class,
+        StandaloneLineConstructorParamFixer::class,
+    ]);
 
-    $parameters = $containerConfigurator->parameters();
+    $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);
+    $ecsConfig->ruleWithConfiguration(MethodArgumentSpaceFixer::class, ['on_multiline' => 'ensure_fully_multiline']);
+    $ecsConfig->ruleWithConfiguration(NativeFunctionInvocationFixer::class, [
+        'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
+        'scope' => 'namespaced',
+        'strict' => false,
+    ]);
+    $ecsConfig->ruleWithConfiguration(ConcatSpaceFixer::class, ['spacing' => 'one']);
+    $ecsConfig->ruleWithConfiguration(GeneralPhpdocAnnotationRemoveFixer::class, ['annotations' => ['copyright', 'category']]);
+    $ecsConfig->ruleWithConfiguration(NoSuperfluousPhpdocTagsFixer::class, ['allow_unused_params' => true, 'allow_mixed' => true]);
+    $ecsConfig->ruleWithConfiguration(PhpUnitDedicateAssertFixer::class, ['target' => 'newest']);
+    $ecsConfig->ruleWithConfiguration(SingleQuoteFixer::class, ['strings_containing_single_quote_chars' => true]);
+    // workaround for https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues/5495
+    $ecsConfig->ruleWithConfiguration(BinaryOperatorSpacesFixer::class, [
+        'operators' => [
+            '|' => null,
+            '&' => null,
+        ],
+    ]);
 
+    $parameters = $ecsConfig->parameters();
     $parameters->set(Option::CACHE_DIRECTORY, $_SERVER['SHOPWARE_TOOL_CACHE_ECS'] ?? 'var/cache/cs_fixer');
     $parameters->set(Option::CACHE_NAMESPACE, 'platform');
-    $parameters->set(Option::PARALLEL, true);
 
-    $parameters->set(Option::SKIP, [
-        // Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
-        __DIR__ . '/src/Core/Framework/Compatibility/DocParser.php',
-        __DIR__ . '/src/Core/Framework/Compatibility/AnnotationReader.php',
+    $ecsConfig->parallel();
+
+    $ecsConfig->skip([
+        // Fixture
+        'src/WebInstaller/Tests/_fixtures/Options.php',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,
@@ -135,12 +149,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         // would otherwise destroy markdown in the description of a route annotation, since markdown interpreted spaces/indents
         PhpdocIndentFixer::class => [
             'src/**/*Controller.php',
-            'src/**/*Route.php'
+            'src/**/*Route.php',
         ],
         // would otherwise remove lines in the description of route annotations
         PhpdocTrimConsecutiveBlankLineSeparationFixer::class => [
             'src/**/*Controller.php',
-            'src/**/*Route.php'
+            'src/**/*Route.php',
         ],
+        PhpdocNoPackageFixer::class => null,
+        StandaloneLineConstructorParamFixer::class => null,
+        LinebreakAfterOpeningTagFixer::class => null,
     ]);
 };

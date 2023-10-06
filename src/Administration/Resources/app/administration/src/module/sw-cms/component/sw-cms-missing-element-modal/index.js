@@ -1,9 +1,11 @@
 import template from './sw-cms-missing-element-modal.html.twig';
 import './sw-cms-missing-element-modal.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-missing-element-modal', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     props: {
@@ -38,5 +40,9 @@ Component.register('sw-cms-missing-element-modal', {
         onSave() {
             this.$emit('modal-save');
         },
+
+        onChangeDontRemindCheckbox() {
+            this.$emit('modal-dont-remind-change');
+        },
     },
-});
+};

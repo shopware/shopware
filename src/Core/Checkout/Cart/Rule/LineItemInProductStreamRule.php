@@ -2,35 +2,32 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class LineItemInProductStreamRule extends Rule
 {
+    final public const RULE_NAME = 'cartLineItemInProductStream';
+
     /**
-     * @var string[]
+     * @internal
+     *
+     * @param list<string> $streamIds
      */
-    protected array $streamIds;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $streamIds = []
+    ) {
         parent::__construct();
-
-        $this->streamIds = $streamIds;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInProductStream';
     }
 
     public function match(RuleScope $scope): bool
@@ -43,7 +40,7 @@ class LineItemInProductStreamRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfProductStream($lineItem)) {
                 return true;
             }
@@ -55,43 +52,31 @@ class LineItemInProductStreamRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['streamIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['streamIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('streamIds', ProductStreamDefinition::ENTITY_NAME, true);
+    }
+
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfProductStream(LineItem $lineItem): bool
     {
-        $streamIds = (array) $lineItem->getPayloadValue('streamIds');
-
-        $matches = array_intersect($streamIds, $this->streamIds);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty($matches);
-
-            case self::OPERATOR_NEQ:
-                return empty($matches);
-
-            case self::OPERATOR_EMPTY:
-                return empty($streamIds);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($lineItem->getPayloadValue('streamIds'), $this->streamIds, $this->operator);
     }
 }

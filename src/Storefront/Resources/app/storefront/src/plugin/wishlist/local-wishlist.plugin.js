@@ -2,6 +2,9 @@ import Storage from 'src/helper/storage/storage.helper';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
+/**
+ * @package checkout
+ */
 export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
         this.cookieEnabledName = 'wishlist-enabled';
@@ -19,7 +22,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     }
 
     add(productId, router) {
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             window.location.replace(router.afterLoginPath);
 
             return;
@@ -40,7 +43,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             this.storage.removeItem(this._getStorageKey());
         }
 

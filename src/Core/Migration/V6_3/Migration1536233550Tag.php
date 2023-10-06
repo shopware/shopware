@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1536233550Tag extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1536233550Tag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `tag` (
               `id` BINARY(16) NOT NULL,
               `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -24,7 +31,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `product_tag` (
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
@@ -37,7 +44,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `media_tag` (
               `media_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
@@ -49,7 +56,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `category_tag` (
               `category_id` BINARY(16) NOT NULL,
               `category_version_id` BINARY(16) NOT NULL,
@@ -62,7 +69,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `customer_tag` (
               `customer_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
@@ -74,7 +81,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `order_tag` (
               `order_id` BINARY(16) NOT NULL,
               `order_version_id` BINARY(16) NOT NULL,
@@ -87,7 +94,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `shipping_method_tag` (
               `shipping_method_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
@@ -99,7 +106,7 @@ class Migration1536233550Tag extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `newsletter_recipient_tag` (
               `newsletter_recipient_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,

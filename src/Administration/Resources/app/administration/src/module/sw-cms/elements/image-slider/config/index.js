@@ -1,11 +1,15 @@
 import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
-const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { Mixin } = Shopware;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
-Component.register('sw-cms-el-config-image-slider', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -20,6 +24,7 @@ Component.register('sw-cms-el-config-image-slider', {
             initialFolderId: null,
             entity: this.element,
             mediaItems: [],
+            showSlideConfig: false,
         };
     },
 
@@ -43,6 +48,14 @@ Component.register('sw-cms-el-config-image-slider', {
 
             return [];
         },
+
+        speedDefault() {
+            return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.speed.value;
+        },
+
+        autoplayTimeoutDefault() {
+            return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.autoplayTimeout.value;
+        },
     },
 
     created() {
@@ -53,12 +66,16 @@ Component.register('sw-cms-el-config-image-slider', {
         async createdComponent() {
             this.initElementConfig('image-slider');
 
-            if (this.element.config.sliderItems.value.length > 0) {
+            if (this.element.config.autoSlide?.value) {
+                this.showSlideConfig = true;
+            }
+
+            if (this.element.config.sliderItems.source !== 'default' && this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
                     return configElement.mediaId;
                 });
 
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds(mediaIds);
 
                 const searchResult = await this.mediaRepository.search(criteria);
@@ -69,7 +86,13 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         onImageUpload(mediaItem) {
-            this.element.config.sliderItems.value.push({
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+            }
+
+            sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
@@ -107,6 +130,12 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         onMediaSelectionChange(mediaItems) {
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+            }
+
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
@@ -117,6 +146,14 @@ Component.register('sw-cms-el-config-image-slider', {
             });
 
             this.mediaItems.push(...mediaItems);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
+        },
+
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
 
             this.updateMediaDataValue();
             this.emitUpdateEl();
@@ -134,7 +171,11 @@ Component.register('sw-cms-el-config-image-slider', {
                     });
                 });
 
-                this.$set(this.element.data, 'sliderItems', sliderItems);
+                if (!this.element.data) {
+                    this.$set(this.element, 'data', { sliderItems });
+                } else {
+                    this.$set(this.element.data, 'sliderItems', sliderItems);
+                }
             }
         },
 
@@ -146,6 +187,15 @@ Component.register('sw-cms-el-config-image-slider', {
             this.element.config.minHeight.value = value === null ? '' : value;
 
             this.$emit('element-update', this.element);
+        },
+
+        onChangeAutoSlide(value) {
+            this.showSlideConfig = value;
+
+            if (!value) {
+                this.element.config.autoplayTimeout.value = this.autoplayTimeoutDefault;
+                this.element.config.speed.value = this.speedDefault;
+            }
         },
 
         onChangeDisplayMode(value) {
@@ -160,4 +210,4 @@ Component.register('sw-cms-el-config-image-slider', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

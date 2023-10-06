@@ -2,8 +2,14 @@
 
 namespace Shopware\Storefront\Test\Theme\fixtures;
 
+/**
+ * @internal
+ */
 class ThemeFixtures
 {
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeFields(): array
     {
         return [
@@ -106,8 +112,8 @@ class ThemeFixtures
                                 'de-DE' => 'Desktop',
                             ],
                             'helpText' => [
-                                'en-GB' => 'Displayed for viewports of above 991px',
-                                'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                                'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                             ],
                             'type' => 'media',
                             'custom' => null,
@@ -244,6 +250,9 @@ class ThemeFixtures
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeStructuredFields(): array
     {
         return [
@@ -453,8 +462,8 @@ class ThemeFixtures
                                                 'de-DE' => 'Desktop',
                                             ],
                                             'helpText' => [
-                                                'en-GB' => 'Displayed for viewports of above 991px',
-                                                'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                                                'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                                'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                                             ],
                                             'type' => 'media',
                                             'custom' => null,
@@ -516,6 +525,9 @@ class ThemeFixtures
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
         $config = [
@@ -587,7 +599,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -697,7 +709,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -719,7 +731,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -763,7 +775,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -785,7 +797,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -872,7 +884,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -894,8 +906,8 @@ class ThemeFixtures
                         'de-DE' => 'Desktop',
                     ],
                     'helpText' => [
-                        'en-GB' => 'Displayed for viewports of above 991px',
-                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                        'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                        'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                     ],
                     'type' => 'media',
                     'value' => 'dist/assets/logo/demostore-logo.png',
@@ -1014,125 +1026,165 @@ class ThemeFixtures
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
+                    'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
                     'value' => null,
+                    'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
+                    'isInherited' => false,
                 ],
                 'sw-background-color' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-color-success' => [
                     'value' => '#3cc261',
+                    'isInherited' => false,
                 ],
                 'sw-color-info' => [
                     'value' => '#26b6cf',
+                    'isInherited' => false,
                 ],
                 'sw-color-warning' => [
                     'value' => '#ffbd5d',
+                    'isInherited' => false,
                 ],
                 'sw-color-danger' => [
                     'value' => '#e52427',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-base' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-logo-desktop' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-tablet' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-mobile' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-share' => [
-                    'value' => null,
+                    'value' => '',
+                    'isInherited' => false,
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
                 ],
             ],
             'baseThemeFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#ff00ff',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
+                    'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
+                    'isInherited' => false,
                 ],
                 'sw-background-color' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-color-success' => [
                     'value' => '#3cc261',
+                    'isInherited' => false,
                 ],
                 'sw-color-info' => [
                     'value' => '#26b6cf',
+                    'isInherited' => false,
                 ],
                 'sw-color-warning' => [
                     'value' => '#ffbd5d',
+                    'isInherited' => false,
                 ],
                 'sw-color-danger' => [
                     'value' => '#e52427',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-base' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-logo-desktop' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-tablet' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-mobile' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-share' => [
                     'value' => null,
+                    'isInherited' => false,
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
                 ],
             ],
         ];
@@ -1140,6 +1192,9 @@ class ThemeFixtures
         return $config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
     {
         $config = [
@@ -1211,7 +1266,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1321,7 +1376,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -1343,7 +1398,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1387,7 +1442,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -1409,7 +1464,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -1496,7 +1551,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -1518,8 +1573,8 @@ class ThemeFixtures
                         'de-DE' => 'Desktop',
                     ],
                     'helpText' => [
-                        'en-GB' => 'Displayed for viewports of above 991px',
-                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                        'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                        'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                     ],
                     'type' => 'media',
                     'value' => 'dist/assets/logo/demostore-logo.png',
@@ -1638,125 +1693,165 @@ class ThemeFixtures
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
+                    'isInherited' => true,
                 ],
                 'sw-color-brand-secondary' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-border-color' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-background-color' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-success' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-info' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-warning' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-danger' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-font-family-base' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-text-color' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-font-family-headline' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-headline-color' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-price' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-buy-button' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-logo-desktop' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-logo-tablet' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-logo-mobile' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-logo-share' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
                 'sw-logo-favicon' => [
                     'value' => null,
+                    'isInherited' => true,
                 ],
             ],
             'baseThemeFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
+                    'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
+                    'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
+                    'isInherited' => false,
                 ],
                 'sw-background-color' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-color-success' => [
                     'value' => '#3cc261',
+                    'isInherited' => false,
                 ],
                 'sw-color-info' => [
                     'value' => '#26b6cf',
+                    'isInherited' => false,
                 ],
                 'sw-color-warning' => [
                     'value' => '#ffbd5d',
+                    'isInherited' => false,
                 ],
                 'sw-color-danger' => [
                     'value' => '#e52427',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-base' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-logo-desktop' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-tablet' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-mobile' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-share' => [
-                    'value' => null,
+                    'value' => '',
+                    'isInherited' => false,
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
                 ],
             ],
         ];
@@ -1764,6 +1859,9 @@ class ThemeFixtures
         return $config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeConfig(string $faviconId, string $demostoreLogoId): array
     {
         return [
@@ -1813,7 +1911,7 @@ class ThemeFixtures
                         'de-DE' => 'Primärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1835,7 +1933,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1945,7 +2043,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -1967,7 +2065,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -2011,7 +2109,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -2033,7 +2131,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -2120,7 +2218,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -2142,8 +2240,8 @@ class ThemeFixtures
                         'de-DE' => 'Desktop',
                     ],
                     'helpText' => [
-                        'en-GB' => 'Displayed for viewports of above 991px',
-                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                        'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                        'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
                     ],
                     'type' => 'media',
                     'value' => 'dist/assets/logo/demostore-logo.png',
@@ -2258,126 +2356,166 @@ class ThemeFixtures
             ],
             'currentFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
+                    'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
+                    'isInherited' => false,
                 ],
                 'sw-background-color' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-color-success' => [
                     'value' => '#3cc261',
+                    'isInherited' => false,
                 ],
                 'sw-color-info' => [
                     'value' => '#26b6cf',
+                    'isInherited' => false,
                 ],
                 'sw-color-warning' => [
                     'value' => '#ffbd5d',
+                    'isInherited' => false,
                 ],
                 'sw-color-danger' => [
                     'value' => '#e52427',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-base' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-logo-desktop' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-tablet' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-mobile' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-share' => [
-                    'value' => null,
+                    'value' => '',
+                    'isInherited' => false,
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
                 ],
             ],
             'baseThemeFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
+                    'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
+                    'isInherited' => false,
                 ],
                 'sw-background-color' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-color-success' => [
                     'value' => '#3cc261',
+                    'isInherited' => false,
                 ],
                 'sw-color-info' => [
                     'value' => '#26b6cf',
+                    'isInherited' => false,
                 ],
                 'sw-color-warning' => [
                     'value' => '#ffbd5d',
+                    'isInherited' => false,
                 ],
                 'sw-color-danger' => [
                     'value' => '#e52427',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-base' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
                     'value' => '\'Inter\', sans-serif',
+                    'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
+                    'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
                     'value' => '#fff',
+                    'isInherited' => false,
                 ],
                 'sw-logo-desktop' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-tablet' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-mobile' => [
                     'value' => $demostoreLogoId,
+                    'isInherited' => false,
                 ],
                 'sw-logo-share' => [
                     'value' => null,
+                    'isInherited' => false,
                 ],
                 'sw-logo-favicon' => [
                     'value' => $faviconId,
+                    'isInherited' => false,
                 ],
             ],
         ];

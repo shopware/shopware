@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Migration\V6_3\Migration1604502151AddThemePreviewMediaConstraint;
 
 /**
+ * @internal
+ *
  * @group skip-paratest
  */
 class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
@@ -23,17 +25,11 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
     private const FK_INDEX = 'fk.theme.preview_media_id';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Migration1604502151AddThemePreviewMediaConstraint
-     */
-    private $migration;
+    private Migration1604502151AddThemePreviewMediaConstraint $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -96,14 +92,14 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
         if ($foreignKeyName !== null) {
             $this->connection->rollBack();
-            $this->connection->executeUpdate(self::dropIndexAndForeignKeyQuery($foreignKeyName));
+            $this->connection->executeStatement(self::dropIndexAndForeignKeyQuery($foreignKeyName));
             $this->connection->beginTransaction();
         }
     }
 
     private function getPreviewMediaForeignKeyName(): ?string
     {
-        $foreignKeyName = $this->connection->fetchColumn(self::getForeignKeyQuery());
+        $foreignKeyName = $this->connection->fetchOne(self::getForeignKeyQuery());
 
         if (\is_string($foreignKeyName) && !empty($foreignKeyName)) {
             return $foreignKeyName;

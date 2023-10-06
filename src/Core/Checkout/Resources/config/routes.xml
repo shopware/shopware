@@ -18,4 +18,5 @@
     <import resource="../../Customer/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Order/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Cart/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Document/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

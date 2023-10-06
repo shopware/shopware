@@ -7,10 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class OneToManyAssociationFieldResolver extends AbstractFieldResolver
 {
     public function join(FieldResolverContext $context): string
@@ -68,11 +70,16 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
         $fkVersionId = $context->getDefinition()->getEntityName() . '_version_id';
 
         $reference = $field->getReferenceDefinition();
-        if ($reference->getFields()->getByStorageName($fkVersionId) === null) {
-            $fkVersionId = 'version_id';
+        if ($reference->getFields()->getByStorageName($fkVersionId)) {
+            return ' AND #root#.version_id = #alias#.' . $fkVersionId;
         }
 
-        return ' AND #root#.version_id = #alias#.' . $fkVersionId;
+        $fkVersionId = \substr($field->getReferenceField(), 0, -3) . '_version_id';
+        if ($reference->getFields()->getByStorageName($fkVersionId)) {
+            return ' AND #root#.version_id = #alias#.' . $fkVersionId;
+        }
+
+        return ' AND #root#.version_id = #alias#.version_id';
     }
 
     private function getSourceColumn(FieldResolverContext $context, OneToManyAssociationField $field): string

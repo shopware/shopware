@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_searchable_content_customfields %}
 <div class="sw-settings-search__searchable-content-customfields">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_customfields_empty_state %}
     <sw-empty-state
         v-if="isEmpty"
@@ -9,15 +11,17 @@
         :absolute="false"
     >
         <template #icon>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_state_image %}
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
             >
             {% endblock %}
         </template>
 
         <template #actions>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
             <sw-button
                 variant="ghost"
@@ -32,6 +36,7 @@
     </sw-empty-state>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_customfields_grid %}
     <sw-entity-listing
         v-if="!isEmpty"
@@ -51,17 +56,27 @@
         @inline-edit-save="onInlineEditSave"
         @inline-edit-cancel="onInlineEditCancel"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_customfields_field %}
         <template #column-field="{ item, isInlineEdit }">
             <template v-if="item._isNew && isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_field_editor %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="currentCustomFieldId"
+                    {% else %}
                     v-model="currentCustomFieldId"
+                    {% endif %}
                     class="sw-settings-search-custom-field-select"
                     entity="custom_field"
                     :criteria="customFieldFilteredCriteria"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="(id, customfield) => onSelectCustomField(customfield)"
+                    {% else %}
                     @change="(id, customfield) => onSelectCustomField(customfield)"
+                    {% endif %}
                 >
 
                     <template #selection-label-property="{ item }">
@@ -77,6 +92,7 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_field_label %}
                 {{ getMatchingCustomFields(item.field) }}
                 {% endblock %}
@@ -84,12 +100,18 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_customfields_ranking %}
         <template #column-ranking="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="item.ranking"
+                    {% else %}
                     v-model="item.ranking"
+                    {% endif %}
                     number-type="int"
                     size="small"
                 />
@@ -98,26 +120,35 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_customfields_searchable %}
         <template #column-searchable="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
-                <sw-checkbox-field v-model="item.searchable" />
+                <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="item.searchable"
+                    {% else %}
+                    v-model="item.searchable"
+                    {% endif %}
+                />
                 {% endblock %}
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_searchable_label %}
                 <sw-icon
                     v-if="item.searchable"
                     class="is--active"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                 />
                 <sw-icon
                     v-else
                     class="is--inactive"
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                 />
                 {% endblock %}
@@ -125,26 +156,35 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_customfields_tokenize %}
         <template #column-tokenize="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
-                <sw-checkbox-field v-model="item.tokenize" />
+                <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="item.tokenize"
+                    {% else %}
+                    v-model="item.tokenize"
+                    {% endif %}
+                />
                 {% endblock %}
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_tokenize_label %}
                 <sw-icon
                     v-if="item.tokenize"
                     class="is--active"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                 />
                 <sw-icon
                     v-else
                     class="is--inactive"
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                 />
                 {% endblock %}
@@ -152,8 +192,10 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_content_customfields_columns_actions %}
         <template #actions="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_columns_actions_edit %}
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
@@ -164,6 +206,7 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_columns_actions_delete %}
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-remove"

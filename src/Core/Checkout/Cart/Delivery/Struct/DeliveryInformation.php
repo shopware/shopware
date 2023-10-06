@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class DeliveryInformation extends Struct
 {
     /**
@@ -12,7 +14,7 @@ class DeliveryInformation extends Struct
     protected $stock;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $weight;
 
@@ -48,7 +50,7 @@ class DeliveryInformation extends Struct
 
     public function __construct(
         int $stock,
-        float $weight,
+        ?float $weight,
         bool $freeDelivery,
         ?int $restockTime = null,
         ?DeliveryTime $deliveryTime = null,
@@ -76,7 +78,7 @@ class DeliveryInformation extends Struct
         $this->stock = $stock;
     }
 
-    public function getWeight(): float
+    public function getWeight(): ?float
     {
         return $this->weight;
     }

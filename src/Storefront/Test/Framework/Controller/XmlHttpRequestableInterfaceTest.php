@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Framework\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 
+/**
+ * @internal
+ */
 class XmlHttpRequestableInterfaceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -30,7 +33,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
-        $client->request('GET', 'http://localhost/widgets/checkout/info');
+        $client->request('GET', 'http://localhost/checkout/offcanvas');
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }
@@ -39,7 +42,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
-        $client->xmlHttpRequest('GET', 'http://localhost/widgets/checkout/info');
+        $client->xmlHttpRequest('GET', 'http://localhost/checkout/offcanvas');
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }

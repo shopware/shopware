@@ -3,33 +3,25 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class LineItemGroupBuilder
 {
-    private LineItemGroupServiceRegistry $registry;
-
-    private LineItemGroupRuleMatcherInterface $ruleMatcher;
-
-    private LineItemQuantitySplitter $quantitySplitter;
-
-    private AbstractProductLineItemProvider $lineItemProvider;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        LineItemGroupServiceRegistry $registry,
-        LineItemGroupRuleMatcherInterface $ruleMatcher,
-        LineItemQuantitySplitter $lineItemQuantitySplitter,
-        AbstractProductLineItemProvider $lineItemProvider
+        private readonly LineItemGroupServiceRegistry $registry,
+        private readonly LineItemGroupRuleMatcherInterface $ruleMatcher,
+        private readonly LineItemQuantitySplitter $quantitySplitter,
+        private readonly AbstractProductLineItemProvider $lineItemProvider
     ) {
-        $this->registry = $registry;
-        $this->ruleMatcher = $ruleMatcher;
-        $this->quantitySplitter = $lineItemQuantitySplitter;
-        $this->lineItemProvider = $lineItemProvider;
     }
 
     /**
@@ -110,7 +102,7 @@ class LineItemGroupBuilder
             $lineItemsToRemove[$itemToRemove->getLineItemId()] = $itemToRemove;
         }
 
-        /** @var array $lineItemsToRemoveIDs */
+        /** @var array<string> $lineItemsToRemoveIDs */
         $lineItemsToRemoveIDs = array_keys($lineItemsToRemove);
 
         $newRestOfCart = new LineItemFlatCollection();
@@ -163,8 +155,7 @@ class LineItemGroupBuilder
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     private function splitQuantities(LineItemCollection $cartItems, SalesChannelContext $context): LineItemFlatCollection
     {

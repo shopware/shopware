@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_color_badge %}
 <span
     class="sw-color-badge"
@@ -5,6 +6,9 @@
     v-bind="$attrs"
     :style="colorStyle"
 >
-    <slot>{% block sw_color_badfge_slot_default %}{% endblock %}</slot>
+    <slot>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_color_badfge_slot_default %}{% endblock %}
+    </slot>
 </span>
 {% endblock %}

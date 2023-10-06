@@ -2,18 +2,29 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * @phpstan-type ErrorData array{status: string, code: string, title: string, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
+ */
+#[Package('core')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $parameters = [];
 
-    public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)
-    {
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function __construct(
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         $this->parameters = $parameters;
         $message = $this->parse($message, $parameters);
 
@@ -30,17 +41,31 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         yield $this->getCommonErrorData($withTrace);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function getParameter(string $key)
+    {
+        return $this->parameters[$key] ?? null;
+    }
+
+    /**
+     * @return ErrorData
+     */
     protected function getCommonErrorData(bool $withTrace = false): array
     {
         $error = [
             'status' => (string) $this->getStatusCode(),
             'code' => $this->getErrorCode(),
-            'title' => Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status',
+            'title' => (string) (Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status'),
             'detail' => $this->getMessage(),
             'meta' => [
                 'parameters' => $this->getParameters(),
@@ -54,18 +79,22 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         return $error;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function parse(string $message, array $parameters = []): string
     {
         $regex = [];
+
         foreach ($parameters as $key => $value) {
             if (\is_array($value)) {
                 continue;
             }
 
-            $key = preg_replace('/[^a-z]/i', '', $key);
-            $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $key)] = $value;
+            $formattedKey = preg_replace('/[^a-z]/i', '', $key);
+            $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $formattedKey)] = $value;
         }
 
-        return preg_replace(array_keys($regex), array_values($regex), $message);
+        return (string) preg_replace(array_keys($regex), array_values($regex), $message);
     }
 }

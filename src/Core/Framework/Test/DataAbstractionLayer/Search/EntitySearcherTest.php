@@ -2,38 +2,39 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $groupRepository;
+    private EntityRepository $groupRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
@@ -41,6 +42,117 @@ class EntitySearcherTest extends TestCase
 
         $this->groupRepository = $this->getContainer()->get('property_group.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
+    }
+
+    public function testScoringWithToManyAssociation(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $products = [
+            (new ProductBuilder($ids, 'john'))
+                ->tag('tag1')
+                ->tag('tag2')
+                ->tag('tag3')
+                ->name('John')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'john.doe'))->name('John Doe')->price(100)->build(),
+            (new ProductBuilder($ids, 'doe'))->name('Doe')
+                ->category('cat1')
+                ->category('cat2')
+                ->category('cat3')
+                ->tag('tag1')
+                ->tag('tag2')
+                ->tag('tag3')
+                ->price(100)->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'John'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Doe'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('tags.name', 'Doe'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('categories.name', 'Doe'), 100));
+
+        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(100, $result->getScore($ids->get('john')));
+        static::assertEquals(200, $result->getScore($ids->get('john.doe')));
+        static::assertEquals(100, $result->getScore($ids->get('doe')));
+    }
+
+    public function testIdSearchResultHelpers(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $products = [
+            (new ProductBuilder($ids, 'john'))->price(100)->build(),
+            (new ProductBuilder($ids, 'john.doe'))->name('John Doe')->price(100)->build(),
+            (new ProductBuilder($ids, 'doe'))->name('Doe')->price(100)->build(),
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->getContainer()->get('product.repository')
+            ->create($products, $context);
+
+        $criteria = new Criteria($ids->getList(['john', 'john.doe', 'doe']));
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        $exception = null;
+
+        try {
+            $result->getScore($ids->get('john'));
+        } catch (\Exception $exception) {
+        }
+        static::assertInstanceOf(\RuntimeException::class, $exception);
+
+        static::assertEquals([], $result->getDataOfId('not-exists'));
+        static::assertSame($context, $result->getContext());
+        static::assertEquals($criteria, $result->getCriteria());
+    }
+
+    public function testDataProperty(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria($ids->getList(['p1', 'p2']));
+        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+
+        $increments = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)) as id, auto_increment FROM product WHERE id IN (:ids)',
+            ['ids' => $ids->getByteList(['p1', 'p2'])],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
+        $data = $result->getData();
+        static::assertArrayHasKey($ids->get('p1'), $data);
+        static::assertArrayHasKey('productNumber', $data[$ids->get('p1')]);
+        static::assertArrayHasKey('autoIncrement', $data[$ids->get('p1')]);
+
+        static::assertArrayHasKey($ids->get('p2'), $data);
+        static::assertArrayHasKey('productNumber', $data[$ids->get('p2')]);
+        static::assertArrayHasKey('autoIncrement', $data[$ids->get('p2')]);
+        static::assertEquals($increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
+        static::assertEquals($increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -461,13 +573,45 @@ class EntitySearcherTest extends TestCase
 
         static::assertNotEmpty($result->getIds());
 
+        /** @var array<string, string> $ids */
         foreach ($result->getIds() as $ids) {
-            static::assertArrayHasKey('product_id', $ids);
-            static::assertArrayHasKey('category_id', $ids);
             static::assertArrayHasKey('productId', $ids);
             static::assertArrayHasKey('categoryId', $ids);
-            static::assertEquals($ids['categoryId'], $ids['category_id']);
-            static::assertEquals($ids['productId'], $ids['product_id']);
         }
+    }
+
+    public function testWithCriteriaLimitOfZero(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100);
+
+        $repository = $this->getContainer()->get('product.repository');
+
+        $repository->create([$product->build()], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->setLimit(0);
+
+        $connection = $this->createMock(Connection::class);
+        // connection should not be used if limit is 0
+        $connection->expects(static::never())
+            ->method('executeQuery');
+        $connection->expects(static::never())
+            ->method('getDatabasePlatform');
+
+        $searcher = new EntitySearcher(
+            $connection,
+            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
+            $this->getContainer()->get(CriteriaQueryBuilder::class),
+        );
+
+        $result = $searcher->search(
+            $this->getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        static::assertEquals(0, $result->getTotal());
     }
 }

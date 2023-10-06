@@ -1,0 +1,18 @@
+// Normal font
+@use "~inter-ui/default" as inter-ui with (
+  $inter-font-display: swap,
+  $inter-font-path: '~inter-ui/Inter (web)',
+);
+
+// Variable font
+@use "~inter-ui/variable" as inter-ui-variable with (
+  $inter-font-display: swap,
+  $inter-font-path: '~inter-ui/Inter (web)',
+  $inter-font-variable-suffix: '.variable'
+);
+
+@include inter-ui.weight-400;
+@include inter-ui.weight-500;
+@include inter-ui.weight-600;
+@include inter-ui.weight-700;
+@include inter-ui-variable.default;

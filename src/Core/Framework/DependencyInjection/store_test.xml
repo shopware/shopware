@@ -6,12 +6,25 @@
     <services>
         <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
 
-        <service id="shopware.store_client" class="GuzzleHttp\Client">
+        <service id="shopware.store_client" class="GuzzleHttp\Client" public="true">
             <argument type="collection">
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create"/>
                         <argument type="service" id="shopware.store.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="shopware.frw.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
+
+        <service id="shopware.frw_client" class="GuzzleHttp\Client" public="true">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.frw.mock_handler"/>
                     </service>
                 </argument>
             </argument>

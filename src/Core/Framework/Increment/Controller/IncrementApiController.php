@@ -2,36 +2,32 @@
 
 namespace Shopware\Core\Framework\Increment\Controller;
 
+use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class IncrementApiController
 {
-    private IncrementGatewayRegistry $gatewayRegistry;
-
-    public function __construct(IncrementGatewayRegistry $gatewayRegistry)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly IncrementGatewayRegistry $gatewayRegistry)
     {
-        $this->gatewayRegistry = $gatewayRegistry;
     }
 
-    /**
-     * @Since("6.4.6.0")
-     * @Route("/api/_action/increment/{pool}", name="api.increment.increment", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', methods: ['POST'])]
     public function increment(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
 
         if (!$key || !\is_string($key)) {
-            throw new \InvalidArgumentException('Increment key must be null or a string');
+            throw IncrementException::keyParameterIsMissing();
         }
 
         $cluster = $this->getCluster($request);
@@ -43,16 +39,13 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     * @Route("/api/_action/decrement/{pool}", name="api.increment.decrement", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', methods: ['POST'])]
     public function decrement(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
 
         if (!$key || !\is_string($key)) {
-            throw new \InvalidArgumentException('Increment key must be null or a string');
+            throw IncrementException::keyParameterIsMissing();
         }
 
         $cluster = $this->getCluster($request);
@@ -67,10 +60,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     * @Route("/api/_action/increment/{pool}", name="api.increment.list", methods={"GET"})
-     */
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', methods: ['GET'])]
     public function getIncrement(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);
@@ -85,10 +75,7 @@ class IncrementApiController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     * @Route("/api/_action/reset-increment/{pool}", name="api.increment.reset", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', methods: ['POST'])]
     public function reset(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);
@@ -97,7 +84,7 @@ class IncrementApiController
         $key = $request->request->get('key');
 
         if ($key !== null && !\is_string($key)) {
-            throw new \InvalidArgumentException('Increment key must be null or a string');
+            throw IncrementException::keyParameterIsMissing();
         }
 
         $poolGateway->reset($cluster, $key);
@@ -113,6 +100,6 @@ class IncrementApiController
             return $cluster;
         }
 
-        throw new \InvalidArgumentException('Argument cluster is missing or invalid');
+        throw IncrementException::clusterParameterIsMissing();
     }
 }

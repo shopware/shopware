@@ -1,12 +1,15 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_delivery_time_detail %}
 <sw-page class="sw-settings-delivery-time-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_smart_bar_header %}
     <template #smart-bar-header>
         <h2>{{ displayName }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -16,9 +19,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -28,6 +33,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_delivery_time_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -36,7 +42,11 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-delivery-time.general.buttonSave') }}
@@ -45,6 +55,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_delivery_time_detail_content %}
     <template #content>
         <sw-card-view>
@@ -52,6 +63,7 @@
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_language_info %}
                 <sw-language-info
                     :entity-description="displayName"
@@ -59,6 +71,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_detail_form %}
                 <sw-card
                     :is-loading="isLoading"
@@ -66,9 +79,14 @@
                 >
                     <template v-if="deliveryTime">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_name_field %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="deliveryTime.name"
+                            {% else %}
                             v-model="deliveryTime.name"
+                            {% endif %}
                             :label="$tc('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"
                             :disabled="!acl.can('delivery_times.editor')"
@@ -76,9 +94,14 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_unit_field %}
                         <sw-single-select
+                            {% if VUE3 %}
+                            v-model:value="deliveryTime.unit"
+                            {% else %}
                             v-model="deliveryTime.unit"
+                            {% endif %}
                             class="sw-delivery-time-detail__field-unit"
                             :options="deliveryTimeUnits"
                             :error="deliveryTimeUnitError"
@@ -89,15 +112,21 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_min_max_container %}
                         <sw-container
                             columns="1fr 1fr"
                             gap="30px"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_min_field %}
                             <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="deliveryTime.min"
+                                {% else %}
                                 v-model="deliveryTime.min"
+                                {% endif %}
                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
@@ -107,9 +136,14 @@
                             />
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_max_field %}
                             <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="deliveryTime.max"
+                                {% else %}
                                 v-model="deliveryTime.max"
+                                {% endif %}
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"
@@ -123,6 +157,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_delivery_time_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

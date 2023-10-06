@@ -1,9 +1,14 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Storefront\Test\Framework\Twig\Extension;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @internal
+ */
 class SlugifyExtensionTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -16,7 +21,10 @@ class SlugifyExtensionTwigFilterTest extends TestCase
         static::assertEquals($expected, $this->renderTestTemplate($input), 'Slugify needed for plugins missing or invalid.');
     }
 
-    public function sampleAnchorIdProvider(): array
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function sampleAnchorIdProvider(): array
     {
         return [
             ['', ''],

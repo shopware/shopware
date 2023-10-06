@@ -10,9 +10,12 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class TagEntity extends Entity
 {
     use EntityIdTrait;
@@ -61,6 +64,11 @@ class TagEntity extends Entity
      * @var LandingPageCollection|null
      */
     protected $landingPages;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $rules;
 
     public function getName(): string
     {
@@ -150,5 +158,15 @@ class TagEntity extends Entity
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
+    }
+
+    public function getRules(): ?RuleCollection
+    {
+        return $this->rules;
+    }
+
+    public function setRules(RuleCollection $rules): void
+    {
+        $this->rules = $rules;
     }
 }

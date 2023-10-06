@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,6 +11,10 @@ use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class SearchControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,7 +34,7 @@ class SearchControllerTest extends TestCase
         static::assertStringContainsString(htmlentities($term), $html);
     }
 
-    public function getProviderInvalidTerms(): iterable
+    public static function getProviderInvalidTerms(): iterable
     {
         yield ['<h1 style="color:red">Test</h1>'];
         yield ['<script\x20type="text/javascript">javascript:alert(1);</script>'];

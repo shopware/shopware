@@ -3,6 +3,9 @@ import template from './sw-confirm-modal.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -12,11 +15,12 @@ const { Component } = Shopware;
  *     class="sw-my-component__confirm-delete-modal"
  *     type="delete"
  *     :text="Are you sure you want to delete this?"
- *     @confirm="onConfirmCodeDelete(item.id)"
- *     @close="onCloseDeleteModal"
- *     @cancel="onCloseDeleteModal">
+ *     \@confirm="onConfirmCodeDelete(item.id)"
+ *     \@close="onCloseDeleteModal"
+ *     \@cancel="onCloseDeleteModal">
  * </sw-confirm-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-confirm-modal', {
     template,
 
@@ -24,25 +28,19 @@ Component.register('sw-confirm-modal', {
         title: {
             type: String,
             required: false,
-            default() {
-                return '';
-            },
+            default: '',
         },
 
         text: {
             type: String,
             required: false,
-            default() {
-                return '';
-            },
+            default: '',
         },
 
         variant: {
             type: String,
             required: false,
-            default() {
-                return 'small';
-            },
+            default: 'small',
             validValues: ['default', 'small', 'large', 'full'],
             validator(value) {
                 if (!value.length) {
@@ -55,15 +53,13 @@ Component.register('sw-confirm-modal', {
         type: {
             type: String,
             required: false,
-            default() {
-                return 'confirm';
-            },
-            validValues: ['confirm', 'delete', 'yesno'],
+            default: 'confirm',
+            validValues: ['confirm', 'delete', 'yesno', 'discard'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['confirm', 'delete', 'yesno'].includes(value);
+                return ['confirm', 'delete', 'yesno', 'discard'].includes(value);
             },
         },
     },
@@ -91,6 +87,8 @@ Component.register('sw-confirm-modal', {
                     return this.$tc('global.default.delete');
                 case 'yesno':
                     return this.$tc('global.default.yes');
+                case 'discard':
+                    return this.$tc('global.default.discard');
                 default:
                     return this.$tc('global.default.confirm');
             }
@@ -102,6 +100,16 @@ Component.register('sw-confirm-modal', {
             }
 
             return this.$tc('global.default.cancel');
+        },
+
+        confirmButtonVariant() {
+            switch (this.type) {
+                case 'delete':
+                case 'discard':
+                    return 'danger';
+                default:
+                    return 'primary';
+            }
         },
     },
 });

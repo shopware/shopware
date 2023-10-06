@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { privileges } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { Module } from 'vuex';
 
@@ -12,13 +16,17 @@ interface ContextState {
         config: {
             adminWorker: null | {
                 enableAdminWorker: boolean,
+                enableQueueStatsWorker: boolean,
+                enableNotificationWorker: boolean,
                 transports: string[]
             },
             bundles: null | {
                 [BundleName: string]: {
                     css: string | string[],
                     js: string | string[],
-                    permissions: privileges,
+                    permissions?: privileges,
+                    integrationId?: string,
+                    active?: boolean,
                 }
             },
             version: null | string,
@@ -32,6 +40,9 @@ interface ContextState {
         firstRunWizard: null | boolean,
         systemCurrencyISOCode: null | string,
         systemCurrencyId: null | string,
+        disableExtensions: boolean,
+        /** @deprecated tag:v6.6.0 - Will be removed. Use cookie `lastActivity` instead */
+        lastActivity: number,
     },
     api: {
         apiPath: null | string,
@@ -45,10 +56,13 @@ interface ContextState {
         languageId: null | string,
         language: null | {
             name: string,
+            parentId?: string,
         },
         apiVersion: null | string,
         liveVersionId: null | string,
         systemLanguageId: null | string,
+        currencyId: null | string,
+        versionId: null | string,
     }
 }
 
@@ -69,6 +83,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             firstRunWizard: null,
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
+            disableExtensions: false,
+            lastActivity: 0,
         },
         api: {
             apiPath: null,
@@ -84,6 +100,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             apiVersion: null,
             liveVersionId: null,
             systemLanguageId: null,
+            currencyId: null,
+            versionId: null,
         },
     }),
 
@@ -154,6 +172,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         setAppConfigAdminWorker(state, value: {
             enableAdminWorker: boolean,
+            enableQueueStatsWorker: boolean,
+            enableNotificationWorker: boolean,
             transports: string[]
         }) {
             state.app.config.adminWorker = value;
@@ -181,6 +201,18 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state: ContextState,
             { key, value }: { key: K, value: ContextState['app'][K] },
         ) {
+            if (value === 'true') {
+                state.app[key] = true as ContextState['app'][K];
+
+                return;
+            }
+
+            if (value === 'false') {
+                state.app[key] = false as ContextState['app'][K];
+
+                return;
+            }
+
             state.app[key] = value;
         },
 
@@ -215,5 +247,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ContextStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ContextState };

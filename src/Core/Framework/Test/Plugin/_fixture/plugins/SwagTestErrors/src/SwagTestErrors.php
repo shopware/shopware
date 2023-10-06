@@ -4,6 +4,9 @@ namespace Swag\Test;
 
 use Shopware\Core\Framework\Plugin;
 
+/**
+ * @internal
+ */
 class SwagTestErrors extends Plugin
 {
 }

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 interface TemplateNamespaceHierarchyBuilderInterface
 {
     /**
@@ -14,9 +17,9 @@ interface TemplateNamespaceHierarchyBuilderInterface
      *     'MyOwnTheme',
      * ]
      *
-     * @param string[] $namespaceHierarchy
+     * @param array<string> $namespaceHierarchy
      *
-     * @return string[]
+     * @return array<string>
      */
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array;
 }

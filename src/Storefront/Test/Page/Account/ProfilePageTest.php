@@ -10,6 +10,9 @@ use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProfilePageTest extends TestCase
 {
     use IntegrationTestBehaviour;

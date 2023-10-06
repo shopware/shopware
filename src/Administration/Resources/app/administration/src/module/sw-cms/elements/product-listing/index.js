@@ -1,9 +1,31 @@
-import './component';
-import './config';
-import './preview';
-import './config/components/sw-cms-el-config-product-listing-config-sorting-grid';
-import './config/components/sw-cms-el-config-product-listing-config-filter-properties-grid';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-preview-product-listing', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-config-product-listing', () => import('./config'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-product-listing', () => import('./component'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register(
+    'sw-cms-el-config-product-listing-config-sorting-grid',
+    () => import('./config/components/sw-cms-el-config-product-listing-config-sorting-grid'),
+);
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',
     label: 'sw-cms.elements.productListing.label',

@@ -16,6 +16,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class ContactFormServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,8 +36,6 @@ class ContactFormServiceTest extends TestCase
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -90,8 +91,6 @@ class ContactFormServiceTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -132,8 +131,6 @@ class ContactFormServiceTest extends TestCase
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -176,8 +173,6 @@ class ContactFormServiceTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -218,8 +213,6 @@ class ContactFormServiceTest extends TestCase
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');

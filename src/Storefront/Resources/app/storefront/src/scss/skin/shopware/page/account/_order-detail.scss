@@ -10,7 +10,7 @@
             padding-right: $order-grid-gutter-width / 2;
             padding-left: $order-grid-gutter-width / 2;
 
-            @include media-breakpoint-down(xs) {
+            @include media-breakpoint-down(sm) {
                 padding-right: 0;
                 padding-left: 0;
             }

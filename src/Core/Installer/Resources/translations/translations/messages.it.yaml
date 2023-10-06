@@ -1,0 +1,138 @@
+shopware.installer:
+    header_title: Installazione
+    menuitem_language-selection: Avvia
+    menuitem_requirements: 'Requisiti di sistema'
+    menuitem_database-configuration: 'Configurazione database'
+    menuitem_database-import: Installazione
+    menuitem_edition: 'Licenza Shopware'
+    menuitem_configuration: Configurazione
+    menuitem_finish: Finito
+    menuitem_license: CGV
+    license_incorrect: 'La chiave di licenza inserita non è valida.'
+    license_does_not_match: 'La chiave di licenza inserita non è adatta ad alcuna versione commerciale dello Shopware'
+    license_domain_error: 'La chiave di licenza inserita non è valida per il dominio: '
+    version_text: 'Versione:'
+    back: Indietro
+    forward: Avanti
+    start: Avvia
+    start_installation: 'Avvia installazione'
+    select_language_de: Tedesco
+    select_language_en: Inglese (Regno Unito)
+    select_language_us: Inglese (Stati Uniti d'America)
+    select_language_nl: Olandese
+    select_language_it: Italiano
+    select_language_fr: Francese
+    select_language_es: Spagnolo
+    select_language_pt: Portoghese
+    select_language_pl: Polacco
+    select_language_cs: Ceco
+    select_language_sv: Svedese
+    select_language_nb: Norvegese
+    language-selection_welcome_title: 'Benvenuto in Shopware 6'
+    language-selection_select_language: 'Lingua dell’assistente di installazione'
+    language-selection_header: 'La tua installazione Shopware'
+    language-selection_info_message: 'Questa selezione si riferisce solo alla lingua dell’assistente di installazione. La lingua standard del sistema del tuo shop può essere definita in un secondo momento.'
+    language-selection_welcome_message: 'Siamo contenti di accoglierti nella nostra grandiosa Shopware Community mondiale! Ti accompagneremo passo passo lungo il processo di installazione. Per eventuali domande, ti preghiamo di consultare prima il nostro <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, di contattarci telefonicamente allo <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> o di inviarci una <a class="is--nowrap" href="mailto:info@shopware.com">mail</a>.'
+    requirements_header: 'Requisiti di sistema'
+    requirements_header_files: 'File e directory'
+    requirements_header_system: Sistema
+    requirements_files_info: 'I seguenti file e directory devono essere presenti e non devono essere protetti in scrittura.'
+    requirements_table_files_col_check: File/Directory
+    requirements_table_files_col_status: Stato
+    requirements_error: 'Non sono stati rispettati tutti i requisiti per l’installazione.'
+    requirements_error_title: 'Il tuo sistema non è ancora pronto per Shopware 6'
+    requirements_success: 'Sono stati rispettati tutti i requisiti per l’installazione.'
+    requirements_success_title: 'Il tuo sistema è pronto per Shopware 6'
+    requirements_php_info: 'Il tuo server deve soddisfare i seguenti requisiti di sistema per poter utilizzare appieno Shopware.'
+    requirements_php_max_compatible_version: 'Questa versione di Shopware supporta PHP fino alla versione %s. Non è possibile garantire una funzionalità completa con le versioni più recenti di PHP.'
+    requirements_system_col_check: Requisito
+    requirements_system_col_required: Necessario
+    requirements_system_col_found: 'Il tuo sistema'
+    requirements_system_col_status: Stato
+    requirements_show_all: '(mostra tutti)'
+    requirements_hide_all: '(nascondi tutti)'
+    requirements_status_error: Errore
+    requirements_status_warning: Avviso
+    requirements_status_ready: Pronto
+    license_agreement_header: 'Condizioni generali di vendita (“CGV”)'
+    license_agreement_info: 'Qui puoi trovare le nostre condizioni generali di vendita. Per continuare l''installazione di Shopware 6, è necessario prima leggere e accettare le CGV. La Community Edition di Shopware 6 è rilasciata secondo le condizioni della licenza MIT.'
+    license_agreement_error: 'Ti preghiamo di accettare le nostre CGV.'
+    license_agreement_checkbox: 'Accetto le CGV.'
+    database-configuration_header: 'Configurazione database'
+    database-configuration_field_host: 'Server:'
+    database-configuration_advanced_settings: 'Impostazioni estese'
+    database-configuration_field_port: 'Porta:'
+    database-configuration_field_user: 'Utente:'
+    database-configuration_field_password: 'Password:'
+    database-configuration_field_database: 'Nome database:'
+    database-configuration_field_new_database: 'Nuovo database:'
+    database-configuration_info: 'Per installare Shopware sul tuo sistema, ti servono i dati di accesso al tuo database. In caso di dubbi sui dati da inserire, contatta il tuo amministratore / hosting.'
+    database-configuration-create_new_database: 'Crea nuovo database'
+    database-configuration_non_empty_database: 'Il database selezionato contiene già i dati. Seleziona un database vuoto o creane uno nuovo.'
+    database-configuration_error_required_fields: 'Ti preghiamo di compilare tutti i campi.'
+    database-import_header: Installazione
+    database-import_skip_import: Salta
+    database-import_progress: 'Progresso: '
+    database-import-hint: '<strong>Avvertenza:</strong> Se nel database configurato sono già presenti tabelle Shopware, verranno rimosse attraverso l’installazione/l’aggiornamento!'
+    database-import_info_text: 'Shopware 6 è installato dal database selezionato. Questo processo può richiedere qualche minuto, a seconda del tuo sistema.'
+    database_import_success: 'Shopware 6 è stato installato con successo.'
+    database_import_install_label: 'Installazione database:'
+    database_import_install_step_text: Fase
+    database_import_install_from_text: di
+    migration_counter_text_migrations: 'Aggiornamento database in corso'
+    migration_counter_text_snippets: 'Aggiornamento moduli di testo in corso'
+    migration_update_success: 'Import database riuscito!'
+    edition_header: 'Hai già una licenza Shopware?'
+    edition_info: 'Shopware è disponibile nella <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> gratuita e nelle <a href="https://de.shopware.com/versionen/" target="_blank">edizioni Professional ed Enterprise</a> a pagamento.'
+    edition_ce: 'No, desidero utilizzare la <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a> gratuita.'
+    edition_cm: 'Sì, ho una licenza Shopware a pagamento (<a href="https://de.shopware.com/versionen/" target="_blank">Professional o Enterprise</a>).'
+    edition_license: 'Inserisci qui la tua chiave di licenza. La trovi nel tuo account Shopware sotto “Licenze" → “Licenze dei prodotti" → “Dettagli / Download":'
+    edition_license_error: 'Per l’installazione di una versione di Shopware a pagamento, è necessaria una licenza valida.'
+    configuration_header: Configurazione
+    configuration_sconfig_text: 'Quasi finito. Adesso devi solo definire alcune impostazioni fondamentali per il tuo shop, poi avrai concluso l’installazione.'
+    configuration_sconfig_name: 'Nome shop'
+    configuration_sconfig_name_info: 'Inserisci il nome del tuo shop'
+    configuration_sconfig_mail: 'Indirizzo e-mail dello shop:'
+    configuration_sconfig_mail_info: 'Inserisci l’indirizzo e-mail per la posta in uscita'
+    configuration_sconfig_domain: 'Dominio shop:'
+    configuration_sconfig_language: 'Lingua standard di sistema:'
+    configuration_sconfig_currency: 'Valuta standard:'
+    configuration_sconfig_currency_info: 'Questa valuta è normalmente utilizzata per i prezzi dei prodotti.'
+    configuration_admin_currency_eur: Euro
+    configuration_admin_currency_usd: 'Dollari (US)'
+    configuration_admin_currency_gbp: 'Sterlina britannica (GB)'
+    configuration_admin_currency_pln: 'Złoty polacco'
+    configuration_admin_currency_chf: 'Franco svizzero'
+    configuration_admin_currency_sek: 'Corona svedese'
+    configuration_admin_currency_dkk: 'Corona danese'
+    configuration_admin_currency_nok: 'Corona norvegese'
+    configuration_admin_currency_czk: 'Corona ceca'
+    configuration_admin_username: 'Nome login admin:'
+    configuration_admin_mail: 'Indirizzo e-mail admin:'
+    configuration_admin_firstName: 'Nome admin:'
+    configuration_admin_lastName: 'Cognome admin:'
+    configuration_defaults_warning: 'La lingua e la valuta standard di sistema non possono essere modificate in un secondo momento.'
+    configuration_email_help_text: 'Questo indirizzo e-mail verrà utilizzato per le mail in uscita del negozio.'
+    configuration_admin_currency_headline: 'Valute disponibili'
+    configuration_admin_currency_text: 'Aggiungi altre valute al tuo negozio Shopware. Se volete aggiungere altre valute in seguito, potete farlo in qualsiasi momento nell''amministrazione.'
+    configuration_admin_language_de: Tedesco
+    configuration_admin_language_en: Inglese
+    configuration_admin_password: 'Password admin:'
+    finish_header: 'Installazione completata'
+    finish_info: 'Installazione Shopware riuscita!'
+    finish_info_heading: Evvai!
+    finish_first_steps: 'Guida “Primi passi”'
+    finish_frontend: 'Vai allo storefront'
+    finish_backend: 'Vai alla Administration (gestione)'
+    finish_message: "
+        <p>
+            <strong>Benvenuto in Shopware,</strong>
+        </p>
+        <p>
+            siamo lieti di accoglierti nella nostra Community. Hai installato Shopware correttamente!
+        <p>
+            Il tuo shop è ora pronto per l’utilizzo. Se non conosci ancora bene Shopware, ti suggeriamo di consultare la guida <a href=\"https://docs.shopware.com/en/shopware-6-en/first-steps/welcome-to-shopware\" target=\"_blank\">“Primi passi in Shopware\"</a>. Se è la prima volta che ti colleghi a Gestione, il nostro First Run Wizard ti accompagnerà lungo la creazione del tuo shop.
+        </p>
+        <p>
+            Ti auguriamo buon divertimento e tanto successo con il tuo shop online!
+        </p>"

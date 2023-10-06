@@ -6,14 +6,15 @@
                     <ul class="nav nav-tabs product-detail-tab-navigation-list"
                         id="product-detail-cross-selling-tabs"
                         role="tablist">
-                        {% for item in crossSellings|filter(item => item.total > 0 and item.crossSelling.active == true)  %}
+                        {% for item in crossSellings|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                             {% set id = item.crossSelling.id %}
                             <li class="nav-item">
                                 <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
                                    id="cs-{{ id }}-tab"
-                                   data-toggle="tab"
+                                   data-bs-toggle="tab"
                                    href="#cs-{{ id }}-tab-pane"
                                    role="tab"
+                                   title="{{ item.crossSelling.name }}"
                                    aria-controls="cs-{{ id }}-tab-pane"
                                    aria-selected="true">
                                     {{ item.crossSelling.translated.name }}
@@ -40,7 +41,7 @@
                                  aria-labelledby="cs-{{ id }}-tab">
                                 {% set config = {
                                     'title': {
-                                        'value': item.crossSelling.name
+                                        'value': item.crossSelling.name ?: item.crossSelling.translated.name
                                     },
                                     'border': {
                                         'value': false

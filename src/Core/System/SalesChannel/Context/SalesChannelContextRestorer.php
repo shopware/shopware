@@ -2,144 +2,212 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Checkout\Cart\Cart;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('core')]
 class SalesChannelContextRestorer
 {
     /**
-     * @var AbstractSalesChannelContextFactory
+     * @internal
      */
-    private $factory;
-
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var CartRuleLoader
-     */
-    private $cartRuleLoader;
-
     public function __construct(
-        AbstractSalesChannelContextFactory $factory,
-        SalesChannelContextPersister $contextPersister,
-        CartService $cartService,
-        CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher
+        private readonly AbstractSalesChannelContextFactory $factory,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly OrderConverter $orderConverter,
+        private readonly EntityRepository $orderRepository,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->factory = $factory;
-        $this->contextPersister = $contextPersister;
-        $this->cartService = $cartService;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
+    /**
+     * @param array<string> $overrideOptions
+     *
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function restoreByOrder(string $orderId, Context $context, array $overrideOptions = []): SalesChannelContext
     {
-        $customerPayload = $this->contextPersister->load(
-            $currentContext->getToken(),
-            $currentContext->getSalesChannel()->getId(),
-            $customerId
+        $order = $this->getOrderById($orderId, $context);
+        if ($order === null) {
+            throw OrderException::orderNotFound($orderId);
+        }
+
+        if ($order->getOrderCustomer() === null) {
+            throw OrderException::missingAssociation('orderCustomer');
+        }
+
+        $customer = $order->getOrderCustomer()->getCustomer();
+        $customerGroupId = null;
+        if ($customer) {
+            $customerGroupId = $customer->getGroupId();
+        }
+
+        $billingAddress = $order->getBillingAddress();
+        $countryStateId = null;
+        if ($billingAddress) {
+            $countryStateId = $billingAddress->getCountryStateId();
+        }
+
+        $options = [
+            SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
+            SalesChannelContextService::LANGUAGE_ID => $order->getLanguageId(),
+            SalesChannelContextService::CUSTOMER_ID => $order->getOrderCustomer()->getCustomerId(),
+            SalesChannelContextService::COUNTRY_STATE_ID => $countryStateId,
+            SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
+        ];
+
+        if ($paymentMethodId = $this->getPaymentMethodId($order)) {
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
+        }
+
+        $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
+        if ($delivery !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        }
+
+        $options = array_merge($options, $overrideOptions);
+
+        $salesChannelContext = $this->factory->create(
+            Uuid::randomHex(),
+            $order->getSalesChannelId(),
+            $options
         );
 
-        if (empty($customerPayload) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
-            return $this->replaceContextToken($customerId, $currentContext);
+        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
+        $salesChannelContext->addState(...$context->getStates());
+
+        if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
+            $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
         }
 
-        $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannel()->getId(), $customerPayload);
-        if ($customerPayload['expired'] ?? false) {
-            $customerContext = $this->replaceContextToken($customerId, $customerContext);
+        if ($order->getItemRounding() !== null) {
+            $salesChannelContext->setItemRounding($order->getItemRounding());
         }
 
-        $guestCart = $this->cartService->getCart($currentContext->getToken(), $currentContext);
-        $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
-
-        if ($guestCart->getLineItems()->count() > 0) {
-            $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
-        } else {
-            $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
+        if ($order->getTotalRounding() !== null) {
+            $salesChannelContext->setTotalRounding($order->getTotalRounding());
         }
 
-        $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));
-
-        $this->deleteGuestContext($currentContext);
-
-        $errors = $restoredCart->getErrors();
-        $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());
-
-        $cartWithErrors = $result->getCart();
-        $cartWithErrors->setErrors($errors);
-        $this->cartService->setCart($cartWithErrors);
-
-        $this->eventDispatcher->dispatch(new SalesChannelContextRestoredEvent($customerContext));
-
-        return $customerContext;
-    }
-
-    private function mergeCart(Cart $customerCart, Cart $guestCart, SalesChannelContext $customerContext): Cart
-    {
-        $mergeableLineItems = $guestCart->getLineItems()->filter(function (LineItem $item) use ($customerCart) {
-            return ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId());
-        });
-
-        $errors = $customerCart->getErrors();
-        $customerCart->setErrors(new ErrorCollection());
-
-        $customerCartClone = clone $customerCart;
-        $customerCart->setErrors($errors);
-        $customerCartClone->setErrors($errors);
-
-        $mergedCart = $this->cartService->add($customerCart, $mergeableLineItems->getElements(), $customerContext);
-
-        $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext, $customerCartClone));
-
-        return $mergedCart;
-    }
-
-    private function replaceContextToken(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
-    {
-        $newToken = $this->contextPersister->replace($currentContext->getToken(), $currentContext);
-
-        $currentContext->assign([
-            'token' => $newToken,
-        ]);
-
-        $this->contextPersister->save(
-            $newToken,
-            [
-                'customerId' => $customerId,
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ],
-            $currentContext->getSalesChannel()->getId(),
-            $customerId
+        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $this->cartRuleLoader->loadByCart(
+            $salesChannelContext,
+            $cart,
+            new CartBehavior($salesChannelContext->getPermissions()),
+            true
         );
 
-        return $currentContext;
+        return $salesChannelContext;
     }
 
-    private function deleteGuestContext(SalesChannelContext $guestContext): void
+    /**
+     * @param array<string> $overrideOptions
+     *
+     * @throws Exception
+     */
+    public function restoreByCustomer(string $customerId, Context $context, array $overrideOptions = []): SalesChannelContext
     {
-        $this->cartService->deleteCart($guestContext);
-        $this->contextPersister->delete($guestContext->getToken());
+        $customer = $this->connection->createQueryBuilder()
+            ->select([
+                'LOWER(HEX(language_id))',
+                'LOWER(HEX(customer_group_id))',
+                'LOWER(HEX(sales_channel_id))',
+            ])
+            ->from('customer')
+            ->where('id = :id')
+            ->setParameter('id', Uuid::fromHexToBytes($customerId))
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if (!$customer) {
+            throw SalesChannelException::customerNotFoundByIdException($customerId);
+        }
+
+        [$languageId, $groupId, $salesChannelId] = array_values($customer);
+        $options = [
+            SalesChannelContextService::LANGUAGE_ID => $languageId,
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::CUSTOMER_GROUP_ID => $groupId,
+            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
+        ];
+
+        $options = array_merge($options, $overrideOptions);
+
+        $token = Uuid::randomHex();
+        $salesChannelContext = $this->factory->create(
+            $token,
+            $salesChannelId,
+            $options
+        );
+
+        $this->cartRuleLoader->loadByToken($salesChannelContext, $token);
+        $salesChannelContext->getContext()->addState(...$context->getStates());
+
+        return $salesChannelContext;
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getOrderById(string $orderId, Context $context): ?OrderEntity
+    {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('currency')
+            ->addAssociation('deliveries')
+            ->addAssociation('language.locale')
+            ->addAssociation('orderCustomer.customer')
+            ->addAssociation('billingAddress')
+            ->addAssociation('transactions');
+
+        $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
+
+        /** @var OrderEntity|null $orderEntity */
+        $orderEntity = $this->orderRepository->search($criteria, $context)
+            ->get($orderId);
+
+        return $orderEntity;
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getPaymentMethodId(OrderEntity $order): ?string
+    {
+        $transactions = $order->getTransactions();
+        if ($transactions === null) {
+            throw OrderException::missingAssociation('transactions');
+        }
+
+        foreach ($transactions as $transaction) {
+            if ($transaction->getStateMachineState() !== null
+                && ($transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_CANCELLED
+                    || $transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_FAILED)
+            ) {
+                continue;
+            }
+
+            return $transaction->getPaymentMethodId();
+        }
+
+        return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
     }
 }

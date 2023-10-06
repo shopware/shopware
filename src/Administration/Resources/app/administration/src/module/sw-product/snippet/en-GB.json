@@ -29,7 +29,7 @@
       "textAdvancedMode": "Advanced mode"
     },
     "basicForm": {
-      "labelTitle": "Title",
+      "labelTitle": "Name",
       "labelDescription": "Description",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
@@ -83,7 +83,7 @@
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre",
       "taxRateHelpText": {
-        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
+        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. If you activated a tax provider the defined tax rate may be overwritten. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
         "linkText": "settings"
       }
     },
@@ -98,7 +98,7 @@
       "placeholderKeywords": "Enter one or more keywords...",
       "placeholderCanonicalProduct": "Select a variant...",
       "helpTextMetaTitle": "The meta title is the most important SEO element and should be unique for each page. You should limit yourself in length to a maximum of 56 characters. Your keyword should ideally be placed at the very front.",
-      "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters.",
+      "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters. Shopware allows a maximum length of 255 characters.",
       "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found."
     },
     "settingsForm": {
@@ -115,7 +115,7 @@
       "labelStock": "Stock",
       "labelActive": "Active for all selected Sales Channels",
       "labelShippingFree": "Free shipping",
-      "labelMarkAsTopseller": "Product promotion",
+      "labelMarkAsTopseller": "Highlight product",
       "labelIsCloseout": "Clearance sale",
       "isCloseoutHelpText": "Backorders denied.",
       "labelDeliveryTime": "Delivery time",
@@ -140,10 +140,10 @@
     "packagingForm": {
       "placeholderUnit": "Select...",
       "labelUnit": "Scale unit",
-      "referenceUnitHelpText": "Value used to calculate a unit price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the unit price for 1 liter of product. '0.1' would calculate the unit price for 100 milliliters and so on.",
+      "referenceUnitHelpText": "Required to calculate the product's unit price. The base value to be entered depends on the selected scale unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
-      "packUnitPluralHelpText": "Type of packing in plural: e.g. bottles, crates ...",
-      "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.5 l = 3 l), put '3'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
+      "packUnitPluralHelpText": "Type of packing (plural): e.g. bottles, crates, tins...",
+      "purchaseUnitHelpText": "Required to calculate the product's unit price. The value to be entered depends on the selected scale unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
@@ -156,16 +156,23 @@
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
+      "cardSubtitleMedia": "Add files to the product's media gallery.",
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO",
-      "cardTitleVisibilityStructure": "Visibility Structure"
+      "cardTitleVisibilityStructure": "Visibility Structure",
+      "cardTitleDownloads": "Files",
+      "cardSubtitleDownloads": "Add files to your digital product.",
+      "downloadsLabel": "File upload",
+      "manageStockLabel": "Manage stock",
+      "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Measures & packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
-      "cardTitleCustomProduct": "Custom Products"
+      "cardTitleCustomProduct": "Custom Products",
+      "cardTitleDownloads": "Files"
     },
     "seo": {
       "cardTitleSeo": "SEO"
@@ -211,8 +218,8 @@
     },
     "list": {
       "textProductOverview": "Products",
-      "textTotalProducts": "No products | One product | {count} products",
       "buttonAddProduct": "Add product",
+      "buttonAddDownloadableProduct": "Add digital product",
       "buttonCancel": "Cancel",
       "buttonDuplicate": "Duplicate",
       "buttonDelete": "Delete",
@@ -223,8 +230,16 @@
       "columnPrice": "Price",
       "columnInStock": "In stock",
       "columnAvailableStock": "Available",
+      "columnCreatedAt": "Created at",
+      "columnUpdatedAt": "Updated at",
+      "columnReleaseDate": "Release date",
+      "columnVisibilities": "Sales Channels",
+      "columnCategories": "Categories",
+      "columnTags": "Tags",
       "columnActions": "Action(s)",
       "columnMedia": "Media",
+      "columnSales": "Sales",
+      "columnDownloadsTooltip": "Digital products must have at least one file attached.",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -277,7 +292,7 @@
     "advancedPrices": {
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
-      "advancedPricesNotExisting": "No advanced prices available for this product yet.",
+      "advancedPricesNotExisting": "No advanced prices have been set yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
       "columnType": "Type",
@@ -288,7 +303,9 @@
       "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
       "advancedListPricePriceLabel": "Price",
       "advancedListPriceLabel": "List price",
-      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1."
+      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1.",
+      "labelRegulationPrice": "Cheapest price (last 30 days)",
+      "ruleAlreadyUsed": "This rule is already used for a price rule."
     },
     "properties": {
       "cardTitleProperties": "Available properties",
@@ -305,6 +322,7 @@
       "buttonAddProperty": "Configure properties",
       "buttonAddProperties": "Configure properties",
       "titleEmptyState": "No properties assigned to this product yet.",
+      "titleEmptyStateList": "No properties found.",
       "columnProperty": "Property",
       "columnValue": "Property value",
       "placeholderSearchAddedProperties": "Search added properties...",
@@ -315,28 +333,32 @@
       }
     },
     "variations": {
+      "generatedListColumnDownload": "Files",
       "emptyStateTitle": "This product has no variants yet.",
       "emptyStateDescription": "Manage product variants here.",
       "emptyStatePropertyTitle": "No properties have been created yet",
       "emptyStatePropertyDescription": "Please create properties first to be able to use them for variant generation.",
-      "emptyStateButton": "Start variant generator",
+      "emptyStateButton": "Generate variants",
       "emptyStatePropertyButton": "Create properties",
-      "generateVariationsButton": "Generate variants",
-      "deleteVariationsButton": "Delete all product variants",
+      "generateVariationsButton": "Save variants",
+      "nextModalButton": "Next",
+      "deleteVariationsButton": "Delete all variants",
       "cancelVariationsButton": "Cancel",
+      "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
-      "generatedVariationCardTitle": "Available variants",
+      "generatedVariationCardTitle": "Variants",
+      "variationCard": {
+        "tabs": {
+          "allProducts": "All variants",
+          "physicalProducts": "Physical variants",
+          "digitalProducts": "Digital variants"
+        }
+      },
       "progressTypeOf": "of",
       "progressTypeDeleted": "deleted",
       "progressTypeGenerated": "generated",
       "progressTypeCalculated": "calculated",
       "progressTypeVariation": "variations",
-      "generationNotificationTitle": "Notification",
-      "generationNotificationMessage": "Actions performed according to current configuration:",
-      "generationNotificationCountAdding": "One variant will be added | {count} variants will be added",
-      "generationNotificationCountDeletion": "One variant will be deleted | {count} variants will be deleted",
-      "generationNotificationButtonCancel": "Cancel",
-      "generationNotificationButtonContinue": "Generate",
       "generatedFilterList": "Filter list",
       "generatedListColumnVariation": "Name",
       "generatedListColumnPrice": "Price (gross / net)",
@@ -344,9 +366,13 @@
       "generatedListColumnMedia": "Media",
       "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
+      "generatedListColumnContentProductState": {
+        "is-download": "digital"
+      },
       "generatedListContextMenuEdit": "Edit",
       "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
+      "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
       "generatedListDeleteModalButtonCancel": "Cancel",
       "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
@@ -361,6 +387,13 @@
       },
       "configuratorModal": {
         "title": "Generate variants",
+        "uploadAllButton": "Upload file to all digital variants",
+        "uploadCardDescription": "All digital variants must have at least one file in order to be saved.",
+        "uploadCardSearchPlaceholder": "Search variants...",
+        "uploadInfoBoxHeader": "Actions performed according to current configuration:",
+        "uploadInfoBoxCount": "{count} variants | {count} variant | {count} variants",
+        "uploadInfoBoxCreateLabel": "will be added,",
+        "uploadInfoBoxDeleteLabel": "will be deleted.",
         "selectOptions": "Value selection",
         "selectOptionsExplanation": "Select property values to generate variants from.",
         "selectRestrictionsExplanation": "Select property values to exclude from variant generation.",
@@ -381,7 +414,9 @@
         "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
-        "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there."
+        "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
+        "digitalVariantSwitch": "Make all variants digital",
+        "removeAllButton": "Remove file from all variants"
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",
@@ -391,12 +426,14 @@
         "mediaExplanation": "Upload and assign alternative media to individual variants. This overrides media files that might already be assigned to the respective properties.",
         "mediaOptions": "Property value",
         "listing": "Product listings",
-        "listingExplanation": "Choose between two modes of display. Either display one single main variant, or expand several individual variants, determined by their associated property values.",
-        "listingLabelModeSingle": "Single main variant",
-        "listingLabelMainVariant": "Main variant",
-        "listingExplanationModeSingle": "The main variant will be preselected on the product's detail page and displayed in listings representatively.",
+        "listingExplanation": "Choose between two modes of display. Either display one single product, or expand several individual variants, determined by their associated property values.",
+        "listingLabelModeSingle": "Display single product",
+        "listingLabelModeDisplayParent": "Main product",
+        "listingLabelMainVariant": "Variant",
+        "listingExplanationModeSingle": "Choose a variant that will be displayed in listings and preselected on the product detail page.",
+        "listingExplanationModeMainProduct": "Choose a variant that will be the preselected on the product detail page.",
         "listingLabelModeExpanded": "Expand property values in product listings",
-        "listingPlaceholderSelectMainVariant": "Please select a main variant...",
+        "listingPlaceholderSelectMainVariant": "Choose a variant...",
         "cancel": "Cancel",
         "save": "Save"
       }
@@ -491,9 +528,20 @@
         "label": "Categories",
         "placeholder": "Select categories..."
       },
+      "salesFilter": {
+        "label": "Sales"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Select tags..."
+      },
+      "productStatesFilter": {
+        "label": "Product states",
+        "placeholder": "Select product state...",
+        "options": {
+          "physical": "Physical",
+          "digital": "Digital"
+        }
       },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to see results."

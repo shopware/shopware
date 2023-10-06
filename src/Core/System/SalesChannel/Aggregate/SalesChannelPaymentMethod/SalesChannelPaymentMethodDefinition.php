@@ -9,11 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('buyers-experience')]
 class SalesChannelPaymentMethodDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_payment_method';
+    final public const ENTITY_NAME = 'sales_channel_payment_method';
 
     public function getEntityName(): string
     {

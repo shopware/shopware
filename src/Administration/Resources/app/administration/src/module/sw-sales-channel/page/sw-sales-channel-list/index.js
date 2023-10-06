@@ -1,19 +1,18 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-list.html.twig';
 import './sw-sales-channel-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
-const STATUS_NUMBER = {
-    ACTIVE: 1,
-    MAINTENANCE: 2,
-    OFFLINE: 3,
-};
-
-Component.register('sw-sales-channel-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -26,6 +25,7 @@ Component.register('sw-sales-channel-list', {
             isLoading: true,
             sortBy: 'name',
             searchConfigEntity: 'sales_channel',
+            lastSortedColumn: null,
         };
     },
 
@@ -40,41 +40,42 @@ Component.register('sw-sales-channel-list', {
             const columns = [{
                 property: 'name',
                 dataIndex: 'name',
-                allowResize: false,
+                allowResize: true,
                 routerLink: 'sw.sales.channel.detail',
                 label: 'sw-sales-channel.list.columnName',
                 primary: true,
             }, {
                 property: 'product_visibilities',
                 dataIndex: 'product_visibilities',
-                allowResize: false,
-                sortable: this.feature.isActive('FEATURE_NEXT_17421'),
-                useCustomSort: this.feature.isActive('FEATURE_NEXT_17421'),
+                allowResize: true,
+                sortable: false,
                 label: 'sw-sales-channel.list.productsLabel',
             }, {
                 property: 'status',
                 dataIndex: 'status',
-                allowResize: false,
-                sortable: this.feature.isActive('FEATURE_NEXT_17421'),
-                useCustomSort: this.feature.isActive('FEATURE_NEXT_17421'),
+                allowResize: true,
+                sortable: false,
                 label: 'sw-sales-channel.list.columnStatus',
+            }, {
+                property: 'id',
+                dataIndex: 'id',
+                allowResize: true,
+                sortable: false,
+                label: 'sw-sales-channel.list.columnFavourite',
+                align: 'center',
+            }, {
+                property: 'createdAt',
+                dataIndex: 'createdAt',
+                allowResize: true,
+                label: 'sw-sales-channel.list.columnCreatedAt',
             }];
 
-            if (this.feature.isActive('FEATURE_NEXT_17421')) {
-                columns.splice(1, 0, {
-                    property: 'type.name',
-                    dataIndex: 'type.name',
-                    allowResize: false,
-                    label: 'sw-sales-channel.list.columnType',
-                });
-
-                columns.push({
-                    property: 'createdAt',
-                    dataIndex: 'createdAt',
-                    allowResize: false,
-                    label: 'sw-sales-channel.list.columnCreatedAt',
-                });
-            }
+            columns.splice(1, 0, {
+                property: 'type.name',
+                dataIndex: 'type.name',
+                allowResize: true,
+                label: 'sw-sales-channel.list.columnType',
+            });
 
             return columns;
         },
@@ -89,6 +90,7 @@ Component.register('sw-sales-channel-list', {
             salesChannelCriteria.setTerm(this.term);
             salesChannelCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             salesChannelCriteria.addAssociation('type');
+            salesChannelCriteria.addAssociation('domains');
 
             salesChannelCriteria.addAggregation(
                 Criteria.terms(
@@ -101,6 +103,14 @@ Component.register('sw-sales-channel-list', {
             );
 
             return salesChannelCriteria;
+        },
+
+        salesChannelFavoritesService() {
+            return Shopware.Service('salesChannelFavorites');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -118,6 +128,10 @@ Component.register('sw-sales-channel-list', {
                 this.total = 0;
 
                 return false;
+            }
+
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
             }
 
             return this.salesChannelRepository.search(criteria)
@@ -140,56 +154,28 @@ Component.register('sw-sales-channel-list', {
             return this.productsForSalesChannel[salesChannelId] ?? 0;
         },
 
-        sortColumns(column, sortDirection) {
-            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
-                return;
+        checkForDomainLink(salesChannel) {
+            const domainLink = this.domainLinkService.getDomainLink(salesChannel);
+
+            if (domainLink === null) {
+                return false;
             }
 
-            if (column.dataIndex === 'product_visibilities') {
-                this.sortProductVisibilities(sortDirection);
-            }
+            salesChannel.domainLink = domainLink;
 
-            if (column.dataIndex === 'status') {
-                this.sortStatus(sortDirection);
-            }
+            return true;
         },
 
-        sortProductVisibilities(sortDirection) {
-            this.salesChannels = this.salesChannels.sort((a, b) => {
-                const countA = this.getCountForSalesChannel(a.id);
-                const countB = this.getCountForSalesChannel(b.id);
-
-                if (sortDirection === 'ASC') {
-                    return countA - countB;
-                }
-
-                return countB - countA;
-            });
+        openStorefrontLink(storeFrontLink) {
+            window.open(storeFrontLink, '_blank');
         },
 
-        sortStatus(sortDirection) {
-            this.salesChannels = this.salesChannels.sort((a, b) => {
-                const statusA = this.getSalesChannelStatusNumber(a);
-                const statusB = this.getSalesChannelStatusNumber(b);
-
-                if (sortDirection === 'ASC') {
-                    return statusA - statusB;
-                }
-
-                return statusB - statusA;
-            });
+        isFavorite(salesChannelId) {
+            return this.salesChannelFavoritesService.isFavorite(salesChannelId);
         },
 
-        getSalesChannelStatusNumber(item) {
-            if (item.maintenance) {
-                return STATUS_NUMBER.MAINTENANCE;
-            }
-
-            if (item.active) {
-                return STATUS_NUMBER.ACTIVE;
-            }
-
-            return STATUS_NUMBER.OFFLINE;
+        isStorefrontSalesChannel(salesChannel) {
+            return salesChannel.type.id === Defaults.storefrontSalesChannelTypeId;
         },
     },
-});
+};

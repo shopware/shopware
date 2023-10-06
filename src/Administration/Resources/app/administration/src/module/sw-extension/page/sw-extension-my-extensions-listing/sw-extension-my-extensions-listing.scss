@@ -1,11 +1,11 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-extension-my-extensions-listing {
     .sw-extension-my-extensions-listing__listing-grid {
         margin-bottom: 32px;
 
         .sw-meteor-card {
-            margin: 0 auto 8px auto;
+            margin: 0 auto 8px;
         }
 
         .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
@@ -21,8 +21,13 @@
             }
 
             img {
-                margin: 0 auto 24px auto;
+                margin: 0 auto 24px;
             }
+        }
+
+        .sw-extension-my-extensions-listing__app-url-warning {
+            max-width: 960px;
+            margin-bottom: 32px;
         }
     }
 
@@ -42,7 +47,12 @@
     .sw-pagination {
         background-color: transparent;
         border: none;
-        margin: 42px auto 0 auto;
-        max-width: 996px;
+        margin: 42px auto 0;
+        max-width: 960px;
+        padding: 0;
+
+        .sw-pagination__per-page {
+            margin-right: 0;
+        }
     }
 }

@@ -1,10 +1,11 @@
 import template from './sw-cms-sidebar-nav-element.html.twig';
 import './sw-cms-sidebar-nav-element.scss';
 
-const { Component } = Shopware;
-
-
-Component.register('sw-cms-sidebar-nav-element', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -37,4 +38,4 @@ Component.register('sw-cms-sidebar-nav-element', {
             this.$emit('block-delete', this.block);
         },
     },
-});
+};

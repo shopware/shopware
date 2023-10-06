@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-settings-payment-overview {
+    &__title {
+        float: left;
+    }
+
+    &__deprecation-alert {
+        max-width: $content-width;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+        }
+    }
+
+    & &__sorting_modal_card > .sw-card__content {
+        background: $color-gray-100;
+        text-align: right;
+    }
+}

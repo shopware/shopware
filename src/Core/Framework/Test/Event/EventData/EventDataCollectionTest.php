@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
+/**
+ * @internal
+ */
 class EventDataCollectionTest extends TestCase
 {
     public function testToArray(): void
@@ -15,7 +18,7 @@ class EventDataCollectionTest extends TestCase
         $collection = (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('myBool', new ScalarValueType(ScalarValueType::TYPE_BOOL))
-            ;
+        ;
 
         $expected = [
             'customer' => [

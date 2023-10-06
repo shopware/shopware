@@ -3,36 +3,40 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class LineItemCustomFieldRule extends Rule
 {
-    protected string $operator;
-
-    protected array $renderedField;
+    final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
      * @var string|int|float|bool|null
      */
     protected $renderedFieldValue;
 
-    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
-    {
+    protected ?string $selectedField = null;
+
+    protected ?string $selectedFieldSet = null;
+
+    /**
+     * @param array<string, mixed> $renderedField
+     *
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $renderedField = []
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->renderedField = $renderedField;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemCustomField';
     }
 
     /**
@@ -48,7 +52,7 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->isCustomFieldValid($lineItem)) {
                 return true;
             }
@@ -57,6 +61,9 @@ class LineItemCustomFieldRule extends Rule
         return false;
     }
 
+    /**
+     * @return array|Constraint[][]
+     */
     public function getConstraints(): array
     {
         return [
@@ -87,7 +94,7 @@ class LineItemCustomFieldRule extends Rule
     {
         $customFields = $lineItem->getPayloadValue('customFields');
         if ($customFields === null) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         $actual = $this->getValue($customFields, $this->renderedField);
@@ -101,22 +108,15 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_NEQ:
-                return $actual !== $expected;
-            case self::OPERATOR_GTE:
-                return $actual >= $expected;
-            case self::OPERATOR_LTE:
-                return $actual <= $expected;
-            case self::OPERATOR_EQ:
-                return $actual === $expected;
-            case self::OPERATOR_GT:
-                return $actual > $expected;
-            case self::OPERATOR_LT:
-                return $actual < $expected;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            self::OPERATOR_NEQ => $actual !== $expected,
+            self::OPERATOR_GTE => $actual >= $expected,
+            self::OPERATOR_LTE => $actual <= $expected,
+            self::OPERATOR_EQ => $actual === $expected,
+            self::OPERATOR_GT => $actual > $expected,
+            self::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**
@@ -126,7 +126,7 @@ class LineItemCustomFieldRule extends Rule
     {
         $constraints = [];
 
-        if (!\is_array($this->renderedField) || !\array_key_exists('type', $this->renderedField)) {
+        if (!\array_key_exists('type', $this->renderedField)) {
             return [new NotBlank()];
         }
 
@@ -138,9 +138,12 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
+     * @param array<string, mixed> $customFields
+     * @param array<string, mixed> $renderedField
+     *
      * @return string|int|float|bool|null
      */
-    private function getValue(array $customFields, array $renderedField)
+    private function getValue(array $customFields, array $renderedField): mixed
     {
         if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
@@ -159,13 +162,14 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @param string|int|float|bool|null $renderedFieldValue
+     * @param array<string, mixed> $renderedField
      *
      * @return string|int|float|bool|null
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
         if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
-            return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
+            return (bool) ($renderedFieldValue ?? false); // those fields are initialized with null in the rule builder
         }
 
         return $renderedFieldValue;

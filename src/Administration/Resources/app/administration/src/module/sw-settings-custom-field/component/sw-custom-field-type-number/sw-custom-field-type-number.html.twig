@@ -1,37 +1,58 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 {% parent() %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_number_container %}
 <sw-container
     columns="1fr 1fr"
     gap="0 20px"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_numbertype %}
-    <sw-field
+    <sw-select-field
+        {% if VUE3 %}
+        v-model:value="currentCustomField.config.numberType"
+        {% else %}
         v-model="currentCustomField.config.numberType"
-        type="select"
+        {% endif %}
         :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
         :options="numberTypes"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_step %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="currentCustomField.config.step"
+        {% else %}
         v-model="currentCustomField.config.step"
+        {% endif %}
         :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_min %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="currentCustomField.config.min"
+        {% else %}
         v-model="currentCustomField.config.min"
+        {% endif %}
         :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_max %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="currentCustomField.config.max"
+        {% else %}
         v-model="currentCustomField.config.max"
+        {% endif %}
         :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
     />
     {% endblock %}

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class DomainVerificationRequestStruct extends Struct
 {
     /**
@@ -19,8 +21,10 @@ class DomainVerificationRequestStruct extends Struct
      */
     protected $fileName;
 
-    public function __construct(string $content, string $filename)
-    {
+    public function __construct(
+        string $content,
+        string $filename
+    ) {
         $this->content = $content;
         $this->fileName = $filename;
     }

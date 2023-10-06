@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                               add(CurrencyCountryRoundingEntity $entity)
- * @method void                               set(string $key, CurrencyCountryRoundingEntity $entity)
- * @method CurrencyCountryRoundingEntity[]    getIterator()
- * @method CurrencyCountryRoundingEntity[]    getElements()
- * @method CurrencyCountryRoundingEntity|null get(string $key)
- * @method CurrencyCountryRoundingEntity|null first()
- * @method CurrencyCountryRoundingEntity|null last()
+ * @extends EntityCollection<CurrencyCountryRoundingEntity>
  */
+#[Package('buyers-experience')]
 class CurrencyCountryRoundingCollection extends EntityCollection
 {
     public function getApiAlias(): string

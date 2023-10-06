@@ -11,9 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class CustomFieldPlainTestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_field_plain_test';
+    final public const ENTITY_NAME = 'custom_field_plain_test';
 
     public function getEntityName(): string
     {

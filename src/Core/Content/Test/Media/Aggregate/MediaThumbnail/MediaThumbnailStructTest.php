@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\Media\Aggregate\MediaThumbnail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 
+/**
+ * @internal
+ */
 class MediaThumbnailStructTest extends TestCase
 {
     public function testGetIdentifier(): void

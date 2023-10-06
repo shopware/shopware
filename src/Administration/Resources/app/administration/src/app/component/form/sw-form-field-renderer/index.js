@@ -2,8 +2,10 @@ import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { types } = Shopware.Utils;
-
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description
@@ -15,55 +17,55 @@ const { types } = Shopware.Utils;
  * @component-example
  * {# Datepicker #}
  * <sw-form-field-renderer
- *         type="datetime"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     type="datetime">
  * </sw-form-field-renderer>
  *
  * {# Text field #}
  * <sw-form-field-renderer
- *         type="string"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     type="string">
  * </sw-form-field-renderer>
  *
  * {# sw-number-field #}
  * <sw-form-field-renderer
- *         :config="{
- *             componentName: 'sw-field',
- *             type: 'number',
- *             numberType: 'float'
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-field',
+ *         type: 'number',
+ *         numberType: 'float'
+ *     }">
  * </sw-form-field-renderer>
  *
  * {# sw-select - multi #}
  * <sw-form-field-renderer
- *         :config="{
- *             componentName: 'sw-multi-select',
- *             label: {
- *                 'en-GB': 'Multi Select'
- *             },
- *             multi: true,
- *             options: [
- *                 { value: 'option1', label: { 'en-GB': 'One' } },
- *                 { value: 'option2', label: 'Two' },
- *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
- *             ]
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-multi-select',
+ *         label: {
+ *             'en-GB': 'Multi Select'
+ *         },
+ *         multi: true,
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
  * </sw-form-field-renderer>
  *
  * {# sw-select - single #}
  * <sw-form-field-renderer
- *         :componentName: 'sw-single-select',
- *         :config="{
- *             label: 'Single Select',
- *             options: [
- *                 { value: 'option1', label: { 'en-GB': 'One' } },
- *                 { value: 'option2', label: 'Two' },
- *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
- *             ]
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :componentName: 'sw-single-select',
+ *     :config="{
+ *         label: 'Single Select',
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
  * </sw-form-field-renderer>
  */
 Component.register('sw-form-field-renderer', {
@@ -91,6 +93,11 @@ Component.register('sw-form-field-renderer', {
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
+        },
+        error: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -244,6 +251,11 @@ Component.register('sw-form-field-renderer', {
                 return;
             }
             this.$emit('change', data);
+            this.emitUpdate(data);
+        },
+
+        emitUpdate(data) {
+            this.$emit('update', data);
         },
 
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
@@ -272,6 +284,18 @@ Component.register('sw-form-field-renderer', {
 
             if (this.type === 'multi-select') {
                 return 'sw-multi-select';
+            }
+
+            if (this.type === 'single-entity-id-select') {
+                return 'sw-entity-single-select';
+            }
+
+            if (this.type === 'multi-entity-id-select') {
+                return 'sw-entity-multi-id-select';
+            }
+
+            if (this.type === 'tagged') {
+                return 'sw-tagged-field';
             }
 
             return 'sw-field';

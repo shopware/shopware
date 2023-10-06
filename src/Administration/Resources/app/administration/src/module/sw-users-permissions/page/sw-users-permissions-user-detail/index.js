@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -7,7 +10,8 @@ const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
-Component.register('sw-users-permissions-user-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -67,6 +71,7 @@ Component.register('sw-users-permissions-user-detail', {
             'email',
             'username',
             'localeId',
+            'password',
         ]),
 
         identifier() {
@@ -82,7 +87,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         userCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('accessKeys');
             criteria.addAssociation('locale');
@@ -92,7 +97,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         aclRoleCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             // Roles created by apps should not be assignable in the admin
             criteria.addFilter(Criteria.equals('app.id', null));
@@ -106,12 +111,11 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 500);
 
             criteria.addAssociation('locale');
             criteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             criteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
-            criteria.limit = 500;
 
             return criteria;
         },
@@ -155,6 +159,9 @@ Component.register('sw-users-permissions-user-detail', {
             }];
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed.
+         */
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
@@ -192,6 +199,11 @@ Component.register('sw-users-permissions-user-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-user-detail__currentUser',
+                path: 'currentUser',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.languageId) {
@@ -199,6 +211,7 @@ Component.register('sw-users-permissions-user-detail', {
                 return;
             }
 
+            this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
                 Shopware.State.commit('context/setApiLanguageId', this.languageId);
                 resolve(this.languageId);
@@ -209,7 +222,6 @@ Component.register('sw-users-permissions-user-detail', {
                 this.loadLanguages(),
                 this.loadUser(),
                 this.loadCurrentUser(),
-                this.loadTimezones(),
             ];
 
             Promise.all(promises).then(() => {
@@ -217,21 +229,8 @@ Component.register('sw-users-permissions-user-detail', {
             });
         },
 
+        // @deprecated tag:v6.6.0 - Unused
         loadTimezones() {
-            return Shopware.Service('timezoneService').loadTimezones()
-                .then((result) => {
-                    this.timezoneOptions.push({
-                        label: 'UTC',
-                        value: 'UTC',
-                    });
-
-                    const loadedTimezoneOptions = result.map(timezone => ({
-                        label: timezone,
-                        value: timezone,
-                    }));
-
-                    this.timezoneOptions.push(...loadedTimezoneOptions);
-                });
         },
 
         loadLanguages() {
@@ -467,4 +466,4 @@ Component.register('sw-users-permissions-user-detail', {
             this.confirmPasswordModal = false;
         },
     },
-});
+};

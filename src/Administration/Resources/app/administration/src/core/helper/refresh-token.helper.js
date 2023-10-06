@@ -1,4 +1,7 @@
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
  * @class
  */
@@ -94,6 +97,7 @@ class RefreshTokenHelper {
 
 const refreshTokenHelper = new RefreshTokenHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function getRefreshTokenHelper() {
     return refreshTokenHelper;
 }

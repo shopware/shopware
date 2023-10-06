@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -14,32 +15,40 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type TimeBackoffLimit from TimeBackoff
  */
+#[Package('core')]
 class TimeBackoffLimiter implements LimiterInterface
 {
     use ResetLimiterTrait;
 
-    private array $limits;
+    private readonly int $reset;
 
-    private int $reset;
-
-    public function __construct(string $id, array $limits, \DateInterval $reset, StorageInterface $storage, ?LockInterface $lock = null)
-    {
+    /**
+     * @param list<TimeBackoffLimit> $limits
+     */
+    public function __construct(
+        string $id,
+        private readonly array $limits,
+        \DateInterval $reset,
+        StorageInterface $storage,
+        LockInterface|null $lock = new NoLock()
+    ) {
         $this->id = $id;
-        $this->limits = $limits;
         $this->reset = TimeUtil::dateIntervalToSeconds($reset);
         $this->storage = $storage;
-        $this->lock = $lock ?? new NoLock();
+        $this->lock = $lock;
     }
 
     public function reserve(int $tokens = 1, ?float $maxTime = null): Reservation
     {
-        throw new ReserveNotSupportedException(__CLASS__);
+        throw new ReserveNotSupportedException(self::class);
     }
 
     public function consume(int $tokens = 1): RateLimit
     {
-        $this->lock->acquire(true);
+        $this->lock?->acquire(true);
 
         try {
             $backoff = $this->storage->fetch($this->id);
@@ -67,7 +76,7 @@ class TimeBackoffLimiter implements LimiterInterface
 
             return new RateLimit($backoff->getAvailableAttempts($now), $backoff->getRetryAfter(), true, $backoff->getCurrentLimit($now));
         } finally {
-            $this->lock->release();
+            $this->lock?->release();
         }
     }
 }

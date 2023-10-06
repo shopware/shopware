@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+#[Package('checkout')]
 class CalculatedTax extends Struct
 {
     /**
@@ -22,8 +24,11 @@ class CalculatedTax extends Struct
      */
     protected $price = 0;
 
-    public function __construct(float $tax, float $taxRate, float $price)
-    {
+    public function __construct(
+        float $tax,
+        float $taxRate,
+        float $price
+    ) {
         $this->tax = FloatComparator::cast($tax);
         $this->taxRate = FloatComparator::cast($taxRate);
         $this->price = FloatComparator::cast($price);
@@ -36,7 +41,7 @@ class CalculatedTax extends Struct
 
     public function setTax(float $tax): void
     {
-        $this->tax = $tax;
+        $this->tax = FloatComparator::cast($tax);
     }
 
     public function getTaxRate(): float
@@ -51,13 +56,13 @@ class CalculatedTax extends Struct
 
     public function increment(self $calculatedTax): void
     {
-        $this->tax += $calculatedTax->getTax();
-        $this->price += $calculatedTax->getPrice();
+        $this->tax = FloatComparator::cast($this->tax + $calculatedTax->getTax());
+        $this->price = FloatComparator::cast($this->price + $calculatedTax->getPrice());
     }
 
     public function setPrice(float $price): void
     {
-        $this->price = $price;
+        $this->price = FloatComparator::cast($price);
     }
 
     public function getApiAlias(): string

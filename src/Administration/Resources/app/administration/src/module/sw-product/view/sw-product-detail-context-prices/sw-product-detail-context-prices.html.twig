@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_prices %}
 <div v-if="isLoading">
     <sw-skeleton />
@@ -11,10 +12,7 @@
     class="sw-product-detail-context-prices"
 >
 
-    {# @deprecated tag:v6.5.0 - The block will be removed the module now uses skeleton loading #}
-    {% block sw_product_detail_prices_empty_state %}
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_prices_price_card %}
     <sw-container
         v-if="priceRuleGroupsExists"
@@ -30,6 +28,7 @@
             :large="true"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_toolbar %}
             <div class="sw-product-detail-context-prices__toolbar">
                 <sw-container
@@ -37,53 +36,24 @@
                     gap="0 10px"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
                     <sw-select-rule-create
-                        v-if="feature.isActive('FEATURE_NEXT_18215') && rules.entity"
+                        v-if="rules.entity"
                         id="rule"
                         :rule-id="priceGroup.ruleId"
                         :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                         :disabled="!acl.can('product.editor')"
                         class="sw-product-detail-context-prices__toolbar-selection"
                         size="small"
-                        restriction="productPrices"
+                        rule-aware-group-key="productPrices"
+                        :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                        :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                         @save-rule="onRuleChange($event, priceGroup.ruleId)"
                     />
-
-                    {# @deprecated tag:v6.5.0 - component `sw-entity-single-select` will be removed, use `sw-select-rule-create` instead #}
-                    <sw-entity-single-select
-                        v-else-if="rules.entity"
-                        id="rule"
-                        class="sw-product-detail-context-prices__toolbar-selection"
-                        size="small"
-                        :value="priceGroup.ruleId"
-                        :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                        :entity="rules.entity"
-                        :disabled="!acl.can('product.editor')"
-                        show-clearable-button
-                        @change="onRuleChange($event, priceGroup.ruleId)"
-                    >
-                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                            <li
-                                is="sw-select-result"
-                                :selected="isSelected(item)"
-                                :disabled="!!priceRuleGroups[item.id]"
-                                v-bind="{ item, index }"
-                                @item-select="setValue"
-                            >
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </template>
-                            </li>
-                        </template>
-                    </sw-entity-single-select>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
                     <sw-button
                         v-tooltip="{
@@ -99,6 +69,7 @@
                     </sw-button>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
                     <sw-button
                         v-if="canAddPriceRule"
@@ -120,6 +91,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_grid %}
             <sw-data-grid
                 v-if="priceGroup.ruleId"
@@ -129,24 +101,30 @@
                 :show-selection="false"
                 :compact-mode="true"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
                 <template #additionalSettings>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
                     <sw-switch-field
                         size="medium"
                         :value="showListPrices[priceGroup.ruleId] !== false"
                         no-margin-top
                         :label="$tc('sw-product.prices.settingShowListPrices')"
+                        {% if VUE3 %}
+                        @update:value="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        {% else %}
                         @change="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        {% endif %}
                     />
                     {% endblock %}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_type %}
                 <template
-                    slot="column-type"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-type="{ item, itemIndex, compact }"
                 >
                     <div class="sw-product-detail-context-prices__type-label">
                         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
@@ -155,20 +133,28 @@
                         <label v-if="showListPrices[priceGroup.ruleId] !== false">
                             {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
                         </label>
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                            {{ $tc('sw-product.advancedPrices.labelRegulationPrice') }}
+                        </label>
                     </div>
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                 <template
-                    slot="column-quantityStart"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-quantityStart="{ item, itemIndex, compact }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
-                    <sw-field
+                    <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityStart"
+                        {% else %}
                         v-model="item.quantityStart"
+                        {% endif %}
                         v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
-                        type="number"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
                         :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
@@ -180,15 +166,19 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end %}
                 <template
-                    slot="column-quantityEnd"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-quantityEnd="{ item, itemIndex, compact }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
-                    <sw-field
+                    <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityEnd"
+                        {% else %}
                         v-model="item.quantityEnd"
-                        type="number"
+                        {% endif %}
                         :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                         placeholder="∞"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
@@ -196,23 +186,28 @@
                         :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                         :size="compact ? 'small' : 'default'"
                         :disabled="!acl.can('product.editor')"
+                        {% if VUE3 %}
+                        @update:value="onQuantityEndChange(item, priceGroup)"
+                        {% else %}
                         @change="onQuantityEndChange(item, priceGroup)"
+                        {% endif %}
                     />
                     {% endblock %}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                 <template
                     v-for="currency in currencies"
-                    :slot="`column-price-${currency.isoCode}`"
-                    slot-scope="{ item, column, compact }"
+                    #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
                 >
                     <template v-if="showListPrices[priceGroup.ruleId] === false">
                         <div
                             :key="currency"
                             class="product-detail-context-prices__price-field-wrapper"
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
                             <sw-inheritance-switch
                                 v-if="!currency.isSystemDefault"
@@ -224,6 +219,7 @@
                             />
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
                             <sw-price-field
                                 :price="item.price"
@@ -268,12 +264,13 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
                 <template
-                    slot="actions"
-                    slot-scope="{ item }"
+                    #actions="{ item }"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
@@ -291,12 +288,14 @@
             </sw-data-grid>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_empty_state %}
             <div
                 v-else
                 class="sw-product-detail-context-prices__empty-state"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
                 <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
                 {% endblock %}
@@ -306,11 +305,13 @@
 
         </sw-card>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_prices_price_card_price_group_add_price_rule %}
         <sw-container
             justify="center"
             columns="250x"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
             <sw-button
                 v-if="canAddPriceRule"
@@ -338,22 +339,28 @@
         class="sw-product-detail-context-prices__empty-state-card"
         position-identifier="sw-product-detail-context-prices-empty-state-card"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_prices_price_empty_state %}
         <div class="sw-product-detail-context-prices__empty-state">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_empty_state_image %}
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 alt=""
             >
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state_text %}
             <template v-if="isChild">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_empty_state_text_child %}
                 <template v-if="isInherited">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_inherited %}
                     <p>{{ $tc('sw-product.advancedPrices.advancedPricesInherited') }}</p>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_link %}
                     <router-link
                         v-if="isInherited"
@@ -362,7 +369,7 @@
                     >
                         {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
                         <sw-icon
-                            name="default-arrow-simple-right"
+                            name="regular-long-arrow-right"
                             small
                         />
                     </router-link>
@@ -371,6 +378,7 @@
                 </template>
 
                 <template v-else>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_empty_state_text_not_inherited %}
                     <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotInherited') }}</p>
                     {% endblock %}
@@ -379,12 +387,14 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_empty_state_text_empty %}
                 <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
                 {% endblock %}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state__inherit_switch %}
             <template v-if="isChild">
                 <div
@@ -392,7 +402,11 @@
                     :class="{ 'is--inherited': isInherited }"
                 >
                     <sw-switch-field
+                        {% if VUE3 %}
+                        v-model:value="isInherited"
+                        {% else %}
                         v-model="isInherited"
+                        {% endif %}
                         class="sw-product-detail-context-prices__inherit-switch"
                         :disabled="!acl.can('product.editor')"
                     />
@@ -411,48 +425,19 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state_select_rule %}
             <sw-select-rule-create
-                v-if="rules.entity && feature.isActive('FEATURE_NEXT_18215')"
+                v-if="rules.entity"
                 id="rule"
                 class="sw-product-detail-context-prices__empty-state-select-rule"
                 :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                 :disabled="isInherited || !acl.can('product.editor')"
-                restriction="productPrices"
+                rule-aware-group-key="productPrices"
+                :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                 @save-rule="onAddNewPriceGroup($event)"
             />
-
-            {# @feature-deprecated (flag:FEATURE_NEXT_18215) - tag will be removed use `sw-select-rule-create` instead #}
-            <sw-entity-single-select
-                v-else-if="rules.entity"
-                id="rule"
-                :disabled="isInherited || !acl.can('product.editor')"
-                class="sw-product-detail-context-prices__empty-state-select-rule"
-                value=""
-                :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                :entity="rules.entity"
-                show-clearable-button
-                @change="onAddNewPriceGroup($event)"
-            >
-                <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                    <li
-                        is="sw-select-result"
-                        :selected="isSelected(item)"
-                        :disabled="!!priceRuleGroups[item.id]"
-                        v-bind="{ item, index }"
-                        @item-select="setValue"
-                    >
-                        <sw-highlight-text
-                            v-if="highlightSearchTerm"
-                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                            :search-term="searchTerm"
-                        />
-                        <template v-else>
-                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                        </template>
-                    </li>
-                </template>
-            </sw-entity-single-select>
             {% endblock %}
         </div>
         {% endblock %}

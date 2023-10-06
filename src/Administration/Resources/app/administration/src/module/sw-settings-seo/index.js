@@ -1,18 +1,24 @@
-import './component/sw-seo-url-template-card';
-import './component/sw-seo-url';
-import './component/sw-seo-main-category';
+/**
+ * @package buyers-experience
+ */
 
-import './page/sw-settings-seo';
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-seo-url-template-card', () => import('./component/sw-seo-url-template-card'));
+Shopware.Component.register('sw-seo-url', () => import('./component/sw-seo-url'));
+Shopware.Component.register('sw-seo-main-category', () => import('./component/sw-seo-main-category'));
+Shopware.Component.register('sw-settings-seo', () => import('./page/sw-settings-seo'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-seo', {
     type: 'core',
     name: 'settings-seo',
     title: 'sw-settings-seo.general.mainMenuItemGeneral',
     description: 'SEO section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'seo',
 
@@ -30,7 +36,7 @@ Module.register('sw-settings-seo', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.seo.index',
-        icon: 'default-action-search',
+        icon: 'regular-search',
         privilege: 'system.system_config',
     },
 });

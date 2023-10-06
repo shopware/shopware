@@ -4,9 +4,13 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode;
 
 use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class PromotionIndividualCodeEntity extends Entity
 {
     use EntityIdTrait;
@@ -27,7 +31,7 @@ class PromotionIndividualCodeEntity extends Entity
     protected $promotion;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $payload;
 
@@ -71,7 +75,7 @@ class PromotionIndividualCodeEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getPayload(): ?array
     {
@@ -79,7 +83,7 @@ class PromotionIndividualCodeEntity extends Entity
     }
 
     /**
-     * @param string[]|null $payload
+     * @param array<string>|null $payload
      */
     public function setPayload(?array $payload): void
     {
@@ -102,6 +106,10 @@ class PromotionIndividualCodeEntity extends Entity
         if ($this->payload !== null && \array_key_exists('orderId', $this->payload)) {
             // if we have another order id, then throw an exception
             if ($this->payload['orderId'] !== $orderId) {
+                if (Feature::isActive('v6.6.0.0')) {
+                    throw PromotionException::codeAlreadyRedeemed($this->code);
+                }
+
                 throw new CodeAlreadyRedeemedException($this->code);
             }
         }

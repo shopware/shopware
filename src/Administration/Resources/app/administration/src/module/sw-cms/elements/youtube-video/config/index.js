@@ -1,9 +1,13 @@
 import template from './sw-cms-el-config-youtube-video.html.twig';
 import './sw-cms-el-config-youtube-video.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-cms-el-config-youtube-video', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -205,4 +209,4 @@ Component.register('sw-cms-el-config-youtube-video', {
             this.mediaModalIsOpen = true;
         },
     },
-});
+};

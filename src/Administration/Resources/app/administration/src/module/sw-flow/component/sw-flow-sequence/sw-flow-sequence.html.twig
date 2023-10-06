@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_sequence %}
 <div class="sw-flow-sequence">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector %}
     <sw-flow-sequence-selector
         v-if="isSelectorSequence"
@@ -8,22 +10,29 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_condition %}
     <sw-flow-sequence-condition
-        v-else-if="isConditionSequence"
+        v-if="isConditionSequence"
         :disabled="disabled"
         :sequence="sequenceData"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_action %}
     <sw-flow-sequence-action
-        v-else
+        v-if="isActionSequence"
         :sequence="sequenceData"
         :disabled="disabled"
+        :is-unknown-trigger="isUnknownTrigger"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_sequence_extension %}{% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_true_block %}
     <div
         v-if="sequenceData.trueBlock"
@@ -37,6 +46,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_false_block %}
     <div
         v-if="sequenceData.falseBlock"

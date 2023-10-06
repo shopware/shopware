@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Webhooks extends XmlElement
 {
     /**
@@ -28,6 +31,20 @@ class Webhooks extends XmlElement
     public function getWebhooks(): array
     {
         return $this->webhooks;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getUrls(): array
+    {
+        $urls = [];
+
+        foreach ($this->webhooks as $webhook) {
+            $urls[] = $webhook->getUrl();
+        }
+
+        return $urls;
     }
 
     /**

@@ -1,9 +1,14 @@
+import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
-Component.register('sw-cms-el-image-gallery', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     mixins: [
@@ -43,8 +48,14 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         mediaUrls() {
-            if (this.element?.config?.sliderItems?.source === 'mapped') {
-                return this.getDemoValue(this.element.config.sliderItems.value) || [];
+            const config = this.element?.config;
+
+            if (!config || config.source === 'default') {
+                return [];
+            }
+
+            if (config.source === 'mapped') {
+                return this.getDemoValue(config.sliderItems.value) || [];
             }
 
             return this.element?.data?.sliderItems || [];
@@ -127,11 +138,23 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         getPlaceholderItems() {
-            return [
-                { url: this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg') },
-                { url: this.assetFilter('administration/static/img/cms/preview_glasses_large.jpg') },
-                { url: this.assetFilter('administration/static/img/cms/preview_plant_large.jpg') },
-            ];
+            if (this.element?.config?.source !== 'default') {
+                const previewMountain = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
+                const previewGlasses = CMS.MEDIA.previewGlasses.slice(CMS.MEDIA.previewGlasses.lastIndexOf('/') + 1);
+                const previewPlant = CMS.MEDIA.previewPlant.slice(CMS.MEDIA.previewPlant.lastIndexOf('/') + 1);
+
+                return [
+                    { url: this.assetFilter(`administration/static/img/cms/${previewMountain}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${previewGlasses}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${previewPlant}`) },
+                ];
+            }
+
+            return this.element.config.sliderItems.value.map(media => {
+                const fileName = media.fileName.slice(media.fileName.lastIndexOf('/') + 1);
+
+                return { url: this.assetFilter(`/administration/static/img/cms/${fileName}`) };
+            });
         },
 
         onChangeGalleryImage(mediaItem, index = 0) {
@@ -170,4 +193,4 @@ Component.register('sw-cms-el-image-gallery', {
             this.galleryLimit = Math.floor(boxSpace / (elSpace + elGap));
         },
     },
-});
+};

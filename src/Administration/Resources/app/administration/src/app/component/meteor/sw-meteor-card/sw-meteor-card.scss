@@ -1,15 +1,15 @@
+@import "~scss/mixins";
 @import "~scss/variables";
-
-$sw-meteor-card-background: rgba(235, 235, 235, 0.1);
 
 .sw-meteor-card {
     max-width: 960px;
-    margin: 0 auto 40px auto;
+    margin: 0 auto 40px;
     position: relative;
     color: $color-darkgray-200;
-    border-radius: $border-radius-default;
+    border-radius: $border-radius-lg;
     background: $color-white;
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+
+    @include drop-shadow-default;
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {
@@ -19,12 +19,12 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             grid-gap: 20px;
             align-items: center;
 
-            @media screen and (max-width: 800px) {
+            @media screen and (max-width: $content-width) {
                 padding: 15px;
             }
 
             .sw-meteor-card__title {
-                font-size: $font-size-large;
+                font-size: $font-size-m;
                 font-weight: $font-weight-semi-bold;
             }
         }
@@ -35,7 +35,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             border-top: 1px solid $color-gray-300;
             border-bottom: 1px solid $color-gray-300;
 
-            @media screen and (max-width: 800px) {
+            @media screen and (max-width: 960px) {
                 padding: 15px;
             }
         }
@@ -64,17 +64,16 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
     }
 
     .sw-meteor-card__content {
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         & > .sw-grid {
             border: none;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: $font-size-xl;
         }
 
         h2 {
@@ -82,13 +81,13 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         }
 
         h3 {
-            font-size: $font-size-large;
+            font-size: $font-size-m;
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
         }
 
         a.sw-meteor-card__quick-link {
@@ -98,7 +97,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             align-items: center;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             &:hover {
                 color: $color-shopware-brand-800;
@@ -106,7 +105,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         }
 
         .sw-tabs {
-            border-width: 0 0 1px 0;
+            border-width: 0 0 1px;
             border-bottom-right-radius: 0;
             border-bottom-left-radius: 0;
             margin-bottom: 0;
@@ -148,7 +147,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
     .sw-meteor-card__content-wrapper {
         padding: 24px 32px;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 15px;
         }
     }
@@ -156,12 +155,11 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
     .sw-meteor-card__footer {
         border-top: 1px solid $color-gray-300;
         padding: 24px 32px;
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 15px;
         }
     }
@@ -178,7 +176,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         border-bottom: none;
         margin-bottom: 0;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 0 15px;
         }
 
@@ -196,19 +194,19 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             .sw-tabs__arrow {
                 top: 53%;
                 transform: translate(0, -50%);
-                padding: 0 12px 0 12px;
+                padding: 0 12px;
             }
         }
 
         .sw-tabs-item {
-            padding: 19px 0 15px 0;
+            padding: 19px 0 15px;
             margin-right: 14px;
             font-weight: $font-weight-regular;
             border-color: transparent;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
-            @media screen and (max-width: 800px) {
-                padding: 15px 0 10px 0;
+            @media screen and (max-width: 960px) {
+                padding: 15px 0 10px;
             }
 
             &:last-of-type {
@@ -216,7 +214,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             }
 
             &.sw-tabs-item--active {
-                font-weight: 600;
+                font-weight: $font-weight-semi-bold;
             }
         }
     }

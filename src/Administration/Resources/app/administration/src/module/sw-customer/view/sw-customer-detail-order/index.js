@@ -1,13 +1,17 @@
 import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
+
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-customer-detail-order', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         customer: {
@@ -23,7 +27,7 @@ Component.register('sw-customer-detail-order', {
             orders: null,
             term: '',
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
-            orderIcon: 'default-shopping-paper-bag',
+            orderIcon: 'regular-shopping-bag',
         };
     },
 
@@ -40,6 +44,14 @@ Component.register('sw-customer-detail-order', {
             return this.term ?
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
                 this.$tc('sw-customer.detailOrder.emptyTitle');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -82,7 +94,7 @@ Component.register('sw-customer-detail-order', {
         },
 
         refreshList() {
-            let criteria = new Criteria();
+            let criteria = new Criteria(1, 25);
             if (!this.orders || !this.orders.criteria) {
                 criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.customer.id));
             } else {
@@ -96,5 +108,14 @@ Component.register('sw-customer-detail-order', {
                 this.isLoading = false;
             });
         },
+
+        navigateToCreateOrder() {
+            this.$router.push({
+                name: 'sw.order.create',
+                params: {
+                    customer: this.customer,
+                },
+            });
+        },
     },
-});
+};

@@ -1,8 +1,9 @@
-const { Entity } = Shopware;
-
 /**
+ * @package admin
+ *
  * @module core/service/validation
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getEntityMapping,
 };
@@ -45,7 +46,7 @@ function getEntityMapping(entityName, entityNameMapping) {
                 lastEntityName = lastVal;
             }
             if (schema.properties[cleanVal]?.entity) {
-                schema = Entity.getDefinition(schema.properties[cleanVal].entity);
+                schema = Shopware.EntityDefinition.getDefinitionRegistry().get(schema.properties[cleanVal].entity);
                 lastEntityName = dubbedVal;
                 if (typeof mappingTypesCache[lastEntityName] === 'undefined') {
                     mappingTypesCache[lastEntityName] = {};

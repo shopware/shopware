@@ -13,6 +13,7 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -39,30 +41,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+#[Package('inventory')]
 class CategoryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'category';
+    final public const ENTITY_NAME = 'category';
 
-    public const TYPE_PAGE = 'page';
+    final public const TYPE_PAGE = 'page';
 
-    public const TYPE_LINK = 'link';
+    final public const TYPE_LINK = 'link';
 
-    public const TYPE_FOLDER = 'folder';
+    final public const TYPE_FOLDER = 'folder';
 
-    public const LINK_TYPE_EXTERNAL = 'external';
+    final public const LINK_TYPE_EXTERNAL = 'external';
 
-    public const LINK_TYPE_CATEGORY = 'category';
+    final public const LINK_TYPE_CATEGORY = 'category';
 
-    public const LINK_TYPE_PRODUCT = 'product';
+    final public const LINK_TYPE_PRODUCT = 'product';
 
-    public const LINK_TYPE_LANDING_PAGE = 'landing_page';
+    final public const LINK_TYPE_LANDING_PAGE = 'landing_page';
 
-    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
+    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
 
-    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
+    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
+
+    final public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
 
     public function getEntityName(): string
     {
@@ -100,7 +107,7 @@ class CategoryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
 
@@ -113,7 +120,7 @@ class CategoryDefinition extends EntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
 
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new ApiAware(), new Required()),
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
+            new AutoIncrementField(),
 
             (new TranslatedField('breadcrumb'))->addFlags(new ApiAware(), new WriteProtected()),
             (new TreeLevelField('level', 'level'))->addFlags(new ApiAware()),
@@ -124,6 +131,9 @@ class CategoryDefinition extends EntityDefinition
             (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new ApiAware(), new Required()),
             (new BoolField('visible', 'visible'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
+
+            (new BoolField('cmsPageIdSwitched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware()),
+            (new IntField('visibleChildCount', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
@@ -152,14 +162,17 @@ class CategoryDefinition extends EntityDefinition
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
 
+            // custom entity specific fields
+            (new FkField('custom_entity_type_id', 'customEntityTypeId', CustomEntityDefinition::class, 'id'))->addFlags(new ApiAware()),
+
             // Reverse Associations not available in store-api
-            (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id')),
-            (new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id')),
-            (new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id')),
+            new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'),
+            new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'),
+            new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
-        ]);
 
-        return $collection;
+            (new IntField('visible_child_count', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
+        ]);
     }
 }

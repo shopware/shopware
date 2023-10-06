@@ -1,13 +1,16 @@
 import template from './sw-promotion-v2-rule-select.html.twig';
 import './sw-promotion-v2-rule-select.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-promotion-v2-rule-select', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: [
         'repositoryFactory',
+        'ruleConditionDataProviderService',
         'feature',
     ],
 
@@ -41,20 +44,10 @@ Component.register('sw-promotion-v2-rule-select', {
             },
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restrictedRules: {
-            type: Array,
-            required: false,
-            default() {
-                return [];
-            },
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restrictionSnippet: {
+        ruleAwareGroupKey: {
             type: String,
             required: false,
-            default: '',
+            default: null,
         },
     },
 
@@ -64,8 +57,22 @@ Component.register('sw-promotion-v2-rule-select', {
         };
     },
 
+    computed: {
+        advanceSelectionParameters() {
+            return {
+                ruleAwareGroupKey: this.ruleAwareGroupKey,
+            };
+        },
+    },
+
     methods: {
         onChange(collection) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:collection', collection);
+
+                return;
+            }
+
             this.$emit('change', collection);
         },
 
@@ -77,20 +84,28 @@ Component.register('sw-promotion-v2-rule-select', {
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {
+                    if (this.feature.isActive('VUE3')) {
+                        this.$emit('update:collection', searchResult);
+                        this.$refs.ruleSelect.sendSearchRequest();
+
+                        return;
+                    }
+
                     this.$emit('change', searchResult);
                     this.$refs.ruleSelect.sendSearchRequest();
                 });
             });
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        tooltipConfig(itemId) {
-            return {
-                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
-                    relation: this.restrictionSnippet,
-                }),
-                disabled: !this.restrictedRules.includes(itemId),
-            };
+        tooltipConfig(rule) {
+            return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                rule.conditions,
+                this.ruleAwareGroupKey,
+            );
+        },
+
+        isRuleRestricted(rule) {
+            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
     },
-});
+};

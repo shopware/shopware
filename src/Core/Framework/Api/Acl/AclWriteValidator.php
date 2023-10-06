@@ -4,33 +4,35 @@ namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class AclWriteValidator implements EventSubscriberInterface
 {
     /**
-     * @var EventDispatcherInterface
+     * @internal
      */
-    private $eventDispatcher;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [PreWriteValidationEvent::class => 'preValidate'];
     }
@@ -73,16 +75,22 @@ class AclWriteValidator implements EventSubscriberInterface
 
             $event = new CommandAclValidationEvent($missingPrivileges, $source, $command);
             $this->eventDispatcher->dispatch($event);
+            /**
+             * @var list<string> $missingPrivileges
+             */
             $missingPrivileges = $event->getMissingPrivileges();
         }
 
         $this->tryToThrow($missingPrivileges);
     }
 
+    /**
+     * @param list<string> $missingPrivileges
+     */
     private function tryToThrow(array $missingPrivileges): void
     {
         if (!empty($missingPrivileges)) {
-            throw new MissingPrivilegeException($missingPrivileges);
+            throw ApiException::missingPrivileges($missingPrivileges);
         }
     }
 

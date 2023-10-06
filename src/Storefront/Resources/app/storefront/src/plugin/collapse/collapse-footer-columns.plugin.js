@@ -3,6 +3,9 @@ import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
 
+/**
+ * @package storefront
+ */
 export default class CollapseFooterColumnsPlugin extends Plugin {
 
     static options = {
@@ -60,19 +63,20 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      */
     _onClickCollapseTrigger(event) {
         const trigger = event.target;
-        const collapse = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
-        const $collapse = $(collapse);
+        const collapseEl = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
         const collapseShowClass = this.options.collapseShowClass;
 
-        $collapse.collapse('toggle');
+        new bootstrap.Collapse(collapseEl, {
+            toggle: true,
+        });
 
-        $collapse.on('shown.bs.collapse', () => {
+        collapseEl.addEventListener('shown.bs.collapse', () => {
             trigger.classList.add(collapseShowClass);
 
             this.$emitter.publish('onCollapseShown');
         });
 
-        $collapse.on('hidden.bs.collapse', () => {
+        collapseEl.addEventListener('hidden.bs.collapse', () => {
             trigger.classList.remove(collapseShowClass);
 
             this.$emitter.publish('onCollapseHidden');

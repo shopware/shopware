@@ -1,9 +1,12 @@
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard-modal', {
+/**
+ * @package services-settings
+ * @deprecated tag:v6.6.0 - Will be private
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['firstRunWizardService'],
@@ -12,6 +15,8 @@ Component.register('sw-first-run-wizard-modal', {
         return {
             title: 'No title defined',
             buttonConfig: [],
+            showLoader: false,
+            wasNewExtensionActivated: false,
             stepVariant: 'info',
             currentStep: {
                 name: '',
@@ -54,35 +59,30 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 4,
                 },
-                markets: {
-                    name: 'sw.first.run.wizard.index.markets',
-                    variant: 'large',
-                    navigationIndex: 5,
-                },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 6,
+                    navigationIndex: 5,
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 7,
+                    navigationIndex: 6,
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 7,
+                    navigationIndex: 6,
                 },
                 store: {
                     name: 'sw.first.run.wizard.index.store',
                     variant: 'large',
-                    navigationIndex: 8,
+                    navigationIndex: 7,
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 9,
+                    navigationIndex: 8,
                 },
             },
         };
@@ -157,6 +157,10 @@ Component.register('sw-first-run-wizard-modal', {
 
             return currentSteps;
         },
+
+        isClosable() {
+            return !Shopware.Context.app.firstRunWizard;
+        },
     },
 
     watch: {
@@ -213,6 +217,26 @@ Component.register('sw-first-run-wizard-modal', {
                     document.location.href = document.location.origin + document.location.pathname;
                 });
         },
-    },
-});
 
+        onExtensionActivated() {
+            this.wasNewExtensionActivated = true;
+        },
+
+        async closeModal() {
+            if (!this.isClosable) {
+                return;
+            }
+
+            this.showLoader = true;
+
+            await this.$nextTick();
+
+            await this.$router.push({ name: 'sw.settings.index.system' });
+
+            // reload page when new extension was activated and modal is closed
+            if (this.wasNewExtensionActivated) {
+                window.location.reload();
+            }
+        },
+    },
+};

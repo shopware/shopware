@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\Statement;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,29 +12,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
-    private Connection $connection;
+    private const RELEVANT_KEYWORD_COUNT = 8;
 
-    private TokenizerInterface $tokenizer;
-
-    private LoggerInterface $logger;
-
-    private AbstractTokenFilter $tokenFilter;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        TokenizerInterface $tokenizer,
-        LoggerInterface $logger,
-        AbstractTokenFilter $tokenFilter
+        private readonly Connection $connection,
+        private readonly TokenizerInterface $tokenizer,
+        private readonly LoggerInterface $logger,
+        private readonly AbstractTokenFilter $tokenFilter
     ) {
-        $this->connection = $connection;
-        $this->tokenizer = $tokenizer;
-        $this->logger = $logger;
-        $this->tokenFilter = $tokenFilter;
     }
 
     public function interpret(string $word, Context $context): SearchPattern
@@ -63,6 +57,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $tokens[] = $token;
         }
 
+        /** @var list<string> $tokens */
         $tokens = array_keys(array_flip($tokens));
 
         $pattern = new SearchPattern(new SearchTerm($word));
@@ -71,9 +66,8 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $pattern->setTokenTerms($matches);
 
         $scoring = $this->score($tokens, ArrayNormalizer::flatten($matches));
-        if ($pattern->getBooleanClause() === SearchPattern::BOOLEAN_CLAUSE_OR) {
-            $scoring = \array_slice($scoring, 0, 8, true);
-        }
+        // only use the 8 best matches, otherwise the query might explode
+        $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -86,6 +80,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $pattern;
     }
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     private function permute(array $tokens): array
     {
         $combinations = [];
@@ -101,6 +100,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $combinations;
     }
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return array<string, array{normal: list<string>, reversed: list<string>}>
+     */
     private function slop(array $tokens): array
     {
         $tokenSlops = [];
@@ -148,9 +152,16 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $tokenSlops;
     }
 
+    /**
+     * @param array<int, list<string>> $matches
+     * @param list<list<string>> $keywordRows
+     *
+     * @return array<int, list<string>>
+     */
     private function groupTokenKeywords(array $matches, array $keywordRows): array
     {
         foreach ($keywordRows as $keywordRow) {
+            /** @var string $keyword */
             $keyword = array_shift($keywordRow);
             foreach ($keywordRow as $indexColumn => $value) {
                 if ((bool) $value) {
@@ -162,6 +173,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $matches;
     }
 
+    /**
+     * @param array<string, array{normal: list<string>, reversed: list<string>}> $tokenSlops
+     *
+     * @return list<list<string>>
+     */
     private function fetchKeywords(Context $context, array $tokenSlops): array
     {
         $query = new QueryBuilder($this->connection);
@@ -196,9 +212,15 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
-        return $query->execute()->fetchAll(FetchMode::NUMERIC);
+        return $query->executeQuery()->fetchAllNumeric();
     }
 
+    /**
+     * @param list<string> $tokens
+     * @param list<string> $matches
+     *
+     * @return array<string, float>
+     */
     private function score(array $tokens, array $matches): array
     {
         $scoring = [];
@@ -212,11 +234,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                if (\PHP_VERSION_ID < 80000) {
-                    $levenshtein = levenshtein(substr($match, 0, 255), substr((string) $token, 0, 255));
-                } else {
-                    $levenshtein = levenshtein($match, (string) $token);
-                }
+                $levenshtein = levenshtein($match, (string) $token);
 
                 if ($levenshtein === 0) {
                     $score += 6;
@@ -238,13 +256,14 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, function ($a, $b) {
-            return $b <=> $a;
-        });
+        uasort($scoring, fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }
 
+    /**
+     * @param list<array{normal: list<string>, reversed: list<string>}> $tokenSlops
+     */
     private function checkSlops(array $tokenSlops): bool
     {
         foreach ($tokenSlops as $slops) {
@@ -261,20 +280,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $andLogic = false;
         $currentLanguageId = $context->getLanguageId();
 
-        $query = new QueryBuilder($this->connection);
-        $query->select('and_logic, language_id');
-        $query->from('product_search_config');
-
-        $query->andWhere('language_id IN (:language)');
-
-        $query->setParameter('language', Uuid::fromHexToBytesList([
-            $currentLanguageId, Defaults::LANGUAGE_SYSTEM,
-        ]), Connection::PARAM_STR_ARRAY);
-
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
-
-        $configurations = $stmt->fetchAll();
+        $configurations = $this->connection->fetchAllAssociative(
+            'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
+            ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
+            ['language' => ArrayParameterType::STRING]
+        );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];
             if (Uuid::fromBytesToHex($configuration['language_id']) === $currentLanguageId) {

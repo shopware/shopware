@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -25,23 +27,19 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * Determines all associated data for a definition.
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
+ *
+ * @internal
  */
+#[Package('core')]
 class EntityForeignKeyResolver
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(Connection $connection, EntityDefinitionQueryHelper $queryHelper)
-    {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper
+    ) {
     }
 
     /**
@@ -108,6 +106,29 @@ class EntityForeignKeyResolver
     }
 
     /**
+     * Returns a list of all entities and their primary keys which will be deleted by the mysql server
+     * Example:
+     *  [
+     *      "order_customer" => array:2 [
+     *          "cace68bdbca140b6ac43a083fb19f82b",
+     *          "50330f5531ed485fbd72ba016b20ea2a",
+     *      ]
+     *      "order_address" => array:4 [
+     *          "29d6334b01e64be28c89a5f1757fd661",
+     *          "484ef1124595434fa9b14d6d2cc1e9f8",
+     *          "601133b1173f4ca3aeda5ef64ad38355",
+     *          "9fd6c61cf9844a8984a45f4e5b55a59c",
+     *      ]
+     *  ]
+     *
+     * @throws \RuntimeException
+     */
+    public function getAllReverseInherited(EntityDefinition $definition, array $ids, Context $context): array
+    {
+        return $this->fetch($definition, $ids, ReverseInherited::class, $context);
+    }
+
+    /**
      * @throws InvalidUuidException
      */
     private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
@@ -120,14 +141,12 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        //prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
+        // prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
         if ($definition->getClass() === LanguageDefinition::class) {
             return [];
         }
 
-        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class): bool {
-            return $field->is($class);
-        });
+        $cascades = $definition->getFields()->filter(static fn (Field $field): bool => $field->is($class));
 
         if ($cascades->count() === 0) {
             return [];
@@ -216,7 +235,7 @@ class EntityForeignKeyResolver
 
         $this->queryHelper->addIdCondition(new Criteria($ids), $root, $query);
 
-        $affected = $query->execute()->fetchAll();
+        $affected = $query->executeQuery()->fetchAllAssociative();
 
         if (empty($affected)) {
             return [];
@@ -224,7 +243,9 @@ class EntityForeignKeyResolver
 
         // create flat list for single primary key entities
         if ($primaryKeys->count() === 1) {
-            $property = $primaryKeys->first()->getPropertyName();
+            /** @var Field $pk */
+            $pk = $primaryKeys->first();
+            $property = $pk->getPropertyName();
             $affected = array_column($affected, $property);
         }
 
@@ -235,11 +256,12 @@ class EntityForeignKeyResolver
 
         if ($class === SetNullOnDelete::class) {
             // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
-        } else {
-            // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
+            // stop recursion here, set null of an foreign key has no further impact
+            return [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
         }
+
+        // add entity prefix for the current association
+        $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
 
         // Only include entities directly associated with the definition
         if ($restrictDeleteOnlyFirstLevel && $class === RestrictDelete::class) {

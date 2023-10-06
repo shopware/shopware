@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @private
  * @description
  * The component catches all errors in subcomponent which aren't handled before.
@@ -26,6 +28,11 @@ Shopware.Component.register('sw-error-boundary', {
     },
 
     errorCaptured(err, vm) {
+        // TODO: NEXT-18182 - Remove this check when all modules are migrated to Vue 3
+        if (Shopware.Service('feature').isActive('VUE3')) {
+            return true;
+        }
+
         console.error('An error was captured in current module:', err);
 
         this.logErrorInEntries(err, vm);

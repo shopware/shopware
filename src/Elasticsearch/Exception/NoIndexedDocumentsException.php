@@ -2,11 +2,13 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('core')]
 class NoIndexedDocumentsException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_NO_INDEXED_DOCUMENTS';
+    final public const CODE = 'ELASTICSEARCH_NO_INDEXED_DOCUMENTS';
 
     public function __construct(string $entityName)
     {

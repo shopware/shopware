@@ -10,9 +10,12 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
+ *
  * @group slow
  */
 class UserConfigControllerTest extends TestCase
@@ -24,7 +27,7 @@ class UserConfigControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->resetBrowser();
     }
@@ -47,7 +50,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testGetAllConfigMe(): void
@@ -68,7 +71,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testGetNullConfigMe(): void
@@ -76,15 +79,15 @@ class UserConfigControllerTest extends TestCase
         $configKey = 'me.config';
         $ids = new IdsCollection();
 
-        //Different user
+        // Different user
         $user = [
             'id' => $ids->get('user'),
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
         ];
 
@@ -102,9 +105,9 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
 
-        //Different Key
+        // Different Key
         $contextBrowser = $this->getBrowser()->getServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $userId = Uuid::fromBytesToHex($contextBrowser->getSource()->getUserId());
 
@@ -118,7 +121,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testUpdateConfigMe(): void
@@ -152,7 +155,7 @@ class UserConfigControllerTest extends TestCase
         static::assertEquals([
             $configKey => [$newValue],
             $anotherConfigKey => [$anotherValue],
-        ], json_decode($response->getContent(), true)['data']);
+        ], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testCreateConfigMe(): void
@@ -172,7 +175,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => [$newValue]], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => [$newValue]], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testCreateWithSendingEmptyParameter(): void

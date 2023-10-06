@@ -3,24 +3,26 @@
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ActionButtonResponseFactory
 {
     /**
-     * @var ActionButtonResponseFactoryInterface[]
+     * @param ActionButtonResponseFactoryInterface[] $factories
      */
-    private iterable $factories;
-
-    public function __construct(iterable $factories)
+    public function __construct(private readonly iterable $factories)
     {
-        $this->factories = $factories;
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     public function createFromResponse(AppAction $action, string $actionType, array $payload, Context $context): ActionButtonResponse
     {
         foreach ($this->factories as $factory) {
@@ -29,6 +31,6 @@ class ActionButtonResponseFactory
             }
         }
 
-        throw new ActionProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
+        throw AppException::actionButtonProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
     }
 }

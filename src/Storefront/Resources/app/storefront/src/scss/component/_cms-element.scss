@@ -20,12 +20,10 @@ General styling for cms elements
 
         &.is-cover {
             object-fit: contain;
-            font-family: 'object-fit: contain;'; // IE polyfill
             height: 100%;
 
             .cms-image {
                 object-fit: cover;
-                font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
                 top: 0;
@@ -81,7 +79,6 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
-        font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;
         position: absolute;
@@ -129,7 +126,6 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
-        font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;
         position: absolute;
@@ -213,7 +209,7 @@ General styling for cms elements
     }
 }
 
-@include media-breakpoint-down(md) {
+@include media-breakpoint-down(lg) {
     .cms-element-product-listing-actions {
         flex-wrap: wrap;
         justify-content: center;
@@ -229,4 +225,8 @@ General styling for cms elements
 div.card-tabs .cms-card-header {
     padding-left: 0;
     padding-right: 0;
+}
+
+.cms-element-text {
+    position: relative;
 }

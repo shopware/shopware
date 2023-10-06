@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             <<<'SQL'
             CREATE TABLE IF NOT EXISTS `sales_channel_analytics` (
                 `id` BINARY(16)  NOT NULL,
@@ -28,7 +35,7 @@ class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
 SQL
         );
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             <<<'SQL'
             ALTER TABLE `sales_channel`
             ADD `analytics_id` binary(16) NULL AFTER `payment_method_ids`,

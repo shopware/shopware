@@ -2,20 +2,22 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class FlowState
 {
     public string $flowId;
 
-    public string $sequenceId;
-
     public bool $stop = false;
 
-    public FlowEventAware $event;
+    public Sequence $currentSequence;
 
-    public function __construct(FlowEventAware $event)
+    public bool $delayed = false;
+
+    public function getSequenceId(): string
     {
-        $this->event = $event;
+        return $this->currentSequence->sequenceId;
     }
 }

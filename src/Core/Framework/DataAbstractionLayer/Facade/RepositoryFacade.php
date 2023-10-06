@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `repository` service allows you to query data, that is stored inside shopware.
@@ -18,33 +19,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
  *
  * @script-service data_loading
  */
+#[Package('core')]
 class RepositoryFacade
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
-    private AclCriteriaValidator $criteriaValidator;
-
-    private Context $context;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        DefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder,
-        AclCriteriaValidator $criteriaValidator,
-        Context $context
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly Context $context
     ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->criteriaValidator = $criteriaValidator;
-        $this->context = $context;
     }
 
     /**
      * The `search()` method allows you to search for Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array $criteria The criteria used for your search.
+     * @param array<string, mixed> $criteria The criteria used for your search.
      *
      * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
      *
@@ -56,16 +49,14 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
-
-        return $repository->search($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->search($criteriaObject, $this->context);
     }
 
     /**
      * The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array $criteria The criteria used for your search.
+     * @param array<string, mixed> $criteria The criteria used for your search.
      *
      * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
      *
@@ -75,16 +66,14 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
-
-        return $repository->searchIds($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->searchIds($criteriaObject, $this->context);
     }
 
     /**
      * The `aggregate()` method allows you to execute aggregations specified in the given criteria.
      *
      * @param string $entityName The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
-     * @param array $criteria The criteria that define your aggregations.
+     * @param array<string, mixed> $criteria The criteria that define your aggregations.
      *
      * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
      *
@@ -94,11 +83,12 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
-
-        return $repository->aggregate($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->aggregate($criteriaObject, $this->context);
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     */
     private function prepareCriteria(string $entityName, array $criteria): Criteria
     {
         $definition = $this->registry->getByEntityName($entityName);

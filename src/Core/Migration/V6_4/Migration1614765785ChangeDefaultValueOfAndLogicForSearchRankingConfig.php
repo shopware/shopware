@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1614765785ChangeDefaultValueOfAndLogicForSearchRankingConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1614765785ChangeDefaultValueOfAndLogicForSearchRankingConfig exte
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('UPDATE product_search_config SET and_logic = 0');
+        $connection->executeStatement('UPDATE product_search_config SET and_logic = 0');
         // implement update
     }
 

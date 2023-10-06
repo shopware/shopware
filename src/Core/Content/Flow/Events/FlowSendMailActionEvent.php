@@ -2,30 +2,26 @@
 
 namespace Shopware\Core\Content\Flow\Events;
 
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
+#[Package('services-settings')]
 class FlowSendMailActionEvent implements ShopwareEvent
 {
-    private DataBag $dataBag;
-
-    private MailTemplateEntity $mailTemplate;
-
-    private FlowEvent $flowEvent;
-
-    public function __construct(DataBag $dataBag, MailTemplateEntity $mailTemplate, FlowEvent $flowEvent)
-    {
-        $this->dataBag = $dataBag;
-        $this->mailTemplate = $mailTemplate;
-        $this->flowEvent = $flowEvent;
+    public function __construct(
+        private readonly DataBag $dataBag,
+        private readonly MailTemplateEntity $mailTemplate,
+        private readonly StorableFlow $flow
+    ) {
     }
 
     public function getContext(): Context
     {
-        return $this->flowEvent->getContext();
+        return $this->flow->getContext();
     }
 
     public function getDataBag(): DataBag
@@ -38,8 +34,8 @@ class FlowSendMailActionEvent implements ShopwareEvent
         return $this->mailTemplate;
     }
 
-    public function getFlowEvent(): FlowEvent
+    public function getStorableFlow(): StorableFlow
     {
-        return $this->flowEvent;
+        return $this->flow;
     }
 }

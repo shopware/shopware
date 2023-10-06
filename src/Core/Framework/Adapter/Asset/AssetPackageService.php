@@ -2,32 +2,38 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
+#[\Shopware\Core\Framework\Log\Package('core')]
 class AssetPackageService
 {
-    private Packages $packages;
-
-    private Package $package;
-
-    private VersionStrategyInterface $versionStrategy;
-
-    public function __construct(Packages $packages, Package $package, VersionStrategyInterface $versionStrategy)
-    {
-        $this->packages = $packages;
-        $this->package = $package;
-        $this->versionStrategy = $versionStrategy;
-    }
-
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, will be now automatically registered
+     */
     public function addAssetPackage(string $bundleName, string $bundlePath): void
     {
-        $path = $this->package->getUrl('/bundles/' . mb_strtolower($bundleName));
-        $this->packages->addPackage(
-            '@' . $bundleName,
-            new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $this->versionStrategy))
-        );
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, 'addAssetPackage', 'Will be automatically registered'));
+    }
+
+    /**
+     * @param array<string, string> $bundleMap
+     */
+    public static function create(array $bundleMap, Package $package, VersionStrategyInterface $versionStrategy, mixed ...$args): Packages
+    {
+        $packages = new Packages(...$args);
+
+        foreach ($bundleMap as $bundleName => $bundlePath) {
+            $path = $package->getUrl('/bundles/' . mb_strtolower($bundleName));
+            $packages->addPackage(
+                '@' . $bundleName,
+                new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $versionStrategy))
+            );
+        }
+
+        return $packages;
     }
 }

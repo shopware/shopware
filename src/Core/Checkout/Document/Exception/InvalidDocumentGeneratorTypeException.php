@@ -2,24 +2,24 @@
 
 namespace Shopware\Core\Checkout\Document\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-class InvalidDocumentGeneratorTypeException extends ShopwareHttpException
+#[Package('checkout')]
+class InvalidDocumentGeneratorTypeException extends DocumentException
 {
+    /**
+     * @deprecated tag:v6.6.0 - reason:becomes-internal - Use DocumentException::invalidDocumentGeneratorType instead
+     */
     public function __construct(string $type)
     {
-        $message = sprintf('Unable to find a document generator with type "%s"', $type);
-        parent::__construct($message);
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'DOCUMENT__INVALID_GENERATOR_TYPE';
+        // @deprecated tag:v6.6.0 - remove own __construct function and move to DocumentException::invalidDocumentGeneratorType
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            DocumentException::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
+            'Unable to find a document generator with type "{{ type }}"',
+            ['type' => $type]
+        );
     }
 }

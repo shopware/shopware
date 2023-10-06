@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\Media\File;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 
+/**
+ * @internal
+ */
 class FileUrlValidatorTest extends TestCase
 {
     /**
@@ -17,7 +20,7 @@ class FileUrlValidatorTest extends TestCase
         static::assertEquals($expectedResult, $validator->isValid($source));
     }
 
-    public function fileSourceProvider(): array
+    public static function fileSourceProvider(): array
     {
         return [
             'reserved IPv4' => ['https://127.0.0.1', false],

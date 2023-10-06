@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
@@ -24,18 +26,21 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
-    private RuleConditionRegistry $ruleConditionRegistry;
-
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
-        RuleConditionRegistry $ruleConditionRegistry
+        private readonly RuleConditionRegistry $ruleConditionRegistry
     ) {
-        parent::__construct($compositeHandler, $validator);
-
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
+        parent::__construct($validator, $compositeHandler);
     }
 
     public function encode(
@@ -44,7 +49,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($value !== null) {
             if (!\array_key_exists('type', $value)) {
@@ -127,19 +132,14 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|CurrencyPriceDefinition|null
-     *
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed and the return type is PriceDefinitionInterface|null
-     */
-    public function decode(Field $field, /*?string */$value)/*: ?PriceDefinitionInterface*/
+    public function decode(Field $field, mixed $value): ?PriceDefinitionInterface
     {
         if ($value === null) {
             return null;
         }
 
         $decoded = parent::decode($field, $value);
-        if ($decoded === null) {
+        if (!\is_array($decoded)) {
             return null;
         }
 
@@ -194,6 +194,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             $rule = $this->ruleConditionRegistry->getRuleInstance($type);
             // do not validate container
             if (!$rule instanceof Container) {
+                $rule->assign($data);
                 $validations = $rule->getConstraints();
                 $violationList->addAll($this->validateConsistence($basePath, $validations, $data));
             }

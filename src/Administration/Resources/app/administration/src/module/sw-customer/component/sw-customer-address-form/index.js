@@ -1,11 +1,17 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Defaults } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Defaults, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-customer-address-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -34,6 +40,7 @@ Component.register('sw-customer-address-form', {
     data() {
         return {
             country: null,
+            states: [],
         };
     },
 
@@ -47,6 +54,10 @@ Component.register('sw-customer-address-form', {
 
         countryRepository() {
             return this.repositoryFactory.create('country');
+        },
+
+        countryStateRepository() {
+            return this.repositoryFactory.create('country_state');
         },
 
         ...mapPropertyErrors('address', [
@@ -64,11 +75,7 @@ Component.register('sw-customer-address-form', {
             'countryId',
             'phoneNumber',
             'vatId',
-        ]),
-
-        ...mapPropertyErrors('address', [
             'countryStateId',
-            'countryId',
             'salutationId',
             'city',
             'street',
@@ -88,8 +95,9 @@ Component.register('sw-customer-address-form', {
         },
 
         countryCriteria() {
-            const criteria = new Criteria();
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -98,19 +106,29 @@ Component.register('sw-customer-address-form', {
                 return null;
             }
 
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('countryId', this.countryId));
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('countryId', this.countryId))
+                .addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
         salutationCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('or', [
                 Criteria.equals('id', Defaults.defaultSalutationId),
             ]));
 
             return criteria;
+        },
+
+        hasStates() {
+            return this.states.length > 0;
+        },
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 
@@ -122,13 +140,14 @@ Component.register('sw-customer-address-form', {
                     this.address.countryStateId = null;
                 }
 
-                if (this.countryId === null) {
+                if (!this.countryId) {
                     this.country = null;
                     return Promise.resolve();
                 }
 
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
+                    this.getCountryStates();
                 });
             },
         },
@@ -140,5 +159,47 @@ Component.register('sw-customer-address-form', {
 
             this.customer.company = newVal;
         },
+
+        'country.forceStateInRegistration'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.countryStateId.flags.required = newVal;
+        },
+
+        'country.postalCodeRequired'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.zipcode.flags.required = newVal;
+        },
     },
-});
+
+    methods: {
+        getCountryStates() {
+            if (!this.country) {
+                return Promise.resolve();
+            }
+
+            return this.countryStateRepository.search(this.stateCriteria).then((response) => {
+                this.states = response;
+            });
+        },
+    },
+};

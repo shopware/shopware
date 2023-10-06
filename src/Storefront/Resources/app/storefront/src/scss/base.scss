@@ -30,7 +30,6 @@ https://sass-guidelin.es/#the-7-1-pattern
  * ---------- */
 @import 'base/base';
 @import 'base/reboot';
-@import 'base/ie11-fixes';
 
 /*
  * Components
@@ -73,8 +72,11 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/product-feature';
 @import 'component/notification-dot';
 @import 'component/product-wishlist';
+@import 'component/quantity-selector';
 @import 'component/fading-plugin';
 @import 'component/basic-captcha';
+@import 'component/line-item';
+@import 'component/visibility';
 
 /*
  * Layout-related sections
@@ -118,8 +120,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/checkout/aside';
 @import 'page/checkout/aside-children';
 @import 'page/checkout/cart';
-@import 'page/checkout/cart-item';
-@import 'page/checkout/cart-item-children';
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';

@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
+ * @internal
  * Marks services public that would otherwise be inlined in setups where only Shopware/Core is used,
  * as the only usages are in storefront
  */

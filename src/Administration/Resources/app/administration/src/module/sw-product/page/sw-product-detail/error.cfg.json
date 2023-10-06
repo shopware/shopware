@@ -5,7 +5,8 @@
       "price",
       "stock",
       "manufacturerId",
-      "name"
+      "name",
+      "downloads"
     ]
   },
   "sw.product.detail.cross.selling": {

@@ -1,0 +1,39 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/order_transaction_capture_refund\/{refundId}": {
+            "post": {
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Refund an order transaction capture",
+                "description": "Refunds an order transaction capture.",
+                "operationId": "orderTransactionCaptureRefund",
+                "parameters": [
+                    {
+                        "name": "refundId",
+                        "in": "path",
+                        "description": "Identifier of the order transaction capture refund.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Refund was successful"
+                    },
+                    "400": {
+                        "description": "Something went wrong, while processing the refund"
+                    },
+                    "404": {
+                        "description": "Refund with id not found"
+                    }
+                }
+            }
+        }
+    }
+}

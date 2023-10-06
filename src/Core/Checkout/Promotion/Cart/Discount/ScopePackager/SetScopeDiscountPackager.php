@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
@@ -16,19 +14,18 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class SetScopeDiscountPackager extends DiscountPackager
 {
     /**
-     * @var LineItemGroupBuilder
+     * @internal
      */
-    private $groupBuilder;
-
-    public function __construct(LineItemGroupBuilder $groupBuilder)
+    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
     {
-        $this->groupBuilder = $groupBuilder;
     }
 
     public function getDecorated(): DiscountPackager
@@ -43,15 +40,13 @@ class SetScopeDiscountPackager extends DiscountPackager
      * In addition to this, a set can indeed occur multiple times. So the
      * result may come from multiple complete sets and their groups.
      *
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws LineItemGroupPackagerNotFoundException
      * @throws LineItemGroupSorterNotFoundException
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
-        /** @var array $groups */
+        /** @var array<string, mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
         $definitions = $this->buildGroupDefinitionList($groups);
@@ -98,6 +93,8 @@ class SetScopeDiscountPackager extends DiscountPackager
     /**
      * Gets a list of in-memory grupo definitions
      * from the list of group settings from the payload
+     *
+     * @param array<string, mixed> $groups
      *
      * @return LineItemGroupDefinition[]
      */

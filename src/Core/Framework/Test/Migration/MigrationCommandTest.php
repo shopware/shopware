@@ -18,6 +18,9 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class MigrationCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,7 +33,7 @@ class MigrationCommandTest extends TestCase
         $connection->createQueryBuilder()
             ->delete('migration')
             ->where('`class` LIKE "%_test_migrations_valid%"')
-            ->execute();
+            ->executeStatement();
     }
 
     public function getCommand(): MigrationCommand
@@ -125,8 +128,8 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         static::assertSame(3, $this->getMigrationCount(true));
@@ -174,16 +177,16 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         $command = $this->getDestructiveCommand();
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         static::assertSame(2, $this->getMigrationCount(true, true));
@@ -273,6 +276,6 @@ class MigrationCommandTest extends TestCase
             $query->andWhere('`update` IS NOT NULL');
         }
 
-        return (int) $query->execute()->fetchColumn();
+        return (int) $query->executeQuery()->fetchOne();
     }
 }

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class TranslatedFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -24,7 +27,7 @@ class TranslatedFieldSerializerTest extends TestCase
 
     protected WriteContext $writeContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get(TranslatedFieldSerializer::class);
         $this->writeContext = WriteContext::createFromContext(Context::createDefaultContext());

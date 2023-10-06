@@ -3,31 +3,36 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class FkFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof FkField) {
-            throw new InvalidSerializerFieldException(FkField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FkField::class, $field);
         }
 
         $value = $data[$field->getPropertyName()] ?? null;
 
         $writeContext = $parameters->getContext();
 
-        if ($this->shouldUseContext($field, true, $value) && $writeContext->has($field->getReferenceDefinition()->getClass(), $field->getReferenceField())) {
-            $data[$field->getPropertyName()] = $writeContext->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
+        if ($this->shouldUseContext($field, true, $value) && $writeContext->has($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField())) {
+            $data[$field->getPropertyName()] = $writeContext->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
         }
 
         return $data;
@@ -40,15 +45,15 @@ class FkFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof FkField) {
-            throw new InvalidSerializerFieldException(FkField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FkField::class, $field);
         }
 
         $value = $data->getValue();
 
         if ($this->shouldUseContext($field, $data->isRaw(), $value)) {
             try {
-                $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
-            } catch (\InvalidArgumentException $exception) {
+                $value = $parameters->getContext()->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
+            } catch (\InvalidArgumentException) {
                 if ($this->requiresValidation($field, $existence, $value, $parameters)) {
                     $this->validate($this->getConstraints($field), $data, $parameters->getPath());
                 }
@@ -71,10 +76,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return null;
@@ -84,7 +86,9 @@ class FkFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param string|int|float|bool|array|object|callable|resource|null $value
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Parameter $value will be natively typed as mixed
+     *
+     * @param mixed $value
      */
     protected function shouldUseContext(FkField $field, bool $isRaw, $value): bool
     {

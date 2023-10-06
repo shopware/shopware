@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class ArrayType implements EventDataType
 {
-    public const TYPE = 'array';
+    final public const TYPE = 'array';
 
-    /**
-     * @var EventDataType
-     */
-    private $type;
-
-    public function __construct(EventDataType $type)
+    public function __construct(private readonly EventDataType $type)
     {
-        $this->type = $type;
     }
 
     public function toArray(): array

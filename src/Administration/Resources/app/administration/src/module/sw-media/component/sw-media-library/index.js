@@ -1,13 +1,22 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-media-library', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'searchRankingService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'searchRankingService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -79,10 +88,9 @@ Component.register('sw-media-library', {
         return {
             isLoading: false,
             selectedItems: this.selection,
-            pageItem: 0,
-            pageFolder: 0,
+            pageItem: 1,
+            pageFolder: 1,
             itemLoaderDone: false,
-            // @deprecated tag:v6.5.0 - Will be removed
             folderLoaderDone: false,
             items: [],
             subFolders: [],
@@ -95,6 +103,12 @@ Component.register('sw-media-library', {
     },
 
     computed: {
+        shouldDisplayEmptyState() {
+            return !this.isLoading && (this.selectableItems.length === 0 || (
+                this.isValidTerm(this.term) && this.selectableItems.length === 0
+            ));
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -132,7 +146,65 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && (!this.itemLoaderDone);
+            if (this.isLoading || this.shouldDisplayEmptyState) {
+                return false;
+            }
+
+            return !(this.itemLoaderDone && this.folderLoaderDone);
+        },
+
+        nextMediaCriteria() {
+            // always search without folderId criteria --> search for all items
+            const criteria = new Criteria(this.pageItem, this.limit);
+
+            criteria
+                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
+                .setTerm(this.term);
+
+            // ToDo NEXT-22186 - will be replaced by a new overview
+            [
+                'tags',
+                'productMedia.product',
+                'categories',
+                'productManufacturers.products',
+                'mailTemplateMedia.mailTemplate',
+                'documentBaseConfigs',
+                'avatarUsers',
+                'paymentMethods',
+                'shippingMethods',
+                'cmsBlocks.section.page',
+                'cmsSections.page',
+                'cmsPages',
+            ].forEach(association => {
+                const associationParts = association.split('.');
+
+                criteria.addAssociation(association);
+
+                let path = null;
+                associationParts.forEach(currentPart => {
+                    path = path ? `${path}.${currentPart}` : currentPart;
+
+                    criteria.getAssociation(path).setLimit(25);
+                });
+            });
+
+            return criteria;
+        },
+
+        nextFoldersCriteria() {
+            const criteria = new Criteria(this.pageFolder, this.limit)
+                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
+                .setTerm(this.term);
+
+            if (!this.term) {
+                criteria.addFilter(Criteria.equals('parentId', this.folderId));
+            }
+
+            return criteria;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -145,6 +217,12 @@ Component.register('sw-media-library', {
         },
 
         selectedItems() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:selection', this.selectedItems);
+
+                return;
+            }
+
             this.$emit('media-selection-change', this.selectedItems);
         },
 
@@ -197,12 +275,24 @@ Component.register('sw-media-library', {
             this.clearSelection();
             await this.fetchAssociatedFolders();
 
-            this.pageItem = 0;
-            this.pageFolder = 0;
+            this.pageItem = 1;
+            this.pageFolder = 1;
+
             this.itemLoaderDone = false;
-            // @deprecated tag:v6.5.0 - Will be removed
             this.folderLoaderDone = false;
 
+            this.loadItems();
+        },
+
+        isValidTerm(term) {
+            return term?.trim()?.length > 1;
+        },
+
+        loadNextItems() {
+            if (this.isLoading === true) {
+                return;
+            }
+            this.isLoading = true;
             this.loadItems();
         },
 
@@ -228,27 +318,29 @@ Component.register('sw-media-library', {
 
         async loadItems() {
             this.isLoading = true;
-            const nextFolders = await this.nextFolders();
+            const [nextFolders, nextMedia] = await Promise.allSettled([this.nextFolders(), this.nextMedia()]);
 
-            this.pageItem += 1;
+            if (nextMedia.status === 'fulfilled') {
+                this.items.push(...nextMedia.value);
+            } else {
+                this.itemLoaderDone = false;
+            }
 
-            let criteria = new Criteria(this.pageItem, this.limit);
-            criteria
-                .addFilter(Criteria.equals('mediaFolderId', this.folderId))
-                .addAssociation('tags')
-                .addAssociation('productMedia.product')
-                .addAssociation('categories')
-                .addAssociation('productManufacturers.products')
-                .addAssociation('mailTemplateMedia.mailTemplate')
-                .addAssociation('documentBaseConfigs')
-                .addAssociation('avatarUser')
-                .addAssociation('paymentMethods')
-                .addAssociation('shippingMethods')
-                .addAssociation('cmsBlocks.section.page')
-                .addAssociation('cmsSections.page')
-                .addAssociation('cmsPages')
-                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
-                .setTerm(this.term);
+            if (nextFolders.status === 'fulfilled') {
+                this.subFolders.push(...nextFolders.value);
+            } else {
+                this.folderLoaderDone = false;
+            }
+
+            this.isLoading = false;
+        },
+
+        async nextMedia() {
+            if (this.itemLoaderDone) {
+                return [];
+            }
+
+            let criteria = this.nextMediaCriteria;
 
             if (this.isValidTerm(this.term)) {
                 const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
@@ -256,7 +348,8 @@ Component.register('sw-media-library', {
                 if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
                     this.isLoading = false;
                     this.itemLoaderDone = true;
-                    return;
+
+                    return [];
                 }
 
                 criteria = this.searchRankingService.buildSearchQueriesForEntity(
@@ -266,39 +359,38 @@ Component.register('sw-media-library', {
                 );
             }
 
-            const items = await this.mediaRepository.search(criteria, Context.api);
-
-            this.items.push(...items);
-            this.subFolders.push(...nextFolders);
-            this.itemLoaderDone = this.isLoaderDone(criteria, items);
-
-            this.isLoading = false;
-        },
-
-        isValidTerm(term) {
-            return term && term.trim().length > 1;
-        },
-
-        loadNextItems() {
-            if (this.isLoading === true) {
-                return;
+            // only fetch items of current folder
+            if (!this.isValidTerm(this.term)) {
+                criteria.addFilter(Criteria.equals('mediaFolderId', this.folderId));
             }
-            this.isLoading = true;
-            this.loadItems();
+
+            // search only in current and all subFolders
+            if (this.folderId != null && this.isValidTerm(this.term)) {
+                criteria.addFilter(Criteria.multi('OR', [
+                    Criteria.equals('mediaFolderId', this.folderId),
+                    Criteria.contains('mediaFolder.path', this.folderId),
+                ]));
+            }
+
+            const media = await this.mediaRepository.search(criteria, Context.api);
+
+            this.itemLoaderDone = this.isLoaderDone(criteria, media);
+
+            this.pageItem += 1;
+
+            return media;
         },
 
         async nextFolders() {
+            if (this.folderLoaderDone) {
+                return [];
+            }
+
+            const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
+
+            this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
+
             this.pageFolder += 1;
-
-            const criteria = new Criteria(this.pageFolder)
-                .addFilter(Criteria.equals('parentId', this.folderId))
-                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
-                .setTerm(this.term);
-
-            const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
-
-            // @deprecated tag:v6.5.0 - Will be removed
-            this.folderLoaderDone = this.isLoaderDone(criteria, subFolders);
 
             return subFolders;
         },
@@ -376,4 +468,4 @@ Component.register('sw-media-library', {
             this.subFolders.shift();
         },
     },
-});
+};

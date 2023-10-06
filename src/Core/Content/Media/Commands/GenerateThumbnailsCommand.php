@@ -2,85 +2,58 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(
+    name: 'media:generate-thumbnails',
+    description: 'Generates thumbnails for all media files',
+)]
+#[Package('buyers-experience')]
 class GenerateThumbnailsCommand extends Command
 {
-    protected static $defaultName = 'media:generate-thumbnails';
+    private ShopwareStyle $io;
+
+    private ?int $batchSize = null;
+
+    private ?Filter $folderFilter = null;
+
+    private bool $isAsync;
+
+    private bool $isStrict;
 
     /**
-     * @var ThumbnailService
+     * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
      */
-    private $thumbnailService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaFolderRepository;
-
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
-
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
-    /**
-     * @var int
-     */
-    private $batchSize;
-
-    /**
-     * @var Filter|null
-     */
-    private $folderFilter;
-
-    /**
-     * @var bool
-     */
-    private $isAsync;
-
-    /**
-     * @var bool
-     */
-    private $isStrict;
-
     public function __construct(
-        ThumbnailService $thumbnailService,
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $mediaFolderRepository,
-        MessageBusInterface $messageBus
+        private readonly ThumbnailService $thumbnailService,
+        private readonly EntityRepository $mediaRepository,
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly MessageBusInterface $messageBus
     ) {
         parent::__construct();
-
-        $this->thumbnailService = $thumbnailService;
-        $this->mediaRepository = $mediaRepository;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->messageBus = $messageBus;
     }
 
     /**
@@ -88,15 +61,7 @@ class GenerateThumbnailsCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates the thumbnails for media entities')
-            ->addOption(
-                'batch-size',
-                'b',
-                InputOption::VALUE_REQUIRED,
-                'Number of entities per iteration',
-                '50'
-            )
+        $this->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Number of entities per iteration', '50')
             ->addOption(
                 'folder-name',
                 null,
@@ -128,6 +93,7 @@ class GenerateThumbnailsCommand extends Command
 
         $this->initializeCommand($input, $context);
 
+        /** @var RepositoryIterator<MediaCollection> $mediaIterator */
         $mediaIterator = new RepositoryIterator($this->mediaRepository, $context, $this->createCriteria());
 
         if (!$this->isAsync) {
@@ -152,7 +118,7 @@ class GenerateThumbnailsCommand extends Command
         $rawInput = $input->getOption('batch-size');
 
         if (!is_numeric($rawInput)) {
-            throw new \UnexpectedValueException('Batch size must be numeric');
+            throw MediaException::invalidBatchSize();
         }
 
         return (int) $rawInput;
@@ -171,17 +137,17 @@ class GenerateThumbnailsCommand extends Command
         $searchResult = $this->mediaFolderRepository->search($criteria, $context);
 
         if ($searchResult->getTotal() === 0) {
-            throw new \UnexpectedValueException(
-                sprintf(
-                    'Could not find a folder with the name: "%s"',
-                    $rawInput
-                )
-            );
+            throw MediaException::mediaFolderNameNotFound($rawInput);
         }
 
         return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
     }
 
+    /**
+     * @param RepositoryIterator<MediaCollection> $iterator
+     *
+     * @return array<string, int|array<array<string>>>
+     */
     private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
     {
         $generated = 0;
@@ -190,7 +156,6 @@ class GenerateThumbnailsCommand extends Command
         $errors = [];
 
         while (($result = $iterator->fetch()) !== null) {
-            /** @var MediaEntity $media */
             foreach ($result->getEntities() as $media) {
                 try {
                     if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
@@ -230,6 +195,9 @@ class GenerateThumbnailsCommand extends Command
         return $criteria;
     }
 
+    /**
+     * @param RepositoryIterator<MediaCollection> $mediaIterator
+     */
     private function generateSynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
         $totalMediaCount = $mediaIterator->getTotal();
@@ -248,18 +216,23 @@ class GenerateThumbnailsCommand extends Command
             ]
         );
 
-        if (\count($result['errors'])) {
+        if (is_countable($result['errors']) ? \count($result['errors']) : 0) {
             if ($this->io->isVerbose()) {
+                /** @var array<array<string>> $errors */
+                $errors = $result['errors'];
                 $this->io->table(
                     ['Error messages'],
-                    $result['errors']
+                    $errors
                 );
             } else {
-                $this->io->warning(\sprintf('Thumbnail generation for %d file(s) failed. Use -v to show the files', \count($result['errors'])));
+                $this->io->warning(\sprintf('Thumbnail generation for %d file(s) failed. Use -v to show the files', is_countable($result['errors']) ? \count($result['errors']) : 0));
             }
         }
     }
 
+    /**
+     * @param RepositoryIterator<MediaCollection> $mediaIterator
+     */
     private function generateAsynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
         $batchCount = 0;
@@ -268,7 +241,12 @@ class GenerateThumbnailsCommand extends Command
             $msg = new UpdateThumbnailsMessage();
             $msg->setIsStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
-            $msg->withContext($context);
+
+            if (Feature::isActive('v6.6.0.0')) {
+                $msg->setContext($context);
+            } else {
+                $msg->withContext($context);
+            }
 
             $this->messageBus->dispatch($msg);
             ++$batchCount;

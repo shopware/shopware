@@ -2,7 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
-class WarmUpMessage
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
+#[Package('storefront')]
+class WarmUpMessage implements AsyncMessageInterface
 {
     /**
      * @var string
@@ -29,8 +33,14 @@ class WarmUpMessage
      */
     protected $parameters;
 
-    public function __construct(string $route, array $parameters, ?array $offset = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        string $route,
+        array $parameters,
+        ?array $offset = null
+    ) {
         $this->offset = $offset;
         $this->route = $route;
         $this->parameters = $parameters;

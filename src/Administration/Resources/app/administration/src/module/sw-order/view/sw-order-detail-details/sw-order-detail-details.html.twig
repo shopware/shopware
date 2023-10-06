@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_details %}
 <div class="sw-order-detail-details">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
@@ -13,24 +15,32 @@
         @save-edits="onSaveEdits"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
+            class="sw-order-detail-details__billing-address"
+            type="billing"
             :address="billingAddress"
-            :address-id="billingAddress.id"
+            :address-id="selectedBillingAddressId"
+            :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
             @change-address="onChangeOrderAddress"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_method_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="transaction.paymentMethodId"
+            {% else %}
             v-model="transaction.paymentMethodId"
+            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             disabled
             :criteria="paymentMethodCriteria"
             :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-            :help-text="$tc('sw-order.createBase.detailsFooter.helpTextPaymentMethod')"
             :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
             show-clearable-button
         />
@@ -39,6 +49,7 @@
     </sw-order-details-state-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
         v-if="delivery"
@@ -51,18 +62,27 @@
         @save-edits="onSaveEdits"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
-            :address="delivery.shippingOrderAddress"
-            :address-id="delivery.shippingOrderAddress.id"
+            class="sw-order-detail-details__shipping-address"
+            type="shipping"
+            :address="shippingAddress"
+            :address-id="selectedShippingAddressId"
+            :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
             @change-address="onChangeOrderAddress"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="delivery.shippingMethodId"
+            {% else %}
             v-model="delivery.shippingMethodId"
+            {% endif %}
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
@@ -72,10 +92,16 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_costs %}
         <sw-number-field
-            v-model="order.shippingTotal"
-            disabled
+            {% if VUE3 %}
+            v-model:value="shippingCosts"
+            {% else %}
+            v-model="shippingCosts"
+            {% endif %}
+            class="sw-order-detail-details__shipping-cost"
+            :disabled="!acl.can('order.editor')"
             fill-digits
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >
@@ -85,23 +111,37 @@
         </sw-number-field>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_date %}
         <sw-datepicker
+            {% if VUE3 %}
+            v-model:value="delivery.shippingDateEarliest"
+            {% else %}
             v-model="delivery.shippingDateEarliest"
+            {% endif %}
             disabled
             :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
+            {% if VUE3 %}
+            v-model:value="delivery.trackingCodes"
+            {% else %}
             v-model="delivery.trackingCodes"
+            {% endif %}
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor')"
             :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$tc('sw-order.detailBase.labelTrackingCodes')"
             :validate="validateTrackingCode"
+            {% if VUE3 %}
+            @update:value="saveAndReload"
+            {% else %}
             @change="saveAndReload"
+            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
@@ -115,6 +155,7 @@
     </sw-order-details-state-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
@@ -126,27 +167,44 @@
         @save-edits="onSaveEdits"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_email %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.orderCustomer.email"
+            {% else %}
             v-model="order.orderCustomer.email"
+            {% endif %}
+            class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_phone_number %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
+            {% else %}
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
+            {% endif %}
+            class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_sales_channel %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="order.salesChannelId"
+            {% else %}
             v-model="order.salesChannelId"
+            {% endif %}
             entity="sales_channel"
             disabled
             :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
@@ -155,9 +213,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_language %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="order.languageId"
+            {% else %}
             v-model="order.languageId"
+            {% endif %}
             entity="language"
             disabled
             :criteria="salesChannelCriteria"
@@ -167,31 +230,49 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_affiliate %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.affiliateCode"
+            {% else %}
             v-model="order.affiliateCode"
+            {% endif %}
+            class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_campaign %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.campaignCode"
+            {% else %}
             v-model="order.campaignCode"
+            {% endif %}
+            class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_customer_comment %}
         <sw-textarea-field
+            {% if VUE3 %}
+            v-model:value="order.customerComment"
+            {% else %}
             v-model="order.customerComment"
+            {% endif %}
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_promotion %}
         <sw-order-promotion-field
             class="sw-order-detail-details__promotion"
@@ -204,7 +285,12 @@
     </sw-order-details-state-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_custom_fields %}
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-custom-fields__before"
+    />
+
     <sw-card
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
@@ -216,12 +302,17 @@
             :sets="customFieldSets"
         />
     </sw-card>
-    {% endblock %}
 
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-custom-fields__after"
+    />
+    {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"
         :order="order"
+        :is-loading="isLoading"
         @modal-close="showStateHistoryModal = false"
     />
     {% endblock %}

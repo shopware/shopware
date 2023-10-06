@@ -7,11 +7,18 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchCon
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1607581276AddProductSearchConfigurationDefaults extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -36,10 +43,10 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         $enLanguageId = $this->fetchLanguageIdByName('en-GB', $connection);
         $deLanguageId = $this->fetchLanguageIdByName('de-DE', $connection);
 
-        $searchConfigEnId = $connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $enLanguageId])
+        $searchConfigEnId = $connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $enLanguageId])
             ?: Uuid::randomBytes();
 
-        $searchConfigDeId = $connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $deLanguageId])
+        $searchConfigDeId = $connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $deLanguageId])
             ?: Uuid::randomBytes();
 
         $enStopwords = require __DIR__ . '/../Fixtures/stopwords/en.php';
@@ -50,13 +57,13 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
                 'id' => $searchConfigDeId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => json_encode($deStopwords),
+                'excluded_terms' => json_encode($deStopwords, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $searchConfigEnId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => $enLanguageId ? json_encode($enStopwords) : null,
+                'excluded_terms' => $enLanguageId ? json_encode($enStopwords, \JSON_THROW_ON_ERROR) : null,
             ]
         );
 
@@ -70,10 +77,7 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         }
 
         if ($writeResult->hasWrittenGermanTranslations()) {
-            $defaultSearchData = array_merge(
-                $defaultSearchData,
-                $this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)
-            );
+            $defaultSearchData = [...$defaultSearchData, ...$this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)];
         }
 
         $queue = new MultiInsertQueryQueue($connection, 250);
@@ -88,6 +92,9 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         $queue->execute();
     }
 
+    /**
+     * @return list<array{table: string, id: string, product_search_config_id: string, field: string, tokenize: int, searchable: int, ranking: int, created_at: string}>
+     */
     private function getConfigFieldDefaultData(string $configId, string $createdAt): array
     {
         $entityName = ProductSearchConfigFieldDefinition::ENTITY_NAME;
@@ -253,9 +260,8 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
-        $languageId = $connection->fetchColumn(
-            '
-            SELECT `language`.id FROM `language`
+        $languageId = $connection->fetchOne(
+            'SELECT `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
             WHERE `code` = :code',
             ['code' => $isoCode]

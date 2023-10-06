@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerVal
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class DataAbstractionLayerValidateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

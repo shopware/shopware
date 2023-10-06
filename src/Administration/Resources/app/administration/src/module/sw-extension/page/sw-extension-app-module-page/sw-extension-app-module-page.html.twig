@@ -1,0 +1,31 @@
+<sw-page class="sw-extension-app-module-page">
+    <template
+        v-if="!suspend"
+        #smart-bar-header
+    >
+        <h2>{{ heading }}</h2>
+    </template>
+
+    <template #content>
+        <template v-if="!suspend">
+            <iframe
+                v-show="appLoaded"
+                id="app-content"
+                class="sw-extension-app-module-page__app-content"
+                referrerpolicy="origin-when-cross-origin"
+                :src="entryPoint"
+                :title="heading"
+            ></iframe>
+
+            <template v-if="!appLoaded">
+                <template v-if="timedOut">
+                    <sw-extension-app-module-error-page />
+                </template>
+
+                <template v-else>
+                    <sw-loader />
+                </template>
+            </template>
+        </template>
+    </template>
+</sw-page>

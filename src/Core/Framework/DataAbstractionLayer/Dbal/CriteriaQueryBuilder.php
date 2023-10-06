@@ -6,66 +6,37 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class CriteriaQueryBuilder
 {
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
-
-    /***
-     * @var EntityDefinitionQueryHelper
-     */
-    private $helper;
-
-    /**
-     * @var SearchTermInterpreter
-     */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
-
-    /**
-     * @var JoinGroupBuilder
-     */
-    private $joinGrouper;
-
-    /**
-     * @var CriteriaPartResolver
-     */
-    private $criteriaPartResolver;
-
     public function __construct(
-        SqlQueryParser $parser,
-        EntityDefinitionQueryHelper $helper,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder,
-        JoinGroupBuilder $joinGrouper,
-        CriteriaPartResolver $criteriaPartResolver
+        private readonly SqlQueryParser $parser,
+        private readonly EntityDefinitionQueryHelper $helper,
+        private readonly SearchTermInterpreter $interpreter,
+        private readonly EntityScoreQueryBuilder $scoreBuilder,
+        private readonly JoinGroupBuilder $joinGrouper,
+        private readonly CriteriaPartResolver $criteriaPartResolver
     ) {
-        $this->parser = $parser;
-        $this->helper = $helper;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
-        $this->joinGrouper = $joinGrouper;
-        $this->criteriaPartResolver = $criteriaPartResolver;
     }
 
+    /**
+     * @param list<string> $paths
+     */
     public function build(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, array $paths = []): QueryBuilder
     {
         $query = $this->helper->getBaseQuery($query, $definition, $context);
@@ -129,9 +100,11 @@ class CriteriaQueryBuilder
         }
     }
 
+    /**
+     * @param array<FieldSorting> $sortings
+     */
     public function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
-        /** @var FieldSorting $sorting */
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
@@ -150,6 +123,12 @@ class CriteriaQueryBuilder
             }
 
             $accessor = $this->helper->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
+
+            if ($sorting instanceof CountSorting) {
+                $query->addOrderBy(sprintf('COUNT(%s)', $accessor), $sorting->getDirection());
+
+                continue;
+            }
 
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
@@ -186,7 +165,11 @@ class CriteriaQueryBuilder
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
+        $primary = $definition->getPrimaryKeys()->first();
+
+        \assert($primary instanceof StorageAware);
+
+        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s.%s)', $definition->getEntityName(), $primary->getStorageName());
         $query->addSelect($select . ' as _score');
 
         // Sort by _score primarily if the criteria has a score query or search term
@@ -194,9 +177,8 @@ class CriteriaQueryBuilder
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(function (ScoreQuery $query) {
-            return $query->getScore();
-        }, $criteria->getQueries());
+        $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
+        \assert(!empty($minScore));
 
         $minScore = min($minScore);
 
@@ -218,6 +200,11 @@ class CriteriaQueryBuilder
         return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
     }
 
+    /**
+     * @param list<string> $additionalFields
+     *
+     * @return list<Filter>
+     */
     private function groupFilters(EntityDefinition $definition, Criteria $criteria, array $additionalFields = []): array
     {
         $filters = [];
@@ -230,7 +217,7 @@ class CriteriaQueryBuilder
         }
 
         // $additionalFields is used by the entity aggregator.
-        // For example, if an aggregation is to be created on a to many association that is already stored as a filter.
+        // For example, if an aggregation is to be created on a to-many-association that is already stored as a filter.
         // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
         return $this->joinGrouper->group($filters, $definition, $additionalFields);
     }
@@ -251,9 +238,6 @@ class CriteriaQueryBuilder
         return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
-    /**
-     * @throws InvalidSortingDirectionException
-     */
     private function validateSortingDirection(string $direction): void
     {
         if (!\in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {

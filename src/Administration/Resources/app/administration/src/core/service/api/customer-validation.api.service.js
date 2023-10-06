@@ -1,6 +1,7 @@
 import ApiService from '../api.service';
 
 /**
+ * @package checkout
  * Gateway for the API end point "check-email-valid"
  * @class
  * @extends ApiService
@@ -29,4 +30,5 @@ class CustomerValidationApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default CustomerValidationApiService;

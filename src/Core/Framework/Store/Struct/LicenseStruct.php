@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class LicenseStruct extends Struct
 {
     /**
@@ -44,6 +46,20 @@ class LicenseStruct extends Struct
      */
     protected $licensedExtension;
 
+    protected ?\DateTimeInterface $expirationDate = null;
+
+    protected ?StoreLicenseSubscriptionStruct $subscription = null;
+
+    protected bool $trialPhaseIncluded = false;
+
+    /**
+     * @var ?array{discountedPrice: float, firstDateOfFullCharging: string}
+     */
+    protected ?array $discountInformation = null;
+
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): LicenseStruct
     {
         $license = (new self())->assign($data);
@@ -117,5 +133,51 @@ class LicenseStruct extends Struct
     public function setLicensedExtension(ExtensionStruct $licensedExtension): void
     {
         $this->licensedExtension = $licensedExtension;
+    }
+
+    public function getExpirationDate(): ?\DateTimeInterface
+    {
+        return $this->expirationDate;
+    }
+
+    public function setExpirationDate(?\DateTimeInterface $expirationDate): void
+    {
+        $this->expirationDate = $expirationDate;
+    }
+
+    public function getSubscription(): ?StoreLicenseSubscriptionStruct
+    {
+        return $this->subscription;
+    }
+
+    public function setSubscription(?StoreLicenseSubscriptionStruct $subscription): void
+    {
+        $this->subscription = $subscription;
+    }
+
+    public function isTrialPhaseIncluded(): bool
+    {
+        return $this->trialPhaseIncluded;
+    }
+
+    public function setTrialPhaseIncluded(bool $trialPhaseIncluded): void
+    {
+        $this->trialPhaseIncluded = $trialPhaseIncluded;
+    }
+
+    /**
+     * @return ?array{discountedPrice: float, firstDateOfFullCharging: string}
+     */
+    public function getDiscountInformation(): ?array
+    {
+        return $this->discountInformation;
+    }
+
+    /**
+     * @param ?array{discountedPrice: float, firstDateOfFullCharging: string} $discountInformation
+     */
+    public function setDiscountInformation(?array $discountInformation): void
+    {
+        $this->discountInformation = $discountInformation;
     }
 }

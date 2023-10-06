@@ -2,6 +2,14 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-class PrePayment extends DefaultPayment
+use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
+class PrePayment extends DefaultPayment implements RecurringPaymentHandlerInterface
 {
+    public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
+    {
+    }
 }

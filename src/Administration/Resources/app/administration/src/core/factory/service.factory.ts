@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 type ServiceObject = {
     get: <SN extends keyof ServiceContainer>(serviceName: SN) => ServiceContainer[SN],
     list: () => (keyof ServiceContainer)[],
@@ -30,4 +34,5 @@ function serviceAccessor<SN extends keyof ServiceContainer>(serviceName?: SN): S
     return serviceObject;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default serviceAccessor;

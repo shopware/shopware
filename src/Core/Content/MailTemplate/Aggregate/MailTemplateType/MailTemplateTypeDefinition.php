@@ -17,10 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('sales-channel')]
 class MailTemplateTypeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'mail_template_type';
+    final public const ENTITY_NAME = 'mail_template_type';
 
     public function getEntityName(): string
     {
@@ -58,7 +60,7 @@ class MailTemplateTypeDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'))->addFlags(new SetNullOnDelete()),
-            (new JsonField('template_data', 'templateData')),
+            new JsonField('template_data', 'templateData'),
         ]);
     }
 }

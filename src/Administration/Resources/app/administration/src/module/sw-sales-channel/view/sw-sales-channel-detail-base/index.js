@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -9,7 +13,8 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-sales-channel-detail-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -117,13 +122,13 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         storefrontSalesChannelDomainCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },
 
         storefrontSalesChannelCurrencyCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('salesChannels');
 
@@ -131,15 +136,15 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
         },
 
         countryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
@@ -172,6 +177,19 @@ Component.register('sw-sales-channel-detail-base', {
         disabledShippingMethodVariant() {
             return this.disabledShippingMethods
                 .find(shippingMethod => shippingMethod.id === this.salesChannel.shippingMethodId) ? 'warning' : 'info';
+        },
+
+        unservedLanguages() {
+            return this.salesChannel.languages?.filter(
+                language => (this.salesChannel.domains?.filter(
+                    domain => domain.languageId === language.id,
+                ) || []).length === 0,
+            ) ?? [];
+        },
+
+        unservedLanguageVariant() {
+            return this.unservedLanguages
+                .find(language => language.id === this.salesChannel.languageId) ? 'warning' : 'info';
         },
 
         storefrontDomainsLoaded() {
@@ -312,6 +330,20 @@ Component.register('sw-sales-channel-detail-base', {
             return null;
         },
 
+        helpTextTaxCalculation() {
+            const link = {
+                name: 'sw.settings.tax.index',
+            };
+
+            return this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.label', 0, {
+                link: `<sw-internal-link
+                           :router-link=${JSON.stringify(link)}
+                           :inline="true">
+                           ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
+                      </sw-internal-link>`,
+            });
+        },
+
         taxCalculationTypeOptions() {
             return [
                 {
@@ -351,14 +383,17 @@ Component.register('sw-sales-channel-detail-base', {
             },
         },
 
-        ...mapPropertyErrors('salesChannel',
+        ...mapPropertyErrors(
+            'salesChannel',
             [
                 'name',
                 'customerGroupId',
                 'navigationCategoryId',
-            ]),
+            ],
+        ),
 
-        ...mapPropertyErrors('productExport',
+        ...mapPropertyErrors(
+            'productExport',
             [
                 'productStreamId',
                 'encoding',
@@ -366,28 +401,29 @@ Component.register('sw-sales-channel-detail-base', {
                 'fileFormat',
                 'salesChannelDomainId',
                 'currencyId',
-            ]),
+            ],
+        ),
 
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
 
         mainCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.navigationCategoryId || null));
 
             return criteria;
         },
 
         footerCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.footerCategoryId || null));
 
             return criteria;
         },
 
         serviceCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.serviceCategoryId || null));
 
             return criteria;
@@ -415,6 +451,30 @@ Component.register('sw-sales-channel-detail-base', {
 
         serviceCategoryPlaceholder() {
             return this.salesChannel.serviceCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
+
+        salesChannelFavoritesService() {
+            return Shopware.Service('salesChannelFavorites');
+        },
+
+        currencyCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        shippingMethodCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -468,7 +528,7 @@ Component.register('sw-sales-channel-detail-base', {
                 return;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
             this.salesChannelRepository
@@ -503,6 +563,7 @@ Component.register('sw-sales-channel-detail-base', {
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
                 this.$root.$emit('sales-channel-change');
+                this.salesChannelFavoritesService.refresh();
             });
         },
 
@@ -534,7 +595,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         loadStorefrontDomains(storefrontSalesChannelId) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('salesChannelId', storefrontSalesChannelId));
 
@@ -628,15 +689,41 @@ Component.register('sw-sales-channel-detail-base', {
             this.salesChannel.serviceCategoryId = null;
         },
 
-        buildDisabledAlert(snippet, collection, property = 'name') {
+        buildDisabledPaymentAlert(snippet, collection, property = 'name') {
+            const route = { name: 'sw.settings.payment.overview' };
+            const routeData = this.$router.resolve(route);
+
             const data = {
-                seperatedList: collection.map((item) => (
-                    `<a class="sw-internal-link sw-internal-link--inline"
-                        href="#/sw/settings/payment/detail/${item.id}">${item.translated[property]}</a>`
+                separatedList: collection.map((item) => (
+                    `<span>${item.translated[property].replaceAll('|', '&vert;')}</span>`
                 )).join(', '),
+                paymentSettingsLink: routeData.href,
             };
 
             return this.$tc(snippet, collection.length, data);
         },
+
+        buildDisabledShippingAlert(snippet, collection, property = 'name') {
+            const data = {
+                name: collection.first().translated[property].replaceAll('|', '&vert;'),
+                addition: collection.length > 2
+                    ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
+                    : collection.last().translated[property].replaceAll('|', '&vert;'),
+            };
+
+            return this.$tc(snippet, collection.length, data);
+        },
+
+        buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
+            const data = {
+                list: collection.map((item) => item[property]).join(', '),
+            };
+
+            return this.$tc(snippet, collection.length, data);
+        },
+
+        isFavorite() {
+            return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
+        },
     },
-});
+};

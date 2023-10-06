@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
-use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,10 +22,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class FieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * {@inheritDoc}
+     */
     public function serialize(Config $config, Field $field, $value): iterable
     {
         $key = $field->getPropertyName();
@@ -66,20 +71,35 @@ class FieldSerializer extends AbstractFieldSerializer
             }
 
             if (empty($value)) {
-                return null;
+                return;
             }
 
             yield $key => (string) $value;
         } elseif ($field instanceof BoolField) {
             yield $key => $value === true ? '1' : '0';
         } elseif ($field instanceof JsonField) {
-            yield $key => $value === null ? null : json_encode($value);
+            yield $key => $value === null ? null : json_encode($value, \JSON_THROW_ON_ERROR);
         } else {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            }
+
+            if (\is_array($value)) {
+                $value = json_encode($value, \JSON_THROW_ON_ERROR);
+            }
+
+            if (!\is_scalar($value) && !$value instanceof \Stringable) {
+                yield $key => null;
+            }
+
             $value = $value === null ? $value : (string) $value;
             yield $key => $value;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function deserialize(Config $config, Field $field, $value)
     {
         if ($value === null) {
@@ -107,7 +127,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return ['id' => $id];
                     },
-                    explode('|', $value)
+                    explode('|', (string) $value)
                 )
             );
         }
@@ -128,7 +148,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return $id;
                     },
-                    explode('|', $value)
+                    explode('|', (string) $value)
                 )
             );
         }
@@ -146,17 +166,17 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof DateField || $field instanceof DateTimeField) {
-            return new \DateTimeImmutable($value);
+            return new \DateTimeImmutable((string) $value);
         }
 
         if ($field instanceof BoolField) {
-            $value = mb_strtolower($value);
+            $value = mb_strtolower((string) $value);
 
             return !($value === '0' || $value === 'false' || $value === 'n' || $value === 'no');
         }
 
         if ($field instanceof JsonField) {
-            return json_decode($value, true);
+            return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
         if ($field instanceof IntField) {
@@ -164,7 +184,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof IdField || $field instanceof FkField) {
-            return $this->normalizeId($value);
+            return $this->normalizeId((string) $value);
         }
 
         return $value;
@@ -184,7 +204,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if (str_contains($id, '|')) {
-            throw new InvalidIdentifierException($id);
+            throw ImportExportException::invalidIdentifier($id);
         }
 
         return Uuid::fromStringToHex($id);

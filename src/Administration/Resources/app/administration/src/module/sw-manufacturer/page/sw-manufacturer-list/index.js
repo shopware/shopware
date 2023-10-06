@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-manufacturer-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-manufacturer-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -77,6 +82,10 @@ Component.register('sw-manufacturer-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.manufacturerRepository.search(criteria)
                 .then(searchResult => {
                     this.manufacturers = searchResult;
@@ -89,4 +98,4 @@ Component.register('sw-manufacturer-list', {
             this.total = total;
         },
     },
-});
+};

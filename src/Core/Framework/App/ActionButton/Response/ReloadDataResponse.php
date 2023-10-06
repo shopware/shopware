@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ReloadDataResponse extends ActionButtonResponse
 {
-    public const ACTION_TYPE = 'reload';
+    final public const ACTION_TYPE = 'reload';
 
     public function __construct()
     {

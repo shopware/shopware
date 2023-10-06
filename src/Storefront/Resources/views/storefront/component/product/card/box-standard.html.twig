@@ -4,16 +4,13 @@
         {% set id = product.id %}
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
+        {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
         <div class="card product-box box-{{ layout }}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}
                         {% sw_include '@Storefront/storefront/component/product/card/badges.html.twig' %}
-                    {% endblock %}
-
-                    {% block component_product_box_rich_snippets %}
-                        {% sw_include '@Storefront/storefront/component/product/card/meta.html.twig' %}
                     {% endblock %}
 
                     {% block component_product_box_image %}
@@ -26,32 +23,41 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
-                               title="{{ name }}"
-                               class="product-image-link is-{{ displayMode }}">
-                                {% if cover.url %}
-                                    {% set attributes = {
-                                        'class': 'product-image is-'~displayMode,
-                                        'alt': (cover.translated.alt ?: name),
-                                        'title': (cover.translated.title ?: name)
-                                    } %}
+                            {% block component_product_box_image_link %}
+                                <a href="{{ seoUrl('frontend.detail.page', { 'productId': id }) }}"
+                                   title="{{ name }}"
+                                   class="product-image-link is-{{ displayMode }}">
+                                    {% block component_product_box_image_link_inner %}
+                                        {% if cover.url %}
+                                            {% set attributes = {
+                                                'class': 'product-image is-'~displayMode,
+                                                'alt': (cover.translated.alt ?: name),
+                                                'title': (cover.translated.title ?: name),
+                                                'loading': 'lazy'
+                                            } %}
 
-                                    {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                    {% endif %}
+                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                            {% endif %}
 
-                                    {% sw_thumbnails 'product-image-thumbnails' with {
-                                        media: cover,
-                                        sizes: sizes
-                                    } %}
-                                {% else %}
-                                    <div class="product-image-placeholder">
-                                        {% sw_icon 'placeholder' style {
-                                            'size': 'fluid'
-                                        } %}
-                                    </div>
-                                {% endif %}
-                            </a>
+                                            {% block component_product_box_image_thumbnail %}
+                                                {% sw_thumbnails 'product-image-thumbnails' with {
+                                                    media: cover,
+                                                    sizes: sizes
+                                                } %}
+                                            {% endblock %}
+                                        {% else %}
+                                            {% block component_product_box_image_placeholder %}
+                                                <div class="product-image-placeholder">
+                                                    {% sw_icon 'placeholder' style {
+                                                        'size': 'fluid'
+                                                    } %}
+                                                </div>
+                                            {% endblock %}
+                                        {% endif %}
+                                    {% endblock %}
+                                </a>
+                            {% endblock %}
 
                             {% if config('core.cart.wishlistEnabled') %}
                                 {% block component_product_box_wishlist_action %}
@@ -61,7 +67,6 @@
                                     } %}
                                 {% endblock %}
                             {% endif %}
-
                         </div>
                     {% endblock %}
 
@@ -91,16 +96,18 @@
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
                                     <div class="product-variant-characteristics-text">
-                                        {% for variation in product.variation %}
-                                            {{ variation.group }}:
-                                            <span class="product-variant-characteristics-option">
-                                                {{ variation.option }}
-                                            </span>
+                                        {% if not displayParent %}
+                                            {% for variation in product.variation %}
+                                                {{ variation.group }}:
+                                                <span class="product-variant-characteristics-option">
+                                                    {{ variation.option }}
+                                                </span>
 
-                                            {% if product.variation|last != variation %}
-                                                {{ " | " }}
-                                            {% endif %}
-                                        {% endfor %}
+                                                {% if product.variation|last != variation %}
+                                                    {{ " | " }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endblock %}

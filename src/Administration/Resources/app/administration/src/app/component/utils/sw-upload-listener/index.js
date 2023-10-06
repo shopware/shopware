@@ -38,10 +38,9 @@ function isIllegalUrlException(error) {
  * @component-example
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-upload-listener', {
-    render() {
-        return document.createComment('');
-    },
+    template: '<div style="display: none"></div>',
 
     inject: ['repositoryFactory', 'mediaService'],
 
@@ -153,7 +152,7 @@ Component.register('sw-upload-listener', {
             const notification = {
                 title: this.$root.$tc('global.default.success'),
                 message: this.$root.$tc(
-                    'global.sw-media-upload.notification.success.message',
+                    payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
                     payload.successAmount,
                     {
                         count: payload.successAmount,

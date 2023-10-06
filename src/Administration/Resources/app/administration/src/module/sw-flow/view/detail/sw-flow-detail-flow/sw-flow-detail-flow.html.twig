@@ -1,33 +1,64 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_detail_flow %}
 <div class="sw-flow-detail-flow">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_flow_content %}
     <div
         class="sw-flow-detail-flow__content"
+        :class="{'sw-flow-detail-flow-template': isTemplate }"
         :style="flowContainerStyle"
     >
+        <sw-alert
+            v-if="isUnknownTrigger"
+            variant="warning"
+            class="sw-flow-detail-flow__warning-unknow-trigger"
+        >
+            <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+            <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+            <ul>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+            </ul>
+        </sw-alert>
+
+        <sw-alert
+            v-if="!isLoading && !isUnknownTrigger && showActionWarning "
+            variant="warning"
+            class="sw-flow-detail-flow__warning-box"
+        >
+            {{ $tc('sw-flow.detail.warningText') }}
+        </sw-alert>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_trigger_select %}
             <div class="sw-flow-detail-flow__trigger-select">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_single_select %}
                 <sw-flow-trigger
                     :disabled="!acl.can('flow.editor')"
                     :event-name="flow.eventName"
+                    :is-unknown-trigger="isUnknownTrigger"
                     @option-select="onEventChange"
                 />
                 {% endblock %}
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_trigger_explains %}
             <div
                 v-if="!flow.eventName"
                 class="sw-flow-detail-flow__trigger-explain"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_trigger_explains_title %}
-                <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
+                <h4>{{ $tc('sw-flow.detail.trigger.title') }}</h4>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_trigger_explains_help_text %}
                 <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
                 {% endblock %}
@@ -36,20 +67,24 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_flow_sequence_diagram %}
         <div
             v-if="flow.eventName"
             class="sw-flow-detail-flow__sequence-diagram"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_start_line %}
             <div class="sw-flow-detail-flow__oval"></div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_transition_group %}
             <transition-group
                 name="list"
                 tag="div"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_position %}
                 <div
                     v-for="sequence in formatSequences"
@@ -57,29 +92,34 @@
                     class="sw-flow-detail-flow__position list-item"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_icon_plus %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         class="sw-flow-detail-flow__position-plus"
                         :disabled="!acl.can('flow.editor')"
+                        role="button"
+                        tabindex="0"
                         @click="onAddRootSequence"
+                        @keydown.enter="onAddRootSequence"
                     >
                         <sw-icon
                             small
-                            name="small-default-plus-line-medium"
+                            name="regular-plus-xs"
                         />
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_icon_connection %}
                     <div class="sw-flow-detail-flow__position-connection">
                         <sw-icon
                             small
-                            name="small-arrow-large-right"
+                            name="regular-chevron-right-s"
                         />
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_detail_flow_sequences %}
                     <div
                         class="sw-flow-detail-flow__sequences"
@@ -88,6 +128,7 @@
                             name="root-sequence"
                             :sequence="sequence"
                             :disabled="!acl.can('flow.editor')"
+                            :is-unknown-trigger="isUnknownTrigger"
                         />
                     </div>
                     {% endblock %}
@@ -98,6 +139,10 @@
         </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_detail_flow_modal_extension %}
     {% endblock %}
 </div>
 {% endblock %}

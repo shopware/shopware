@@ -3,27 +3,27 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class OrderPersister implements OrderPersisterInterface
 {
-    private EntityRepositoryInterface $orderRepository;
-
-    private OrderConverter $converter;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EntityRepositoryInterface $repository,
-        OrderConverter $converter
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderConverter $converter
     ) {
-        $this->orderRepository = $repository;
-        $this->converter = $converter;
     }
 
     /**
@@ -36,11 +36,11 @@ class OrderPersister implements OrderPersisterInterface
     public function persist(Cart $cart, SalesChannelContext $context): string
     {
         if ($cart->getErrors()->blockOrder()) {
-            throw new InvalidCartException($cart->getErrors());
+            throw CartException::invalidCart($cart->getErrors());
         }
 
         if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
         if ($cart->getLineItems()->count() <= 0) {
             throw new EmptyCartException();

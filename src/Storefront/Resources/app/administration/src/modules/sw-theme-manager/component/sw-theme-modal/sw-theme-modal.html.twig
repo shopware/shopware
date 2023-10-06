@@ -6,7 +6,7 @@
 
                 {% block sw_theme_modal_header_title %}
                     <div class="sw-theme-modal__header-title">
-                        {{ $tc('sw-theme-manager.themeModal.headline') }}
+                        {{ $tc('sw-theme-manager.themeModal.headline') }}
                     </div>
                 {% endblock %}
 
@@ -34,7 +34,7 @@
                                 {% block sw_theme_modal_content_listing_item %}
 
                                     {% block sw_theme_modal_content_listing_item_checkbox %}
-                                        <sw-checkbox-field @change="onSelection(theme.id)" :value="theme.id === selected" type="checkbox"></sw-checkbox-field>
+                                        <sw-checkbox-field @change="onSelection(theme.id)" :value="theme.id === selected"></sw-checkbox-field>
                                     {% endblock %}
 
                                     {% block sw_theme_modal_content_listing_item_inner %}
@@ -54,12 +54,12 @@
         {% endblock %}
 
         {% block sw_theme_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <sw-button @click="closeModal">
-                    {{ $tc('sw-theme-manager.themeModal.actionCancel') }}
+                    {{ $tc('sw-theme-manager.themeModal.actionCancel') }}
                 </sw-button>
                 <sw-button @click="selectLayout" variant="primary">
-                    {{ $tc('sw-theme-manager.themeModal.actionConfirm') }}
+                    {{ $tc('sw-theme-manager.themeModal.actionConfirm') }}
                 </sw-button>
             </template>
         {% endblock %}

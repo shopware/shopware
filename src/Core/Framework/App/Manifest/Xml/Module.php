@@ -2,24 +2,26 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Module extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = ['label'];
+    final public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $label;
 
     /**
      * @var string|null
      */
-    protected $source = null;
+    protected $source;
 
     /**
      * @var string
@@ -27,17 +29,18 @@ class Module extends XmlElement
     protected $name;
 
     /**
-     * @deprecated manifest:v1.1 will be required in future versions
-     *
-     * @var string|null
+     * @var string
      */
-    protected $parent = null;
+    protected $parent;
 
     /**
      * @var int
      */
     protected $position = 1;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -50,6 +53,9 @@ class Module extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLabel(): array
     {
         return $this->label;
@@ -75,11 +81,15 @@ class Module extends XmlElement
         return $this->position;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
+        foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
         }
 

@@ -1,30 +1,43 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_product_feature_set_detail %}
 <sw-page class="sw-settings-product-feature-sets-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>{{ placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-currency-detail__save-action"
             :is-loading="isLoading"
             :disabled="isLoading || !acl.can('product_feature_sets.editor')"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
@@ -34,68 +47,82 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton variant="detail-bold" />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-            {% block sw_settings_product_feature_set_detail_content_language_info %}
-            <sw-language-info
-                :entity-description="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))"
-            />
-            {% endblock %}
-
-            {% block sw_settings_product_feature_set_detail_content_card %}
-            <sw-card
-                :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
-                position-identifier="sw-settings-product-feature-sets-detail"
-            >
-
-                {% block sw_settings_product_feature_set_detail_content_field_name %}
-                <sw-field
-                    v-model="productFeatureSet.name"
-                    type="text"
-                    class="sw-settings-product-feature-sets-detail__name"
-                    validation="required"
-                    required
-                    :error="productFeatureSetNameError"
-                    :disabled="!acl.can('product_feature_sets.editor')"
-                    :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
-                    :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
+            <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_product_feature_set_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))"
                 />
                 {% endblock %}
 
-                {% block sw_settings_product_feature_set_detail_content_field_description %}
-                <sw-field
-                    v-model="productFeatureSet.description"
-                    type="textarea"
-                    :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
-                    class="sw-settings-product-feature-sets-detail__description"
-                    :error="productFeatureSetDescriptionError"
-                    :disabled="!acl.can('product_feature_sets.editor')"
-                    :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
-                />
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_product_feature_set_detail_content_card %}
+                <sw-card
+                    :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
+                    position-identifier="sw-settings-product-feature-sets-detail"
+                >
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_product_feature_set_detail_content_field_name %}
+                    <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="productFeatureSet.name"
+                        {% else %}
+                        v-model="productFeatureSet.name"
+                        {% endif %}
+                        class="sw-settings-product-feature-sets-detail__name"
+                        validation="required"
+                        required
+                        :error="productFeatureSetNameError"
+                        :disabled="!acl.can('product_feature_sets.editor')"
+                        :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
+                        :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_product_feature_set_detail_content_field_description %}
+                    <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="productFeatureSet.description"
+                        {% else %}
+                        v-model="productFeatureSet.description"
+                        {% endif %}
+                        :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
+                        class="sw-settings-product-feature-sets-detail__description"
+                        :error="productFeatureSetDescriptionError"
+                        :disabled="!acl.can('product_feature_sets.editor')"
+                        :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
+                    />
+                    {% endblock %}
+
+                </sw-card>
                 {% endblock %}
 
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_settings_product_feature_set_detail_content_values_card %}
-            <sw-settings-product-feature-sets-values-card
-                v-if="productFeatureSet.id"
-                :disabled="!productFeatureSetId"
-                :allow-edit="acl.can('product_feature_sets.editor')"
-                class="sw-settings-product-feature-sets-detail__tax-rule-grid"
-                :product-feature-set="productFeatureSet"
-                :is-loading="isLoading"
-                @product-feature-set-rule-save="onSave"
-            />
-            {% endblock %}
-        </template>
-    </sw-card-view>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_product_feature_set_detail_content_values_card %}
+                <sw-settings-product-feature-sets-values-card
+                    v-if="productFeatureSet.id"
+                    :disabled="!productFeatureSetId"
+                    :allow-edit="acl.can('product_feature_sets.editor')"
+                    class="sw-settings-product-feature-sets-detail__tax-rule-grid"
+                    :product-feature-set="productFeatureSet"
+                    :is-loading="isLoading"
+                    @product-feature-set-rule-save="onSave"
+                />
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 
 </sw-page>

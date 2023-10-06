@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class FkField extends Field implements StorageAware
 {
-    public const PRIORITY = 70;
+    final public const PRIORITY = 70;
 
     /**
      * @var string
@@ -30,8 +32,16 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
-    {
+    protected ?DefinitionInstanceRegistry $registry = null;
+
+    private ?string $referenceEntity = null;
+
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        string $referenceClass,
+        string $referenceField = 'id'
+    ) {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
@@ -40,13 +50,13 @@ class FkField extends Field implements StorageAware
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
-        if ($this->referenceDefinition !== null) {
+        if ($this->registry !== null) {
             return;
         }
 
-        parent::compile($registry);
+        $this->registry = $registry;
 
-        $this->referenceDefinition = $registry->get($this->referenceClass);
+        parent::compile($registry);
     }
 
     public function getStorageName(): string
@@ -56,6 +66,10 @@ class FkField extends Field implements StorageAware
 
     public function getReferenceDefinition(): EntityDefinition
     {
+        if ($this->referenceDefinition === null) {
+            $this->compileLazy();
+        }
+
         return $this->referenceDefinition;
     }
 
@@ -69,8 +83,25 @@ class FkField extends Field implements StorageAware
         return self::PRIORITY;
     }
 
+    public function getReferenceEntity(): ?string
+    {
+        if ($this->referenceEntity === null) {
+            $this->compileLazy();
+        }
+
+        return $this->referenceEntity;
+    }
+
     protected function getSerializerClass(): string
     {
         return FkFieldSerializer::class;
+    }
+
+    protected function compileLazy(): void
+    {
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
+
+        $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 }

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_landing_page_tree %}
 <div class="sw-landing-page-tree">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_landing_page_tree_inner %}
     <sw-tree
         v-if="!isLoadingInitialData"
@@ -21,7 +23,7 @@
         @checked-elements-count="checkedElementsCount"
     >
 
-        <template slot="headline">
+        <template #headline>
             <span></span>
         </template>
 
@@ -38,6 +40,7 @@
             }"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_tree_items %}
             <sw-tree-item
                 v-for="item in treeItems"
@@ -59,7 +62,7 @@
                 :get-item-url="getLandingPageUrl"
                 @check-item="checkItem"
             >
-                <template slot="grip">
+                <template #grip>
                     <span></span>
                 </template>
 
@@ -71,6 +74,7 @@
                         toolTip
                     }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_landing_page_tree_items_actions %}
                     <sw-context-button
                         v-tooltip="toolTip"
@@ -78,12 +82,14 @@
                         :disabled="disableContextMenu"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_landing_page_tree_items_actions_edit %}
                         <sw-context-menu-item @click="onChangeRoute(item)">
                             {{ $tc('global.default.edit') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_landing_page_tree_items_actions_duplicate %}
                         <sw-context-menu-item
                             class="sw-context-menu__duplicate-action"
@@ -93,6 +99,7 @@
                         </sw-context-menu-item>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_landing_page_tree_items_actions_delete %}
                         <sw-context-menu-item
                             class="sw-context-menu__group-button-delete"
@@ -124,6 +131,7 @@
         <sw-skeleton variant="tree-item" />
     </div>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_landing_page_tree_action %}
     <div class="sw-landing-page-tree__add-button">
         <sw-button

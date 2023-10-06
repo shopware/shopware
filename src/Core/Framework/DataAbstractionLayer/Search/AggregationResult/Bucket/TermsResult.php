@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @final
+ */
+#[Package('core')]
 class TermsResult extends BucketResult
 {
 }

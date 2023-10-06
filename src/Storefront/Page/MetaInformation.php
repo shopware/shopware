@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Page;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('storefront')]
 class MetaInformation extends Struct
 {
     /**
@@ -45,6 +47,11 @@ class MetaInformation extends Struct
      * @var string
      */
     protected $robots = '';
+
+    /**
+     * @var string|null
+     */
+    protected $canonical;
 
     public function getMetaTitle(): string
     {
@@ -124,5 +131,15 @@ class MetaInformation extends Struct
     public function setRobots(string $robots): void
     {
         $this->robots = $robots;
+    }
+
+    public function getCanonical(): ?string
+    {
+        return $this->canonical;
+    }
+
+    public function setCanonical(?string $canonical): void
+    {
+        $this->canonical = $canonical;
     }
 }

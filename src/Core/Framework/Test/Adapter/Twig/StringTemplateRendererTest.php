@@ -6,8 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Twig\Environment;
 use Twig\Extension\CoreExtension;
 
+/**
+ * @internal
+ */
 class StringTemplateRendererTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -18,7 +22,7 @@ class StringTemplateRendererTest extends TestCase
     private $stringTemplateRenderer;
 
     /**
-     * @var \Twig\Environment
+     * @var Environment
      */
     private $twig;
 

@@ -2,6 +2,10 @@ import './sw-arrow-field.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-arrow-field', {
 
     render(h) {

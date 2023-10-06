@@ -2,13 +2,13 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Login / registration</title>
+        <title>Log-in / sign-up</title>
         <title lang="de-DE">Anmeldung / Registrierung</title>
 
         <input-field type="int">
             <name>passwordMinLength</name>
-            <label>Minimum password length (log-in)</label>
-            <label lang="de-DE">Passwort-Mindestlänge (Registrierung)</label>
+            <label>Minimum password length on customer sign-up</label>
+            <label lang="de-DE">Passwort-Mindestlänge für Kunden-Registrierung</label>
         </input-field>
 
         <input-field type="bool">
@@ -128,7 +128,7 @@
 
         <input-field type="bool">
             <name>invalidateSessionOnLogOut</name>
-            <label>Clear and delete cart on log out</label>
+            <label>Clear and delete cart on log-out</label>
             <label lang="de-DE">Warenkorb bei Abmeldung löschen</label>
             <helpText>If activated, the cart won't be saved and can't be restored after logout.</helpText>
             <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Abmeldung nicht wiederhergestellt werden.</helpText>

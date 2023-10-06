@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * Shopware End Developer API
  * @module Shopware
  * @ignore
@@ -6,9 +8,8 @@
 import Bottle from 'bottlejs';
 
 import ModuleFactory from 'src/core/factory/module.factory';
-import ComponentFactory from 'src/core/factory/component.factory';
+import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
-import EntityFactory from 'src/core/factory/entity.factory';
 import StateFactory from 'src/core/factory/state.factory';
 import ServiceFactory from 'src/core/factory/service.factory';
 import ClassesFactory from 'src/core/factory/classes-factory';
@@ -43,6 +44,11 @@ import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import ExtensionApi from './extension-api';
 
+/** Initialize feature flags at the beginning */
+if (window.hasOwnProperty('_features_')) {
+    Feature.init(_features_);
+}
+
 // strict mode was set to false because it was defined wrong previously
 Bottle.config = { strict: false };
 const container = new Bottle();
@@ -51,16 +57,13 @@ const application = new ApplicationBootstrapper(container);
 
 application
     .addFactory('component', () => {
-        return ComponentFactory;
+        return AsyncComponentFactory;
     })
     .addFactory('template', () => {
         return TemplateFactory;
     })
     .addFactory('module', () => {
         return ModuleFactory;
-    })
-    .addFactory('entity', () => {
-        return EntityFactory;
     })
     .addFactory('state', () => {
         return StateFactory;
@@ -108,14 +111,17 @@ class ShopwareClass {
     };
 
     public Component = {
-        register: ComponentFactory.register,
-        extend: ComponentFactory.extend,
-        override: ComponentFactory.override,
-        build: ComponentFactory.build,
-        getTemplate: ComponentFactory.getComponentTemplate,
-        getComponentRegistry: ComponentFactory.getComponentRegistry,
-        getComponentHelper: ComponentFactory.getComponentHelper,
-        registerComponentHelper: ComponentFactory.registerComponentHelper,
+        register: AsyncComponentFactory.register,
+        extend: AsyncComponentFactory.extend,
+        override: AsyncComponentFactory.override,
+        build: AsyncComponentFactory.build,
+        wrapComponentConfig: AsyncComponentFactory.wrapComponentConfig,
+        getTemplate: AsyncComponentFactory.getComponentTemplate,
+        getComponentRegistry: AsyncComponentFactory.getComponentRegistry,
+        getComponentHelper: AsyncComponentFactory.getComponentHelper,
+        registerComponentHelper: AsyncComponentFactory.registerComponentHelper,
+        markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
+        isSyncComponent: AsyncComponentFactory.isSyncComponent,
     };
 
     public Template = {
@@ -123,18 +129,6 @@ class ShopwareClass {
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
-    };
-
-    public Entity = {
-        addDefinition: EntityFactory.addEntityDefinition,
-        getDefinition: EntityFactory.getEntityDefinition,
-        getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
-        getRawEntityObject: EntityFactory.getRawEntityObject,
-        // eslint-disable-next-line inclusive-language/use-inclusive-words
-        getPropertyBlacklist: EntityFactory.getPropertyBlacklist,
-        getRequiredProperties: EntityFactory.getRequiredProperties,
-        getAssociatedProperties: EntityFactory.getAssociatedProperties,
-        getTranslatableProperties: EntityFactory.getTranslatableProperties,
     };
 
     public State = StateFactory();
@@ -225,6 +219,17 @@ class ShopwareClass {
 
     public Data = data;
 
+    public get Snippet() {
+        if (Shopware.Service('feature').isActive('VUE3')) {
+            // @ts-expect-error - type is currently not available
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+            return Shopware.Application.view.i18n.global;
+        }
+
+        // @ts-expect-error - type is currently not available
+        return Shopware.Application.view.i18n;
+    }
+
     public Classes = {
         ShopwareError,
         ApiService,
@@ -236,7 +241,7 @@ class ShopwareClass {
             RouterFactory,
             FilterFactory: ModuleFilterFactory,
         },
-    }
+    };
 
     public Helper = {
         FlatTreeHelper: FlatTreeHelper,
@@ -250,14 +255,17 @@ class ShopwareClass {
         return this.State.get('context');
     }
 
-    private _private = {
+    public _private = {
         ApiServices: ApiServices,
-    }
+    };
 }
 
 const ShopwareInstance = new ShopwareClass();
 
 window.Shopware = ShopwareInstance;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ShopwareInstance;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { ShopwareClass };

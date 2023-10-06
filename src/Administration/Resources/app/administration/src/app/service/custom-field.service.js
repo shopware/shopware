@@ -3,16 +3,16 @@ const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @module app/service/custom-field
- */
-
-/**
+ * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
+ * @module app/service/custom-field
  * @memberOf module:core/service/custom-field
  * @constructor
  * @method createCustomFieldTypeService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createCustomFieldService() {
     const $typeStore = {
         select: {
@@ -109,7 +109,6 @@ export default function createCustomFieldService() {
         'product_stream',
         'property_group',
         'product_review',
-        'event_action',
         'country',
         'currency',
         'customer_group',
@@ -122,6 +121,7 @@ export default function createCustomFieldService() {
         'salutation',
         'shipping_method',
         'tax',
+        'unit',
     ];
 
     return {
@@ -139,7 +139,7 @@ export default function createCustomFieldService() {
     }
 
     function upsertType(name, configuration) {
-        $typeStore[name] = { ...$typeStore[name], ...{ configuration } };
+        $typeStore[name] = { ...$typeStore[name], ...configuration };
     }
 
     function getTypes() {
@@ -167,7 +167,7 @@ export default function createCustomFieldService() {
     }
 
     function customFieldSetCriteria(entityName) {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('relations.entityName', entityName));
         criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition'));

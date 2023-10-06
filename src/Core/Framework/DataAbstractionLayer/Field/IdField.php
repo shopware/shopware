@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class IdField extends Field implements StorageAware
 {
     /**
@@ -11,8 +13,10 @@ class IdField extends Field implements StorageAware
      */
     protected $storageName;
 
-    public function __construct(string $storageName, string $propertyName)
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName
+    ) {
         $this->storageName = $storageName;
         parent::__construct($propertyName);
     }

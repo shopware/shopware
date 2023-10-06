@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\DependencyInjection\fixtures;
 
+/**
+ * @internal
+ */
 final class TestBusinessEvents
 {
-    /**
-     * @Event("Shopware\Core\Framework\Event\BusinessEvent")
-     */
-    public const GLOBAL_EVENT = 'shopware.global_business_event';
-
     /**
      * @Event("Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent")
      */

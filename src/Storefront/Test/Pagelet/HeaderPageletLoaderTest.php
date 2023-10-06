@@ -5,31 +5,26 @@ namespace Shopware\Storefront\Test\Pagelet;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class HeaderPageletLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
-
-    private array $languages;
-
-    private SalesChannelContext $context;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
     }
 
     /**
@@ -38,16 +33,15 @@ class HeaderPageletLoaderTest extends TestCase
     public function testLanguageSorting(array $languages, ?array $expectedOrder = null): void
     {
         $request = new Request();
-        $this->languages = $languages;
 
-        foreach ($this->languages as &$language) {
+        foreach ($languages as &$language) {
             $language['id'] = $this->createLanguage($language['name']);
         }
         unset($language);
 
-        $this->context = $this->createSalesChannelContext($this->prepareSalesChannelOverride($this->languages));
+        $context = $this->createSalesChannelContext($this->prepareSalesChannelOverride($languages));
 
-        $pageLanguages = $this->getPageLoader()->load($request, $this->context)->getHeader()->getLanguages()->getElements();
+        $pageLanguages = $this->getPageLoader()->load($request, $context)->getHeader()->getLanguages()->getElements();
 
         $i = 0;
         foreach ($pageLanguages as $pageLanguage) {
@@ -61,7 +55,7 @@ class HeaderPageletLoaderTest extends TestCase
      * Some characters like A and Ä share one position since Ä is being seen as A with decorations.
      * Adding a test case with e.g. Alang and Älang with an expected order will introduce flakynes.
      */
-    public function sortingTestDataProvider(): array
+    public static function sortingTestDataProvider(): array
     {
         return [
             [

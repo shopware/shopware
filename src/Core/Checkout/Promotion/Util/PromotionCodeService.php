@@ -6,29 +6,29 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('buyers-experience')]
 class PromotionCodeService
 {
-    public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
-    public const CODE_COMPLEXITY_FACTOR = 0.5;
+    final public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
+    final public const CODE_COMPLEXITY_FACTOR = 0.5;
 
-    private EntityRepositoryInterface $individualCodesRepository;
-
-    private EntityRepositoryInterface $promotionRepository;
-
-    private Connection $connection;
-
-    public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository, Connection $connection)
-    {
-        $this->promotionRepository = $promotionRepository;
-        $this->individualCodesRepository = $individualCodesRepository;
-        $this->connection = $connection;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EntityRepository $promotionRepository,
+        private readonly EntityRepository $individualCodesRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public function getFixedCode(): string
@@ -44,6 +44,8 @@ class PromotionCodeService
     }
 
     /**
+     * @param array<string> $codeBlacklist
+     *
      * @throws PatternNotComplexEnoughException
      *
      * @return array<string>
@@ -66,7 +68,7 @@ class PromotionCodeService
         $complexity = $this->isComplexEnough($codePattern['replacementString'], $amount, $blacklistCount);
 
         if (!$complexity) {
-            throw new PatternNotComplexEnoughException();
+            throw PromotionException::patternNotComplexEnough();
         }
 
         $codes = $codeBlacklist;
@@ -111,7 +113,7 @@ class PromotionCodeService
     public function replaceIndividualCodes(string $promotionId, string $pattern, int $amount, Context $context): void
     {
         if ($this->isCodePatternAlreadyInUse($pattern, $promotionId, $context)) {
-            throw new PatternAlreadyInUseException();
+            throw PromotionException::patternAlreadyInUse();
         }
 
         $codes = $this->generateIndividualCodes($pattern, $amount);
@@ -128,9 +130,17 @@ class PromotionCodeService
         $this->connection->executeStatement('DELETE FROM promotion_individual_code WHERE promotion_id = :id', ['id' => Uuid::fromHexToBytes($promotionId)]);
     }
 
+    /**
+     * @return array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>}
+     */
     public function splitPattern(string $pattern): array
     {
         preg_match(self::PROMOTION_PATTERN_REGEX, $pattern, $codePattern);
+        /** @var array{prefix: string, replacement: ?string, suffix: string} $codePattern */
+        if (!isset($codePattern['replacement'])) {
+            throw PromotionException::invalidCodePattern($pattern);
+        }
+
         $codePattern['replacementString'] = str_replace('%', '', $codePattern['replacement']);
         $codePattern['replacementArray'] = str_split($codePattern['replacementString']);
 
@@ -146,6 +156,9 @@ class PromotionCodeService
         return $this->promotionRepository->search($criteria, $context)->getTotal() > 0;
     }
 
+    /**
+     * @param array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>} $codePattern
+     */
     private function generateCode(array $codePattern): string
     {
         $code = '';
@@ -165,14 +178,17 @@ class PromotionCodeService
         return \chr(random_int(65, 90));
     }
 
+    /**
+     * @param array<string> $codes
+     *
+     * @return array<array<string, string>>
+     */
     private function prepareCodeEntities(string $promotionId, array $codes): array
     {
-        return array_values(array_map(static function ($code) use ($promotionId) {
-            return [
-                'promotionId' => $promotionId,
-                'code' => $code,
-            ];
-        }, $codes));
+        return array_values(array_map(static fn ($code) => [
+            'promotionId' => $promotionId,
+            'code' => $code,
+        ], $codes));
     }
 
     private function isComplexEnough(string $pattern, int $amount, int $blacklistCount): bool
@@ -186,6 +202,7 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
+        /** @var array<int, int> $counts */
         $counts = count_chars($pattern, 1);
 
         $result = 1;

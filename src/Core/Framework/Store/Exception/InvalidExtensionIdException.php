@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('services-settings')]
 class InvalidExtensionIdException extends ShopwareHttpException
 {
-    public function __construct(array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         parent::__construct('The extension id must be an non empty numeric value.', $parameters, $e);
     }
 

@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+.sw-settings-storefront {
+    .sw-settings-storefront__first-configuration {
+        margin-bottom: 16px;
+    }
+
+    .sw-settings-storefront__headline {
+        font-weight: bold;
+        margin-bottom: 16px;
+    }
+
+    .sw-settings-storefront__additional_settings {
+        margin-left: 10px;
+        margin-bottom: 5px;
+    }
+
+    .sw-settings-storefront__radio-selection {
+        .sw-field--radio {
+            margin-bottom: 8px;
+        }
+
+        .sw-field__radio-group {
+            display: flex;
+        }
+
+        .sw-field__radio-option {
+            margin-right: 32px;
+        }
+    }
+}

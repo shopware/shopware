@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_base %}
 <div class="sw-product-detail-base">
     <template v-if="isLoading">
@@ -6,6 +7,7 @@
     </template>
 
     <template v-else>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_basic_info_card %}
         <sw-card
             v-show="showProductCard('general_information')"
@@ -14,6 +16,7 @@
             :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_basic_info_form %}
             <sw-product-basic-form
                 :show-settings-information="showModeSetting"
@@ -24,6 +27,30 @@
         </sw-card>
         {% endblock %}
 
+        <sw-card
+            v-show="productStates.includes('is-download')"
+            class="sw-product-detail-base__downloads"
+            :subtitle="$tc('sw-product.detailBase.cardSubtitleDownloads')"
+            :is-loading="loading.product || loading.customFieldSets || loading.downloads"
+            position-identifier="sw-product-detail-base-downloads"
+        >
+            <template #title>
+                <div class="sw-card__title">
+                    {{ $tc('sw-product.detailBase.cardTitleDownloads') }}
+                </div>
+            </template>
+
+            <sw-product-download-form
+                v-if="mediaFormVisible"
+                :product-id="product.id"
+                :label="$tc('sw-product.detailBase.downloadsLabel')"
+                :disabled="!acl.can('product.editor')"
+                required
+                @media-open="onOpenDownloadMediaModal"
+            />
+        </sw-card>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_price_card %}
         <sw-card
             v-show="showProductCard('prices')"
@@ -33,10 +60,12 @@
             :is-loading="loading.product"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_price_form %}
             <sw-product-price-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_advanced_prices_link %}
             <sw-container
                 v-if="productId"
@@ -49,7 +78,7 @@
                     class="sw-card__quick-link"
                 >
                     {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon
-                        name="default-arrow-simple-right"
+                        name="regular-long-arrow-right"
                         small
                     />
                 </router-link>
@@ -59,20 +88,41 @@
         </sw-card>
         {% endblock %}
 
-        {% block sw_product_detail_deliverability_info_card %}
-        <sw-card
-            v-show="showProductCard('deliverability')"
-            class="sw-product-detail-base__deliverability"
-            position-identifier="sw-product-detail-base-deliverability"
-            :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
-        >
-
-            {% block sw_product_detail_deliverability_info_form %}
-            <sw-product-deliverability-form :allow-edit="acl.can('product.editor')" />
+        <template v-if="productStates.includes('is-download')">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_deliverability_downloadable_info_card %}
+            <sw-card
+                v-show="showProductCard('deliverability')"
+                class="sw-product-detail-base__deliverability-downloadable"
+                position-identifier="sw-product-detail-base-deliverability-downloadable"
+                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_deliverability_downloadable_info_form %}
+                <sw-product-deliverability-downloadable-form :disabled="!acl.can('product.editor')" />
+                {% endblock %}
+            </sw-card>
             {% endblock %}
-        </sw-card>
-        {% endblock %}
+        </template>
 
+        <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_deliverability_info_card %}
+            <sw-card
+                v-show="showProductCard('deliverability')"
+                class="sw-product-detail-base__deliverability"
+                position-identifier="sw-product-detail-base-deliverability"
+                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_deliverability_info_form %}
+                <sw-product-deliverability-form :allow-edit="acl.can('product.editor')" />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+        </template>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_category_card %}
         <sw-card
             v-show="showProductCard('visibility_structure')"
@@ -82,6 +132,7 @@
             :is-loading="loading.product"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_category_form %}
             <sw-product-category-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
@@ -89,11 +140,16 @@
         </sw-card>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_media %}
         <sw-inherit-wrapper
             v-show="showProductCard('media')"
             ref="productMediaInheritance"
+            {% if VUE3 %}
+            v-model:value="product.media"
+            {% else %}
             v-model="product.media"
+            {% endif %}
             class="sw-product-detail-base__media"
             :inherited-value="parentProduct.media"
             :custom-restore-inheritance-function="mediaRestoreInheritanceFunction"
@@ -102,14 +158,17 @@
         >
             <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_base_media_card %}
                 <sw-card
+                    :subtitle="$tc('sw-product.detailBase.cardSubtitleMedia')"
                     :is-loading="loading.product || loading.customFieldSets || loading.media"
                     :class="{ 'sw-card__inherited': isInherited }"
                     position-identifier="sw-product-detail-base-media"
                 >
                     <template #title>
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_base_media_card_title %}
                         <div
                             class="sw-card__title"
@@ -122,12 +181,14 @@
                                 @inheritance-restore="restoreInheritance"
                                 @inheritance-remove="removeInheritance"
                             />
+                            {# TODO: headline is not clickable yet #}
                             {{ $tc('sw-product.detailBase.cardTitleMedia') }}
                         </div>
                         {% endblock %}
 
                     </template>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_base_media_card_form %}
                     <sw-product-media-form
                         v-if="mediaFormVisible"
@@ -146,6 +207,7 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"
@@ -156,6 +218,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_base_settings_card %}
         <sw-card
             v-show="showProductCard('labelling')"
@@ -165,117 +228,12 @@
             :is-loading="loading.product"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_base_settings_form %}
             <sw-product-settings-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
         </sw-card>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-seo" component, like following:
-        {% block sw_product_detail_seo %}
-        <div>
-            {% block sw_product_detail_seo_general %}
-            <sw-card position-identifier="">
-                ...
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_product_detail_seo_urls %}
-            <sw-seo-url>....</sw-seo-url>
-            {% endblock %}
-        </div>
-        {% endblock %}
-        #}
-        {% block sw_product_detail_base_settings_seo_settings %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-        {% block sw_product_detail_specifications %}
-        <div>
-            ...
-            {% block sw_product_detail_specifications_measures_packaging %}
-            <sw-card
-                position-identifier=""
-                :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
-                :is-loading="isLoading"
-            >
-                {% block sw_product_detail_specifications_measures_packaging_content %}
-                <sw-product-packaging-form
-                    v-if="!isLoading"
-                    :allow-edit="acl.can('product.editor')"
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
-            ...
-        </div>
-        {% endblock %}
-        #}
-        {% block sw_product_detail_base_packaging_card %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-        {% block sw_product_detail_specifications %}
-        <div>
-            ...
-            {% block sw_product_detail_specifications_essential_characteristics %}
-            <sw-card
-                position-identifier=""
-                :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
-                :is-loading="isLoading"
-            >
-                {% block sw_product_detail_specifications_essential_characteristics_content %}
-                <sw-product-feature-set-form
-                    ...
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
-            ...
-        </div>
-        {% endblock %}
-        #}
-        {% block sw_product_detail_base_feature_set_card %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
-        {% block sw_product_detail_specifications %}
-        <div>
-            ...
-            {% block sw_product_detail_specifications_custom_fields %}
-            <sw-card
-                position-identifier=""
-                :title="$tc('sw-product.specifications.cardTitleCustomFields')"
-                :is-loading="isLoading"
-            >
-                {% block sw_product_detail_specifications_custom_fields_content %}
-                <sw-custom-field-set-renderer
-                    ...
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
-            ...
-        </div>
-        {% endblock %}
-        #}
-        {% block sw_product_detail_attribute_sets %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
-        {% block sw_product_detail_reviews %}
-        <sw-card
-            position-identifier=""
-            class="sw-product-detail-reviews"
-            :title="$tc('sw-product.reviews.cardTitleReviews')"
-            :is-loading="isLoading"
-        >
-            ...
-        </sw-card>
-        {% endblock %}
-        #}
-        {% block sw_product_detail_base_ratings_card %}
         {% endblock %}
 
     </template>

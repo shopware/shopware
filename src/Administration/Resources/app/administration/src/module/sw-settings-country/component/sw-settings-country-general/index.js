@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-country-general.html.twig';
 import './sw-settings-country-general.scss';
 
@@ -6,7 +9,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 
-Component.register('sw-settings-country-general', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -78,7 +82,7 @@ Component.register('sw-settings-country-general', {
         },
 
         loadCurrencies() {
-            return this.currencyRepository.search(new Criteria(), Shopware.Context.api).then(currencies => {
+            return this.currencyRepository.search(new Criteria(1, 25), Shopware.Context.api).then(currencies => {
                 this.currencies = currencies;
             });
         },
@@ -205,4 +209,4 @@ Component.register('sw-settings-country-general', {
             this.$emit('modal-save');
         },
     },
-});
+};

@@ -1,0 +1,202 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/order/state/cancel": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Cancel an order",
+                "description": "Cancels an order. The order state will be set to 'cancelled'.",
+                "operationId": "cancelOrder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "orderId": {
+                                        "description": "The identifier of the order to be canceled.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the state of the state machine\n\n    example: More information about the state machine can be found in the corresponding guide: [Using the state machine](https://developer.shopware.com/docs/guides/plugins/plugins/checkout/order/using-the-state-machine)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StateMachineState"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/order": {
+            "post": {
+                "tags": [
+                    "Order",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a list of orders",
+                "description": "List orders of a customer.",
+                "operationId": "readOrder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "properties": {
+                                            "checkPromotion": {
+                                                "description": "Check if the payment method of the order is still changeable.",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "An array of orders and an indicator if the payment of the order can be changed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/order/payment": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Update the payment method of an order",
+                "description": "Changes the payment method of a specific order. You can use the /order route to find out if the payment method of an order can be changed - take a look at the `paymentChangeable`- array in the response.",
+                "operationId": "orderSetPayment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "paymentMethodId",
+                                    "orderId"
+                                ],
+                                "properties": {
+                                    "paymentMethodId": {
+                                        "description": "The identifier of the paymentMethod to be set",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "orderId": {
+                                        "description": "The identifier of the order.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated the payment method of the order.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/order/download/{orderId}/{downloadId}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Download a purchased file",
+                "description": "Download a file included in the given order and with the given id. Access must be granted.",
+                "operationId": "orderDownloadFile",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "downloadId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An arbitrary binary file.",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtecti
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
+/**
+ * @internal
+ */
 class SystemConfigExtension extends EntityExtension
 {
     /**

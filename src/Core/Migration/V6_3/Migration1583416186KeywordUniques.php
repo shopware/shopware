@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1583416186KeywordUniques extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,9 +21,9 @@ class Migration1583416186KeywordUniques extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('TRUNCATE product_keyword_dictionary');
+        $connection->executeStatement('TRUNCATE product_keyword_dictionary');
 
-        $connection->executeUpdate('ALTER TABLE `product_keyword_dictionary` ADD UNIQUE `uniq.language_id_keyword` (`language_id`, `keyword`);');
+        $connection->executeStatement('ALTER TABLE `product_keyword_dictionary` ADD UNIQUE `uniq.language_id_keyword` (`language_id`, `keyword`);');
     }
 
     public function updateDestructive(Connection $connection): void

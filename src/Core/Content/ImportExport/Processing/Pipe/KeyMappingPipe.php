@@ -2,28 +2,35 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 
+/**
+ * @phpstan-import-type MappingArray from Mapping
+ */
+#[Package('services-settings')]
 class KeyMappingPipe extends AbstractPipe
 {
-    /**
-     * @var MappingCollection
-     */
-    private $mapping;
+    private MappingCollection $mapping;
 
     /**
-     * @var bool
+     * @param iterable<string|MappingArray|Mapping|MappingCollection> $mapping
      */
-    private $flatten;
-
-    public function __construct(iterable $mapping = [], bool $flatten = true)
-    {
+    public function __construct(
+        iterable $mapping = [],
+        private bool $flatten = true
+    ) {
         $this->mapping = MappingCollection::fromIterable($mapping);
-        $this->flatten = $flatten;
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     public function in(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);
@@ -58,6 +65,11 @@ class KeyMappingPipe extends AbstractPipe
         yield from $sorted;
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     public function out(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);

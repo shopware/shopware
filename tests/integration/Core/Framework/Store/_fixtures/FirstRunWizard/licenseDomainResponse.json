@@ -1,0 +1,20 @@
+[
+    {
+        "id": 132715,
+        "domain": "http://test-shop",
+        "verified": true,
+        "edition": {
+            "name": "communityEdition",
+            "label": "Community Edition"
+        }
+    },
+    {
+        "id": 1234567,
+        "domain": "http://new-shop",
+        "verified": false,
+        "edition": {
+            "name": "communityEdition",
+            "label": "Community Edition"
+        }
+    }
+]

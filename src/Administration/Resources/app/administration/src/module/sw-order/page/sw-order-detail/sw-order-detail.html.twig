@@ -1,15 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail %}
 <sw-page
     v-if="orderId"
     class="sw-order-detail"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title %}
         <h2 v-if="orderIdentifier">
             {{ $tc('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_header_label_manual_order %}
             <sw-label
                 v-if="createdById"
@@ -23,6 +27,7 @@
         </h2>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title_new %}
         <h2 v-else>
             {{ $tc('sw-order.detail.textHeadlineNew') }}
@@ -32,55 +37,55 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_language_switch %}
-    <!-- eslint-disable vue/valid-v-slot -->
-    <sw-language-switch
-        #language-switch
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_abort %}
         <sw-button
-            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
             class="sw-order-detail__smart-bar-cancel-button"
-            :disabled="isLoading"
+            :disabled="isLoading || !acl.can('order.editor')"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
-        {% block sw_order_detail_actions_edit %}
-        <sw-button
-            v-if="!feature.isActive('FEATURE_NEXT_7530') && !isEditing"
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_detail_actions_save %}
+        <sw-button-process
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
-            class="sw-order-detail__smart-bar-edit-button"
-            variant="primary"
-            :disabled="isLoading || !acl.can('order.editor')"
-            @click="onStartEditing"
-        >
-            {{ $tc('global.default.edit') }}
-        </sw-button>
-        {% endblock %}
-
-        {% block sw_order_detail_actions_save %}
-        <sw-button-process
-            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
             class="sw-order-detail__smart-bar-save-button"
             variant="primary"
-            :disabled="isLoading"
+            :disabled="isLoading || !acl.can('order.editor')"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
+            {% if VUE3 %}
+            @update:process-success="saveEditsFinish"
+            {% else %}
             @process-finish="saveEditsFinish"
+            {% endif %}
             @click.prevent="onSaveEdits"
         >
             {{ $tc('global.default.save') }}
@@ -91,36 +96,38 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_content_leave_page_modal %}
         <sw-order-leave-page-modal
-            v-if="feature.isActive('FEATURE_NEXT_7530') && isDisplayingLeavePageWarning"
+            v-if="isDisplayingLeavePageWarning"
             @page-leave-cancel="onLeaveModalClose"
             @page-leave-confirm="onLeaveModalConfirm"
         />
         {% endblock %}
-
         <sw-card-view>
 
+            <sw-alert
+                v-if="isOrderEditing"
+                class="sw-order-detail__unsaved-warning"
+                variant="warning"
+            >
+                {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
+            </sw-alert>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_tabs %}
             <sw-tabs
                 v-if="showTabs"
                 class="sw-order-detail__tabs"
+                :class="{ 'has-warning': showWarningTabStyle }"
                 position-identifier="sw-order-detail"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_general %}
                 <sw-tabs-item
-                    v-if="!feature.isActive('FEATURE_NEXT_7530')"
-                    :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
-                    :title="$tc('sw-order.detail.tabGeneral')"
-                >
-                    {{ $tc('sw-order.detail.tabGeneral') }}
-                </sw-tabs-item>
-
-                <sw-tabs-item
-                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-general"
                     :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabGeneral')"
@@ -129,9 +136,9 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_details %}
                 <sw-tabs-item
-                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-details"
                     :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDetails')"
@@ -140,20 +147,32 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
-                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-documents"
+                    :class="{ 'has-warning': isOrderEditing }"
                     :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDocuments')"
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
+
+                    <sw-icon
+                        v-if="isOrderEditing"
+                        v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
+                        class="sw-order-detail__tab-warning-badge"
+                        name="solid-exclamation-circle"
+                        size="12px"
+                    />
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_content_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -162,13 +181,25 @@
 
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <router-view
-                v-if="!feature.isActive('FEATURE_NEXT_7530') || order"
+                v-if="order"
                 v-show="!isLoading"
                 ref="baseComponent"
                 :order-id="orderId"
                 :is-editing="isEditing"
                 :is-loading="isLoading"
                 :is-save-successful="isSaveSuccessful"
+                {% if VUE3 %}
+                @identifier-change.native="updateIdentifier"
+                @created-by-id-change.native="updateCreatedById"
+                @loading-change.native="onUpdateLoading"
+                @editing-change.native="onUpdateEditing"
+                @save-and-recalculate.native="onSaveAndRecalculate"
+                @recalculate-and-reload.native="onRecalculateAndReload"
+                @reload-entity-data.native="reloadEntityData"
+                @save-and-reload.native="onSaveAndReload"
+                @save-edits.native="onSaveEdits"
+                @error.native="onError"
+                {% else %}
                 @identifier-change="updateIdentifier"
                 @created-by-id-change="updateCreatedById"
                 @loading-change="onUpdateLoading"
@@ -179,6 +210,7 @@
                 @save-and-reload="onSaveAndReload"
                 @save-edits="onSaveEdits"
                 @error="onError"
+                {% endif %}
             />
             {% endblock %}
 

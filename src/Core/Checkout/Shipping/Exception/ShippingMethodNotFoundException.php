@@ -2,22 +2,30 @@
 
 namespace Shopware\Core\Checkout\Shipping\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-class ShippingMethodNotFoundException extends ShopwareHttpException
+/**
+ * @decrecated tag:v6.6.0 - use ShippingException::shippingMethodNotFound instead
+ */
+#[Package('checkout')]
+class ShippingMethodNotFoundException extends ShippingException
 {
-    public function __construct(string $id)
+    public function __construct(string $id, ?\Throwable $e = null)
     {
         parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            ShippingException::SHIPPING_METHOD_NOT_FOUND,
             'Shipping method with id "{{ shippingMethodId }}" not found.',
-            ['shippingMethodId' => $id]
+            ['shippingMethodId' => $id],
+            $e
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'CHECKOUT__SHIPPING_METHOD_NOT_FOUND';
+        return ShippingException::SHIPPING_METHOD_NOT_FOUND;
     }
 
     public function getStatusCode(): int

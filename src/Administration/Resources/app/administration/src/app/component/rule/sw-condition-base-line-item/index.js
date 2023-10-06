@@ -6,6 +6,7 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @public
+ * @package business-ops
  * @description Base line item condition for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -62,7 +63,7 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
 
         matchesAll: {
             get() {
-                return this.parentCondition.type === 'allLineItemsContainer';
+                return this.parentCondition && this.parentCondition.type === 'allLineItemsContainer';
             },
             set(matchesAll) {
                 if (matchesAll && this.parentCondition.type !== 'allLineItemsContainer') {

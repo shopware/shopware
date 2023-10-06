@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_seo_main_category %}
 <div class="sw-seo-main-category">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_seo_main_category_select %}
     <sw-single-select
         :options="categories"
@@ -10,7 +12,11 @@
         :label="overwriteLabel ? undefined : $tc('sw-seo-url.labelMainCategory')"
         :value="selectedCategory"
         :disabled="currentSalesChannelId === null || !allowEdit"
+        {% if VUE3 %}
+        @update:value="onMainCategorySelected"
+        {% else %}
         @change="onMainCategorySelected"
+        {% endif %}
     />
     {% endblock %}
 </div>

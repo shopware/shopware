@@ -1,13 +1,25 @@
 /**
+ * @package admin
+ *
  * @module core/factory/module
  */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
-import type { Route, RouteConfig } from 'vue-router';
-import { ComponentConfig } from './component.factory';
+import type { Route } from 'vue-router';
+import type {
+    Component,
+    Dictionary,
+    NavigationGuard,
+    PathToRegexpOptions,
+    RedirectOption,
+    RoutePropsFunction,
+} from 'vue-router/types/router';
+import type { ComponentConfig } from './async-component.factory';
+import type { Snippets } from './locale.factory';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getModuleRoutes,
     registerModule,
@@ -17,39 +29,71 @@ export default {
     getModuleByKey,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ModuleTypes = 'plugin' | 'core';
-type ModuleRoutes = Map<string, RouteConfig>
+
+interface SwRouteConfig {
+    path: string;
+    name?: string;
+    component?: string | Component;
+    components?: Dictionary<Component> | {
+        default: string
+    };
+    redirect?: RedirectOption;
+    alias?: string | string[];
+    children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    meta?: $TSFixMe;
+    beforeEnter?: NavigationGuard;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    props?: boolean | Object | RoutePropsFunction;
+    caseSensitive?: boolean;
+    pathToRegexpOptions?: PathToRegexpOptions;
+    coreRoute?: boolean;
+    type?: ModuleTypes;
+    flag?: string;
+    routeKey?: string;
+    isChildren?: boolean;
+}
+
+type ModuleRoutes = Map<string, SwRouteConfig>
 
 interface Navigation {
-    moduleType: ModuleTypes,
+    moduleType?: ModuleTypes,
     parent?: string,
     id: string,
     path?: string,
     link?: string,
     label?: string,
     position?: number,
+    privilege?: string,
+    color?: string,
+    icon?: string,
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugin',
+    group: 'shop' | 'system' | 'plugins',
     to: string,
     icon?: string,
-    iconComponent: unknown,
+    iconComponent?: unknown,
     privilege?: string,
     id?: string,
     name?: string,
     label?: string,
 }
 
-interface ModuleManifest {
-    flag: string,
+/**
+ * @private
+ */
+export interface ModuleManifest {
+    flag?: string,
     type: ModuleTypes,
-    routeMiddleware: (next: () => void, currentRoute: Route) => void,
+    routeMiddleware?: (next: () => void, currentRoute: Route) => void,
     routes: {
-        [key: string]: RouteConfig
+        [key: string]: SwRouteConfig
     },
-    routePrefixName: string,
-    routePrefixPath: string,
+    routePrefixName?: string,
+    routePrefixPath?: string,
     coreRoute?: boolean,
     navigation?: Navigation[],
     settingsItem?: SettingsItem[] | SettingsItem,
@@ -63,7 +107,21 @@ interface ModuleManifest {
         [lang: string]: unknown
     },
     name: string,
-    title: string
+    title: string,
+    display?: boolean,
+    description?: string,
+    version?: string,
+    targetVersion?: string,
+    color?: string,
+    icon?: string,
+    favicon?: string,
+    defaultSearchConfiguration?: {
+        _searchable: boolean,
+        name: {
+            _searchable: boolean,
+            _score: number,
+        }
+    }
 }
 
 interface ModuleDefinition {
@@ -87,7 +145,7 @@ const middlewareHelper = new MiddlewareHelper();
 function getModuleRegistry(): Map<string, ModuleDefinition> {
     modules.forEach((value, key) => {
         if (hasOwnProperty(value.manifest, 'flag')
-            && !Shopware.Feature.isActive(value.manifest.flag)
+            && !Shopware.Feature.isActive(value?.manifest?.flag ?? '')
         ) {
             modules.delete(key);
         }
@@ -133,6 +191,14 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             moduleId,
             'Abort registration.',
         );
+        return false;
+    }
+
+    if (!hasOwnProperty(module, 'display')) {
+        module.display = true;
+    }
+
+    if (!module.display) {
         return false;
     }
 
@@ -294,7 +360,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
 /**
  * Registers the route children in the module routes map recursively.
  */
-function registerChildRoutes(routeDefinition: RouteConfig, moduleRoutes: ModuleRoutes): ModuleRoutes {
+function registerChildRoutes(routeDefinition: SwRouteConfig, moduleRoutes: ModuleRoutes): ModuleRoutes {
     Object.values(routeDefinition.children ?? {}).map((child) => {
         if (hasOwnProperty(child, 'children') && Object.keys(child.children ?? {}).length) {
             moduleRoutes = registerChildRoutes(child, moduleRoutes);
@@ -309,10 +375,10 @@ function registerChildRoutes(routeDefinition: RouteConfig, moduleRoutes: ModuleR
 /**
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
  */
-function iterateChildRoutes(routeDefinition: RouteConfig): RouteConfig {
+function iterateChildRoutes(routeDefinition: SwRouteConfig): SwRouteConfig {
     const routeDefinitionChildren = routeDefinition.children;
 
-    if (!routeDefinitionChildren || routeDefinitionChildren === undefined) {
+    if (!routeDefinitionChildren) {
         return routeDefinition;
     }
 
@@ -340,7 +406,7 @@ function iterateChildRoutes(routeDefinition: RouteConfig): RouteConfig {
  * Generates the route component list e.g. adds supports for multiple components per route as well as validating
  * the developer input.
  */
-function createRouteComponentList(route: RouteConfig, moduleId: string, module: ModuleManifest): RouteConfig {
+function createRouteComponentList(route: SwRouteConfig, moduleId: string, module: ModuleManifest): SwRouteConfig {
     if (hasOwnProperty(module, 'flag')) {
         route.flag = module.flag;
     }
@@ -348,16 +414,14 @@ function createRouteComponentList(route: RouteConfig, moduleId: string, module: 
     // Remove the component cause we remapped it to the components object of the route object
     if (route.component) {
         route.components = {
-            default: route.component,
+            default: (route.component as string),
         };
         delete route.component;
     }
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.keys(routeComponents).forEach((componentKey) => {
-        const component = routeComponents[componentKey];
-
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
         // Don't register a component without a name
         if (!component) {
             warn(
@@ -369,10 +433,10 @@ function createRouteComponentList(route: RouteConfig, moduleId: string, module: 
         }
 
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
-    // @ts-expect-error
     route.components = componentList;
 
     return route;
@@ -382,12 +446,12 @@ function createRouteComponentList(route: RouteConfig, moduleId: string, module: 
  * Returns the defined module routes which will be registered in the router and therefore will be accessible in the
  * application.
  */
-function getModuleRoutes(): RouteConfig[] {
-    const moduleRoutes: RouteConfig[] = [];
+function getModuleRoutes(): SwRouteConfig[] {
+    const moduleRoutes: SwRouteConfig[] = [];
 
     modules.forEach((module) => {
         module.routes.forEach((route) => {
-            if (hasOwnProperty(route, 'flag') && !Shopware.Feature.isActive(route.flag)) {
+            if (hasOwnProperty(route, 'flag') && !Shopware.Feature.isActive(route.flag ?? '')) {
                 return;
             }
 
@@ -414,8 +478,8 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 /**
  * Returns a list of all module specific snippets
  */
-function getModuleSnippets(): { [lang:string]: unknown } {
-    return Array.from(modules.values()).reduce<{ [lang:string] : unknown }>((accumulator, module) => {
+function getModuleSnippets(): { [lang:string]: Snippets | undefined } {
+    return Array.from(modules.values()).reduce<{ [lang:string] : Snippets | undefined }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {
@@ -445,7 +509,7 @@ function getModuleSnippets(): { [lang:string]: unknown } {
  * Adds a module to the settingsItems Store
  */
 function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void {
-    if (hasOwnProperty(module, 'flag') && !Shopware.Feature.isActive(module.flag)) {
+    if (hasOwnProperty(module, 'flag') && !Shopware.Feature.isActive(module.flag ?? '')) {
         return;
     }
 

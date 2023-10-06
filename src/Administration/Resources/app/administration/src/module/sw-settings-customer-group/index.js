@@ -1,12 +1,18 @@
-import './page/sw-settings-customer-group-list';
-import './page/sw-settings-customer-group-detail';
-
 import './acl';
-
 import defaultSearchConfiguration from './default-search-configuration';
+
+/**
+ * @package checkout
+ */
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-customer-group-list', () => import('./page/sw-settings-customer-group-list'));
+Shopware.Component.register('sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-detail'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-customer-group', {
     type: 'core',
     name: 'settings-customer-group',
@@ -15,7 +21,7 @@ Module.register('sw-settings-customer-group', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'customer_group',
 
@@ -56,7 +62,7 @@ Module.register('sw-settings-customer-group', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.customer.group.index',
-        icon: 'default-avatar-multiple',
+        icon: 'regular-users',
         privilege: 'customer_groups.viewer',
     },
 

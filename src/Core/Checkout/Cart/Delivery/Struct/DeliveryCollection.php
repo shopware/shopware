@@ -5,17 +5,13 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void          add(Delivery $entity)
- * @method void          set(string $key, Delivery $entity)
- * @method Delivery[]    getIterator()
- * @method Delivery[]    getElements()
- * @method Delivery|null get(string $key)
- * @method Delivery|null first()
- * @method Delivery|null last()
+ * @extends Collection<Delivery>
  */
+#[Package('checkout')]
 class DeliveryCollection extends Collection
 {
     /**
@@ -69,9 +65,7 @@ class DeliveryCollection extends Collection
     public function getShippingCosts(): PriceCollection
     {
         return new PriceCollection(
-            $this->map(function (Delivery $delivery) {
-                return $delivery->getShippingCosts();
-            })
+            $this->map(fn (Delivery $delivery) => $delivery->getShippingCosts())
         );
     }
 
@@ -81,7 +75,7 @@ class DeliveryCollection extends Collection
         foreach ($this->getIterator() as $delivery) {
             $address = $delivery->getLocation()->getAddress();
             if ($address !== null) {
-                $addresses->add($delivery->getLocation()->getAddress());
+                $addresses->add($address);
             }
         }
 

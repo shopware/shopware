@@ -4,16 +4,17 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('services-settings')]
 class CartRuleScope extends CheckoutRuleScope
 {
-    protected Cart $cart;
-
-    public function __construct(Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        protected Cart $cart,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context);
-        $this->cart = $cart;
     }
 
     public function getCart(): Cart

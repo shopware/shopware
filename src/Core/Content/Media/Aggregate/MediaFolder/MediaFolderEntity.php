@@ -8,11 +8,13 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class MediaFolderEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -68,6 +70,11 @@ class MediaFolderEntity extends Entity
      * @var string|null
      */
     protected $defaultFolderId;
+
+    /**
+     * @var string|null
+     */
+    protected $path;
 
     public function getName(): string
     {
@@ -177,5 +184,15 @@ class MediaFolderEntity extends Entity
     public function setDefaultFolderId(?string $defaultFolderId): void
     {
         $this->defaultFolderId = $defaultFolderId;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
     }
 }

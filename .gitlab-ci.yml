@@ -5,13 +5,15 @@ stages:
     - unit
     # cypress E2E tests
     - E2E
-    # search for vulnerabilities in code and dependencies
-    - security
-    # build artifacts used in deploy
-    - build
+    # quarantined tests
+    - quarantine
+    # downstream pipelines trigger by this pipeline
+    - downstream
+    # create manyrepos
+    - split
     # deploy artifacts build in the `build` stage
     - deploy
-    # percy
+    # visual testing (not in use at the moment)
     - visual
 
 workflow:

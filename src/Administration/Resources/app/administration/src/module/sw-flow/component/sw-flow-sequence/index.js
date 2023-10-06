@@ -1,9 +1,11 @@
 import template from './sw-flow-sequence.html.twig';
 import './sw-flow-sequence.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-flow-sequence', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     props: {
@@ -12,6 +14,11 @@ Component.register('sw-flow-sequence', {
             required: true,
         },
         disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isUnknownTrigger: {
             type: Boolean,
             required: false,
             default: false,
@@ -38,6 +45,10 @@ Component.register('sw-flow-sequence', {
             return this.sequenceData.ruleId || this.sequenceData.ruleId === '';
         },
 
+        isActionSequence() {
+            return !this.isSelectorSequence && !this.isConditionSequence;
+        },
+
         trueBlockClasses() {
             if (this.sequence.parentId || !this.isConditionSequence) {
                 return null;
@@ -62,4 +73,4 @@ Component.register('sw-flow-sequence', {
             };
         },
     },
-});
+};

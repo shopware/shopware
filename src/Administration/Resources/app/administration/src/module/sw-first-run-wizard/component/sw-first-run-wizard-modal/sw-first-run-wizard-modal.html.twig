@@ -1,15 +1,20 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_modal %}
 <sw-modal
     :title="title"
     :variant="variant"
+    :closable="isClosable"
     class="sw-first-run-wizard-modal"
+    @modal-close="closeModal"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_modal_content %}
     <div class="sw-first-run-wizard-modal-content">
         <sw-container
             :class="{'one': !showSteps, 'two': showSteps}"
             class="sw-first-run-wizard-modal-content__columns"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_content_steps %}
             <div
                 v-if="showSteps"
@@ -33,9 +38,6 @@
                         {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
                     </sw-step-item>
                     <sw-step-item>
-                        {{ $tc('sw-first-run-wizard.stepItemTitle.markets') }}
-                    </sw-step-item>
-                    <sw-step-item>
                         {{ $tc('sw-first-run-wizard.stepItemTitle.plugins') }}
                     </sw-step-item>
                     <sw-step-item>
@@ -48,6 +50,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_content_page %}
             <div class="sw-first-run-wizard-modal-content__page">
                 <router-view
@@ -55,16 +58,24 @@
                     @frw-redirect="redirect"
                     @frw-set-title="setTitle"
                     @frw-finish="finishFRW"
+                    @extension-activated="onExtensionActivated"
                 />
             </div>
             {% endblock %}
+
+            <sw-loader
+                v-if="showLoader"
+                class="sw-first-run-wizard-modal__loader"
+            />
         </sw-container>
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_modal_footer %}
     <template #modal-footer>
         <div class="sw-first-run-wizard-modal__footer">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_footer_left %}
             <div class="footer-left">
                 <sw-button
@@ -80,6 +91,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_footer_right %}
             <div class="footer-right">
                 <sw-button

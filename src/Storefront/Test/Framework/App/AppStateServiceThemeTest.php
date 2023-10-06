@@ -12,21 +12,22 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
+/**
+ * @internal
+ */
 class AppStateServiceThemeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private ?ThemeService $themeService;
 
@@ -36,11 +37,11 @@ class AppStateServiceThemeTest extends TestCase
 
     private AppStateService $appStateService;
 
-    private EventDispatcherInterface $eventDispatcher;
+    private TraceableEventDispatcher $eventDispatcher;
 
     private EntityRepository $templateRepo;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->themeService = $this->getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->appRepo = $this->getContainer()->get('app.repository');
@@ -59,9 +60,11 @@ class AppStateServiceThemeTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        /* @phpstan-ignore-next-line */
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
         $salesChannelId = $this->createSalesChannel();
 
+        /* @phpstan-ignore-next-line */
         $this->themeService->assignTheme($themeId, $salesChannelId, $context);
 
         $criteria = new Criteria();
@@ -69,6 +72,7 @@ class AppStateServiceThemeTest extends TestCase
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
 
         static::expectException(ThemeAssignmentException::class);
+        /* @phpstan-ignore-next-line */
         $this->appStateService->deactivateApp($appId, $context);
     }
 
@@ -81,6 +85,7 @@ class AppStateServiceThemeTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        /* @phpstan-ignore-next-line */
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
 
         $childId = Uuid::randomHex();
@@ -92,6 +97,7 @@ class AppStateServiceThemeTest extends TestCase
             'active' => true,
         ];
 
+        /* @phpstan-ignore-next-line */
         $this->themeRepo->upsert([[
             'id' => $themeId,
             'dependentThemes' => [$childTheme],
@@ -99,10 +105,12 @@ class AppStateServiceThemeTest extends TestCase
 
         $salesChannelId = $this->createSalesChannel();
 
+        /* @phpstan-ignore-next-line */
         $this->themeService->assignTheme($childId, $salesChannelId, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
+        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
 
         static::expectException(ThemeAssignmentException::class);
@@ -116,6 +124,7 @@ class AppStateServiceThemeTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
+        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
 
         $eventWasReceived = false;
@@ -146,6 +155,7 @@ class AppStateServiceThemeTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
+        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
 
         $eventWasReceived = false;

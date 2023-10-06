@@ -1,9 +1,11 @@
 import template from './sw-cms-stage-add-section.html.twig';
 import './sw-cms-stage-add-section.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-stage-add-section', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     props: {
@@ -47,4 +49,4 @@ Component.register('sw-cms-stage-add-section', {
             this.showSelection = !this.showSelection;
         },
     },
-});
+};

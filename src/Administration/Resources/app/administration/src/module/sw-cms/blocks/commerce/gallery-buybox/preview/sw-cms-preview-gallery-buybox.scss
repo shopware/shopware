@@ -1,4 +1,4 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-cms-preview-gallery-buybox {
     display: grid;
@@ -55,6 +55,6 @@
     }
 
     .sw-cms-el-preview-buy-box__price {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
     }
 }

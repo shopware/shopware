@@ -1,0 +1,12 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ArrayStruct": {
+                "$ref": "#\/components\/schemas\/Struct"
+            }
+        }
+    }
+}

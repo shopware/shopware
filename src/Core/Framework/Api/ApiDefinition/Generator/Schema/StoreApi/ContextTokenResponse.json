@@ -1,9 +1,0 @@
-{
-  "type": "object",
-  "properties": {
-    "contextToken": {
-      "description": "Context token identifying the current user session.",
-      "type": "string"
-    }
-  }
-}

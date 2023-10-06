@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                      add(MediaThumbnailEntity $entity)
- * @method void                      set(string $key, MediaThumbnailEntity $entity)
- * @method MediaThumbnailEntity[]    getIterator()
- * @method MediaThumbnailEntity[]    getElements()
- * @method MediaThumbnailEntity|null get(string $key)
- * @method MediaThumbnailEntity|null first()
- * @method MediaThumbnailEntity|null last()
+ * @extends EntityCollection<MediaThumbnailEntity>
  */
+#[Package('buyers-experience')]
 class MediaThumbnailCollection extends EntityCollection
 {
     public function getApiAlias(): string

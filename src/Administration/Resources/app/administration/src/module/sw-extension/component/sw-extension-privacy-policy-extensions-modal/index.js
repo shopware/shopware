@@ -1,9 +1,11 @@
 import template from './sw-extension-privacy-policy-extensions-modal.html.twig';
 import './sw-extension-privacy-policy-extensions-modal.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-extension-privacy-policy-extensions-modal', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
 
     props: {
@@ -33,4 +35,4 @@ Component.register('sw-extension-privacy-policy-extensions-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

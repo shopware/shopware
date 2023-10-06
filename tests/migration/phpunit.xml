@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="../../src/Core/TestBootstrap.php"
+         cacheResult="false"
+         executionOrder="random"
+         convertDeprecationsToExceptions="false">
+    <coverage cacheDirectory="../../var/cache/phpunit/" includeUncoveredFiles="true">
+        <include >
+            <directory suffix=".php">../../src/Core/Migration</directory>
+            <directory suffix=".php">../../src/Administration/Migration</directory>
+            <directory suffix=".php">../../src/Storefront/Migration</directory>
+        </include>
+      </coverage>
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
+        <env name="APP_ENV" value="test" />
+        <env name="APP_DEBUG" value="1" />
+        <env name="APP_SECRET" value="s$cretf0rt3st" />
+        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0" />
+
+        <env name="SHELL_VERBOSITY" value="-1" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
+        <server name="MAILER_DSN" value="null://localhost"/>
+        <server name="HTTPS" value="off"/>
+        <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
+        <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
+        <!--<env name="SYMFONY_DEPRECATIONS_HELPER" value="/A tree builder without a root node is deprecated since Symfony 4\.2 and will not be supported anymore in 5\.0\./" />-->
+    </php>
+    <testsuites>
+        <testsuite name="migration-tests">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener">
+            <arguments>
+                <array>
+                    <!-- set this option to 0 to disable the DebugClassLoader integration -->
+                    <element key="debug-class-loader"><integer>0</integer></element>
+                </array>
+            </arguments>
+        </listener>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+        <listener class="Shopware\Core\Test\PHPUnit\Extension\DatadogListener" />
+
+        <!--Enable to see Test structure violations. (Not formatted) -->
+        <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
+    </listeners>
+    <!--Enable to see the db sideeffects of the tests. -->
+    <!--<extensions>
+        <extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension"></extension>
+    </extensions>-->
+</phpunit>

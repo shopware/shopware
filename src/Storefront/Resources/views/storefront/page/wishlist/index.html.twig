@@ -15,7 +15,6 @@
                 {% set guestWishlistPageOptions = {
                     pageletRouter: {
                         path: path('frontend.wishlist.guestPage.pagelet'),
-                        token: sw_csrf('frontend.wishlist.guestPage.pagelet', {'mode': 'token'})
                     }
                 } %}
                 <div class="row mh-100" data-guest-wishlist-page="true" data-guest-wishlist-page-options="{{ guestWishlistPageOptions|json_encode }}"></div>

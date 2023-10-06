@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_rule_select_v2 %}
 <div class="sw-promotion-v2-rule-select">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_rule_select_v2_selection %}
     <sw-entity-many-to-many-select
         v-bind="$attrs"
@@ -8,17 +10,26 @@
         class="sw-promotion-v2-rule-select"
         :entity-collection="collection"
         :local-mode="localMode"
+        advanced-selection-component="sw-advanced-selection-rule"
+        :advanced-selection-parameters="advanceSelectionParameters"
         v-on="$listeners"
+        {% if VUE3 %}
+        @update:entity-collection="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     >
 
         <template #before-item-list>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_rule_select_v2_selection_before_list %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <li
                 class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
+                role="button"
+                tabindex="0"
                 @click="showRuleModal = true"
+                @keydown.enter="showRuleModal = true"
             >
                 {{ $tc('sw-promotion-v2.ruleSelect.labelAddNewRule') }}
             </li>
@@ -27,16 +38,16 @@
         </template>
 
         <template
-            v-if="feature.isActive('FEATURE_NEXT_18215')"
             #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
         >
             <sw-select-result
-                v-tooltip="tooltipConfig(item.id)"
+                v-tooltip="tooltipConfig(item)"
                 :selected="isSelected(item)"
-                :disabled="restrictedRules.includes(item.id)"
+                :disabled="isRuleRestricted(item)"
                 v-bind="{ item, index }"
                 @item-select="addItem"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_many_to_many_select_base_results_list_result_label %}
                 <slot
                     name="result-label-property"
@@ -57,11 +68,12 @@
     </sw-entity-many-to-many-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_rule_select_v2_create_modal %}
     <sw-rule-modal
         v-if="showRuleModal"
         class="sw-promotion-v2-rule-select__create-modal"
-        :allowed-rule-scopes="ruleScope"
+        :rule-aware-group-key="ruleAwareGroupKey"
         @save="onSaveRule"
         @modal-close="showRuleModal = false"
     />

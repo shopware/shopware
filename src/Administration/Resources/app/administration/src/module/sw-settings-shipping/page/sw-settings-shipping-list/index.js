@@ -1,9 +1,13 @@
 import template from './sw-settings-shipping-list.html.twig';
 import './sw-settings-shipping-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
-Component.register('sw-settings-shipping-list', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -60,11 +64,17 @@ Component.register('sw-settings-shipping-list', {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center',
+            }, {
+                property: 'position',
+                label: 'sw-settings-shipping.list.columnPosition',
+                inlineEdit: 'number',
+                allowResize: true,
+                align: 'center',
             }];
         },
 
         listingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -101,6 +111,10 @@ Component.register('sw-settings-shipping-list', {
                 this.total = 0;
 
                 return;
+            }
+
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
             }
 
             this.shippingRepository.search(criteria).then((items) => {
@@ -173,4 +187,4 @@ Component.register('sw-settings-shipping-list', {
             return tax?.label;
         },
     },
-});
+};

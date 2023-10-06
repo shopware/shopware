@@ -3,30 +3,22 @@
 namespace Shopware\Core\System\User;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void            add(UserEntity $entity)
- * @method void            set(string $key, UserEntity $entity)
- * @method UserEntity[]    getIterator()
- * @method UserEntity[]    getElements()
- * @method UserEntity|null get(string $key)
- * @method UserEntity|null first()
- * @method UserEntity|null last()
+ * @extends EntityCollection<UserEntity>
  */
+#[Package('core')]
 class UserCollection extends EntityCollection
 {
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (UserEntity $user) {
-            return $user->getLocaleId();
-        });
+        return $this->fmap(fn (UserEntity $user) => $user->getLocaleId());
     }
 
     public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (UserEntity $user) use ($id) {
-            return $user->getLocaleId() === $id;
-        });
+        return $this->filter(fn (UserEntity $user) => $user->getLocaleId() === $id);
     }
 
     public function getApiAlias(): string

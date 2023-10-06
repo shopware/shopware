@@ -126,9 +126,9 @@
         "labelPermissions": "Permissions",
         "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",
         "passwordConfirmation": {
-          "titleConfirmPasswordModal": "Enter your current password to confirm",
+          "titleConfirmPasswordModal": "Confirm password",
           "labelConfirmPassword": "Password",
-          "placeholderConfirmPassword": "Please enter your current password...",
+          "placeholderConfirmPassword": "Enter your current password...",
           "labelButtonCancel": "Cancel",
           "labelButtonConfirm": "Confirm",
           "notificationPasswordErrorTitle": "Error",
@@ -222,7 +222,8 @@
         "api_action_container-cache_delete": "Delete container cache",
         "api_info_me": "Read own api user info",
         "api_info_ping": "Refresh auth token",
-        "system:clear:cache": "Clear cache"
+        "system:clear:cache": "Clear cache",
+        "api_proxy_switch-customer": "Act on behalf of a customer"
       },
       "app": {
         "label": "Apps",

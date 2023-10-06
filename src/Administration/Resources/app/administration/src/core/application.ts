@@ -1,8 +1,10 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
-import type ViewAdapter from './adapter/view.adapter';
-import { ContextState } from '../app/state/context.store';
+import type { ContextState } from '../app/state/context.store';
+import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
+ * @package admin
+ *
  * @module core/application
  */
 
@@ -13,6 +15,9 @@ interface bundlesSinglePluginResponse {
     baseUrl?: null | string,
     type?: 'app'|'plugin',
     version?: string,
+    // Properties below this line are only available for apps
+    integrationId?: string,
+    active?: boolean,
 }
 
 interface bundlesPluginResponse {
@@ -20,6 +25,8 @@ interface bundlesPluginResponse {
 }
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
+ *
  * The application bootstrapper bootstraps the application and registers the necessary
  * and optional parts of the application in a shared DI container which provides you
  * with an easy-to-use way to add new services as well as decoration these services.
@@ -30,7 +37,7 @@ interface bundlesPluginResponse {
 class ApplicationBootstrapper {
     public $container: Bottle;
 
-    public view: null | ViewAdapter;
+    public view: null | VueAdapter;
 
     /**
      * Provides the necessary class properties for the class to work probably
@@ -50,7 +57,7 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Returns all containers. Use this method if you're want to get initializers in your services.
+     * Returns all containers. Use this method if you want to get initializers in your services.
      */
     getContainer<T extends Bottle.IContainerChildren>(containerName: T): Bottle.IContainer[T] {
         if (typeof containerName === 'string' && this.$container.container[containerName]) {
@@ -206,7 +213,7 @@ class ApplicationBootstrapper {
      */
     addServiceProviderMiddleware<SERVICE extends keyof ServiceContainer>(
         nameOrMiddleware: SERVICE|Bottle.Middleware,
-        middleware? : Bottle.Middleware,
+        middleware? : ((service: ServiceContainer[SERVICE], next: (error?: Error) => void) => void),
     ): ApplicationBootstrapper {
         return this._addMiddleware('service', nameOrMiddleware, middleware);
     }
@@ -316,7 +323,7 @@ class ApplicationBootstrapper {
     /**
      * Returns the root of the application e.g. a new Vue instance
      */
-    getApplicationRoot(): Vue | boolean {
+    getApplicationRoot(): Vue | false {
         if (!this.view?.root) {
             return false;
         }
@@ -324,7 +331,7 @@ class ApplicationBootstrapper {
         return this.view.root;
     }
 
-    setViewAdapter(viewAdapterInstance: ViewAdapter): void {
+    setViewAdapter(viewAdapterInstance: VueAdapter): void {
         this.view = viewAdapterInstance;
     }
 
@@ -341,7 +348,7 @@ class ApplicationBootstrapper {
         // if user is not logged in
         if (!isUserLoggedIn) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            loginService.logout();
+            loginService.logout(false, false);
             return this.bootLogin();
         }
 
@@ -434,7 +441,7 @@ class ApplicationBootstrapper {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
+        if (firstRunWizard && !router?.history?.current?.name?.startsWith('sw.first.run.wizard.')) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             router.push({
                 name: 'sw.first.run.wizard.index',
@@ -456,7 +463,7 @@ class ApplicationBootstrapper {
      */
     viewInitialized = new Promise((resolve) => {
         this._resolveViewInitialized = resolve;
-    })
+    });
 
     /**
      * Creates the application root and show the error message.
@@ -512,7 +519,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'svgIcons',
+            'coreDirectives',
         ];
 
         const initContainer = this.getContainer('init');
@@ -565,7 +572,15 @@ class ApplicationBootstrapper {
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
-        const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+        // prioritize main swag-commercial plugin because other plugins depend on the license handling
+        if (plugins['swag-commercial']) {
+            await this.injectPlugin(plugins['swag-commercial']);
+        }
+
+        const injectAllPlugins = Object.entries(plugins).filter(([pluginName]) => {
+            // Filter the swag-commercial plugin because it was loaded beforehand
+            return pluginName !== 'swag-commercial';
+        }).map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -593,6 +608,8 @@ class ApplicationBootstrapper {
             }
 
             this.injectIframe({
+                active: bundle.active,
+                integrationId: bundle.integrationId,
                 bundleName,
                 bundleVersion: bundle.version,
                 iframeSrc: bundle.baseUrl,
@@ -705,11 +722,15 @@ class ApplicationBootstrapper {
      * Inject hidden iframes
      */
     private injectIframe({
+        active,
+        integrationId,
         bundleName,
         iframeSrc,
         bundleVersion,
         bundleType,
     }: {
+        active?: boolean,
+        integrationId?: string,
         bundleName: string,
         iframeSrc: string,
         bundleVersion?: string,
@@ -723,6 +744,8 @@ class ApplicationBootstrapper {
         }
 
         const extension = {
+            active,
+            integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
@@ -736,4 +759,5 @@ class ApplicationBootstrapper {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ApplicationBootstrapper;

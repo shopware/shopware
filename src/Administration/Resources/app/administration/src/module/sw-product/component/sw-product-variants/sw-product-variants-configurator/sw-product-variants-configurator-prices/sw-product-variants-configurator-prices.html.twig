@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_configurator_prices %}
 <div class="sw-product-variants-configurator-prices">
     <sw-alert
@@ -7,19 +8,22 @@
         {{ $tc('sw-product.variations.configuratorModal.surchargeNotice') }}
     </sw-alert>
     <div class="sw-product-variants-configurator-prices__table">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_prices_groups %}
         <div class="sw-product-variants-configurator-prices__groups">
             <ul>
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-for="group in selectedGroups"
                     :key="group.id"
                     class="sw-product-variants-configurator-prices__groupElement"
                     :class="{'is--selected': activeGroup.id == group.id}"
+                    role="button"
+                    tabindex="0"
                     @click="activeGroup = group"
+                    @keydown.enter="activeGroup = group"
                 >
                     <sw-icon
-                        name="multicolor-folder-breadcrumbs"
+                        name="regular-folder"
                         size="16px"
                         multicolor
                     />
@@ -29,10 +33,13 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_prices_prices %}
         <div class="sw-product-variants-configurator-prices__prices">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_prices_search %}
             <div class="sw-product-variants-configurator-prices__search">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_prices_search_field %}
                 <sw-simple-search-field
                     v-model="term"
@@ -44,8 +51,10 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_prices_grid_wrapper %}
             <div class="sw-product-variants-configurator-prices__grid-wrapper">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_prices_data_grid %}
                 <sw-data-grid
                     v-if="optionsForGroup.length"
@@ -56,20 +65,20 @@
                     full-page
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_configurator_prices_column_name %}
                     <template
-                        slot="column-name"
-                        slot-scope="{ item, isInlineEdit, compact }"
+                        #column-name="{ item, isInlineEdit, compact }"
                     >
                         {{ item.option.translated.name }}
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_configurator_prices_column_currency %}
                     <template
                         v-for="currency in currenciesList"
-                        :slot="`column-currency.${currency.id}`"
-                        slot-scope="{ item, isInlineEdit, compact }"
+                        #[`column-currency.${currency.id}`]="{ item, isInlineEdit, compact }"
                     >
 
                         <sw-product-variants-price-field
@@ -82,11 +91,12 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_configurator_prices_actions %}
                     <template
-                        slot="actions"
-                        slot-scope="{ item }"
+                        #actions="{ item }"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_configurator_prices_actions_items %}
                         <sw-context-menu-item
                             variant="danger"
@@ -104,6 +114,7 @@
         </div>
         {% endblock %}
     </div>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_configurator_prices_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

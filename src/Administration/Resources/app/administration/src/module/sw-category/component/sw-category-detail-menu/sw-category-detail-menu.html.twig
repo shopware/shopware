@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_detail_menu %}
 <sw-card
     class="sw-category-detail-base__menu"
@@ -6,15 +7,21 @@
     :is-loading="isLoading"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_information_visible %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="reversedVisibility"
+        {% else %}
         v-model="reversedVisibility"
+        {% endif %}
         borderd
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.menu.visible')"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_menu_media %}
     <sw-upload-listener
         :key="category.id + 'uploadListener'"
@@ -32,11 +39,23 @@
         :allow-multi-select="false"
         :default-folder="category.getEntityName()"
         @media-drop="onMediaDropped"
-        @media-upload-sidebar-open="openMediaSidebar"
+        @media-upload-sidebar-open="showMediaModal = true"
         @media-upload-remove-image="onRemoveMediaItem"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_category_detail_menu_media_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        :allow-multi-select="false"
+        :entity-context="category.getEntityName()"
+        @media-modal-selection-change="onMediaSelectionChange"
+        @modal-close="showMediaModal = false"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_menu_description %}
     <sw-text-editor
         :key="category.id + 'description'"

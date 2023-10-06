@@ -6,17 +6,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private readonly SalesChannelContext $salesChannelContext;
 
-    public function __construct(EntityDefinition $definition, AggregationResultCollection $result, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        AggregationResultCollection $result,
+        SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($definition, $result, $salesChannelContext->getContext());
         $this->salesChannelContext = $salesChannelContext;
     }

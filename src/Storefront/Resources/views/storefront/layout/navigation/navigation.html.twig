@@ -1,5 +1,4 @@
 {% block layout_main_navigation %}
-
     <div class="main-navigation"
          id="mainNavigation"
          data-flyout-menu="true">
@@ -25,18 +24,11 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
-                            {% if page.product is defined %}
-                                {% set activePath = page.product.categoryTree %}
-                            {% else %}
-                                {% set activePath = page.header.navigation.active.path %}
-                            {% endif %}
+                            {% set activePath = page.header.navigation.active.path %}
 
                             {% for treeItem in page.header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
-
-                                {# @deprecated tag:v6.5.0 - Use "category.id" directly instead. #}
-                                {% set categorId = category.id %}
 
                                 {% block layout_main_navigation_menu_item %}
                                     {% if category.type == 'folder' %}

@@ -1,7 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_stream_grid_preview_content %}
 <div class="sw-product-stream-grid-preview">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_grid_preview_search_field_label %}
     <div class="sw-product-stream-grid-preview__toolbar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_grid_preview_search_field %}
         <sw-simple-search-field
             v-model="searchTerm"
@@ -10,11 +13,13 @@
             :delay="750"
             :disabled="!filters"
             class="sw-product-stream-grid-preview__search-field"
+            @search-term-change="onSearchTermChange"
         />
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_grid_preview_grid %}
     <sw-data-grid
         v-if="total"
@@ -29,8 +34,10 @@
         @selection-change="onSelectionChange"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_grid_preview_grid_columns %}
         <template #column-name="{ item, column }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_name %}
             <router-link
                 v-if="column.routerLink"
@@ -50,6 +57,7 @@
         </template>
 
         <template #column-manufacturer.name="{ item, column }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_manufacturer %}
             <router-link
                 v-if="column.routerLink && item.manufacturerId"
@@ -64,6 +72,7 @@
         </template>
 
         <template #column-active="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_active %}
             <sw-data-grid-column-boolean
                 :value="item.active"
@@ -73,12 +82,14 @@
         </template>
 
         <template #column-price="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_price %}
-            {{ getPriceForDefaultCurrency(item)|currency(systemCurrency.isoCode) }}
+            {{ currencyFilter(getPriceForDefaultCurrency(item), systemCurrency.isoCode) }}
             {% endblock %}
         </template>
 
         <template #column-stock="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_column_stock %}
             {{ item.stock }}
             {% endblock %}
@@ -88,6 +99,7 @@
         <slot name="additional-columns"></slot>
 
         <template #pagination>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_grid_preview_grid_pagination %}
             <sw-pagination
                 v-bind="{ total, page, limit }"
@@ -100,17 +112,19 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_grid_preview_empty_state %}
     <slot name="empty-state">
         <sw-empty-state
             v-if="!total && !isLoading"
             :title="emptyStateMessage"
             :absolute="false"
+            auto-height
             :show-description="false"
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     alt=""
                 >
             </template>

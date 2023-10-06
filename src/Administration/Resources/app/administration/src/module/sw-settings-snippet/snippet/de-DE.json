@@ -59,7 +59,7 @@
         "setList": {
             "title": "Textbaustein-Sets verwalten & bearbeiten",
             "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle.",
-            "cardTitle": "Testbaustein-Sets",
+            "cardTitle": "Textbaustein-Sets",
             "buttonAddSet": "Textbaustein-Set hinzufügen",
             "buttonCancel": "Abbrechen",
             "buttonClone": "Kopieren",

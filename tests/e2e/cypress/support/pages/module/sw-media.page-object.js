@@ -62,7 +62,7 @@ export default class MediaPageObject {
             '',
             true,
         );
-        cy.get(this.elements.modalTitle).contains(`Move "${name}"`);
+        cy.contains(this.elements.modalTitle, `Move "${name}"`);
         cy.get('.sw-media-modal-move__confirm').should('be.disabled');
 
         cy.get(`.sw-media-folder-content__list-item--${listingPosition}`).click();
@@ -87,12 +87,12 @@ export default class MediaPageObject {
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .should('not.exist');
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action').click();
-            cy.get(`.sw-media-modal-folder-settings__entry--${position} label`)
-                .contains(`${size.width}x${size.height}`);
+            cy.contains(`.sw-media-modal-folder-settings__entry--${position} label`,
+                `${size.width}x${size.height}`);
         } else {
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action').click();
-            cy.get(`.sw-media-modal-folder-settings__entry--${position} label`)
-                .contains(`${size.width}x${size.width}`);
+            cy.contains(`.sw-media-modal-folder-settings__entry--${position} label`,
+                `${size.width}x${size.width}`);
         }
     }
 
@@ -107,14 +107,14 @@ export default class MediaPageObject {
         cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).should('be.visible');
         cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).click({ force: true });
         cy.get('.sw-media-sidebar__headline').should('be.visible');
-        cy.get('.sw-media-sidebar__headline').contains(fileName);
+        cy.contains('.sw-media-sidebar__headline', fileName);
         cy.get('.sw-media-sidebar__quickinfo-scroll-container .sw-media-preview-v2__item')
             .should('have.attr', 'src')
             .and('match', new RegExp(fileName));
 
         // Deletion
         cy.get('li.quickaction--delete').click();
-        cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
+        cy.contains(`${this.elements.modal}__body`, `Are you sure you want to delete "${fileName}"?`);
         cy.get('.sw-media-modal-delete__confirm').click();
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(`input[placeholder="${fileName}"]`).should('not.exist');
@@ -124,9 +124,9 @@ export default class MediaPageObject {
         cy.get(`.sw-media-base-item__name[title="${fileName}"]`).should('be.visible');
 
         // Navigate back
-        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').click();
+        cy.get('.icon--regular-double-chevron-left-s').click();
         cy.get(this.elements.loader).should('not.exist');
-        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').should('not.exist');
+        cy.get('.icon--regular-double-chevron-left-s').should('not.exist');
 
         // dissolve folder
         cy.get(this.elements.loader).should('not.exist');
@@ -137,12 +137,11 @@ export default class MediaPageObject {
             '',
             true,
         );
-        cy.get(`${this.elements.modal}__body`)
-            .contains('Are you sure you want to dissolve "A thing to fold about" ?');
+        cy.contains(`${this.elements.modal}__body`, 'Are you sure you want to dissolve "A thing to fold about" ?');
         cy.get('.sw-media-modal-folder-dissolve__confirm').click();
 
         // Verify dissolved folder and existing image
-        cy.get(this.elements.mediaNameLabel).contains(fileName);
+        cy.contains(this.elements.mediaNameLabel, fileName);
         cy.get('.sw-media-base-item__name[title="A thing to fold about"]').should('not.exist');
     }
 

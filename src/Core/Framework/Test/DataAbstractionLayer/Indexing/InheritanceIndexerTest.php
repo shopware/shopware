@@ -9,16 +9,21 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class InheritanceIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     public function testManyToOneInheritanceUpdates(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $products = [
             [
@@ -50,7 +55,7 @@ class InheritanceIndexerTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $ids->context);
+            ->create($products, Context::createDefaultContext());
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer'), $ids->get('manufacturer'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), null, $ids->get('manufacturer'));
@@ -63,7 +68,9 @@ class InheritanceIndexerTest extends TestCase
                     'id' => $ids->get('variant-1'),
                     'manufacturer' => ['id' => $ids->create('manufacturer-2'), 'name' => 'test'],
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
+
+        $this->runWorker();
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer'), $ids->get('manufacturer'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), $ids->get('manufacturer-2'), $ids->get('manufacturer-2'));
@@ -76,7 +83,8 @@ class InheritanceIndexerTest extends TestCase
                     'id' => $ids->get('parent'),
                     'manufacturer' => ['id' => $ids->create('manufacturer-3'), 'name' => 'test'],
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
+        $this->runWorker();
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer-3'), $ids->get('manufacturer-3'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), $ids->get('manufacturer-2'), $ids->get('manufacturer-2'));
@@ -86,7 +94,8 @@ class InheritanceIndexerTest extends TestCase
         $this->getContainer()->get('product.repository')
             ->update([
                 ['id' => $ids->get('variant-1'), 'manufacturerId' => null],
-            ], $ids->context);
+            ], Context::createDefaultContext());
+        $this->runWorker();
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer-3'), $ids->get('manufacturer-3'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), null, $ids->get('manufacturer-3'));
@@ -95,7 +104,7 @@ class InheritanceIndexerTest extends TestCase
 
     public function testToManyInheritance(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $products = [
             [
@@ -131,7 +140,7 @@ class InheritanceIndexerTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $ids->context);
+            ->create($products, Context::createDefaultContext());
 
         // test variants should inherit the parent price
         $this->assertPriceInheritance($ids->get('parent'), $ids->get('parent-price'), $ids->get('parent'));
@@ -152,7 +161,7 @@ class InheritanceIndexerTest extends TestCase
                         ],
                     ],
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $this->assertPriceInheritance($ids->get('parent'), $ids->get('parent-price'), $ids->get('parent'));
         $this->assertPriceInheritance($ids->get('variant-1'), $ids->get('variant-1-price'), $ids->get('variant-1'));
@@ -162,7 +171,7 @@ class InheritanceIndexerTest extends TestCase
         $this->getContainer()->get('product_price.repository')
             ->delete([
                 ['id' => $ids->get('parent-price')],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $this->assertPriceInheritance($ids->get('parent'), null, $ids->get('parent'), false);
         $this->assertPriceInheritance($ids->get('variant-1'), $ids->get('variant-1-price'), $ids->get('variant-1'));
@@ -183,7 +192,7 @@ class InheritanceIndexerTest extends TestCase
                         ],
                     ],
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $this->assertPriceInheritance($ids->get('parent'), $ids->get('parent-price'), $ids->get('parent'));
         $this->assertPriceInheritance($ids->get('variant-1'), $ids->get('variant-1-price'), $ids->get('variant-1'));
@@ -193,7 +202,7 @@ class InheritanceIndexerTest extends TestCase
         $this->getContainer()->get('product_price.repository')
             ->delete([
                 ['id' => $ids->get('variant-1-price')],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         // test variants should inherit the parent price
         $this->assertPriceInheritance($ids->get('parent'), $ids->get('parent-price'), $ids->get('parent'));
@@ -203,7 +212,7 @@ class InheritanceIndexerTest extends TestCase
 
     public function testManyToManyInheritance(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $products = [
             [
@@ -234,7 +243,7 @@ class InheritanceIndexerTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $ids->context);
+            ->create($products, Context::createDefaultContext());
 
         // test variants should inherit the parent categories
         $this->assertCategoriesInheritance($ids->get('parent'), $ids->get('parent'));
@@ -250,7 +259,7 @@ class InheritanceIndexerTest extends TestCase
                         ['id' => $ids->create('variant-1-category'), 'name' => 'test12'],
                     ],
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $this->assertCategoriesInheritance($ids->get('parent'), $ids->get('parent'));
         $this->assertCategoriesInheritance($ids->get('variant-1'), $ids->get('variant-1'));
@@ -259,7 +268,7 @@ class InheritanceIndexerTest extends TestCase
         $this->getContainer()->get('product_category.repository')
             ->delete([
                 ['productId' => $ids->get('variant-1'), 'categoryId' => $ids->get('variant-1-category')],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         // test variants should inherit the parent categories
         $this->assertCategoriesInheritance($ids->get('parent'), $ids->get('parent'));
@@ -271,11 +280,12 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssoc(
+        $inheritance = $connection->fetchAssociative(
             'SELECT LOWER(HEX(product_manufacturer_id)) as fk, LOWER(HEX(manufacturer)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
+        static::assertIsArray($inheritance);
         static::assertEquals($fk, $inheritance['fk']);
         static::assertEquals($association, $inheritance['association']);
 
@@ -298,14 +308,15 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssoc(
+        $inheritance = $connection->fetchAssociative(
             'SELECT LOWER(HEX(prices)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
+        static::assertIsArray($inheritance);
         static::assertEquals($association, $inheritance['association']);
 
-        $prices = $connection->fetchColumn(
+        $prices = $connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -335,11 +346,12 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssoc(
+        $inheritance = $connection->fetchAssociative(
             'SELECT LOWER(HEX(categories)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
+        static::assertIsArray($inheritance);
         static::assertEquals($association, $inheritance['association']);
 
         $context = Context::createDefaultContext();

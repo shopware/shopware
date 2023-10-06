@@ -8,12 +8,39 @@
         v-else
         class="sw-extension-my-extensions-listing__listing-grid"
     >
+        <sw-alert
+            v-if="!isAppUrlReachable"
+            class="sw-extension-my-extensions-listing__app-url-warning"
+            variant="warning"
+            :title="$tc('sw-app.component.sw-app-wrong-app-url-modal.title')"
+        >
+
+            <template #default>
+                <div>
+                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
+                </div>
+                <div>
+                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
+                </div>
+            </template>
+
+            <template #actions>
+                <sw-button
+                    class="sw-app-wrong-app-url-modal__content-link-button"
+                    variant="ghost"
+                    :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+                >
+                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+                </sw-button>
+            </template>
+
+        </sw-alert>
         <sw-meteor-card
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
 
@@ -33,7 +60,7 @@
 
             <sw-button
                 variant="ghost"
-                @click="openStore"
+                @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>
@@ -51,7 +78,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                         alt=""
                     >
 
@@ -69,7 +96,7 @@
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
                             :key="entry.name"
                             :extension="entry"
-                            @updateList="updateList"
+                            @update-list="updateList"
                         />
                     </template>
 

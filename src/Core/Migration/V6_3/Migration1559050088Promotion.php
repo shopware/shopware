@@ -3,8 +3,16 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1559050088Promotion extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -13,11 +21,11 @@ class Migration1559050088Promotion extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
      */
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `promotion` ADD `customer_restriction` TINYINT(1) NOT NULL DEFAULT 0;');
+        $connection->executeStatement('ALTER TABLE `promotion` ADD `customer_restriction` TINYINT(1) NOT NULL DEFAULT 0;');
     }
 
     public function updateDestructive(Connection $connection): void

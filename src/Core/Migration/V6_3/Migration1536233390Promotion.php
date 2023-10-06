@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1536233390Promotion extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1536233390Promotion extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
         CREATE TABLE IF NOT EXISTS `promotion` (
               `id` BINARY(16) NOT NULL,
               `active` TINYINT(1) NOT NULL DEFAULT 0,
@@ -32,7 +39,7 @@ class Migration1536233390Promotion extends MigrationStep
               PRIMARY KEY (`id`)
           ) ENGINE = InnoDB');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
         CREATE TABLE `promotion_translation` (
             `name` VARCHAR(255) NULL,
             `promotion_id` BINARY(16) NOT NULL,

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_entity_path_select %}
 <sw-select-base
     ref="selectBase"
@@ -8,12 +9,17 @@
     @select-collapsed="onSelectCollapsed"
     v-on="$listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_entity_path_select_base %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_entity_path_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_entity_path_select_base_selection_slot %}
         <div class="sw-import-export-entity-path-select__selection">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_single_selection_inner %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_single_selection_inner_label %}
             <div
                 v-if="!isExpanded"
@@ -33,6 +39,7 @@
                 </template>
             </div>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_single_selection_inner_input %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -51,8 +58,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_entity_path_select_base_results %}
     <template #results-list>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_entity_path_select_base_results_slot %}
         <sw-select-result-list
             ref="resultsList"
@@ -63,37 +72,40 @@
             @paginate="$emit('paginate')"
             @item-select="setValue"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_base_results_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_base_results_list_before %}
             <template #before-item-list>
                 <slot name="before-item-list">
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(notMappedItem)"
                         v-bind="{ item: notMappedItem, index: -1 }"
                         @item-select="setValue"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
                         {{ notMappedItem.label }}
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                     <hr class="sw-import-export-entity-path-select__listing-seperator">
                 </slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
                     v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_import_export_entity_path_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
@@ -110,16 +122,17 @@
 
                             <sw-icon
                                 v-if="item.relation && item.relation !== 'many_to_many'"
-                                name="small-arrow-small-right"
+                                name="regular-chevron-right-xxs"
                                 size="16px"
                             />
                         </slot>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_entity_path_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>

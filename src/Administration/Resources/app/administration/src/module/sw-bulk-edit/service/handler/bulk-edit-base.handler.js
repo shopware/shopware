@@ -11,6 +11,8 @@ const { getObjectDiff } = Shopware.Utils.object;
 
 /**
  * @class
+ *
+ * @package system-settings
  */
 class BulkEditBaseHandler {
     constructor() {
@@ -90,9 +92,10 @@ class BulkEditBaseHandler {
                 return;
             }
 
-            if (definition.isToManyAssociation(field)) {
+            const isOneToOne = definition.isOneToOneAssociation(field);
+            if (definition.isToManyAssociation(field) || isOneToOne) {
                 try {
-                    await this._handleAssociationChange(field, change);
+                    await this._handleAssociationChange(field, change, isOneToOne);
 
                     return;
                 } catch (e) {
@@ -159,10 +162,11 @@ class BulkEditBaseHandler {
      *
      * @param {Object} fieldDefinition
      * @param {Object} change
+     * @param {boolean} isOneToOne
      * @example
      * change =[{ type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]];
      */
-    async _handleAssociationChange(fieldDefinition, change) {
+    async _handleAssociationChange(fieldDefinition, change, isOneToOne = false) {
         const {
             mapping,
             entity,
@@ -217,6 +221,8 @@ class BulkEditBaseHandler {
 
         if (isMappingField) {
             this._detectManyToManyChange(change, existAssociations);
+        } else if (isOneToOne) {
+            this._detectOneToOneChange(change, existAssociations);
         } else {
             this._detectOneToManyChange(change, existAssociations);
         }
@@ -249,14 +255,13 @@ class BulkEditBaseHandler {
             changeItem = object.pick(changeItem, editableProperties);
 
             this.entityIds.forEach(entityId => {
-                const record = Object.assign({}, changeItem);
+                const record = { ...changeItem };
                 record[referenceKey] = entityId;
 
                 const identifyKey = mappingReferenceField ?? localKey;
-                const key = `${original[identifyKey]}.${entityId}`;
+                const key = mappingReferenceField ? `${original[identifyKey]}.${entityId}` : entityId;
 
                 const associations = existAssociations[key] ?? [];
-
                 if (mappingReferenceField && type === bulkSyncTypes.ADD && associations.length > 0) {
                     return;
                 }
@@ -264,14 +269,58 @@ class BulkEditBaseHandler {
                 let association = null;
 
                 // Only update existing association if there's only one association record
-                if (associations.length === 1) {
-                    association = Object.assign({}, associations[0]);
+                if (type === bulkSyncTypes.OVERWRITE && associations.length === 1) {
+                    association = { ...associations[0] };
                     existAssociations[key].shift();
                     // Remove existing OneToMany association record from delete payload
                     delete this.groupedPayload.delete[referenceEntity][key];
                 }
 
                 const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
+
+                if (actualChange === null || Object.keys(actualChange).length === 0) {
+                    return;
+                }
+
+                this.groupedPayload.upsert[referenceEntity][key] ??= [];
+                this.groupedPayload.upsert[referenceEntity][key].push(actualChange);
+            });
+        });
+    }
+
+    /**
+     * Handler for bulk edit a OneToOne association
+     * @param change
+     * @param existAssociations
+     * @private
+     */
+    _detectOneToOneChange(change, existAssociations) {
+        const {
+            referenceEntity,
+            referenceKey,
+            localKey,
+            value: changeItems,
+        } = change;
+        const editableProperties = this._getEditableProperties(referenceEntity);
+        changeItems.forEach(changeItem => {
+            changeItem = object.pick(changeItem, editableProperties);
+
+            this.entityIds.forEach(entityId => {
+                const record = { ...changeItem };
+                record[referenceKey] = entityId;
+
+                const key = entityId;
+                const associations = existAssociations[key] ?? [];
+
+                let association = null;
+                if (associations.length === 1) {
+                    association = { ...associations[0] };
+                    existAssociations[key].shift();
+
+                    delete this.groupedPayload.delete[referenceEntity][key];
+                }
+
+                const actualChange = this._getOneToManyChange(record, localKey, null, association);
 
                 if (actualChange === null || Object.keys(actualChange).length === 0) {
                     return;
@@ -389,7 +438,6 @@ class BulkEditBaseHandler {
     async _fetchOneToManyAssociated(fieldDefinition, change, page = 1, mappedExistAssociations = {}) {
         const {
             entity,
-            localField: localKey,
             referenceField: referenceKey,
         } = fieldDefinition;
 
@@ -414,7 +462,7 @@ class BulkEditBaseHandler {
         const existAssociations = await referenceRepository.search(criteria);
 
         existAssociations.forEach(association => {
-            let key = association[localKey];
+            let key = association[referenceKey];
 
             if (change.mappingReferenceField) {
                 const { [referenceKey]: referenceId, [change.mappingReferenceField]: foreignId } = association;
@@ -428,7 +476,7 @@ class BulkEditBaseHandler {
             }
         });
 
-        if (existAssociations.total > existAssociations.length) {
+        if (existAssociations.total > Object.keys(mappedExistAssociations).length) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
@@ -477,7 +525,7 @@ class BulkEditBaseHandler {
             mappedExistAssociations[key] = [association];
         });
 
-        if (mappingIds.total > existAssociations.length) {
+        if (mappingIds.total > Object.keys(mappedExistAssociations).length) {
             return this._fetchManyToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
@@ -532,4 +580,5 @@ class BulkEditBaseHandler {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default BulkEditBaseHandler;

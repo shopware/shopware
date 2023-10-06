@@ -10,14 +10,25 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
+    /**
+     * @internal
+     */
+    public function __construct(private readonly AbstractDefaultMediaResolver $mediaResolver)
+    {
+    }
+
     public function getType(): string
     {
         return 'image-slider';
@@ -26,7 +37,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $sliderItemsConfig = $slot->getFieldConfig()->get('sliderItems');
-        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped()) {
+        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped() || $sliderItemsConfig->isDefault()) {
             return null;
         }
 
@@ -63,13 +74,32 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             }
         }
 
+        if ($sliderItemsConfig->isDefault()) {
+            foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
+                $this->addDefaultMediaToImageSlider($imageSlider, $sliderItem);
+            }
+        }
+
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
 
-            if ($sliderItems === null || \count($sliderItems) < 1) {
+            if ($sliderItems === null || (is_countable($sliderItems) ? \count($sliderItems) : 0) < 1) {
                 return;
             }
             $this->sortItemsByPosition($sliderItems);
+
+            if ($sliderItemsConfig->getStringValue() === 'product.media') {
+                /** @var ProductEntity $productEntity */
+                $productEntity = $resolverContext->getEntity();
+
+                if ($productEntity->getCover()) {
+                    /** @var ProductMediaCollection $sliderItems */
+                    $sliderItems = new ProductMediaCollection(array_merge(
+                        [$productEntity->getCoverId() => $productEntity->getCover()],
+                        $sliderItems->getElements()
+                    ));
+                }
+            }
 
             foreach ($sliderItems->getMedia() as $media) {
                 $imageSliderItem = new ImageSliderItemStruct();
@@ -85,18 +115,19 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $sliderItems->sort(static function (ProductMediaEntity $a, ProductMediaEntity $b) {
-            return $a->get('position') - $b->get('position');
-        });
+        $sliderItems->sort(static fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->get('position') - $b->get('position'));
     }
 
+    /**
+     * @param array{url?: string, newTab?: bool, mediaId: string} $config
+     */
     private function addMedia(CmsSlotEntity $slot, ImageSliderStruct $imageSlider, ElementDataCollection $result, array $config): void
     {
         $imageSliderItem = new ImageSliderItemStruct();
 
         if (!empty($config['url'])) {
             $imageSliderItem->setUrl($config['url']);
-            $imageSliderItem->setNewTab($config['newTab']);
+            $imageSliderItem->setNewTab($config['newTab'] ?? false);
         }
 
         $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
@@ -110,6 +141,22 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
+        $imageSliderItem->setMedia($media);
+        $imageSlider->addSliderItem($imageSliderItem);
+    }
+
+    /**
+     * @param array{fileName: string} $config
+     */
+    private function addDefaultMediaToImageSlider(ImageSliderStruct $imageSlider, array $config): void
+    {
+        $media = $this->mediaResolver->getDefaultCmsMediaEntity($config['fileName']);
+
+        if ($media === null) {
+            return;
+        }
+
+        $imageSliderItem = new ImageSliderItemStruct();
         $imageSliderItem->setMedia($media);
         $imageSlider->addSliderItem($imageSliderItem);
     }

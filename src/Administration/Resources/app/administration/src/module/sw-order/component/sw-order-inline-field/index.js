@@ -1,9 +1,12 @@
 import './sw-order-inline-field.scss';
 import template from './sw-order-inline-field.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-order-inline-field', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -33,4 +36,4 @@ Component.register('sw-order-inline-field', {
             this.$emit('input', value);
         },
     },
-});
+};

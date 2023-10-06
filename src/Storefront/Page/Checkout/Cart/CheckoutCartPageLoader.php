@@ -9,7 +9,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,40 +19,29 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class CheckoutCartPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private StorefrontCartFacade $cartService;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
-    private AbstractCountryRoute $countryRoute;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        StorefrontCartFacade $cartService,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        AbstractCountryRoute $countryRoute
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StorefrontCartFacade $cartService,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly AbstractCountryRoute $countryRoute
     ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->countryRoute = $countryRoute;
     }
 
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutCartPage
     {

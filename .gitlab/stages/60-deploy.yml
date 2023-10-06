@@ -1,0 +1,109 @@
+# requires /.gitlab/base.yml
+
+Upload Component Library:
+    extends: .long-running-no-setup
+    stage: deploy
+    image: python:latest
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "trunk" && $CI_PIPELINE_SOURCE == "schedule"'
+          when: manual
+          allow_failure: true
+    dependencies:
+        - Component Library
+    environment:
+        name: Component Library
+        url: https://component-library.shopware.com
+    script:
+        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0KAWS-CLI preparation"
+        - pip install awscli
+        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
+        - cd build/artifacts/component-library
+        - echo -e "\e[0Ksection_start:$(date +%s):aws_sync[collapsed=false]\r\e[0KAWS sync"
+        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
+        - echo -e "\e[0Ksection_end:`date +%s`:aws_sync\r\e[0K"
+        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
+    interruptible: false
+
+Publish entity-schema-types NPM package:
+    extends: .base
+    stage: deploy
+    needs: []
+    rules:
+      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+    before_script:
+      - !reference [ .scripts, init, composer ]
+      - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, npm, admin ]
+      - composer run admin:generate-entity-schema-types
+    script:
+      - echo -e "\e[0Ksection_start:$(date +%s):generate_entityschema[collapsed=false]\r\e[0KGenerate EntitySchema"
+      - cd src/Administration/Resources/app/administration
+      - npm run generate-entity-schema-package
+      - echo -e "\e[0Ksection_end:`date +%s`:generate_entityschema\r\e[0K"
+      - cd ./entity-schema-types
+      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - npm publish --access public
+
+.push split repositories:
+  stage: deploy
+  tags:
+    - shopware
+  image:
+    name: bitnami/git:2
+  needs:
+    - job: 'split repository'
+    - job: 'tag split repositories'
+      optional: true
+    - job: 'branch split repositories'
+      optional: true
+  rules: &rules-push-split-repositories
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/'
+      when: never # Pushing split repositories is impossible without creating them first
+    - !reference [ .rules, skip-in-merge-train ]
+    - !reference [ .rules, skip ]
+    - if: '$CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)'
+  variables:
+    REMOTE_BASE_URL: "/dev/null"
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0
+  script:
+    - >
+      for package in Administration Storefront Core Elasticsearch; do
+        if [ "${CI_PIPELINE_SOURCE}" = 'schedule' ] && [ "${CI_COMMIT_TAG}" = '' ]; then
+          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_BRANCH}"
+        else
+          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
+        fi
+      done
+
+push split repositories (gitlab):
+  extends: '.push split repositories'
+  rules:
+    - *rules-push-split-repositories
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/'
+      when: manual # Allow pushing test-tags & -branches to internal repositories
+  environment:
+    name: 'Gitlab - Manyrepos'
+    url: 'https://gitlab.shopware.com/shopware/6/product/many-repositories'
+  variables:
+    REMOTE_BASE_URL: "https://bot:${GITLAB_MANYREPO_SYNC_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories"
+
+push split repositories (github):
+  extends: '.push split repositories'
+  environment:
+    name: 'Github'
+    url: 'https://github.com/shopware'
+  variables:
+    REMOTE_BASE_URL: "https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware"
+
+deploy to cloud staging:
+    stage: deploy
+    rules:
+      - !reference [ .rules, skip ]
+    when: manual
+    inherit:
+        variables: false
+    trigger: shopware/6/product/saas
+    variables:
+        VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
+        CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.4.x-dev;swag/saas-rufus:dev-trunk'

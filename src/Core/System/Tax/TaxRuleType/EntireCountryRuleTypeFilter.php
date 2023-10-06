@@ -4,11 +4,13 @@ namespace Shopware\Core\System\Tax\TaxRuleType;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
+#[Package('checkout')]
+class EntireCountryRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
-    public const TECHNICAL_NAME = 'entire_country';
+    final public const TECHNICAL_NAME = 'entire_country';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
@@ -16,6 +18,10 @@ class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
             || !$this->metPreconditions($taxRuleEntity, $shippingLocation)
         ) {
             return false;
+        }
+
+        if ($taxRuleEntity->getActiveFrom() !== null) {
+            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

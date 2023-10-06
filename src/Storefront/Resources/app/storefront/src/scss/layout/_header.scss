@@ -25,6 +25,7 @@ The header contains the shop logo, the search form and various actions like the 
 .header-logo-picture {
     display: block;
     max-width: 300px;
+    min-width: 200px;
     margin: auto;
 }
 
@@ -50,6 +51,10 @@ The header contains the shop logo, the search form and various actions like the 
 .header-wishlist .header-wishlist-badge {
     position: absolute;
     right: -0.25rem;
+}
+
+.header-actions-btn {
+    position: relative;
 }
 
 @include media-breakpoint-up(sm) {

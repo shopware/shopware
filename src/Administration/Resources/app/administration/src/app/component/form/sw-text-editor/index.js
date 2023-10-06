@@ -4,6 +4,9 @@ import './sw-text-editor.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -93,6 +96,12 @@ Component.register('sw-text-editor', {
             default: null,
         },
 
+        enableTransparentBackground: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -100,54 +109,54 @@ Component.register('sw-text-editor', {
                 return [
                     {
                         type: 'paragraph',
-                        title: this.$tc('sw-text-editor-toolbar.title.format'),
-                        icon: 'default-text-editor-style',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.format'),
+                        icon: 'regular-style-xs',
                         children: [
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.paragraph'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.paragraph'),
                                 value: 'p',
                                 tag: 'p',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h1'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h1'),
                                 value: 'h1',
                                 tag: 'h1',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h2'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h2'),
                                 value: 'h2',
                                 tag: 'h2',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h3'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h3'),
                                 value: 'h3',
                                 tag: 'h3',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h4'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h4'),
                                 value: 'h4',
                                 tag: 'h4',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h5'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h5'),
                                 value: 'h5',
                                 tag: 'h5',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h6'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.h6'),
                                 value: 'h6',
                                 tag: 'h6',
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.blockquote'),
+                                name: Shopware.Snippet.tc('sw-text-editor-toolbar.title.blockquote'),
                                 value: 'blockquote',
                                 tag: 'blockquote',
                             },
@@ -155,128 +164,115 @@ Component.register('sw-text-editor', {
                     },
                     {
                         type: 'foreColor',
-                        title: this.$tc('sw-text-editor-toolbar.title.text-color'),
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.text-color'),
                         value: '',
                         tag: 'font',
                     },
                     {
                         type: 'bold',
-                        title: this.$tc('sw-text-editor-toolbar.title.bold'),
-                        icon: 'default-text-editor-bold',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.bold'),
+                        icon: 'regular-bold-xs',
                         tag: 'b',
                     },
                     {
                         type: 'italic',
-                        title: this.$tc('sw-text-editor-toolbar.title.italic'),
-                        icon: 'default-text-editor-italic',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.italic'),
+                        icon: 'regular-italic-xs',
                         tag: 'i',
                     },
                     {
                         type: 'underline',
-                        title: this.$tc('sw-text-editor-toolbar.title.underline'),
-                        icon: 'default-text-editor-underline',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.underline'),
+                        icon: 'regular-underline-xs',
                         tag: 'u',
                     },
                     {
                         type: 'strikethrough',
-                        title: this.$tc('sw-text-editor-toolbar.title.strikethrough'),
-                        icon: 'default-text-editor-strikethrough',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.strikethrough'),
+                        icon: 'regular-strikethrough-xs',
                         tag: 'strike',
                     },
                     {
                         type: 'superscript',
-                        title: this.$tc('sw-text-editor-toolbar.title.superscript'),
-                        icon: 'default-text-editor-superscript',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.superscript'),
+                        icon: 'regular-superscript-xs',
                         tag: 'sup',
                     },
                     {
                         type: 'subscript',
-                        title: this.$tc('sw-text-editor-toolbar.title.subscript'),
-                        icon: 'default-text-editor-subscript',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.subscript'),
+                        icon: 'regular-subscript-xs',
                         tag: 'sub',
                     },
                     {
                         type: 'justify',
-                        title: this.$tc('sw-text-editor-toolbar.title.textAlign'),
-                        icon: 'default-text-editor-align-left',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.textAlign'),
+                        icon: 'regular-align-left-xs',
                         children: [
                             {
                                 type: 'justifyLeft',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignLeft'),
-                                icon: 'default-text-align-left',
+                                title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.alignLeft'),
+                                icon: 'regular-align-left',
                             },
                             {
                                 type: 'justifyCenter',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignCenter'),
-                                icon: 'default-text-align-center',
+                                title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.alignCenter'),
+                                icon: 'regular-align-center',
                             },
                             {
                                 type: 'justifyRight',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignRight'),
-                                icon: 'default-text-align-right',
+                                title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.alignRight'),
+                                icon: 'regular-align-right',
                             },
                             {
                                 type: 'justifyFull',
-                                title: this.$tc('sw-text-editor-toolbar.title.justify'),
-                                icon: 'default-text-align-justify',
+                                title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.justify'),
+                                icon: 'regular-align-justify',
                             },
                         ],
                     },
                     {
                         type: 'insertUnorderedList',
-                        title: this.$tc('sw-text-editor-toolbar.title.insert-unordered-list'),
-                        icon: 'default-text-editor-list-unordered',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.insert-unordered-list'),
+                        icon: 'regular-list-unordered-xs',
                         tag: 'ul',
                     },
                     {
                         type: 'insertOrderedList',
-                        title: this.$tc('sw-text-editor-toolbar.title.insert-ordered-list'),
-                        icon: 'default-text-editor-list-numberd',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.insert-ordered-list'),
+                        icon: 'regular-list-numbered-xs',
                         tag: 'ol',
                     },
                     {
                         type: 'link',
-                        title: this.$tc('sw-text-editor-toolbar.title.link'),
-                        icon: 'default-text-editor-link',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.link'),
+                        icon: 'regular-link-xs',
                         expanded: false,
                         newTab: false,
                         displayAsButton: false,
-                        buttonVariant: '',
-                        buttonVariantList: [
-                            {
-                                id: 'primary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
-                            },
-                            {
-                                id: 'secondary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
-                            },
-                            {
-                                id: 'primary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
-                            },
-                            {
-                                id: 'secondary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
-                            },
-                        ],
                         value: '',
                         tag: 'a',
                     },
                     {
                         type: 'undo',
-                        title: this.$tc('sw-text-editor-toolbar.title.undo'),
-                        icon: 'default-text-editor-undo',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.undo'),
+                        icon: 'regular-undo-xs',
                         position: 'middle',
                     },
                     {
                         type: 'redo',
-                        title: this.$tc('sw-text-editor-toolbar.title.redo'),
-                        icon: 'default-text-editor-redo',
+                        title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.redo'),
+                        icon: 'regular-redo-xs',
                         position: 'middle',
                     },
                 ];
             },
+        },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -287,6 +283,7 @@ Component.register('sw-text-editor', {
             hasSelection: false,
             selection: null,
             currentSelection: null,
+            isShiftPressed: false,
             toolbar: null,
             textLength: 0,
             content: '',
@@ -313,6 +310,13 @@ Component.register('sw-text-editor', {
                 'is--boxed': !this.isInlineEdit,
                 'is--empty': this.isEmpty,
                 'has--vertical-align': !!this.verticalAlign,
+                'has--error': !!this.error,
+            };
+        },
+
+        contentClasses() {
+            return {
+                'is--transparent-background': this.enableTransparentBackground,
             };
         },
 
@@ -384,20 +388,22 @@ Component.register('sw-text-editor', {
             this.content = this.value;
 
             if (!this.$options.buttonConfig) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
                     title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
-                    icon: 'default-text-editor-table',
+                    icon: 'regular-table-xs',
                     tag: 'table',
                     expanded: false,
                     handler: this.handleInsertTable,
                 });
 
                 if (!this.isInlineEdit) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
                         title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
-                        icon: 'default-text-editor-code',
+                        icon: 'regular-code-xs',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
                         position: 'right',
@@ -411,7 +417,7 @@ Component.register('sw-text-editor', {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
-                        icon: 'default-text-editor-variables',
+                        icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
                         tooltipShowDelay: 500,
@@ -429,6 +435,7 @@ Component.register('sw-text-editor', {
 
                     dataMappingButton.children = buttonConfigs;
 
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -436,17 +443,9 @@ Component.register('sw-text-editor', {
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
             document.addEventListener('keydown', this.onSelectionChange);
-        },
 
-        toggleCodeEditor(buttonConf) {
-            this.isCodeEdit = !this.isCodeEdit;
-            buttonConf.expanded = !buttonConf.expanded;
-        },
-
-        handleInsertDataMapping({ name }) {
-            this.onTextStyleChange('insertText', `{{ ${name} }}`);
-
-            this.selection = document.getSelection();
+            document.addEventListener('keydown', this.keyListener);
+            document.addEventListener('keyup', this.keyListener);
         },
 
         mountedComponent() {
@@ -463,6 +462,13 @@ Component.register('sw-text-editor', {
             document.removeEventListener('mouseup', this.onSelectionChange);
             document.removeEventListener('mousedown', this.onSelectionChange);
             document.removeEventListener('keydown', this.onSelectionChange);
+
+            document.removeEventListener('keydown', this.keyListener);
+            document.removeEventListener('keyup', this.keyListener);
+        },
+
+        keyListener(event) {
+            this.isShiftPressed = event.shiftKey;
         },
 
         onSelectionChange(event) {
@@ -471,6 +477,10 @@ Component.register('sw-text-editor', {
             }
 
             const path = this.getPath(event);
+
+            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
+            }
 
             if ((event.type === 'keydown' || event.type === 'mousedown') &&
                 !path.includes(this.$el) && !path.includes(this.toolbar)) {
@@ -507,10 +517,22 @@ Component.register('sw-text-editor', {
             return path;
         },
 
+        toggleCodeEditor(buttonConf) {
+            this.isCodeEdit = !this.isCodeEdit;
+            buttonConf.expanded = !buttonConf.expanded;
+        },
+
+        handleInsertDataMapping({ name }) {
+            this.onTextStyleChange('insertText', `{{ ${name} }}`);
+
+            this.selection = document.getSelection();
+        },
+
         resetForeColor() {
             Object.keys(this.buttonConfig).forEach(
                 (key) => {
                     if (this.buttonConfig[key].type === 'foreColor') {
+                        // eslint-disable-next-line vue/no-mutating-props
                         this.buttonConfig[key].value = '';
                     }
                 },
@@ -729,7 +751,7 @@ Component.register('sw-text-editor', {
             });
         },
 
-        onSetLink(value, target, buttonVariant) {
+        onSetLink(value, target, displayAsButton, buttonVariant) {
             if (!this.selection.toString()) {
                 return;
             }
@@ -744,7 +766,7 @@ Component.register('sw-text-editor', {
                 attributes.push('rel="noopener"');
             }
 
-            if (buttonVariant) {
+            if (displayAsButton) {
                 classes.push('btn');
                 classes.push(...buttonVariant.split('-').map(cls => `btn-${cls}`));
             }
@@ -808,6 +830,11 @@ Component.register('sw-text-editor', {
             }
         },
 
+        onInput() {
+            this.onContentChange();
+            this.emitContent();
+        },
+
         onContentChange() {
             this.isEmpty = this.emptyCheck(this.getContentValue());
             this.placeholderVisible = this.isEmpty;
@@ -829,14 +856,14 @@ Component.register('sw-text-editor', {
                 element = element.parentNode;
             }
 
-            const formatedSting = nodes.map(node => node.tagName.toLowerCase())
+            const formattedSting = nodes.map(node => node.tagName.toLowerCase())
                 .filter(nodeName => nodeName !== 'p')
                 .reduce((previousValue, currentElement) => {
                     return `<${currentElement}>${previousValue}</${currentElement}>`;
                 }, this.selection.toString());
 
-            event.clipboardData.setData('text/html', formatedSting);
             event.clipboardData.setData('text/plain', this.selection.toString());
+            event.clipboardData.setData('text/html', formattedSting);
         },
 
         onPaste(event) {
@@ -849,8 +876,16 @@ Component.register('sw-text-editor', {
             };
 
             const clipboardData = event.clipboardData;
-            const clipboardText = this.$sanitize(clipboardData.getData('text/plain'), settings);
-            const clipboardHTML = this.$sanitize(clipboardData.getData('text/html'), settings);
+
+            const textData = clipboardData.getData('text/plain');
+            const htmlData = clipboardData.getData('text/html');
+
+            let insertableNode;
+            if (htmlData && !this.isShiftPressed) {
+                insertableNode = document.createRange().createContextualFragment(this.$sanitize(htmlData, settings));
+            } else {
+                insertableNode = document.createTextNode(this.$sanitize(textData));
+            }
 
             const selection = window.getSelection();
 
@@ -861,9 +896,7 @@ Component.register('sw-text-editor', {
 
             selection.deleteFromDocument();
 
-            selection.getRangeAt(0).insertNode(clipboardHTML ?
-                document.createRange().createContextualFragment(clipboardHTML) :
-                document.createTextNode(clipboardText));
+            selection.getRangeAt(0).insertNode(insertableNode);
         },
 
         emitContent() {

@@ -1,14 +1,23 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_rule_create %}
 <div class="sw-select-rule-create">
     <sw-entity-multi-select
         v-if="rules !== null"
+        {% if VUE3 %}
+        v-model:entityCollection="collection"
+        {% else %}
         v-model="collection"
+        {% endif %}
+        :criteria="ruleFilter"
         v-bind="$attrs"
+        advanced-selection-component="sw-advanced-selection-rule"
+        :advanced-selection-parameters="getAdvancedSelectionParameters()"
     >
 
         <template #before-item-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_before %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
@@ -18,8 +27,44 @@
             {% endblock %}
         </template>
 
+        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_select_rule_create_select_multi_select_result_list_item %}
+            <slot
+                name="result-item"
+                v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+            >
+                <sw-select-result
+                    v-tooltip="tooltipConfig(item)"
+                    :selected="isSelected(item)"
+                    :disabled="isRuleRestricted(item)"
+                    v-bind="{ item, index }"
+                    @item-select="addItem"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_select_rule_create_select_multi_select_result_item_label %}
+                    <slot
+                        name="result-label-property"
+                        v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }"
+                    >
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm"
+                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :search-term="searchTerm"
+                        />
+                        <template v-else>
+                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                        </template>
+                    </slot>
+                    {% endblock %}
+                </sw-select-result>
+            </slot>
+            {% endblock %}
+        </template>
+
     </sw-entity-multi-select>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_rule_create_select %}
     <sw-entity-single-select
         v-else
@@ -28,11 +73,18 @@
         :value="ruleId"
         v-bind="$attrs"
         show-clearable-button
+        advanced-selection-component="sw-advanced-selection-rule"
+        :advanced-selection-parameters="getAdvancedSelectionParameters()"
+        {% if VUE3 %}
+        @update:value="onSelectRule"
+        {% else %}
         @change="onSelectRule"
+        {% endif %}
     >
         <template #before-item-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_single_select_before %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
@@ -42,19 +94,20 @@
             {% endblock %}
         </template>
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_entity_select_result_list_item %}
             <slot
                 name="result-item"
                 v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
             >
-                <li
-                    is="sw-select-result"
-                    v-tooltip="getTooltipConfig(item.id)"
+                <sw-select-result
+                    v-tooltip="tooltipConfig(item)"
                     :selected="isSelected(item)"
-                    :disabled="restrictedRules.includes(item.id)"
+                    :disabled="isRuleRestricted(item)"
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_select_rule_create_select_entity_select_result_item_label %}
                     <slot
                         name="result-label-property"
@@ -70,25 +123,27 @@
                         </template>
                     </slot>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
             {% endblock %}
         </template>
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_rule_create_rule_modal %}
     <slot
         name="rule-modal"
         v-bind="{ showRuleModal, onSaveRule, onCloseRuleModal }"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_rule_create_rule_modal_inner%}
         <sw-rule-modal
             v-if="showRuleModal"
+            :rule-aware-group-key="ruleAwareGroupKey"
             @save="onSaveRule"
             @modal-close="onCloseRuleModal"
-            :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
-        </sw-rule-modal>
+        />
         {% endblock %}
     </slot>
     {% endblock %}

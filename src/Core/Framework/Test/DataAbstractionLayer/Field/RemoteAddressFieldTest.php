@@ -11,11 +11,12 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -25,11 +26,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\IpUtils;
 
+/**
+ * @internal
+ */
 class RemoteAddressFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,10 +43,10 @@ class RemoteAddressFieldTest extends TestCase
         $serializer = $this->getSerializer();
         $data = new KeyValuePair('remoteAddress', null, false);
 
-        $this->expectException(InvalidSerializerFieldException::class);
+        $this->expectException(DataAbstractionLayerException::class);
         $serializer->encode(
             (new IntField('remote_address', 'remoteAddress'))->addFlags(new ApiAware()),
-            $this->getEntityExisting(),
+            EntityExistence::createEmpty(),
             $data,
             $this->getWriteParameterBagMock()
         )->current();
@@ -53,18 +57,14 @@ class RemoteAddressFieldTest extends TestCase
         $serializer = $this->getSerializer();
         $data = new KeyValuePair('remoteAddress', '127.0.0.1', false);
 
-        try {
-            $serializer->encode(
-                $this->getRemoteAddressField(),
-                $this->getEntityExisting(),
-                $data,
-                $this->getWriteParameterBagMock()
-            )->current();
+        $serializer->encode(
+            $this->getRemoteAddressField(),
+            EntityExistence::createEmpty(),
+            $data,
+            $this->getWriteParameterBagMock()
+        )->current();
 
-            static::assertTrue(true);
-        } catch (InvalidSerializerFieldException $e) {
-            static::fail();
-        }
+        static::assertTrue(true);
     }
 
     public function testRemoteAddressSerializerAnonymize(): void
@@ -140,13 +140,14 @@ class RemoteAddressFieldTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(StateMachineRegistry::class)
-            ->getInitialState(OrderStates::STATE_MACHINE, Context::createDefaultContext())->getId();
+        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
 
         $customerId = $this->createCustomer();
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -199,7 +200,7 @@ class RemoteAddressFieldTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -237,11 +238,6 @@ class RemoteAddressFieldTest extends TestCase
         $mockBuilder->disableOriginalConstructor();
 
         return $mockBuilder->getMock();
-    }
-
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
     }
 
     private function getRemoteAddressField(): RemoteAddressField

@@ -4,9 +4,12 @@ const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
-const { capitalizeString } = Shopware.Utils.string;
 
-Component.register('sw-flow-tag-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
@@ -45,7 +48,7 @@ Component.register('sw-flow-tag-modal', {
 
     computed: {
         tagCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const { config } = this.sequence;
             const tagIds = Object.keys(config.tagIds);
             if (tagIds.length) {
@@ -61,6 +64,20 @@ Component.register('sw-flow-tag-modal', {
 
         tagRepository() {
             return this.repositoryFactory.create('tag');
+        },
+
+        tagTitle() {
+            if (!this.action) return '';
+
+            if (this.action.match(/add.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelAddTag');
+            }
+
+            if (this.action.match(/remove.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelRemoveTag');
+            }
+
+            return '';
         },
 
         ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
@@ -188,15 +205,5 @@ Component.register('sw-flow-tag-modal', {
             this.tagError = null;
             this.$emit('modal-close');
         },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
-         */
-        convertEntityName(camelCaseText) {
-            if (!camelCaseText) return '';
-
-            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
-            return capitalizeString(normalText);
-        },
     },
-});
+};

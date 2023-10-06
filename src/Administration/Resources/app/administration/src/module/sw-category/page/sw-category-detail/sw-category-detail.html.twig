@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category %}
 <sw-page
     class="sw-category"
     :class="pageClasses"
 >
     <template #search-bar>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_search_bar %}
         <sw-search-bar
             ref="searchBar"
@@ -16,6 +18,7 @@
     </template>
 
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_smart_bar_header %}
         <h2 v-if="category">
             {{ placeholder(category, 'name') }}
@@ -27,6 +30,7 @@
     </template>
 
     <template #language-switch>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_language_switch %}
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
@@ -39,6 +43,7 @@
 
     <template #smart-bar-actions>
         <template v-if="category || landingPage">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_smart_bar_abort %}
             <sw-button
                 v-tooltip.bottom="tooltipCancel"
@@ -49,8 +54,10 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_smart_bar_save %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_smart_bar_save_category %}
             <sw-button-process
                 v-if="category"
@@ -60,13 +67,18 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('category.editor')"
                 variant="primary"
+                {% if VUE3 %}
+                @update:process-success="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}
             </sw-button-process>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_smart_bar_save_landing_page %}
             <sw-button-process
                 v-if="landingPage"
@@ -76,7 +88,11 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('landing_page.editor')"
                 variant="primary"
+                {% if VUE3 %}
+                @update:process-success="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSaveLandingPage"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}
@@ -87,15 +103,18 @@
     </template>
 
     <template #side-content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_side_content %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_collapse %}
         <sw-sidebar-collapse
             class="sw-category-detail__category-collapse"
             :expand-on-loading="landingPageId === null"
         >
-            <template slot="header">
+            <template #header>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_header %}
                 <div
                     v-if="categoryCheckedItem > 0"
@@ -113,8 +132,9 @@
 
             </template>
 
-            <template slot="actions">
+            <template #actions>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_actions %}
                 <div v-if="categoryCheckedItem > 0">
                     <sw-button
@@ -130,8 +150,9 @@
 
             </template>
 
-            <template slot="content">
+            <template #content>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree %}
                 <sw-category-tree
                     ref="categoryTree"
@@ -149,13 +170,15 @@
         </sw-sidebar-collapse>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_collapse %}
         <sw-sidebar-collapse
             class="sw-category-detail__landing-page-collapse"
             :expand-on-loading="landingPageId !== null"
         >
-            <template slot="header">
+            <template #header>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_header %}
                 <div
                     v-if="landingPageCheckedItem > 0"
@@ -173,8 +196,9 @@
 
             </template>
 
-            <template slot="actions">
+            <template #actions>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_actions %}
                 <div v-if="landingPageCheckedItem > 0">
                     <sw-button
@@ -190,8 +214,9 @@
 
             </template>
 
-            <template slot="content">
+            <template #content>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_tree %}
                 <sw-landing-page-tree
                     ref="landingPageTree"
@@ -201,7 +226,7 @@
                     :allow-create="acl.can('landing_page.creator')"
                     :allow-delete="acl.can('landing_page.deleter')"
                     @unsaved-changes="openChangeModal"
-                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
+                    @landing-page-checked-elements-count="landingPageCheckedElementsCount"
                 />
                 {% endblock %}
 
@@ -211,6 +236,7 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_content %}
     <template #content>
 
@@ -220,6 +246,7 @@
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_content_view %}
             <sw-category-view
                 v-if="category"
@@ -229,6 +256,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_content_entry_point_overwrite_modal %}
             <sw-category-entry-point-overwrite-modal
                 v-if="showEntryPointOverwriteModal"
@@ -238,6 +266,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_content_view %}
             <sw-landing-page-view
                 v-if="landingPage"
@@ -246,6 +275,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_content_discard_changes_modal %}
             <sw-discard-changes-modal
                 v-if="isDisplayingLeavePageWarning"
@@ -254,9 +284,7 @@
             />
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - will be removed #}
-            {% block sw_category_content_loader %}{% endblock %}
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_content_empty %}
             <sw-empty-state
                 v-if="showEmptyState"
@@ -264,7 +292,7 @@
             >
                 <template #icon>
                     <img
-                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-category.general.emptyStateHeadline')"
                     >
                 </template>
@@ -272,21 +300,6 @@
         {% endblock %}
 
         </template>
-    </template>
-
-    {% endblock %}
-
-    {% block sw_category_sidebar %}
-    <template #sidebar>
-        <sw-sidebar>
-            <sw-sidebar-media-item ref="mediaSidebarItem">
-                <template #context-menu-items="media">
-                    <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
-                        {{ $tc('sw-category.general.useAsLogo') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-sidebar-media-item>
-        </sw-sidebar>
     </template>
     {% endblock %}
 

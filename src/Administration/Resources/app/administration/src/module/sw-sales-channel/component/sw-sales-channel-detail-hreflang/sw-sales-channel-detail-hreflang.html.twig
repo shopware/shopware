@@ -1,34 +1,52 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_hreflang %}
 <sw-card
     :title="$tc('sw-sales-channel.detail.hreflang.title')"
     class="sw-sales-channel-detail-hreflang"
     position-identifier="sw-sales-channel-detail-hreflang"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_title %}
     <h4>
         <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">{{ $tc('sw-sales-channel.detail.hreflang.titleCard') }}</span>
     </h4>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_description %}
     <div class="sw-sales-channel-detail-base__description-text">
         {{ $tc('sw-sales-channel.detail.hreflang.titleDescription') }}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_enable %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="salesChannel.hreflangActive"
+        {% else %}
         v-model="salesChannel.hreflangActive"
+        {% endif %}
         :label="$tc('sw-sales-channel.detail.hreflang.enableCheckbox')"
         :disabled="disabled"
+        {% if VUE3 %}
+        @update:value="salesChannel.hreflangDefaultDomainId = null"
+        {% else %}
         @change="salesChannel.hreflangDefaultDomainId = null"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_domain %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="salesChannel.hreflangDefaultDomainId"
+        {% else %}
         v-model="salesChannel.hreflangDefaultDomainId"
+        {% endif %}
         :disabled="!salesChannel.hreflangActive || disabled"
         :label="$tc('sw-sales-channel.detail.hreflang.defaultDomain')"
         entity="sales_channel_domain"

@@ -28,18 +28,8 @@
     {% set unit = page.header.activeCurrency.symbol %}
 {% endif %}
 
-{# @deprecated tag:v6.5.0 - `currencySymbol` will be removed use `unit` instead #}
-{% if currencySymbol is defined %}
-    {% set unit = currencySymbol %}
-{% endif %}
-
 {% if minInputValue is not defined %}
     {% set minInputValue = 0 %}
-{% endif %}
-
-{% if maxInputValue is not defined %}
-    {# @deprecated tag:v6.5.0 - use maxInputValue instead of price #}
-    {% set maxInputValue = price.max %}
 {% endif %}
 
 {% set filterRangeOptions = {
@@ -48,7 +38,6 @@
     maxKey,
     lowerBound,
     unit,
-    currencySymbol,
     snippets: {
         filterRangeActiveMinLabel,
         filterRangeActiveMaxLabel,
@@ -58,20 +47,20 @@
 } %}
 
 {% block component_filter_range %}
-    <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}"
+    <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          data-filter-range="true"
          data-filter-range-options='{{ filterRangeOptions|json_encode }}'>
 
         {% block component_filter_range_toggle %}
-            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+            <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
                     {% if sidebar %}
-                    data-toggle="collapse"
-                    data-target="#{{ filterItemId }}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ filterItemId }}"
                     {% else %}
-                    data-toggle="dropdown"
+                    data-bs-toggle="dropdown"
                     data-boundary="viewport"
-                    data-offset="0,8"
+                    data-bs-offset="0,8"
                     aria-haspopup="true"
                     {% endif %}>
 
@@ -108,13 +97,9 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_min_unit %}
-                                    {% block component_filter_range_min_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
-                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
-                                        <span class="filter-range-unit filter-range-currency-symbol">
+                                   <span class="filter-range-unit">
                                             {{ unit }}
-                                        </span>
-                                    {% endblock %}
+                                    </span>
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -141,13 +126,9 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_max_unit %}
-                                    {% block component_filter_range_max_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
-                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
-                                        <span class="filter-range-unit filter-range-currency-symbol">
-                                            {{ unit }}
-                                        </span>
-                                    {% endblock %}
+                                    <span class="filter-range-unit">
+                                        {{ unit }}
+                                    </span>
                                 {% endblock %}
                             </label>
                         {% endblock %}

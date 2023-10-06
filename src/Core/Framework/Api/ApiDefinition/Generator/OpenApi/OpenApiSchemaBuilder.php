@@ -13,12 +13,14 @@ use OpenApi\Annotations\SecurityScheme;
 use OpenApi\Annotations\Server;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class OpenApiSchemaBuilder
 {
-    public const API = [
+    final public const API = [
         DefinitionService::API => [
             'name' => 'Admin API',
             'url' => '/api',
@@ -32,13 +34,10 @@ class OpenApiSchemaBuilder
     ];
 
     /**
-     * @var string
+     * @internal
      */
-    private $version;
-
-    public function __construct(string $version)
+    public function __construct(private readonly string $version)
     {
-        $this->version = $version;
     }
 
     public function enrich(OpenApi $openApi, string $api): void
@@ -353,6 +352,7 @@ EOF
                     'code' => ['type' => 'string', 'description' => 'An application-specific error code, expressed as a string value.'],
                     'title' => ['type' => 'string', 'description' => 'A short, human-readable summary of the problem. It **SHOULD NOT** change from occurrence to occurrence of the problem, except for purposes of localization.'],
                     'detail' => ['type' => 'string', 'description' => 'A human-readable explanation specific to this occurrence of the problem.'],
+                    'description' => ['type' => 'string', 'description' => 'A human-readable description of the problem.'],
                     'source' => [
                         'type' => 'object',
                         'properties' => [

@@ -1,4 +1,4 @@
-@import "~scss/variables.scss";
+@import "~scss/variables";
 
 .sw-bulk-edit-save-modal {
     &.sw-modal .sw-modal__footer {
@@ -7,12 +7,13 @@
     }
 
     &__warning.sw-alert {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__help-text {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         padding-bottom: 20px;
+        text-align: center;
     }
 
     &-success,

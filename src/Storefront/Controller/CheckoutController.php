@@ -2,31 +2,30 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
@@ -43,84 +42,33 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put datas
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class CheckoutController extends StorefrontController
 {
     private const REDIRECTED_FROM_SAME_ROUTE = 'redirected';
 
     /**
-     * @var CartService
+     * @internal
      */
-    private $cartService;
-
-    /**
-     * @var CheckoutCartPageLoader
-     */
-    private $cartPageLoader;
-
-    /**
-     * @var CheckoutConfirmPageLoader
-     */
-    private $confirmPageLoader;
-
-    /**
-     * @var CheckoutFinishPageLoader
-     */
-    private $finishPageLoader;
-
-    /**
-     * @var OrderService
-     */
-    private $orderService;
-
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
-
-    /**
-     * @var OffcanvasCartPageLoader
-     */
-    private $offcanvasCartPageLoader;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $config;
-
-    /**
-     * @var AbstractLogoutRoute
-     */
-    private $logoutRoute;
-
     public function __construct(
-        CartService $cartService,
-        CheckoutCartPageLoader $cartPageLoader,
-        CheckoutConfirmPageLoader $confirmPageLoader,
-        CheckoutFinishPageLoader $finishPageLoader,
-        OrderService $orderService,
-        PaymentService $paymentService,
-        OffcanvasCartPageLoader $offcanvasCartPageLoader,
-        SystemConfigService $config,
-        AbstractLogoutRoute $logoutRoute
+        private readonly CartService $cartService,
+        private readonly CheckoutCartPageLoader $cartPageLoader,
+        private readonly CheckoutConfirmPageLoader $confirmPageLoader,
+        private readonly CheckoutFinishPageLoader $finishPageLoader,
+        private readonly OrderService $orderService,
+        private readonly PaymentService $paymentService,
+        private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
+        private readonly SystemConfigService $config,
+        private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly AbstractCartLoadRoute $cartLoadRoute
     ) {
-        $this->cartService = $cartService;
-        $this->cartPageLoader = $cartPageLoader;
-        $this->confirmPageLoader = $confirmPageLoader;
-        $this->finishPageLoader = $finishPageLoader;
-        $this->orderService = $orderService;
-        $this->paymentService = $paymentService;
-        $this->offcanvasCartPageLoader = $offcanvasCartPageLoader;
-        $this->config = $config;
-        $this->logoutRoute = $logoutRoute;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @NoStore
-     * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
-     */
+    #[Route(path: '/checkout/cart', name: 'frontend.checkout.cart.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
     public function cartPage(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->cartPageLoader->load($request, $context);
@@ -137,9 +85,7 @@ class CheckoutController extends StorefrontController
             // To prevent redirect loops add the identifier that the request already got redirected from the same origin
             return $this->redirectToRoute(
                 'frontend.checkout.cart.page',
-                [
-                    self::REDIRECTED_FROM_SAME_ROUTE => true,
-                ]
+                [...$request->query->all(), ...[self::REDIRECTED_FROM_SAME_ROUTE => true]],
             );
         }
         $cartErrors->clear();
@@ -147,11 +93,13 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @NoStore
-     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/checkout/cart.json', name: 'frontend.checkout.cart.json', methods: ['GET'], options: ['seo' => false], defaults: ['XmlHttpRequest' => true])]
+    public function cartJson(Request $request, SalesChannelContext $context): Response
+    {
+        return $this->cartLoadRoute->load($request, $context);
+    }
+
+    #[Route(path: '/checkout/confirm', name: 'frontend.checkout.confirm.page', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_noStore' => true], methods: ['GET'])]
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
@@ -163,30 +111,40 @@ class CheckoutController extends StorefrontController
         }
 
         $page = $this->confirmPageLoader->load($request, $context);
+        $cart = $page->getCart();
+        $cartErrors = $cart->getErrors();
 
         $this->hook(new CheckoutConfirmPageLoadedHook($page, $context));
 
-        $this->addCartErrors($page->getCart());
+        $this->addCartErrors($cart);
+
+        if (!$request->query->getBoolean(self::REDIRECTED_FROM_SAME_ROUTE) && $this->routeNeedsReload($cartErrors)) {
+            $cartErrors->clear();
+
+            // To prevent redirect loops add the identifier that the request already got redirected from the same origin
+            return $this->redirectToRoute(
+                'frontend.checkout.confirm.page',
+                [...$request->query->all(), ...[self::REDIRECTED_FROM_SAME_ROUTE => true]],
+            );
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
-     * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
-     */
+    #[Route(path: '/checkout/finish', name: 'frontend.checkout.finish.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
         if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
-        $page = $this->finishPageLoader->load($request, $context);
+        try {
+            $page = $this->finishPageLoader->load($request, $context);
+        } catch (OrderException $exception) {
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
+
+            return $this->redirectToRoute('frontend.checkout.cart.page');
+        }
 
         $this->hook(new CheckoutFinishPageLoadedHook($page, $context));
 
@@ -207,10 +165,7 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/order", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
-     */
+    #[Route(path: '/checkout/order', name: 'frontend.checkout.finish.order', options: ['seo' => false], methods: ['POST'])]
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
     {
         if (!$context->getCustomer()) {
@@ -220,13 +175,21 @@ class CheckoutController extends StorefrontController
         try {
             $this->addAffiliateTracking($data, $request->getSession());
 
-            $orderId = $this->orderService->createOrder($data, $context);
+            $orderId = Profiler::trace('checkout-order', fn () => $this->orderService->createOrder($data, $context));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
-        } catch (InvalidCartException | Error | EmptyCartException $error) {
+        } catch (InvalidCartException|Error|EmptyCartException) {
             $this->addCartErrors(
                 $this->cartService->getCart($context->getToken(), $context)
             );
+
+            return $this->forwardToRoute('frontend.checkout.confirm.page');
+        } catch (UnknownPaymentMethodException|CartException $e) {
+            if ($e->getErrorCode() === CartException::CART_PAYMENT_INVALID_ORDER_STORED_CODE && $e->getParameter('orderId')) {
+                return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $e->getParameter('orderId'), 'changedPayment' => false, 'paymentFailed' => true]);
+            }
+            $message = $this->trans('error.' . $e->getErrorCode());
+            $this->addFlash('danger', $message);
 
             return $this->forwardToRoute('frontend.checkout.confirm.page');
         }
@@ -235,22 +198,22 @@ class CheckoutController extends StorefrontController
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
             $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
-            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
+            $response = Profiler::trace('handle-payment', fn (): ?RedirectResponse => $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl));
 
             return $response ?? new RedirectResponse($finishUrl);
-        } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
+        } catch (PaymentProcessException|InvalidOrderException|PaymentException|UnknownPaymentMethodException) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws CartTokenNotFoundException
-     */
+    #[Route(path: '/widgets/checkout/info', name: 'frontend.checkout.info', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function info(Request $request, SalesChannelContext $context): Response
     {
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+        if ($cart->getLineItems()->count() <= 0) {
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        }
+
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
         $this->hook(new CheckoutInfoWidgetLoadedHook($page, $context));
@@ -261,12 +224,7 @@ class CheckoutController extends StorefrontController
         return $response;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws CartTokenNotFoundException
-     */
+    #[Route(path: '/checkout/offcanvas', name: 'frontend.cart.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
@@ -283,9 +241,7 @@ class CheckoutController extends StorefrontController
             // To prevent redirect loops add the identifier that the request already got redirected from the same origin
             return $this->redirectToRoute(
                 'frontend.cart.offcanvas',
-                [
-                    self::REDIRECTED_FROM_SAME_ROUTE => true,
-                ]
+                [...$request->query->all(), ...[self::REDIRECTED_FROM_SAME_ROUTE => true]],
             );
         }
 

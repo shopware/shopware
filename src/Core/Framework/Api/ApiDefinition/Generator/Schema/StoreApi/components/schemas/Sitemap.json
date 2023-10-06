@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Sitemap": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "filename": {
+                                "type": "string"
+                            },
+                            "created": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

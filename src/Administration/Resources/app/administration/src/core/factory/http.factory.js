@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/http
  */
 import Axios from 'axios';
@@ -14,6 +16,7 @@ import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
  * @param {Context} context Information about the environment
  * @returns {AxiosInstance}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createHTTPClient(context) {
     return createClient(context);
 }
@@ -23,6 +26,7 @@ export default function createHTTPClient(context) {
  *
  * @returns { CancelToken, isCancel, Cancel}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const { CancelToken, isCancel, Cancel } = Axios;
 
 /**
@@ -38,6 +42,7 @@ function createClient() {
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
+    storeSessionExpiredInterceptor(client);
     client.CancelToken = CancelToken;
 
     /**
@@ -79,7 +84,18 @@ function requestCacheAdapterInterceptor(client) {
  */
 function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
-        const { response: { status, data: { errors, data } } } = error;
+        const { hasOwnProperty } = Shopware.Utils.object;
+
+        if (hasOwnProperty(error?.config?.headers ?? {}, 'sw-app-integration-id')) {
+            return Promise.reject(error);
+        }
+
+        if (!error) {
+            return Promise.reject(error);
+        }
+
+        const { status } = error.response ?? { status: undefined };
+        const { errors, data } = error.response?.data ?? { errors: undefined, data: undefined };
 
         try {
             handleErrorStates({ status, errors, error, data });
@@ -162,6 +178,27 @@ function handleErrorStates({ status, errors, error = null, data }) {
         });
     }
 
+    if (status === 403
+        && ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'].includes(errors[0]?.code)
+    ) {
+        Shopware.State.dispatch('notification/createNotification', {
+            variant: 'warning',
+            system: true,
+            autoClose: false,
+            growl: true,
+            title: $tc('sw-extension.errors.storeSessionExpired.title'),
+            message: $tc('sw-extension.errors.storeSessionExpired.message'),
+            actions: [{
+                label: $tc('sw-extension.errors.storeSessionExpired.actionLabel'),
+                method: () => {
+                    viewRoot.$router.push({
+                        name: 'sw.extension.my-extensions.account',
+                    });
+                },
+            }],
+        });
+    }
+
     if (status === 409) {
         if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
             const parameters = errors[0].meta.parameters;
@@ -225,9 +262,10 @@ function refreshTokenInterceptor(client) {
     client.interceptors.response.use((response) => {
         return response;
     }, (error) => {
-        const { config, response: { status } } = error;
+        const config = error.config || {};
+        const status = error.response?.status;
         const originalRequest = config;
-        const resource = originalRequest.url.replace(originalRequest.baseURL, '');
+        const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
         // eslint-disable-next-line inclusive-language/use-inclusive-words
         if (tokenHandler.whitelist.includes(resource)) {
@@ -242,22 +280,64 @@ function refreshTokenInterceptor(client) {
             }
 
             return new Promise((resolve, reject) => {
-                tokenHandler.subscribe((newToken) => {
+                tokenHandler.subscribe(
+                    (newToken) => {
                     // replace the expired token and retry
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                    originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
-                    resolve(Axios(originalRequest));
-                }, (err) => {
-                    if (!Shopware.Application.getApplicationRoot()) {
+                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                        originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
+                        resolve(Axios(originalRequest));
+                    },
+                    (err) => {
+                        if (!Shopware.Application.getApplicationRoot()) {
+                            reject(err);
+                            window.location.reload();
+                            return;
+                        }
+
                         reject(err);
-                        window.location.reload();
-                        return;
-                    }
-                    Shopware.Service('loginService').logout();
-                    Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
-                    reject(err);
-                });
+                    },
+                );
             });
+        }
+
+        return Promise.reject(error);
+    });
+
+    return client;
+}
+
+/**
+ * Sets up an interceptor to retry store requests that previously failed because the store session has expired.
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function storeSessionExpiredInterceptor(client) {
+    const maxRetryLimit = 1;
+
+    client.interceptors.response.use((response) => {
+        return response;
+    }, (error) => {
+        const { config, response } = error;
+        const code = response?.data?.errors?.[0]?.code;
+
+        if (config?.storeSessionRequestRetries >= maxRetryLimit) {
+            return Promise.reject(error);
+        }
+
+        const errorCodes = [
+            'FRAMEWORK__STORE_SESSION_EXPIRED',
+            'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
+        ];
+
+        if (response.status === 403 && errorCodes.includes(code)) {
+            if (typeof config.storeSessionRequestRetries === 'number') {
+                config.storeSessionRequestRetries += 1;
+            } else {
+                config.storeSessionRequestRetries = 1;
+            }
+
+            return client.request(config);
         }
 
         return Promise.reject(error);

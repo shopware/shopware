@@ -1,12 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item sw-condition__condition-value">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_field_identifier %}
     <sw-entity-multi-select
         entity="product"
@@ -15,13 +19,19 @@
         :entity-collection="products"
         :criteria="productCriteria"
         :context="productContext"
+        advanced-selection-component="sw-advanced-selection-product"
+        {% if VUE3 %}
+        @update:entity-collection="setIds"
+        {% else %}
         @change="setIds"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <slot
                 name="selection-label-property"
                 v-bind="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_condition_line_item_results_variant_info %}
                 <sw-product-variant-info
                     :variations="item.variation"
@@ -32,15 +42,16 @@
             </slot>
         </template>
 
-        <template #result-item="{ item, index, searchTerm, highlightSearchTerm }">
+        <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected }">
             <slot
                 name="result-item"
                 v-bind="{ item, index, searchTerm, highlightSearchTerm }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
+                    :selected="isSelected(item)"
                     v-bind="{ item, index, searchTerm, highlightSearchTerm }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_condition_line_item_results_list_result_label %}
                     <span class="sw-select-result__result-item-text">
                         <sw-product-variant-info
@@ -52,7 +63,7 @@
                         </sw-product-variant-info>
                     </span>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
         </template>
     </sw-entity-multi-select>

@@ -1,11 +1,14 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-category-tree', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'syncService'],
@@ -117,25 +120,6 @@ Component.register('sw-category-tree', {
         productRepository() {
             return this.repositoryFactory.create('product');
         },
-
-        defaultLayout() {
-            return Shopware.State.get('swCategoryDetail').defaultLayout;
-        },
-
-        defaultLayoutCriteria() {
-            const criteria = new Criteria(1, 1);
-            criteria
-                .addSorting(Criteria.sort('createdAt', 'ASC'))
-                .addFilter(Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equals('type', 'product_list'),
-                        Criteria.equals('locked', true),
-                    ],
-                ));
-
-            return criteria;
-        },
     },
 
     watch: {
@@ -198,8 +182,6 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
-            this.loadDefaultLayout();
-
             if (this.category !== null) {
                 this.openInitialTree();
             }
@@ -240,7 +222,7 @@ Component.register('sw-category-tree', {
                 });
         },
 
-        onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
+        onUpdatePositions: Shopware.Utils.debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
             if (draggedItem.children.length > 0) {
                 draggedItem.children.forEach((child) => {
                     this.removeFromStore(child.id);
@@ -257,7 +239,7 @@ Component.register('sw-category-tree', {
 
                 this.sortable = this.allowEdit;
             });
-        },
+        }, 400),
 
         syncProducts(categoryId) {
             const criteria = new Criteria(1, 50);
@@ -471,7 +453,6 @@ Component.register('sw-category-tree', {
             newCategory.childCount = 0;
             newCategory.active = false;
             newCategory.visible = true;
-            newCategory.cmsPageId = this.defaultLayout;
 
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory).then(() => {
@@ -552,12 +533,6 @@ Component.register('sw-category-tree', {
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
         },
 
-        loadDefaultLayout() {
-            return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
-                Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
-            });
-        },
-
         isErrorNavigationEntryPoint(category) {
             const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
 
@@ -594,4 +569,4 @@ Component.register('sw-category-tree', {
             );
         },
     },
-});
+};

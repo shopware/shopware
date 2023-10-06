@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1599134496FixImportExportProfilesForGermanLanguage extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
 
     public function update(Connection $connection): void
     {
-        $germanLanguageId = $connection->fetchColumn('
+        $germanLanguageId = $connection->fetchOne('
             SELECT lang.id
             FROM language lang
             INNER JOIN locale loc ON lang.locale_id = loc.id
@@ -25,7 +32,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
             return;
         }
 
-        $englishLanguageId = $connection->fetchColumn('
+        $englishLanguageId = $connection->fetchOne('
             SELECT lang.id
             FROM language lang
             INNER JOIN locale loc ON lang.locale_id = loc.id
@@ -40,11 +47,11 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
             AND language_id = :languageId
 SQL;
 
-        $englishData = $connection->fetchAll($sql, [
-            ':languageId' => $englishLanguageId,
+        $englishData = $connection->fetchAllAssociative($sql, [
+            'languageId' => $englishLanguageId,
         ]);
-        $germanData = $connection->fetchAll($sql, [
-            ':languageId' => $germanLanguageId,
+        $germanData = $connection->fetchAllAssociative($sql, [
+            'languageId' => $germanLanguageId,
         ]);
         $germanTranslations = $this->getGermanTranslationData();
 
@@ -59,11 +66,11 @@ SQL;
                 continue;
             }
 
-            $stmt->execute([
-                ':import_export_profile_id' => $data['import_export_profile_id'],
-                ':language_id' => $germanLanguageId,
-                ':label' => $germanTranslations[$data['name']],
-                ':created_at' => $data['created_at'],
+            $stmt->executeStatement([
+                'import_export_profile_id' => $data['import_export_profile_id'],
+                'language_id' => $germanLanguageId,
+                'label' => $germanTranslations[$data['name']],
+                'created_at' => $data['created_at'],
             ]);
         }
     }
@@ -72,6 +79,9 @@ SQL;
     {
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getGermanTranslationData(): array
     {
         return [
@@ -84,6 +94,10 @@ SQL;
         ];
     }
 
+    /**
+     * @param array<string, mixed> $englishRow
+     * @param list<array<string, mixed>> $germanData
+     */
     private function checkIfInGermanData(array $englishRow, array $germanData): bool
     {
         $germanProfileIds = array_column($germanData, 'import_export_profile_id');

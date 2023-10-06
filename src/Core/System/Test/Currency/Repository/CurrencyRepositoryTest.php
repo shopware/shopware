@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
@@ -17,10 +17,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @internal
+ */
 class CurrencyRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection
@@ -28,7 +31,7 @@ class CurrencyRepositoryTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $currencyRepository;
 
@@ -52,8 +55,8 @@ class CurrencyRepositoryTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $recordB,
@@ -63,8 +66,8 @@ class CurrencyRepositoryTest extends TestCase
                 'shortName' => 'match',
                 'factor' => 1,
                 'symbol' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             ],
         ];
 
@@ -112,8 +115,8 @@ class CurrencyRepositoryTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             ],
         ];
 

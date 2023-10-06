@@ -1,9 +1,19 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-vimeo-video', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-vimeo-video', () => import('./component'));
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'vimeo-video',
     label: 'sw-cms.blocks.video.vimeoVideo.label',
     category: 'video',

@@ -3,7 +3,11 @@
 namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
+use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -12,9 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function is_dir;
-use function is_file;
 
+#[Package('core')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -31,21 +34,37 @@ class TestBootstrapper
 
     private bool $loadEnvFile = true;
 
+    private bool $commercialEnabled = false;
+
     private ?OutputInterface $output = null;
 
+    private bool $bypassFinals = true;
+
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $activePlugins = [];
 
     public function bootstrap(): TestBootstrapper
     {
+        $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);
         }
 
+        $commercialComposerJson = $_SERVER['PROJECT_ROOT'] . '/custom/plugins/SwagCommercial/composer.json';
+
+        if ($this->commercialEnabled && file_exists($commercialComposerJson)) {
+            $this->addCallingPlugin($commercialComposerJson);
+            $this->addActivePlugins('SwagCommercial');
+        }
+
         $classLoader = $this->getClassLoader();
+
+        if (class_exists(BypassFinals::class) && $this->bypassFinals) {
+            BypassFinals::enable();
+        }
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();
@@ -68,6 +87,25 @@ class TestBootstrapper
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement - reason:remove-command
+     */
+    public function setBypassFinals(bool $bypassFinals): TestBootstrapper
+    {
+        $this->bypassFinals = $bypassFinals;
+
+        return $this;
+    }
+
+    public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
+    {
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $kernel = new StaticAnalyzeKernel('test', true, $pluginLoader, 'phpstan-test-cache-id');
+        $kernel->boot();
+
+        return $kernel;
+    }
+
     public function getClassLoader(): ClassLoader
     {
         if ($this->classLoader !== null) {
@@ -83,21 +121,21 @@ class TestBootstrapper
             return $this->projectDir;
         }
 
-        if (isset($_SERVER['PROJECT_ROOT']) && is_dir($_SERVER['PROJECT_ROOT'])) {
+        if (isset($_SERVER['PROJECT_ROOT']) && \is_dir($_SERVER['PROJECT_ROOT'])) {
             return $this->projectDir = $_SERVER['PROJECT_ROOT'];
         }
 
-        if (isset($_ENV['PROJECT_ROOT']) && is_dir($_ENV['PROJECT_ROOT'])) {
+        if (isset($_ENV['PROJECT_ROOT']) && \is_dir($_ENV['PROJECT_ROOT'])) {
             return $this->projectDir = $_ENV['PROJECT_ROOT'];
         }
 
         // only test cwd if it's not platform embedded (custom/plugins)
-        if (!$this->platformEmbedded && is_dir('vendor')) {
+        if (!$this->platformEmbedded && \is_dir('vendor')) {
             return $this->projectDir = (string) getcwd();
         }
 
         $dir = $rootDir = __DIR__;
-        while (!is_dir($dir . '/vendor')) {
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }
@@ -116,7 +154,12 @@ class TestBootstrapper
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
         $testToken = getenv('TEST_TOKEN');
-        $dbUrlParts['path'] = ($dbUrlParts['path'] ?? 'root') . '_' . ($testToken ?: 'test');
+        $dbUrlParts['path'] ??= 'root';
+
+        // allows using the same database during development, by setting TEST_TOKEN=none
+        if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
+            $dbUrlParts['path'] .= '_' . ($testToken ?: 'test');
+        }
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';
 
@@ -168,11 +211,11 @@ class TestBootstrapper
     {
         if (!$pathToComposerJson) {
             $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
-            $callerFile = $trace[0]['file'];
+            $callerFile = $trace[0]['file'] ?? '';
 
             $dir = \dirname($callerFile);
             $max = 10;
-            while ($max-- > 0 && !is_file($dir . '/composer.json')) {
+            while ($max-- > 0 && !\is_file($dir . '/composer.json')) {
                 $dir = \dirname($dir);
             }
 
@@ -183,17 +226,17 @@ class TestBootstrapper
             $pathToComposerJson = $dir . '/composer.json';
         }
 
-        if (!is_file($pathToComposerJson)) {
+        if (!\is_file($pathToComposerJson)) {
             throw new \RuntimeException('Could not auto detect plugin name via composer.json. Path: ' . $pathToComposerJson);
         }
 
-        $composer = json_decode((string) file_get_contents($pathToComposerJson), true);
+        $composer = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
         $baseClass = $composer['extra']['shopware-plugin-class'] ?? '';
         if ($baseClass === '') {
             throw new \RuntimeException('composer.json does not contain `extra.shopware-plugin-class`. Path: ' . $pathToComposerJson);
         }
 
-        $parts = explode('\\', $baseClass);
+        $parts = explode('\\', (string) $baseClass);
         $pluginName = end($parts);
 
         $this->addActivePlugins($pluginName);
@@ -218,6 +261,13 @@ class TestBootstrapper
     public function setDatabaseUrl(?string $databaseUrl): TestBootstrapper
     {
         $this->databaseUrl = $databaseUrl;
+
+        return $this;
+    }
+
+    public function setEnableCommercial(bool $enableCommercial = true): TestBootstrapper
+    {
+        $this->commercialEnabled = $enableCommercial;
 
         return $this;
     }
@@ -268,10 +318,10 @@ class TestBootstrapper
     {
         try {
             $connection = $this->getContainer()->get(Connection::class);
-            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAll();
+            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;
-        } catch (\Throwable $exists) {
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -283,7 +333,7 @@ class TestBootstrapper
         }
 
         $envFilePath = $this->getProjectDir() . '/.env';
-        if (is_file($envFilePath) || is_file($envFilePath . '.dist') || is_file($envFilePath . '.local.php')) {
+        if (\is_file($envFilePath) || \is_file($envFilePath . '.dist') || \is_file($envFilePath . '.local.php')) {
             (new Dotenv())->usePutenv()->bootEnv($envFilePath);
         }
     }
@@ -323,20 +373,23 @@ class TestBootstrapper
 
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
+        $definition = $installCommand->getDefinition();
 
-        $args = [
-            '--activate' => true,
-            '--reinstall' => true,
-            'plugins' => $this->activePlugins,
-        ];
+        foreach ($this->activePlugins as $activePlugin) {
+            $args = [
+                '--activate' => true,
+                '--reinstall' => true,
+                'plugins' => [$activePlugin],
+            ];
 
-        $returnCode = $installCommand->run(
-            new ArrayInput($args, $installCommand->getDefinition()),
-            $this->getOutput()
-        );
+            $returnCode = $installCommand->run(
+                new ArrayInput($args, $definition),
+                $this->getOutput()
+            );
 
-        if ($returnCode !== 0) {
-            throw new \RuntimeException('system:install failed');
+            if ($returnCode !== 0) {
+                throw new \RuntimeException('system:install failed');
+            }
         }
 
         KernelLifecycleManager::bootKernel();

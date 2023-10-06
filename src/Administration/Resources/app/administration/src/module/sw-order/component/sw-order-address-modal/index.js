@@ -1,10 +1,15 @@
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-address-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -47,14 +52,23 @@ Component.register('sw-order-address-modal', {
             availableAddresses: [],
             selectedAddressId: 0,
             isLoading: false,
+            addressCustomFieldSets: [],
         };
     },
 
     computed: {
         customerCriteria() {
-            const criteria = new Criteria({ page: 1, limit: 1 });
+            const criteria = new Criteria(1, 1);
             criteria.setIds([this.orderCustomer.customerId]);
             criteria.addAssociation('addresses');
+
+            return criteria;
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
+            criteria.addAssociation('customFields');
 
             return criteria;
         },
@@ -70,6 +84,14 @@ Component.register('sw-order-address-modal', {
         orderCustomer() {
             return this.order.orderCustomer;
         },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        salutationFilter() {
+            return Shopware.Filter.getByName('salutation');
+        },
     },
 
     created() {
@@ -81,6 +103,8 @@ Component.register('sw-order-address-modal', {
             if (this.orderCustomer && this.orderCustomer.customerId) {
                 this.getCustomerInfo();
             }
+
+            this.getCustomFieldSetData();
         },
 
         getCustomerInfo() {
@@ -150,5 +174,11 @@ Component.register('sw-order-address-modal', {
                 this.isLoading = false;
             });
         },
+
+        getCustomFieldSetData() {
+            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((response) => {
+                this.addressCustomFieldSets = response;
+            });
+        },
     },
-});
+};

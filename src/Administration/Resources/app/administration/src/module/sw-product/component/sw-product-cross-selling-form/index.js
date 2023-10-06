@@ -5,7 +5,8 @@ const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
-Component.register('sw-product-cross-selling-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamConditionService'],
@@ -84,7 +85,7 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         productStreamFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('productStreamId', this.crossSelling.productStreamId),
@@ -220,4 +221,4 @@ Component.register('sw-product-cross-selling-form', {
             this.useManualAssignment = value === 'productList';
         },
     },
-});
+};

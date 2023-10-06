@@ -1,11 +1,14 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_general %}
 <div class="sw-order-detail-general">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_general_info_card %}
     <sw-card
         class="sw-order-detail-base__general-info"
         position-identifier="sw-order-detail-general-info"
         :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_general_info %}
         <sw-order-general-info
             ref="swOrderGeneralInfo"
@@ -16,127 +19,139 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_general_line_items_card %}
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-line-items__before"
+    />
+
     <sw-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_general_line_items_card_rows %}
-        <sw-container
-            slot="grid"
-            type="row"
-        >
+        <template #grid>
+            <sw-container type="row">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_general_line_items_grid %}
+                <sw-order-line-items-grid
+                    ref="sw-order-line-item-grid"
+                    :order="order"
+                    :context="versionContext"
+                    :editable="acl.can('order.editor')"
+                    @item-delete="recalculateAndReload"
+                    @item-edit="recalculateAndReload"
+                    @existing-item-edit="saveAndRecalculate"
+                    @item-cancel="recalculateAndReload"
+                />
+                {% endblock %}
 
-            {% block sw_order_detail_general_line_items_grid %}
-            <sw-order-line-items-grid
-                ref="sw-order-line-item-grid"
-                :order="order"
-                :context="versionContext"
-                :editable="isEditing"
-                @item-delete="recalculateAndReload"
-                @item-edit="recalculateAndReload"
-                @existing-item-edit="saveAndRecalculate"
-                @item-added="recalculateAndReload"
-                @item-cancel="recalculateAndReload"
-            />
-            {% endblock %}
-
-            {% block sw_order_detail_general_line_items_summary %}
-            <sw-card-section
-                divider="top"
-                slim
-            >
-                <sw-description-list
-                    class="sw-order-detail__summary"
-                    grid="1fr 1fr"
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_general_line_items_summary %}
+                <sw-card-section
+                    divider="top"
+                    slim
                 >
-
-                    {% block sw_order_detail_general_line_items_summary_entries %}
-                    {% block sw_order_detail_general_line_items_summary_amount %}
-                    <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                    <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
-                    {% endblock %}
-
-                    {% block sw_order_detail_general_line_items_summary_shipping_cost %}
-                    <template v-if="delivery">
-                        <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                        <dd>
-                            <sw-order-saveable-field
-                                v-tooltip="{
-                                    showDelay: 300,
-                                    message: shippingCostsDetail,
-                                    disabled: taxStatus === 'tax-free'
-                                }"
-                                type="number"
-                                :editable="isEditing"
-                                :value="delivery.shippingCosts.totalPrice"
-                                @value-change="onShippingChargeEdited"
-                            >
-                                {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                            </sw-order-saveable-field>
-                        </dd>
-                    </template>
-
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                    <template
-                        v-for="(delivery, index) in deliveryDiscounts"
-                        v-if="deliveryDiscounts"
+                    <sw-description-list
+                        class="sw-order-detail__summary"
+                        grid="1fr 1fr"
                     >
-                        <dt :key="`delivery-discount-dt-${index}`">
-                            {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
-                        </dt>
-                        <dd :key="`delivery-discount-dd-${index}`">
-                            {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                        </dd>
-                    </template>
-                    {% endblock %}
 
-                    {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
-                    <template v-if="taxStatus !== 'tax-free'">
-                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                        <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
-                    </template>
-                    {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_entries %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_amount %}
+                        <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                        <dd>{{ currencyFilter(order.positionPrice, currency.translated.shortName, order.totalRounding.decimals) }}</dd>
+                        {% endblock %}
 
-                    {% block sw_order_detail_general_line_items_summary_taxes %}
-                    <template v-if="taxStatus !== 'tax-free'">
-                        <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
-                            <dt :key="`sorted-calculated-taxes-dt-${index}`">
-                                {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
-                            </dt>
-                            <dd :key="`sorted-calculated-taxes-dd-${index}`">
-                                {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_shipping_cost %}
+                        <template v-if="delivery">
+                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                            <dd>
+                                <sw-order-saveable-field
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: shippingCostsDetail,
+                                        disabled: taxStatus === 'tax-free'
+                                    }"
+                                    type="number"
+                                    :editable="acl.can('order.editor')"
+                                    :value="delivery.shippingCosts.totalPrice"
+                                    @value-change="onShippingChargeEdited"
+                                >
+                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.translated.shortName, order.totalRounding.decimals) }}
+                                </sw-order-saveable-field>
                             </dd>
                         </template>
-                    </template>
-                    {% endblock %}
 
-                    {% block sw_order_detail_general_line_items_summary_amount_total %}
-                    <template v-if="taxStatus !== 'tax-free'">
-                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                        <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
-                        <template v-if="displayRounded">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                            <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                        <template v-for="(delivery, index) in deliveryDiscounts">
+                            <dt :key="`delivery-discount-dt-${index}`">
+                                {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
+                            </dt>
+                            <dd :key="`delivery-discount-dd-${index}`">
+                                {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.translated.shortName, order.totalRounding.decimals) }}
+                            </dd>
                         </template>
-                    </template>
-                    {% endblock %}
+                        {% endblock %}
 
-                    {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
-                    <template v-if="taxStatus === 'tax-free'">
-                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                        <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
-                    </template>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                            <dd><strong>{{ currencyFilter(order.amountNet, currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_taxes %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
+                                <dt :key="`sorted-calculated-taxes-dt-${index}`">
+                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                </dt>
+                                <dd :key="`sorted-calculated-taxes-dd-${index}`">
+                                    {{ currencyFilter(calculatedTax.tax, currency.translated.shortName, order.totalRounding.decimals) }}
+                                </dd>
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_amount_total %}
+                        <template v-if="taxStatus !== 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                            <dd><strong>{{ currencyFilter(orderTotal, currency.shortName, order.totalRounding.decimals) }}</strong></dd>
+                            <template v-if="displayRounded">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.shortName, order.totalRounding.decimals) }}</strong></dd>
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
+                        <template v-if="taxStatus === 'tax-free'">
+                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                            <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
+                        </template>
+                        {% endblock %}
                     {% endblock %}
+                    </sw-description-list>
+                </sw-card-section>
                 {% endblock %}
-                </sw-description-list>
-            </sw-card-section>
-            {% endblock %}
-        </sw-container>
+            </sw-container>
+        </template>
         {% endblock %}
     </sw-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-line-items__after"
+    />
     {% endblock %}
 </div>
 {% endblock %}

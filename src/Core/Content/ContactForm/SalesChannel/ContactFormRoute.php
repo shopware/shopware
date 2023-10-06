@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -24,57 +22,26 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('buyers-experience')]
 class ContactFormRoute extends AbstractContactFormRoute
 {
-    private DataValidationFactoryInterface $contactFormValidationFactory;
-
-    private DataValidator $validator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepositoryInterface $cmsSlotRepository;
-
-    private EntityRepositoryInterface $salutationRepository;
-
-    private EntityRepositoryInterface $categoryRepository;
-
-    private EntityRepositoryInterface $landingPageRepository;
-
-    private EntityRepositoryInterface $productRepository;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        DataValidationFactoryInterface $contactFormValidationFactory,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $cmsSlotRepository,
-        EntityRepositoryInterface $salutationRepository,
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $landingPageRepository,
-        EntityRepositoryInterface $productRepository,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
+        private readonly DataValidationFactoryInterface $contactFormValidationFactory,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $cmsSlotRepository,
+        private readonly EntityRepository $salutationRepository,
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $landingPageRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
     ) {
-        $this->contactFormValidationFactory = $contactFormValidationFactory;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->cmsSlotRepository = $cmsSlotRepository;
-        $this->salutationRepository = $salutationRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->landingPageRepository = $landingPageRepository;
-        $this->productRepository = $productRepository;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractContactFormRoute
@@ -82,83 +49,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/contact-form",
-     *      summary="Submit a contact form message",
-     *      description="Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
-     *      operationId="sendContactMail",
-     *      tags={"Store API", "Content"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "salutationId",
-     *                  "email",
-     *                  "subject",
-     *                  "comment"
-     *              },
-     *              @OA\Property(
-     *                  property="salutationId",
-     *                  description="Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="firstName",
-     *                  description="Firstname. This field may be required depending on the system settings.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="lastName",
-     *                  description="Lastname. This field may be required depending on the system settings.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(property="email", description="Email address", type="string"),
-     *              @OA\Property(
-     *                  property="phone",
-     *                  description="Phone. This field may be required depending on the system settings.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="subject",
-     *                  description="The subject of the contact form.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="comment",
-     *                  description="The message of the contact form",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="navigationId",
-     *                  description="Identifier of the navigation page. Can be used to override the configuration.
-Take a look at the settings of a category containing a concact form in the administration.",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="slotId",
-     *                  description="Identifier of the cms element",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="cmsPageType",
-     *                  description="Type of the content management page",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="entityName",
-     *                  description="Entity name for slot config",
-     *                  type="string"
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Message sent successful."
-     *     )
-     * )
-     * @Route("/store-api/contact-form", name="store-api.contact.form", methods={"POST"})
-     */
+    #[Route(path: '/store-api/contact-form', name: 'store-api.contact.form', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         $this->validateContactForm($data, $context);
@@ -215,25 +106,22 @@ Take a look at the settings of a category containing a concact form in the admin
         }
     }
 
+    /**
+     * @return array<string, string|array<int, string>>
+     */
     private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
+        $mailConfigs = [];
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 
         $criteria = new Criteria([$navigationId]);
 
-        switch ($entityName) {
-            case ProductDefinition::ENTITY_NAME:
-                $entity = $this->productRepository->search($criteria, $context->getContext())->first();
-
-                break;
-            case LandingPageDefinition::ENTITY_NAME:
-                $entity = $this->landingPageRepository->search($criteria, $context->getContext())->first();
-
-                break;
-            default:
-                $entity = $this->categoryRepository->search($criteria, $context->getContext())->first();
-        }
+        $entity = match ($entityName) {
+            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
+            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
+            default => $this->categoryRepository->search($criteria, $context->getContext())->first(),
+        };
 
         if (!$entity) {
             return $mailConfigs;
@@ -249,8 +137,12 @@ Take a look at the settings of a category containing a concact form in the admin
         return $mailConfigs;
     }
 
+    /**
+     * @return array<string, array<string, array<int, mixed>|bool|float|int|string|null>|string|mixed>
+     */
     private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
+        $mailConfigs = [];
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 

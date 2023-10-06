@@ -3,14 +3,13 @@
 namespace Shopware\Core\Content\Test\ProductStream\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -19,39 +18,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class ProductStreamIndexerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface|MockObject
-     */
-    private $productStreamRepository;
+    private EntityRepository $productStreamRepository;
 
-    /**
-     * @var ProductStreamIndexer
-     */
-    private $indexer;
+    private ProductStreamIndexer $indexer;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepo;
+    private EntityRepository $productRepo;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -145,6 +134,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $entity->getApiFilter()[1]['type']);
         static::assertSame('OR', $entity->getApiFilter()[1]['operator']);
 
+        /** @var array<int, array<string, string>> $queries */
         $queries = $entity->getApiFilter()[1]['queries'];
         static::assertCount(2, $queries);
 
@@ -250,7 +240,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
         static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
-
+        /** @var array<int, array<string, array<string|mixed>|string>> $childQueries */
         $childQueries = $entity->getApiFilter()[0]['queries'];
         static::assertCount(2, $childQueries);
 
@@ -261,9 +251,9 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $childQueries[1]['type']);
         static::assertSame('OR', $childQueries[1]['operator']);
 
+        /** @var array<int, array<string, string>> $grandchildQueries */
         $grandchildQueries = $childQueries[1]['queries'];
         static::assertCount(2, $grandchildQueries);
-
         static::assertSame('equals', $grandchildQueries[0]['type']);
         static::assertSame('product.id', $grandchildQueries[0]['field']);
         static::assertSame($productId, $grandchildQueries[0]['value']);

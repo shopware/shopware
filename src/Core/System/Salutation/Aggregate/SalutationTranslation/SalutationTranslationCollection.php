@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                             add(SalutationTranslationEntity $entity)
- * @method void                             set(string $key, SalutationTranslationEntity $entity)
- * @method SalutationTranslationEntity[]    getIterator()
- * @method SalutationTranslationEntity[]    getElements()
- * @method SalutationTranslationEntity|null get(string $key)
- * @method SalutationTranslationEntity|null first()
- * @method SalutationTranslationEntity|null last()
+ * @extends EntityCollection<SalutationTranslationEntity>
  */
+#[Package('buyers-experience')]
 class SalutationTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\DeliveryTime;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(DeliveryTimeEntity $entity)
- * @method void                    set(string $key, DeliveryTimeEntity $entity)
- * @method DeliveryTimeEntity[]    getIterator()
- * @method DeliveryTimeEntity[]    getElements()
- * @method DeliveryTimeEntity|null get(string $key)
- * @method DeliveryTimeEntity|null first()
- * @method DeliveryTimeEntity|null last()
+ * @extends EntityCollection<DeliveryTimeEntity>
  */
+#[Package('checkout')]
 class DeliveryTimeCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -2,6 +2,11 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
 export default class WishlistWidgetPlugin extends Plugin {
+
+    static options = {
+        showCounter: true,
+    };
+
     init() {
         this._getWishlistStorage();
 
@@ -27,6 +32,10 @@ export default class WishlistWidgetPlugin extends Plugin {
      * @private
      */
     _renderCounter() {
+        if (!this.options.showCounter) {
+            return;
+        }
+
         this.el.innerHTML = this._wishlistStorage.getCurrentCounter() || '';
     }
 

@@ -3,44 +3,38 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                   add(SalesChannelTypeTranslationEntity $entity)
- * @method void                                   set(string $key, SalesChannelTypeTranslationEntity $entity)
- * @method SalesChannelTypeTranslationEntity[]    getIterator()
- * @method SalesChannelTypeTranslationEntity[]    getElements()
- * @method SalesChannelTypeTranslationEntity|null get(string $key)
- * @method SalesChannelTypeTranslationEntity|null first()
- * @method SalesChannelTypeTranslationEntity|null last()
+ * @extends EntityCollection<SalesChannelTypeTranslationEntity>
  */
+#[Package('buyers-experience')]
 class SalesChannelTypeTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getSalesChannelTypeIds(): array
     {
-        return $this->fmap(function (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) {
-            return $salesChannelTypeTranslation->getSalesChannelTypeId();
-        });
+        return $this->fmap(fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId());
     }
 
     public function filterBySalesChannelId(string $id): self
     {
-        return $this->filter(function (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) use ($id) {
-            return $salesChannelTypeTranslation->getSalesChannelTypeId() === $id;
-        });
+        return $this->filter(fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (SalesChannelTypeTranslationEntity $salesChannelTranslation) {
-            return $salesChannelTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (SalesChannelTypeTranslationEntity $salesChannelTranslation) use ($id) {
-            return $salesChannelTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

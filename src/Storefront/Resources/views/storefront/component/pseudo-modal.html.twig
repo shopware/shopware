@@ -6,15 +6,13 @@
              role="document">
             <div class="modal-content">
                 <div class="modal-header only-close">
-                    <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
+                    <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+
                     <button type="button"
-                            class="modal-close close"
-                            data-dismiss="modal"
+                            class="btn-close close"
+                            data-bs-dismiss="modal"
                             aria-label="Close">
                         {% block product_detail_zoom_modal_close_button_content %}
-                            <span aria-hidden="true">
-                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                            </span>
                         {% endblock %}
                     </button>
                 </div>

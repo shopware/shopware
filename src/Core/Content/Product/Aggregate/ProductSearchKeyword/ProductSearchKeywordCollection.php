@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                            add(ProductSearchKeywordEntity $entity)
- * @method void                            set(string $key, ProductSearchKeywordEntity $entity)
- * @method ProductSearchKeywordEntity[]    getIterator()
- * @method ProductSearchKeywordEntity[]    getElements()
- * @method ProductSearchKeywordEntity|null get(string $key)
- * @method ProductSearchKeywordEntity|null first()
- * @method ProductSearchKeywordEntity|null last()
+ * @extends EntityCollection<ProductSearchKeywordEntity>
  */
+#[Package('inventory')]
 class ProductSearchKeywordCollection extends EntityCollection
 {
     public function getApiAlias(): string

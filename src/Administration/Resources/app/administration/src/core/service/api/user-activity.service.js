@@ -3,6 +3,7 @@ import ApiService from '../api.service';
 /**
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class UserActivityApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'increment/user_activity') {
@@ -49,4 +50,5 @@ class UserActivityApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default UserActivityApiService;

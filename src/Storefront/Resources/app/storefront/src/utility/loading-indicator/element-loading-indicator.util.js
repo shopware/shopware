@@ -1,7 +1,11 @@
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
 const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
+const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
 
+/**
+ * @package storefront
+ */
 export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
     /**
@@ -59,7 +63,7 @@ export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
         return `
         <div class="${ELEMENT_LOADER_CLASS}">
             <div class="loader" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="${VISUALLY_HIDDEN_CLASS}">Loading...</span>
             </div>
         </div>
         `;

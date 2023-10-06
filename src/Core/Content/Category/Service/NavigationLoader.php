@@ -10,38 +10,25 @@ use Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Decoratable()
- */
+#[Package('inventory')]
 class NavigationLoader implements NavigationLoaderInterface
 {
-    /**
-     * @var TreeItem
-     */
-    private $treeItem;
+    private readonly TreeItem $treeItem;
 
     /**
-     * @var EventDispatcherInterface
+     * @internal
      */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractNavigationRoute
-     */
-    private $navigationRoute;
-
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractNavigationRoute $navigationRoute
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractNavigationRoute $navigationRoute
     ) {
         $this->treeItem = new TreeItem(null, []);
-        $this->eventDispatcher = $eventDispatcher;
-        $this->navigationRoute = $navigationRoute;
     }
 
     /**
@@ -71,49 +58,48 @@ class NavigationLoader implements NavigationLoaderInterface
         return $event->getNavigation();
     }
 
-    private function getTree(?string $parentId, CategoryCollection $categories, ?CategoryEntity $active): Tree
+    private function getTree(?string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
-        $tree = $this->buildTree($parentId, $categories->getElements());
-
-        return new Tree($active, $tree);
-    }
-
-    /**
-     * @param CategoryEntity[] $categories
-     *
-     * @return TreeItem[]
-     */
-    private function buildTree(?string $parentId, array $categories): array
-    {
-        $children = new CategoryCollection();
-        foreach ($categories as $key => $category) {
-            if ($category->getParentId() !== $parentId) {
-                continue;
-            }
-
-            unset($categories[$key]);
-
-            $children->add($category);
-        }
-
-        $children->sortByPosition();
-
+        $parents = [];
         $items = [];
-        foreach ($children as $child) {
-            if (!$child->getActive() || !$child->getVisible()) {
+        foreach ($categories as $category) {
+            $item = clone $this->treeItem;
+            $item->setCategory($category);
+
+            $parents[$category->getParentId()][$category->getId()] = $item;
+            $items[$category->getId()] = $item;
+        }
+
+        foreach ($parents as $parentId => $children) {
+            if (empty($parentId)) {
                 continue;
             }
 
-            $item = clone $this->treeItem;
-            $item->setCategory($child);
+            $sorted = AfterSort::sort($children);
 
-            $item->setChildren(
-                $this->buildTree($child->getId(), $categories)
-            );
+            $filtered = \array_filter($sorted, static fn (TreeItem $filter) => $filter->getCategory()->getActive() && $filter->getCategory()->getVisible());
 
-            $items[$child->getId()] = $item;
+            if (!isset($items[$parentId])) {
+                continue;
+            }
+
+            $item = $items[$parentId];
+            $item->setChildren($filtered);
         }
 
-        return $items;
+        $root = $parents[$rootId] ?? [];
+        $root = AfterSort::sort($root);
+
+        $filtered = [];
+        /** @var TreeItem $item */
+        foreach ($root as $key => $item) {
+            if (!$item->getCategory()->getActive() || !$item->getCategory()->getVisible()) {
+                continue;
+            }
+
+            $filtered[$key] = $item;
+        }
+
+        return new Tree($active, $filtered);
     }
 }

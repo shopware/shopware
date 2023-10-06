@@ -1,0 +1,62 @@
+@import "~scss/variables";
+
+.sw-settings-country-address-handling {
+    &__options-container > div:first-child {
+        margin-top: 0;
+    }
+
+    &__options-container > div:last-child {
+        margin-bottom: 0;
+    }
+
+    &__option-items.sw-field--switch {
+        margin: 12px 0;
+    }
+
+    &__text-field {
+        border-radius: 4px;
+        border: 1px solid $color-gray-300;
+        padding: 16px;
+    }
+
+    &__address-markup {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__address-preview {
+        .sw-card__title {
+            padding: 32px 0 28px;
+        }
+    }
+
+    &__button-reset.sw-button {
+        margin: 38px 0 28px;
+    }
+
+    .advanced-postal-code {
+        margin: 12px 0;
+        position: relative;
+
+        .sw-field--switch {
+            width: 100%;
+            padding: 0 16px;
+            margin: 0;
+            position: absolute;
+        }
+
+        .sw-field--text {
+            min-height: 48px;
+            margin-bottom: 0;
+        }
+
+        .sw-field--text > div {
+            margin-top: 26px;
+        }
+
+        .sw-field--text.is--disabled > div {
+            display: none;
+        }
+    }
+}

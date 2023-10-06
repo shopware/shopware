@@ -4,10 +4,19 @@ import './sw-condition-line-item-purchase-price.scss';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', {
     template,
 
     inject: ['feature'],
+
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
 
     computed: {
         operators() {
@@ -31,7 +40,7 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.isNet', 'value.amount']),
 
         currentError() {
             return this.conditionValueIsNetError

@@ -9,26 +9,25 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('inventory')]
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    private ProductConfiguratorLoader $configuratorLoader;
-
-    private EntityRepositoryInterface $repository;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        ProductConfiguratorLoader $configuratorLoader,
-        EntityRepositoryInterface $repository
+        private readonly ProductConfiguratorLoader $configuratorLoader,
+        private readonly EntityRepository $repository
     ) {
-        $this->configuratorLoader = $configuratorLoader;
-        $this->repository = $repository;
     }
 
     public function getType(): string
@@ -67,7 +66,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
     {
-        $reviewCriteria = $this->createReviewCriteria($context, $product->getId());
+        $reviewCriteria = $this->createReviewCriteria($context, $product->getParentId() ?? $product->getId());
 
         $aggregation = $this->repository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 
@@ -76,6 +75,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private function createReviewCriteria(SalesChannelContext $context, string $productId): Criteria
     {
+        $reviewFilters = [];
         $criteria = new Criteria();
 
         $reviewFilters[] = new EqualsFilter('status', true);

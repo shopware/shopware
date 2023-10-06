@@ -13,13 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 
+/**
+ * @internal
+ */
+#[Package('sales-channel')]
 class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -86,7 +92,9 @@ class StructEncoderTest extends TestCase
     public function testSupportsNullExtensions(): void
     {
         $foo = new MyTestStruct('foo', 'bar');
-        $foo->addExtension('myExtension', null);
+        $foo->assign([
+            'extensions' => ['myExtension' => null],
+        ]);
 
         $fields = new ResponseFields([
             'test-struct' => ['foo', 'myExtension'],
@@ -196,7 +204,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -285,7 +293,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -313,16 +321,15 @@ class StructEncoderTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class MyTestStruct extends Struct
 {
-    public $foo;
-
-    public $bar;
-
-    public function __construct($foo = null, $bar = null)
-    {
-        $this->foo = $foo;
-        $this->bar = $bar;
+    public function __construct(
+        public mixed $foo = null,
+        public mixed $bar = null
+    ) {
     }
 
     public function getApiAlias(): string
@@ -331,6 +338,9 @@ class MyTestStruct extends Struct
     }
 }
 
+/**
+ * @internal
+ */
 class AnotherStruct extends MyTestStruct
 {
     public function getApiAlias(): string
@@ -339,6 +349,9 @@ class AnotherStruct extends MyTestStruct
     }
 }
 
+/**
+ * @internal
+ */
 class MyEntity extends Entity
 {
     /**
@@ -387,6 +400,9 @@ class MyEntity extends Entity
     }
 }
 
+/**
+ * @internal
+ */
 class MyEntityDefinition extends EntityDefinition
 {
     public function getEntityName(): string
@@ -409,6 +425,9 @@ class MyEntityDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class StructWithCustomFields extends Entity
 {
     use EntityCustomFieldsTrait;

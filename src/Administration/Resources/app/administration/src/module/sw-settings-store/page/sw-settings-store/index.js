@@ -1,13 +1,18 @@
 import template from './sw-settings-store.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-store', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
 
     mixins: [
         Mixin.getByName('notification'),
     ],
+
     data() {
         return {
             isLoading: false,
@@ -24,7 +29,6 @@ Component.register('sw-settings-store', {
             title: this.$createTitle(),
         };
     },
-
 
     methods: {
         saveFinish() {
@@ -60,4 +64,4 @@ Component.register('sw-settings-store', {
             this.isLoading = loading;
         },
     },
-});
+};

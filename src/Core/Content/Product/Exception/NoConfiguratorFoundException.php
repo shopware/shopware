@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('inventory')]
 class NoConfiguratorFoundException extends ShopwareHttpException
 {
     public function __construct(string $productId)

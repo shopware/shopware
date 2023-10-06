@@ -1,13 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_plugin_box %}
 <div class="sw-plugin-box">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_plugin_box_container %}
     <sw-container
         columns="3fr 1fr"
         gap="0px 30px"
         class="sw-plugin-box__container"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_plugin_box_container_plugin_data %}
         <sw-container :class="{ 'has--no-icon' : !plugin.icon }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_plugin_box_container_plugin_data_icon %}
             <img
                 v-if="!!plugin.icon"
@@ -16,13 +20,16 @@
                 alt=""
             >
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_plugin_box_container_plugin_data_description %}
             <div class="sw-plugin-box__description">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_plugin_box_container_plugin_data_description_label %}
                 <p class="sw-plugin-box__label">
                     {{ plugin.translated.label }}
                 </p>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_plugin_box_container_plugin_data_description_author %}
                 <p class="sw-plugin-box__author">
                     {{ plugin.author }}
@@ -32,6 +39,7 @@
             {% endblock %}
         </sw-container>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_plugin_box_container_button %}
         <sw-button
             v-if="hasPluginConfig"

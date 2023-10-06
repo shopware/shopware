@@ -1,13 +1,18 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
-Component.register('sw-seo-url-template-card', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['seoUrlTemplateService', 'repositoryFactory'],
@@ -66,18 +71,18 @@ Component.register('sw-seo-url-template-card', {
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria(),
+                new Criteria(1, 25),
             );
 
             this.defaultSeoUrlTemplates = new EntityCollection(
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria(),
+                new Criteria(1, 25),
             );
 
             this.seoUrlPreviewCriteria['frontend.navigation.page'] =
-                (new Criteria()).addFilter(
+                (new Criteria(1, 25)).addFilter(
                     Criteria.not('and', [Criteria.equals('path', null)]),
                 );
 
@@ -85,7 +90,7 @@ Component.register('sw-seo-url-template-card', {
             this.fetchSeoUrlTemplates();
         },
         fetchSeoUrlTemplates(salesChannelId = null) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (!salesChannelId) {
                 salesChannelId = null;
@@ -206,7 +211,7 @@ Component.register('sw-seo-url-template-card', {
                     this.seoUrlTemplateRepository.route,
                     this.seoUrlTemplateRepository.schema.entity,
                     Shopware.Context.api,
-                    new Criteria(),
+                    new Criteria(1, 25),
                 );
                 this.fetchSeoUrlTemplates(this.salesChannelId);
                 this.createSaveSuccessNotification();
@@ -262,7 +267,7 @@ Component.register('sw-seo-url-template-card', {
         fetchSeoUrlPreview(entity) {
             this.$set(this.previewLoadingStates, entity.id, true);
             const criteria = this.seoUrlPreviewCriteria[entity.routeName]
-                ? this.seoUrlPreviewCriteria[entity.routeName] : (new Criteria());
+                ? this.seoUrlPreviewCriteria[entity.routeName] : (new Criteria(1, 25));
             entity.criteria = criteria.parse();
             this.seoUrlTemplateService.preview(entity).then((response) => {
                 this.noEntityError = this.noEntityError.filter((elem) => {
@@ -282,7 +287,7 @@ Component.register('sw-seo-url-template-card', {
             });
         },
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria()).then((response) => {
+            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
             });
         },
@@ -296,4 +301,4 @@ Component.register('sw-seo-url-template-card', {
             });
         },
     },
-});
+};

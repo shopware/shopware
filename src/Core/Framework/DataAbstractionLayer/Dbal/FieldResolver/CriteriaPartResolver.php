@@ -20,32 +20,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal This class is not intended for service decoration
  */
+#[Package('core')]
 class CriteriaPartResolver
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
-
-    public function __construct(Connection $connection, SqlQueryParser $parser)
-    {
-        $this->connection = $connection;
-        $this->parser = $parser;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly SqlQueryParser $parser
+    ) {
     }
 
+    /**
+     * @param array<CriteriaPartInterface> $parts
+     */
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
-        /** @var CriteriaPartInterface $part */
         foreach ($parts as $part) {
             if ($part instanceof JoinGroup) {
                 $this->resolveSubJoin($part, $definition, $query, $context);
@@ -128,6 +123,9 @@ class CriteriaPartResolver
         }
 
         foreach ($filter->getQueries() as $filter) {
+            if (!$filter instanceof SingleFieldFilter) {
+                continue;
+            }
             $filter->setResolved(self::escape($alias) . '.id IS NOT NULL');
         }
 
@@ -169,7 +167,7 @@ class CriteriaPartResolver
         }
 
         if (!$field instanceof ManyToManyAssociationField) {
-            throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($field)));
+            throw new \RuntimeException(sprintf('Unknown association class provided %s', $field::class));
         }
 
         $reference = $field->getReferenceDefinition();
@@ -347,6 +345,6 @@ class CriteriaPartResolver
             return EntityDefinitionQueryHelper::escape($association->getLocalField());
         }
 
-        throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($association)));
+        throw new \RuntimeException(sprintf('Unknown association class provided %s', $association::class));
     }
 }

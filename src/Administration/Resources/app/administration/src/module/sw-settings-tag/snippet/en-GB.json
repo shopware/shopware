@@ -1,0 +1,104 @@
+{
+  "sw-settings-tag": {
+    "general": {
+      "mainMenuItemGeneral": "Tags",
+      "placeholderSearchBar": "Search tags..."
+    },
+    "list": {
+      "textHeadline": "Tags",
+      "textDeleteConfirm": "Are you sure you want to delete the tag \"{name}\"?",
+      "columnName": "Tag",
+      "columnConnections": "Assignments",
+      "buttonAddTag": "Add tag",
+      "contextMenuEdit": "Edit tag",
+      "contextMenuDuplicate": "Duplicate tag",
+      "contextMenuDelete": "Delete tag",
+      "messageDeleteSuccess": "Tag \"{name}\" deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "titleEmptyStateList": "No tags found.",
+      "searchPlaceholder": "Search tags...",
+      "filter": "Filter",
+      "filterAssignemnt": "Filter by assigned entity",
+      "placeholderFilterAssignemnt": "Search assignments...",
+      "filterEmpty": "Show unassigned tags only",
+      "filterDuplicate": "Show duplicate tags only",
+      "resetFilters": "Reset filters",
+      "bulkMerge": "Merge",
+      "bulkMergeTitle": "Merge tags",
+      "bulkMergeMessage": "Are you sure you want to merge",
+      "bulkMergeMessageAnd": "and",
+      "bulkMergeMessageFinal": "?",
+      "bulkMergeName": "New tag",
+      "bulkMerging": "Merging",
+      "bulkMergeNotice": "Please wait until the merge process is complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied and existing tags remain unchanged. You can rerun the merge process at any time.",
+      "bulkMergeNoUndoNotice": "This action cannot be undone.",
+      "bulkMergeTimeNotice": "Depending on the number of entities assigned, this process may take some time.",
+      "bulkMergeInto": "into",
+      "placeholderTagName": "Enter tag name...",
+      "assignments": {
+        "header": {
+          "products": "Product assignments",
+          "media": "Media assignments",
+          "categories": "Category assignments",
+          "customers": "Customer assignments",
+          "orders": "Order assignments",
+          "shippingMethods": "Shipping method assignments",
+          "newsletterRecipients": "Newsletter recipient assignments",
+          "landingPages": "Landing page assignments",
+          "rules": "Rule assignments"
+        },
+        "content": {
+          "products": "products | product | products",
+          "media": "media",
+          "categories": "categories | category | categories",
+          "customers": "customers | customer | customers",
+          "orders": "orders | order | orders",
+          "shippingMethods": "shipping methods | shipping method | shipping methods",
+          "newsletterRecipients": "newsletter recipients | newsletter recipient | newsletter recipients",
+          "landingPages": "landing pages | landing page | landing pages",
+          "rules": "rules | rule | rules"
+        },
+        "filter": {
+          "products": "Product",
+          "media": "Media",
+          "categories": "Category",
+          "customers": "Customer",
+          "orders": "Order",
+          "shippingMethods": "Shipping method",
+          "newsletterRecipients": "Newsletter recipient",
+          "landingPages": "Landing page",
+          "rules": "Rule"
+        }
+      }
+    },
+    "detail": {
+      "editTitle": "Edit \"{name}\"",
+      "generalTab": "General",
+      "assignmentsTab": "Assignments",
+      "buttonSave": "Save",
+      "assignments": {
+        "searchPlaceholder": "Search entities...",
+        "assignments": "assigned",
+        "selected": "assigned entities",
+        "showSelected": "Hide unassigned entities",
+        "products": "Products",
+        "media": "Media",
+        "categories": "Categories",
+        "customers": "Customers",
+        "orders": "Orders",
+        "shippingMethods": "Shipping methods",
+        "newsletterRecipients": "Newsletter recipients",
+        "landingPages": "Landing pages",
+        "rules": "Rules"
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "tag": {
+        "label": "Tags"
+      }
+    }
+  }
+}

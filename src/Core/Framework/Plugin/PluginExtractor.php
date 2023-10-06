@@ -2,35 +2,33 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('core')]
 class PluginExtractor
 {
     /**
-     * @var array
+     * @param array<string, string> $extensionDirectories
      */
-    private $extensionDirectories;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    public function __construct(array $extensionDirectories, Filesystem $filesystem)
-    {
-        $this->extensionDirectories = $extensionDirectories;
-        $this->filesystem = $filesystem;
+    public function __construct(
+        private readonly array $extensionDirectories,
+        private readonly Filesystem $filesystem
+    ) {
     }
 
     /**
      * Extracts the provided zip file to the plugin directory
      */
-    public function extract(\ZipArchive $archive, bool $delete, string $type): void
+    public function extract(string $zipFilePath, bool $delete, string $type): void
     {
+        $archive = ZipUtils::openZip($zipFilePath);
+
         $destination = $this->extensionDirectories[$type];
 
         if (!is_writable($destination)) {
@@ -46,7 +44,7 @@ class PluginExtractor
         try {
             $archive->extractTo($destination);
 
-            if ($backupFile !== '') {
+            if ($backupFile !== null) {
                 $this->filesystem->remove($backupFile);
             }
 
@@ -54,14 +52,14 @@ class PluginExtractor
                 unlink($archive->filename);
             }
         } catch (\Exception $e) {
-            if ($backupFile !== '') {
-                $this->filesystem->rename($backupFile, $oldFile);
-            }
+            $this->filesystem->rename($backupFile, $oldFile);
 
             throw $e;
         }
 
         $this->clearOpcodeCache();
+
+        $archive->close();
     }
 
     /**
@@ -73,6 +71,7 @@ class PluginExtractor
     {
         for ($i = 2; $i < $archive->numFiles; ++$i) {
             $stat = $archive->statIndex($i);
+            \assert($stat !== false);
 
             $this->assertNoDirectoryTraversal($stat['name']);
             $this->assertPrefix($stat['name'], $prefix);
@@ -82,8 +81,9 @@ class PluginExtractor
     private function getPluginName(\ZipArchive $archive): string
     {
         $entry = $archive->statIndex(0);
+        \assert($entry !== false);
 
-        return explode(\DIRECTORY_SEPARATOR, $entry['name'])[0];
+        return explode(\DIRECTORY_SEPARATOR, (string) $entry['name'])[0];
     }
 
     /**
@@ -131,10 +131,10 @@ class PluginExtractor
         return '';
     }
 
-    private function createBackupFile(string $oldFile): string
+    private function createBackupFile(string $oldFile): ?string
     {
         if ($oldFile === '') {
-            return '';
+            return null;
         }
 
         $backupFile = $oldFile . '.' . uniqid('', true);

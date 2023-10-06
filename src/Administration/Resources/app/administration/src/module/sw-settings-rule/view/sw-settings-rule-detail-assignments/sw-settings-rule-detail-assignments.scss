@@ -1,8 +1,4 @@
-@import '~scss/variables';
-
-.sw-settings-rule-detail-assignments__card .sw-card__toolbar {
-    border-radius: 4px 4px 0 0;
-}
+@import "~scss/variables";
 
 .sw-settings-rule-detail-assignments__card-loader {
     .sw-card__content {
@@ -12,7 +8,7 @@
 
 .sw-settings-rule-detail-assignments__empty-state {
     .sw-empty-state .sw-empty-state__title {
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         margin-bottom: 0;
     }
 }

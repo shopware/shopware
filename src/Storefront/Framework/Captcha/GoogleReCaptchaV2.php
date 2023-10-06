@@ -4,25 +4,27 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'googleReCaptchaV2';
-    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
+    final public const CAPTCHA_NAME = 'googleReCaptchaV2';
+    final public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
     private const GOOGLE_CAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
 
-    private ClientInterface $client;
-
-    public function __construct(ClientInterface $client)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ClientInterface $client)
     {
-        $this->client = $client;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request /* , array $captchaConfig = [] */): bool
+    public function isValid(Request $request, array $captchaConfig): bool
     {
         if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
@@ -32,7 +34,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
 
         $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
 
-        if (!\is_string($secretKey) || $secretKey === '') {
+        if (!\is_string($secretKey)) {
             return false;
         }
 
@@ -49,7 +51,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             $response = json_decode($responseRaw, true);
 
             return $response && (bool) $response['success'];
-        } catch (ClientExceptionInterface $exception) {
+        } catch (ClientExceptionInterface) {
             return false;
         }
     }

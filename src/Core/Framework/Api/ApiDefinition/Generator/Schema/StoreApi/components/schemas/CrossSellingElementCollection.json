@@ -1,0 +1,61 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CrossSellingElementCollection": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "crossSelling": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "position": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "sortBy": {
+                                    "type": "string"
+                                },
+                                "sortDirection": {
+                                    "type": "string"
+                                },
+                                "limit": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "active": {
+                                    "type": "boolean"
+                                },
+                                "productId": {
+                                    "type": "string"
+                                },
+                                "productStreamId": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "products": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#\/components\/schemas\/Product"
+                            }
+                        },
+                        "total": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

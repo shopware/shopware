@@ -2,19 +2,20 @@
 
 namespace Shopware\Storefront\Framework\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('content')]
 class StorefrontMediaValidatorRegistry
 {
     /**
-     * @var StorefrontMediaValidatorInterface[]
+     * @internal
+     *
+     * @param StorefrontMediaValidatorInterface[] $validators
      */
-    private $validators;
-
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(UploadedFile $file, string $type): void

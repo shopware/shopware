@@ -12,16 +12,20 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+#[Package('inventory')]
 class CategoryEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.6.0 - Will be protected
      */
     public $afterCategoryId;
 
@@ -46,7 +50,7 @@ class CategoryEntity extends Entity
     protected $name;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $breadcrumb;
 
@@ -121,6 +125,11 @@ class CategoryEntity extends Entity
     protected $cmsPageId;
 
     /**
+     * @var bool
+     */
+    protected $cmsPageIdSwitched = false;
+
+    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -136,7 +145,7 @@ class CategoryEntity extends Entity
     protected $productStream;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $slotConfig;
 
@@ -219,6 +228,11 @@ class CategoryEntity extends Entity
      * @var SeoUrlCollection|null
      */
     protected $seoUrls;
+
+    /**
+     * @var ?string
+     */
+    protected $customEntityTypeId;
 
     public function getParentId(): ?string
     {
@@ -420,6 +434,16 @@ class CategoryEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    public function getCmsPageIdSwitched(): bool
+    {
+        return $this->cmsPageIdSwitched;
+    }
+
+    public function setCmsPageIdSwitched(bool $switched): void
+    {
+        $this->cmsPageIdSwitched = $switched;
+    }
+
     public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
@@ -440,11 +464,17 @@ class CategoryEntity extends Entity
         $this->productStreamId = $productStreamId;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<mixed> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -550,11 +580,17 @@ class CategoryEntity extends Entity
         $this->description = $description;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getBreadcrumb(): array
     {
         return array_values($this->getPlainBreadcrumb());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPlainBreadcrumb(): array
     {
         $breadcrumb = $this->getTranslation('breadcrumb');
@@ -579,11 +615,17 @@ class CategoryEntity extends Entity
         return $filtered;
     }
 
+    /**
+     * @param array<mixed>|null $breadcrumb
+     */
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function jsonSerialize(): array
     {
         // Make sure that the sorted breadcrumb gets serialized
@@ -651,5 +693,15 @@ class CategoryEntity extends Entity
     public function setProductAssignmentType(string $productAssignmentType): void
     {
         $this->productAssignmentType = $productAssignmentType;
+    }
+
+    public function getCustomEntityTypeId(): ?string
+    {
+        return $this->customEntityTypeId;
+    }
+
+    public function setCustomEntityTypeId(?string $customEntityTypeId): void
+    {
+        $this->customEntityTypeId = $customEntityTypeId;
     }
 }

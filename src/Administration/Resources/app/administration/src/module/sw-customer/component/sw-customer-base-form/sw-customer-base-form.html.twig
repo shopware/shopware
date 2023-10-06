@@ -1,16 +1,37 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_base_form %}
 <div class="sw-customer-base-form">
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 32px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_base_form_account_type_field %}
+        <sw-single-select
+            {% if VUE3 %}
+            v-model:value="customer.accountType"
+            {% else %}
+            v-model="customer.accountType"
+            {% endif %}
+            class="sw-customer-base-form__account-type-select"
+            :label="$tc('sw-customer.customerType.labelAccountType')"
+            :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
+            :options="accountTypeOptions"
+        />
+        {% endblock %}
+
         <sw-container
             columns="1fr 1fr"
             class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_form_first_salutation_field %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="customer.salutationId"
+                {% else %}
                 v-model="customer.salutationId"
+                {% endif %}
                 class="sw-customer-base-form__salutation-select"
                 entity="salutation"
                 :label="$tc('sw-customer.baseForm.labelSalutation')"
@@ -18,22 +39,31 @@
                 :error="customerSalutationIdError"
                 :criteria="salutationCriteria"
                 label-property="displayName"
-                show-clearable-button
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_form_title_field %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="customer.title"
+                {% else %}
                 v-model="customer.title"
+                {% endif %}
                 :label="$tc('sw-customer.baseForm.labelTitle')"
                 :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
             />
             {% endblock %}
         </sw-container>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_first_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.firstName"
+            {% else %}
             v-model="customer.firstName"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelFirstName')"
             :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
@@ -41,9 +71,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_last_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.lastName"
+            {% else %}
             v-model="customer.lastName"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelLastName')"
             :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
@@ -51,9 +86,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_email_field %}
         <sw-email-field
+            {% if VUE3 %}
+            v-model:value="customer.email"
+            {% else %}
             v-model="customer.email"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelEmail')"
             :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"
@@ -61,9 +101,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_password_field %}
         <sw-password-field
+            {% if VUE3 %}
+            v-model:value="customer.password"
+            {% else %}
             v-model="customer.password"
+            {% endif %}
             autocomplete="new-password"
             :required="!customer.guest"
             :disabled="customer.guest"
@@ -73,10 +118,16 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_vat_id_field %}
         <sw-text-field
+            v-if="isBusinessAccountType"
             id="vatId"
+            {% if VUE3 %}
+            v-model:value="customer.vatIds[0]"
+            {% else %}
             v-model="customer.vatIds[0]"
+            {% endif %}
             name="vatId"
             :error="customerVatIdsError"
             :label="$tc('sw-customer.addressForm.labelVatId')"
@@ -84,18 +135,28 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_birthday_field %}
         <sw-datepicker
+            {% if VUE3 %}
+            v-model:value="customer.birthday"
+            {% else %}
             v-model="customer.birthday"
+            {% endif %}
             type="date"
             name="birthday"
             :label="$tc('sw-customer.baseForm.labelBirthday')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_customer_group_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customer.groupId"
+            {% else %}
             v-model="customer.groupId"
+            {% endif %}
             class="sw-customer-base-form__customer-group-select"
             required
             show-clearable-button
@@ -106,6 +167,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_sales_channel_field %}
         <sw-entity-single-select
             class="sw-customer-base-form__sales-channel-select"
@@ -116,13 +178,22 @@
             :error="customerSalesChannelIdError"
             required
             show-clearable-button
+            {% if VUE3 %}
+            @update:value="onSalesChannelChange"
+            {% else %}
             @change="onSalesChannelChange"
+            {% endif %}
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_payment_method_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customer.defaultPaymentMethodId"
+            {% else %}
             v-model="customer.defaultPaymentMethodId"
+            {% endif %}
             class="sw-customer-base-form__payment-method-select"
             entity="payment_method"
             label-property="distinguishableName"
@@ -134,9 +205,14 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_customer_number_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.customerNumber"
+            {% else %}
             v-model="customer.customerNumber"
+            {% endif %}
             :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
             :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
             :error="customerCustomerNumberError"
@@ -145,9 +221,14 @@
         {% endblock %}
     </sw-container>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_form_tag_field %}
     <sw-entity-tag-select
+        {% if VUE3 %}
+        v-model:entityCollection="customer.tags"
+        {% else %}
         v-model="customer.tags"
+        {% endif %}
         :label="$tc('sw-customer.baseForm.labelTags')"
         :placeholder="$tc('sw-customer.baseForm.placeholderTags')"
     />

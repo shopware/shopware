@@ -12,7 +12,7 @@
                                     <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                                        title="{{ product.translated.name }}"
                                        class="search-suggest-product-link">
-                                        <div class="row align-items-center no-gutters">
+                                        <div class="row align-items-center g-0">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
                                                     {% if product.cover.media.url %}
@@ -48,15 +48,26 @@
                                                         {% set price = product.calculatedPrices.last %}
                                                     {% endif %}
 
+                                                    {% if product.variantListingConfig.displayParent and product.parentId === null %}
+                                                        {% set displayFromVariants = price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+                                                        {% set price = product.calculatedCheapestPrice %}
+                                                    {% endif %}
+
                                                     {% set referencePrice = price.referencePrice %}
 
-                                                    {% if product.calculatedPrices.count > 1 %}
+                                                    {% if product.calculatedPrices.count > 1 or displayFromVariants %}
                                                         {{ "listing.listingTextFrom"|trans|sw_sanitize }}
                                                     {% endif %}
-                                                    {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                    <span class="search-suggest-product-price">
+                                                        {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                    </span>
 
                                                     {% if price.referencePrice is not null %}
                                                         <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+                                                    {% endif %}
+
+                                                    {% if price.regulationPrice.price is not null %}
+                                                        <small class="search-suggest-product-list-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</small>
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}
@@ -79,7 +90,7 @@
 
                         {% block layout_search_suggest_result_total_result %}
                             <li class="js-result search-suggest-total">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center g-0">
                                     {% block layout_search_suggest_result_total_link %}
                                         <div class="col">
                                             <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"

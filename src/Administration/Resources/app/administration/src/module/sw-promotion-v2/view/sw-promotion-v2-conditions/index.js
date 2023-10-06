@@ -1,10 +1,13 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-conditions.html.twig';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
-Component.register('sw-promotion-v2-conditions', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -27,73 +30,42 @@ Component.register('sw-promotion-v2-conditions', {
     data() {
         return {
             excludedPromotions: this.createPromotionCollection(),
-            /* @internal (flag:FEATURE_NEXT_18215) */
             personaRestrictedRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
             orderRestrictedRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
             cartRestrictedRules: [],
         };
     },
 
     computed: {
         exclusionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));
             return criteria;
         },
 
         personaRuleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(Criteria.multi('AND', [
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                    Criteria.equalsAny('conditions.type', [
-                        'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
-                        'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
-                        'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
-                        'customerShippingStreet', 'customerShippingZipCode',
-                    ]),
-                ]));
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
 
         cartConditionsRuleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                );
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
 
         orderConditionsFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(Criteria.multi('AND', [
-                    Criteria.equalsAny('conditions.type', [
-                        'customerOrderCount', 'customerDaysSinceLastOrder', 'customerBillingCountry',
-                        'customerBillingStreet', 'customerBillingZipCode', 'customerCustomerGroup',
-                        'customerCustomerNumber', 'customerDifferentAddresses', 'customerIsNewCustomer',
-                        'customerLastName', 'customerShippingCountry', 'customerShippingStreet',
-                        'customerShippingZipCode',
-                    ]),
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                ]));
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -106,17 +78,6 @@ Component.register('sw-promotion-v2-conditions', {
     methods: {
         createdComponent() {
             this.loadExclusions();
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.ruleConditionDataProviderService.getRestrictedRules('personaPromotions')
-                    .then((result) => { this.personaRestrictedRules = result; });
-
-                this.ruleConditionDataProviderService.getRestrictedRules('orderPromotions')
-                    .then((result) => { this.orderRestrictedRules = result; });
-
-                this.ruleConditionDataProviderService.getRestrictedRules('cartPromotions')
-                    .then((result) => { this.cartRestrictedRules = result; });
-            }
         },
 
         loadExclusions() {
@@ -126,7 +87,7 @@ Component.register('sw-promotion-v2-conditions', {
             }
 
             const promotionRepository = this.repositoryFactory.create('promotion');
-            const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
+            const criteria = (new Criteria(1, 25)).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
 
             promotionRepository.search(criteria).then((excluded) => {
                 this.excludedPromotions = excluded;
@@ -142,7 +103,7 @@ Component.register('sw-promotion-v2-conditions', {
         },
 
         createPromotionCollection() {
-            return new EntityCollection('/promotion', 'promotion', Shopware.Context.api, new Criteria());
+            return new EntityCollection('/promotion', 'promotion', Shopware.Context.api, new Criteria(1, 25));
         },
     },
-});
+};

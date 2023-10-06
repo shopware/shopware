@@ -1,16 +1,21 @@
+/**
+ * @package admin
+ */
+
 import utils from 'src/core/service/util.service';
 import { warn } from 'src/core/service/utils/debug.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import Criteria from './criteria.data';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class EntityFactory {
     /**
      * Creates a new entity for the provided entity name.
      * Returns null for unknown entities.
      *
      * @param {String} entityName
-     * @param {String} id
+     * @param {String|null} id
      * @param {Object} context
      * @returns {Entity|null}
      */
@@ -65,10 +70,6 @@ export default class EntityFactory {
         const route = entity.replace(/_/g, '-');
         const source = `/${route}/${id}/${subRoute}`;
 
-        const criteria = new Criteria();
-        criteria.setLimit(10);
-        criteria.setPage(1);
-
-        return new EntityCollection(source, related, context, criteria);
+        return new EntityCollection(source, related, context, new Criteria(1, 10));
     }
 }

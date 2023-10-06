@@ -1,10 +1,10 @@
+/**
+ * @package storefront
+ */
 export default class HttpClient {
 
     constructor() {
         this._request = null;
-        this._csrfEnabled = window.csrf.enabled;
-        this._csrfMode = window.csrf.mode;
-        this._generateUrl = window.router['frontend.csrf.generateToken'];
     }
 
     /**
@@ -29,7 +29,6 @@ export default class HttpClient {
      * @param {object|null} data
      * @param {function} callback
      * @param {string} contentType
-     * @param {boolean} csrfProtected
      *
      * @returns {XMLHttpRequest}
      */
@@ -37,26 +36,10 @@ export default class HttpClient {
         url,
         data,
         callback,
-        contentType = 'application/json',
-        csrfProtected = true
+        contentType = 'application/json'
     ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
-
-        if (csrfProtected && this._csrfEnabled && this._csrfMode === 'ajax') {
-            this.fetchCsrfToken((csrfToken) => {
-                if (data instanceof FormData) {
-                    data.append('_csrf_token', csrfToken);
-                } else {
-                    data = JSON.parse(data);
-                    data['_csrf_token'] = csrfToken;
-                    data = JSON.stringify(data);
-                }
-
-                return this._sendRequest(request, data, callback);
-            });
-            return request;
-        }
 
         return this._sendRequest(request, data, callback);
     }
@@ -138,16 +121,6 @@ export default class HttpClient {
         this._registerOnLoaded(request, callback);
         request.send(data);
         return request;
-    }
-
-    fetchCsrfToken(callback) {
-        return this.post(
-            this._generateUrl,
-            null,
-            response => callback(JSON.parse(response)['token']),
-            'application/json',
-            false
-        );
     }
 
     /**

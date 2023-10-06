@@ -5,33 +5,20 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('checkout')]
 class CustomerConfirmRegisterUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $confirmUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $emailHash;
-
-    private ?string $customerHash;
-
-    private CustomerEntity $customer;
-
     public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $confirmUrl,
-        string $emailHash,
-        ?string $customerHash,
-        CustomerEntity $customer
+        private readonly SalesChannelContext $salesChannelContext,
+        private string $confirmUrl,
+        private readonly string $emailHash,
+        private readonly ?string $customerHash,
+        private readonly CustomerEntity $customer
     ) {
-        $this->confirmUrl = $confirmUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->emailHash = $emailHash;
-        $this->customerHash = $customerHash;
-        $this->customer = $customer;
     }
 
     public function getConfirmUrl(): string

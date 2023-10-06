@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class ScalarRuntimeExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

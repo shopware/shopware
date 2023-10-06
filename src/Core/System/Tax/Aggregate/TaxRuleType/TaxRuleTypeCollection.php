@@ -3,15 +3,12 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxRuleType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                   add(TaxRuleTypeEntity $type)
- * @method TaxRuleTypeEntity[]    getIterator()
- * @method TaxRuleTypeEntity[]    getElements()
- * @method TaxRuleTypeEntity|null get(string $key)
- * @method TaxRuleTypeEntity|null first()
- * @method TaxRuleTypeEntity|null last()
+ * @extends EntityCollection<TaxRuleTypeEntity>
  */
+#[Package('checkout')]
 class TaxRuleTypeCollection extends EntityCollection
 {
     public function getByTechnicalName(string $technicalName): ?TaxRuleTypeEntity

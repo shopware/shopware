@@ -1,5 +1,9 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
+/**
+ * @package checkout
+ */
+
 const defaultSearchConfiguration = {
     _searchable: true,
     orderNumber: {
@@ -236,6 +240,23 @@ const defaultSearchConfiguration = {
             _score: searchRankingPoint.HIGH_SEARCH_RANKING,
         },
     },
+    documents: {
+        config: {
+            documentNumber: {
+                _searchable: false,
+                _score: searchRankingPoint.LOW_SEARCH_RANKING,
+            },
+        },
+    },
+    lineItems: {
+        payload: {
+            code: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        },
+    },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default defaultSearchConfiguration;

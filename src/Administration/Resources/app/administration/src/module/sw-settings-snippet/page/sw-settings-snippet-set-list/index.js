@@ -1,9 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
-Component.register('sw-settings-snippet-set-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -61,6 +65,10 @@ Component.register('sw-settings-snippet-set-list', {
             return this.acl.can('snippet.editor') ?
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -278,4 +286,4 @@ Component.register('sw-settings-snippet-set-list', {
             };
         },
     },
-});
+};

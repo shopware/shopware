@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -15,37 +14,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @internal
      */
-    private $categoryRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     public function __construct(
-        Connection $connection,
-        SalesChannelRepositoryInterface $repository
+        private readonly Connection $connection,
+        private readonly SalesChannelRepository $categoryRepository
     ) {
-        $this->categoryRepository = $repository;
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -53,66 +43,7 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("category")
-     * @OA\Post(
-     *      path="/navigation/{requestActiveId}/{requestRootId}",
-     *      summary="Fetch a navigation menu",
-     *      description="This endpoint returns categories that can be used as a page navigation. You can either return them as a tree or as a flat list. You can also control the depth of the tree.
-
-Instead of passing uuids, you can also use one of the following aliases for the activeId and rootId parameters to get the respective navigations of your sales channel.
-
-* main-navigation
-* service-navigation
-* footer-navigation",
-     *      operationId="readNavigation",
-     *      tags={"Store API", "Category"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          name="sw-include-seo-urls",
-     *          description="Instructs Shopware to try and resolve SEO URLs for the given navigation item",
-     *          @OA\Schema(type="boolean"),
-     *          in="header",
-     *          required=false
-     *      ),
-     *      @OA\Parameter(
-     *          name="requestActiveId",
-     *          description="Identifier of the active category in the navigation tree (if not used, just set to the same as rootId).",
-     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Parameter(
-     *          name="requestRootId",
-     *          description="Identifier of the root category for your desired navigation tree. You can use it to fetch sub-trees of your navigation tree.",
-     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="depth",
-     *                  description="Determines the depth of fetched navigation levels.",
-     *                  @OA\Schema(type="integer", default="2")
-     *              ),
-     *              @OA\Property(
-     *                  property="buildTree",
-     *                  description="Return the categories as a tree or as a flat list.",
-     *                  @OA\Schema(type="boolean", default="true")
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="All available navigations",
-     *          @OA\JsonContent(ref="#/components/schemas/NavigationRouteResponse")
-     *     )
-     * )
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(
         string $activeId,
         string $rootId,
@@ -152,6 +83,9 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         return new NavigationRouteResponse($categories);
     }
 
+    /**
+     * @param string[] $ids
+     */
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
     {
         $criteria->setIds($ids);
@@ -170,7 +104,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
             new ContainsFilter('path', '|' . $rootId . '|'),
             new RangeFilter('level', [
                 RangeFilter::GT => $rootLevel,
-                RangeFilter::LTE => $rootLevel + $depth,
+                RangeFilter::LTE => $rootLevel + $depth + 1,
             ])
         );
 
@@ -182,50 +116,14 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
 
-        // Count visible children that are already included in the original query
-        foreach ($levels as $level) {
-            $count = $levels->filter(function (CategoryEntity $category) use ($level) {
-                return $category->getParentId() === $level->getId() && $category->getVisible() && $category->getActive();
-            })->count();
-            $level->setVisibleChildCount($count);
-        }
-
-        // Fetch additional level of categories for counting visible children that are NOT included in the original query
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new ContainsFilter('path', '|' . $rootId . '|'),
-            new EqualsFilter('level', $rootLevel + $depth + 1),
-            new EqualsFilter('active', true),
-            new EqualsFilter('visible', true)
-        );
-
-        $criteria->addAggregation(
-            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
-        );
-
-        $termsResult = $this->categoryRepository
-            ->aggregate($criteria, $context)
-            ->get('category-ids');
-
-        if ($termsResult instanceof TermsResult) {
-            foreach ($termsResult->getBuckets() as $bucket) {
-                $key = $bucket->getKey();
-
-                if ($key === null) {
-                    continue;
-                }
-
-                $parent = $levels->get($key);
-
-                if ($parent instanceof CategoryEntity) {
-                    $parent->setVisibleChildCount($bucket->getCount());
-                }
-            }
-        }
+        $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);
 
         return $levels;
     }
 
+    /**
+     * @return array<string, CategoryMetaInformation>
+     */
     private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
         $result = $this->connection->fetchAllAssociative('
@@ -236,21 +134,29 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         ', ['activeId' => Uuid::fromHexToBytes($activeId), 'rootId' => Uuid::fromHexToBytes($rootId)]);
 
         if (!$result) {
-            throw new CategoryNotFoundException($activeId);
+            throw CategoryException::categoryNotFound($activeId);
         }
 
         return FetchModeHelper::groupUnique($result);
     }
 
+    /**
+     * @param array<string, CategoryMetaInformation> $metaInfo
+     *
+     * @return CategoryMetaInformation
+     */
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
-            throw new CategoryNotFoundException($id);
+            throw CategoryException::categoryNotFound($id);
         }
 
         return $metaInfo[$id];
     }
 
+    /**
+     * @param array<string, CategoryMetaInformation> $metaInfo
+     */
     private function loadChildren(string $activeId, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories, Criteria $criteria): CategoryCollection
     {
         $active = $this->getMetaInfoById($activeId, $metaInfo);
@@ -272,6 +178,11 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         return $categories;
     }
 
+    /**
+     * @param array<string> $childIds
+     *
+     * @return list<string>
+     */
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
         $parentIds = array_filter(explode('|', $path ?? ''));
@@ -280,7 +191,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         $included = $alreadyLoaded->getIds();
         $included = array_flip($included);
 
-        return array_diff($haveToBeIncluded, $included);
+        return array_values(array_diff($haveToBeIncluded, $included));
     }
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
@@ -297,7 +208,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
             }
         }
 
-        throw new CategoryNotFoundException($activeId);
+        throw CategoryException::categoryNotFound($activeId);
     }
 
     private function isChildCategory(string $activeId, ?string $path, string $rootId): bool
@@ -315,5 +226,57 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         }
 
         return false;
+    }
+
+    private function addVisibilityCounts(string $rootId, int $rootLevel, int $depth, CategoryCollection $levels, SalesChannelContext $context): void
+    {
+        $counts = [];
+        foreach ($levels as $category) {
+            if (!$category->getActive() || !$category->getVisible()) {
+                continue;
+            }
+
+            $parentId = $category->getParentId();
+            $counts[$parentId] ??= 0;
+            ++$counts[$parentId];
+        }
+        foreach ($levels as $category) {
+            $category->setVisibleChildCount($counts[$category->getId()] ?? 0);
+        }
+
+        // Fetch additional level of categories for counting visible children that are NOT included in the original query
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new ContainsFilter('path', '|' . $rootId . '|'),
+            new EqualsFilter('level', $rootLevel + $depth + 1),
+            new EqualsFilter('active', true),
+            new EqualsFilter('visible', true)
+        );
+
+        $criteria->addAggregation(
+            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
+        );
+
+        $termsResult = $this->categoryRepository
+            ->aggregate($criteria, $context)
+            ->get('category-ids');
+
+        if (!($termsResult instanceof TermsResult)) {
+            return;
+        }
+
+        foreach ($termsResult->getBuckets() as $bucket) {
+            $key = $bucket->getKey();
+
+            if ($key === null) {
+                continue;
+            }
+
+            $parent = $levels->get($key);
+
+            if ($parent instanceof CategoryEntity) {
+                $parent->setVisibleChildCount($bucket->getCount());
+            }
+        }
     }
 }

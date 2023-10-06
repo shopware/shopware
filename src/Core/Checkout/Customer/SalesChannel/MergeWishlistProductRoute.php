@@ -2,73 +2,42 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $wishlistRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection
     ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractMergeWishlistProductRoute
@@ -76,44 +45,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.4.0")
-     * @OA\Post(
-     *      path="/customer/wishlist/merge",
-     *      summary="Create a wishlist for a customer",
-     *      description="Create a new wishlist for a logged in customer or extend the existing wishlist given a set of products.
-
-**Important constraints**
-
-* Anonymous (not logged-in) customers can not have wishlists.
-* A customer can only have a single wishlist.
-* The wishlist feature has to be activated.",
-     *      operationId="mergeProductOnWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="productIds",
-     *                  description="List product id",
-     *                  type="array",
-     *                  @OA\Items(type="string", pattern="^[0-9a-f]{32}$", description="product id")
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
-     */
+    #[Route(path: '/store-api/customer/wishlist/merge', name: 'store-api.customer.wishlist.merge', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
@@ -146,10 +82,23 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         return $wishlistIds->firstId() ?? Uuid::randomHex();
     }
 
+    /**
+     * @return array<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
+     */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
-        $ids = array_unique(array_filter($data->get('productIds')->all()));
+        $productIds = $data->get('productIds');
+        if (!$productIds instanceof DataBag) {
+            throw CustomerException::productIdsParameterIsMissing();
+        }
 
+        $ids = array_unique(array_filter($productIds->all()));
+
+        if (\count($ids) === 0) {
+            return [];
+        }
+
+        /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
@@ -166,16 +115,21 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 continue;
             }
 
-            $upsertData[] = array_filter([
+            $upsertData[] = [
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-            ]);
+            ];
         }
 
         return $upsertData;
     }
 
+    /**
+     * @param array<string> $productIds
+     *
+     * @return array<string, string>
+     */
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -187,10 +141,12 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->where('`customer_wishlist_id` = :id');
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
-        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
+        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::STRING);
+        $result = $query->executeQuery();
 
-        return FetchModeHelper::keyPair($stmt->fetchAll());
+        /** @var array<string, string> $values */
+        $values = $result->fetchAllKeyValue();
+
+        return $values;
     }
 }

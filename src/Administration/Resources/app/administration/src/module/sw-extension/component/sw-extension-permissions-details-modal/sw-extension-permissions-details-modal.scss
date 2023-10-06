@@ -8,13 +8,13 @@
 }
 
 .sw-extension-permissions-details-modal__table {
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
     border-spacing: unset;
     border-collapse: collapse;
 
     .sw-extension-permissions-details-modal__operations {
         border-bottom: 1px solid $color-gray-300;
-        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 10%);
         display: block;
         top: 0;
         position: sticky;
@@ -40,6 +40,10 @@
         }
 
         .sw-extension-permissions-details-modal__operation {
+            text-align: center;
+        }
+
+        .sw-extension-permissions-details-modal__operation-header {
             text-align: center;
         }
     }

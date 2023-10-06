@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                 add(PromotionEntity $entity)
- * @method void                 set(string $key, PromotionEntity $entity)
- * @method PromotionEntity[]    getIterator()
- * @method PromotionEntity[]    getElements()
- * @method PromotionEntity|null get(string $key)
- * @method PromotionEntity|null first()
- * @method PromotionEntity|null last()
+ * @extends EntityCollection<PromotionEntity>
  */
+#[Package('buyers-experience')]
 class PromotionCollection extends EntityCollection
 {
     public function getApiAlias(): string

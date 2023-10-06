@@ -3,14 +3,18 @@
 namespace Shopware\Core\Framework\Test\Store\Authentication;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class FrwRequestOptionsProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -20,9 +24,9 @@ class FrwRequestOptionsProviderTest extends TestCase
 
     private FrwRequestOptionsProvider $optionsProvider;
 
-    private EntityRepositoryInterface $userConfigRepository;
+    private EntityRepository $userConfigRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = $this->createAdminStoreContext();
         $this->optionsProvider = $this->getContainer()->get(FrwRequestOptionsProvider::class);
@@ -33,12 +37,15 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $frwUserToken = 'a84a653a57dc43a48ded4275524893cf';
 
+        $source = $this->context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+
         $this->userConfigRepository->create([
             [
-                'userId' => $this->context->getSource()->getUserId(),
-                'key' => FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN,
+                'userId' => $source->getUserId(),
+                'key' => FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN,
                 'value' => [
-                    FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
+                    FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
                 ],
             ],
         ], Context::createDefaultContext());

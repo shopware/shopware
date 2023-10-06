@@ -1,12 +1,19 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 
-Component.register('sw-media-breadcrumbs', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     model: {
         prop: 'currentFolderId',
@@ -83,7 +90,13 @@ Component.register('sw-media-breadcrumbs', {
         },
 
         onBreadcrumbsItemClicked(id) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:currentFolderId', id);
+
+                return;
+            }
+
             this.$emit('media-folder-change', id);
         },
     },
-});
+};

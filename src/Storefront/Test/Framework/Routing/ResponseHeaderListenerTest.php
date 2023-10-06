@@ -5,9 +5,14 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 
+/**
+ * @internal
+ */
 class ResponseHeaderListenerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -34,13 +39,36 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testHomeController(): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
         $browser->request('GET', $_SERVER['APP_URL']);
         $response = $browser->getResponse();
 
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+    }
+
+    public function testNotFoundPage(): void
+    {
+        try {
+            $this->toggleNotFoundSubscriber(false);
+            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
+            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
+            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+
+            $browser->request('GET', $_SERVER['APP_URL'] . '/not-found');
+            $response = $browser->getResponse();
+
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+        } finally {
+            $this->toggleNotFoundSubscriber(true);
+        }
     }
 
     public function testStoreApiPresent(): void
@@ -51,7 +79,7 @@ class ResponseHeaderListenerTest extends TestCase
         ]);
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
-        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Uuid::randomHex());
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
@@ -61,26 +89,45 @@ class ResponseHeaderListenerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $routeParameters
+     *
      * @dataProvider dataProviderRevalidateRoutes
      */
-    public function testRevalidateHeaderPresent(string $route): void
+    public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $router = $this->getContainer()->get('router');
+        $route = $router->generate($routeName, $routeParameters);
+
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->hasCacheControlDirective('must-revalidate'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertTrue($response->headers->hasCacheControlDirective('no-cache'));
-        static::assertSame(0, $response->getMaxAge());
+        static::assertTrue($response->headers->hasCacheControlDirective('private'));
+        static::assertFalse($response->isCacheable());
     }
 
-    public function dataProviderRevalidateRoutes(): iterable
+    /**
+     * @return iterable<string, array{string, array<string>}>
+     */
+    public static function dataProviderRevalidateRoutes(): iterable
     {
-        $router = $this->getContainer()->get('router');
-
         foreach (self::REVALIDATE_ROUTES as $route => $parameters) {
-            yield $route => [$router->generate($route, $parameters)];
+            yield $route => [$route, $parameters];
         }
+    }
+
+    /**
+     * we need to enable the not found subscriber so the 404 page is rendered,
+     * that is not enabled by default in the test environment as `APP_DEBUG` is set to false
+     */
+    private function toggleNotFoundSubscriber(bool $debug): void
+    {
+        $subscriber = $this->getContainer()->get(NotFoundSubscriber::class);
+        $reflection = new \ReflectionClass($subscriber);
+        $reflectionProperty = $reflection->getProperty('kernelDebug');
+
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($subscriber, $debug);
     }
 }

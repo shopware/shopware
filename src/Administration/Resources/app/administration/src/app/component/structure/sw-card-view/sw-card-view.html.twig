@@ -1,8 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_card_view %}
 <div class="sw-card-view">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_card_view_content %}
     <div class="sw-card-view__content">
-        <slot>{% block sw_card_view_slot_default %}{% endblock %}</slot>
+        <sw-error-summary
+            v-if="showErrorSummary"
+        />
+
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_card_view_slot_default %}{% endblock %}
+        </slot>
     </div>
     {% endblock %}
 </div>

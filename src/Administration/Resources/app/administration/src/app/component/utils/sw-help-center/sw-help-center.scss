@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+.sw-help-center {
+    cursor: pointer;
+
+    &.is--active {
+        color: $color-shopware-brand-500;
+    }
+}
+
+.sw-help-center__context-menu {
+    .sw-context-menu__content {
+        cursor: default;
+        padding: 0;
+    }
+
+    .sw-help-center__title {
+        margin: 0;
+        font-size: $font-size-m;
+    }
+
+    .sw-context-menu__content > * {
+        padding: 24px;
+    }
+
+    .sw-context-menu__content > *:not(:last-child) {
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-help-center__header {
+        padding: 20px 24px 16px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sw-help-center__documentation-item-icon-container {
+        background-color: $color-shopware-brand-50;
+        padding: 12px;
+        display: inline-block;
+    }
+
+    .sw-help-center__documentation-item {
+        display: flex;
+        gap: 16px;
+        background-color: $color-gray-50;
+    }
+
+    .sw-help-center__item {
+        line-height: 22px;
+    }
+
+    .sw-help-center__item p {
+        margin-bottom: 8px;
+    }
+
+    .sw-help-center__item p + .sw-button {
+        margin-top: 4px;
+    }
+
+    .sw-help-center__item h4 {
+        margin-bottom: 4px;
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-help-center__documentation-item h4 {
+        margin-bottom: 0;
+    }
+}

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_list %}
 <sw-page class="sw-promotion-v2-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -12,16 +14,20 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_list_smart_bar_header %}
     <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_list_smart_bar_header_title %}
         <h2>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_list_smart_bar_header_title_text %}
             {{ $tc('sw-promotion-v2.list.textTitle') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -37,9 +43,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_list_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip="addButtonTooltip"
@@ -55,16 +63,19 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_list_content %}
     <template #content>
         <div class="sw-promotion-v2-list__content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -82,38 +93,42 @@
                 @update-records="updateTotal"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_active %}
                 <template #column-active="{ item }">
                     <sw-icon
                         v-if="item.active"
                         class="sw-promotion-v2-list__icon-activity is--active"
-                        name="small-default-checkmark-line-medium"
-                        small
+                        name="regular-checkmark-xs"
                     />
                     <sw-icon
                         v-else
                         class="sw-promotion-v2-list__icon-activity is--inactive"
-                        name="small-default-x-line-medium"
-                        small
+                        name="regular-times-s"
                     />
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_valid_from %}
                 <template #column-validFrom="{ item }">
-                    {{ item.validFrom | date({ hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validFrom, { hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_valid_until %}
                 <template #column-validUntil="{ item }">
-                    {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validUntil, { hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_actions %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_list_grid_columns_actions_delete %}
                 <template #delete-action="{ item, showDelete }">
                     <sw-context-menu-item
@@ -130,6 +145,7 @@
             </sw-entity-listing>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-promotion-v2-empty-state-hero
@@ -143,6 +159,7 @@
                     :description="$tc('sw-promotion-v2.list.descriptionEmpty')"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_list_empty_state_actions %}
                     <template #actions>
                         <sw-button
@@ -165,13 +182,15 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

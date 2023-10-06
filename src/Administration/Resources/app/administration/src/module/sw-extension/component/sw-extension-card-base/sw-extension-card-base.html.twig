@@ -1,42 +1,57 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base %}
 <sw-meteor-card
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_activation_switch %}
     <div class="sw-extension-card-base__switch">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_activation_switch_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="isActive"
+            {% else %}
             v-model="isActive"
-            :disabled="!isInstalled"
+            {% endif %}
+            v-tooltip="{
+                showDelay: 300,
+                message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
+                disabled: allowDisable
+            }"
+            :disabled="!isInstalled || (isActive && !allowDisable)"
         />
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_icon %}
-    <img
-        class="sw-extension-card-base__icon"
-        :src="image"
-        alt=""
-    >
+    <sw-extension-icon :src="image" />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_info %}
     <div class="sw-extension-card-base__info">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_info_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_info_head %}
         <section>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_info_name %}
             <span class="sw-extension-card-base__info-name">
                 {{ extension.label }}
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_info_inactive_label %}
             <span
                 v-if="isInstalled && !extension.active"
@@ -47,44 +62,32 @@
             {% endblock %}
         </section>
         {% endblock %}
-
-        {% block sw_extension_card_base_info_description %}
-        <section class="sw-extension-card-base__info-description">
-            {{ description }}
-        </section>
-        {% endblock %}
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_meta_info %}
     <div class="sw-extension-card-base__meta-info">
-        {% block sw_extension_card_base_meta_info_content %}
-        {% block sw_extension_card_base_meta_date %}
-        <span v-if="isInstalled">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
-            {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
-        </span>
-
-        <span v-else-if="extension.storeLicense">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_meta_info_version %}
         <section>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_meta_info_version_label %}
-            <span v-if="extension.version">
+            <span
+                v-if="extension.version"
+                class="sw-extension-card-base__meta-info-version"
+            >
                 {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_meta_info_version_update %}
             <span v-if="isUpdateable">
                 <a
                     href="#"
-                    @click.prevent="updateExtension"
+                    @click.prevent="updateExtension(false)"
                 >
                     {{ $tc('sw-extension.my-extensions.listing.update') }}
                 </a>
@@ -93,41 +96,52 @@
         </section>
         {% endblock %}
         {% endblock %}
-    </div>
-    {% endblock %}
 
-    {% block sw_extension_card_base_main_action %}
-    <div class="sw-extension-card-base__main-action">
-        {% block sw_extension_card_base_main_action_content %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-        <span
-            v-if="!isInstalled"
-            class="sw-extension-card-base__open-extension"
-            @click="openPermissionsModalForInstall"
-        >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_info_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_date %}
+        <span v-if="isInstalled">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
+            {{ dateFilter(extension.installedAt.date, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
         </span>
 
-        {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-        <span
-            v-else-if="openLinkExists"
-            class="sw-extension-card-base__open-extension"
-            style="display: none;"
-            @click="openExtension"
-        >
-            {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
+        <span v-else-if="extension.storeLicense">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
+            {{ dateFilter(extension.storeLicense.creationDate, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
         </span>
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_extension_card_base_main_action %}
+    <div class="sw-extension-card-base__main-action">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_main_action_content %}
+        <span
+            v-if="!isInstalled"
+            class="sw-extension-card-base__open-extension"
+            role="button"
+            tabindex="0"
+            @click="openPermissionsModalForInstall"
+            @keydown.enter="openPermissionsModalForInstall"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
+        </span>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_context_menu %}
     <sw-context-button
         class="sw-extension-card-base__context-menu"
         :menu-width="180"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_settings %}
         <sw-context-menu-item
             v-if="isInstalled && extension.configurable"
@@ -137,6 +151,7 @@
         </sw-context-menu-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_theme_settings %}
         <sw-context-menu-item
             v-if="openLinkExists && extension.active"
@@ -147,6 +162,7 @@
         </sw-context-menu-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_privacy_safety %}
         <sw-context-menu-item
             v-if="privacyPolicyLink"
@@ -155,13 +171,14 @@
             <span class="sw-extension-card-base__context-menu-privacy-link">
                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
                 <sw-icon
-                    name="small-arrow-small-external"
+                    name="regular-external-link-s"
                     size="10px"
                 />
             </span>
         </sw-context-menu-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_privacy_extensions %}
         <sw-context-menu-item
             v-if="isInstalled && extension.privacyPolicyExtension"
@@ -172,6 +189,7 @@
         </sw-context-menu-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_permissions %}
         <sw-context-menu-item
             v-if="isInstalled && permissions"
@@ -182,11 +200,13 @@
         </sw-context-menu-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_lifecycle_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_remove_extension %}
         <sw-context-menu-item
             v-if="isUpdateable"
-            @click="updateExtension"
+            @click="updateExtension(false)"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
         </sw-context-menu-item>
@@ -222,7 +242,9 @@
     </sw-context-button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_modals %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_uninstall_modal %}
     <sw-extension-uninstall-modal
         v-if="showUninstallModal"
@@ -234,6 +256,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_removal_modal %}
     <sw-extension-removal-modal
         v-if="showRemovalModal"
@@ -245,6 +268,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_permissions_modal %}
     <sw-extension-permissions-modal
         v-if="showPermissionsModal"
@@ -257,6 +281,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_privacy_modal %}
     <sw-extension-privacy-policy-extensions-modal
         v-if="showPrivacyModal"
@@ -265,6 +290,22 @@
         @modal-close="closePrivacyModal"
     />
     {% endblock %}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_extension_card_base_consent_affirmation_modal %}
+    <sw-extension-permissions-modal
+        v-if="showConsentAffirmationModal"
+        :title="consentAffirmationModalTitle"
+        :extension-label="extension.label"
+        :permissions="consentAffirmationDeltas.permissions"
+        :domains="consentAffirmationDeltas.domains"
+        :action-label="consentAffirmationModalActionLabel"
+        :close-label="consentAffirmationModalCloseLabel"
+        :description="consentAffirmationModalDescription"
+        @modal-close="closeConsentAffirmationModal"
+        @close-with-action="closeConsentAffirmationModalAndUpdateExtension"
+    />
     {% endblock %}
 </sw-meteor-card>
 {% endblock %}

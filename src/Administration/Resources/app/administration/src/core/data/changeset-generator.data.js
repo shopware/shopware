@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import types from 'src/core/service/utils/types.utils';
 
 function castValueToNullIfNecessary(value) {
@@ -7,6 +11,7 @@ function castValueToNullIfNecessary(value) {
     return value;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ChangesetGenerator {
     /**
      * returns the primary key data of an entity

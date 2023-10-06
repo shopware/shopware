@@ -1,7 +1,9 @@
 import template from './sw-cms-el-config-sidebar-filter.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-el-config-sidebar-filter', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+};

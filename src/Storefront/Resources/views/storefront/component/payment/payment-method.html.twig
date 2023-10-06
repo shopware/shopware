@@ -2,7 +2,7 @@
     {% block component_payment_method_field %}
         <div class="payment-form-group form-group">
             {% block component_payment_method_control %}
-                <div class="custom-control custom-radio payment-method-radio">
+                <div class="form-check payment-method-radio">
                     {% block component_payment_method_input %}
                         <input type="radio"
                                id="paymentMethod{{ payment.id }}"
@@ -12,11 +12,11 @@
                                {% if page.isPaymentChangeable is defined and not page.isPaymentChangeable %}
                                    disabled="disabled"
                                {% endif %}
-                               class="custom-control-input payment-method-input">
+                               class="form-check-input payment-method-input">
                     {% endblock %}
 
                     {% block component_payment_method_label %}
-                        <label class="custom-control-label payment-method-label"
+                        <label class="form-check-label payment-method-label"
                                for="paymentMethod{{ payment.id }}">
                             {% block component_payment_method_image %}
                                 {% if payment.media %}
@@ -39,12 +39,15 @@
                                     <strong>{{ payment.translated.name }}</strong>
                                     {% if payment.translated.description %}
                                         {% set paymentDescription = payment.translated.description|raw %}
+                                        {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
 
                                         {% if not payment.id is same as(selectedPaymentMethodId) %}
                                             {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
                                         {% endif %}
 
-                                        <p title="{{ payment.translated.description|raw }}">{{ paymentDescription }}</p>
+                                        {% block component_payment_method_description_text %}
+                                            <p title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
+                                        {% endblock %}
                                     {% endif %}
                                 </div>
                             {% endblock %}

@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class PaymentMethod extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = ['name', 'description'];
+    final public const TRANSLATABLE_FIELDS = ['name', 'description'];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'identifier',
         'name',
     ];
@@ -17,12 +20,12 @@ class PaymentMethod extends XmlElement
     protected string $identifier;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $name = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $description = [];
 
@@ -34,8 +37,15 @@ class PaymentMethod extends XmlElement
 
     protected ?string $captureUrl = null;
 
+    protected ?string $refundUrl = null;
+
+    protected ?string $recurringUrl = null;
+
     protected ?string $icon = null;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function __construct(array $data)
     {
         $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
@@ -69,9 +79,20 @@ class PaymentMethod extends XmlElement
             'finalizeUrl' => $data['finalizeUrl'],
             'validateUrl' => $data['validateUrl'],
             'captureUrl' => $data['captureUrl'],
+            'refundUrl' => $data['refundUrl'],
+            'recurringUrl' => $data['recurringUrl'],
         ];
 
-        unset($data['identifier'], $data['payUrl'], $data['finalizeUrl'], $data['validateUrl'], $data['captureUrl'], $data['icon']);
+        unset(
+            $data['identifier'],
+            $data['payUrl'],
+            $data['finalizeUrl'],
+            $data['validateUrl'],
+            $data['captureUrl'],
+            $data['refundUrl'],
+            $data['recurringUrl'],
+            $data['icon']
+        );
 
         return $data;
     }
@@ -82,7 +103,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getName(): array
     {
@@ -90,7 +111,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getDescription(): array
     {
@@ -117,11 +138,24 @@ class PaymentMethod extends XmlElement
         return $this->captureUrl;
     }
 
+    public function getRefundUrl(): ?string
+    {
+        return $this->refundUrl;
+    }
+
+    public function getRecurringUrl(): ?string
+    {
+        return $this->recurringUrl;
+    }
+
     public function getIcon(): ?string
     {
         return $this->icon;
     }
 
+    /**
+     * @return mixed[]
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];

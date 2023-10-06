@@ -16,12 +16,11 @@
         "espree": "7.3.1",
         "glob": "7.1.4",
         "html-loader": "0.5.5",
-        "node-sass": "4.12.0",
         "nuxt": "2.10.2",
         "pretty": "2.0.0",
         "prismjs": "1.17.1",
-        "sass": "1.22.9",
-        "sass-loader": "7.1.0",
+        "sass": "1.51.0",
+        "sass-loader": "8.0.2",
         "svg-inline-loader": "0.8.0",
         "twig": "1.13.3",
         "vue-codemirror": "4.0.6",
@@ -31,6 +30,7 @@
         "vuex": "3.1.1"
     },
     "devDependencies": {
+        "@babel/plugin-proposal-optional-chaining": "7.7.5",
         "@nuxt/typescript-build": "^2.1.0"
     }
 }

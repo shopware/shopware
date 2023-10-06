@@ -1,12 +1,15 @@
-import { buttonProps } from '@shopware-ag/admin-extension-sdk/es/ui/modal';
-import { ModalItemEntry } from 'src/app/state/modals.store';
+import type { buttonProps } from '@shopware-ag/admin-extension-sdk/es/ui/modal';
+import type { ModalItemEntry } from 'src/app/state/modals.store';
 import template from './sw-modals-renderer.html.twig';
 
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-modals-renderer', {
     template,
 

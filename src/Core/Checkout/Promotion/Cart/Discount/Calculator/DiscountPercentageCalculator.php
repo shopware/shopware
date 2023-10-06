@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -11,18 +10,16 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class DiscountPercentageCalculator
 {
-    private AbsolutePriceCalculator $absolutePriceCalculator;
-
-    private PercentagePriceCalculator $percentagePriceCalculator;
-
-    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator, PercentagePriceCalculator $percentagePriceCalculator)
-    {
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
+    public function __construct(
+        private readonly AbsolutePriceCalculator $absolutePriceCalculator,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator
+    ) {
     }
 
     /**
@@ -46,9 +43,11 @@ class DiscountPercentageCalculator
         // we dont need to check on the actual item count in there,
         // because our calculation does always go for the original cart items
         // without considering any previously applied discounts.
+        $affectedPrices = $packages->getAffectedPrices();
+
         $calculatedPrice = $this->percentagePriceCalculator->calculate(
             $definedPercentage,
-            $packages->getAffectedPrices(),
+            $affectedPrices,
             $context
         );
 
@@ -63,7 +62,7 @@ class DiscountPercentageCalculator
             if (abs($actualDiscountPrice) > abs($maxValue)) {
                 $calculatedPrice = $this->absolutePriceCalculator->calculate(
                     -abs($maxValue),
-                    $packages->getAffectedPrices(),
+                    $affectedPrices,
                     $context
                 );
 
@@ -71,7 +70,7 @@ class DiscountPercentageCalculator
                 // including their quantities that need to be discounted
                 // based on our discount definition.
                 // the basis might only be from a few items and quantities of the cart
-                $assessmentBasis = $packages->getAffectedPrices()->sum()->getTotalPrice();
+                $assessmentBasis = $affectedPrices->sum()->getTotalPrice();
 
                 // we have to get our new fictional and lower percentage.
                 // we now calculate the percentage with MAX VALUE against our basis
@@ -85,6 +84,9 @@ class DiscountPercentageCalculator
         return new DiscountCalculatorResult($calculatedPrice, $composition);
     }
 
+    /**
+     * @return DiscountCompositionItem[]
+     */
     private function getCompositionItems(float $percentage, DiscountPackageCollection $packages): array
     {
         $items = [];
@@ -111,15 +113,15 @@ class DiscountPercentageCalculator
 
     private function hasMaxValue(DiscountLineItem $discount): bool
     {
-        try {
-            $maxValue = trim($discount->getPayloadValue('maxValue'));
-        } catch (PayloadKeyNotFoundException $e) {
+        if (!$discount->hasPayloadValue('maxValue')) {
             return false;
         }
 
-        // if we have an empty string value
-        // then we convert it to 0.00 when casting it,
-        // thus we create an early return
-        return $maxValue !== '';
+        if (\is_array($discount->getPayloadValue('maxValue'))) {
+            return false;
+        }
+
+        // if we have an empty string value then we convert it to 0.00 when casting it,  thus we create an early return
+        return trim((string) $discount->getPayloadValue('maxValue')) !== '';
     }
 }

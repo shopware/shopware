@@ -3,16 +3,21 @@
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 
+#[Package('buyers-experience')]
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<SalutationCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<SalutationCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -20,9 +25,6 @@ class SalutationRouteResponse extends StoreApiResponse
 
     public function getSalutations(): SalutationCollection
     {
-        /** @var SalutationCollection $collection */
-        $collection = $this->object->getEntities();
-
-        return $collection;
+        return $this->object->getEntities();
     }
 }

@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Node\IncludeNode;
 use Twig\Node\Node;
 use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+#[Package('core')]
 final class IncludeTokenParser extends AbstractTokenParser
 {
     /**
@@ -17,14 +19,8 @@ final class IncludeTokenParser extends AbstractTokenParser
      */
     protected $parser;
 
-    /**
-     * @var TemplateFinder
-     */
-    private $finder;
-
-    public function __construct(TemplateFinder $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
-        $this->finder = $finder;
     }
 
     /**
@@ -36,9 +32,9 @@ final class IncludeTokenParser extends AbstractTokenParser
 
         [$variables, $only, $ignoreMissing] = $this->parseArguments();
 
-        //resolves parent template
+        // resolves parent template
         if ($expr->hasAttribute('value')) {
-            //set pointer to next value (contains the template file name)
+            // set pointer to next value (contains the template file name)
             $parent = $this->finder->find($expr->getAttribute('value'), $ignoreMissing);
 
             $expr->setAttribute('value', $parent);

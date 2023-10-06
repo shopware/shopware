@@ -2,40 +2,28 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
+#[Package('core')]
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    public const ALL_TAG = 'sales-channel-context';
-
-    private AbstractSalesChannelContextFactory $decorated;
-
-    private TagAwareAdapterInterface $cache;
+    final public const ALL_TAG = 'sales-channel-context';
 
     /**
-     * @var AbstractCacheTracer<SalesChannelContext>
-     */
-    private AbstractCacheTracer $tracer;
-
-    private LoggerInterface $logger;
-
-    /**
+     * @internal
+     *
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
     public function __construct(
-        AbstractSalesChannelContextFactory $decorated,
-        TagAwareAdapterInterface $cache,
-        AbstractCacheTracer $tracer,
-        LoggerInterface $logger
+        private readonly AbstractSalesChannelContextFactory $decorated,
+        private readonly CacheInterface $cache,
+        private readonly AbstractCacheTracer $tracer
     ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->tracer = $tracer;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -48,49 +36,29 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $name = self::buildName($salesChannelId);
 
         if (!$this->isCacheable($options)) {
-            $this->logger->info('cache-miss: ' . $name);
-
             return $this->getDecorated()->create($token, $salesChannelId, $options);
         }
 
         ksort($options);
 
-        $key = md5(implode('-', [
-            $name,
-            json_encode($options),
-        ]));
+        $key = implode('-', [$name, md5(json_encode($options, \JSON_THROW_ON_ERROR))]);
 
-        $item = $this->cache->getItem($key);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
+            $context = $this->tracer->trace($name, fn () => $this->getDecorated()->create($token, $salesChannelId, $options));
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . $name);
+            $keys = array_unique(array_merge(
+                $this->tracer->get($name),
+                [$name, self::ALL_TAG]
+            ));
 
-                /** @var SalesChannelContext $context */
-                $context = CacheCompressor::uncompress($item);
-                $context->assign(['token' => $token]);
+            $item->tag($keys);
 
-                return $context;
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . $name);
-
-        $context = $this->tracer->trace($name, function () use ($token, $salesChannelId, $options) {
-            return $this->getDecorated()->create($token, $salesChannelId, $options);
+            return CacheValueCompressor::compress($context);
         });
 
-        $keys = array_unique(array_merge(
-            $this->tracer->get($name),
-            [$name, self::ALL_TAG]
-        ));
+        $context = CacheValueCompressor::uncompress($value);
 
-        $item = CacheCompressor::compress($item, $context);
-        $item->tag($keys);
-
-        $this->cache->save($item);
+        $context->assign(['token' => $token]);
 
         return $context;
     }
@@ -100,6 +68,9 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         return 'context-factory-' . $salesChannelId;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function isCacheable(array $options): bool
     {
         return !isset($options[SalesChannelContextService::CUSTOMER_ID])

@@ -3,15 +3,12 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                              add(TaxRuleTypeTranslationEntity $type)
- * @method TaxRuleTypeTranslationEntity[]    getIterator()
- * @method TaxRuleTypeTranslationEntity[]    getElements()
- * @method TaxRuleTypeTranslationEntity|null get(string $key)
- * @method TaxRuleTypeTranslationEntity|null first()
- * @method TaxRuleTypeTranslationEntity|null last()
+ * @extends EntityCollection<TaxRuleTypeTranslationEntity>
  */
+#[Package('checkout')]
 class TaxRuleTypeTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

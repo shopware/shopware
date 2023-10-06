@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { Store } from 'vuex';
 
@@ -24,7 +28,7 @@ class State {
         return this;
     }
 
-    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod: $TSFixMeFunction): this {
+    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod?: $TSFixMeFunction): this {
         Object.defineProperty(this, name, {
             get: getMethod,
             set: setMethod,
@@ -36,14 +40,14 @@ class State {
     }
 }
 
-interface FullState extends State {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export interface FullState extends State {
     _store: Store<VuexRootState>,
     list: () => (keyof VuexRootState)[],
     get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME],
     getters: Store<VuexRootState>['getters'],
     commit: Store<VuexRootState>['commit'],
     dispatch: Store<VuexRootState>['dispatch'],
-    // eslint-disable-next-line max-len
     watch: Store<VuexRootState>['watch'],
     subscribe: Store<VuexRootState>['subscribe'],
     subscribeAction: Store<VuexRootState>['subscribeAction'],
@@ -51,6 +55,7 @@ interface FullState extends State {
     unregisterModule: Store<VuexRootState>['unregisterModule'],
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function stateFactory(): FullState {
     // force the additional properties (added in "state.init")
     return new State() as FullState;

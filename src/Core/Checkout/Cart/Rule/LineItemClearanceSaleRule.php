@@ -2,31 +2,29 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemClearanceSaleRule extends Rule
 {
-    protected bool $clearanceSale;
+    final public const RULE_NAME = 'cartLineItemClearanceSale';
 
-    public function __construct(bool $clearanceSale = false)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $clearanceSale = false)
     {
         parent::__construct();
-
-        $this->clearanceSale = $clearanceSale;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemClearanceSale';
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -38,7 +36,7 @@ class LineItemClearanceSaleRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesClearanceSaleCondition($lineItem)) {
                 return true;
             }
@@ -50,12 +48,18 @@ class LineItemClearanceSaleRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'clearanceSale' => [new NotBlank(), new Type('bool')],
+            'clearanceSale' => RuleConstraints::bool(),
         ];
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->booleanField('clearanceSale');
+    }
+
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesClearanceSaleCondition(LineItem $lineItem): bool
     {

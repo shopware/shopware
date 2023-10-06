@@ -7,12 +7,12 @@
 
     .sw-cms-layout-assignment-modal__headline {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     .sw-cms-layout-assignment-modal__info-text {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-bottom: 20px;
     }
 
@@ -23,7 +23,7 @@
 
 .sw-modal.sw-cms-layout-assignment-modal__confirm-changes-modal {
     .sw-modal__body p {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         &:not(:last-of-type) {
             margin-bottom: 14px;

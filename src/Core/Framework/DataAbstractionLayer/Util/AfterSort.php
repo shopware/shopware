@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Util;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class AfterSort
 {
     public static function sort(array $elements, string $propertyName = 'afterId'): array
@@ -12,10 +14,13 @@ class AfterSort
             return $elements;
         }
 
+        // NEXT-21735 - This is covered randomly
+        // @codeCoverageIgnoreStart
+
         // pre-sort elements to pull elements without an after id parent to the front
-        uasort($elements, function (Entity $a, Entity $b) use ($propertyName) {
-            $aValue = $a->$propertyName;
-            $bValue = $b->$propertyName;
+        uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {
+            $aValue = $a->$propertyName; /* @phpstan-ignore-line */
+            $bValue = $b->$propertyName; /* @phpstan-ignore-line */
             if ($aValue === $bValue && $aValue === null) {
                 return 0;
             }
@@ -30,19 +35,23 @@ class AfterSort
 
             return 0;
         });
+        // @codeCoverageIgnoreEnd
 
         // add first element to sorted list as this will be the absolute first item
-        $sorted = [array_shift($elements)];
-        $lastId = $sorted[0]->getId();
+        $first = array_shift($elements);
+
+        $sorted = [$first->getId() => $first];
+
+        $lastId = $first->getId();
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
-                if ($lastId !== $element->$propertyName) {
+                if ($lastId !== $element->$propertyName) {  /* @phpstan-ignore-line */
                     continue;
                 }
 
                 // find the next element in the chain and set it as the new parent
-                $sorted[] = $element;
+                $sorted[$element->getId()] = $element;
                 $lastId = $element->getId();
                 unset($elements[$index]);
 
@@ -52,13 +61,13 @@ class AfterSort
 
             // chain is broken, continue with next element as parent
             $nextItem = array_shift($elements);
-            $sorted[] = $nextItem;
+            $sorted[$nextItem->getId()] = $nextItem;
 
             if (!\count($elements)) {
                 break;
             }
 
-            $lastId = $nextItem->$propertyName;
+            $lastId = $nextItem->$propertyName; /* @phpstan-ignore-line */
         }
 
         return $sorted;

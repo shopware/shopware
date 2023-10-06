@@ -1,6 +1,19 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-text-hero', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-text-hero', () => import('./component'));
 
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-hero',
     label: 'sw-cms.blocks.text.textHero.label',

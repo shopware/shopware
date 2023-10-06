@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/helper/device
  */
 import utils from 'src/core/service/util.service';
@@ -143,4 +145,5 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
     },
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default DeviceHelper;

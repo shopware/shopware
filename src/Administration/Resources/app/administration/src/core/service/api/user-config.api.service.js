@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point 'user-config'
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class UserConfigService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_info/config-me') {
@@ -28,7 +29,7 @@ class UserConfigService extends ApiService {
      */
     search(keys = null) {
         const headers = this.getBasicHeaders();
-        const params = Object.assign({}, { keys });
+        const params = { keys };
 
         return this.httpClient
             .get(this.getApiBasePath(), {
@@ -62,4 +63,5 @@ class UserConfigService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default UserConfigService;

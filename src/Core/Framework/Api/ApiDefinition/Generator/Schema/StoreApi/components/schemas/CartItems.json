@@ -1,0 +1,27 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartItems": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#\/components\/schemas\/LineItem"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

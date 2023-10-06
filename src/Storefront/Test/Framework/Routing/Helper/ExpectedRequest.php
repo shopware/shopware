@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing\Helper;
 
+/**
+ * @internal
+ */
 class ExpectedRequest
 {
     /**
@@ -42,15 +45,15 @@ class ExpectedRequest
     /**
      * @var string|null
      */
-    public $language;
+    public $languageCode;
 
     /**
      * @var string|null
      */
-    public $snippetSetId;
+    public $snippetLanguageCode;
 
     /**
-     * @var string|null
+     * @var class-string<\Throwable>|null
      */
     public $exception;
 
@@ -59,6 +62,9 @@ class ExpectedRequest
      */
     public $resolvedUrl;
 
+    /**
+     * @param class-string<\Throwable>|null $exception
+     */
     public function __construct(
         string $url,
         ?string $baseUrl,
@@ -68,8 +74,8 @@ class ExpectedRequest
         ?bool $isStorefrontRequest,
         ?string $locale,
         ?string $currency,
-        ?string $language,
-        ?string $snippetSetId,
+        ?string $languageCode,
+        ?string $snippetLanguageCode,
         ?string $exception = null
     ) {
         $this->url = $url;
@@ -78,8 +84,8 @@ class ExpectedRequest
         $this->isStorefrontRequest = $isStorefrontRequest;
         $this->locale = $locale;
         $this->currency = $currency;
-        $this->language = $language;
-        $this->snippetSetId = $snippetSetId;
+        $this->languageCode = $languageCode;
+        $this->snippetLanguageCode = $snippetLanguageCode;
         $this->baseUrl = $baseUrl;
         $this->exception = $exception;
         $this->resolvedUrl = $resolvedUrl;

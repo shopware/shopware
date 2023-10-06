@@ -1,7 +1,11 @@
 import template from './sw-cms-el-config-product-listing-config-sorting-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
-Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     props: {
@@ -81,4 +85,4 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
             this.limit = limit;
         },
     },
-});
+};

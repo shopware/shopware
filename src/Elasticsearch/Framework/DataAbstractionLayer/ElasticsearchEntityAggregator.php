@@ -2,48 +2,39 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Elasticsearch\Client;
-use ONGR\ElasticsearchDSL\Search;
+use OpenSearch\Client;
+use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('core')]
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
-    public const RESULT_STATE = 'loaded-by-elastic';
+    final public const RESULT_STATE = 'loaded-by-elastic';
 
-    private ElasticsearchHelper $helper;
-
-    private Client $client;
-
-    private EntityAggregatorInterface $decorated;
-
-    private AbstractElasticsearchAggregationHydrator $hydrator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        ElasticsearchHelper $helper,
-        Client $client,
-        EntityAggregatorInterface $decorated,
-        AbstractElasticsearchAggregationHydrator $hydrator,
-        EventDispatcherInterface $eventDispatcher
+        private readonly ElasticsearchHelper $helper,
+        private readonly Client $client,
+        private readonly EntityAggregatorInterface $decorated,
+        private readonly AbstractElasticsearchAggregationHydrator $hydrator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $timeout = '5s'
     ) {
-        $this->helper = $helper;
-        $this->client = $client;
-        $this->decorated = $decorated;
-        $this->hydrator = $hydrator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$this->helper->allowSearch($definition, $context)) {
+        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
 
@@ -53,13 +44,16 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
         );
 
+        $searchArray = $search->toArray();
+        $searchArray['timeout'] = $this->timeout;
+
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
-                'body' => $search->toArray(),
+                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
+                'body' => $searchArray,
             ]);
         } catch (\Throwable $e) {
-            $this->helper->logOrThrowException($e);
+            $this->helper->logAndThrowException($e);
 
             return $this->decorated->aggregate($definition, $criteria, $context);
         }

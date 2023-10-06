@@ -4,25 +4,32 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
-class SetOrderCustomFieldAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
+    private readonly Connection $connection;
 
-    private EntityRepositoryInterface $orderRepository;
-
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $orderRepository
+        private readonly EntityRepository $orderRepository
     ) {
         $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string
@@ -30,30 +37,30 @@ class SetOrderCustomFieldAction extends FlowAction
         return 'action.set.order.custom.field';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [OrderAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof OrderAware) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $config = $event->getConfig();
-        $orderId = $baseEvent->getOrderId();
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
+    }
 
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $orderId): void
+    {
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $baseEvent->getContext())->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
         $customFields = $this->getCustomFieldForUpdating($order->getCustomfields(), $config);
 
@@ -68,6 +75,6 @@ class SetOrderCustomFieldAction extends FlowAction
                 'id' => $orderId,
                 'customFields' => $customFields,
             ],
-        ], $baseEvent->getContext());
+        ], $context);
     }
 }

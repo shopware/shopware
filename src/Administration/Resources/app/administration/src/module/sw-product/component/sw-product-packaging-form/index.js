@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-packaging-form.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-packaging-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -49,4 +54,4 @@ Component.register('sw-product-packaging-form', {
             'weight',
         ]),
     },
-});
+};

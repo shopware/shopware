@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Composer\Package\Version\VersionParser;
+use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'privacyPolicyExtensions',
     ];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'label',
         'name',
         'author',
@@ -25,12 +29,12 @@ class Metadata extends XmlElement
     ];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $label = [];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $description = [];
 
@@ -55,6 +59,11 @@ class Metadata extends XmlElement
     protected $license;
 
     /**
+     * @var string|null
+     */
+    protected $compatibility;
+
+    /**
      * @var string
      */
     protected $version;
@@ -70,10 +79,15 @@ class Metadata extends XmlElement
     protected $privacy;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $privacyPolicyExtensions = [];
 
+    protected ?string $url = null;
+
+    /**
+     * @param array<int|string, mixed> $data
+     */
     private function __construct(array $data)
     {
         $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
@@ -106,6 +120,7 @@ class Metadata extends XmlElement
 
     public function validateTranslations(): ?MissingTranslationError
     {
+        $missingTranslations = [];
         // used locales are valid, see Manifest::createFromXmlFile()
         $usedLocales = array_keys(array_merge($this->getDescription(), $this->getPrivacyPolicyExtensions()));
 
@@ -121,11 +136,17 @@ class Metadata extends XmlElement
         return new MissingTranslationError(self::class, $missingTranslations);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLabel(): array
     {
         return $this->label;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getDescription(): array
     {
         return $this->description;
@@ -151,6 +172,15 @@ class Metadata extends XmlElement
         return $this->license;
     }
 
+    public function getCompatibility(): ConstraintInterface
+    {
+        $constraint = $this->compatibility ?? '>=6.4.0';
+
+        $parser = new VersionParser();
+
+        return $parser->parseConstraints($constraint);
+    }
+
     public function getVersion(): string
     {
         return $this->version;
@@ -166,11 +196,22 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    /**
+     * @return array<mixed>
+     */
     public function getPrivacyPolicyExtensions(): array
     {
         return $this->privacyPolicyExtensions;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];

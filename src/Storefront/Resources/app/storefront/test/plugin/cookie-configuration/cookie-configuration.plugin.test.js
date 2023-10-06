@@ -1,54 +1,94 @@
-/**
- * @jest-environment jsdom
- */
-
-/* eslint-disable-next-line import/no-unresolved */
-import { call } from 'file-loader';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
-import template from './offcanvas.template.html';
+// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
+jest.mock('src/plugin-system/plugin.manager', () => ({
+    __esModule: true,
+    default: {},
+}));
+
+jest.mock('src/service/http-client.service', () => {
+    const template = `
+        <div class="offcanvas-cookie">
+        <div class="offcanvas-cookie-description"></div>
+
+        <div class="offcanvas-cookie-list">
+            <div class="offcanvas-cookie-group">
+
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Technically required" checked="checked" disabled="disabled" data-cookie-required="true">
+                </div>
+
+                <div class="offcanvas-cookie-entries">
+
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_session-" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="session-">
+                    </div>
+
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_timezone" checked="checked" disabled="disabled" data-cookie-required="true" data-cookie="timezone">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="offcanvas-cookie-group">
+
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input offcanvas-cookie-parent-input" id="cookie_Statistics">
+                </div>
+
+                <div class="offcanvas-cookie-entries">
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_lorem" data-cookie="lorem" data-cookie-value="1" data-cookie-expiration="30">
+                    </div>
+
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_ipsum" data-cookie="ipsum" data-cookie-value="1" data-cookie-expiration="30">
+                    </div>
+
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_dolor" data-cookie="dolor" data-cookie-value="1" data-cookie-expiration="30">
+                    </div>
+
+                    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="cookie_sit" data-cookie="sit" data-cookie-value="1" data-cookie-expiration="30">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-submit"></button>
+        <button type="submit" class="btn btn-primary btn-block js-offcanvas-cookie-accept-all"></button>
+    </div>
+    `;
+
+    return function () {
+        return {
+            get: (url, callback) => {
+                return callback(template);
+            },
+        };
+    };
+});
 
 describe('CookieConfiguration plugin tests', () => {
-    let plugin = null;
-    let CookieConfiguration;
-    let COOKIE_CONFIGURATION_UPDATE;
+    let plugin;
 
-    beforeAll(async () => {
+    beforeEach(() => {
         window.router = {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
         };
 
-        const importedCookieConfiguration = await import('src/plugin/cookie/cookie-configuration.plugin');
-        CookieConfiguration = importedCookieConfiguration.default;
-        COOKIE_CONFIGURATION_UPDATE = importedCookieConfiguration.COOKIE_CONFIGURATION_UPDATE;
-    });
-
-    beforeEach(() => {
-        document.body.innerHTML = template;
-
-        window.csrf = {
-            enabled: false,
-        };
-
-        window.PluginManager = {
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => [],
-                };
-            },
-            initializePlugins: null,
-        };
+        window.PluginManager.initializePlugins = () => jest.fn();
 
         const container = document.createElement('div');
         plugin = new CookieConfiguration(container);
 
-        plugin._setInitialState();
+        plugin.openOffCanvas(() => {});
     });
 
     afterEach(() => {
@@ -59,7 +99,7 @@ describe('CookieConfiguration plugin tests', () => {
 
         document.$emitter.unsubscribe(COOKIE_CONFIGURATION_UPDATE);
 
-        plugin = null;
+        plugin = undefined;
     });
 
     test('The cookie configuration plugin can be instantiated', () => {
@@ -169,6 +209,7 @@ describe('CookieConfiguration plugin tests', () => {
         CookieStorage.setItem(optionalAndInactive[0], optionalAndInactive[0], 30);
 
         plugin._setInitialState();
+        plugin._setInitialOffcanvasState();
 
         expect(plugin.lastState.active).toEqual([...requiredAndActive, optionalAndInactive[0]]);
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeTruthy();
@@ -182,13 +223,13 @@ describe('CookieConfiguration plugin tests', () => {
 
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeFalsy();
     });
-    
+
     test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed ', () => {
         const jestFn = jest.fn()
         plugin._httpClient.get = jestFn;
-    
+
         plugin._acceptAllCookiesFromCookieBar();
-           
+
         expect(jestFn).toHaveBeenCalledWith('https://shop.example.com/offcanvas', expect.any(Function));
     });
 });

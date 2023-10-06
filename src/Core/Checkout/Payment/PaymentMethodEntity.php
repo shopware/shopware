@@ -11,13 +11,16 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntit
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+#[Package('checkout')]
 class PaymentMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -115,6 +118,8 @@ class PaymentMethodEntity extends Entity
     protected $formattedHandlerIdentifier;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var string|null
      */
     protected $shortName;
@@ -129,6 +134,10 @@ class PaymentMethodEntity extends Entity
     protected bool $asynchronous = false;
 
     protected bool $prepared = false;
+
+    protected bool $refundable = false;
+
+    protected bool $recurring = false;
 
     public function getPluginId(): ?string
     {
@@ -320,13 +329,22 @@ class PaymentMethodEntity extends Entity
         $this->afterOrderEnabled = $afterOrderEnabled;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function getShortName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->shortName;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function setShortName(?string $shortName): void
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->shortName = $shortName;
     }
 
@@ -368,5 +386,25 @@ class PaymentMethodEntity extends Entity
     public function setPrepared(bool $prepared): void
     {
         $this->prepared = $prepared;
+    }
+
+    public function isRefundable(): bool
+    {
+        return $this->refundable;
+    }
+
+    public function setRefundable(bool $refundable): void
+    {
+        $this->refundable = $refundable;
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring;
+    }
+
+    public function setRecurring(bool $recurring): void
+    {
+        $this->recurring = $recurring;
     }
 }

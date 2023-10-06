@@ -3,6 +3,7 @@ import template from './sw-step-display.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description This step display component need flow-items inside it's slot to work.
  * To control the current position use the `itemIndex` property (zero-based index).
@@ -21,11 +22,12 @@ const { Component } = Shopware;
  *   <sw-step-item>
  *      Read
  *   </sw-step-item>
- *   <sw-step-item disabledIcon="small-default-checkmark-line-medium">
+ *   <sw-step-item disabledIcon="regular-checkmark-xs">
  *      Finish
  *   </sw-step-item>
  * </sw-step-display>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-step-display', {
     template,
 

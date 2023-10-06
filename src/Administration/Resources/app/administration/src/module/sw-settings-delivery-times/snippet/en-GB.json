@@ -19,10 +19,12 @@
       "columnUnit": "Unit",
       "columnMin": "Minimum",
       "columnMax": "Maximum",
+      "columnUnit_hour": "Hour",
       "columnUnit_day": "Day",
       "columnUnit_week": "Week",
       "columnUnit_month": "Month",
       "columnUnit_year": "Year",
+      "columnUnit_hour": "Hour",
       "errorLoad": "Unable to load the delivery times list."
     },
     "detail": {
@@ -31,6 +33,7 @@
       "labelUnit": "Unit",
       "labelMin": "Minimum",
       "labelMax": "Maximum",
+      "selectionUnitHour": "Hour",
       "selectionUnitDay": "Day",
       "selectionUnitWeek": "Week",
       "selectionUnitMonth": "Month",

@@ -1,9 +1,9 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-listing-visibility-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -60,7 +60,7 @@ Component.register('sw-settings-listing-visibility-detail', {
 
         fetchSalesChannels() {
             const salesChannelIds = this.config.map(config => config.id);
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
 
@@ -79,4 +79,4 @@ Component.register('sw-settings-listing-visibility-detail', {
             });
         },
     },
-});
+};

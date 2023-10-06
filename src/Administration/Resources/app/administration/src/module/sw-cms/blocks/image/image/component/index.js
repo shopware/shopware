@@ -1,7 +1,9 @@
 import template from './sw-cms-block-image.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-block-image', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+};

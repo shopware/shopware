@@ -4,30 +4,33 @@ namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class FlowSequenceEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $flowId;
 
     protected ?FlowEntity $flow = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     protected ?FlowSequenceEntity $parent = null;
 
     protected ?FlowSequenceCollection $children = null;
 
-    protected ?string $ruleId;
+    protected ?string $ruleId = null;
 
     protected ?RuleEntity $rule = null;
 
-    protected ?string $actionName;
+    protected ?string $actionName = null;
 
     protected array $config;
 
@@ -36,6 +39,10 @@ class FlowSequenceEntity extends Entity
     protected int $displayGroup;
 
     protected bool $trueCase;
+
+    protected ?string $appFlowActionId = null;
+
+    protected ?AppFlowActionEntity $appFlowAction = null;
 
     public function getFlowId(): string
     {
@@ -155,5 +162,25 @@ class FlowSequenceEntity extends Entity
     public function setTrueCase(bool $trueCase): void
     {
         $this->trueCase = $trueCase;
+    }
+
+    public function getAppFlowActionId(): ?string
+    {
+        return $this->appFlowActionId;
+    }
+
+    public function setAppFlowActionId(?string $appFlowActionId): void
+    {
+        $this->appFlowActionId = $appFlowActionId;
+    }
+
+    public function getAppFlowAction(): ?AppFlowActionEntity
+    {
+        return $this->appFlowAction;
+    }
+
+    public function setAppFlowAction(?AppFlowActionEntity $appFlowAction): void
+    {
+        $this->appFlowAction = $appFlowAction;
     }
 }

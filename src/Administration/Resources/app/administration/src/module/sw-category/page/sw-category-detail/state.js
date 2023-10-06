@@ -1,5 +1,9 @@
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
 
@@ -10,7 +14,6 @@ export default {
             customFieldSets: [],
             landingPagesToDelete: undefined,
             categoriesToDelete: undefined,
-            defaultLayout: null,
         };
     },
 
@@ -34,10 +37,6 @@ export default {
         setCategoriesToDelete(state, { categoriesToDelete }) {
             state.categoriesToDelete = categoriesToDelete;
         },
-
-        setDefaultLayout(state, defaultLayout) {
-            state.defaultLayout = defaultLayout?.id;
-        },
     },
 
     actions: {
@@ -54,7 +53,7 @@ export default {
             }
 
             if (!criteria) {
-                criteria = new Criteria();
+                criteria = new Criteria(1, 25);
             }
 
             return repository.get(id, apiContext, criteria).then((landingPage) => {
@@ -68,13 +67,13 @@ export default {
 
         loadActiveCategory({ commit }, { repository, id, apiContext, criteria }) {
             if (!criteria) {
-                criteria = new Criteria();
+                criteria = new Criteria(1, 25);
             }
 
             return repository.get(id, apiContext, criteria).then((category) => {
                 category.isColumn = false;
                 if (category.parentId !== null) {
-                    const parentCriteria = new Criteria();
+                    const parentCriteria = new Criteria(1, 25);
                     parentCriteria.addAssociation('footerSalesChannels');
 
                     return repository.get(category.parentId, apiContext, parentCriteria).then((parent) => {

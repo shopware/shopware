@@ -1,9 +1,12 @@
 import './sw-order-state-history-card-entry.scss';
 import template from './sw-order-state-history-card-entry.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-order-state-card-entry', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['stateStyleDataProviderService'],
@@ -32,6 +35,13 @@ Component.register('sw-order-state-card-entry', {
             default: false,
         },
     },
+
+    computed: {
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+    },
+
     methods: {
         userDisplayName(user) {
             let userString = '';
@@ -56,4 +66,4 @@ Component.register('sw-order-state-card-entry', {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).iconBackgroundStyle;
         },
     },
-});
+};

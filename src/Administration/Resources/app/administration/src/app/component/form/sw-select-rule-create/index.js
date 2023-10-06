@@ -5,18 +5,22 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @private
+ * @package business-ops
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
  * @component-example
- * <sw-select-rule-create ruleId="0fd38734776f41e9a1ba431f1667e677"
- * ruleFilter="ruleFilter"
- * @save-rule="onSaveRule"
- * @dismiss-rule="onDismissRule">
+ * <sw-select-rule-create
+ *     ruleId="0fd38734776f41e9a1ba431f1667e677"
+ *     ruleFilter="ruleFilter"
+ *     \@save-rule="onSaveRule"
+ *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
 Component.register('sw-select-rule-create', {
     template,
+    inheritAttrs: !window._features_.VUE3,
 
     inject: [
         'repositoryFactory',
@@ -41,18 +45,41 @@ Component.register('sw-select-rule-create', {
             type: Object,
             required: false,
             default() {
-                const criteria = new Criteria();
-                criteria.addSorting(Criteria.sort('name', 'ASC', false));
+                const criteria = new Criteria(1, 25);
+                criteria.addSorting(Criteria.sort('name', 'ASC', false))
+                    .addAssociation('conditions');
 
                 return criteria;
             },
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restriction: {
+        ruleAwareGroupKey: {
             type: String,
             required: false,
-            default: '',
+            default: null,
+        },
+
+        /**
+         * Contains an array of rule ids which should not be selectable,
+         * for example because they are already used in a different place
+         */
+        restrictedRuleIds: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+
+        /**
+         * Tooltip label to show for any rule in the restrictedRuleIds array
+         */
+        restrictedRuleIdsTooltipLabel: {
+            type: String,
+            required: false,
+            default() {
+                return '';
+            },
         },
     },
 
@@ -63,8 +90,6 @@ Component.register('sw-select-rule-create', {
                 id: '',
             },
             showRuleModal: false,
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedRules: [],
         };
     },
 
@@ -88,20 +113,7 @@ Component.register('sw-select-rule-create', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        createdComponent() {
-            if (!this.feature.isActive('FEATURE_NEXT_18215') || !this.restriction) {
-                return;
-            }
-
-            this.getRestrictions();
-        },
-
         onSaveRule(ruleId, rule) {
             if (this.rules) {
                 this.rules.add(rule);
@@ -130,22 +142,37 @@ Component.register('sw-select-rule-create', {
             }
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        getRestrictions() {
-            this.ruleConditionDataProviderService
-                .getRestrictedRules(this.restriction).then(result => {
-                    this.restrictedRules = result;
-                });
+        isRuleRestricted(rule) {
+            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
+
+            const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
+                rule.conditions,
+                this.ruleAwareGroupKey,
+            );
+
+            return isRuleRestricted || insideRestrictedRuleIds;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        getTooltipConfig(itemId) {
+        getAdvancedSelectionParameters() {
             return {
-                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
-                    relation: this.$tc('sw-restricted-rules.restrictedAssignment.productPrices'),
-                }),
-                disabled: !this.restrictedRules.includes(itemId),
+                ruleAwareGroupKey: this.ruleAwareGroupKey,
+                restrictedRuleIds: this.restrictedRuleIds,
+                restrictedRuleIdsTooltipLabel: this.restrictedRuleIdsTooltipLabel,
             };
+        },
+
+        tooltipConfig(rule) {
+            if (this.restrictedRuleIds.includes(rule.id)) {
+                return {
+                    message: this.restrictedRuleIdsTooltipLabel,
+                    disabled: false,
+                };
+            }
+
+            return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                rule.conditions,
+                this.ruleAwareGroupKey,
+            );
         },
     },
 });

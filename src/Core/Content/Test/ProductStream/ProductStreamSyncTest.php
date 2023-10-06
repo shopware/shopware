@@ -6,17 +6,19 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class ProductStreamSyncTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -45,10 +47,12 @@ class ProductStreamSyncTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame(200, $response->getStatusCode(), $content);
 
         $result = $this->connection
             ->executeQuery(
@@ -63,7 +67,11 @@ class ProductStreamSyncTest extends TestCase
                 ]
             );
 
-        static::assertEquals('Test stream', $result->fetch()['name']);
-        static::assertEquals('Test stream - 2', $result->fetch()['name']);
+        $firstResult = $result->fetchAssociative();
+        static::assertIsArray($firstResult);
+        static::assertEquals('Test stream', $firstResult['name']);
+        $secondResult = $result->fetchAssociative();
+        static::assertIsArray($secondResult);
+        static::assertEquals('Test stream - 2', $secondResult['name']);
     }
 }

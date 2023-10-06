@@ -1,25 +1,30 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_single_select_option %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
     class="sw-select-option"
     :class="componentClasses"
     @mouseenter="onMouseEnter($event)"
     @click.stop="onClicked($event)"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_single_select_option_item_text_holder %}
     <span class="sw-select-option__result-item-text">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_single_select_option_item_text %}
         <slot></slot>
         {% endblock %}
     </span>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_single_select_option_item_icon_transition %}
     <transition name="sw-select-appear">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_single_select_option_item_icon %}
         <sw-icon
             v-if="isInSelections(item) && !selected || selected"
-            name="small-default-checkmark-line-medium"
+            name="regular-checkmark-xs"
             size="16px"
         />
         {% endblock %}

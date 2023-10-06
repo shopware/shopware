@@ -182,7 +182,7 @@ class Vector {
             max = new this.constructor((new Array(this.dimension)).fill(max));
         }
 
-        return this.constructor(this.entries.map((e, index) => {
+        return new this.constructor(this.entries.map((e, index) => {
             if (e < min.entries[index]) {
                 return min.entries[index];
             }

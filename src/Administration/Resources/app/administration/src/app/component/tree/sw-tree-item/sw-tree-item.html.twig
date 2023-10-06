@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree_item %}
 <div
     class="sw-tree-item"
     :class="styling"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tree_item_element %}
     <div
         v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
@@ -11,6 +13,7 @@
         class="sw-tree-item__element"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_leaf_icon %}
         <div
             v-if="item.childCount <= 0"
@@ -18,26 +21,25 @@
         ></div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_toggle %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-else
             class="sw-tree-item__toggle"
+            role="button"
+            tabindex="0"
             @click="openTreeItem(); getTreeItemChildren(item)"
+            @keydown.enter="openTreeItem(); getTreeItemChildren(item)"
         >
 
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_tree_item_element_toggle_loader %}{% endblock %}
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_element_toggle_icon %}
-            <sw-icon
-                :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'"
-                size="18"
-            />
+            <sw-icon :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'" />
             {% endblock %}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_selection %}
         <div class="sw-tree-item__selection">
             <sw-checkbox-field
@@ -45,11 +47,16 @@
                 :disabled="currentEditElement === item.data.id"
                 :ghost-value="checkedGhost"
                 :value="checked"
+                {% if VUE3 %}
+                @update:value="toggleItemCheck($event, item)"
+                {% else %}
                 @change="toggleItemCheck($event, item)"
+                {% endif %}
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_grip %}
         <slot name="grip">
             <div
@@ -58,13 +65,13 @@
             >
                 <sw-icon
                     v-if="opened"
-                    name="multicolor-folder-tree-open"
+                    name="regular-folder-open"
                     multicolor
                     small
                 />
                 <sw-icon
                     v-else
-                    name="multicolor-folder-tree"
+                    name="regular-folder"
                     multicolor
                     small
                 />
@@ -73,14 +80,12 @@
                 v-else
                 class="sw-tree-item__icon"
             >
-                <sw-icon
-                    name="small-default-circle-small"
-                    size="18"
-                />
+                <sw-icon name="regular-circle-xxs" />
             </div>
         </slot>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_content %}
         <div
             ref="item"
@@ -95,6 +100,7 @@
                 v-bind="{ item, openTreeItem, getName }"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_items_item_content_edit %}
                 <template v-if="currentEditElement === item.data.id">
                     <sw-confirm-field
@@ -103,12 +109,13 @@
                         :prevent-empty-submit="true"
                         :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
                         @input="onFinishNameingElement"
-                        @blur="onCancelSubmit(item)"
-                        @submit-cancel="onBlurTreeItemInput(item)"
+                        @blur="onBlurTreeItemInput(item)"
+                        @submit-cancel="onCancelSubmit(item)"
                     />
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_items_item_content_default %}
                 <template v-else>
                     <a
@@ -129,29 +136,31 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_element_actions %}
         <div class="sw-tree-item__actions">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_items_active_state %}
             <sw-icon
                 v-if="shouldShowActiveState"
                 size="6"
                 :color="getActiveIconColor(item)"
-                name="default-basic-shape-circle-filled"
+                name="solid-circle-xxxs"
             />
             {% endblock %}
 
             <slot
                 name="actions"
                 :item="item"
-                :openTreeItem="openTreeItem"
-                :addElement="addElement"
-                :addSubElement="addSubElement"
-                :onDuplicate="onDuplicate"
-                :onChangeRoute="onChangeRoute"
-                :deleteElement="deleteElement"
-                :toolTip="toolTip"
-                :isDisabled="isDisabled"
+                :open-tree-item="openTreeItem"
+                :add-element="addElement"
+                :add-sub-element="addSubElement"
+                :on-duplicate="onDuplicate"
+                :on-change-route="onChangeRoute"
+                :delete-element="deleteElement"
+                :tool-tip="toolTip"
+                :is-disabled="isDisabled"
             >
                 <sw-context-button
                     v-tooltip="toolTip"
@@ -159,6 +168,7 @@
                     :disabled="isDisabled"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_without_position %}
                     <sw-context-menu-item
                         v-if="allowCreateWithoutPosition"
@@ -169,6 +179,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_before %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
@@ -180,6 +191,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_after %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
@@ -191,6 +203,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_sub %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
@@ -202,6 +215,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_duplicate %}
                     <sw-context-menu-item
                         v-if="allowDuplicate"
@@ -212,15 +226,18 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_items_actions_group %}
                     <div class="sw-context-menu__group">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_tree_items_actions_edit %}
                         <sw-context-menu-item @click="onChangeRoute(item)">
                             {{ $tc('global.default.edit') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_tree_items_actions_delete %}
                         <sw-context-menu-item
                             class="sw-context-menu__group-button-delete"
@@ -241,22 +258,24 @@
     {% endblock %}
 
     {# ToDO: Repeat statt duplicated Content #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tree_item_children_transition %}
     <transition name="fade">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_item_children_content %}
         <div
             v-if="isOpened && item.children.length > 0"
             class="sw-tree-item__children"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_children_items %}
             <sw-tree-item
                 v-for="child in item.children"
                 :key="child.id"
                 :item="child"
                 :dragged-item="draggedItem"
-                :parent-scope="parentScope"
                 :new-element-id="newElementId"
                 :translation-context="translationContext"
                 :on-change-route="onChangeRoute"
@@ -272,18 +291,22 @@
                 @check-item="emitCheckedItem"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_item_children_items_slots %}
                 <template #content="{ item, openTreeItem, getName: innerGetName }">
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_item_children_items_slot_content %}
                     <sw-vnode-renderer
                         v-if="$scopedSlots.content"
                         :node="$scopedSlots.content({ item, openTreeItem, getName })"
                     />
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_item_children_items_slot_content_default_block %}
                     <template v-else>
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_tree_item_children_items_slot_content_edit %}
                         <template v-if="currentEditElement === item.data.id">
                             <sw-confirm-field
@@ -298,6 +321,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_tree_item_children_items_slot_content_default %}
                         <template v-else>
                             <a
@@ -320,120 +344,113 @@
                 </template>
 
                 <template #actions="{ item, openTreeItem }">
-
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_item_children_items_slot_actions %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_tree_items_transition_active_state %}
+                    <sw-icon
+                        v-if="shouldShowActiveState"
+                        size="6"
+                        :color="getActiveIconColor(item)"
+                        name="solid-circle-xxxs"
+                    />
+                    {% endblock %}
+
                     <sw-vnode-renderer
                         v-if="$scopedSlots.actions"
                         :node="$scopedSlots.actions({ item, openTreeItem })"
                     />
-                    <div
-                        v-else
-                        class="sw-tree-item__actions"
-                    >
-
-                        {% block sw_tree_items_transition_active_state %}
-                        <sw-icon
-                            v-if="shouldShowActiveState"
-                            size="6"
-                            :color="getActiveIconColor(item)"
-                            name="default-basic-shape-circle-filled"
-                        />
-                        {% endblock %}
-
-                        <slot
-                            name="actions"
-                            :item="item"
-                            :openTreeItem="openTreeItem"
-                            :addElement="addElement"
-                            :addSubElement="addSubElement"
-                            :onDuplicate="onDuplicate"
-                            :onChangeRoute="onChangeRoute"
-                            :deleteElement="deleteElement"
-                            :toolTip="toolTip"
-                            :isDisabled="isDisabled"
+                    <template v-else>
+                        <sw-context-button
+                            v-tooltip="toolTip"
+                            :disabled="isDisabled"
                         >
-                            <sw-context-button
-                                v-tooltip="toolTip"
-                                :disabled="isDisabled"
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_without_position %}
+                            <sw-context-menu-item
+                                v-if="allowCreateWithoutPosition"
+                                class="sw-tree-item__without-position-action"
+                                @click="addElement(item)"
                             >
+                                {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
 
-                                {% block sw_tree_items_transition_actions_without_position %}
-                                <sw-context-menu-item
-                                    v-if="allowCreateWithoutPosition"
-                                    class="sw-tree-item__without-position-action"
-                                    @click="addElement(item)"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_before %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__before-action"
+                                @click="addElement(item, 'before')"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_after %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__after-action"
+                                @click="addElement(item, 'after')"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_sub %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__sub-action"
+                                @click="addSubElement(item); openTreeItem(true)"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_duplicate %}
+                            <sw-context-menu-item
+                                v-if="allowDuplicate"
+                                class="sw-context-menu__duplicate-action"
+                                @click="onDuplicate(item)"
+                            >
+                                {{ $tc(`global.default.duplicate`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_tree_items_transition_actions_group %}
+                            <div class="sw-context-menu__group">
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_tree_items_transition_actions_edit %}
+                                <sw-context-menu-item @click="onChangeRoute(item)">
+                                    {{ $tc('global.default.edit') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_transition_actions_before %}
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_tree_items_transition_actions_delete %}
                                 <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__before-action"
-                                    @click="addElement(item, 'before')"
+                                    class="sw-context-menu__group-button-delete"
+                                    :disabled="!allowDeleteCategories"
+                                    variant="danger"
+                                    @click="deleteElement(item)"
                                 >
-                                    {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                                    {{ $tc('global.default.delete') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_after %}
-                                <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__after-action"
-                                    @click="addElement(item, 'after')"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.createAfter`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_sub %}
-                                <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__sub-action"
-                                    @click="addSubElement(item); openTreeItem(true)"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.createSub`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_duplicate %}
-                                <sw-context-menu-item
-                                    v-if="allowDuplicate"
-                                    class="sw-context-menu__duplicate-action"
-                                    @click="onDuplicate(item)"
-                                >
-                                    {{ $tc(`global.default.duplicate`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_group %}
-                                <div class="sw-context-menu__group">
-
-                                    {% block sw_tree_items_transition_actions_edit %}
-                                    <sw-context-menu-item @click="onChangeRoute(item)">
-                                        {{ $tc('global.default.edit') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_tree_items_transition_actions_delete %}
-                                    <sw-context-menu-item
-                                        class="sw-context-menu__group-button-delete"
-                                        :disabled="!allowDeleteCategories"
-                                        variant="danger"
-                                        @click="deleteElement(item)"
-                                    >
-                                        {{ $tc('global.default.delete') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-                                </div>
-                                {% endblock %}
-                            </sw-context-button>
-                        </slot>
-                    </div>
+                            </div>
+                            {% endblock %}
+                        </sw-context-button>
+                    </template>
                     {% endblock %}
                 </template>
                 {% endblock %}

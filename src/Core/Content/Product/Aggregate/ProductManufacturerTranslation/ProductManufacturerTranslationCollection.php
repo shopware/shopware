@@ -3,44 +3,38 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                      add(ProductManufacturerTranslationEntity $entity)
- * @method void                                      set(string $key, ProductManufacturerTranslationEntity $entity)
- * @method ProductManufacturerTranslationEntity[]    getIterator()
- * @method ProductManufacturerTranslationEntity[]    getElements()
- * @method ProductManufacturerTranslationEntity|null get(string $key)
- * @method ProductManufacturerTranslationEntity|null first()
- * @method ProductManufacturerTranslationEntity|null last()
+ * @extends EntityCollection<ProductManufacturerTranslationEntity>
  */
+#[Package('inventory')]
 class ProductManufacturerTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductManufacturerIds(): array
     {
-        return $this->fmap(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getProductManufacturerId();
-        });
+        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId());
     }
 
     public function filterByProductManufacturerId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) use ($id) {
-            return $productManufacturerTranslation->getProductManufacturerId() === $id;
-        });
+        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) use ($id) {
-            return $productManufacturerTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('sales-channel')]
 class MailHeaderFooterDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'mail_header_footer';
+    final public const ENTITY_NAME = 'mail_header_footer';
 
     public function getEntityName(): string
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -12,20 +13,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class ManyToManyIdFieldUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
-    {
-        $this->registry = $registry;
-        $this->connection = $connection;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(string $entity, array $ids, Context $context, ?string $propertyName = null): void
     {
         $definition = $this->registry->getByEntityName($entity);
@@ -51,9 +56,7 @@ class ManyToManyIdFieldUpdater
         $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
         if ($propertyName) {
-            $fields = $fields->filter(function (ManyToManyIdField $field) use ($propertyName) {
-                return $field->getPropertyName() === $propertyName;
-            });
+            $fields = $fields->filter(fn (ManyToManyIdField $field) => $field->getPropertyName() === $propertyName);
         }
 
         if ($fields->count() <= 0) {
@@ -81,9 +84,7 @@ SQL;
             $resetTemplate .= ' AND #table#.version_id = :version';
         }
 
-        $bytes = array_map(function ($id) {
-            return Uuid::fromHexToBytes($id);
-        }, $ids);
+        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToManyIdField $field */
         foreach ($fields as $field) {
@@ -119,29 +120,29 @@ SQL;
 
             $sql = str_replace(
                 array_keys($replacement),
-                array_values($replacement),
+                $replacement,
                 $tableTemplate
             );
 
             $resetSql = str_replace(
                 array_keys($replacement),
-                array_values($replacement),
+                $replacement,
                 $resetTemplate
             );
 
             RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $resetSql,
                     $parameters,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $parameters,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }

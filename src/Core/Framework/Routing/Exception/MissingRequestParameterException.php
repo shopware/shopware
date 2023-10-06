@@ -2,46 +2,51 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Component\HttpFoundation\Response;
 
-class MissingRequestParameterException extends ShopwareHttpException
+/**
+ * @deprecated tag:v6.6.0 - will be removed, use RoutingException::missingRequestParameter instead
+ */
+#[Package('core')]
+class MissingRequestParameterException extends RoutingException
 {
-    /**
-     * @var string
-     */
-    private $name;
+    public function __construct(
+        private readonly string $name,
+        private readonly string $path = ''
+    ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
 
-    /**
-     * @var string
-     */
-    private $path;
-
-    public function __construct(string $name, string $path = '')
-    {
-        $this->name = $name;
-        $this->path = $path;
-
-        parent::__construct('Parameter "{{ parameterName }}" is missing.', ['parameterName' => $name]);
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
     }
 
     public function getName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
+
         return $this->name;
     }
 
     public function getPath(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
+
         return $this->path;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
     }
 }

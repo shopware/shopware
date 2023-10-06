@@ -1,7 +1,9 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_detail %}
 <sw-page class="sw-settings-rule-detail">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="rule">
             {{ rule.name }}
         </h2>
@@ -11,9 +13,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -24,33 +28,99 @@
         </sw-button>
         {% endblock %}
 
-        {% block sw_settings_rule_detail_actions_save %}
-        <sw-button-process
-            v-model="isSaveSuccessful"
-            v-tooltip.bottom="tooltipSave"
-            class="sw-settings-rule-detail__save-action"
-            :is-loading="isLoading"
-            variant="primary"
-            :disabled="!acl.can('rule.editor')"
-            @click="onSave"
+        <sw-button-group
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('rule.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-rule-detail__save-button-group"
+            :split-button="true"
         >
-            {{ $tc('sw-settings-rule.detail.buttonSave') }}
-        </sw-button-process>
-        {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_rule_detail_actions_save %}
+            <sw-button-process
+                {% if VUE3 %}
+                v-model:processSuccess="isSaveSuccessful"
+                {% else %}
+                v-model="isSaveSuccessful"
+                {% endif %}
+                v-tooltip.bottom="tooltipSave"
+                class="sw-settings-rule-detail__save-action"
+                :is-loading="isLoading"
+                variant="primary"
+                :disabled="!acl.can('rule.editor')"
+                @click="onSave"
+            >
+                {{ $tc('sw-settings-rule.detail.buttonSave') }}
+            </sw-button-process>
+            {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_rule_detail_actions_save_context_menu %}
+            <sw-context-button>
+                <template #button>
+                    <sw-button
+                        class="sw-settings-rule-detail__button-context-menu"
+                        square
+                        variant="primary"
+                        :disabled="isLoading || !acl.can('rule.editor')"
+                    >
+                        <sw-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </sw-button>
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_rule_detail_actions_save_context_menu_actions %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_rule_detail_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-settings-rule-detail__save-duplicate-action"
+                    :disabled="!acl.can('rule.creator') || !acl.can('rule.editor')"
+                    @click="onDuplicate"
+                >
+                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
     </template>
     {% endblock %}
 
+    <template #language-switch>
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            :disabled="!ruleId"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_rule_detail_tabs_discard_changes_modal %}
+        <sw-discard-changes-modal
+            v-if="isDisplayingSaveChangesWarning"
+            @keep-editing="onLeaveModalClose(nextRoute)"
+            @discard-changes="onLeaveModalConfirm(nextRoute)"
+        />
+        {% endblock %}
         <sw-card-view>
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_tabs %}
             <sw-tabs
                 v-if="rule && !rule.isNew()"
                 class="sw-settings-rule-detail__tabs"
                 position-identifier="sw-settings-rule-detail"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_tab_items %}
                 <sw-tabs-item
                     v-for="tab in tabItems"
@@ -58,6 +128,7 @@
                     :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
                     :route="tab.route"
                     :title="tab.title"
+                    :has-error="tabHasError(tab)"
                 >
                     {{ tab.title }}
                 </sw-tabs-item>
@@ -65,6 +136,7 @@
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton variant="detail-bold" />
@@ -78,7 +150,11 @@
                 :conditions="conditions"
                 :condition-repository="conditionRepository"
                 :is-loading="isLoading"
+                :detail-page-loading="isLoading"
+                :rule-name-error="ruleNameError"
+                :rule-priority-error="rulePriorityError"
                 @conditions-changed="conditionsChanged"
+                @tree-finished-loading="setTreeFinishedLoading"
             />
             {% endblock %}
         </sw-card-view>

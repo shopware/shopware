@@ -3,29 +3,29 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemWithQuantityRule extends Rule
 {
-    protected ?string $id;
+    final public const RULE_NAME = 'cartLineItemWithQuantity';
 
-    protected ?int $quantity;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $id = null, ?int $quantity = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $id = null,
+        protected ?int $quantity = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->id = $id;
-        $this->quantity = $quantity;
     }
 
     /**
@@ -41,7 +41,7 @@ class LineItemWithQuantityRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -54,26 +54,9 @@ class LineItemWithQuantityRule extends Rule
     {
         return [
             'id' => [new NotBlank(), new Uuid()],
-            'quantity' => [new NotBlank(), new Type('int')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
+            'quantity' => RuleConstraints::int(),
+            'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemWithQuantity';
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
@@ -86,29 +69,6 @@ class LineItemWithQuantityRule extends Rule
             return true;
         }
 
-        $quantity = $lineItem->getQuantity();
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return $quantity >= $this->quantity;
-
-            case self::OPERATOR_LTE:
-                return $quantity <= $this->quantity;
-
-            case self::OPERATOR_GT:
-                return $quantity > $this->quantity;
-
-            case self::OPERATOR_LT:
-                return $quantity < $this->quantity;
-
-            case self::OPERATOR_EQ:
-                return $quantity === $this->quantity;
-
-            case self::OPERATOR_NEQ:
-                return $quantity !== $this->quantity;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($lineItem->getQuantity(), $this->quantity, $this->operator);
     }
 }

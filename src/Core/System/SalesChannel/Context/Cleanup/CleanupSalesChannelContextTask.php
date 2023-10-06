@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+#[Package('buyers-experience')]
 class CleanupSalesChannelContextTask extends ScheduledTask
 {
     public static function getTaskName(): string
@@ -13,6 +15,6 @@ class CleanupSalesChannelContextTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400; //24 hours
+        return 86400; // 24 hours
     }
 }

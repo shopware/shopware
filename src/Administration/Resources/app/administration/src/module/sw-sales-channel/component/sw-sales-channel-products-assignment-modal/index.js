@@ -1,7 +1,10 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-products-assignment-modal.html.twig';
 import './sw-sales-channel-products-assignment-modal.scss';
 
-const { Component } = Shopware;
 const { uniqBy } = Shopware.Utils.array;
 
 const updateElementVisibility = (element, binding) => {
@@ -14,7 +17,8 @@ const updateElementVisibility = (element, binding) => {
     element.style.transform = (binding.value) ? 'translateX(0)' : 'translateX(100%)';
 };
 
-Component.register('sw-sales-channel-products-assignment-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     directives: {
@@ -123,4 +127,4 @@ Component.register('sw-sales-channel-products-assignment-modal', {
             this.isProductLoading = isProductLoading;
         },
     },
-});
+};

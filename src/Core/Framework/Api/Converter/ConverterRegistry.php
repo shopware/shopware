@@ -2,29 +2,36 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @deprecated tag:v6.6.0 - Will be removed as it is not used anymore
+ */
+#[Package('core')]
 class ConverterRegistry
 {
     /**
-     * @var iterable
+     * @internal
+     *
+     * @param iterable<ApiConverter> $converters
      */
-    private $converters;
-
-    /**
-     * @var DefaultApiConverter
-     */
-    private $defaultApiConverter;
-
-    public function __construct(iterable $converters, DefaultApiConverter $defaultApiConverter)
+    public function __construct(private readonly iterable $converters)
     {
-        $this->defaultApiConverter = $defaultApiConverter;
-        $this->converters = $converters;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     public function convert(string $entityName, array $payload): array
     {
-        $payload = $this->defaultApiConverter->convert($entityName, $payload);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
 
-        /** @var ApiConverter $converter */
         foreach ($this->converters as $converter) {
             $payload = $converter->convert($entityName, $payload);
         }
@@ -32,8 +39,16 @@ class ConverterRegistry
         return $payload;
     }
 
+    /**
+     * @return iterable<ApiConverter>
+     */
     public function getConverters(): iterable
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->converters;
     }
 }

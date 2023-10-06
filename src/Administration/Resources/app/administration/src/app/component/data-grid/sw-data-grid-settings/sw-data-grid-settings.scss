@@ -1,5 +1,12 @@
 .sw-button.sw-button--square.sw-data-grid-settings__trigger {
     width: 32px;
+
+    .sw-icon {
+        padding-top: 2px;
+        padding-right: 1px;
+        padding-bottom: 2px;
+        padding-left: 1px;
+    }
 }
 
 .sw-data-grid-settings {
@@ -32,6 +39,11 @@
         .sw-data-grid__settings-column-item-controls {
             margin-left: auto;
             flex-shrink: 0;
+
+            .icon--regular-chevron-down-xxs,
+            .icon--regular-chevron-up-xxs {
+                padding: 4px;
+            }
         }
     }
 

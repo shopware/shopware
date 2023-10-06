@@ -6,13 +6,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestActionEventCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @internal
+ */
 class ActionEventCompilerPassTest extends TestCase
 {
     public function testProcess(): void
@@ -36,7 +38,6 @@ class ActionEventCompilerPassTest extends TestCase
         $registry = $container->get(BusinessEventRegistry::class);
 
         $expected = [
-            BusinessEvent::class,
             TestEvent::class,
         ];
 

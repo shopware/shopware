@@ -7,11 +7,13 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeC
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class MediaFolderConfigurationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var MediaFolderCollection
@@ -49,7 +51,7 @@ class MediaFolderConfigurationEntity extends Entity
     protected $mediaThumbnailSizes;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -116,7 +118,7 @@ class MediaFolderConfigurationEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getMediaThumbnailSizesRo(): ?string
     {
@@ -126,7 +128,7 @@ class MediaFolderConfigurationEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setMediaThumbnailSizesRo(string $mediaThumbnailSizesRo): void
     {

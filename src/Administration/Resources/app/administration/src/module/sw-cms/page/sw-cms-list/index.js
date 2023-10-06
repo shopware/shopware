@@ -1,13 +1,23 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-cms-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'systemConfigApiService',
+        'cmsPageTypeService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -32,11 +42,17 @@ Component.register('sw-cms-list', {
             currentPageType: null,
             showMediaModal: false,
             currentPage: null,
+            showRenameModal: false,
+            newName: null,
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
             assignablePageTypes: ['categories', 'products'],
             searchConfigEntity: 'cms_page',
+            showLayoutSetAsDefaultModal: false,
+            defaultCategoryId: '',
+            defaultProductId: '',
+            newDefaultLayout: undefined,
         };
     },
 
@@ -59,6 +75,9 @@ Component.register('sw-cms-list', {
             return this.getColumnConfig();
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         sortOptions() {
             return [
                 { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
@@ -69,36 +88,25 @@ Component.register('sw-cms-list', {
         },
 
         sortPageTypes() {
-            const sortPageTypes = [
-                { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
-                { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
-                { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
-                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
-            ];
-
-            return sortPageTypes;
-        },
-
-        pageTypes() {
-            const pageTypes = {
-                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
-                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
+            const sortByAllPagesOption = {
+                value: '',
+                name: this.$tc('sw-cms.sorting.labelSortByAllPages'),
+                active: true,
             };
 
-            return pageTypes;
-        },
+            return this.cmsPageTypeService.getTypes().reduce((accumulator, pageType) => {
+                accumulator.push({
+                    value: pageType.name,
+                    name: this.$tc(pageType.title),
+                });
 
-        sortingConCat() {
-            return `${this.sortBy}:${this.sortDirection}`;
+                return accumulator;
+            }, [sortByAllPagesOption]);
         },
 
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
-                .addAssociation('products')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
@@ -110,8 +118,17 @@ Component.register('sw-cms-list', {
             }
 
             this.addLinkedLayoutsAggregation(criteria);
+            this.addPageAggregations(criteria);
 
             return criteria;
+        },
+
+        associatedCategoryBuckets() {
+            return this.pages.aggregations?.categories?.buckets || [];
+        },
+
+        associatedProductBuckets() {
+            return this.pages.aggregations?.products?.buckets || [];
         },
 
         /**
@@ -130,6 +147,10 @@ Component.register('sw-cms-list', {
                 },
             ];
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {
@@ -141,6 +162,11 @@ Component.register('sw-cms-list', {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             this.loadGridUserSettings();
+
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
+            }
+
             this.setPageContext();
             this.resetList();
         },
@@ -217,9 +243,57 @@ Component.register('sw-cms-list', {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
-        /**
-         * Determines whether a given CMS layout ("page") is in use already.
-         */
+        addPageAggregations(criteria) {
+            return criteria.addAggregation(Criteria.terms(
+                'products',
+                'id',
+                null,
+                null,
+                Criteria.count('productCount', 'products.id'),
+            )).addAggregation(Criteria.terms(
+                'categories',
+                'id',
+                null,
+                null,
+                Criteria.count('categoryCount', 'categories.id'),
+            ));
+        },
+
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+            this.defaultProductId = response['core.cms.default_product_cms_page'];
+        },
+
+        onOpenLayoutSetAsDefault(page) {
+            this.newDefaultLayout = { id: page.id, type: page.type };
+            this.showLayoutSetAsDefaultModal = true;
+        },
+
+        onCloseLayoutSetAsDefault() {
+            this.newDefaultLayout = undefined;
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async onConfirmLayoutSetAsDefault() {
+            let configKey = 'category_cms_page';
+
+            const { id, type } = this.newDefaultLayout;
+            if (type === 'product_detail') {
+                this.defaultProductId = id;
+                configKey = 'product_cms_page';
+            } else {
+                this.defaultCategoryId = id;
+            }
+
+            await this.systemConfigApiService.saveValues({
+                [`core.cms.default_${configKey}`]: id,
+            });
+
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
         layoutIsLinked(pageId) {
             return this.linkedLayouts.some(page => page.id === pageId);
         },
@@ -332,17 +406,40 @@ Component.register('sw-cms-list', {
             this.currentPage.previewMedia = image;
         },
 
+        onRenameCmsPage(page) {
+            this.currentPage = page;
+            this.showRenameModal = true;
+        },
+
+        onCloseRenameModal() {
+            this.currentPage = null;
+            this.showRenameModal = false;
+        },
+
+        onConfirmPageRename() {
+            if (this.newName) {
+                this.currentPage.name = this.newName;
+                this.saveCmsPage(this.currentPage);
+                this.getList();
+            }
+            this.newName = null;
+            this.currentPage = null;
+            this.showRenameModal = false;
+        },
+
         onDeleteCmsPage(page) {
             this.currentPage = page;
             this.showDeleteModal = true;
         },
 
-        onDuplicateCmsPage(page) {
-            const behavior = {
-                overwrites: {
-                    name: `${page.name} - ${this.$tc('global.default.copy')}`,
-                },
-            };
+        onDuplicateCmsPage(page, behavior = { overwrites: {} }) {
+            if (!behavior.overwrites) {
+                behavior.overwrites = {};
+            }
+
+            if (!behavior.overwrites.name) {
+                behavior.overwrites.name = `${page.name} - ${this.$tc('global.default.copy')}`;
+            }
 
             this.isLoading = true;
             this.pageRepository.clone(page.id, Shopware.Context.api, behavior).then(() => {
@@ -350,6 +447,9 @@ Component.register('sw-cms-list', {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
             });
         },
 
@@ -365,9 +465,9 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = false;
         },
 
-        saveCmsPage(page) {
+        saveCmsPage(page, context = Shopware.Context.api) {
             this.isLoading = true;
-            return this.pageRepository.save(page).then(() => {
+            return this.pageRepository.save(page, context).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -431,10 +531,35 @@ Component.register('sw-cms-list', {
             };
         },
 
+        getPageType(page) {
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
+            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+
+            return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
+        },
+
+        getPageCategoryCount(page) {
+            return Object.values(this.associatedCategoryBuckets).find((bucket) => {
+                return bucket.key === page.id;
+            })?.categoryCount?.count || 0;
+        },
+
+        getPageProductCount(page) {
+            return Object.values(this.associatedProductBuckets).find((bucket) => {
+                return bucket.key === page.id;
+            })?.productCount?.count || 0;
+        },
+
+        getPageCount(page) {
+            const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
+            return pageCount > 0 ? pageCount : '-';
+        },
+
         optionContextDeleteDisabled(page) {
-            return page.categories.length > 0 ||
-                (page.products && page.products.length > 0) ||
+            return this.getPageCategoryCount(page) > 0 ||
+                this.getPageProductCount(page) > 0 ||
                 !this.acl.can('cms.deleter');
         },
     },
-});
+};

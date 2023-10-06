@@ -3,27 +3,33 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\TokenParser\TokenParserInterface;
 
+#[Package('core')]
 class NodeExtension extends AbstractExtension
 {
     /**
-     * @var TemplateFinder
+     * @internal
      */
-    private $finder;
-
-    public function __construct(TemplateFinder $finder)
-    {
-        $this->finder = $finder;
+    public function __construct(
+        private readonly TemplateFinder $finder,
+        private readonly TemplateScopeDetector $templateScopeDetector,
+    ) {
     }
 
+    /**
+     * @return TokenParserInterface[]
+     */
     public function getTokenParsers(): array
     {
         return [
-            new ExtendsTokenParser($this->finder),
+            new ExtendsTokenParser($this->finder, $this->templateScopeDetector),
             new IncludeTokenParser($this->finder),
             new ReturnNodeTokenParser(),
         ];

@@ -1,11 +1,14 @@
 import template from './sw-landing-page-tree.html.twig';
 import './sw-landing-page-tree.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-landing-page-tree', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'syncService', 'acl'],
@@ -54,7 +57,7 @@ Component.register('sw-landing-page-tree', {
         return {
             loadedLandingPages: {},
             translationContext: 'sw-landing-page',
-            linkContext: 'sw.category.landingPage',
+            linkContext: 'sw.category.landingPageDetail',
             isLoadingInitialData: true,
         };
     },
@@ -65,8 +68,7 @@ Component.register('sw-landing-page-tree', {
         ]),
 
         cmsLandingPageCriteria() {
-            const criteria = new Criteria();
-            criteria.limit = 500;
+            const criteria = new Criteria(1, 500);
             criteria.addSorting(Criteria.sort('name'));
 
             return criteria;
@@ -168,7 +170,11 @@ Component.register('sw-landing-page-tree', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will emit hypernated event only.
+         */
         checkedElementsCount(count) {
+            this.$emit('landing-page-checked-elements-count', count);
             this.$emit('landingPage-checked-elements-count', count);
         },
 
@@ -215,7 +221,7 @@ Component.register('sw-landing-page-tree', {
             };
 
             this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds([clone.id]);
                 this.landingPageRepository.search(criteria).then((landingPages) => {
                     landingPages.forEach(element => {
@@ -250,7 +256,7 @@ Component.register('sw-landing-page-tree', {
 
             newLandingPage.save = () => {
                 return this.landingPageRepository.save(newLandingPage).then(() => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.setIds([newLandingPage.id].filter((id) => id !== null));
                     this.landingPageRepository.search(criteria).then((landingPages) => {
                         this.addLandingPages(landingPages);
@@ -266,17 +272,29 @@ Component.register('sw-landing-page-tree', {
                 return;
             }
 
-            this.$set(this.loadedLandingPages, landingPage.id, landingPage);
+            this.loadedLandingPages = {
+                ...this.loadedLandingPages,
+                [landingPage.id]: landingPage,
+            };
         },
 
         addLandingPages(landingPages) {
-            landingPages.forEach((landingPage) => {
-                this.$set(this.loadedLandingPages, landingPage.id, landingPage);
+            if (!landingPages) {
+                return;
+            }
+
+            const existingLandingPageEntries = Object.entries(this.loadedLandingPages || {});
+            const newLandingPageEntries = landingPages.map((landingPage) => {
+                return [landingPage.id, landingPage];
             });
+
+            this.loadedLandingPages = Object.fromEntries([...existingLandingPageEntries, ...newLandingPageEntries]);
         },
 
         removeFromStore(id) {
-            this.$delete(this.loadedLandingPages, id);
+            this.loadedLandingPages = Object.fromEntries(Object.entries(this.loadedLandingPages || {}).filter(([key]) => {
+                return key !== id;
+            }));
         },
 
         getLandingPageUrl(landingPage) {
@@ -293,4 +311,4 @@ Component.register('sw-landing-page-tree', {
             };
         },
     },
-});
+};

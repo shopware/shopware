@@ -1,7 +1,11 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-search-behaviour.html.twig';
 import './sw-settings-search-search-behaviour.scss';
 
-Shopware.Component.register('sw-settings-search-search-behaviour', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -47,4 +51,4 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
         },
     },
 
-});
+};

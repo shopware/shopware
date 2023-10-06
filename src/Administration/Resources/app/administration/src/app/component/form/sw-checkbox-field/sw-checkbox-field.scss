@@ -14,6 +14,18 @@ $sw-field-color-inherited: $color-module-purple-900;
         display: grid;
         grid-template-columns: 16px 1fr;
         align-items: center;
+
+        &.is--padded {
+            margin-top: 24px;
+            padding: 16px;
+        }
+
+        &.is--bordered {
+            margin-top: 24px;
+            border-radius: 4px;
+            border: 1px solid $color-gray-300;
+            padding: 15px;
+        }
     }
 
     .sw-field {
@@ -21,6 +33,11 @@ $sw-field-color-inherited: $color-module-purple-900;
     }
 
     .sw-field__label {
+        margin-bottom: 0;
+        margin-left: 10px;
+    }
+
+    .sw-field__hint {
         margin-bottom: 0;
         margin-left: 10px;
     }
@@ -54,12 +71,15 @@ $sw-field-color-inherited: $color-module-purple-900;
                 color: lighten($sw-field-color-text, 40%);
             }
 
-            &:checked ~ .sw-field__checkbox-state {
-                background: $sw-field-color-focus;
-                border-color: $sw-field-color-focus;
+            &:checked,
+            &:indeterminate {
+                ~ .sw-field__checkbox-state {
+                    background: $sw-field-color-focus;
+                    border-color: $sw-field-color-focus;
 
-                .sw-icon {
-                    display: inline-block;
+                    .sw-icon {
+                        display: inline-block;
+                    }
                 }
             }
 
@@ -87,6 +107,12 @@ $sw-field-color-inherited: $color-module-purple-900;
             border-radius: 4px;
 
             .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 5px;
+                padding-right: 4px;
+                padding-bottom: 5px;
+                padding-left: 4px;
                 display: none;
                 position: absolute;
                 top: -1px;
@@ -115,6 +141,10 @@ $sw-field-color-inherited: $color-module-purple-900;
                 border: 1px solid $sw-field-color-error;
             }
         }
+
+        .sw-field__label {
+            color: $color-crimson-500;
+        }
     }
 
     &.is--inherited {
@@ -126,10 +156,16 @@ $sw-field-color-inherited: $color-module-purple-900;
         }
     }
 
-    &.is--bordered {
-        border-radius: 4px;
-        border: 1px solid $color-gray-300;
-        padding: 16px;
+    &.is--disabled {
+        .sw-field__label {
+            label {
+                cursor: not-allowed;
+            }
+        }
+
+        .sw-field__hint {
+            cursor: not-allowed;
+        }
     }
 }
 

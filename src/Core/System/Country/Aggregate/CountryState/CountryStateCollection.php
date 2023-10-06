@@ -3,41 +3,41 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(CountryStateEntity $entity)
- * @method void                    set(string $key, CountryStateEntity $entity)
- * @method CountryStateEntity[]    getIterator()
- * @method CountryStateEntity[]    getElements()
- * @method CountryStateEntity|null get(string $key)
- * @method CountryStateEntity|null first()
- * @method CountryStateEntity|null last()
+ * @extends EntityCollection<CountryStateEntity>
  */
+#[Package('buyers-experience')]
 class CountryStateCollection extends EntityCollection
 {
+    /**
+     * @return array<string>
+     */
     public function getCountryIds(): array
     {
-        return $this->fmap(function (CountryStateEntity $countryState) {
-            return $countryState->getCountryId();
-        });
+        return $this->fmap(fn (CountryStateEntity $countryState) => $countryState->getCountryId());
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CountryStateEntity $countryState) use ($id) {
-            return $countryState->getCountryId() === $id;
-        });
+        return $this->filter(fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
     }
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, function (CountryStateEntity $a, CountryStateEntity $b) {
-            if ($a->getPosition() !== $b->getPosition()) {
-                return $a->getPosition() <=> $b->getPosition();
+        uasort($this->elements, static function (CountryStateEntity $a, CountryStateEntity $b) {
+            $aPosition = $a->getPosition();
+            $bPosition = $b->getPosition();
+
+            if ($aPosition !== $bPosition) {
+                return $aPosition <=> $bPosition;
             }
 
-            if ($a->getTranslation('name') !== $b->getTranslation('name')) {
-                return strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
+            $aName = (string) $a->getTranslation('name');
+            $bName = (string) $b->getTranslation('name');
+            if ($aName !== $bName) {
+                return strnatcasecmp($aName, $bName);
             }
 
             return 0;

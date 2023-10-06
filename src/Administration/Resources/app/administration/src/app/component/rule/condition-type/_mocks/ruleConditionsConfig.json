@@ -1,0 +1,1018 @@
+{
+  "salesChannel": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "salesChannelIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "sales_channel"
+        }
+      }
+    ]
+  },
+  "dayOfWeek": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "dayOfWeek",
+        "type": "single-select",
+        "config": {
+          "options": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      }
+    ]
+  },
+  "language": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "languageIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "language"
+        }
+      }
+    ]
+  },
+  "currency": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "currencyIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "currency"
+        }
+      }
+    ]
+  },
+  "cartCartAmount": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartPositionPrice": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemOfType": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "lineItemType",
+        "type": "single-select",
+        "config": {
+          "options": [
+            "product",
+            "promotion"
+          ]
+        }
+      }
+    ]
+  },
+  "promotionLineItem": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "identifiers",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "promotion"
+        }
+      }
+    ]
+  },
+  "promotionCodeOfType": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "promotionCodeType",
+        "type": "single-select",
+        "config": {
+          "options": [
+            "global",
+            "fixed",
+            "individual"
+          ]
+        }
+      }
+    ]
+  },
+  "promotionValue": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "promotionsInCartCount": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "count",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemTotalPrice": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemUnitPrice": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartWeight": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "weight",
+        "type": "float",
+        "config": {
+          "unit": "weight"
+        }
+      }
+    ]
+  },
+  "cartVolume": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "volume",
+        "type": "float",
+        "config": {
+          "unit": "volume"
+        }
+      }
+    ]
+  },
+  "cartHasDeliveryFreeItem": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "customerBillingCountry": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "countryIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "country"
+        }
+      }
+    ]
+  },
+  "customerBillingStreet": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "streetName",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
+  "customerCustomerGroup": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "customerGroupIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "customer_group"
+        }
+      }
+    ]
+  },
+  "customerTag": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "identifiers",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "tag"
+        }
+      }
+    ]
+  },
+  "customerCustomerNumber": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "numbers",
+        "type": "tagged",
+        "config": {}
+      }
+    ]
+  },
+  "customerDifferentAddresses": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isDifferent",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "customerEmail": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "email",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
+  "customerIsNewCustomer": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isNew",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "customerLastName": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "lastName",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
+  "customerIsCompany": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isCompany",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "cartTaxDisplay": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "taxDisplay",
+        "type": "single-select",
+        "config": {
+          "options": [
+            "gross",
+            "net"
+          ]
+        }
+      }
+    ]
+  },
+  "customerIsGuest": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isGuest",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "customerIsNewsletterRecipient": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isNewsletterRecipient",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "customerShippingCountry": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "countryIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "country"
+        }
+      }
+    ]
+  },
+  "customerShippingStreet": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "streetName",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
+  "customerLoggedIn": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isLoggedIn",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemsInCartCount": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "count",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "customerOrderCount": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "count",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "customerDaysSinceLastOrder": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "daysPassed",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemTag": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "identifiers",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "tag"
+        }
+      }
+    ]
+  },
+  "cartLineItemIsNew": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isNew",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemOfManufacturer": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "manufacturerIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "product_manufacturer"
+        }
+      }
+    ]
+  },
+  "cartLineItemCreationDate": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "lineItemCreationDate",
+        "type": "datetime",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemReleaseDate": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "lineItemReleaseDate",
+        "type": "datetime",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemClearanceSale": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "clearanceSale",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemPromoted": {
+    "operatorSet": null,
+    "fields": [
+      {
+        "name": "isPromoted",
+        "type": "bool",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemInProductStream": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "streamIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "product_stream"
+        }
+      }
+    ]
+  },
+  "cartLineItemTaxation": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "taxIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "tax"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionWidth": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "dimension"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionHeight": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "dimension"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionLength": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "dimension"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionWeight": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "weight"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionVolume": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "volume"
+        }
+      }
+    ]
+  },
+  "cartLineItemListPrice": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemListPriceRatio": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemStock": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "stock",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "cartLineItemActualStock": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "stock",
+        "type": "int",
+        "config": {}
+      }
+    ]
+  },
+  "paymentMethod": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "paymentMethodIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "payment_method"
+        }
+      }
+    ]
+  },
+  "shippingMethod": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!="
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "shippingMethodIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "shipping_method"
+        }
+      }
+    ]
+  },
+  "customerOrderTotalAmount": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!="
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {}
+      }
+    ]
+  },
+  "conditionWithCustomOperators": {
+    "operatorSet": {
+      "operators": [
+        "foo",
+        "bar"
+      ],
+      "isMatchAny": false
+    },
+    "fields": []
+  }
+}

@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Tax;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void           add(TaxEntity $entity)
- * @method void           set(string $key, TaxEntity $entity)
- * @method TaxEntity[]    getIterator()
- * @method TaxEntity[]    getElements()
- * @method TaxEntity|null get(string $key)
- * @method TaxEntity|null first()
- * @method TaxEntity|null last()
+ * @extends EntityCollection<TaxEntity>
  */
+#[Package('checkout')]
 class TaxCollection extends EntityCollection
 {
     public function getApiAlias(): string

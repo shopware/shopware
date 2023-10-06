@@ -5,6 +5,9 @@ import Debouncer from 'src/helper/debouncer.helper';
  */
 const RESIZE_DEBOUNCE_TIME = 200;
 
+/**
+ * @package storefront
+ */
 export default class ViewportDetection {
 
     /**
@@ -74,6 +77,8 @@ export default class ViewportDetection {
             this._dispatchViewportEvent('Viewport/isLG');
         } else if (ViewportDetection.isXL()) {
             this._dispatchViewportEvent('Viewport/isXL');
+        } else if (ViewportDetection.isXXL()) {
+            this._dispatchViewportEvent('Viewport/isXXL');
         }
     }
 
@@ -145,6 +150,14 @@ export default class ViewportDetection {
      */
     static isXL() {
         return (ViewportDetection.getCurrentViewport() === 'XL');
+    }
+
+    /**
+     * Determine whether the current viewport is XXL
+     * @returns {boolean}
+     */
+    static isXXL() {
+        return (ViewportDetection.getCurrentViewport() === 'XXL');
     }
 
     /**

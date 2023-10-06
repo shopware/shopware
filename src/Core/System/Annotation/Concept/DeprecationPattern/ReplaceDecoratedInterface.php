@@ -3,10 +3,13 @@
 namespace Shopware\Core\System\Annotation\Concept\DeprecationPattern;
 
 use Doctrine\Common\Annotations\Annotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS", "INTERFACE")
+ *
  * @DeprecationPattern
  *
  * The ReplaceDecoratedInterface pattern is used every time you have to change an interface, that is designed to be used with service decoration.
@@ -51,6 +54,7 @@ use Doctrine\Common\Annotations\Annotation;
  * 2. The decorator after your decorator has not adapted yet
  *      If you call the inner service decorator with the new interface, which it does not implement yet it will lead to errors, therefore you have to also to the instanceof check in your decorators.
  */
+#[Package('core')]
 class ReplaceDecoratedInterface
 {
     public function __construct(array $info)

@@ -1,0 +1,90 @@
+<sw-page class="sw-settings-units">
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            v-tooltip="tooltipCreate"
+            class="sw-settings-units__create-action"
+            variant="primary"
+            :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator')"
+            @click="createNewUnit"
+        >
+            {{ $tc('sw-settings-units.general.createNewUnit') }}
+        </sw-button>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!!newUnit"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                position-identifier="sw-settings-units-content"
+                :class="{ 'sw-settings-units-card-empty': isEmpty }"
+            >
+                <sw-empty-state
+                    v-if="!isLoading && isEmpty"
+                    :title="$tc('sw-settings-units.empty-state.title')"
+                    :subline="$tc('sw-settings-units.empty-state.subline')"
+                    icon="regular-balance-scale"
+                />
+
+                <template #grid>
+                    <sw-data-grid
+                        v-show="isLoading || !isEmpty"
+                        ref="swDataGrid"
+                        class="sw-settings-units-grid"
+                        :is-loading="isLoading"
+                        :data-source="unitList"
+                        :columns="unitColumns()"
+                        :show-selection="false"
+                        :allow-inline-edit="acl.can('scale_unit.editor')"
+                        :skeleton-item-amount="placeholderAmount"
+                        @inline-edit-save="saveUnit"
+                        @inline-edit-cancel="cancelUnit"
+                    >
+
+                        <template #actions="{ item }">
+                            <sw-context-menu-item
+                                class="sw-settings-units__edit-action"
+                                :disabled="!acl.can('scale_unit.editor')"
+                                @click="editUnit(item)"
+                            >
+                                {{ $tc('global.default.edit') }}
+                            </sw-context-menu-item>
+
+                            <sw-context-menu-divider />
+
+                            <sw-context-menu-item
+                                class="sw-settings-units__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('scale_unit.deleter')"
+                                @click="deleteUnit(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-context-menu-item>
+                        </template>
+
+                    </sw-data-grid>
+                </template>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>

@@ -1,9 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-import-export-new-profile-wizard.html.twig';
 import './sw-import-export-new-profile-wizard.scss';
 
 const { Criteria } = Shopware.Data;
 
-Shopware.Component.register('sw-import-export-new-profile-wizard', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -48,7 +52,7 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
         },
 
         parentProfileCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
             criteria.addFilter(Criteria.equals('systemDefault', true));
 
@@ -150,4 +154,4 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
             this.$refs.wizard.nextPage();
         },
     },
-});
+};

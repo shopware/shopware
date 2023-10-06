@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class SingleSelectField extends CustomFieldType
 {
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];
@@ -73,6 +76,7 @@ class SingleSelectField extends CustomFieldType
         $values = [];
 
         foreach ($element->attributes as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = $attribute->value;
         }
 
@@ -87,7 +91,11 @@ class SingleSelectField extends CustomFieldType
                 continue;
             }
 
-            $values = self::mapTranslatedTag($child, $values);
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
+                $values = self::mapTranslatedTag($child, $values);
+            } else {
+                $values[self::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
+            }
         }
 
         return $values;

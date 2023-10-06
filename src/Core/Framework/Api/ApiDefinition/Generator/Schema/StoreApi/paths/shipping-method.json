@@ -1,0 +1,74 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/shipping-method": {
+            "post": {
+                "tags": [
+                    "Payment & Shipping",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch shipping methods",
+                "description": "Perform a filtered search for shipping methods.",
+                "operationId": "readShippingMethod",
+                "parameters": [
+                    {
+                        "name": "onlyAvailable",
+                        "in": "query",
+                        "description": "List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total": {
+                                            "description": "Total amount",
+                                            "type": "integer"
+                                        },
+                                        "aggregations": {
+                                            "description": "aggregation result",
+                                            "type": "object"
+                                        },
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -7,11 +7,14 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('system-settings')]
 class IntegrationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -48,7 +51,14 @@ class IntegrationEntity extends Entity
      */
     protected $aclRoles;
 
-    protected ?\DateTimeInterface $deletedAt;
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     *
+     * @var bool
+     */
+    protected $writeAccess;
+
+    protected ?\DateTimeInterface $deletedAt = null;
 
     public function getLabel(): string
     {
@@ -128,5 +138,31 @@ class IntegrationEntity extends Entity
     public function setDeletedAt(\DateTimeInterface $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
+    public function getWriteAccess(): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
+        return $this->writeAccess;
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
+    public function setWriteAccess(bool $writeAccess): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
+        $this->writeAccess = $writeAccess;
     }
 }

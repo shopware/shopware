@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 0.8);
+$sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 80%);
 $sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
 $sw-product-variants-configurator-selection-search-background: $color-gray-100;
 
@@ -13,13 +13,13 @@ $sw-product-variants-configurator-selection-search-background: $color-gray-100;
         margin: 0;
     }
 
-    .sw-icon.sw-simple-search-field__search-icon.icon--small-search.sw-icon--small {
+    .sw-icon.sw-simple-search-field__search-icon.icon--regular-search-s.sw-icon--small {
         right: 45px;
     }
 }
 
 .generate-variant-progress-bar__wrapper {
-    z-index: 1;
+    z-index: 3;
     position: absolute;
     top: 0;
     left: 0;

@@ -3,15 +3,21 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @template TEntityCollection of EntityCollection
+ */
+#[Package('core')]
 class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<TEntityCollection>
      */
     protected $result;
 
@@ -25,8 +31,13 @@ class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected $name;
 
-    public function __construct(EntityDefinition $definition, EntitySearchResult $result)
-    {
+    /**
+     * @param EntitySearchResult<TEntityCollection> $result
+     */
+    public function __construct(
+        EntityDefinition $definition,
+        EntitySearchResult $result
+    ) {
         $this->result = $result;
         $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.search.result.loaded';
@@ -42,6 +53,9 @@ class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
         return $this->result->getContext();
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>
+     */
     public function getResult(): EntitySearchResult
     {
         return $this->result;

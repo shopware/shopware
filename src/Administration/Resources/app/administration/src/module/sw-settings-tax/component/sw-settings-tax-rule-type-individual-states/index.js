@@ -1,9 +1,14 @@
 import template from './sw-settings-tax-rule-type-individual-states.html.twig';
 
-const { Component, Context } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-Component.register('sw-settings-tax-rule-type-individual-states', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -23,7 +28,7 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
 
     computed: {
         exclusionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('countryId', this.taxRule.countryId));
 
             return criteria;
@@ -50,7 +55,7 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
                     Context.api,
                 );
             } else {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds(this.taxRule.data.states);
 
                 this.stateRepository.search(criteria, Context.api).then(collection => {
@@ -64,4 +69,4 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
             this.taxRule.data.states = collection.getIds();
         },
     },
-});
+};

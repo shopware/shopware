@@ -1,0 +1,60 @@
+<div class="sw-cms-visibility-config">
+    <div class="sw-cms-visibility-config__checkbox-group-label">
+        {{ $tc('sw-cms.sidebar.contentMenu.visibilityLabelCheckboxGroup') }}
+    </div>
+    <div
+        class="sw-cms-visibility-config__checkbox-group"
+    >
+        <label
+            class="sw-cms-visibility-config__checkbox"
+            for="sw-cms-visibility-config-mobile"
+        >
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityMobile') }}
+            <input
+                id="sw-cms-visibility-config-mobile"
+                class="sw-cms-visibility-config__checkbox-input"
+                type="checkbox"
+                :value="visibility.mobile"
+                @change="onVisibilityChange('mobile', !visibility.mobile)"
+            >
+            <sw-icon
+                :name="visibility.mobile ? 'regular-mobile' : 'regular-mobile-slash'"
+                size="24"
+            />
+        </label>
+        <label
+            class="sw-cms-visibility-config__checkbox"
+            for="sw-cms-visibility-config-tablet"
+        >
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityTablet') }}
+            <input
+                id="sw-cms-visibility-config-tablet"
+                class="sw-cms-visibility-config__checkbox-input"
+                type="checkbox"
+                :value="visibility.tablet"
+                @change="onVisibilityChange('tablet', !visibility.tablet)"
+            >
+            <sw-icon
+                :name="visibility.tablet ? 'regular-tablet' : 'regular-tablet-slash'"
+                size="24"
+            />
+        </label>
+        <label
+            class="sw-cms-visibility-config__checkbox"
+            for="sw-cms-visibility-config-desktop"
+        >
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityDesktop') }}
+            <input
+                id="sw-cms-visibility-config-desktop"
+                class="sw-cms-visibility-config__checkbox-input"
+                type="checkbox"
+                :value="visibility.desktop"
+                @change="onVisibilityChange('desktop', !visibility.desktop)"
+            >
+            <sw-icon
+                :name="visibility.desktop ? 'regular-desktop' : 'regular-desktop-slash'"
+                size="24"
+            />
+        </label>
+    </div>
+</div>

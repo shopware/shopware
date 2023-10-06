@@ -18,7 +18,8 @@
       "levelError": "Fehler",
       "levelCritical": "Kritisch",
       "levelAlert": "Alarm",
-      "levelEmergency": "Notfall"
+      "levelEmergency": "Notfall",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "entryInfo": {
       "title": "Log-Informationen",

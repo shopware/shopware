@@ -5,7 +5,11 @@ import './sw-cms-layout-assignment-modal.scss';
 const { cloneDeep } = Shopware.Utils.object;
 const { EntityCollection, Criteria } = Shopware.Data;
 
-Shopware.Component.register('sw-cms-layout-assignment-modal', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: [
@@ -124,6 +128,10 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         isProductDetailPage() {
             return this.page.type === 'product_detail';
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {
@@ -144,8 +152,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.loadSystemConfig();
         },
 
-        onModalClose() {
-            this.$emit('modal-close');
+        onModalClose(saveAfterClose = false) {
+            this.$emit('modal-close', saveAfterClose);
         },
 
         saveShopPages() {
@@ -340,11 +348,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             Promise
                 .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
                 .then(() => {
-                    /** @deprecated tag:v6.5.0 event can be removed completely */
-                    this.$emit('confirm');
-
-                    this.onModalClose();
-                }).finally(() => {
+                    this.onModalClose(true);
+                }).catch(() => {
                     this.isLoading = false;
                 });
         },
@@ -440,4 +445,4 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.loadSystemConfig();
         },
     },
-});
+};

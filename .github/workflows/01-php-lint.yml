@@ -1,34 +1,82 @@
 name: PHP Lint
 
 on:
-    push:
-      branches:
-          - trunk
-    pull_request:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    paths:
+      - composer.json
+      - 'changelog/**/*.md'
+      - 'src/**/snippet/**/*.json'
+      - '**.php'
+      - '.github/workflows/01-php-lint.yml'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     name: "PHP Analyse"
-    container: shopware/development:7.4-composer-2
 
     steps:
-    - name: Clone platform
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: '0'
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-    - name: Install Shopware
-      run: |
-        composer install
+      - name: Cache Composer Archives
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
-    - name: Check Code
-      run: |
-        composer run ecs -- src --no-progress-bar
-        composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
-        composer run psalm -- --threads=$(nproc) --show-info=false --no-progress
-        composer run lint:changelog
-        composer run lint:snippets
-        git remote add bc-checker-upstream https://github.com/shopware/platform.git
-        git fetch bc-checker-upstream
-        composer run bc-check
+      - name: Clone platform
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install Dependencies
+        run: |
+          composer install
+
+      - name: Cache CS Fixer
+        uses: actions/cache@v3
+        with:
+          path: ./var/cache/cs_fixer
+          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('vendor-bin/cs-fixer/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cs-fixer-
+
+      - name: Code Style
+        run: composer run ecs -- --no-progress-bar
+
+      - name: Cache PHPStan Fixer
+        uses: actions/cache@v3
+        with:
+          path: ./var/cache/phpstan
+          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-phpstan-
+
+      - name: PHPStan
+        run: composer run phpstan -- --error-format=github --no-progress | tee phpstan-report.json
+
+      - name: Lint Changelogs
+        run: composer run lint:changelog
+
+      - name: Lint Snippets
+        run: composer run lint:snippets
+
+      - name: BC Checker
+        run: |
+          set -e
+          git remote add bc-checker-upstream https://github.com/shopware/platform.git
+          git fetch bc-checker-upstream
+          composer run bc-check

@@ -1,10 +1,13 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-generate-codes-modal.html.twig';
 import './sw-promotion-v2-generate-codes-modal.scss';
 
-const { Component } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
-Component.register('sw-promotion-v2-generate-codes-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -145,5 +148,4 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
             this.$emit('close');
         },
     },
-});
-
+};

@@ -3,6 +3,10 @@ import './sw-condition-operator-select.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-condition-operator-select', {
     template: template,
 
@@ -22,6 +26,16 @@ Component.register('sw-condition-operator-select', {
             required: false,
             default: false,
         },
+
+        /**
+         * The used condition snippets depend on the pre-operator snippets and should be plural or singular
+         * depending on the pre-operator selection.
+         */
+        plural: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -34,8 +48,10 @@ Component.register('sw-condition-operator-select', {
             },
             set(operator) {
                 if (!this.condition.value) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
+                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = { ...this.condition.value, operator };
             },
         },
@@ -44,7 +60,7 @@ Component.register('sw-condition-operator-select', {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.$tc(label),
+                    label: this.plural ? this.$tc(label, 2) : this.$tc(label),
                 };
             });
         },

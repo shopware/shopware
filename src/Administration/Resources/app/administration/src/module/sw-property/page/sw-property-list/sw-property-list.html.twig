@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_list %}
 <sw-page class="sw-property-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="property"
             :placeholder="$tc('sw-property.general.placeholderSearchBar')"
@@ -11,16 +13,20 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_smart_bar_header_title %}
         <h2>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_smart_bar_header_title_text %}
             {{ $tc('sw-property.list.textProperties') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_smart_bar_header_title_amount %}
             <span
                 v-if="!isLoading"
@@ -36,9 +42,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_ %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_add_button %}
         <sw-button
             v-tooltip="{
@@ -58,18 +66,20 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_content %}
         <div class="sw-property-list__content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -81,7 +91,7 @@
                 :show-selection="false"
                 :show-settings="true"
                 :full-page="true"
-                :sort-by="sortBy"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 :is-loading="isLoading"
                 :allow-column-edit="true"
@@ -95,15 +105,13 @@
                 @page-change="onPageChange"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_options %}
                 <template
-                    slot="column-options"
-                    slot-scope="{ item }"
+                    #column-options="{ item }"
                 >
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                     <span
-                        v-for="(option, index) in item.options"
-                        v-if="index < 4"
+                        v-for="(option, index) in item.options.slice(0, 4)"
                         :key="option.id"
                     >
                         {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}
@@ -114,26 +122,33 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_filterable %}
                 <template #column-filterable="{ item, isInlineEdit }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field v-model="item.filterable" />
+                        <sw-checkbox-field
+                            {% if VUE3 %}
+                            v-model:value="item.filterable"
+                            {% else %}
+                            v-model="item.filterable"
+                            {% endif %}
+                        />
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_filterable_content %}
                     <template v-else>
                         <sw-icon
                             v-if="item.filterable"
-                            name="small-default-checkmark-line-medium"
-                            small
+                            name="regular-checkmark-xs"
                             class="is--active"
                         />
                         <sw-icon
                             v-else
-                            name="small-default-x-line-medium"
-                            small
+                            name="regular-times-s"
                             class="is--inactive"
                         />
                     </template>
@@ -141,11 +156,12 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_columns_actions %}
                 <template
-                    slot="actions"
-                    slot-scope="{ item }"
+                    #actions="{ item }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_actions_detail %}
                     <sw-context-menu-item
                         class="sw-property-list__edit-action"
@@ -156,6 +172,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         class="sw-property-list__delete-action"
@@ -169,10 +186,10 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_action_modals %}
                 <template
-                    slot="action-modals"
-                    slot-scope="{ item }"
+                    #action-modals="{ item }"
                 >
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -184,7 +201,7 @@
                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                         </p>
 
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             <sw-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -207,6 +224,7 @@
             </sw-entity-listing>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -235,16 +253,20 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_sidebar %}
-    <sw-sidebar slot="sidebar">
-        {% block sw_property_list_sidebar_refresh_item %}
-        <sw-sidebar-item
-            icon="default-arrow-360-left"
-            :title="$tc('sw-property.list.titleSidebarItemRefresh')"
-            @click="onRefresh"
-        />
-        {% endblock %}
-    </sw-sidebar>
+    <template #sidebar>
+        <sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_property_list_sidebar_refresh_item %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-property.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

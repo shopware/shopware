@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\Pathname;
+namespace Shopware\Core\Content\Test\Media\Pathname;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -8,12 +8,22 @@ use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrate
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class PathnameStrategyTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+        parent::setUp();
+    }
 
     public function testUuidCacheBuster(): void
     {
@@ -67,6 +77,7 @@ class PathnameStrategyTest extends TestCase
     {
         $encoded = $strategy->generatePathHash($media);
 
+        static::assertIsString($encoded);
         static::assertSame($encoded, $strategy->generatePathHash($media));
         static::assertStringEndsNotWith('/', $encoded);
         static::assertStringStartsNotWith('/', $encoded);
@@ -85,6 +96,6 @@ class PathnameStrategyTest extends TestCase
         $mediaWithThumbnail = $this->getMediaWithThumbnail();
 
         static::assertSame('jpgFileWithExtension.jpg', $strategy->generatePhysicalFilename($jpg));
-        static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()->first()));
+        static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()?->first()));
     }
 }

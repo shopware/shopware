@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condtion_tree_node %}
 <component
     :is="conditionNodeComponent"
+    :key="condition.type"
     class="condition-tree-node"
     v-bind="{ condition, parentCondition, level }"
     :disabled="disabled"

@@ -2,37 +2,26 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class ElasticsearchOutdatedIndexDetector
 {
-    private Client $client;
-
-    private ElasticsearchRegistry $registry;
-
-    private EntityRepositoryInterface $languageRepository;
-
-    private ElasticsearchHelper $helper;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Client $client,
-        ElasticsearchRegistry $esRegistry,
-        EntityRepositoryInterface $languageRepository,
-        ElasticsearchHelper $helper
+        private readonly Client $client,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly ElasticsearchHelper $helper,
+        private readonly ElasticsearchLanguageProvider $languageProvider
     ) {
-        $this->client = $client;
-        $this->registry = $esRegistry;
-        $this->languageRepository = $languageRepository;
-        $this->helper = $helper;
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function get(): ?array
     {
@@ -54,37 +43,35 @@ class ElasticsearchOutdatedIndexDetector
         return $indicesToBeDeleted;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAllUsedIndices(): array
     {
         $allIndices = $this->getAllIndices();
 
-        if (empty($allIndices)) {
-            return [];
-        }
-
-        return array_map(function (array $index) {
-            return $index['settings']['index']['provided_name'];
-        }, $allIndices);
-    }
-
-    private function getLanguages(): EntityCollection
-    {
-        return $this->languageRepository
-            ->search(new Criteria(), Context::createDefaultContext())
-            ->getEntities();
+        return array_map(fn (array $index) => $index['settings']['index']['provided_name'], $allIndices);
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getPrefixes(): array
     {
         $definitions = $this->registry->getDefinitions();
 
-        /** @var LanguageCollection $languages */
-        $languages = $this->getLanguages();
-
         $prefixes = [];
+
+        if ($this->helper->enabledMultilingualIndex()) {
+            foreach ($definitions as $definition) {
+                $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
+            }
+
+            return $prefixes;
+        }
+
+        $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
+
         foreach ($languages as $language) {
             foreach ($definitions as $definition) {
                 $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId()));
@@ -94,6 +81,9 @@ class ElasticsearchOutdatedIndexDetector
         return $prefixes;
     }
 
+    /**
+     * @return array{aliases: array<string>, settings: array<mixed>}[]
+     */
     private function getAllIndices(): array
     {
         $prefixes = array_chunk($this->getPrefixes(), 5);

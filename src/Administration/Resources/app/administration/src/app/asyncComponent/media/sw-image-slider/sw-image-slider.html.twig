@@ -1,0 +1,130 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_image_slider %}
+<div
+    v-if="images.length > 0"
+    class="sw-image-slider"
+    :style="wrapperStyles"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_image_slider_image_container %}
+    <div
+        class="sw-image-slider__image-container"
+        :style="containerStyles"
+    >
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_image_slider_image_container_scrollable %}
+        <div
+            class="sw-image-slider__image-scrollable"
+            :style="scrollableContainerStyles"
+        >
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_image_slider_images %}
+            <div
+                v-for="(image, index) in images"
+                :key="index"
+                class="sw-image-slider__element-wrapper"
+                :aria-hidden="isHiddenItem(index)"
+                :style="componentStyles"
+            >
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_image_slider_image_images_container %}
+                <div
+                    class="sw-image-slider__element-container"
+                    :class="elementClasses(index)"
+                    :style="elementStyles(image, index)"
+                    role="button"
+                    tabindex="0"
+                    @click="onSetCurrentItem(index)"
+                    @keydown.enter="onSetCurrentItem(index)"
+                >
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_image_slider_image %}
+                    <img
+                        class="sw-image-slider__element-image"
+                        :class="imageClasses(index)"
+                        :style="[borderStyles(image), imageStyles]"
+                        :src="getImage(image)"
+                        :alt="imageAlt(index)"
+                    >
+                {% endblock %}
+                </div>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_image_slider_element_description %}
+                <div
+                    v-if="hasValidDescription(image)"
+                    class="sw-image-slider__element-description"
+                    :style="componentStyles"
+                >
+                    {{ image.description }}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_image_slider_image_container_arrows %}
+        <template v-if="showArrows">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_image_slider_image_container_arrow_left %}
+            <div
+                class="sw-image-slider__arrow arrow-left"
+                role="button"
+                tabindex="0"
+                @click="goToPreviousImage"
+                @keydown.enter="goToPreviousImage"
+            >
+                <sw-icon name="regular-chevron-left" />
+            </div>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_image_slider_image_container_arrow_right %}
+            <div
+                class="sw-image-slider__arrow arrow-right"
+                role="button"
+                tabindex="0"
+                @click="goToNextImage"
+                @keydown.enter="goToNextImage"
+            >
+                <sw-icon name="regular-chevron-right" />
+            </div>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_image_slider_button_container %}
+    <div
+        v-if="showButtons"
+        class="sw-image-slider__buttons"
+        :class="buttonClasses"
+    >
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_image_slider_buttons %}
+        <button
+            v-for="(item, index) in buttonList"
+            :key="index"
+            class="sw-image-slider__buttons-element"
+            :class="{ 'is--active': index === currentPageNumber }"
+            @click="setCurrentPageNumber(index)"
+        >
+            {{ imageAlt(index) }}
+        </button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ namespace Shopware\Administration\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -12,8 +12,11 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @internal (flag:FEATURE_NEXT_17421) move into new migration if the feature releases
+ * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 {
     private const CONFIG_KEY = 'sales-channel-favorites';
@@ -26,10 +29,6 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_17421')) {
-            return;
-        }
-
         $ids = $this->fetchUserSalesChannelIds($connection);
 
         if (!$ids) {
@@ -45,7 +44,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'user_id' => $userId,
                 '`key`' => self::CONFIG_KEY,
-                '`value`' => json_encode($slicedIds),
+                '`value`' => json_encode($slicedIds, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -56,6 +55,11 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @param list<array{userId: string, salesChannelId: string, name: string}> $data
+     *
+     * @return array<string, list<string>>
+     */
     private function getMappedData(array $data): array
     {
         $mapping = [];
@@ -66,9 +70,13 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
         return $mapping;
     }
 
+    /**
+     * @return list<array{userId: string, salesChannelId: string, name: string}>
+     */
     private function fetchUserSalesChannelIds(Connection $connection): array
     {
-        return $connection->createQueryBuilder()
+        /** @var list<array{userId: string, salesChannelId: string, name: string}> $result */
+        $result = $connection->createQueryBuilder()
             ->select('user.id AS userId')
             ->addSelect('LOWER(HEX(translation.sales_channel_id)) AS salesChannelId')
             ->addSelect('translation.name')
@@ -76,7 +84,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
             ->innerJoin('user', LanguageDefinition::ENTITY_NAME, 'language', 'user.locale_id = language.locale_id')
             ->innerJoin('language', SalesChannelTranslationDefinition::ENTITY_NAME, 'translation', 'translation.language_id = language.id')
             ->orderBy('translation.name', 'ASC')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
+
+        return $result;
     }
 }

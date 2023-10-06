@@ -1,6 +1,18 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-product-three-column', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-product-three-column', () => import('./component'));
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-three-column',
     label: 'sw-cms.blocks.commerce.productThreeColumn.label',

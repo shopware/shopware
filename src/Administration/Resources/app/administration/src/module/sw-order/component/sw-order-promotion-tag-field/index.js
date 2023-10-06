@@ -1,10 +1,15 @@
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
-const { Component, Utils } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Utils } = Shopware;
 const { format } = Utils;
 
-Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -48,7 +53,12 @@ Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
                 code: this.newTagName,
             };
 
-            this.$emit('change', [...this.value, newTagItem]);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', [...this.value, newTagItem]);
+            } else {
+                this.$emit('change', [...this.value, newTagItem]);
+            }
+
             this.newTagName = '';
         },
 
@@ -77,9 +87,10 @@ Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
                 : format.currency(Number(value), this.currency.shortName);
 
             return this.$tc(
-                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0,
+                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,
+                0,
                 { value: discountValue, groupId },
             );
         },
     },
-});
+};

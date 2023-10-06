@@ -3,33 +3,30 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+#[Package('storefront')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
-    private RequestStack $requestStack;
-
-    private AbstractThemePathBuilder $themePathBuilder;
-
+    /**
+     * @internal
+     *
+     * @param string|string[] $baseUrls
+     */
     public function __construct(
-        $baseUrls,
+        string|array $baseUrls,
         VersionStrategyInterface $versionStrategy,
-        RequestStack $requestStack,
-        AbstractThemePathBuilder $themePathBuilder
+        private readonly RequestStack $requestStack,
+        private readonly AbstractThemePathBuilder $themePathBuilder
     ) {
         parent::__construct($baseUrls, $versionStrategy);
-        $this->requestStack = $requestStack;
-        $this->themePathBuilder = $themePathBuilder;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl(string $path)
+    public function getUrl(string $path): string
     {
         if ($this->isAbsoluteUrl($path)) {
             return $path;
@@ -40,19 +37,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
             $url = '/' . $url;
         }
 
-        if (str_starts_with($url, '/bundles') || str_starts_with($url, '/theme/')) {
-            Feature::triggerDeprecated('FEATURE_NEXT_14699', '6.4.2.0', '6.5.0.0', 'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0');
-
-            $url = $this->getVersionStrategy()->applyVersion($url);
-
-            if ($this->isAbsoluteUrl($url)) {
-                return $url;
-            }
-
-            return $this->getBaseUrl($path) . $url;
-        }
-
-        $url = $this->getVersionStrategy()->applyVersion($this->appendThemePath() . $url);
+        $url = $this->getVersionStrategy()->applyVersion($this->appendThemePath($url) . $url);
 
         if ($this->isAbsoluteUrl($url)) {
             return $url;
@@ -61,7 +46,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         return $this->getBaseUrl($path) . $url;
     }
 
-    private function appendThemePath(): string
+    private function appendThemePath(string $url): string
     {
         $currentRequest = $this->requestStack->getMainRequest();
 
@@ -74,6 +59,10 @@ class ThemeAssetPackage extends FallbackUrlPackage
 
         if ($themeId === null || $salesChannelId === null) {
             return '';
+        }
+
+        if (str_starts_with($url, '/assets')) {
+            return '/theme/' . $themeId;
         }
 
         return '/theme/' . $this->themePathBuilder->assemblePath($salesChannelId, $themeId);

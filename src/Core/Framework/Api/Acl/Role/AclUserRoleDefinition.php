@@ -10,11 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
+#[Package('core')]
 class AclUserRoleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'acl_user_role';
+    final public const ENTITY_NAME = 'acl_user_role';
 
     public function getEntityName(): string
     {
@@ -33,8 +35,8 @@ class AclUserRoleDefinition extends MappingEntityDefinition
             (new FkField('acl_role_id', 'aclRoleId', AclRoleDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class)),
-            (new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class)),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class),
+            new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class),
         ]);
     }
 }

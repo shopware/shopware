@@ -1,8 +1,10 @@
 import template from './sw-flow-sequence-modal.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-flow-sequence-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     props: {
@@ -32,4 +34,4 @@ Component.register('sw-flow-sequence-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

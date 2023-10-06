@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -12,23 +13,27 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CacheStateSubscriber implements EventSubscriberInterface
 {
-    public const STATE_LOGGED_IN = 'logged-in';
+    final public const STATE_LOGGED_IN = 'logged-in';
 
-    public const STATE_CART_FILLED = 'cart-filled';
+    final public const STATE_CART_FILLED = 'cart-filled';
 
-    private CartService $cartService;
-
-    public function __construct(CartService $cartService)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly CartService $cartService)
     {
-        $this->cartService = $cartService;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => [

@@ -2,20 +2,29 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
-use Symfony\Component\Messenger\Event\WorkerRunningEvent;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
-class CountHandledMessagesListener extends StopWorkerOnTimeLimitListener
+/**
+ * @internal
+ */
+#[Package('system-settings')]
+class CountHandledMessagesListener implements EventSubscriberInterface
 {
     private int $handledMessages = 0;
 
-    public function onWorkerRunning(WorkerRunningEvent $event): void
+    public static function getSubscribedEvents(): array
     {
-        if (!$event->isWorkerIdle()) {
-            ++$this->handledMessages;
-        }
+        return [
+            // must have higher priority than SendFailedMessageToFailureTransportListener
+            WorkerMessageReceivedEvent::class => 'handled',
+        ];
+    }
 
-        parent::onWorkerRunning($event);
+    public function handled(WorkerMessageReceivedEvent $event): void
+    {
+        ++$this->handledMessages;
     }
 
     public function getHandledMessages(): int

@@ -6,17 +6,13 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class CriteriaBuilder
 {
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityDefinition $entityDefinition)
+    public function __construct(private readonly EntityDefinition $definition)
     {
-        $this->definition = $entityDefinition;
     }
 
     public function enrichCriteria(Config $config, Criteria $criteria): Criteria

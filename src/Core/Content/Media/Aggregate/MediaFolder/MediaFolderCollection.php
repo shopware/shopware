@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                   add(MediaFolderEntity $entity)
- * @method void                   set(string $key, MediaFolderEntity $entity)
- * @method MediaFolderEntity[]    getIterator()
- * @method MediaFolderEntity[]    getElements()
- * @method MediaFolderEntity|null get(string $key)
- * @method MediaFolderEntity|null first()
- * @method MediaFolderEntity|null last()
+ * @extends EntityCollection<MediaFolderEntity>
  */
+#[Package('buyers-experience')]
 class MediaFolderCollection extends EntityCollection
 {
     public function getApiAlias(): string

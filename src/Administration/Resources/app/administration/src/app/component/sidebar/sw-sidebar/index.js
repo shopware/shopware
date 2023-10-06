@@ -4,14 +4,18 @@ import './sw-sidebar.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
  * @component-example
- * <sw-sidebar slot="sidebar">
- *     <sw-sidebar-item title="Refresh" icon="default-arrow-360-left"></sw-sidebar-item>
+ * <sw-sidebar #sidebar>
+ *     <sw-sidebar-item title="Refresh" icon="regular-undo"></sw-sidebar-item>
  * </sw-sidebar>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar', {
     template,
 

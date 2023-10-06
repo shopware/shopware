@@ -3,16 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void               add(VersionEntity $entity)
- * @method void               set(string $key, VersionEntity $entity)
- * @method VersionEntity[]    getIterator()
- * @method VersionEntity[]    getElements()
- * @method VersionEntity|null get(string $key)
- * @method VersionEntity|null first()
- * @method VersionEntity|null last()
+ * @extends EntityCollection<VersionEntity>
  */
+#[Package('core')]
 class VersionCollection extends EntityCollection
 {
     public function getApiAlias(): string

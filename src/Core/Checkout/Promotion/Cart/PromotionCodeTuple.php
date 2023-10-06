@@ -3,23 +3,15 @@
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class PromotionCodeTuple
 {
-    /**
-     * @var string
-     */
-    private $code;
-
-    /**
-     * @var PromotionEntity
-     */
-    private $promotion;
-
-    public function __construct(string $code, PromotionEntity $promotion)
-    {
-        $this->code = $code;
-        $this->promotion = $promotion;
+    public function __construct(
+        private readonly string $code,
+        private readonly PromotionEntity $promotion
+    ) {
     }
 
     /**

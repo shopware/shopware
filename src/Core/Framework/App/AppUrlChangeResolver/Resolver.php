@@ -3,41 +3,24 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
-use Shopware\Core\Framework\App\Exception\NoAppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Resolver
 {
     /**
-     * @var iterable|AbstractAppUrlChangeStrategy[]
-     */
-    private $strategies;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @param AbstractAppUrlChangeStrategy[] $strategies
      */
-    public function __construct(iterable $strategies, SystemConfigService $systemConfigService)
+    public function __construct(private readonly iterable $strategies)
     {
-        $this->strategies = $strategies;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function resolve(string $strategyName, Context $context): void
     {
-        if (!$this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)) {
-            throw new NoAppUrlChangeDetectedException();
-        }
-
         /** @var AbstractAppUrlChangeStrategy $strategy */
         foreach ($this->strategies as $strategy) {
             if ($strategy->getName() === $strategyName) {
@@ -51,7 +34,7 @@ class Resolver
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAvailableStrategies(): array
     {

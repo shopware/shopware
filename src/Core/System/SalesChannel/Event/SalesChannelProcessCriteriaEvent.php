@@ -5,18 +5,16 @@ namespace Shopware\Core\System\SalesChannel\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class SalesChannelProcessCriteriaEvent implements ShopwareSalesChannelEvent
 {
-    private Criteria $criteria;
-
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
-    {
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getCriteria(): Criteria

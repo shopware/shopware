@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DataAbstractionLayer\Write;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -16,11 +16,14 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DefaultsDefin
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class WriteCommandExtractorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->stopTransactionAfter();
         $connection = $this->getContainer()->get(Connection::class);
@@ -38,7 +41,7 @@ class WriteCommandExtractorTest extends TestCase
         $definitions->register(new DefaultsChildTranslationDefinition());
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->stopTransactionAfter();
         $connection = $this->getContainer()->get(Connection::class);

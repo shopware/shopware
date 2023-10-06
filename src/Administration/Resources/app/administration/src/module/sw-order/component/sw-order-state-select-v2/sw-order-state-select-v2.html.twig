@@ -1,17 +1,23 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_state_select_v2 %}
 <div
     class="sw-order-state-select-v2"
     :class="`sw-order-state-select-v2__${stateType}`"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_select_v2_field %}
     <sw-single-select
         id="state"
+        {% if VUE3 %}
+        v-model:value="selectedActionName"
+        {% else %}
         v-model="selectedActionName"
+        {% endif %}
         :class="`${selectStyle} ${backgroundStyle}`"
         :disabled="!selectable"
         label-property="name"
         value-property="id"
-        :placeholder="placeholder"
+        :placeholder="selectPlaceholder"
         :label="label"
         :options="transitionOptions"
         size="small"

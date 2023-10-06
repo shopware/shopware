@@ -1,11 +1,18 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-product-stream-detail', {
+/**
+ * @private
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamConditionService', 'acl', 'customFieldDataProviderService'],
@@ -49,6 +56,7 @@ Component.register('sw-product-stream-detail', {
     data() {
         return {
             isLoading: false,
+            customFieldsLoading: false,
             isSaveSuccessful: false,
             productStream: null,
             productStreamFilters: null,
@@ -153,8 +161,15 @@ Component.register('sw-product-stream-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-stream-detail__productStream',
+                path: 'productStream',
+                scope: this,
+            });
             this.languageId = Context.api.languageId;
-            this.getProductCustomFields();
+            if (this.productStreamId) {
+                this.getProductCustomFields();
+            }
             this.loadCustomFieldSets();
         },
 
@@ -181,7 +196,7 @@ Component.register('sw-product-stream-detail', {
 
         loadFilters(collection = null) {
             if (collection === null) {
-                const filterCriteria = new Criteria();
+                const filterCriteria = new Criteria(1, 25);
                 filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
 
                 return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
@@ -223,13 +238,40 @@ Component.register('sw-product-stream-detail', {
             });
         },
 
+        onDuplicate() {
+            return this.onSave().then(() => {
+                const behavior = {
+                    cloneChildren: true,
+                    overwrites: {
+                        // eslint-disable-next-line max-len
+                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
+                    },
+                };
+
+                this.isLoading = true;
+
+                return this.productStreamRepository.clone(this.productStream.id, Shopware.Context.api, behavior)
+                    .then((clone) => {
+                        const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
+
+                        this.$router.push(route);
+                    }).catch(() => {
+                        this.isLoading = false;
+
+                        this.createNotificationError({
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    });
+            });
+        },
+
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
             if (this.productStream.isNew()) {
                 this.productStream.filters = this.productStreamFiltersTree;
-                this.saveProductStream()
+                return this.saveProductStream()
                     .then(() => {
                         this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
                         this.isSaveSuccessful = true;
@@ -238,11 +280,9 @@ Component.register('sw-product-stream-detail', {
                         this.showErrorNotification();
                         this.isLoading = false;
                     });
-
-                return;
             }
 
-            this.productStreamRepository.save(this.productStream, Context.api)
+            return this.productStreamRepository.save(this.productStream, Context.api)
                 .then(this.syncProductStreamFilters)
                 .then(() => {
                     return this.loadEntityData(this.productStream.id);
@@ -296,23 +336,37 @@ Component.register('sw-product-stream-detail', {
         },
 
         getProductCustomFields() {
-            const customFieldsCriteria = new Criteria();
-            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
-                .addAssociation('customFields')
-                .addAssociation('relations');
+            this.customFieldsLoading = true;
+            const customFieldsCriteria = new Criteria(1, null);
+            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
+            const loadingPromises = [];
             return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+                const singleCriteria = new Criteria(1, null);
+                singleCriteria
+                    .addAssociation('customFields')
+                    .addAssociation('relations');
+
+
                 customFieldSets.forEach((customFieldSet) => {
-                    const customFields = customFieldSet.customFields
-                        .reduce((acc, customField) => {
-                            acc[customField.name] = this.mapCustomFieldType({
-                                type: customField.type,
-                                value: `customFields.${customField.name}`,
-                                label: this.getCustomFieldLabel(customField),
-                            });
-                            return acc;
-                        }, {});
-                    Object.assign(this.productCustomFields, customFields);
+                    loadingPromises.push(
+                        this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then(set => {
+                            const customFields = set.customFields
+                                .reduce((acc, customField) => {
+                                    acc[customField.name] = this.mapCustomFieldType({
+                                        type: customField.type,
+                                        value: `customFields.${customField.name}`,
+                                        label: this.getCustomFieldLabel(customField),
+                                    });
+                                    return acc;
+                                }, {});
+                            Object.assign(this.productCustomFields, customFields);
+                        }),
+                    );
+                });
+
+                Promise.all(loadingPromises).then(() => {
+                    this.customFieldsLoading = false;
                 });
             });
         },
@@ -358,4 +412,4 @@ Component.register('sw-product-stream-detail', {
             };
         },
     },
-});
+};

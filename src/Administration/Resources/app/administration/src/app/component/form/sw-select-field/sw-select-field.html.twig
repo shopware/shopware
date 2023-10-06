@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_block_field %}
 <sw-block-field
     class="sw-field--select"
@@ -6,6 +7,7 @@
     :name="formFieldName"
 >
     <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <select
             :id="identification"
             :name="identification"
@@ -47,11 +49,19 @@
 
         <div class="sw-field--select__options">
             <sw-icon
-                name="small-arrow-medium-down"
+                name="regular-chevron-down-xs"
                 small
                 decorative
             />
         </div>
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-block-field>
 {% endblock %}

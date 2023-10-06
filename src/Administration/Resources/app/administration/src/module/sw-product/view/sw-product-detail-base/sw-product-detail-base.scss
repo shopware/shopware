@@ -2,7 +2,7 @@
 
 .sw-card__back-link {
     display: flow-root;
-    max-width: 800px;
-    margin: 3px auto 25px auto;
+    max-width: $content-width;
+    margin: 3px auto 25px;
     text-decoration: none;
 }

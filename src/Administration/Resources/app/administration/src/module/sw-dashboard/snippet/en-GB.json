@@ -68,7 +68,7 @@
     "todayStats": {
       "headline": "Today's statistics",
       "orders": "Orders",
-      "turnover": "Turnover",
+      "turnover": "Total value",
       "orderTime": "Time"
     },
     "monthStats": {
@@ -83,7 +83,10 @@
       "orderNumber": "Orders",
       "turnover": "Turnover",
       "numberOfOrders": "Count",
-      "totalTurnover": "Total"
+      "totalTurnover": "Total",
+      "helperText": "The turnover graph only displays orders in payment status \"paid\".",
+      "linkOrders": "View orders",
+      "linkPaidOrders": "View paid orders"
     }
   }
 }

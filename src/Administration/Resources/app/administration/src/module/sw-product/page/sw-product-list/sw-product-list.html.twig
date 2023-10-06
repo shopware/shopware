@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_list %}
 <sw-page class="sw-product-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -11,14 +13,18 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_header %}
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_smart_bar_header_title_text %}
             {{ $tc('sw-product.list.textProductOverview') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -32,25 +38,75 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        {% block sw_product_list_smart_bar_actions_add %}
-        <sw-button
-            v-tooltip="{
+        <sw-button-group
+            v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.product.create' }"
-            variant="primary"
-            :disabled="!acl.can('product.creator')"
+            class="sw-product-list__add-button-group"
+            split-button
         >
-            {{ $tc('sw-product.list.buttonAddProduct') }}
-        </sw-button>
-        {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_list_smart_bar_actions_add %}
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.creator'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-product-list__add-physical-button"
+                :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-physical'] } }"
+                variant="primary"
+                :disabled="!acl.can('product.creator')"
+            >
+                {{ $tc('sw-product.list.buttonAddProduct') }}
+            </sw-button>
+            {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_list_smart_bar_actions_add_download %}
+            <sw-context-button class="sw-product-list__add-other-context-button">
+                <template #button>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_list_smart_bar_actions_add_download_button %}
+                    <sw-button
+                        class="sw-product-list__button-context-menu"
+                        square
+                        variant="primary"
+                        :disabled="!acl.can('product.editor')"
+                    >
+                        <sw-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </sw-button>
+                    {% endblock %}
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_smart_bar_actions_add_download_context_menu_item_downloadable_product %}
+                <sw-context-menu-item
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
+                    :disabled="!acl.can('product.creator')"
+                >
+                    {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -58,9 +114,11 @@
     {% endblock %}
 
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content %}
         <div class="sw-product-list__content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -89,25 +147,35 @@
                 @update-records="updateTotal"
                 @bulk-edit-modal-open="onBulkEditModalOpen"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_name_preview %}
                 <template #preview-name="{ item }">
                     <sw-media-preview-v2 :source="item.cover ? item.cover.media : null" />
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_name %}
                 <template #column-name="{ item, isInlineEdit }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_name_inline_edit %}
                     <sw-text-field
                         v-if="isInlineEdit"
+                        {% if VUE3 %}
+                        v-model:value="item.name"
+                        {% else %}
                         v-model="item.name"
+                        {% endif %}
                         size="small"
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_name_content %}
                     <div v-else>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_grid_columns_name_content_variant_button %}
                         <sw-button
                             v-if="productHasVariants(item)"
@@ -117,41 +185,58 @@
                             @click="openVariantModal(item)"
                         >
                             <sw-icon
-                                name="default-web-variants"
+                                name="regular-variants"
                                 size="14px"
                             />
                         </sw-button>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_grid_columns_name_content_link %}
                         <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                             {{ item.translated ? item.translated.name : item.name }}
                         </router-link>
                         {% endblock %}
+
+                        <sw-label
+                            v-if="productIsDigital(item)"
+                            class="sw-product-list__digital-indicator"
+                        >
+                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                        </sw-label>
                     </div>
                     {% endblock %}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_active %}
                 <template #column-active="{ item, isInlineEdit }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field v-model="item.active" />
+                        <sw-checkbox-field
+                            {% if VUE3 %}
+                            v-model:value="item.active"
+                            {% else %}
+                            v-model="item.active"
+                            {% endif %}
+                        />
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_active_content %}
                     <template v-else>
                         <sw-icon
                             v-if="item.active"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             small
                             class="is--active"
                         />
                         <sw-icon
                             v-else
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             small
                             class="is--inactive"
                         />
@@ -160,38 +245,70 @@
                 </template>
                 {% endblock %}
 
-                {% block sw_product_list_grid_columns_price %}
-                <template
-                    v-for="currency in currencies"
-                    :slot="`column-price-${currency.isoCode}`"
-                    slot-scope="{ item }"
-                >
-                    {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_grid_columns_sales %}
+                <template #column-sales="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_list_grid_columns_sales_content %}
+                    <template v-if="productHasVariants(item)">
+                        -
+                    </template>
+                    <template v-else>
+                        {{ item.sales }}
+                    </template>
+                    {% endblock %}
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_grid_columns_price %}
+                <template
+                    v-for="currency in currencies"
+                    #[`column-price-${currency.isoCode}`]="{ item }"
+                >
+                    {{ currencyFilter(getCurrencyPriceByCurrencyId(currency.id, item.price).gross, currency.isoCode) }}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_stock %}
                 <template #column-stock="{ item, isInlineEdit, compact }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="item.stock"
+                            {% else %}
                             v-model="item.stock"
+                            {% endif %}
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_stock_content %}
                     <template v-else>
                         {{ item.stock }}
-                        <sw-color-badge :variant="item.stock | stockColorVariant" />
+                        <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                     </template>
                     {% endblock %}
                 </template>
                 {% endblock %}
 
+                <template #column-createdAt="{ item }">
+                    {{ dateFilter(item.createdAt) }}
+                </template>
+
+                <template #column-updatedAt="{ item }">
+                    {{ dateFilter(item.updatedAt) }}
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_actions %}
                 <template #more-actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_actions_duplicate %}
                     <sw-context-menu-item
                         class="sw-product-list-grid__duplicate-action"
@@ -202,6 +319,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_actions_open_variant %}
                     <sw-context-menu-item
                         v-if="productHasVariants(item)"
@@ -214,6 +332,7 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_bulk_edit_modal %}
                 <template #bulk-edit-modal="{ selection }">
                     <sw-bulk-edit-modal
@@ -224,6 +343,7 @@
                         @edit-items="onBulkEditItems"
                         @modal-close="showBulkEditModal = false"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_name %}
                         <template #column-name="{ item }">
                             <router-link
@@ -236,30 +356,32 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_active %}
                         <template #column-active="{ item }">
                             <sw-icon
                                 small
-                                :name="item.active ? 'small-default-checkmark-line-medium' : 'small-default-x-line-medium'"
+                                :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
                                 :color="item.active ? '#37d046' : '#de294c'"
                             />
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_price %}
                         <template
                             v-for="currency in currencies"
-                            :slot="`column-price-${currency.isoCode}`"
-                            slot-scope="{ item }"
+                            #[`column-price-${currency.isoCode}`]="{ item }"
                         >
-                            {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+                            {{ currencyFilter(getCurrencyPriceByCurrencyId(currency.id, item.price).gross, currency.isoCode) }}
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_stock %}
                         <template #column-stock="{ item }">
                             {{ item.stock }}
-                            <sw-color-badge :variant="item.stock | stockColorVariant" />
+                            <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
@@ -269,6 +391,7 @@
 
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -277,7 +400,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -299,7 +422,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-product.list.messageEmpty')"
                         >
                     </template>
@@ -307,11 +430,10 @@
             </template>
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            {% block sw_product_list_grid_loader %}{% endblock %}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content_clone_modal %}
         <sw-product-clone-modal
             v-if="cloning"
@@ -320,6 +442,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content_variant_modal %}
         <sw-product-variant-modal
             v-if="showVariantModal"
@@ -329,12 +452,14 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-product.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

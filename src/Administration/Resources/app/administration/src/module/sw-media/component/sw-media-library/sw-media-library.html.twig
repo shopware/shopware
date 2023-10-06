@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_library %}
 <div class="sw-media-library">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_library_display_options %}
     <div class="sw-media-library__options-container">
         <sw-media-display-options
@@ -11,6 +13,7 @@
             @media-sorting-change="sorting = $event"
         />
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_index_create_folder %}
         <sw-button
             v-if="editable"
@@ -31,40 +34,15 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_library_scroll_container %}
     <div
         ref="scrollContainer"
         class="sw-media-library__scroll-container"
     >
-        {% block sw_media_library_empty_state %}
-        <sw-empty-state
-            v-if="!isLoading && (selectableItems.length === 0 || (isValidTerm(term) && items.length === 0))"
-            :title="$tc('sw-empty-state.messageNoResultTitle')"
-        >
-            <template slot="icon">
-                <img
-                    :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
-                    :alt="$tc('sw-empty-state.messageNoResultSubline')"
-                >
-            </template>
-
-            <template #default>
-                <template>
-                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                    <router-link
-                        class="sw-empty-state__description-link"
-                        :to="{ name: 'sw.profile.index.searchPreferences' }"
-                    >
-                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                    </router-link>
-                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-            </template>
-        </sw-empty-state>
-        {% endblock %}
-
         <div class="sw-media-library__scroll-content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_library_media_grid %}
             <sw-media-grid
                 ref="mediaGrid"
@@ -73,6 +51,7 @@
                 @media-grid-selection-clear="clearSelection"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_library_back_to_parent_item %}
                 <sw-media-folder-item
                     v-if="parentFolder && (!isLoading || selectableItems.length > 0)"
@@ -89,6 +68,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_library_media_item_list %}
                 <sw-media-entity-mapper
                     v-for="(gridItem, index) in selectableItems"
@@ -109,6 +89,7 @@
                     @media-folder-remove="removeNewFolder"
                     @media-folder-dissolve="refreshList"
                     @media-folder-move="refreshList"
+                    @media-folder-changed="refreshList"
                     v-on="mediaItemSelectionHandler"
                 />
                 {% endblock %}
@@ -124,6 +105,7 @@
                     <sw-skeleton variant="media" />
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_library_load_more_button %}
                 <sw-button
                     v-if="showLoadMoreButton"
@@ -139,7 +121,30 @@
     </div>
     {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Will be removed #}
-    {% block sw_media_library_loader %}{% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_library_empty_state %}
+    <sw-empty-state
+        v-if="shouldDisplayEmptyState"
+        :title="$tc('sw-empty-state.messageNoResultTitle')"
+    >
+        <template #icon>
+            <img
+                :src="assetFilter('/administration/static/img/empty-states/media-empty-state.svg')"
+                :alt="$tc('sw-empty-state.messageNoResultSubline')"
+            >
+        </template>
+
+        <template #default>
+            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+            <router-link
+                class="sw-empty-state__description-link"
+                :to="{ name: 'sw.profile.index.searchPreferences' }"
+            >
+                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+            </router-link>
+            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+        </template>
+    </sw-empty-state>
+    {% endblock %}
 </div>
 {% endblock %}

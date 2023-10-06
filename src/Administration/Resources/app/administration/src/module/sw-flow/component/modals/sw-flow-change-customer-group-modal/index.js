@@ -5,7 +5,11 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
-Component.register('sw-flow-change-customer-group-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -85,4 +89,4 @@ Component.register('sw-flow-change-customer-group-modal', {
             this.$emit('process-finish', sequence);
         },
     },
-});
+};

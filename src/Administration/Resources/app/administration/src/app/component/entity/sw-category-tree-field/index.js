@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
@@ -5,6 +9,9 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-category-tree-field', {
     template,
 
@@ -98,9 +105,7 @@ Component.register('sw-category-tree-field', {
             handler() {
                 // check if categoriesCollection is loaded
                 if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
-                    Promise.all([
-                        this.getTreeItems(),
-                    ]).then(() => {
+                    this.getTreeItems().then(() => {
                         this.isComponentReady = true;
                     });
                 }
@@ -226,6 +231,10 @@ Component.register('sw-category-tree-field', {
                     this.$emit('selection-add', item);
                 }
 
+                if (this.singleSelect) {
+                    this.isExpanded = false;
+                }
+
                 return true;
             }
 
@@ -298,13 +307,6 @@ Component.register('sw-category-tree-field', {
             this.setInputFocusClass = setFocusClass;
             this.removeInputFocusClass = removeFocusClass;
 
-            // set first item as focus
-            this.$nextTick(() => {
-                if (this.term.length <= 0) {
-                    this.selectedTreeItem = this.$refs.swTree.treeItems[0];
-                }
-            });
-
             this.setInputFocusClass();
         },
 
@@ -324,7 +326,10 @@ Component.register('sw-category-tree-field', {
             let clickedOutside = true;
 
             // check if the user clicked inside the dropdown
-            if (target.closest('.sw-category-tree-field') === this.$refs.swCategoryTreeField) {
+            if (
+                target.closest('.sw-category-tree-field') === this.$refs.swCategoryTreeField ||
+                target.closest('.sw-category-tree-field__results_popover')
+            ) {
                 clickedOutside = false;
             } else if (target instanceof SVGElement || target.parentNode instanceof SVGElement) {
                 // check for clicking on svg arrows
@@ -622,6 +627,7 @@ Component.register('sw-category-tree-field', {
 
             this.categoriesCollection.forEach((category, index) => {
                 if (category.id !== keepId) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.categoriesCollection.splice(index, 1);
                     index -= 1;
                 }

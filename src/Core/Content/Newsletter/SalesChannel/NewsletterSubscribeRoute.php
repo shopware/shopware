@@ -2,21 +2,21 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -27,77 +27,62 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('buyers-experience')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
-    public const STATUS_NOT_SET = 'notSet';
-    public const STATUS_OPT_IN = 'optIn';
-    public const STATUS_OPT_OUT = 'optOut';
-    public const STATUS_DIRECT = 'direct';
+    final public const STATUS_NOT_SET = 'notSet';
+    final public const STATUS_OPT_IN = 'optIn';
+    final public const STATUS_OPT_OUT = 'optOut';
+    final public const STATUS_DIRECT = 'direct';
 
     /**
      * The subscription is directly active and does not need a confirmation.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    public const OPTION_DIRECT = 'direct';
+    final public const OPTION_DIRECT = 'direct';
 
     /**
      * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    public const OPTION_SUBSCRIBE = 'subscribe';
+    final public const OPTION_SUBSCRIBE = 'subscribe';
 
     /**
      * The email address will be removed from the newsletter subscriptions.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    public const OPTION_UNSUBSCRIBE = 'unsubscribe';
+    final public const OPTION_UNSUBSCRIBE = 'unsubscribe';
 
     /**
-     * Confirmes the newsletter subscription for the provided email address.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     * Confirms the newsletter subscription for the provided email address.
      */
-    public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+    final public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
 
     /**
-     * @var EntityRepositoryInterface
+     * The regex to check if string contains an url
      */
-    private $newsletterRecipientRepository;
+    final public const DOMAIN_NAME_REGEX = '/((https?:\/))/';
 
     /**
-     * @var DataValidator
+     * @internal
      */
-    private $validator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    private SystemConfigService $systemConfigService;
-
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RateLimiter $rateLimiter,
+        private readonly RequestStack $requestStack
     ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -105,115 +90,35 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/newsletter/subscribe",
-     *      summary="Create or remove a newsletter subscription",
-     *      description="This route is used to create/remove/confirm a newsletter subscription.
-
-The `option` property controls what should happen:
-* `direct`: The subscription is directly active and does not need a confirmation.
-* `subscribe`: An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
-The subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.
-* `unsubscribe`: The email address will be removed from the newsletter subscriptions.
-* `confirmSubscribe`: Confirmes the newsletter subscription for the provided email address.",
-     *      operationId="subscribeToNewsletter",
-     *      tags={"Store API", "Newsletter"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "email",
-     *                  "option",
-     *                  "storefrontUrl"
-     *              },
-     *              @OA\Property(
-     *                  property="email",
-     *                  description="Email address that will receive the confirmation and the newsletter.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="option",
-     *                  description="Defines what should be done.",
-     *                  @OA\Schema(type="string", enum={"direct", "subscribe", "confirmSubscribe", "unsubscribe"})
-     *              ),
-     *              @OA\Property(
-     *                  property="storefrontUrl",
-     *                  description="Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="salutationId",
-     *                  description="Identifier of the salutation.",
-     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
-     *              ),
-     *              @OA\Property(
-     *                  property="firstName",
-     *                  description="First name",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="lastName",
-     *                  description="Last name",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="street",
-     *                  description="Street",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="city",
-     *                  description="City",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="zipCode",
-     *                  description="Zip code",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="tags",
-     *                  description="Zip code",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="languageId",
-     *                  description="Identifier of the language.",
-     *                  @OA\Schema(type="string", pattern="^[0-9a-f]{32}$")
-     *              ),
-     *              @OA\Property(
-     *                  property="customFields",
-     *                  description="Custom field data that should be added to the subscription.",
-     *                  type="string"
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Success",
-     *     )
-     * )
-     * @Route("/store-api/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
-     */
+    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if conditio, keep its body */
-        if (Feature::isActive('FEATURE_NEXT_16200')) {
-            $doubleOptInDomain = $this->systemConfigService->getString(
-                'core.newsletter.doubleOptInDomain',
-                $context->getSalesChannelId()
-            );
-            if ($doubleOptInDomain !== '') {
-                $dataBag->set('storefrontUrl', $doubleOptInDomain);
-                $validateStorefrontUrl = false;
-            }
+        $doubleOptInDomain = $this->systemConfigService->getString(
+            'core.newsletter.doubleOptInDomain',
+            $context->getSalesChannelId()
+        );
+        if ($doubleOptInDomain !== '') {
+            $dataBag->set('storefrontUrl', $doubleOptInDomain);
+            $validateStorefrontUrl = false;
         }
 
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
+
         $this->validator->validate($dataBag->all(), $validator);
 
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            try {
+                $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
+            } catch (RateLimitExceededException $e) {
+                if (!Feature::isActive('v6.6.0.0')) {
+                    throw $e;
+                }
+
+                throw NewsletterException::newsletterThrottled($e->getWaitTime());
+            }
+        }
+
+        /** @var SubscribeRequest $data */
         $data = $dataBag->only(
             'email',
             'title',
@@ -222,11 +127,8 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             'zipCode',
             'city',
             'street',
-            'tags',
             'salutationId',
-            'languageId',
             'option',
-            'customFields',
             'storefrontUrl'
         );
 
@@ -249,7 +151,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
 
-        if ($data['status'] === self::STATUS_DIRECT) {
+        if (!$this->isNewsletterDoi($context)) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch($event);
 
@@ -265,11 +167,37 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return new NoContentResponse();
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:visibility-change - will be private in v6.6.0
+     */
+    public function isNewsletterDoi(SalesChannelContext $context): ?bool
+    {
+        if ($context->getCustomerId() === null) {
+            return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());
+        }
+
+        return $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $context->getSalesChannelId());
+    }
+
     private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context))));
+
+        if (!empty($dataBag->get('firstName'))) {
+            $definition->add('firstName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
+        }
+
+        if (!empty($dataBag->get('lastName'))) {
+            $definition->add('lastName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
+        }
 
         if ($validateStorefrontUrl) {
             $definition
@@ -282,6 +210,11 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return $definition;
     }
 
+    /**
+     * @param SubscribeRequest $data
+     *
+     * @return array{id: string, languageId: string, salesChannelId: string, status: string, hash: string, email: string, storefrontUrl: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+     */
     private function completeData(array $data, SalesChannelContext $context): array
     {
         $id = $this->getNewsletterRecipientId($data['email'], $context);
@@ -289,7 +222,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getContext()->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannel()->getId();
-        $data['status'] = $this->getOptionSelection()[$data['option']];
+        $data['status'] = $this->getOptionSelection($context)[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
         return $data;
@@ -299,9 +232,10 @@ The subscription is only successful, if the /newsletter/confirm route is called 
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_AND),
-            new EqualsFilter('email', $email),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('email', $email),
+                new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            ]),
         );
         $criteria->setLimit(1);
 
@@ -310,11 +244,14 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             ->firstId();
     }
 
-    private function getOptionSelection(): array
+    /**
+     * @return array<string, string>
+     */
+    private function getOptionSelection(SalesChannelContext $context): array
     {
         return [
-            self::OPTION_DIRECT => self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
+            self::OPTION_DIRECT => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
@@ -327,22 +264,32 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
+        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
-        if (empty($newsletterRecipient)) {
-            throw new NewsletterRecipientNotFoundException($identifier, $value);
+        if (!$newsletterRecipient) {
+            throw NewsletterException::recipientNotFound($identifier, $value);
         }
 
         return $newsletterRecipient;
     }
 
+    /**
+     * @return string[]
+     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return rtrim($domainEntity->getUrl(), '/');
-        }, $context->getSalesChannel()->getDomains()->getElements());
+        $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
+        if ($salesChannelDomainCollection === null) {
+            return [];
+        }
+
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
     }
 
+    /**
+     * @param array{storefrontUrl: string} $data
+     */
     private function getSubscribeUrl(
         SalesChannelContext $context,
         string $hashedEmail,

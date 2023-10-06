@@ -1,5 +1,5 @@
 @import "~scss/variables";
-@import "./../sw-order-state-history-card-entry/sw-order-state-history-card-entry.scss";
+@import "./../sw-order-state-history-card-entry/sw-order-state-history-card-entry";
 
 .sw-order-state-select-v2 {
     .sw-single-select.sw-order-state-select-v2__field,
@@ -13,6 +13,7 @@
 
     .sw-single-select.sw-order-state-select-v2__field--rounded {
         .sw-single-select__load-placeholder,
+        .sw-single-select__selection-text,
         input {
             border-radius: 15px;
         }

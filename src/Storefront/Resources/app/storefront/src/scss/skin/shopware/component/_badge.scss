@@ -3,18 +3,16 @@ Badge
 ==============================================
 Custom skin styling for bootstrap badge component.
 
-https://getbootstrap.com/docs/4.3/components/badge/
+https://getbootstrap.com/docs/5.2/components/badge/
 */
 
 .badge {
     border: 0;
-    border-radius: 50px;
     box-sizing: content-box;
     height: 20px;
     line-height: 20px;
     margin: 0 5px;
     min-width: 10px;
-    padding: 0 5px;
 }
 
 .badge-lg {

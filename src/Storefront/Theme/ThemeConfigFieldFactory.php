@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 
+#[Package('storefront')]
 class ThemeConfigFieldFactory
 {
     public function create(string $name, array $configFieldArray): ThemeConfigField
@@ -16,7 +18,7 @@ class ThemeConfigFieldFactory
             if (!method_exists($configField, $setter)) {
                 throw new InvalidThemeConfigException($key);
             }
-            $configField->$setter($value);
+            $configField->$setter($value); // @phpstan-ignore-line
         }
 
         return $configField;

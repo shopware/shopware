@@ -1,87 +1,110 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_table_toolbar %}
 <div class="sw-text-editor-table-toolbar">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_table_toolbar_buttons %}
     <div class="sw-text-editor-table-toolbar__buttons">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_row_before %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onAddRow('before')"
         >
             <sw-icon
-                name="default-text-editor-table-insert-row-before"
+                name="icons-regular-insert-row-before"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_row_after %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onAddRow('after')"
         >
             <sw-icon
-                name="default-text-editor-table-insert-row-after"
+                name="regular-insert-row-after"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_row_delete %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onDeleteRow"
         >
             <sw-icon
-                name="default-text-editor-table-delete-row"
+                name="regular-delete-row"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_column_before %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onAddColumn('before')"
         >
             <sw-icon
-                name="default-text-editor-table-insert-column-before"
+                name="regular-insert-column-before"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_column_after %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onAddColumn('after')"
         >
             <sw-icon
-                name="default-text-editor-table-insert-column-after"
+                name="regular-insert-column-after"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_column_delete %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onDeleteColumn"
         >
             <sw-icon
-                name="default-text-editor-table-delete-column"
+                name="regular-delete-column"
                 size="12"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_table_toolbar_button_table_delete %}
         <div
             class="sw-text-editor-table-toolbar__button"
+            role="button"
+            tabindex="0"
             @mousedown="onDeleteTable"
         >
             <sw-icon
-                name="small-default-x-line-large"
+                name="regular-times"
                 size="12"
             />
         </div>

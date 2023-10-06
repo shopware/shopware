@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -12,22 +13,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  */
+#[Package('checkout')]
 class ItemFacade
 {
-    private LineItem $item;
-
-    private CartFacadeHelper $helper;
-
-    private SalesChannelContext $context;
-
     /**
      * @internal
      */
-    public function __construct(LineItem $item, CartFacadeHelper $helper, SalesChannelContext $context)
-    {
-        $this->item = $item;
-        $this->helper = $helper;
-        $this->context = $context;
+    public function __construct(
+        private LineItem $item,
+        private ScriptPriceStubs $priceStubs,
+        private CartFacadeHelper $helper,
+        private SalesChannelContext $context
+    ) {
     }
 
     /**
@@ -38,7 +35,7 @@ class ItemFacade
     public function getPrice(): ?PriceFacade
     {
         if ($this->item->getPrice()) {
-            return new PriceFacade($this->item->getPrice(), $this->helper);
+            return new PriceFacade($this->item, $this->item->getPrice(), $this->priceStubs, $this->context);
         }
 
         return null;
@@ -73,7 +70,7 @@ class ItemFacade
             $this->item->getQuantity() - $quantity
         );
 
-        return new ItemFacade($new, $this->helper, $this->context);
+        return new ItemFacade($new, $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -139,7 +136,7 @@ class ItemFacade
      */
     public function getChildren(): ItemsFacade
     {
-        return new ItemsFacade($this->item->getChildren(), $this->helper, $this->context);
+        return new ItemsFacade($this->item->getChildren(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**

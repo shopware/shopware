@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_slider %}
 <div
     class="sw-cms-el-product-slider"
     :class="classes"
     :style="verticalAlignStyle"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_slider_title %}
     <div
         v-if="element.config.title.value"
@@ -13,8 +15,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_slider_content %}
     <div class="sw-cms-el-product-slider__content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_left %}
         <div
             v-if="hasNavigation"
@@ -22,12 +26,13 @@
         >
             <sw-icon
                 class="sw-cms-el-product-slider__navigation-button"
-                name="default-arrow-head-left"
+                name="regular-chevron-left"
                 size="24"
             />
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_product_holder %}
         <div
             ref="productHolder"
@@ -35,6 +40,7 @@
             :style="sliderBoxMinWidth"
         >
             <template v-if="!element.data || !element.data.products">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_demo_data %}
                 <sw-cms-el-product-box
                     v-for="index in sliderBoxLimit"
@@ -45,6 +51,7 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_products %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <sw-cms-el-product-box
@@ -58,6 +65,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_slider_arrow_right %}
         <div
             v-if="hasNavigation"
@@ -65,7 +73,7 @@
         >
             <sw-icon
                 class="sw-cms-el-product-slider__navigation-button"
-                name="default-arrow-head-right"
+                name="regular-chevron-right"
                 size="24"
             />
         </div>

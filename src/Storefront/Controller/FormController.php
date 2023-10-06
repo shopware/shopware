@@ -5,56 +5,38 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('buyers-experience')]
 class FormController extends StorefrontController
 {
-    public const SUBSCRIBE = 'subscribe';
-    public const UNSUBSCRIBE = 'unsubscribe';
+    final public const SUBSCRIBE = 'subscribe';
+    final public const UNSUBSCRIBE = 'unsubscribe';
 
     /**
-     * @var AbstractContactFormRoute
+     * @internal
      */
-    private $contactFormRoute;
-
-    /**
-     * @var AbstractNewsletterSubscribeRoute
-     */
-    private $subscribeRoute;
-
-    /**
-     * @var AbstractNewsletterUnsubscribeRoute
-     */
-    private $unsubscribeRoute;
-
     public function __construct(
-        AbstractContactFormRoute $contactFormRoute,
-        AbstractNewsletterSubscribeRoute $subscribeRoute,
-        AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
+        private readonly AbstractContactFormRoute $contactFormRoute,
+        private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
+        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
     ) {
-        $this->contactFormRoute = $contactFormRoute;
-        $this->subscribeRoute = $subscribeRoute;
-        $this->unsubscribeRoute = $unsubscribeRoute;
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
-     */
+    #[Route(path: '/form/contact', name: 'frontend.form.contact.send', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $response = [];
@@ -97,11 +79,7 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
-     */
+    #[Route(path: '/form/newsletter', name: 'frontend.form.newsletter.register.handle', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
     public function handleNewsletter(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $subscribe = $data->get('option') === self::SUBSCRIBE;
@@ -115,8 +93,13 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
+        $response = [];
+
         try {
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
@@ -144,7 +127,7 @@ class FormController extends StorefrontController
                     'list' => $errors,
                 ]),
             ];
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $response[] = [
                 'type' => 'danger',
                 'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
@@ -157,8 +140,13 @@ class FormController extends StorefrontController
         return $response;
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {
+        $response = [];
+
         try {
             $this->unsubscribeRoute->unsubscribe($data, $context);
             $response[] = [
@@ -177,7 +165,7 @@ class FormController extends StorefrontController
                     'list' => $errors,
                 ]),
             ];
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $response = [];
         }
 

@@ -3,19 +3,23 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class CustomerLoggedInRule extends Rule
 {
-    protected bool $isLoggedIn;
+    final public const RULE_NAME = 'customerLoggedIn';
 
-    public function __construct(bool $isLoggedIn = false)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $isLoggedIn = false)
     {
         parent::__construct();
-        $this->isLoggedIn = $isLoggedIn;
     }
 
     public function match(RuleScope $scope): bool
@@ -34,12 +38,13 @@ class CustomerLoggedInRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isLoggedIn' => [new NotNull(), new Type('bool')],
+            'isLoggedIn' => RuleConstraints::bool(true),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerLoggedIn';
+        return (new RuleConfig())
+            ->booleanField('isLoggedIn');
     }
 }

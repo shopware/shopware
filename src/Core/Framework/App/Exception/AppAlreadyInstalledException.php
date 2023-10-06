@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-class AppAlreadyInstalledException extends \Exception
+#[Package('core')]
+class AppAlreadyInstalledException extends AppException
 {
-    public function __construct(string $appName)
-    {
-        parent::__construct(sprintf('App with name "%s" is already installed.', $appName));
-    }
 }

@@ -5,6 +5,8 @@ const utils = Shopware.Utils;
  */
 
 /**
+ * @private
+ * @package business-ops
  * @memberOf module:app/service/product-stream-condition
  * @constructor
  * @method conditionService
@@ -27,12 +29,14 @@ export default function conditionService() {
         ],
         property_group_option: [
             'id',
+            'group',
         ],
         property_group: [
             'id',
         ],
         product_visibility: [
             'id',
+            'salesChannel',
         ],
         sales_channel: [
             'id',
@@ -53,20 +57,31 @@ export default function conditionService() {
             'height',
             'width',
             'length',
+            'ean',
             'sales',
             'manufacturer',
+            'manufacturerNumber',
             'categoriesRo',
             'shippingFree',
             'visibilities',
             'properties',
+            'options',
             'isCloseout',
+            'deliveryTime',
             'purchasePrices',
             'createdAt',
             'coverId',
+            'markAsTopseller',
+            'states',
         ],
     };
 
     const allowedJsonAccessors = {
+        cheapestPrice: {
+            value: 'cheapestPrice',
+            type: 'float',
+            trans: 'cheapestPrice',
+        },
         'cheapestPrice.percentage': {
             value: 'cheapestPrice.percentage',
             type: 'float',

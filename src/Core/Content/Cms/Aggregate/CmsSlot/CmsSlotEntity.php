@@ -3,18 +3,21 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('buyers-experience')]
 class CmsSlotEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -49,7 +52,7 @@ class CmsSlotEntity extends Entity
     protected $fieldConfig;
 
     /**
-     * @var EntityCollection|null
+     * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
     protected $translations;
 
@@ -62,6 +65,11 @@ class CmsSlotEntity extends Entity
      * @var bool
      */
     protected $locked;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsBlockVersionId;
 
     public function getType(): string
     {
@@ -114,11 +122,17 @@ class CmsSlotEntity extends Entity
         $this->fieldConfig = null;
     }
 
+    /**
+     * @return EntityCollection<CmsSlotTranslationEntity>|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param EntityCollection<CmsSlotTranslationEntity> $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;
@@ -165,5 +179,15 @@ class CmsSlotEntity extends Entity
     public function setFieldConfig(FieldConfigCollection $fieldConfig): void
     {
         $this->fieldConfig = $fieldConfig;
+    }
+
+    public function getCmsBlockVersionId(): ?string
+    {
+        return $this->cmsBlockVersionId;
+    }
+
+    public function setCmsBlockVersionId(?string $cmsBlockVersionId): void
+    {
+        $this->cmsBlockVersionId = $cmsBlockVersionId;
     }
 }

@@ -6,28 +6,23 @@ use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $repository;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $productDefinition;
-
-    public function __construct(EntityRepositoryInterface $productStreamRepository, EntityDefinition $productDefinition)
-    {
-        $this->repository = $productStreamRepository;
-        $this->productDefinition = $productDefinition;
+    public function __construct(
+        private readonly EntityRepository $repository,
+        private readonly EntityDefinition $productDefinition
+    ) {
     }
 
     public function buildFilters(string $id, Context $context): array

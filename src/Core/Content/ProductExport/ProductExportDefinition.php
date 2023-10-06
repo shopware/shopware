@@ -16,13 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('inventory')]
 class ProductExportDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_export';
+    final public const ENTITY_NAME = 'product_export';
 
     public function getEntityName(): string
     {
@@ -69,7 +71,8 @@ class ProductExportDefinition extends EntityDefinition
             (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml(false)),
             (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml(false)),
             (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml(false)),
-            (new BoolField('paused_schedule', 'pausedSchedule')),
+            new BoolField('paused_schedule', 'pausedSchedule'),
+            new BoolField('is_running', 'isRunning'),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

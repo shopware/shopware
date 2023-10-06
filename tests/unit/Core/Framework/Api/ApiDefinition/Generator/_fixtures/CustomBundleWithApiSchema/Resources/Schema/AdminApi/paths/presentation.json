@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/search/guided-shopping-presentation": {
+      "post": {
+        "tags": [
+          "Presentation"
+        ],
+        "summary": "Search presentations",
+        "description": "Return list of presentations",
+        "operationId": "searchPresentations",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetListBodyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Presentation"
+                      }
+                    },
+                    "aggregations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

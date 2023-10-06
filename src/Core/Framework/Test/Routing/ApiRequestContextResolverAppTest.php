@@ -3,30 +3,34 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class ApiRequestContextResolverAppTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
+    use IntegrationTestBehaviour;
+
+    private static string $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
 
     public function testCanReadWithPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'test');
@@ -34,12 +38,13 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->request('GET', '/api/product');
         $response = $browser->getResponse();
 
+        static::assertIsString($response->getContent());
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
     }
 
     public function testCantReadWithoutPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -51,7 +56,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCantReadWithoutAnyPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
+        $this->loadAppsFromDir(self::$fixturesPath . '/minimal');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
@@ -66,7 +71,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
+        $this->loadAppsFromDir(self::$fixturesPath . '/minimal');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
@@ -77,23 +82,24 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
         );
         $response = $browser->getResponse();
 
+        static::assertIsString($response->getContent());
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $data['errors'][0]['code']);
     }
 
     public function testCanWriteWithPermissionsSet(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -104,7 +110,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
         );
 
         static::assertEquals(204, $browser->getResponse()->getStatusCode());
@@ -116,7 +122,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testItCanUpdateAnExistingProduct(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $newName = 'i got a new name';
@@ -124,7 +130,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $productRepository->create([$this->getProductData($productId, $context)], $context);
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -137,11 +143,12 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             json_encode([
                 'name' => $newName,
-            ])
+            ], \JSON_THROW_ON_ERROR)
         );
 
         static::assertEquals(204, $browser->getResponse()->getStatusCode());
 
+        /** @var ProductEntity $product */
         $product = $productRepository->search(new Criteria(), $context)->getEntities()->get($productId);
 
         static::assertNotNull($product);
@@ -168,7 +175,8 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        static::assertIsString($browser->getResponse()->getContent());
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -176,10 +184,15 @@ class ApiRequestContextResolverAppTest extends TestCase
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
     }
 
-    private function getProductData(string $productId, Context $context)
+    /**
+     * @return array{id: string, name: string, productNumber: string, stock: int, manufacturer: array<string, string>, price: list<array<string, mixed>>, tax: array<string, string>}
+     */
+    private function getProductData(string $productId, Context $context): array
     {
         return [
             'id' => $productId,
@@ -206,7 +219,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
@@ -217,7 +230,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepositoryInterface $integrationRepository */
+        /** @var EntityRepository $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
 
         $integrationRepository->update([

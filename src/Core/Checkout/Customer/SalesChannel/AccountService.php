@@ -4,66 +4,41 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
-use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
+#[Package('checkout')]
 class AccountService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var LegacyPasswordVerifier
-     */
-    private $legacyPasswordVerifier;
-
-    /**
-     * @var AbstractSwitchDefaultAddressRoute
-     */
-    private $switchDefaultAddressRoute;
-
-    /**
-     * @var SalesChannelContextRestorer
-     */
-    private $contextRestorer;
-
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        LegacyPasswordVerifier $legacyPasswordVerifier,
-        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        SalesChannelContextRestorer $contextRestorer
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
+        private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
+        private readonly CartRestorer $restorer
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
-        $this->contextRestorer = $contextRestorer;
     }
 
     /**
@@ -93,7 +68,7 @@ class AccountService
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
         if (empty($email)) {
-            throw new BadCredentialsException();
+            throw CustomerException::badCredentials();
         }
 
         $event = new CustomerBeforeLoginEvent($context, $email);
@@ -115,7 +90,7 @@ class AccountService
     public function loginById(string $id, SalesChannelContext $context): string
     {
         if (!Uuid::isValid($id)) {
-            throw new BadCredentialsException();
+            throw CustomerException::badCredentials();
         }
 
         try {
@@ -133,7 +108,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
-     * @throws InactiveCustomerException
+     * @throws CustomerOptinNotCompletedException
      */
     public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
@@ -141,7 +116,7 @@ class AccountService
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
-                throw new BadCredentialsException();
+                throw CustomerException::badCredentials();
             }
 
             $this->updatePasswordHash($password, $customer, $context->getContext());
@@ -149,16 +124,24 @@ class AccountService
             return $customer;
         }
 
-        if (!password_verify($password, $customer->getPassword())) {
-            throw new BadCredentialsException();
+        if ($customer->getPassword() === null
+            || !password_verify($password, $customer->getPassword())) {
+            throw CustomerException::badCredentials();
+        }
+
+        if (!$this->isCustomerConfirmed($customer)) {
+            // Make sure to only throw this exception after it has been verified it was a valid login
+            throw CustomerException::customerOptinNotCompleted($customer->getId());
         }
 
         return $customer;
     }
 
-    /**
-     * @throws InactiveCustomerException
-     */
+    private function isCustomerConfirmed(CustomerEntity $customer): bool
+    {
+        return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
+    }
+
     private function loginByCustomer(CustomerEntity $customer, SalesChannelContext $context): string
     {
         $this->customerRepository->update([
@@ -168,7 +151,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);
@@ -184,41 +167,83 @@ class AccountService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
-        if (!$includeGuest) {
-            $criteria->addFilter(new EqualsFilter('guest', false));
-        }
-        $criteria->addSorting(new FieldSorting('createdAt'));
-        $criteria->setLimit(1);
 
-        $customer = $this->fetchCustomer($criteria, $context);
-
+        $customer = $this->fetchCustomer($criteria, $context, $includeGuest);
         if ($customer === null) {
-            throw new CustomerNotFoundException($email);
+            throw CustomerException::customerNotFound($email);
         }
 
         return $customer;
     }
 
+    /**
+     * @throws CustomerNotFoundByIdException
+     */
     private function getCustomerById(string $id, SalesChannelContext $context): CustomerEntity
     {
         $criteria = new Criteria([$id]);
-        $customer = $this->fetchCustomer($criteria, $context);
 
+        $customer = $this->fetchCustomer($criteria, $context, true);
         if ($customer === null) {
-            throw new CustomerNotFoundByIdException($id);
+            throw CustomerException::customerNotFoundByIdException($id);
         }
 
         return $customer;
     }
 
-    private function fetchCustomer(Criteria $criteria, SalesChannelContext $context): ?CustomerEntity
+    /**
+     * This method filters for the standard customer related constraints like active or the sales channel
+     * assignment.
+     * Add only filters to the $criteria for values which have an index in the database, e.g. id, or email. The rest
+     * should be done via PHP because it's a lot faster to filter a few entities on PHP side with the same email
+     * address, than to filter a huge numbers of rows in the DB on a not indexed column.
+     */
+    private function fetchCustomer(Criteria $criteria, SalesChannelContext $context, bool $includeGuest = false): ?CustomerEntity
     {
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('boundSalesChannelId', null),
-            new EqualsFilter('boundSalesChannelId', $context->getSalesChannel()->getId()),
-        ]));
+        $criteria->setTitle('account-service::fetchCustomer');
 
-        return $this->customerRepository->search($criteria, $context->getContext())->first();
+        $result = $this->customerRepository->search($criteria, $context->getContext());
+        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
+            // Skip not active users
+            if (!$customer->getActive()) {
+                // Customers with double opt-in will be active by default starting at Shopware 6.6.0.0,
+                // remove complete if statement and always return null
+                if (Feature::isActive('v6.6.0.0') || $this->isCustomerConfirmed($customer)) {
+                    return null;
+                }
+            }
+
+            // Skip guest if not required
+            if (!$includeGuest && $customer->getGuest()) {
+                return null;
+            }
+
+            // If not bound, we still need to consider it
+            if ($customer->getBoundSalesChannelId() === null) {
+                return true;
+            }
+
+            // It is bound, but not to the current one. Skip it
+            if ($customer->getBoundSalesChannelId() !== $context->getSalesChannel()->getId()) {
+                return null;
+            }
+
+            return true;
+        });
+
+        // If there is more than one account we want to return the latest, this is important
+        // for guest accounts, real customer accounts should only occur once, otherwise the
+        // wrong password will be validated
+        if ($result->count() > 1) {
+            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
+        }
+
+        $customer = $result->first();
+        if (!$customer instanceof CustomerEntity) {
+            return null;
+        }
+
+        return $customer;
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

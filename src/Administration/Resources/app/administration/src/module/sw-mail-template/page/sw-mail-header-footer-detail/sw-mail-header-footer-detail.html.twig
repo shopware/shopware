@@ -1,14 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_mail_header_footer_detail %}
 <sw-page class="sw-mail-header-footer-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_header_footer_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_header_footer_detail_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_header_footer_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="{
@@ -22,6 +26,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_header_footer_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -30,7 +35,11 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-mail-header-footer.detail.buttonSave') }}
@@ -39,6 +48,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_header_footer_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -48,6 +58,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_header_footer_detail_content %}
     <template #content>
         <sw-card-view sidebar>
@@ -57,22 +68,28 @@
             </template>
 
             <template v-else-if="mailHeaderFooter">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_header_footer_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline'))"
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_header_footer_detail_basic_info %}
                 <sw-card
                     :title="$tc('sw-mail-header-footer.detail.basic.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-basic-info"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_name_field %}
-                    <sw-field
+                    <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="mailHeaderFooter.name"
+                        {% else %}
                         v-model="mailHeaderFooter.name"
+                        {% endif %}
                         validation="required"
-                        type="text"
                         required
                         :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
                         :placeholder="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.basic.placeholderName'))"
@@ -81,20 +98,29 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_description_field %}
-                    <sw-field
+                    <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="mailHeaderFooter.description"
+                        {% else %}
                         v-model="mailHeaderFooter.description"
-                        type="textarea"
+                        {% endif %}
                         :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
                         :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
                         :disabled="!acl.can('mail_templates.editor')"
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_sales_channels_field %}
                     <sw-entity-multi-select
                         id="salesChannels"
+                        {% if VUE3 %}
+                        v-model:entityCollection="mailHeaderFooter.salesChannels"
+                        {% else %}
                         v-model="mailHeaderFooter.salesChannels"
+                        {% endif %}
                         class="sw-mail-header-footer-detail__sales-channel"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
@@ -104,11 +130,13 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_header_footer_detail_content_header %}
                 <sw-card
                     :title="$tc('sw-mail-header-footer.detail.header.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-content-header"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_plain_field %}
                     <sw-code-editor
                         v-model="mailHeaderFooter.headerPlain"
@@ -123,6 +151,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_html_field %}
                     <sw-code-editor
                         v-model="mailHeaderFooter.headerHtml"
@@ -139,11 +168,13 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_header_footer_detail_content_footer %}
                 <sw-card
                     :title="$tc('sw-mail-header-footer.detail.footer.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-content-footer"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                     <sw-code-editor
                         v-model="mailHeaderFooter.footerPlain"
@@ -158,6 +189,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_html_field %}
                     <sw-code-editor
                         v-model="mailHeaderFooter.footerHtml"

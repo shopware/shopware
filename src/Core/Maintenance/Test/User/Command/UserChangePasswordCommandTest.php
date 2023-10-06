@@ -4,14 +4,19 @@ namespace Shopware\Core\Maintenance\Test\User\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\User\Command\UserChangePasswordCommand;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class UserChangePasswordCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -19,14 +24,11 @@ class UserChangePasswordCommandTest extends TestCase
     private const TEST_PASSWORD = 'shopwarePassword';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

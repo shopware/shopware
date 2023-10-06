@@ -7,26 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductManufacturerGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var EntityWriterInterface
+     * @internal
      */
-    private $writer;
-
-    /**
-     * @var ProductManufacturerDefinition
-     */
-    private $productManufacturerDefinition;
-
     public function __construct(
-        EntityWriterInterface $writer,
-        ProductManufacturerDefinition $productManufacturerDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductManufacturerDefinition $productManufacturerDefinition
     ) {
-        $this->writer = $writer;
-        $this->productManufacturerDefinition = $productManufacturerDefinition;
     }
 
     public function getDefinition(): string
@@ -42,8 +38,8 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $payload[] = [
                 'id' => Uuid::randomHex(),
-                'name' => $context->getFaker()->company,
-                'link' => $context->getFaker()->url,
+                'name' => $context->getFaker()->format('company'),
+                'link' => $context->getFaker()->format('url'),
             ];
         }
 

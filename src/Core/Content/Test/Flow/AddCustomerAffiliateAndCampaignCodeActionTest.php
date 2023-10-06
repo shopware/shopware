@@ -2,50 +2,55 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
-    use OrderActionTrait;
     use CacheTestBehaviour;
+    use OrderActionTrait;
+
+    private EntityRepository $flowRepository;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**
+     * @param array<string, mixed> $existedData
+     * @param array<string, mixed> $updateData
+     * @param array<string, mixed> $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, $existedData);
+        $this->prepareCustomer($email, $existedData);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -65,16 +70,20 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
+        static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), $this->ids->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         static::assertEquals($customer->getAffiliateCode(), $expectData['affiliateCode']);
         static::assertEquals($customer->getCampaignCode(), $expectData['campaignCode']);
     }
 
-    public function createDataProvider(): array
+    /**
+     * @return array<int, mixed>
+     */
+    public static function createDataProvider(): array
     {
         return [
             // existed data / update data / expect data

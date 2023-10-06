@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMet
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
 use Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
@@ -31,11 +33,15 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\Prop
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
@@ -51,13 +57,17 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationCollection;
+use Shopware\Core\System\StateMachine\StateMachineTranslationCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
+use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
+#[Package('buyers-experience')]
 class LanguageEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -215,22 +225,22 @@ class LanguageEntity extends Entity
     protected $productStreamTranslations;
 
     /**
-     * @var Collection|null
+     * @var StateMachineTranslationCollection|null
      */
     protected $stateMachineTranslations;
 
     /**
-     * @var Collection|null
+     * @var StateMachineStateTranslationCollection|null
      */
     protected $stateMachineStateTranslations;
 
     /**
-     * @var Collection|null
+     * @var EntityCollection<CmsPageTranslationEntity>|null
      */
     protected $cmsPageTranslations;
 
     /**
-     * @var Collection|null
+     * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
     protected $cmsSlotTranslations;
 
@@ -353,6 +363,18 @@ class LanguageEntity extends Entity
      * @var AppCmsBlockTranslationCollection|null
      */
     protected $appCmsBlockTranslations;
+
+    /**
+     * @var AppScriptConditionTranslationCollection|null
+     */
+    protected $appScriptConditionTranslations;
+
+    /**
+     * @var AppFlowActionTranslationCollection|null
+     */
+    protected $appFlowActionTranslations;
+
+    protected ?TaxProviderTranslationCollection $taxProviderTranslations = null;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -674,41 +696,65 @@ class LanguageEntity extends Entity
         $this->productStreamTranslations = $productStreamTranslations;
     }
 
+    /**
+     * @return StateMachineTranslationCollection|null
+     */
     public function getStateMachineTranslations(): ?Collection
     {
         return $this->stateMachineTranslations;
     }
 
+    /**
+     * @param StateMachineTranslationCollection $stateMachineTranslations
+     */
     public function setStateMachineTranslations(Collection $stateMachineTranslations): void
     {
         $this->stateMachineTranslations = $stateMachineTranslations;
     }
 
+    /**
+     * @return StateMachineStateTranslationCollection|null
+     */
     public function getStateMachineStateTranslations(): ?Collection
     {
         return $this->stateMachineStateTranslations;
     }
 
+    /**
+     * @param StateMachineStateTranslationCollection $stateMachineStateTranslations
+     */
     public function setStateMachineStateTranslations(Collection $stateMachineStateTranslations): void
     {
         $this->stateMachineStateTranslations = $stateMachineStateTranslations;
     }
 
+    /**
+     * @return EntityCollection<CmsPageTranslationEntity>|null
+     */
     public function getCmsPageTranslations(): ?Collection
     {
         return $this->cmsPageTranslations;
     }
 
+    /**
+     * @param EntityCollection<CmsPageTranslationEntity> $cmsPageTranslations
+     */
     public function setCmsPageTranslations(Collection $cmsPageTranslations): void
     {
         $this->cmsPageTranslations = $cmsPageTranslations;
     }
 
+    /**
+     * @return EntityCollection<CmsSlotTranslationEntity>|null
+     */
     public function getCmsSlotTranslations(): ?Collection
     {
         return $this->cmsSlotTranslations;
     }
 
+    /**
+     * @param EntityCollection<CmsSlotTranslationEntity> $cmsSlotTranslations
+     */
     public function setCmsSlotTranslations(Collection $cmsSlotTranslations): void
     {
         $this->cmsSlotTranslations = $cmsSlotTranslations;
@@ -944,8 +990,38 @@ class LanguageEntity extends Entity
         $this->appCmsBlockTranslations = $appCmsBlockTranslations;
     }
 
+    public function getAppScriptConditionTranslations(): ?AppScriptConditionTranslationCollection
+    {
+        return $this->appScriptConditionTranslations;
+    }
+
+    public function setAppScriptConditionTranslations(AppScriptConditionTranslationCollection $appScriptConditionTranslations): void
+    {
+        $this->appScriptConditionTranslations = $appScriptConditionTranslations;
+    }
+
+    public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection
+    {
+        return $this->appFlowActionTranslations;
+    }
+
+    public function setAppFlowActionTranslations(AppFlowActionTranslationCollection $appFlowActionTranslations): void
+    {
+        $this->appFlowActionTranslations = $appFlowActionTranslations;
+    }
+
     public function getApiAlias(): string
     {
         return 'language';
+    }
+
+    public function getTaxProviderTranslations(): ?TaxProviderTranslationCollection
+    {
+        return $this->taxProviderTranslations;
+    }
+
+    public function setTaxProviderTranslations(TaxProviderTranslationCollection $taxProviderTranslations): void
+    {
+        $this->taxProviderTranslations = $taxProviderTranslations;
     }
 }

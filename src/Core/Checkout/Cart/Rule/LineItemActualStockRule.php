@@ -3,31 +3,28 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemActualStockRule extends Rule
 {
-    protected ?int $stock;
+    final public const RULE_NAME = 'cartLineItemActualStock';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?int $stock = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->stock = $stock;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemActualStock';
     }
 
     public function match(RuleScope $scope): bool
@@ -40,7 +37,7 @@ class LineItemActualStockRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchStock($lineItem)) {
                 return true;
             }
@@ -52,21 +49,16 @@ class LineItemActualStockRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
-            'stock' => [new NotBlank(), new Type('int')],
+            'operator' => RuleConstraints::numericOperators(false),
+            'stock' => RuleConstraints::int(),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->intField('stock');
     }
 
     /**
@@ -83,27 +75,6 @@ class LineItemActualStockRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return $actualStock >= $this->stock;
-
-            case self::OPERATOR_LTE:
-                return $actualStock <= $this->stock;
-
-            case self::OPERATOR_GT:
-                return $actualStock > $this->stock;
-
-            case self::OPERATOR_LT:
-                return $actualStock < $this->stock;
-
-            case self::OPERATOR_EQ:
-                return $actualStock === $this->stock;
-
-            case self::OPERATOR_NEQ:
-                return $actualStock !== $this->stock;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($actualStock, $this->stock, $this->operator);
     }
 }

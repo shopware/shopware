@@ -22,7 +22,6 @@
       "labelNewPasswordConfirm": "Passwort bestätigen",
       "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",
       "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
@@ -31,18 +30,17 @@
       "labelUseAsAvatar": "Als Profilbild nutzen",
       "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
       "placeholderNewPassword": "Gib ein neues Passwort ein ...",
-      "placeholderOldPassword": "Gib Dein altes Passwort ein ...",
-      "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
-      "labelConfirmPassword": "Passwort",
-      "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
-      "labelButtonCancel": "Abbrechen",
-      "labelButtonConfirm": "Bestätigen"
+      "placeholderOldPassword": "Gib Dein altes Passwort ein ..."
     },
     "tabGeneral": {
       "title": "Allgemein"
     },
     "tabSearchPreferences": {
       "title": "Such-Einstellungen",
+      "alert_elasticsearch": {
+        "title": "Elasticsearch ist nun aktiviert",
+        "text": "Sie haben die elasticsearch für den Admin-Bereich aktiviert, diese Felder sind durchsuchbar und können nicht deaktiviert werden. Sie können aber die Entitäten, die durchsuchbar sind, deaktivieren"
+      },
       "cardSearchableElements": {
         "title": "Durchsuchbare Elemente",
         "description": "Lege die durchsuchbaren Inhalte für Module und Einträge fest.",
@@ -67,7 +65,9 @@
           "orderNumber": "Bestellnummer",
           "email": "E-Mail-Adresse",
           "tagsName": "Tags",
-          "customerNumber": "Kundennummer"
+          "customerNumber": "Kundennummer",
+          "documentNumber": "Die Dokumentnummer",
+          "promotionCode": "Angewandter Aktionscode"
         },
         "customer": {
           "tagsName": "Tags",
@@ -96,7 +96,8 @@
           "alt": "Alt Text",
           "tagsName": "Tags",
           "title": "Titel",
-          "fileName": "Name"
+          "fileName": "Name",
+          "mediaFolderName": "Ordner"
         },
         "landing_page": {
           "name": "Name",
@@ -125,7 +126,8 @@
           "name": "Name"
         },
         "promotion": {
-          "name": "Name"
+          "name": "Name",
+          "code": "Code"
         },
         "product_stream": {
           "name": "Name"

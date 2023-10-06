@@ -1,8 +1,10 @@
 import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard-paypal-credentials', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -21,7 +23,7 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },
                 {
@@ -29,7 +31,7 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },
             ];
@@ -54,4 +56,4 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
             this.$emit('buttons-update', this.buttonConfig);
         },
     },
-});
+};

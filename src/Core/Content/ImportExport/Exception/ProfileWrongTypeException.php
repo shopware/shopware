@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Content\ImportExport\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('services-settings')]
 class ProfileWrongTypeException extends ShopwareHttpException
 {
-    public function __construct(string $profileId, string $profileType)
-    {
+    public function __construct(
+        string $profileId,
+        string $profileType
+    ) {
         parent::__construct(
             'The import/export profile with id {{ profileId }} can only be used for {{ profileType }}',
             ['profileId' => $profileId, 'profileType' => $profileType]

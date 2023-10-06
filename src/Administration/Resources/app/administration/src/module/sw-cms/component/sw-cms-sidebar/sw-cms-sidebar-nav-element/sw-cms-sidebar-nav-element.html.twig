@@ -1,21 +1,26 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_sidebar_navigator_element %}
 <div class="sw-cms-sidebar__navigator-element">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_label %}
     <div class="navigator-element__label">
         {{ block.name ? block.name : block.type }}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="duplicable && removable"
         class="navigator-element__action-duplicate"
+        role="button"
+        tabindex="0"
         @click="onBlockDuplicate"
+        @keydown.enter="onBlockDuplicate"
     >
         <sw-icon
-            name="default-action-duplicate"
+            name="regular-duplicate"
             size="16"
         />
     </div>
@@ -25,15 +30,18 @@
     ></div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_delete %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="removable"
         class="navigator-element__action-delete"
+        role="button"
+        tabindex="0"
         @click="onBlockDelete"
+        @keydown.enter="onBlockDelete"
     >
         <sw-icon
-            name="default-action-trash"
+            name="regular-trash"
             size="16"
         />
     </div>

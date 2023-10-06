@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class BusinessEventRegistry
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $classes = [];
 

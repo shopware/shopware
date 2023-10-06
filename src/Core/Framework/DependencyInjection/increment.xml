@@ -11,7 +11,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="shopware.increment.gateway.array" class="Shopware\Core\Framework\Increment\ArrayIncrementer" />
+        <service id="shopware.increment.gateway.array" class="Shopware\Core\Framework\Increment\ArrayIncrementer">
+            <tag name="kernel.reset" method="resetAll"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Increment\Controller\IncrementApiController" public="true">
             <argument type="service" id="shopware.increment.gateway.registry"/>

@@ -3,30 +3,36 @@
 namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
-use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-class PartialSalesChannelEntityLoadedEvent extends PartialEntityLoadedEvent implements ShopwareSalesChannelEvent
+#[Package('buyers-experience')]
+class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
-    private SalesChannelContext $salesChannelContext;
+    /**
+     * @var PartialEntity[]
+     */
+    protected $entities;
 
-    public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context)
-    {
-        parent::__construct($definition, $entities, $context->getContext());
-        $this->salesChannelContext = $context;
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        SalesChannelContext $context
+    ) {
+        parent::__construct($definition, $entities, $context);
+
+        $this->name = $this->definition->getEntityName() . '.partial_loaded';
     }
 
-    public function getName(): string
+    /**
+     * @return PartialEntity[]
+     */
+    public function getEntities(): array
     {
-        return 'sales_channel.' . parent::getName();
-    }
-
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->salesChannelContext;
+        return $this->entities;
     }
 }

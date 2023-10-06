@@ -1,9 +1,11 @@
 import template from './sw-landing-page-detail-cms.html.twig';
 import './sw-landing-page-detail-cms.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-landing-page-detail-cms', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -22,4 +24,4 @@ Component.register('sw-landing-page-detail-cms', {
             return Shopware.State.get('cmsPageState').currentPage;
         },
     },
-});
+};

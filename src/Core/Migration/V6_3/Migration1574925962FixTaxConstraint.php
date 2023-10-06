@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1574925962FixTaxConstraint extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,11 +21,11 @@ class Migration1574925962FixTaxConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `tax_rule_type_translation` DROP FOREIGN KEY `fk.tax_rule_type_translation.tax_rule_type_id`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `tax_rule_type_translation`
             ADD CONSTRAINT `fk.tax_rule_type_translation.tax_rule_type_id` FOREIGN KEY (`tax_rule_type_id`)
             REFERENCES `tax_rule_type` (`id`)

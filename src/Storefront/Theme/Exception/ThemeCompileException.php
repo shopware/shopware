@@ -2,19 +2,25 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('storefront')]
 class ThemeCompileException extends ShopwareHttpException
 {
-    public function __construct(string $themeName, string $message = '')
-    {
+    public function __construct(
+        string $themeName,
+        string $message = '',
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'Unable to compile the theme "{{ themeName }}". {{ message }}',
             [
                 'themeName' => $themeName,
                 'message' => $message,
-            ]
+            ],
+            $e
         );
     }
 

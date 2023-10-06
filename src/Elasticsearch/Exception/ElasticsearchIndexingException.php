@@ -2,12 +2,17 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('core')]
 class ElasticsearchIndexingException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_INDEXING';
+    final public const CODE = 'ELASTICSEARCH_INDEXING';
 
+    /**
+     * @param array{reason: string}|array{reason: string}[] $items
+     */
     public function __construct(array $items)
     {
         $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'reason'));

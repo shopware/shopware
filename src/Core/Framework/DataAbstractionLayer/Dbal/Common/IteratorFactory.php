@@ -4,19 +4,35 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
+#[Package('core')]
 class IteratorFactory
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry
+    ) {
     }
 
-    public function createIterator(EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
+    public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
+        if (\is_string($definition)) {
+            $definition = $this->registry->getByEntityName($definition);
+        }
+
+        if (!$definition instanceof EntityDefinition) {
+            throw new \InvalidArgumentException('Definition must be an instance of EntityDefinition');
+        }
+
         $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);
@@ -24,7 +40,7 @@ class IteratorFactory
         $query->from($escaped);
         $query->setMaxResults($limit);
 
-        if ($definition->getFields()->has('autoIncrement')) {
+        if ($definition->hasAutoIncrement()) {
             $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id)) as id']);
             $query->andWhere($escaped . '.auto_increment > :lastId');
             $query->addOrderBy($escaped . '.auto_increment');

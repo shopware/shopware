@@ -3,28 +3,23 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class AppTemplateIterator implements \IteratorAggregate
 {
     /**
-     * @var \IteratorAggregate
+     * @internal
      */
-    private $templateIterator;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
-
-    public function __construct(\IteratorAggregate $templateIterator, EntityRepositoryInterface $templateRepository)
-    {
-        $this->templateIterator = $templateIterator;
-        $this->templateRepository = $templateRepository;
+    public function __construct(
+        private readonly \IteratorAggregate $templateIterator,
+        private readonly EntityRepository $templateRepository
+    ) {
     }
 
     public function getIterator(): \Traversable
@@ -35,7 +30,7 @@ class AppTemplateIterator implements \IteratorAggregate
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getDatabaseTemplatePaths(): array
     {

@@ -4,6 +4,8 @@ import './sw-context-menu-divider.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-context-menu-divider', {

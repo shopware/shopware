@@ -4,11 +4,16 @@ namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -16,9 +21,9 @@ class CmsControllerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -88,6 +93,6 @@ class CmsControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], $this->ids->context);
+        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

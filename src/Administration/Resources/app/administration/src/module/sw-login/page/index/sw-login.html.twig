@@ -1,23 +1,30 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login %}
 <div
     class="sw-login"
     :class="{ 'is--login-success' : isLoginSuccess }"
 >
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_container %}
     <div
         class="sw-login__container"
         :class="{ 'is--login-error': isLoginError }"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_image %}
         <div class="sw-login__image">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_image_headlines %}
             <div class="sw-login__image-headlines">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_login_headline %}
                 <div class="sw-login__headline">
                     {{ $tc('sw-login.index.headlineMain') }}
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_login_sub_headline %}
                 <div class="sw-login__sub-headline">
                     {{ $tc('sw-login.index.subheadlineMain') }}
@@ -28,10 +35,13 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_form %}
         <div class="sw-login__content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_badge %}
             <div class="sw-login__badge">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_login_badge_image %}
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +60,28 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_view %}
+
+            {% if VUE3 %}
+            <router-view
+                v-slot="{Component}"
+            >
+                <transition
+                    name="fade"
+                    mode="out-in"
+                >
+                    <component
+                        :is="Component"
+                        :hash="hash"
+                        @is-loading="setLoading(true)"
+                        @is-not-loading="setLoading(false)"
+                        @login-error="loginError"
+                        @login-success="loginSuccess"
+                    />
+                </transition>
+            </router-view>
+            {% else %}
             <transition
                 name="fade"
                 mode="out-in"
@@ -63,8 +94,10 @@
                     @login-success="loginSuccess"
                 />
             </transition>
+            {% endif %}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_loader %}
             <sw-loader v-if="isLoading" />
             {% endblock %}

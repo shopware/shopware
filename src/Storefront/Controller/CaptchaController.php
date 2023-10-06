@@ -2,9 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
@@ -16,26 +15,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class CaptchaController extends StorefrontController
 {
-    private AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader;
-
-    private AbstractCaptcha $basicCaptcha;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
-        AbstractCaptcha $basicCaptcha
+        private readonly AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
+        private readonly AbstractCaptcha $basicCaptcha
     ) {
-        $this->basicCaptchaPageletLoader = $basicCaptchaPageletLoader;
-        $this->basicCaptcha = $basicCaptcha;
     }
 
-    /**
-     * @Since("6.4.2.0")
-     * @Route("/basic-captcha", name="frontend.captcha.basic-captcha.load", methods={"GET"}, defaults={"auth_required"=false}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response
     {
         $formId = $request->get('formId');
@@ -48,18 +44,16 @@ class CaptchaController extends StorefrontController
         ]);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/basic-captcha-validate", name="frontend.captcha.basic-captcha.validate", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/basic-captcha-validate', name: 'frontend.captcha.basic-captcha.validate', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function validate(Request $request): JsonResponse
     {
+        $response = [];
         $formId = $request->get('formId');
         if (!$formId) {
-            throw new MissingRequestParameterException('formId');
+            throw RoutingException::missingRequestParameter('formId');
         }
 
-        if ($this->basicCaptcha->isValid($request)) {
+        if ($this->basicCaptcha->isValid($request, [])) {
             $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 

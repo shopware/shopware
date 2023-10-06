@@ -1,18 +1,21 @@
-const { Component, State } = Shopware;
+/**
+ * @package system-settings
+ */
+const { State } = Shopware;
 
-// eslint-disable-next-line max-len
-Component.extend('sw-bulk-edit-order-documents-generate-cancellation-invoice', 'sw-bulk-edit-order-documents-generate-invoice', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit').orderDocuments.storno;
+                return State.get('swBulkEdit')?.orderDocuments?.storno?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocuments', {
+                State.commit('swBulkEdit/setOrderDocumentsValue', {
                     type: 'storno',
-                    payload: generateData,
+                    value: generateData,
                 });
             },
         },
     },
-});
+};

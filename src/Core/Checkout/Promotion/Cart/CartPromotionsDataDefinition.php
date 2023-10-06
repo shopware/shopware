@@ -3,19 +3,15 @@
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('buyers-experience')]
 class CartPromotionsDataDefinition extends Struct
 {
-    /**
-     * @var array
-     */
-    private $codePromotions;
+    private array $codePromotions;
 
-    /**
-     * @var array
-     */
-    private $automaticPromotions;
+    private array $automaticPromotions;
 
     public function __construct()
     {

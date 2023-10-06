@@ -1,10 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapGetters } = Component.getComponentHelper();
 
-Component.register('sw-product-media-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -104,14 +109,6 @@ Component.register('sw-product-media-form', {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.5.0 - The method "onMediaUploadButtonOpenSidebar" will be removed because
-         * its relevant view was removed
-         */
-        onMediaUploadButtonOpenSidebar() {
-            this.$root.$emit('sidebar-toggle-open');
-        },
-
         onOpenMedia() {
             this.$emit('media-open');
         },
@@ -249,6 +246,9 @@ Component.register('sw-product-media-form', {
         markMediaAsCover(productMedia) {
             this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
+
+            this.product.media.moveItem(productMedia.position, 0);
+            this.updateMediaItemPositions();
         },
 
         onDropMedia(dragData) {
@@ -268,9 +268,12 @@ Component.register('sw-product-media-form', {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true) {
+            if (validDrop !== true
+                || (dragData.id === this.product.coverId && dragData.position === 0)
+                || (dropData.id === this.product.coverId && dropData.position === 0)) {
                 return;
             }
+
             this.product.media.moveItem(dragData.position, dropData.position);
 
             this.updateMediaItemPositions();
@@ -282,4 +285,4 @@ Component.register('sw-product-media-form', {
             });
         },
     },
-});
+};

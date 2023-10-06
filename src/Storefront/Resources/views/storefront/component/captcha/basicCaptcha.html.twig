@@ -2,19 +2,18 @@
     {% set basicCaptchaOptions = {
         router: path('frontend.captcha.basic-captcha.load'),
         validate: path('frontend.captcha.basic-captcha.validate'),
-        captchaRefreshIconId: '#%s-basic-captcha-content-refresh-icon' | format(formId),
-        captchaImageId: '#%s-basic-captcha-content-image' | format(formId),
-        basicCaptchaInputId: '#%s-basic-captcha-input' | format(formId),
-        basicCaptchaFieldId: '#%s-basic-captcha-field' | format(formId),
+        captchaRefreshIconId: '#%s-basic-captcha-content-refresh-icon'|format(formId),
+        captchaImageId: '#%s-basic-captcha-content-image'|format(formId),
+        basicCaptchaInputId: '#%s-basic-captcha-input'|format(formId),
+        basicCaptchaFieldId: '#%s-basic-captcha-field'|format(formId),
         formId: formId,
         preCheck: preCheck,
         preCheckRoute : {
             path: path('frontend.captcha.basic-captcha.validate'),
-            token: sw_csrf('frontend.captcha.basic-captcha.validate', {'mode': 'token'})
         }
     } %}
 
-    <div class="form-row basic-captcha"
+    <div class="row g-2 basic-captcha"
          data-basic-captcha="true"
          data-basic-captcha-options='{{ basicCaptchaOptions|json_encode }}'>
         <div class="form-group {% if additionalClass %} {{ additionalClass }}{% else %}col-md-6{% endif %} basic-captcha-content">

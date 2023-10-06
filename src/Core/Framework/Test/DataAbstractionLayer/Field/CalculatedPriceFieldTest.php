@@ -18,10 +18,13 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFie
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
+/**
+ * @internal
+ */
 class CalculatedPriceFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testListPrice(): void
     {
@@ -29,10 +32,10 @@ class CalculatedPriceFieldTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->rollBack();
-        $connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
         $connection->beginTransaction();
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             'id' => $ids->create('entity'),
@@ -47,13 +50,13 @@ class CalculatedPriceFieldTest extends TestCase
             ),
         ];
 
-        $writeContext = WriteContext::createFromContext($ids->context);
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 
         $this->getContainer()->get(EntityWriter::class)
             ->insert($definition, [$data], $writeContext);
 
         $entity = $this->getContainer()->get(EntityReaderInterface::class)
-            ->read($definition, new Criteria([$ids->get('entity')]), $ids->context)
+            ->read($definition, new Criteria([$ids->get('entity')]), Context::createDefaultContext())
             ->get($ids->get('entity'));
 
         /** @var ArrayEntity $entity */

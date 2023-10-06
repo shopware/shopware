@@ -5,22 +5,27 @@ namespace Shopware\Core\Maintenance\Test\SalesChannel\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class SalesChannelCreatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private SalesChannelCreator $salesChannelCreator;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelCreator = $this->getContainer()->get(SalesChannelCreator::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

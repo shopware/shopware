@@ -6,17 +6,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     protected function setUp(): void
     {
@@ -41,6 +46,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
@@ -50,6 +56,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
@@ -67,6 +74,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
@@ -99,9 +107,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
@@ -116,9 +126,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
@@ -143,9 +155,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));

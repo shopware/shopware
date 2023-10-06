@@ -2,9 +2,13 @@ import template from './sw-first-run-wizard-data-import.html.twig';
 import './sw-first-run-wizard-data-import.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component } = Shopware;
 
-Component.register('sw-first-run-wizard-data-import', {
+/**
+ * @package services-settings
+ * @deprecated tag:v6.6.0 - Will be private
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -54,6 +58,10 @@ Component.register('sw-first-run-wizard-data-import', {
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -99,6 +107,7 @@ Component.register('sw-first-run-wizard-data-import', {
                     return this.extensionStoreActionService.activateExtension(plugin.name, 'plugin');
                 })
                 .then(() => {
+                    this.$emit('extension-activated');
                     this.isInstallingPlugin = false;
                     this.plugins[pluginKey].isInstalled = true;
 
@@ -118,13 +127,12 @@ Component.register('sw-first-run-wizard-data-import', {
 
         getInstalledPlugins() {
             const pluginNames = Object.values(this.plugins).map(plugin => plugin.name);
-            const pluginCriteria = new Criteria();
+            const pluginCriteria = new Criteria(1, 5);
 
             pluginCriteria
                 .addFilter(
                     Criteria.equalsAny('plugin.name', pluginNames),
-                )
-                .setLimit(5);
+                );
 
             this.pluginRepository.search(pluginCriteria)
                 .then((result) => {
@@ -156,4 +164,4 @@ Component.register('sw-first-run-wizard-data-import', {
             return pluginKey;
         },
     },
-});
+};

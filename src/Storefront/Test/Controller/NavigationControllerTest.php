@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 
+/**
+ * @internal
+ */
 class NavigationControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -21,9 +24,9 @@ class NavigationControllerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -62,7 +65,10 @@ class NavigationControllerTest extends TestCase
     {
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            (new Criteria())->addFilter(
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                new EqualsFilter('domains.url', $_SERVER['APP_URL'])
+            ),
             Context::createDefaultContext()
         )->first();
 
@@ -73,6 +79,6 @@ class NavigationControllerTest extends TestCase
             'parentId' => $salesChannel->getNavigationCategoryId(),
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], $this->ids->context);
+        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

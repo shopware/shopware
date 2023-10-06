@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 
+/**
+ * @internal
+ */
 class RouterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,7 +47,7 @@ class RouterTest extends TestCase
         $router->setContext($context);
     }
 
-    public function urlCases()
+    public static function urlCases()
     {
         $id = Uuid::randomHex();
 
@@ -162,6 +165,9 @@ class RouterTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class UrlCase
 {
     /**

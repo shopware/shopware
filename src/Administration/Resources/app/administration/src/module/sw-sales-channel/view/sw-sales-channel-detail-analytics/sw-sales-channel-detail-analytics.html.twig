@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_analytics %}
 <sw-card
     position-identifier="sw-sales-channel-detail-analytics"
@@ -5,12 +6,14 @@
     :is-loading="isLoading"
 >
     <template v-if="salesChannel && salesChannel.analytics">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_headline %}
         <div class="sw-sales-channel-detail-analytics__headline-text">
             {{ $tc('sw-sales-channel.detail.analytics.headline') }}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_description %}
         <p
             class="sw-sales-channel-detail-analytics__description"
@@ -18,10 +21,14 @@
         ></p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
-        <sw-field
+        <sw-text-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.analytics.trackingId"
+            {% else %}
             v-model="salesChannel.analytics.trackingId"
-            type="text"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
             :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"
@@ -30,35 +37,48 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_fields_container %}
         <sw-container
             columns="repeat(auto-fit, minmax(250px, 1fr))"
             gap="0 30px"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_active %}
-            <sw-field
+            <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="salesChannel.analytics.active"
+                {% else %}
                 v-model="salesChannel.analytics.active"
-                type="switch"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
                 name="analyticsActive"
                 :disabled="!acl.can('sales_channel.editor')"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_track_orders %}
-            <sw-field
+            <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="salesChannel.analytics.trackOrders"
+                {% else %}
                 v-model="salesChannel.analytics.trackOrders"
-                type="switch"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                 name="trackOrders"
                 :disabled="!acl.can('sales_channel.editor')"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_anonymize_ip %}
-            <sw-field
+            <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="salesChannel.analytics.anonymizeIp"
+                {% else %}
                 v-model="salesChannel.analytics.anonymizeIp"
-                type="switch"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                 name="anonymizeIp"
                 :disabled="!acl.can('sales_channel.editor')"

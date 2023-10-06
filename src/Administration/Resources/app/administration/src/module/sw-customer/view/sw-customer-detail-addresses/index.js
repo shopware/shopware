@@ -2,10 +2,16 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
-const { Component, Mixin, EntityDefinition } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { ShopwareError } = Shopware.Classes;
+const { Mixin, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-customer-detail-addresses', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -94,6 +100,18 @@ Component.register('sw-customer-detail-addresses', {
 
             return this.activeCustomer.addresses;
         },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
+        },
     },
 
     created() {
@@ -111,14 +129,14 @@ Component.register('sw-customer-detail-addresses', {
                 });
                 return;
             }
+
             if (!this.activeCustomer.id) {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }
 
-            const customFieldSetCriteria = new Criteria();
-            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
-                .addAssociation('customFields');
+            const customFieldSetCriteria = new Criteria(1, 25);
+            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
 
             this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
@@ -132,12 +150,14 @@ Component.register('sw-customer-detail-addresses', {
                 property: 'defaultShippingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 align: 'center',
-                iconLabel: 'default-shopping-cart',
+                iconLabel: 'regular-shopping-cart',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
             }, {
                 property: 'defaultBillingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 align: 'center',
-                iconLabel: 'default-documentation-file',
+                iconLabel: 'regular-file-text',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
             }, {
                 property: 'lastName',
                 label: this.$tc('sw-customer.detailAddresses.columnLastName'),
@@ -178,22 +198,18 @@ Component.register('sw-customer-detail-addresses', {
             this.createNewCustomerAddress();
         },
 
-        createNewCustomerAddress() {
+        async createNewCustomerAddress() {
+            const defaultSalutationId = await this.getDefaultSalutation();
+
             const newAddress = this.addressRepository.create();
             newAddress.customerId = this.activeCustomer.id;
+            newAddress.salutationId = defaultSalutationId;
 
             this.currentAddress = newAddress;
         },
 
         onSaveAddress() {
-            if (this.currentAddress === null) {
-                return;
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
+            if (this.currentAddress === null || !this.isValidAddress(this.currentAddress)) {
                 return;
             }
 
@@ -219,23 +235,39 @@ Component.register('sw-customer-detail-addresses', {
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
-            isValid = requiredAddressFields.every(field => {
-                return (ignoreFields.indexOf(field) !== -1) || required(address[field]);
+            requiredAddressFields.forEach(field => {
+                if ((ignoreFields.indexOf(field) !== -1) || required(address[field])) {
+                    return;
+                }
+
+                isValid = false;
+
+                Shopware.State.dispatch(
+                    'error/addApiError',
+                    {
+                        expression: `customer_address.${this.currentAddress.id}.${field}`,
+                        error: new ShopwareError(
+                            {
+                                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                            },
+                        ),
+                    },
+                );
             });
 
             return isValid;
         },
 
         onCloseAddressModal() {
-            if (this.hasOwnProperty('defaultShippingAddressId')) {
+            if (this.defaultShippingAddressId) {
                 this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
             }
 
-            if (this.hasOwnProperty('defaultBillingAddressId')) {
+            if (this.defaultBillingAddressId) {
                 this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
-            if (this.$route.query.hasOwnProperty('detailId')) {
+            if (this.$route.query.detailId) {
                 this.$route.query.detailId = null;
             }
 
@@ -286,19 +318,20 @@ Component.register('sw-customer-detail-addresses', {
             this.customer.defaultShippingAddressId = shippingAddressId;
         },
 
-        onDuplicateAddress(addressId) {
-            this.customerAddressRepository.clone(addressId).then(() => {
-                this.refreshList();
-            });
+        async onDuplicateAddress(addressId) {
+            const { id } = await this.customerAddressRepository.clone(addressId);
+            const newAddress = await this.customerAddressRepository.get(id);
+
+            this.activeCustomer.addresses.push(newAddress);
         },
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;
@@ -328,5 +361,11 @@ Component.register('sw-customer-detail-addresses', {
 
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
         },
+
+        async getDefaultSalutation() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
+        },
     },
-});
+};

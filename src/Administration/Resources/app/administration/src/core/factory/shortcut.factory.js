@@ -1,8 +1,11 @@
 /**
+ * @package admin
+ *
  * @module core/factory/shortcut
  */
 import { warn } from 'src/core/service/utils/debug.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getPathByCombination,
     getShortcutRegistry,

@@ -1,6 +1,29 @@
 @import "~scss/variables";
 
 .sw-bulk-edit-product {
+    &.is--variant {
+        // Hide form-field-renderer for price inheritance field
+        .sw-bulk-edit-change-field-isPriceInherited .sw-form-field-renderer {
+            display: none;
+        }
+
+        // Hide checkbox for price, purchasePrices, listPrice and regulationPrice
+        .sw-bulk-edit-change-field-price .sw-field__checkbox,
+        .sw-bulk-edit-change-field-purchasePrices .sw-field__checkbox,
+        .sw-bulk-edit-change-field-listPrice .sw-field__checkbox,
+        .sw-bulk-edit-change-field-regulationPrice .sw-field__checkbox {
+            display: none;
+        }
+
+        // Adjust space after hiding those checkboxes
+        .sw-bulk-edit-change-field-price .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-purchasePrices .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-listPrice .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-regulationPrice .sw-field--checkbox__content {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .sw-card .sw-card__content {
         padding: 0;
 
@@ -9,6 +32,12 @@
             display: block;
             padding-top: 14px;
             cursor: pointer;
+        }
+
+        .sw-card__quick-link.is--disabled {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.5;
         }
     }
 
@@ -66,7 +95,76 @@
         width: 100%;
     }
 
+    .sw-bulk-edit-product-base__advanced-prices {
+        .sw-bulk-edit-change-type {
+            position: relative;
+        }
+
+        .sw-inheritance-switch {
+            position: absolute;
+            top: 15px;
+            left: -30px;
+        }
+    }
+
     .sw-product-media-form .sw-product-media-form__previews {
         grid-template-columns: none;
+    }
+
+    .sw-product-category-form__visibility_field {
+        margin-top: 0;
+    }
+
+    &__inheritance.sw-card {
+        filter: none;
+    }
+
+    &__inheritance.sw-card .sw-card__content {
+        border: 0;
+    }
+
+    &__inheritance .sw-alert {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        margin: 0 auto;
+        border: 1px solid $color-module-purple-900;
+        background: $color-module-purple-50;
+        font-size: $font-size-xs;
+    }
+
+    &__inheritance .sw-alert__body {
+        padding-left: 0;
+    }
+
+    &__inheritance-icon {
+        position: relative;
+    }
+
+    &__inheritance-icon .sw-icon {
+        position: absolute;
+        top: 30px;
+        right: 10px;
+    }
+
+    &__restricted-fields .sw-alert {
+        margin: 0 auto;
+    }
+}
+
+.sw-bulk-edit-product-base__property {
+    .sw-product-properties .sw-inheritance-switch {
+        left: 0;
+    }
+}
+
+.sw-bulk-edit-product-base__custom_fields {
+    .sw-tabs.sw-tabs--scrollable {
+        padding: 0;
+    }
+}
+
+.sw-bulk-edit-product-content-advanced-prices-modal {
+    .sw-product-detail-context-prices {
+        min-width: 100%;
     }
 }

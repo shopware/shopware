@@ -19,7 +19,8 @@
                 <noscript class="noscript-main">
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'info',
-                        content: 'general.noscriptNotice'|trans|sw_sanitize
+                        content: 'general.noscriptNotice'|trans|sw_sanitize,
+                        iconCache: false
                     } %}
                 </noscript>
             {% endblock %}
@@ -41,9 +42,13 @@
             {% block single_cms_page_main %}
                 <main class="content-main">
                     {% block single_cms_page_main_content %}
-                        <div class="cms-page">
+                        {# @deprecated tag:v6.6.0 - page.landingPage.cmsPage will be removed due to ununsed #}
+                        {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
+                        {% set cmsPageClasses = ('cms-page ' ~ cmsPage.cssClass|striptags)|trim %}
+                        <div class="{{ cmsPageClasses }}">
                             {% block page_content_blocks %}
-                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                                {# @deprecated tag:v6.6.0 - 'landingPage' will be removed due to ununsed #}
+                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': cmsPage, 'landingPage': page.landingPage} %}
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -55,17 +60,17 @@
                     {% block single_cms_page_footer_content %}
                         <div class="container mt-3 text-center">
                             {% if config('core.basicInformation.imprintPage') is not null %}
-                                <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.imprintPage') }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage', { id: config('core.basicInformation.imprintPage') }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
-                                   class="pl-2 pr-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
 
                             {% if config('core.basicInformation.privacyPage') is not null %}
-                                <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.privacyPage') }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage', { id: config('core.basicInformation.privacyPage') }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
-                                   class="pl-2 pr-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -92,22 +97,15 @@
                 {# Register the available viewport breakpoints the window.breakpoints object #}
                 <script>
                     {% set breakpoint = {
-                        'xs': theme_config('breakpoint.sm'),
-                        'sm': theme_config('breakpoint.md'),
-                        'md': theme_config('breakpoint.lg'),
-                        'lg': theme_config('breakpoint.xl')
+                        'xs': theme_config('breakpoint.xs'),
+                        'sm': theme_config('breakpoint.sm'),
+                        'md': theme_config('breakpoint.md'),
+                        'lg': theme_config('breakpoint.lg'),
+                        'xl': theme_config('breakpoint.xl'),
+                        'xxl': theme_config('breakpoint.xxl')
                     } %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
-                </script>
-            {% endblock %}
-
-            {% block single_cms_page_script_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
                 </script>
             {% endblock %}
         {% endblock %}

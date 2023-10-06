@@ -1,36 +1,46 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
-import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import DomAccess from 'src/helper/dom-access.helper';
+import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS } from 'src/plugin/cookie/cookie-configuration.plugin';
 
+export const CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO = 'CmsGdprVideoElement_replaceElementWithVideo';
+
+/**
+ * @package content
+ */
 export default class CmsGdprVideoElement extends Plugin {
     /**
      * Plugin options
      * @type {{btnClasses: Array<String>, videoUrl: null, iframeClasses: Array<String>, overlayText: null, backdropClass: Array<String>, confirmButtonText: null}}
      */
     static options = {
+        cookieName: 'youtube-video',
         btnClasses: [],
         videoUrl: null,
         iframeClasses: [],
         overlayText: null,
         backdropClasses: ['element-loader-backdrop', 'element-loader-backdrop-open'],
         confirmButtonText: null,
-        modalTriggerSelector: '[data-toggle="modal"][data-url]',
+        modalTriggerSelector: '[data-bs-toggle="modal"][data-url]',
         urlAttribute: 'data-url',
     };
 
     /**
      * Plugin initializer
      *
-     * @returns {void}
+     * @returns {void|boolean}
      */
     init() {
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this._replaceElementWithVideo.bind(this));
+        document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
+
+        if (CookieStorageHelper.getItem(this.options.cookieName)) {
+            this._replaceElementWithVideo();
+        }
+
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);
-
-        const modalTrigger = this.el.querySelector(this.options.modalTriggerSelector);
-        modalTrigger.addEventListener('click', this.onClickHandleAjaxModal.bind(this))
     }
 
     /**
@@ -92,11 +102,24 @@ export default class CmsGdprVideoElement extends Plugin {
      *
      * @fires click
      * @param {Event} event
-     * @returns {Boolean}
+     * @returns {boolean}
      */
     onReplaceElementWithVideo(event) {
         event.preventDefault();
 
+        CookieStorageHelper.setItem(this.options.cookieName, '1', '30');
+
+        document.$emitter.publish(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO);
+
+        return true;
+    }
+
+    /**
+     * Execute replacing the element with video
+     *
+     * @returns {boolean}
+     */
+    _replaceElementWithVideo() {
         const videoElement = document.createElement('iframe');
         videoElement.setAttribute('src', this.options.videoUrl);
 
@@ -109,34 +132,5 @@ export default class CmsGdprVideoElement extends Plugin {
         parentNode.removeChild(this.el);
 
         return true;
-    }
-
-    /**
-     * Event handler which will be fired when the user clicks on the privacy link in the overlay text. The method
-     * fetches the information from the URL provided in the `data-url` property.
-     *
-     * @param {Event} event
-     * @returns {void}
-     */
-    onClickHandleAjaxModal(event) {
-        const trigger = event.currentTarget;
-        const url = DomAccess.getAttribute(trigger, this.options.urlAttribute);
-
-        this._client.get(url, response => this.openModal(response));
-    }
-
-    /**
-     * After the HTTP client fetched the information from the server, we're opening up a modal box and fill it
-     * with the response we got.
-     *
-     * @param {String} response
-     * @returns {void}
-     */
-    openModal(response) {
-        const pseudoModal = new PseudoModalUtil(response);
-
-        pseudoModal.open(() => {
-            window.PluginManager.initializePlugins();
-        });
     }
 }

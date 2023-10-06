@@ -3,77 +3,83 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use OpenSearch\Client;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class ElasticsearchIndexer extends AbstractMessageHandler
+/**
+ * @internal
+ *
+ * @final
+ */
+#[AsMessageHandler]
+#[Package('core')]
+class ElasticsearchIndexer
 {
-    private Connection $connection;
+    /**
+     * @deprecated tag:v6.6.0 - reason:blue-green-deployment - will be removed
+     */
+    public const ENABLE_MULTILINGUAL_INDEX_KEY = 'enable-multilingual-index';
 
-    private ElasticsearchHelper $helper;
-
-    private ElasticsearchRegistry $registry;
-
-    private IndexCreator $indexCreator;
-
-    private IteratorFactory $iteratorFactory;
-
-    private Client $client;
-
-    private LoggerInterface $logger;
-
-    private EntityRepositoryInterface $currencyRepository;
-
-    private EntityRepositoryInterface $languageRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private int $indexingBatchSize;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        ElasticsearchHelper $helper,
-        ElasticsearchRegistry $registry,
-        IndexCreator $indexCreator,
-        IteratorFactory $iteratorFactory,
-        Client $client,
-        LoggerInterface $logger,
-        EntityRepositoryInterface $currencyRepository,
-        EntityRepositoryInterface $languageRepository,
-        EventDispatcherInterface $eventDispatcher,
-        int $indexingBatchSize
+        private readonly Connection $connection,
+        private readonly ElasticsearchHelper $helper,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly IndexCreator $indexCreator,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly Client $client,
+        private readonly LoggerInterface $logger,
+        private readonly EntityRepository $currencyRepository,
+        private readonly EntityRepository $languageRepository,
+        private readonly int $indexingBatchSize,
+        private readonly MessageBusInterface $bus,
+        private readonly MultilingualEsIndexer $newImplementation,
+        private readonly ElasticsearchLanguageProvider $languageProvider,
     ) {
-        $this->connection = $connection;
-        $this->helper = $helper;
-        $this->registry = $registry;
-        $this->indexCreator = $indexCreator;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->client = $client;
-        $this->logger = $logger;
-        $this->currencyRepository = $currencyRepository;
-        $this->languageRepository = $languageRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->indexingBatchSize = $indexingBatchSize;
+    }
+
+    public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
+    {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            if ($message instanceof ElasticsearchIndexingMessage) {
+                $this->newImplementation->__invoke($message);
+            }
+
+            return;
+        }
+
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
+            $this->handleLanguageIndexIteratorMessage($message);
+
+            return;
+        }
+
+        $this->handleIndexingMessage($message);
     }
 
     /**
@@ -81,6 +87,10 @@ class ElasticsearchIndexer extends AbstractMessageHandler
      */
     public function iterate($offset): ?ElasticsearchIndexingMessage
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->iterate($offset);
+        }
+
         if (!$this->helper->allowIndexing()) {
             return null;
         }
@@ -113,15 +123,24 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         }
 
         // all definitions are indexed in current language, start again with next language
-        $offset->setNextLanguage();
+        $offset->selectNextLanguage();
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
         return $this->iterate($offset);
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
+        if ($this->helper->enabledMultilingualIndex()) {
+            $this->newImplementation->updateIds($definition, $ids);
+
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -136,88 +155,18 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
-            $this->handle($message);
+            $this->__invoke($message);
         }
     }
 
     /**
-     * @param ElasticsearchIndexingMessage $message
+     * @param array<string> $ids
+     *
+     * @return ElasticsearchIndexingMessage[]
      */
-    public function handle($message): void
-    {
-        if (!$message instanceof ElasticsearchIndexingMessage) {
-            return;
-        }
-
-        if (!$this->helper->allowIndexing()) {
-            return;
-        }
-
-        $task = $message->getData();
-
-        $ids = $task->getIds();
-
-        $index = $task->getIndex();
-
-        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
-            'idCount' => \count($ids),
-            'index' => $index,
-        ]);
-
-        if (!$this->client->indices()->exists(['index' => $index])) {
-            return;
-        }
-
-        $entity = $task->getEntity();
-
-        $definition = $this->registry->get($entity);
-
-        $context = $message->getContext();
-
-        $context->addExtension('currencies', $this->getCurrencies());
-
-        if (!$definition) {
-            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
-        }
-
-        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
-
-        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
-
-        $documents = [];
-        foreach ($data as $id => $document) {
-            $documents[] = ['index' => ['_id' => $id]];
-            $documents[] = $document;
-        }
-
-        foreach ($toRemove as $id) {
-            $documents[] = ['delete' => ['_id' => $id]];
-        }
-
-        $arguments = [
-            'index' => $index,
-            'body' => $documents,
-        ];
-
-        $result = $this->client->bulk($arguments);
-
-        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
-            $errors = $this->parseErrors($result);
-
-            throw new ElasticsearchIndexingException($errors);
-        }
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ElasticsearchIndexingMessage::class,
-        ];
-    }
-
     private function generateMessages(EntityDefinition $definition, array $ids): array
     {
-        $languages = $this->getLanguages();
+        $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
 
         $messages = [];
         foreach ($languages as $language) {
@@ -267,7 +216,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         }
 
         // increment definition offset
-        $offset->setNextDefinition();
+        $offset->selectNextDefinition();
 
         // reset last id to start iterator at the beginning
         $offset->setLastId(null);
@@ -281,49 +230,26 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $this->createScripts();
 
-        $definitions = $this->registry->getDefinitions();
-        $languages = $this->getLanguages();
-
-        $currencies = $this->getCurrencies();
+        $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
 
         $timestamp = new \DateTime();
 
         foreach ($languages as $language) {
-            $context = $this->createLanguageContext($language);
-
-            $context->addExtension('currencies', $currencies);
-
-            foreach ($definitions as $definition) {
-                $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
-
-                $index = $alias . '_' . $timestamp->getTimestamp();
-
-                $hasAlias = $this->indexCreator->aliasExists($alias);
-
-                $this->indexCreator->createIndex($definition, $index, $alias, $context);
-
-                $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
-
-                // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
-                if ($hasAlias) {
-                    $this->connection->insert('elasticsearch_index_task', [
-                        'id' => Uuid::randomBytes(),
-                        '`entity`' => $definition->getEntityDefinition()->getEntityName(),
-                        '`index`' => $index,
-                        '`alias`' => $alias,
-                        '`doc_count`' => $iterator->fetchCount(),
-                    ]);
-                }
-            }
+            $this->createLanguageIndex($language, $timestamp);
         }
 
         return new IndexerOffset(
-            $languages,
-            $definitions,
+            array_values($languages->getIds()),
+            $this->registry->getDefinitionNames(),
             $timestamp->getTimestamp()
         );
     }
 
+    /**
+     * @param array<mixed> $result
+     *
+     * @return array{index: string, id: string, type: string, reason: string}[]
+     */
     private function parseErrors(array $result): array
     {
         $errors = [];
@@ -347,23 +273,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         return $errors;
     }
 
-    private function getLanguages(): LanguageCollection
-    {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.id', null)]));
-        $criteria->addSorting(new FieldSorting('id'));
-
-        $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
-
-        /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return $languages;
-    }
-
     private function createLanguageContext(LanguageEntity $language): Context
     {
         return new Context(
@@ -380,115 +289,135 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $criteria = new Criteria([$languageId]);
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context);
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
 
         return $languages->get($languageId);
     }
 
-    private function getCurrencies(): EntitySearchResult
-    {
-        return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
-    }
-
     private function createScripts(): void
     {
-        $script = "
-            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        $finder = (new Finder())
+            ->files()
+            ->in(__DIR__ . '/Scripts')
+            ->name('*.groovy');
 
-                    def factor = accessor['factor'];
-                    def value = doc[key].value * factor;
+        foreach ($finder as $file) {
+            $name = pathinfo($file->getFilename(), \PATHINFO_FILENAME);
 
-                    value = Math.round(value * decimals);
-                    value = (double) value / decimals;
-
-                    if (!round) {
-                        return (double) value;
-                    }
-
-                    value = Math.round(value * multiplier);
-
-                    value = (double) value / multiplier;
-
-                    return (double) value;
-                }
-
-                return 0;
-            }
-
-            return getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
-        ";
-
-        $this->client->putScript([
-            'id' => 'cheapest_price',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
+            $this->client->putScript([
+                'id' => $name,
+                'body' => [
+                    'script' => [
+                        'lang' => 'painless',
+                        'source' => file_get_contents($file->getPathname()),
+                    ],
                 ],
-            ],
+            ]);
+        }
+    }
+
+    private function createLanguageIndex(LanguageEntity $language, \DateTime $timestamp): void
+    {
+        $context = $this->createLanguageContext($language);
+
+        foreach ($this->registry->getDefinitions() as $definition) {
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
+
+            $index = $alias . '_' . $timestamp->getTimestamp();
+
+            $hasAlias = $this->indexCreator->aliasExists($alias);
+
+            $this->indexCreator->createIndex($definition, $index, $alias, $context);
+
+            $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
+
+            // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
+            if ($hasAlias) {
+                $this->connection->insert('elasticsearch_index_task', [
+                    'id' => Uuid::randomBytes(),
+                    '`entity`' => $definition->getEntityDefinition()->getEntityName(),
+                    '`index`' => $index,
+                    '`alias`' => $alias,
+                    '`doc_count`' => $iterator->fetchCount(),
+                ]);
+            }
+        }
+    }
+
+    private function handleIndexingMessage(ElasticsearchIndexingMessage $message): void
+    {
+        $task = $message->getData();
+
+        $ids = $task->getIds();
+
+        $index = $task->getIndex();
+
+        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
+            'idCount' => \count($ids),
+            'index' => $index,
         ]);
 
-        $script = "
-            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        if (!$this->client->indices()->exists(['index' => $index])) {
+            return;
+        }
 
-                    def factor = accessor['factor'];
-                    def value = doc[key].value * factor;
+        $entity = $task->getEntity();
 
-                    value = Math.round(value * decimals);
-                    value = (double) value / decimals;
+        $definition = $this->registry->get($entity);
 
-                    if (!round) {
-                        return (double) value;
-                    }
+        $context = $message->getContext();
 
-                    value = Math.round(value * multiplier);
+        $context->addExtension('currencies', $this->currencyRepository->search(new Criteria(), Context::createDefaultContext()));
 
-                    value = (double) value / multiplier;
+        if (!$definition) {
+            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
+        }
 
-                    return (double) value;
-                }
+        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
 
-                return 0;
-            }
+        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
-            def price = getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
+        $documents = [];
+        foreach ($data as $id => $document) {
+            $documents[] = ['index' => ['_id' => $id]];
+            $documents[] = $document;
+        }
 
-            def match = true;
-            if (params.containsKey('gte')) {
-                match = match && price >= params['gte'];
-            }
-            if (params.containsKey('gt')) {
-                match = match && price > params['gt'];
-            }
-            if (params.containsKey('lte')) {
-                match = match && price <= params['lte'];
-            }
-            if (params.containsKey('lt')) {
-                match = match && price < params['lt'];
-            }
+        foreach ($toRemove as $id) {
+            $documents[] = ['delete' => ['_id' => $id]];
+        }
 
-            return match;
-        ";
+        $arguments = [
+            'index' => $index,
+            'body' => $documents,
+        ];
 
-        $this->client->putScript([
-            'id' => 'cheapest_price_filter',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
-                ],
-            ],
-        ]);
+        $result = $this->client->bulk($arguments);
+
+        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
+            $errors = $this->parseErrors($result);
+
+            throw new ElasticsearchIndexingException($errors);
+        }
+    }
+
+    private function handleLanguageIndexIteratorMessage(ElasticsearchLanguageIndexIteratorMessage $message): void
+    {
+        /** @var LanguageEntity|null $language */
+        $language = $this->languageRepository->search(new Criteria([$message->getLanguageId()]), Context::createDefaultContext())->first();
+
+        if ($language === null) {
+            return;
+        }
+
+        $timestamp = new \DateTime();
+        $this->createLanguageIndex($language, $timestamp);
+
+        $offset = new IndexerOffset([$language->getId()], $this->registry->getDefinitionNames(), $timestamp->getTimestamp());
+        while ($message = $this->iterate($offset)) {
+            $offset = $message->getOffset();
+
+            $this->bus->dispatch($message);
+        }
     }
 }

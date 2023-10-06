@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create %}
 <sw-card-view>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_address_modal %}
     <sw-order-create-address-modal
         v-if="showAddressModal"
@@ -13,6 +15,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_promotion_modal %}
     <sw-order-create-promotion-modal
         v-if="showPromotionModal"
@@ -24,6 +27,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details %}
     <sw-card
         :title="$tc('sw-order.createBase.labelDetailsCard')"
@@ -37,6 +41,7 @@
                 class="sw-order-user-card"
             >
                 <sw-card-section>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_details_header %}
                     <sw-order-create-details-header
                         :customer="customer"
@@ -46,6 +51,7 @@
                         @on-select-existing-customer="onSelectExistingCustomer"
                     />
                     {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_details_body %}
                     <sw-order-create-details-body
                         :customer="customer"
@@ -59,6 +65,7 @@
                     secondary
                     divider="top"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_details_footer %}
                     <sw-order-create-details-footer
                         :customer="customer"
@@ -73,6 +80,7 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_base_line_items_card %}
     <sw-card
         :title="$tc('sw-order.createBase.cardTitleLineItems')"
@@ -80,9 +88,11 @@
         position-identifier="sw-order-create-base-line-items"
         class="sw-order-create__card sw-order-create-base__line-item-grid-card"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_base_line_items_card_rows %}
         <template #grid>
             <sw-container type="row">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_base_line_items_grid %}
                 <sw-order-line-items-grid-sales-channel
                     ref="sw-order-line-item-grid-sales-channel"
@@ -97,6 +107,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_base_line_items_summary %}
                 <sw-card-section
                     v-show="cartLineItems.length"
@@ -105,21 +116,30 @@
                     slim
                 >
                     <sw-container
-                        columns="1fr 440px"
-                        gap="14px"
+                        columns="1fr 1fr"
                         class="sw-order-create-summary"
                     >
                         <div>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_switch_promotions %}
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="disabledAutoPromotionVisibility"
+                                {% else %}
                                 v-model="disabledAutoPromotionVisibility"
+                                {% endif %}
                                 class="sw-order-create-summary__switch-promotions"
                                 :label="$tc('sw-order.promotionModal.labelTitle')"
                             />
                             {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_voucher_field %}
                             <sw-order-promotion-tag-field
+                                {% if VUE3 %}
+                                v-model:value="promotionCodeTags"
+                                {% else %}
                                 v-model="promotionCodeTags"
+                                {% endif %}
                                 :disabled="!hasLineItem"
                                 :currency="currency"
                                 :label="$tc('sw-order.createBase.labelAddPromotion')"
@@ -130,15 +150,18 @@
                             {% endblock %}
                         </div>
                         <sw-description-list
-                            grid="265px 1fr"
+                            grid="1fr 1fr"
                             class="sw-order-create-summary__data"
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_entries %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_amount %}
                             <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                            <dd>{{ (cartPrice ? cartPrice.positionPrice : 0) | currency(currency.shortName) }}</dd>
+                            <dd>{{ currencyFilter(cartPrice ? cartPrice.positionPrice : 0, currency.shortName) }}</dd>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_shipping_cost %}
                             <template v-if="cartDelivery">
                                 <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
@@ -154,7 +177,7 @@
                                         :value="cartDelivery.shippingCosts.totalPrice"
                                         @value-change="onShippingChargeEdited"
                                     >
-                                        {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName) }}
+                                        {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.shortName) }}
                                     </sw-order-saveable-field>
                                 </dd>
                             </template>
@@ -167,18 +190,20 @@
                                     {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
                                 <dd :key="`dd-${index}`">
-                                    {{ delivery.shippingCosts.totalPrice | currency(currency.shortName) }}
+                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName) }}
                                 </dd>
                             </template>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_amount_without_tax %}
                             <template v-if="taxStatus !== 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                <dd><strong>{{ (cartPrice ? cartPrice.netPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(cartPrice ? cartPrice.netPrice : 0, currency.shortName) }}</strong></dd>
                             </template>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_taxes %}
                             <template v-if="taxStatus !== 'tax-free'">
                                 <template v-for="(calculatedTax, index) in filteredCalculatedTaxes">
@@ -186,27 +211,29 @@
                                         {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                     </dt>
                                     <dd :key="`dd-${index}`">
-                                        {{ calculatedTax.tax | currency(currency.shortName) }}
+                                        {{ currencyFilter(calculatedTax.tax, currency.shortName) }}
                                     </dd>
                                 </template>
                             </template>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_amount_total %}
                             <template v-if="taxStatus !== 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
-                                <dd><strong>{{ orderTotal | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(orderTotal, currency.shortName) }}</strong></dd>
                                 <template v-if="displayRounded">
                                     <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                    <dd><strong>{{ cart.price.totalPrice | currency(currency.shortName) }}</strong></dd>
+                                    <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.shortName) }}</strong></dd>
                                 </template>
                             </template>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_summary_amount_free_tax %}
                             <template v-if="taxStatus === 'tax-free'">
                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                                <dd><strong>{{ cart.price.totalPrice | currency(currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.shortName) }}</strong></dd>
                             </template>
                             {% endblock %}
                             {% endblock %}

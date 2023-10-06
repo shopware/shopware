@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 
-class RemoveCustomerTagAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class RemoveCustomerTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepositoryInterface $customerTagRepository;
-
-    public function __construct(EntityRepositoryInterface $customerTagRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $customerTagRepository)
     {
-        $this->customerTagRepository = $customerTagRepository;
     }
 
     public static function getName(): string
@@ -20,39 +27,43 @@ class RemoveCustomerTagAction extends FlowAction
         return 'action.remove.customer.tag';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [CustomerAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $config = $event->getConfig();
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
+            return;
+        }
+
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $customerId): void
+    {
         if (!\array_key_exists('tagIds', $config)) {
             return;
         }
 
         $tagIds = array_keys($config['tagIds']);
-        $baseEvent = $event->getEvent();
 
-        if (!$baseEvent instanceof CustomerAware || empty($tagIds)) {
+        if (empty($tagIds)) {
             return;
         }
 
-        $tags = array_map(static function ($tagId) use ($baseEvent) {
-            return [
-                'customerId' => $baseEvent->getCustomerId(),
-                'tagId' => $tagId,
-            ];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => [
+            'customerId' => $customerId,
+            'tagId' => $tagId,
+        ], $tagIds);
 
-        $this->customerTagRepository->delete($tags, $baseEvent->getContext());
+        $this->customerTagRepository->delete($tags, $context);
     }
 }

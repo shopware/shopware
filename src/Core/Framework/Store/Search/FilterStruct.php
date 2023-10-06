@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
  */
+#[Package('services-settings')]
 abstract class FilterStruct extends Struct
 {
     /**

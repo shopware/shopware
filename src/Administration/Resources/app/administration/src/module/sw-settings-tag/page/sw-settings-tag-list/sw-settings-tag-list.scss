@@ -1,0 +1,128 @@
+@import "~scss/variables";
+
+.sw-settings-tag-list {
+    &__grid {
+        .sw-label {
+            border-radius: 4px;
+            max-width: 350px;
+            min-width: 0;
+        }
+    }
+
+    &__filter {
+        h3 {
+            margin: 8px 0 20px 16px;
+        }
+
+        .sw_context_menu_divider {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sw-multi-select {
+            padding: 0 16px;
+            margin: 20px 0;
+        }
+
+        .sw-field--switch {
+            padding: 0 16px;
+            margin: 0;
+        }
+
+        &-footer {
+            background: $color-gray-100;
+            margin: 32px -8px -8px;
+            padding: 20px 24px;
+            text-align: right;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+
+            a {
+                color: $color-crimson-900;
+            }
+        }
+    }
+
+    &__content {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+
+        .sw-card__content {
+            height: 100%;
+        }
+
+        .sw-context-button {
+            .filter-badge {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 2px 8px;
+                transform: translate(30%, -30%);
+                border-radius: 18px;
+                color: $color-white;
+                background: $color-shopware-brand-500;
+                font-size: $font-size-xxs;
+                font-style: normal;
+                pointer-events: none;
+            }
+        }
+    }
+
+    &__confirm-bulk-merge-text {
+        .confirm-bulk-merge-text__label {
+            display: inline-block;
+            margin-right: 4px;
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+
+        .confirm-bulk-merge-text__label-into {
+            display: inline-block;
+            margin-left: -4px;
+        }
+
+        .sw-label {
+            border-radius: 4px;
+            margin-right: 0;
+            max-width: 350px;
+            min-width: 0;
+        }
+    }
+
+    &__confirm-bulk-merge-name-input {
+        margin-top: 20px;
+    }
+
+    &__bulk-merge-progress {
+        text-align: center;
+        padding: 50px 0 30px;
+        color: $color-shopware-brand-500;
+    }
+
+    &__bulk-merge-progress-icon {
+        animation: loading 2s linear infinite;
+    }
+
+    .sw-card__toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 20px;
+    }
+
+    .sw-card-view__content {
+        display: grid;
+    }
+
+    @keyframes loading {
+        from {
+            transform: translate(0%, 0%) rotate(0deg);
+        }
+
+        to {
+            transform: translate(0%, 0%) rotate(360deg);
+        }
+    }
+}

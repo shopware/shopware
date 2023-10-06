@@ -3,21 +3,22 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 /**
+ * @internal
+ *
  * @group slow
  */
+#[Package('core')]
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    private ContainerInterface $container;
 
     public function testEverythingIsInstantiatable(): void
     {
@@ -73,8 +74,7 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(function (): void {// ignore symfony deprecations
-        }, \E_USER_DEPRECATED);
+        set_error_handler(fn (): bool => true, \E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
 
@@ -104,8 +104,8 @@ class ServiceDefinitionTest extends TestCase
             $fullMatch = $match[0];
 
             $errors[] = sprintf(
-                '%s:%s - invalid order (type should be first)',
-                $match['id'][0] ?? $fullMatch[0],
+                '%s:%d - invalid order (type should be first)',
+                (string) ($match['id'][0] ?? $fullMatch[0]),
                 $this->getLineNumber($content, $fullMatch[1])
             );
         }
@@ -132,8 +132,8 @@ class ServiceDefinitionTest extends TestCase
         foreach ($matches as $match) {
             $fullMatch = $match[0];
             $errors[] = sprintf(
-                '%s:%s - parameter class and id are identical. class parameter should be removed',
-                $match['class'][0] ?? $fullMatch[0],
+                '%s:%d - parameter class and id are identical. class parameter should be removed',
+                (string) ($match['class'][0] ?? $fullMatch[0]),
                 $this->getLineNumber($content, $fullMatch[1])
             );
         }
@@ -141,9 +141,12 @@ class ServiceDefinitionTest extends TestCase
         return $errors;
     }
 
+    /**
+     * @param int<1, max> $position
+     */
     private function getLineNumber(string $content, int $position): int
     {
-        list($before) = str_split($content, $position);
+        [$before] = str_split($content, $position);
 
         return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
     }

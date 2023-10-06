@@ -3,15 +3,12 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                       add(NumberRangeTypeEntity $type)
- * @method NumberRangeTypeEntity[]    getIterator()
- * @method NumberRangeTypeEntity[]    getElements()
- * @method NumberRangeTypeEntity|null get(string $key)
- * @method NumberRangeTypeEntity|null first()
- * @method NumberRangeTypeEntity|null last()
+ * @extends EntityCollection<NumberRangeTypeEntity>
  */
+#[Package('checkout')]
 class NumberRangeTypeCollection extends EntityCollection
 {
     public function getApiAlias(): string

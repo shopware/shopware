@@ -30,6 +30,25 @@ class CalculatePriceApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    calculatePrices(taxId, prices, additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const payload = {
+            taxId,
+            prices,
+        };
+
+        return this.httpClient
+            .post('/_action/calculate-prices', payload, {
+                params,
+                headers,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response.data);
+            });
+    }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default CalculatePriceApiService;

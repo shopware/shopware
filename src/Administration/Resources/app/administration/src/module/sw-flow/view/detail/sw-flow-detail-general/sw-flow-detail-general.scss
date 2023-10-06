@@ -1,10 +1,16 @@
 @import "~scss/variables";
 
 .sw-flow-detail-general {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: $content-width;
+    transition: max-width 0.3s ease-in-out;
+
     &__log-label {
         display: block;
         margin-bottom: 16px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__log-grid {
@@ -17,6 +23,18 @@
 
         &.sw-data-grid .sw-data-grid__cell--actions {
             box-shadow: none;
+        }
+    }
+
+    &__template {
+        pointer-events: none;
+    }
+
+    &__warning-unknow-trigger {
+        p {
+            &:nth-child(2) {
+                margin-top: 20px;
+            }
         }
     }
 }

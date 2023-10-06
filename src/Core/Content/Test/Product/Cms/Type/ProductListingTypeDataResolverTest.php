@@ -8,29 +8,29 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductListingTypeDataResolverTest extends TestCase
 {
-    /**
-     * @var ProductListingCmsElementResolver
-     */
-    private $listingResolver;
+    private ProductListingCmsElementResolver $listingResolver;
 
     protected function setUp(): void
     {
         $mock = $this->createMock(ProductListingRoute::class);
         $mock->method('load')->willReturn(
             new ProductListingRouteResponse(
-                new ProductListingResult('product', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+                new ProductListingResult('product', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 

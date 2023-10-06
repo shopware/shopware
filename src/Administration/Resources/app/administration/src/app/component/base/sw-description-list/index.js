@@ -4,6 +4,9 @@ import './sw-description-list.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A definition list which uses CSS grid for a column layout.
  * @status ready

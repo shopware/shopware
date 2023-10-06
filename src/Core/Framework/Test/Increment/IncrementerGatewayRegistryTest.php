@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class IncrementerGatewayRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

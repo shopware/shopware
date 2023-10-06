@@ -1,14 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_login %}
 <form
     class="sw-login-login"
     @submit.prevent="loginUserWithPassword"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_form_headline %}
     <h2 class="sw-login__content-headline">
         {{ $tc('sw-login.index.headlineForm') }}
     </h2>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_alert %}
     <sw-alert
         v-if="showLoginAlert"
@@ -21,9 +24,14 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_user_field %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="username"
+        {% else %}
         v-model="username"
+        {% endif %}
         v-autofocus
         :label="$tc('sw-login.index.labelUsername')"
         :placeholder="$tc('sw-login.index.placeholderUsername')"
@@ -32,9 +40,14 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_password_field %}
     <sw-password-field
+        {% if VUE3 %}
+        v-model:value="password"
+        {% else %}
         v-model="password"
+        {% endif %}
         :label="$tc('sw-login.index.labelPassword')"
         :placeholder="$tc('sw-login.index.placeholderPassword')"
         :disabled="showLoginAlert"
@@ -42,8 +55,10 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_submit %}
     <div class="sw-login__submit">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_login_forgot_password %}
         <router-link
             :to="{ name: 'sw.login.index.recovery' }"
@@ -53,6 +68,7 @@
         </router-link>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_login_submit_button %}
         <sw-button
             :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"

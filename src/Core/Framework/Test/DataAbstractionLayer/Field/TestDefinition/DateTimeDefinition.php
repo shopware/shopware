@@ -11,9 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DateTimeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'date_time_test';
+    final public const ENTITY_NAME = 'date_time_test';
 
     public function getEntityName(): string
     {
@@ -27,6 +30,11 @@ class DateTimeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()), new StringField('name', 'name'), new CreatedAtField(), new UpdatedAtField()]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            new StringField('name', 'name'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+        ]);
     }
 }

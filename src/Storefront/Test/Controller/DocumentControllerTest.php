@@ -2,25 +2,26 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,33 +32,23 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
+#[Package('checkout')]
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use RuleTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Context $context;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -75,10 +66,11 @@ class DocumentControllerTest extends TestCase
             ]
         );
 
-        $this->salesChannelContext->setRuleIds([
-            $shippingMethod->getAvailabilityRuleId(),
-            $paymentMethod->getAvailabilityRuleId(),
-        ]);
+        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $paymentRuleId;
+        }
+        $this->salesChannelContext->setRuleIds($ruleIds);
     }
 
     public function testCustomerAbleToViewUploadDocumentWithDeepLinkCode(): void
@@ -89,33 +81,34 @@ class DocumentControllerTest extends TestCase
         $orderId = $this->persistCart($cart);
         $fileName = 'invoice';
 
-        $document = $this->getContainer()->get(DocumentService::class)->create(
-            $orderId,
-            'invoice',
-            'pdf',
-            new DocumentConfiguration(),
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
+
+        $document = $this->getContainer()->get(DocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
             $context,
-            null,
-            true
-        );
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 
-        $documentIdStruct = $this->getContainer()->get(DocumentService::class)->uploadFileForDocument(
+        $documentIdStruct = $this->getContainer()->get(DocumentGenerator::class)->upload(
             $document->getId(),
             $context,
             $request
         );
 
-        $browser = $this->login('customer@example.com', 'shopware');
+        $browser = $this->login('customer@example.com');
 
         $browser->request(
             'GET',
@@ -125,7 +118,7 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode());
         static::assertEquals($expectedFileContent, $response->getContent());
         static::assertEquals($expectedContentType, $response->headers->get('content-type'));
 
@@ -136,10 +129,14 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        } else {
+            static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        }
     }
 
-    private function login(string $email, string $password): KernelBrowser
+    private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
@@ -147,30 +144,28 @@ class DocumentControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => $password,
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode());
 
         return $browser;
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
@@ -196,7 +191,7 @@ class DocumentControllerTest extends TestCase
                 ],
             ];
 
-            $cart->add($factory->create($id));
+            $cart->add($factory->create(['id' => $id, 'referencedId' => $id], $this->salesChannelContext));
             $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
@@ -211,9 +206,8 @@ class DocumentControllerTest extends TestCase
     private function persistCart(Cart $cart): string
     {
         $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        return $orderId;
+        return $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
     private function createCustomer(string $paymentMethodId): string
@@ -230,7 +224,7 @@ class DocumentControllerTest extends TestCase
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => 'customer@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $paymentMethodId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

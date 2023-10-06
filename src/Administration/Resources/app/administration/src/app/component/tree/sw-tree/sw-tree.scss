@@ -14,7 +14,7 @@
     .sw-tree-actions__headline {
         display: grid;
         color: $color-darkgray-200;
-        font-size: 18px;
+        font-size: $font-size-m;
         padding: 21px 40px;
         grid-template-columns: 1fr auto;
         align-items: center;
@@ -23,7 +23,7 @@
 
         .sw-tree__batch-delete {
             color: $color-crimson-500;
-            font-size: 14px;
+            font-size: $font-size-xs;
             cursor: pointer;
         }
     }
@@ -37,11 +37,13 @@
         padding: 0;
 
         .tree-items {
-            padding: 16px 16px 0 16px;
+            padding: 16px 16px 0;
+            width: max-content;
             min-width: 100%;
         }
 
         .sw-tree-item {
+            width: max-content;
             min-width: 100%;
         }
 
@@ -49,7 +51,7 @@
             border-left: none !important;
 
             &::before {
-                content: '';
+                content: "";
                 background: $color-gray-300;
                 position: absolute;
                 left: 16px;

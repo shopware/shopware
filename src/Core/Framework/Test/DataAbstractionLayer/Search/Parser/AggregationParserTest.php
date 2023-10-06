@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -19,14 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class AggregationParserTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var AggregationParser
-     */
-    private $parser;
+    private AggregationParser $parser;
 
     protected function setUp(): void
     {
@@ -69,7 +70,7 @@ class AggregationParserTest extends TestCase
             $criteria,
             $exception
         );
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(2, $criteria->getAggregations());
 
         $maxAggregation = $criteria->getAggregation('max_agg');
@@ -106,7 +107,7 @@ class AggregationParserTest extends TestCase
             $criteria,
             $exception
         );
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(2, $criteria->getAggregations());
 
         $maxAggregation = $criteria->getAggregation('max');
@@ -155,7 +156,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         $level = $criteria->getAggregation('level1');
@@ -203,7 +204,7 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         /** @var FilterAggregation|null $aggregation */
@@ -247,12 +248,12 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(0, $exception->getErrors());
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
         static::assertCount(1, $criteria->getAggregations());
 
         $entity = $criteria->getAggregation('entity_test');
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation $entity */
+        /** @var EntityAggregation $entity */
         static::assertInstanceOf(EntityAggregation::class, $entity);
         static::assertEquals('product.manufacturerId', $entity->getField());
         static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());
@@ -278,7 +279,43 @@ class AggregationParserTest extends TestCase
             $exception
         );
 
-        static::assertCount(1, $exception->getErrors());
+        static::assertCount(1, iterator_to_array($exception->getErrors()));
         static::assertCount(0, $criteria->getAggregations());
+    }
+
+    public function testICanCreateARangeAggregation(): void
+    {
+        $criteria = new Criteria();
+        $exception = new SearchRequestException();
+
+        $expectedRanges = [['from' => 1.0, 'to' => 2.0], ['from' => 2.0, 'to' => 3.0]];
+
+        $this->parser->buildAggregations(
+            $this->getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'range_test',
+                        'type' => 'range',
+                        'field' => 'product.manufacturerId',
+                        'ranges' => $expectedRanges,
+                    ],
+                ],
+            ],
+            $criteria,
+            $exception
+        );
+
+        static::assertCount(0, iterator_to_array($exception->getErrors()));
+        static::assertCount(1, $criteria->getAggregations());
+
+        $agg = $criteria->getAggregation('range_test');
+
+        /** @var RangeAggregation $agg */
+        static::assertInstanceOf(RangeAggregation::class, $agg);
+        $computedRanges = $agg->getRanges();
+
+        static::assertEquals($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
+        static::assertEquals($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
     }
 }

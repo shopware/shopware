@@ -15,15 +15,30 @@
     }
 
     .sw-cms-detail__page-info {
-        display: grid;
-        grid-template-columns: 45px min-content min-content;
-        grid-gap: 20px;
-        align-content: center;
+        display: flex;
+        gap: 20px;
         align-items: center;
+    }
+
+    .sw-cms-detail__back-btn {
+        padding-right: 20px;
+        height: 70px;
+        line-height: 70px;
+        border-right: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-icon {
+            padding: 3px;
+        }
     }
 
     .sw-cms-detail__page-name {
         max-width: 260px;
+        text-overflow: ellipsis;
     }
 
     .sw-cms-detail__page-type {
@@ -33,15 +48,14 @@
         color: $color-gray-300;
     }
 
-    .sw-cms-detail__back-btn {
-        height: 70px;
-        line-height: 70px;
-        border-right: 1px solid $color-gray-300;
-        color: $color-darkgray-200;
-
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
+    .sw-cms-detail__page-defaults {
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xxs;
+        line-height: 16px;
+        color: $color-white;
+        padding: 4px 8px;
+        background: $color-gray-500;
+        border-radius: 4px;
     }
 
     .sw-cms-detail__device-actions {
@@ -90,7 +104,7 @@
                 padding: 8px 16px;
                 line-height: 22px;
                 height: 40px;
-                font-size: 14px;
+                font-size: $font-size-xs;
             }
         }
     }
@@ -150,7 +164,7 @@
 
             h2.sw-cms-detail__empty-stage-headline {
                 font-size: 32px;
-                font-weight: 400;
+                font-weight: $font-weight-regular;
                 margin-bottom: 5px;
             }
         }

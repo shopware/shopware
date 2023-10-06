@@ -5,59 +5,48 @@ namespace Shopware\Core\Content\Test\ProductStream\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class ProductStreamBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepository<ProductCollection>
      */
-    private $productStreamRepository;
+    private SalesChannelRepository $productRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private Context $context;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var ProductStreamBuilderInterface
-     */
-    private $service;
+    private ProductStreamBuilderInterface $service;
 
     protected function setUp(): void
     {
-        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
         $this->context = Context::createDefaultContext();
         $this->service = $this->getContainer()->get(ProductStreamBuilder::class);
         $this->productRepository = $this->getContainer()->get('sales_channel.product.repository');
@@ -143,13 +132,15 @@ class ProductStreamBuilderTest extends TestCase
     {
         $this->createTestEntityWithoutFilters();
 
-        static::expectException(NoFilterException::class);
+        $this->expectException(NoFilterException::class);
 
         $this->getProducts('137b079935714281ba80b40f83f8d7eb');
     }
 
     /**
      * @dataProvider relativeTimeFiltersDataProvider
+     *
+     * @param list<string> $releaseDates
      */
     public function testRelativeTimeFilters(string $type, string $operator, string $field, string $value, array $releaseDates, int $expected): void
     {
@@ -180,32 +171,35 @@ class ProductStreamBuilderTest extends TestCase
         static::assertCount($expected, $products);
     }
 
-    public function relativeTimeFiltersDataProvider(): array
+    /**
+     * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: list<string>, 5: int}>
+     */
+    public static function relativeTimeFiltersDataProvider(): array
     {
         return [
-            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 3],
-            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 7],
-            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 2],
-            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 8],
-            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 3],
-            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 7],
-            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 2],
-            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 8],
+            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 3],
+            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 7],
+            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 2],
+            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 8],
+            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 3],
+            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 7],
+            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 2],
+            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 8],
         ];
     }
 
-    private function getProducts(string $productStreamId): EntitySearchResult
+    private function getProducts(string $productStreamId): ProductCollection
     {
         $filters = $this->service->buildFilters($productStreamId, $this->context);
 
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
 
-        return $this->productRepository->search($criteria, $this->salesChannelContext);
+        return $this->productRepository->search($criteria, $this->salesChannelContext)->getEntities();
     }
 
     private function createTestEntity(): void
@@ -214,7 +208,7 @@ class ProductStreamBuilderTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
@@ -222,7 +216,7 @@ class ProductStreamBuilderTest extends TestCase
         "
         );
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
@@ -243,18 +237,22 @@ class ProductStreamBuilderTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $connection->exec(
-            "
+        $connection->executeStatement(
+            '
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
-                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[]', 0, '2019-08-16 08:43:57.488', NULL);
-        "
+                (UNHEX(\'137B079935714281BA80B40F83F8D7EB\'), \'[]\', 0, \'2019-08-16 08:43:57.488\', NULL);
+        '
         );
     }
 
+    /**
+     * @param list<string>|null $releaseDates
+     *
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(?array $releaseDates = null): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = TestDefaults::SALES_CHANNEL;
@@ -276,13 +274,16 @@ class ProductStreamBuilderTest extends TestCase
             ];
         }
 
-        $productRepository->create($products, $this->context);
+        $this->getContainer()->get('product.repository')->create($products, $this->context);
         $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
 
         return $products;
     }
 
-    private function getReleaseDates(string $operator): array
+    /**
+     * @return list<string>
+     */
+    private static function getReleaseDates(string $operator): array
     {
         return [
             (new \DateTimeImmutable())->modify($operator . '8 days')->format('Y-m-d'),

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_folder_info %}
 <div class="sw-media-folder-info">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_folder_quickactions %}
     <sw-media-collapse
         v-if="editable"
@@ -7,11 +9,12 @@
         :expand-on-loading="true"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_quickactions_content %}
-        <template slot="content">
+        <template #content>
             <ul class="sw-media-sidebar__quickactions-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -20,34 +23,40 @@
                     }"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
                         small
-                        name="default-action-move-file"
+                        name="regular-file-export"
                     />
                     {{ $tc('sw-media.sidebar.actions.move') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_settings %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-media-sidebar__quickaction quickaction--settings"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderSettings"
+                    @keydown.enter="openFolderSettings"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
                         small
-                        name="default-action-settings"
+                        name="regular-cog"
                     />
                     {{ $tc('sw-media.sidebar.actions.settings') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -56,19 +65,22 @@
                     }"
                     class="quickaction--dissolve"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderDissolve"
+                    @keydown.enter="openFolderDissolve"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
                         small
-                        name="default-web-loading-star"
+                        name="regular-spinner-star"
                     />
                     {{ $tc('sw-media.sidebar.actions.dissolve') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -77,12 +89,15 @@
                     }"
                     class="quickaction--delete is--danger"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon is--danger"
                         small
-                        name="default-action-trash"
+                        name="regular-trash"
                     />
                     {{ $tc('sw-media.sidebar.actions.delete') }}
                 </li>
@@ -93,18 +108,22 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_folder_metadata %}
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$tc('sw-media.sidebar.sections.metadata')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_metadata_content %}
-        <template slot="content">
+        <template #content>
             <dl class="sw-media-sidebar__metadata-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_metadata_content_base %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
+                    :class="nameItemClasses"
                     :label-name="$tc('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
@@ -114,6 +133,7 @@
                         :disabled="!acl.can('media.creator')"
                         compact
                         :value="mediaFolder.name"
+                        :error="mediaFolderNameError"
                         @input="onChangeFolderName"
                     />
                     <template v-else>
@@ -134,16 +154,18 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_settings_modal %}
     <sw-media-modal-folder-settings
         v-if="showFolderSettings"
         :disabled="!acl.can('media.editor')"
-        :folder="mediaFolder"
+        :media-folder-id="mediaFolder.id"
         @media-settings-modal-save="closeFolderSettings"
         @media-settings-modal-close="closeFolderSettings"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_dissolve_modal %}
     <sw-media-modal-folder-dissolve
         v-if="showFolderDissolve"
@@ -153,6 +175,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_move_modal %}
     <sw-media-modal-move
         v-if="showModalMove"
@@ -162,6 +185,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_info_modal_delete %}
     <sw-media-modal-delete
         v-if="showModalDelete"

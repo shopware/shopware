@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ApiService from '../api.service';
 
 /**
@@ -26,4 +30,5 @@ class SyncApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SyncApiService;

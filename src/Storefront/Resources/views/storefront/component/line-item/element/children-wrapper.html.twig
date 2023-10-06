@@ -1,0 +1,67 @@
+{% block component_line_item_children %}
+    {% set nestingLevel = nestingLevel + 1 %}
+    {% set childrenCollapseId = 'collapse-line-item-contains-' ~ lineItem.id ~ '-' ~ displayMode %}
+
+    <div class="line-item-children nesting-level-{{ nestingLevel }}">
+
+        {% block component_line_item_children_header %}
+            <div class="container line-item-collapse-container">
+
+                {% block component_line_item_children_header_row %}
+                    <div class="row line-item-collapse">
+
+                        {% block component_line_item_children_headline %}
+                            <div class="col line-item-headline">
+
+                                {% block component_line_item_children_headline_text %}
+                                    <span class="line-item-headline-text">
+                                        {{ 'checkout.lineItemContainerHeadline'|trans }}
+                                    </span>
+                                {% endblock %}
+
+                                {% if isChangeable %}
+                                    {% block component_line_item_children_change_action %}
+                                        <button class="line-item-change-button">
+                                            {{ 'checkout.lineItemContainerChangeLink'|trans }}
+                                        </button>
+                                    {% endblock %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+
+                        {% block component_line_item_children_collapse %}
+                            <div class="col-1 line-item-collapse-icon-container">
+                                <button
+                                    class="collapsed line-item-collapse-button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#{{ childrenCollapseId }}"
+                                    aria-controls="{{ childrenCollapseId }}"
+                                    aria-expanded="false">
+
+                                    {% block component_line_item_children_collapse_icon %}
+                                        <div class="line-item-collapse-icon">
+                                            {% sw_icon 'arrow-down' style {
+                                                'color': 'primary',
+                                                'pack':'solid'
+                                            } %}
+                                        </div>
+                                    {% endblock %}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock%}
+            </div>
+        {% endblock %}
+
+        {% block component_line_item_children_elements %}
+            <div class="container line-item-children-elements collapse" id="{{ childrenCollapseId }}">
+                {% for nestedLineItem in lineItem.children %}
+                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                        lineItem: nestedLineItem
+                    } %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

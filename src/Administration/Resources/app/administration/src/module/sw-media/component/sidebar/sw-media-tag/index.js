@@ -1,7 +1,8 @@
 import template from './sw-media-tag.html.twig';
 import './sw-media-tag.scss';
 
-Shopware.Component.register('sw-media-tag', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -28,4 +29,4 @@ Shopware.Component.register('sw-media-tag', {
             this.mediaRepository.save(this.media);
         },
     },
-});
+};

@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
-use League\Flysystem\FilesystemInterface;
-use Monolog\Logger;
-use OpenApi\Annotations as OA;
+use League\Flysystem\FilesystemOperator;
+use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -14,85 +13,34 @@ use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Storefront\Event\ProductExportContentTypeEvent as StorefrontProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class ExportController
 {
     /**
-     * @var ProductExporterInterface
+     * @internal
      */
-    private $productExportService;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $fileSystem;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productExportRepository;
-
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
-
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
-
     public function __construct(
-        ProductExporterInterface $productExportService,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $productExportRepository,
-        AbstractSalesChannelContextFactory $contextFactory
+        private readonly ProductExporterInterface $productExportService,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly FilesystemOperator $fileSystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $productExportRepository,
+        private readonly AbstractSalesChannelContextFactory $contextFactory
     ) {
-        $this->productExportService = $productExportService;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem = $fileSystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productExportRepository = $productExportRepository;
-        $this->contextFactory = $contextFactory;
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @OA\Get(
-     *      path="/product-export/{accessKey}/{fileName}",
-     *      summary="Export product export",
-     *      operationId="readProductExport",
-     *      tags={"Store API", "Product"},
-     *      @OA\Parameter(name="accessKey", description="Access Key", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Parameter(name="fileName", description="File Name", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Response(
-     *          response="200",
-     *          description=""
-     *     )
-     * )
-     * @Route("/store-api/product-export/{accessKey}/{fileName}", name="store-api.product.export", methods={"GET"}, defaults={"auth_required"=false})
-     */
+    #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
         $criteria = new Criteria();
@@ -107,7 +55,7 @@ class ExportController
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
-            $this->logException(Context::createDefaultContext(), $exportNotFoundException);
+            $this->logException(Context::createDefaultContext(), $exportNotFoundException, Level::Warning);
 
             throw $exportNotFoundException;
         }
@@ -117,11 +65,11 @@ class ExportController
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
 
         // if file not present or interval = live
-        if (!$this->fileSystem->has($filePath) || $productExport->getInterval() === 0) {
+        if (!$this->fileSystem->fileExists($filePath) || $productExport->getInterval() === 0) {
             $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         }
 
-        if (!$this->fileSystem->has($filePath)) {
+        if (!$this->fileSystem->fileExists($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);
 
@@ -132,7 +80,7 @@ class ExportController
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 
-        return (new Response($content ? $content : null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
+        return (new Response($content ?: null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
             ->setCharset($encoding);
     }
 
@@ -151,11 +99,6 @@ class ExportController
                 break;
         }
 
-        if (\class_exists(StorefrontProductExportContentTypeEvent::class)) {
-            $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
-            $this->eventDispatcher->dispatch($event);
-        }
-
         $event = new ProductExportContentTypeEvent($fileFormat, $contentType);
         $this->eventDispatcher->dispatch($event);
 
@@ -164,12 +107,13 @@ class ExportController
 
     private function logException(
         Context $context,
-        \Exception $exception
+        \Exception $exception,
+        Level $logLevel = Level::Error
     ): void {
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Logger::ERROR,
+            $logLevel,
             $exception
         );
 

@@ -1,15 +1,21 @@
-import './component/sw-mail-template-list';
-import './component/sw-mail-header-footer-list';
-import './page/sw-mail-template-detail';
-import './page/sw-mail-template-create';
-import './page/sw-mail-template-index';
-import './page/sw-mail-header-footer-detail';
-import './page/sw-mail-header-footer-create';
-
 import './acl';
 
 const { Module } = Shopware;
 
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
+Shopware.Component.register('sw-mail-header-footer-list', () => import('./component/sw-mail-header-footer-list'));
+Shopware.Component.register('sw-mail-template-detail', () => import('./page/sw-mail-template-detail'));
+Shopware.Component.extend('sw-mail-template-create', 'sw-mail-template-detail', () => import('./page/sw-mail-template-create'));
+Shopware.Component.register('sw-mail-template-index', () => import('./page/sw-mail-template-index'));
+Shopware.Component.register('sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-detail'));
+Shopware.Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-create'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {
     type: 'core',
     name: 'mail-template',
@@ -18,7 +24,7 @@ Module.register('sw-mail-template', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'mail_template',
 
@@ -70,7 +76,7 @@ Module.register('sw-mail-template', {
     settingsItem: {
         group: 'shop',
         to: 'sw.mail.template.index',
-        icon: 'default-communication-envelope',
+        icon: 'regular-envelope',
         privilege: 'mail_templates.viewer',
     },
 });

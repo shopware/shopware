@@ -1,11 +1,14 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_address_selection %}
 <div class="sw-order-address">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_selection_modal %}
     <sw-modal
         v-if="currentAddress"
         :title="modalTitle"
         @modal-close="currentAddress = null"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_content %}
         <sw-customer-address-form
             :address="currentAddress"
@@ -21,8 +24,10 @@
         </sw-customer-address-form>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_address_modal_actions %}
         <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_action_close %}
             <sw-button
                 size="small"
@@ -32,6 +37,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_address_modal_actions_apply %}
             <sw-button
                 variant="primary"
@@ -46,9 +52,10 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_selection_entity_single_select %}
     <sw-single-select
-        v-model="orderAddressId"
+        :value="addressId"
         class="sw-order-address-selection"
         :options="addressOptions"
         value-property="id"
@@ -56,14 +63,20 @@
         :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
         :popover-classes="['sw-order-address-selection__popover']"
         :disabled="disabled"
+        {% if VUE3 %}
+        @update:value="onAddressChange"
+        {% else %}
         @change="onAddressChange"
+        {% endif %}
     >
         <template #before-item-list>
             <ul class="sw-select-result__item-list">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-select-result sw-select-result__add-new-address"
+                    role="button"
+                    tabindex="0"
                     @click="onCreateNewAddress"
+                    @keydown.enter="onCreateNewAddress"
                 >
                     {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
                 </li>
@@ -71,8 +84,7 @@
         </template>
 
         <template #result-item="{ item, index, labelProperty, isSelected }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 :selected="isSelected(item)"
                 v-bind="{ item, index }"
                 :class="{'sw-order-address-selection__order-address': isSelected(item)}"
@@ -92,7 +104,7 @@
                         {{ $tc('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>
-            </li>
+            </sw-select-result>
         </template>
     </sw-single-select>
     {% endblock %}

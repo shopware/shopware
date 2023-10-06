@@ -1,7 +1,9 @@
+@use "sass:math";
 @import "~scss/variables";
 @import "~scss/mixins";
 @import "sw-label-variant";
-$sw-label-border-radius: $border-radius-default / 2;
+
+$sw-label-border-radius: math.div($border-radius-default, 2);
 $sw-label-pill-border-radius: 50px;
 
 .sw-label {
@@ -12,7 +14,7 @@ $sw-label-pill-border-radius: 50px;
     margin: 0 6px 6px 0;
     padding: 8px 12px;
     line-height: 14px;
-    font-size: $font-size-extra-small;
+    font-size: $font-size-xxs;
     height: 32px;
     border: 1px solid $color-gray-300;
     background: $color-gray-50;
@@ -21,7 +23,7 @@ $sw-label-pill-border-radius: 50px;
     cursor: default;
 
     .sw-label__caption {
-        @include truncate();
+        @include truncate;
 
         display: inline-block;
         width: 100%;
@@ -64,8 +66,9 @@ $sw-label-pill-border-radius: 50px;
         outline: none;
 
         .sw-icon {
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
+            padding: 4px;
         }
     }
 
@@ -77,7 +80,7 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--appearance-badged {
         background: transparent;
         border: 0;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         padding: 4px 0;
         line-height: 22px;
 
@@ -109,16 +112,16 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--warning,
     &.sw-label--neutral {
         &.sw-label--small {
-            font-weight: 600;
+            font-weight: $font-weight-semi-bold;
             line-height: 14px;
-            font-size: 12px;
+            font-size: $font-size-xxs;
             padding: 0 5px;
             padding-left: 15px;
             height: 16px;
         }
 
         &.sw-label--small::before {
-            content: '';
+            content: "";
             display: block;
             height: 6px;
             width: 6px;

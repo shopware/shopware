@@ -1,20 +1,31 @@
 {
   "sw-flow": {
+    "labelDescription": {
+      "labelEntity": "Entität",
+      "labelTag": "Tag"
+    },
     "general": {
       "mainMenuItemGeneral": "Flow Builder",
       "descriptionTextModule": "Flow Builder",
-      "placeholderSearchBar": "Flow Builder durchsuchen ..."
+      "placeholderSearchBar": "Flows durchsuchen ...",
+      "tabMyFlows": "Meine Flows",
+      "tabFlowTemplates": "Flow-Templates"
     },
     "list": {
       "textHeadline": "Flow Builder",
       "buttonAddFlow": "Flow hinzufügen",
       "labelColumnActive": "Aktiv",
       "labelColumnName": "Name",
-      "labelColumnTrigger": "Trigger",
+      "labelColumnTrigger": "Auslöser",
       "labelColumnDescription": "Beschreibung",
-      "confirmText": "Soll der Eintrag wirklich gelöscht werden?",
+      "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
+      "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
       "emptyStateTitle": "Noch keine Flows erstellt",
-      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu."
+      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
+      "unknownTrigger": "Unbekannter Auslöser"
+    },
+    "template": {
+      "create": "Neuen Flow aus Template erstellen"
     },
     "detail": {
       "textHeadline": "Neuer Flow",
@@ -27,35 +38,39 @@
       "labelGeneralInformationPriority": "Priorität",
       "labelGeneralInformationActive": "Aktiv",
       "trigger": {
-        "name": "Trigger",
-        "placeholder": "Wähle einen Trigger aus ...",
-        "title": "Trigger auswählen",
-        "helpText": "Trigger werden benutzt, um einen Flow zu beginnen. Innerhalb des Flows kannst Du entweder Bedingungen hinzufügen, um den Trigger zu verfeinern oder Aktionen hinzufügen, die durch den Trigger ausgelöst werden.",
+        "name": "Auslöser",
+        "placeholder": "Ereignis auswählen ...",
+        "title": "Auslöser definieren",
+        "helpText": "Auslöser sind der Startpunkt eines Flows und mit einem bestimmten Ereignis verknüpft. Du kannst im Folgenden weitere Bedingungen hinzufügen und verschiedene Aktionen definieren. Die verfügbaren Aktionen sind abhängig vom gewählten Ereignis.",
         "textNoEvent": "Keine Ereignisse gefunden",
-        "textHint": "Dieser Trigger kann im Moment nicht benutzt werden, da hierfür keine Aktionen zur Verfügung stehen."
+        "textHint": "Dieses Ereignis kann im Moment nicht als Auslöser genutzt werden, da hierfür keine Aktionen zur Verfügung stehen.",
+        "unknownTriggerPlaceholder": "Unbekannter Auslöser"
       },
       "sequence": {
         "selectorTitle": "Bedingung oder Aktion hinzufügen",
-        "selectorHelpTextTrueCondition": "Diese Aktion oder Bedingung wird angewendet, wenn der Ausdruck auf der linken Seite \"wahr\" ist.",
-        "selectorHelpTextFalseCondition": " Diese Aktion oder Bedingung wird angewendet, wenn der obere Ausdruck \"falsch\" ist.",
-        "selectorHelpText": "Bedingungen werden verwendet, um einen Ablauf zu verfeinern und können entweder \"wahr\" oder \"falsch\" werden. Aktionen können verwendet werden, um E-Mails zu versenden, Dokumente zu erstellen oder Tags hinzuzufügen. Sie können sowohl bei \"wahren\" als auch \"falschen\" Bedingungen ausgeführt werden.",
-        "selectorTitleAddSequence": "Neue Sequenz hinzufügen",
-        "selectorHelpTextAddSequence": "Abläufe werden durch einen einzigen Trigger ausgelöst, können aber aus mehreren Sequenzen bestehen.<br/><br/> Sequenzen werden nacheinander ausgeführt. Ein Ablauf kann jederzeit durch die Verwendung der \"Stop\" beendet werden.",
+        "selectorHelpTextTrueCondition": "Diese Aktionen werden ausgeführt, wenn der Ausdruck links davon \"wahr\" ist.",
+        "selectorHelpTextFalseCondition": " Diese Aktionen werden ausgeführt, wenn der Ausdruck darüber \"falsch\" ist.",
+        "selectorHelpText": "Bedingungen können den initialen Auslöser eines Flows weiter differenzieren und entweder \"wahr\" oder \"falsch\" sein. Aktionen schließen an den Auslöser oder die \"wahre\" bzw. \"falsche\" Seite einer Bedingung an. Mit Aktionen können E-Mails versendet, Dokumente erstellt oder Tags hinzugefügt werden.",
+        "selectorTitleAddSequence": "Sequenz hinzufügen",
+        "selectorHelpTextAddSequence": "Flows werden durch einen einzelnen Auslöser gestartet, können aber aus mehreren Sequenzen bestehen.<br/><br/>Sequenzen werden nacheinander ausgeführt. Flows können jederzeit durch eine \"Stop\"-Aktion vollständig beendet werden.",
         "selectorIfCondition": "Bedingung (WENN) hinzufügen",
         "selectorThenAction": "Aktion (DANN) hinzufügen",
-        "conditionTitle": "Bedingung (WENN)",
+        "conditionTitle": "Bedingung",
+        "conditionDescription": "(WENN)",
         "conditionExplainsTitle": "Bedingung erstellen",
-        "conditionExplainsDescription": "Bedingungen werden im Rule Builder erstellt. Du kannst entwender eine vorhandene Regel auswählen oder eine neue Regel erstellen, um die Bedingung für diesen Ablauf einzurichten",
-        "actionTitle": "Aktion (DANN)",
+        "conditionExplainsDescription": "Bedingungen bestehen aus Regeln. Du kannst entwender eine vorhandene Regel auswählen oder eine neue Regel erstellen, um die Bedingung zu definieren.",
+        "actionTitle": "Aktion",
+        "actionDescription": "(DANN)",
         "contextButton": {
           "deleteCondition": "Bedingung löschen",
-          "deleteActionContainer": "Aktions-Container löschen"
+          "deleteActionContainer": "Alle Aktionen löschen"
         },
         "labelTrue": "Wahr",
         "labelFalse": "Falsch",
         "noActions": "Kein Aktionen hinzugefügt",
         "noRule": "Noch keine Regeln definiert"
-      }
+      },
+      "warningText": "Dieser Flow verwendet Aktionen, die aufgrund einer Änderung der gebuchten Edition bzw. durch Deaktivierung oder Deinstallation der dazugehörigen Erweiterungen, nicht mehr verfügbar sind. Wenn dieser Flow ausgelöst wird, werden nicht verfügbare Aktionen nicht ausgeführt."
     },
     "page": {
       "tabGeneral": "Allgemein",
@@ -65,22 +80,34 @@
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
+      "messageWarningSave": "Flow-Vorlagen können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
-      "messageRequiredEventName": "Wähle bitte ein Trigger-Ereignis vor dem Speichern.",
-      "messageRequiredEmptyFields": "Wähle bitte eine Regel oder Aktion vor dem Speichern."
+      "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
+      "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
+      "messageDuplicateSuccess": "Flow dupliziert.",
+      "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
+      "messageCreateSuccess": "Flow erstellt.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
+      "messageCreateError": "Flow konnte nicht erstellt werden.",
+      "messageUnknownTriggerWarning": "Dieser Flow wurde deaktiviert, weil er einen Auslöser verwendet, der nicht länger verfügbar ist. Dies ist wahrscheinlich darauf zurückzuführen, dass die Edition geändert wurde oder die Erweiterung, die diesen Auslöser bereitstellt, entweder inaktiv ist oder deinstalliert wurde.",
+      "textIntroduce": "Versuche eine der folgenden Lösungen, um den Auslöser wieder verfügbar zu machen:",
+      "textGuide1": "Installiere die Erweiterung, die den Auslöser bereitstellt",
+      "textGuide2": "Aktiviere die Erweiterung erneut, die den Auslöser bereitstellt",
+      "textGuide3": "Wähle eine geeignete Edition aus"
     },
     "actions": {
-      "addTag": "Tag hinzufügen",
-      "generateDocument": "Dokument erzeugen",
+      "addTag": "Tag zuweisen",
+      "generateDocument": "Dokumente erzeugen",
       "removeTag": "Tag entfernen",
       "mailSend": "E-Mail verschicken",
-      "setOrderState": "Status setzen",
+      "grantDownloadAccess": "Download-Recht setzen",
+      "setOrderState": "Status zuweisen",
       "stopFlow": "Flow anhalten",
-      "changeCustomerGroup": "Kundengruppe ändern",
-      "changeCustomerStatus": "Kundenstatus ändern",
-      "changeCustomFieldContent": "Zusatzfeldinhalt ändern",
-      "addAffiliateAndCampaignCode": "Affiliate- und Kampagnen-Code hinzufügen",
-      "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
+      "changeCustomerGroup": "Kundengruppe zuweisen",
+      "changeCustomerStatus": "Kontostatus zuweisen",
+      "changeCustomFieldContent": "Zusatzfeld zuweisen",
+      "addAffiliateAndCampaignCode": "Affiliate- und Kampagnen-Code zuweisen",
+      "textStopFlowDescription": "Nachfolgende Aktionen oder Sequenzen werden nicht ausgeführt.",
       "labelDescription": "Beschreibung: {description}",
       "contextButton": {
         "editAction": "Aktion bearbeiten",
@@ -89,15 +116,28 @@
         "moveDownAction": "Nach unten"
       },
       "addAction": "Aktion hinzufügen",
-      "labelTo": "Zu: {entity}",
+      "labelTo": "Entität: {entity}",
       "labelTag": "Tag: {tagNames}",
       "labelTemplate": "Template: {template}",
       "labelCustomFieldSet": "Zusatzfeld-Set: {customFieldSet}",
       "labelCustomField": "Zusatzfeld: {customField}",
-      "labelCustomFieldOption": "Zusatzfeld-Option: {customFieldOption}",
+      "labelCustomFieldOption": "Modus: {customFieldOption}",
       "placeholderSelectAction": "Aktion auswählen ...",
       "labelAffiliateCode": "Affiliate-Code: {affiliateCode}",
-      "labelCampaignCode": "Kampagnen-Code: {campaignCode}"
+      "labelCampaignCode": "Kampagnen-Code: {campaignCode}",
+      "tooltipActionDisabled": "Diese Aktion wird von einer Erweiterung bereitgestellt, die deaktiviert oder gelöscht wurde. Um diese Aktion nutzen zu können, muss die Erweiterung aktiviert oder neu installiert werden.",
+      "group": {
+        "tag": "Tags",
+        "customer": "Kunden",
+        "general": "Allgemein",
+        "order": "Bestellung"
+      },
+      "unknownLabel": "Unbekannte Aktion",
+      "warningText": "Diese Aktion wurde durch eine Erweiterung bereitgestellt, die inaktiv oder nicht mehr installiert ist.",
+      "downloadAccessLabel": {
+        "granted": "Erteilt",
+        "revoked": "Entzogen"
+      }
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -115,53 +155,62 @@
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
         "labelEditRule": "Regel bearbeiten",
-        "tabRule": "Regel",
-        "tabDetail": "Detail",
+        "tabRule": "Bedingung",
+        "tabDetail": "Allgemein",
         "buttonAddRule": "Speichern und anwenden",
         "labelName": "Name",
-        "placeholderName": "Namen eingeben ...",
+        "placeholderName": "Regelnamen eingeben ...",
         "labelPriority": "Priorität",
         "placeholderPriority": "Priorität festlegen ...",
         "labelDescription": "Beschreibung",
-        "placeholderDescription": "Beschreibung eingeben ...",
+        "placeholderDescription": "Regelbeschreibung eingeben ...",
         "labelType": "Typ",
-        "placeholderType": "Regel-Typ auswählen ..."
+        "placeholderType": "Regeltyp auswählen ...",
+        "placeholderDelayType": "Verzögerung auswählen ..."
       },
       "tag": {
-        "labelAddTag": "Tag-Information",
+        "labelAddTag": "Tag zuweisen",
+        "labelRemoveTag": "Tag entfernen",
         "labelToField": "Entität",
         "placeholderToField": "Entität auswählen ...",
         "labelTagsField": "Tags",
-        "placeholderTagsField": "Tags eingeben ..."
+        "placeholderTagsField": "Tags eingeben/auswählen ..."
       },
       "status": {
-        "titleSetStatus": "Status setzen",
+        "titleSetStatus": "Status zuweisen",
         "labelOrderStatus": "Bestellstatus",
         "labelPaymentStatus": "Zahlungsstatus",
         "labelDeliveryStatus": "Versandstatus",
         "placeholderOrderStatus": "Bestellstatus wählen ...",
         "placeholderPaymentStatus": "Zahlungsstatus wählen ...",
         "placeholderDeliveryStatus": "Versandstatus wählen ...",
-        "messageNoStatusError": "Mindestens ein Status sollte ausgewählt sein"
+        "messageNoStatusError": "Mindestens ein Status muss ausgewählt sein",
+        "forceTransition": "Statuswechsel erzwingen",
+        "forceTransitionHelpText": "Statuswechsel werden durchgeführt, ohne den Ausgangspunkt oder die üblichen Übergangspfade (state machine) zu beachten."
       },
       "document": {
-        "titleCreateDocument": "Dokument erstellen",
-        "labelDocumentType": "Dokumenttyp",
-        "placeholderDocumentType": "Dokumenttyp auswählen ...",
-        "documentDescription": "Dokumenttyp: {documentType}"
+        "titleCreateDocument": "Dokumente erzeugen",
+        "labelDocumentType": "Dokumente",
+        "placeholderDocumentType": "Dokumente auswählen ..."
+      },
+      "downloadAccess": {
+        "titleSetDownloadAccess": "Download-Recht setzen",
+        "labelValueField": "Recht",
+        "placeholderValueField": "Anwendung auswählen ...",
+        "options": {
+          "grant": "Erteilen",
+          "revoke": "Entziehen"
+        }
       },
       "customerGroup": {
-        "titleChangeCustomerGroup": "Kundengruppe ändern",
+        "titleChangeCustomerGroup": "Kundengruppe zuweisen",
         "labelCustomerGroup": "Kundengruppe",
-        "placeholderCustomerGroup": "Kundengruppe auswählen ...",
-        "customerGroupDescription": "Kundengruppe: {customerGroup}"
+        "placeholderCustomerGroup": "Kundengruppe auswählen ..."
       },
       "customerStatus": {
-        "titleChangeCustomerStatus": "Kundenstatus ändern",
-        "labelCustomerStatus": "Kundenstatus",
-        "placeholderCustomerStatus": "Kundenstatus auswählen ...",
-        "customerStatusDescriptionActive": "Aktiver Kunde",
-        "customerStatusDescriptionInactive": "Inaktiver Kunde",
+        "titleChangeCustomerStatus": "Kontostatus zuweisen",
+        "labelCustomerStatus": "Kontostatus",
+        "placeholderCustomerStatus": "Kontostatus auswählen ...",
         "active": "Aktiv",
         "inactive": "Inaktiv"
       },
@@ -169,7 +218,7 @@
         "columnRecipientName": "Name",
         "columnRecipientMail": "E-Mail-Adresse",
         "placeholderRecipientEmailAddress": "E-Mail-Adresse eingeben ...",
-        "placeholderRecipientName": "Empfänger-Namen eingeben ...",
+        "placeholderRecipientName": "Namen eingeben ...",
         "fieldMailTemplateDetailLink": "E-Mail-Template öffnen",
         "titleSendMail": "E-Mail senden",
         "labelEmailTemplate": "E-Mail-Template",
@@ -178,50 +227,54 @@
         "tabGeneral": "Allgemein",
         "tabMailText": "Mail-Text",
         "labelMailType": "Typ",
-        "placeholderMailType": "Wähle einen Typ ...",
+        "placeholderMailType": "Typ auswählen...",
         "labelSubject": "Betreff",
         "labelSenderName": "Absender",
         "placeholderSubject": "Thema eingeben ...",
         "placeholderSenderName": "Absendernamen eingeben ...",
         "labelDescription": "Beschreibung",
-        "placeholderDescription": "Gib eine Beschreibung ein ...",
-        "labelContentPlain": "Text",
+        "placeholderDescription": "Beschreibung eingeben ...",
+        "labelContentPlain": "Klartext",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Text-Inhalt eingeben ...",
-        "placeholderHtml": "HTML-Inhalt eingeben ...",
+        "placeholderPlain": "Klartext-Inhalte eingeben ...",
+        "placeholderHtml": "HTML-Inhalte eingeben ...",
         "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
         "labelDefault": "Standard",
+        "labelCustomer": "Kunde",
         "labelAdmin": "Administrator",
-        "labelCustom": "Eigener Empfänger",
+        "labelCustom": "Anderer Empfänger",
+        "labelContactFormMail": "Anfragesteller",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
-        "labelLatestDocuments": "(Neueste) Dokumente hinzufügen",
-        "placeholderLatestDocuments": "Dokumente hinzufügen ...",
-        "documentDescription": "Falls das ausgewählte Dokument nicht existiert, musst Du es zunächst generieren, sonste werden keine Dokumente gesendet."
+        "useDifferentReplyToLabel": "Andere Absender-Adresse verwenden",
+        "labelReplyTo": "Absender-Adresse",
+        "placeholderReplyTo": "E-Mail-Adresse eingeben ...",
+        "tooltipDifferentReplyTo": "E-Mails werden von der E-Mail-Adresse des Shop-Betreibers versendet. Du kannst die E-Mail-Adresse des Shop-Betreibers in den <a href=\"{settingsLink}\">Einstellungen</a> ändern.",
+        "labelLatestDocuments": "Angefügte Dokumente",
+        "placeholderLatestDocuments": "Dokumente auswählen ...",
+        "documentDescription": "Falls die ausgewählten Dokumente nicht existieren, werden sie nicht versendet. Du musst Dokumente erzeugen, bevor diese Aktion ausgeführt wird."
       },
       "setEntityCustomField": {
         "labelToField": "Entität",
         "placeholderToField": "Entität auswählen ...",
-        "title": "Zusatzfeld ändern",
+        "title": "Zusatzfeld zuweisen",
         "customFieldSet": "Zusatzfeld-Set",
         "customFieldSetPlaceHolder": "Zusatzfeld-Set auswählen ...",
         "customField": "Zusatzfeld",
         "customFieldPlaceHolder": "Zusatzfeld auswählen ...",
         "requiredMessageError": "\"{item}\" darf nicht leer sein!",
-        "customFieldOption": "Zusatzfeld-Optionen",
-        "prefixFieldName": "Ändern: ",
+        "customFieldOption": "Modus",
+        "prefixFieldName": "Inhalt: ",
         "options": {
           "overwrite": "Überschreiben",
           "notOverwrite": "Nicht überschreiben",
-          "clear": "Leeren",
-          "add": "Hinzufügen",
-          "remove": "Entfernen"
+          "clear": "Leeren"
         }
       },
       "affiliateAndCampaignCode": {
         "labelEntity": "Entität",
-        "placeholderEntity": "Etität auswählen ...",
-        "title": "Affiliate- und Kampagnen-Code hinzufügen",
+        "placeholderEntity": "Entität auswählen ...",
+        "title": "Affiliate- und Kampagnen-Code zuweisen",
         "labelAffiliateCode": "Affiliate-Code",
         "placeholderAffiliateCode": "Affiliate-Code eingeben ...",
         "labelCampaignCode": "Kampagnen-Code",
@@ -229,8 +282,76 @@
         "overwrite": "Überschreiben"
       },
       "confirmation": {
-        "textConfirmChangeTrigger": "Bist Du sicher, dass Du das Trigger-Ereignis ändern willst? <br> Der Flow wird zurückgesetzt, sobald Du auf Bestätigen klickst."
+        "textConfirmChangeTrigger": "Bist Du sicher, dass Du den Auslöser ändern willst?<br>Der gesamte Flow wird zurückgesetzt, wenn Du bestätigst."
       }
+    },
+    "leavePageModal": {
+      "headline": "Warnung",
+      "description": "Ungespeicherte Änderungen vorhanden. Willst Du die Seite trotzdem verlassen?",
+      "confirmButton": "Seite verlassen"
+    },
+    "triggers": {
+      "checkout": "Bestellabschluss",
+      "customer": "Kunde",
+      "before": "Bevor",
+      "order": "Bestellung",
+      "paymentMethod": "Zahlungsart",
+      "contactForm": "Kontaktformular",
+      "reviewForm": "Produktbewertung",
+      "group": "Gruppe",
+      "recovery": "Wiederherstellung",
+      "registration": "Registrierung",
+      "mail": "E-Mail",
+      "after": "Nach",
+      "create": "Erstellen",
+      "newsletter": "Newsletter",
+      "productExport": "Produktexport",
+      "stateEnter": "Status erreicht",
+      "state": "Status",
+      "orderDelivery": "Bestellung Lieferung",
+      "orderTransaction": "Bestellung Transaktion",
+      "orderTransactionCapture": "Bestellung Transaktion Einzug",
+      "orderTransactionCaptureRefund": "Bestellung Transaktion Einzug Rückerstattung",
+      "stateLeave": "Status verlassen",
+      "user": "Benutzer",
+      "login": "Anmeldung",
+      "logout": "Abmeldung",
+      "register": "Registrierung",
+      "changedPaymentMethod": "Zahlungsart geändert",
+      "deleted": "Gelöscht",
+      "doubleOptInGuestOrder": "Double-Opt-In-Gastbestellung",
+      "doubleOptInRegistration": "Double-Opt-In-Registrierung",
+      "guestRegister": "Gast registriert",
+      "placed": "Eingang",
+      "send": "Abschicken",
+      "accepted": "Akzeptiert",
+      "declined": "Abgelehnt",
+      "request": "Anfrage",
+      "message": "Nachricht",
+      "sent": "Abgeschickt",
+      "confirm": "Bestätigen",
+      "unsubscribe": "Abbestellen",
+      "log": "Protokoll",
+      "cancelled": "Abgebrochen",
+      "completed": "Abgeschlossen",
+      "inProgress": "In Bearbeitung",
+      "open": "Offen",
+      "returned": "Zurückgeschickt",
+      "returnedPartially": "Teilweise zurückgeschickt",
+      "shipped": "Versendet",
+      "shippedPartially": "Teilweise versendet",
+      "authorized": "Autorisiert",
+      "chargeback": "Rückbuchung",
+      "failed": "Gescheitert",
+      "paid": "Bezahlt",
+      "paidPartially": "Teilweise bezahlt",
+      "refunded": "Erstattet",
+      "refundedPartially": "Teilweise erstattet",
+      "reminded": "Erinnert",
+      "unconfirmed": "Unbestätigt",
+      "pending": "Ausstehend",
+      "changed": "Geändert",
+      "update": "Aktualisierung"
     }
   },
   "sw-privileges": {

@@ -7,7 +7,6 @@
     <services>
         <service id="Shopware\Core\Checkout\Order\OrderDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition"  priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition">
@@ -34,11 +33,27 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -53,7 +68,6 @@
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="sales_channel.repository"/>
         </service>
 
@@ -64,26 +78,38 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader">
+            <argument type="service" id="product_download.repository"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureStateHandler">
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler">
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+        </service>
+
         <!-- controller -->
         <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -104,10 +130,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
         </service>
 
         <!-- events -->
@@ -117,9 +143,13 @@
             <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="state_machine_state.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

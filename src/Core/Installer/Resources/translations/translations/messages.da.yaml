@@ -1,0 +1,141 @@
+shopware.installer:
+    header_title: Installation
+    menuitem_language-selection: Start
+    menuitem_requirements: Systemkrav
+    menuitem_database-configuration: 'Database konfiguration'
+    menuitem_database-import: Installation
+    menuitem_edition: 'Shopware Licens'
+    menuitem_configuration: Konfiguration
+    menuitem_finish: Færdig
+    menuitem_license: 'Almindelige forretningsbetingelser'
+    license_incorrect: 'Den angivne licensnøgle er ugyldig.'
+    license_does_not_match: 'Den angivne licensnøgle mather ikke en Shopware version'
+    license_domain_error: 'Den angivne licensnøgle er ugyldig for domænet: '
+    version_text: 'Version:'
+    back: Tilbage
+    forward: Videre
+    start: Start
+    start_installation: 'Start installationen'
+    select_language_de: Tysk
+    select_language_en: Engelsk (Det Forenede Kongerige)
+    select_language_us: Engelsk (Amerikas Forenede Stater)
+    select_language_nl: Hollands
+    select_language_it: Italiensk
+    select_language_fr: Fransk
+    select_language_es: Spansk
+    select_language_pt: Portugisisk
+    select_language_pl: Polsk
+    select_language_cs: Tjekkisk
+    select_language_sv: Svensk
+    select_language_da: Dansk
+    select_language_no: Norsk
+    language-selection_welcome_title: 'Velkommen til Shopware 6'
+    language-selection_select_language: 'Installationsguidens sprog'
+    language-selection_header: 'Din Shopware installation'
+    language-selection_info_message: 'Sproget valgt her gælder kun for installationsguiden. Du kan definere systemets standardsprog senere.'
+    language-selection_welcome_message: 'Vi er glade for at du vil være en del af vores fantastiske Shopware Community! Vi vil nu guide dig igennem vores installationsproces. Hvis du har spørgsmål, så se på vores <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt os på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send os en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    requirements_header: Systemkrav
+    requirements_header_files: 'Filer og mapper'
+    requirements_header_system: System
+    requirements_files_info: 'Følgende filer og mapper skal eksistere og have skrive rettigheder.'
+    requirements_table_files_col_check: Fil/mappe
+    requirements_table_files_col_status: Status
+    requirements_error: 'Alle krav for en succesfuld installation er ikke opfyldt.'
+    requirements_error_title: 'Dit system er ikke klar til Shopware 6'
+    requirements_success: 'Alle krav for en succesfuld installation er opfyldt.'
+    requirements_success_title: 'Dit system er klar til Shopware 6'
+    requirements_php_info: 'Din server skal opfylde følgende krav for at kunne køre Shopware.'
+    requirements_php_max_compatible_version: 'Denne version af Shopware understøtter PHP up til version %s. Der er ingen garanti for, at alting vil virke med nyere PHP versioner.'
+    requirements_system_col_check: Krav
+    requirements_system_col_required: Påkrævet
+    requirements_system_col_found: 'Dit system'
+    requirements_system_col_status: Status
+    requirements_show_all: '(vis alt)'
+    requirements_hide_all: '(skjul alt)'
+    requirements_status_error: Fejl
+    requirements_status_warning: Advarsel
+    requirements_status_ready: Klar
+    license_agreement_header: 'Almindelige forretningsbetingelser'
+    license_agreement_info: 'Dette er vores almindelige forretningsbetingelser. Vil du fortsætte med at bruge installere Shopware 6, skal du først acceptere disse. Community Edition af Shopware 6 er gratis og er udgivet under MIT licensen.'
+    license_agreement_error: 'Accepter venligst vores almindelige forretningsbetingelser'
+    license_agreement_checkbox: 'Jeg accepterer de almindelige forretningsbetingelser'
+    database-configuration_header: 'Konfigurer databasen'
+    database-configuration_field_host: 'Server:'
+    database-configuration_advanced_settings: 'Avancerede indstillinger'
+    database-configuration_field_port: 'Port:'
+    database-configuration_field_user: 'Bruger:'
+    database-configuration_field_password: 'Kodeord:'
+    database-configuration_field_database: 'Database navn:'
+    database-configuration_field_new_database: 'Ny database:'
+    database-configuration_info: 'For at kunne installere Shopware på dit system har du brug for adgangsoplysningerne til din database. Er du usikker på hvad du skal angive her, så kontakt din administrator / hosting service.'
+    database-configuration-create_new_database: 'Opret ny database'
+    database-configuration_non_empty_database: 'Den valgte database indholder allerede data. Vælg venligst en tom database eller opret en ny.'
+    database-configuration_error_required_fields: 'Udfyld venligst alle felter'
+    database-configuration_field_ssl_ca_path: 'SSL certifikat authority sti'
+    database-configuration_field_ssl_cert_path: 'SSL certifikat sti'
+    database-configuration_field_ssl_cert_key_path: 'SSL certifikat nøgle sti'
+    database-configuration_field_ssl_dont_verify_cert: 'Verificer ikke server certifikatet'
+    database-import_header: Installation
+    database-import_skip_import: 'Spring over'
+    database-import_progress: 'Gå videre: '
+    database-import-hint: '<strong>OBS:</strong> Findes der database tabeller i den konfigurerede database vil de blive slettet under installationen/opdateringen!'
+    database-import_info_text: 'Installerer Shopware 6 med den valgte database. Denne proces kan tage flere minutter afhængig af dit system.'
+    database_import_success: 'Shopware 6 er installeret!'
+    database_import_install_label: 'Database installation:'
+    database_import_install_step_text: Step
+    database_import_install_from_text: af
+    migration_counter_text_migrations: 'Opdaterer database'
+    migration_counter_text_snippets: 'Opdaterer tekst snippets'
+    migration_update_success: 'Databasen blev importeret!'
+    edition_header: 'Har du allerede en Shopware licens?'
+    edition_info: 'Shopware finns i en gratis <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> samt i en avgiftsbelagd <a href="https://de.shopware.com/versionen/" target="_blank">Professional &amp; Enterprise Edition</a>.'
+    edition_ce: 'Nej jag vill använda den kostnadsfria versionen <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a>.'
+    edition_cm: 'Ja, jag har en avgiftsbelagd Shopware-licens (<a href="https://de.shopware.com/versionen/" target="_blank">Professional eller Enterprise</a>).'
+    edition_license: 'Ange din licensnyckel här. Du hittar denna på ditt Shopware-konto under ”Licenser” → ”Produktlicenser” → ”Detaljer/Download”:'
+    edition_license_error: 'För att installera en betalversion av Shopware krävs en giltig licens.'
+    configuration_header: Konfiguration
+    configuration_sconfig_text: 'Næsten færdig. Du behøver blot nogle få indstillinger til din shop. Shopware 6 vil være færdig installeret bagefter.'
+    configuration_sconfig_name: 'Shop navn'
+    configuration_sconfig_name_info: 'Angiv venligst et navn til din shop'
+    configuration_sconfig_mail: 'Shoppens email adresse:'
+    configuration_sconfig_mail_info: 'Angiv venligst en email adresse til alle udgående emails'
+    configuration_sconfig_domain: 'Shop domæne:'
+    configuration_sconfig_language: 'Standard system sprog:'
+    configuration_sconfig_currency: 'Standard valuta:'
+    configuration_sconfig_currency_info: 'Denne valuta vil blive brugt som standard valuta hver gang produkt priser angives.'
+    configuration_admin_currency_eur: Euro
+    configuration_admin_currency_usd: 'Dollar (US)'
+    configuration_admin_currency_gbp: 'Britiske pund (GBP)'
+    configuration_admin_currency_pln: 'Polske złoty'
+    configuration_admin_currency_chf: 'Schweiziske franc'
+    configuration_admin_currency_sek: 'Svenske kroner'
+    configuration_admin_currency_dkk: 'Danske kroner'
+    configuration_admin_currency_nok: 'Norske kroner'
+    configuration_admin_currency_czk: 'Tjekkiske kroner'
+    configuration_admin_username: 'Admin brugernavn:'
+    configuration_admin_mail: 'Admin email:'
+    configuration_admin_firstName: 'Admin fornavn:'
+    configuration_admin_lastName: 'Admin efternavn:'
+    configuration_defaults_warning: 'Tilføj flere valutaer til din shop. Hvis du vil tilføje flere senere kan det gøres fra Shopware administrationen.'
+    configuration_email_help_text: 'Denne email adresse vil blive brugt til alle udgående emails.'
+    configuration_admin_language_de: Tysk
+    configuration_admin_language_en: Engelsk
+    configuration_admin_password: 'Admin kodeord:'
+    finish_header: 'Installation fuldført'
+    finish_info: 'Du har installeret Shopware!'
+    finish_info_heading: Hurra!
+    finish_first_steps: '”Kom godt i gang” guide'
+    finish_frontend: 'Til Storefront'
+    finish_backend: 'Til Administration'
+    finish_message: "
+        <p>
+            <strong>Hjertelig velkommen til Shopware,</strong>
+        </p>
+        <p>
+            Du har installeret Shopware og vi glade for at byde dig velkommen til vores Community!
+        <p>
+            Din shop er klar til brug. Er du ny til Shopware, så anbefaler vi at du ser op denne guide <a href=\"https://docs.shopware.com/en/shopware-6-en/first-steps/welcome-to-shopware\" target=\"_blank\">”Kom godt i gang med Shopware”</a>. Når du logger ind i administrationen for første gang vil vores ”First Run Wizard” guide dig igennem vores grundlæggende setup.
+        </p>
+        <p>
+            God fornøjelse med din nye online shop!
+        </p>"

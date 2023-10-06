@@ -1,9 +1,14 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-settings-number-range-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -67,7 +72,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('type');
             criteria.addAssociation('numberRangeSalesChannels');
@@ -80,7 +85,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeTypeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('global', false),
@@ -94,7 +99,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeTypeCriteriaGlobal() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('global', true),
@@ -108,7 +113,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.multi(
@@ -132,20 +137,6 @@ Component.register('sw-settings-number-range-detail', {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        },
-
-        numberRangeStateRepository() {
-            return this.repositoryFactory.create('number_range_state');
-        },
-
-        numberRangeStateCriteria() {
-            const criteria = new Criteria();
-
-            criteria.addFilter(
-                Criteria.equals('numberRangeId', this.numberRangeId),
-            );
-
-            return criteria;
         },
 
         numberRangeSalesChannelsRepository() {
@@ -189,6 +180,8 @@ Component.register('sw-settings-number-range-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        ...mapPropertyErrors('numberRange', ['name', 'typeId']),
     },
 
     watch: {
@@ -266,16 +259,19 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         getState() {
-            return this.numberRangeStateRepository.search(this.numberRangeStateCriteria)
-                .then((numberRangeStates) => {
-                    if (numberRangeStates.total === 1) {
-                        this.state = numberRangeStates[0].lastValue;
-                        return Promise.resolve();
-                    }
-
-                    this.state = this.numberRange.start;
+            return this.numberRangeService.previewPattern(
+                this.numberRange.type.technicalName,
+                '{n}',
+                0,
+            ).then((response) => {
+                if (response.number > 1) {
+                    this.state = response.number - 1;
                     return Promise.resolve();
-                });
+                }
+
+                this.state = this.numberRange.start;
+                return Promise.resolve();
+            });
         },
 
         loadSalesChannels() {
@@ -295,14 +291,6 @@ Component.register('sw-settings-number-range-detail', {
             const numberRangeName = this.numberRange.name || this.placeholder(this.numberRange, 'name');
 
             this.onChangePattern();
-            if (this.noSalesChannelSelected()) {
-                this.createNotificationError(
-                    {
-                        message: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededMessage'),
-                    },
-                );
-                return false;
-            }
 
             if (!this.numberRange.pattern) {
                 this.createNotificationError(
@@ -329,9 +317,7 @@ Component.register('sw-settings-number-range-detail', {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc(
-                            'sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName },
-                        ),
+                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }),
                     });
                     throw exception;
                 })
@@ -427,4 +413,4 @@ Component.register('sw-settings-number-range-detail', {
             );
         },
     },
-});
+};

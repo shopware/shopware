@@ -4,6 +4,9 @@ import './sw-color-badge.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders a colored badge for example as indicator if an item is available.
@@ -19,6 +22,7 @@ const { Component } = Shopware;
  *     <sw-color-badge color="red" rounded></sw-color-badge>
  * </div>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-color-badge', {
     template,
 

@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Tag;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void           add(TagEntity $entity)
- * @method void           set(string $key, TagEntity $entity)
- * @method TagEntity[]    getIterator()
- * @method TagEntity[]    getElements()
- * @method TagEntity|null get(string $key)
- * @method TagEntity|null first()
- * @method TagEntity|null last()
+ * @extends EntityCollection<TagEntity>
  */
+#[Package('inventory')]
 class TagCollection extends EntityCollection
 {
     public function getApiAlias(): string

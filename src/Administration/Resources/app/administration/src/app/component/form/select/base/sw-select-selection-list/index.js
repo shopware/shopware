@@ -4,6 +4,9 @@ import './sw-select-selection-list.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Base component for rendering selection lists.
@@ -86,13 +89,9 @@ Component.register('sw-select-selection-list', {
 
     computed: {
         showPlaceholder() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return (this.alwaysShowPlaceholder || (this.selections.length === 0 && this.hideLabels))
-                    ? this.placeholder
-                    : '';
-            }
-
-            return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
+            return (this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels)
+                ? this.placeholder
+                : '';
         },
     },
 
@@ -117,6 +116,10 @@ Component.register('sw-select-selection-list', {
             if (this.searchTerm.length < 1) {
                 this.$emit('last-item-delete');
             }
+        },
+
+        onKeyDownEnter() {
+            this.$emit('key-down-enter');
         },
 
         onClickDismiss(item) {

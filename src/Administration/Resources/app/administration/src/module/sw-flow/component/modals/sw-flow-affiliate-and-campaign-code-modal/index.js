@@ -4,7 +4,11 @@ const { Component, Mixin, Service } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
-Component.register('sw-flow-affiliate-and-campaign-code-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     mixins: [
@@ -116,4 +120,4 @@ Component.register('sw-flow-affiliate-and-campaign-code-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

@@ -1,10 +1,13 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-listing', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -27,27 +30,6 @@ Component.register('sw-settings-listing', {
             isProductSortingOptionsCardLoading: false,
             isDefaultSalesChannelLoading: false,
             customFields: [],
-            /**
-             * @deprecated tag:v6.5.0 -
-             *  Use displayVisibilityDetail in `sw-settings-listing-default-sales-channel-card` instead
-             */
-            displayVisibilityDetail: false,
-            /**
-             * @deprecated tag:v6.5.0 -
-             *  Use configData in `sw-settings-listing-default-sales-channel-card` instead
-             */
-            configData: {
-                null: {
-                    'core.defaultSalesChannel.salesChannel': [],
-                    'core.defaultSalesChannel.active': true,
-                    'core.defaultSalesChannel.visibility': {},
-                },
-            },
-            /**
-             * @deprecated tag:v6.5.0 -
-             *  Use visibilityConfig in `sw-settings-listing-default-sales-channel-card` instead
-             */
-            visibilityConfig: [],
         };
     },
 
@@ -64,25 +46,8 @@ Component.register('sw-settings-listing', {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use salesChannel in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        salesChannel: {
-            get() {
-                return this.configData?.null?.['core.defaultSalesChannel.salesChannel'];
-            },
-            set(salesChannel) {
-                this.configData.null['core.defaultSalesChannel.salesChannel'] = salesChannel;
-            },
-        },
-
         productSortingsOptionsCriteria() {
-            const criteria = new Criteria();
-
-            criteria
-                .setLimit(this.sortingOptionsGridLimit)
-                .setPage(this.sortingOptionsGridPage);
+            const criteria = new Criteria(this.sortingOptionsGridPage, this.sortingOptionsGridLimit);
 
             criteria.addSorting(
                 Criteria.sort('priority', 'DESC'),
@@ -96,7 +61,7 @@ Component.register('sw-settings-listing', {
         },
 
         productSortingOptionsSearchCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.contains('label', this.productSortingOptionsSearchTerm),
@@ -110,7 +75,7 @@ Component.register('sw-settings-listing', {
         },
 
         customFieldCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         productSortingOptionColumns() {
@@ -131,6 +96,10 @@ Component.register('sw-settings-listing', {
                     label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -361,37 +330,5 @@ Component.register('sw-settings-listing', {
         onLoadingChanged(loading) {
             this.isLoading = loading;
         },
-
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use `fetchSalesChannelsSystemConfig()` in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        fetchSalesChannelsSystemConfig() {},
-
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use `displayAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        displayAdvancedVisibility() {},
-
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use `closeAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        closeAdvancedVisibility() {},
-
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use `updateSalesChannel()` in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        updateSalesChannel() {},
-
-        /**
-         * @deprecated tag:v6.5.0 -
-         *  Use `saveSalesChannelVisibilityConfig()` in `sw-settings-listing-default-sales-channel-card` instead
-         */
-        saveSalesChannelVisibilityConfig() {
-            return Promise.resolve();
-        },
     },
-});
+};

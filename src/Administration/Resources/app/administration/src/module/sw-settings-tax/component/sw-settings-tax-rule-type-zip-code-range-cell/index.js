@@ -1,8 +1,11 @@
 import template from './sw-settings-tax-rule-type-zip-code-range-cell.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-settings-tax-rule-type-zip-code-range-cell', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -26,4 +29,4 @@ Component.register('sw-settings-tax-rule-type-zip-code-range-cell', {
             }
         },
     },
-});
+};

@@ -1,9 +1,11 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-save-modal-confirm.html.twig';
 import './sw-bulk-edit-save-modal-confirm.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-bulk-edit-save-modal-confirm', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -100,4 +102,4 @@ Component.register('sw-bulk-edit-save-modal-confirm', {
             this.$emit('buttons-update', buttonConfig);
         },
     },
-});
+};

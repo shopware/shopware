@@ -28,7 +28,7 @@
     font-weight: $font-weight-bold;
 }
 
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
     .product-detail-tabs {
         .product-detail-tab-navigation-link {
             background: none;

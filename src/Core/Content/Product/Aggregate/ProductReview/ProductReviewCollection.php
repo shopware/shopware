@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductReview;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                     add(ProductReviewEntity $entity)
- * @method void                     set(string $key, ProductReviewEntity $entity)
- * @method ProductReviewEntity[]    getIterator()
- * @method ProductReviewEntity[]    getElements()
- * @method ProductReviewEntity|null get(string $key)
- * @method ProductReviewEntity|null first()
- * @method ProductReviewEntity|null last()
+ * @extends EntityCollection<ProductReviewEntity>
  */
+#[Package('inventory')]
 class ProductReviewCollection extends EntityCollection
 {
     public function getApiAlias(): string

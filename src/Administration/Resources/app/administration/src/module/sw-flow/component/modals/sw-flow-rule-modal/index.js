@@ -1,3 +1,4 @@
+import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
@@ -5,12 +6,18 @@ const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-flow-rule-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
+        'ruleConditionsConfigApiService',
+        'feature',
     ],
 
     mixins: [
@@ -60,6 +67,10 @@ Component.register('sw-flow-rule-modal', {
             );
         },
 
+        appScriptConditionRepository() {
+            return this.repositoryFactory.create('app_script_condition');
+        },
+
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
         },
@@ -82,6 +93,17 @@ Component.register('sw-flow-rule-modal', {
             },
         },
 
+        scopesOfRuleAwarenessKey() {
+            const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
+            const awarenessConfig = this.ruleConditionDataProviderService
+                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
+
+
+            return awarenessConfig?.scopes ?? undefined;
+        },
+
+        ...mapState('swFlowState', ['flow']),
+
         ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
@@ -91,20 +113,41 @@ Component.register('sw-flow-rule-modal', {
 
     methods: {
         createdComponent() {
-            if (!this.ruleId) {
-                this.createRule();
-                return;
-            }
-
             this.isLoading = true;
-            this.loadRule(this.ruleId).then(() => {
-                this.isLoading = false;
+
+            this.loadConditionData().then((scripts) => {
+                this.ruleConditionDataProviderService.addScriptConditions(scripts);
+
+                if (!this.ruleId) {
+                    this.isLoading = false;
+                    this.createRule();
+                    return;
+                }
+
+                this.loadRule(this.ruleId).then(() => {
+                    this.isLoading = false;
+                });
+            });
+        },
+
+        loadConditionData() {
+            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const criteria = new Criteria(1, 500);
+
+            return Promise.all([
+                this.appScriptConditionRepository.search(criteria, context),
+                this.ruleConditionsConfigApiService.load(),
+            ]).then((results) => {
+                return results[0];
             });
         },
 
         createRule() {
-            this.rule = this.ruleRepository.create(Context.api);
+            this.rule = this.ruleRepository.create();
             this.conditions = this.rule?.conditions;
+            this.conditionTree = this.conditions;
+            this.rule.flowSequences = [];
+            this.rule.flowSequences.push({ flow: { eventName: this.flow.eventName } });
         },
 
         loadRule(ruleId) {
@@ -121,7 +164,7 @@ Component.register('sw-flow-rule-modal', {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(1, 25), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -188,6 +231,7 @@ Component.register('sw-flow-rule-modal', {
             this.isSaveLoading = true;
 
             if (this.rule.isNew()) {
+                this.rule.flowSequences = [];
                 this.rule.conditions = this.conditionTree;
 
                 this.saveRule()
@@ -235,4 +279,4 @@ Component.register('sw-flow-rule-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

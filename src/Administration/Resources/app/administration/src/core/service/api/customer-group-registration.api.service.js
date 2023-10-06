@@ -1,6 +1,7 @@
 import ApiService from '../api.service';
 
 /**
+ * @package checkout
  * Gateway for the API end point "customer-group-registration"
  * @class
  * @extends ApiService
@@ -46,4 +47,5 @@ class CustomerGroupRegistrationApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default CustomerGroupRegistrationApiService;

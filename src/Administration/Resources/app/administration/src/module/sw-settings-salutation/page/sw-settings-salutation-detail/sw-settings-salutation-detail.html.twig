@@ -1,14 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_salutation_detail %}
 <sw-page class="sw-settings-salutation-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_search_bar %}
-    <template slot="search-bar"></template>
+    <template #search-bar></template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_salutation_detail_smart_bar_header_title_text %}
             {{ placeholder(salutation, 'salutationKey', $tc('sw-settings-salutation.detail.placeholderNewSalutation')) }}
             {% endblock %}
@@ -17,8 +22,9 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :disabled="salutationId == null"
             @on-change="onChangeLanguage"
@@ -26,8 +32,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -38,6 +46,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -46,7 +55,11 @@
             :process-success="isSaveSuccessful"
             :disabled="invalidKey || isKeyChecking || !allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-salutation.general.buttonSave') }}
@@ -55,16 +68,19 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_cardview %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_content_language_info %}
                 <sw-language-info :entity-description="entityDescription" />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_content_card %}
                 <sw-card
                     position-identifier="sw-settings-salutation-detail-content"
@@ -73,24 +89,38 @@
                 >
 
                     <template v-if="salutation">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.salutationKey"
+                            {% else %}
                             v-model="salutation.salutationKey"
+                            {% endif %}
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
                             :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
                             :help-text="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
-                            :error="invalidKeyError"
+                            :error="salutationSalutationKeyError"
                             validation="required"
                             required
                             :disabled="!acl.can('salutation.editor')"
+                            {% if VUE3 %}
+                            @update:value="onChange"
+                            {% else %}
                             @input="onChange"
+                            {% endif %}
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.displayName"
+                            {% else %}
                             v-model="salutation.displayName"
+                            {% endif %}
                             required
                             class="sw-settings-salutation-detail__displayName"
                             :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
@@ -100,9 +130,14 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.letterName"
+                            {% else %}
                             v-model="salutation.letterName"
+                            {% endif %}
                             required
                             class="sw-settings-salutation-detail__letterName"
                             :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
@@ -115,6 +150,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

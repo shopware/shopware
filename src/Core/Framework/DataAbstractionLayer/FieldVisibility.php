@@ -2,24 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('core')]
 class FieldVisibility
 {
     public static bool $isInTwigRenderingContext = false;
 
     /**
-     * @var string[]
+     * @param array<string> $internalProperties
      */
-    private array $internalProperties;
-
-    /**
-     * @param string[] $internalProperties
-     */
-    public function __construct(array $internalProperties)
+    public function __construct(private readonly array $internalProperties)
     {
-        $this->internalProperties = $internalProperties;
     }
 
     public function isVisible(string $property): bool

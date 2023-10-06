@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_meteor_page %}
 <div
     class="sw-meteor-page"
@@ -13,6 +14,7 @@
         >
             <div class="sw-meteor-page__head-area-top-bar-content">
                 <slot name="search-bar">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_meteor_page_seach_bar %}
                     <sw-search-bar />
                     {% endblock %}
@@ -20,6 +22,9 @@
             </div>
 
             <div class="sw-meteor-page__head-area-global-actions">
+                <sw-help-center />
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_meteor_page_notification_center %}
                 <sw-notification-center />
                 {% endblock %}
@@ -28,8 +33,9 @@
             <div class="sw-meteor-page__smart-bar">
                 <div class="sw-meteor-page__smart-bar-navigation">
                     <slot name="smart-bar-back">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_meteor_page_navigation %}
-                        <sw-meteor-navigation />
+                        <sw-meteor-navigation :from-link="fromLink" />
                         {% endblock %}
                     </slot>
                 </div>
@@ -41,6 +47,7 @@
                             class="sw-meteor-page__smart-bar-module-icon"
                         >
                             <slot name="smart-bar-icon">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_meteor_page_smart_bar_icon %}
                                 <sw-icon
                                     v-if="hasIcon"
@@ -54,6 +61,7 @@
                         <div class="sw-meteor-page__smart-bar-header">
                             <h2 class="sw-meteor-page__smart-bar-title">
                                 <slot name="smart-bar-header">
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_meteor_page_smart_bar_title %}
                                     <template v-if="module && module.title">
                                         {{ $tc(module.title) }}
@@ -63,6 +71,7 @@
                             </h2>
 
                             <div class="sw-meteor-page__smart-bar-meta">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_meteor_page_smart_bar_meta %}
                                 <slot name="smart-bar-header-meta"></slot>
                                 {% endblock %}
@@ -70,6 +79,7 @@
                         </div>
 
                         <div class="sw-meteor-page__smart-bar-description">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_meteor_page_smart_bar_description %}
                             <slot name="smart-bar-description"></slot>
                             {% endblock %}
@@ -77,16 +87,16 @@
                     </div>
 
                     <div class="sw-meteor-page__smart-bar-actions">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_meteor_page_smart_bar_actions %}
                         <slot name="smart-bar-actions"></slot>
                         {% endblock %}
                     </div>
 
                     <div class="sw-meteor-page__smart-bar-context-buttons">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_meteor_page_smart_bar_context_buttons %}
-                        <template>
-                            <slot name="smart-bar-context-buttons"></slot>
-                        </template>
+                        <slot name="smart-bar-context-buttons"></slot>
                         {% endblock %}
                     </div>
                 </div>
@@ -96,6 +106,7 @@
                 v-if="hasTabs"
                 class="sw-meteor-page__smart-bar-tabs"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_meteor_page_smart_bar_tabs %}
                 <sw-tabs
                     position-identifier="sw-meteor-page"
@@ -110,6 +121,7 @@
             </div>
         </header>
         <main class="sw-meteor-page__content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_meteor_page_content %}
             <div
                 v-if="fullWidth"

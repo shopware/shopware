@@ -1,12 +1,15 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_index %}
 <sw-page class="sw-settings-search">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_smart_bar_header %}
     <template #smart-bar-header>
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-settings-search.general.mainMenuItemGeneral') }}
@@ -15,14 +18,17 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -31,7 +37,11 @@
             :disabled="!allowSave"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSaveSearchSettings"
         >
             {{ $tc('global.default.save') }}
@@ -40,11 +50,14 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_content %}
     <template #content>
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_tabs_header %}
             <sw-tabs position-identifier="sw-settings-search-header">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_search_tabs_general %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -56,6 +69,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_search_tabs_live_search %}
                 <sw-tabs-item
                     v-bind="$props"
@@ -68,6 +82,7 @@
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_tabs_content %}
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -90,6 +105,7 @@
             {% endblock %}
         </sw-card-view>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_discard_model %}
         <sw-confirm-modal
             v-if="isDisplayingLeavePageWarning"

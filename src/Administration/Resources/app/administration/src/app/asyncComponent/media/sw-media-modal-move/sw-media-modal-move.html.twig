@@ -1,0 +1,96 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_modal_move %}
+<sw-modal
+    variant="default"
+    class="sw-media-modal-move"
+    :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) "
+    @modal-close="closeMoveModal"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_modal_body %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_modal_move_breadcrumbs %}
+    <div class="sw-media-modal-move-folder-breadcrumbs">
+        <img
+            :src="assetFilter('/administration/static/img/media/multicolor-folder-thumbnail.svg')"
+            class="sw-media-modal-move__folder-icon"
+            alt="Folder thumbnail"
+        >
+
+        <button
+            v-if="parentFolder && parentFolder.id !== targetFolder.id"
+            class="sw-media-modal-move__breadcrumb-btn --parent"
+            @click="onSelection(parentFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="regular-chevron-right-xs"
+                size="10px"
+            />
+            {{ parentFolder.name }}
+        </button>
+
+        <button
+            v-if="displayFolder && displayFolder.id !== targetFolder.id"
+            class="sw-media-modal-move__breadcrumb-btn"
+            @click="onSelection(displayFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="regular-chevron-right-xs"
+                size="10px"
+            />
+            {{ displayFolder.name }}
+        </button>
+
+        <button
+            v-if="targetFolder"
+            class="sw-media-modal-move__breadcrumb-btn --target"
+            @click="onSelection(targetFolder)"
+        >
+            <sw-icon
+                class="sw-media-folder-content__switch-button"
+                name="regular-chevron-right-xs"
+                size="10px"
+            />
+            {{ targetFolder.name }}
+        </button>
+    </div>
+    {% endblock %}
+    <sw-media-folder-content
+        :start-folder-id="displayFolderId"
+        :selected-id="targetFolderId"
+        @selected="onSelection"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_modal_footer %}
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_modal_move_cancel_button %}
+        <sw-button
+            size="small"
+            @click="closeMoveModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_modal_move_confirm_button %}
+        <sw-button
+            class="sw-media-modal-move__confirm"
+            size="small"
+            variant="primary"
+            :disabled="isMoveDisabled"
+            @click="moveSelection"
+        >
+            {{ $tc('global.sw-media-modal-move.buttonMove') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

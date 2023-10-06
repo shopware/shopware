@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class DateRangeRule extends Rule
 {
+    final public const RULE_NAME = 'dateRange';
+
     /**
      * @var \DateTimeInterface|string|null
      */
@@ -24,6 +28,9 @@ class DateRangeRule extends Rule
      */
     protected $useTime;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ?\DateTimeInterface $fromDate = null,
         ?\DateTimeInterface $toDate = null,
@@ -51,15 +58,23 @@ class DateRangeRule extends Rule
             throw new \LogicException('fromDate or toDate cannot be a string at this point.');
         }
         $toDate = $this->toDate;
+        $fromDate = $this->fromDate;
         $now = $scope->getCurrentTime();
+
+        if (!$this->useTime && $fromDate) {
+            $fromDate = (new \DateTime())
+                ->setTimestamp($fromDate->getTimestamp())
+                ->setTime(0, 0);
+        }
 
         if (!$this->useTime && $toDate) {
             $toDate = (new \DateTime())
                 ->setTimestamp($toDate->getTimestamp())
-                ->add(new \DateInterval('P1D'));
+                ->add(new \DateInterval('P1D'))
+                ->setTime(0, 0);
         }
 
-        if ($this->fromDate && $this->fromDate > $now) {
+        if ($fromDate && $fromDate > $now) {
             return false;
         }
 
@@ -77,10 +92,5 @@ class DateRangeRule extends Rule
             'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
             'useTime' => [new NotNull(), new Type('bool')],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'dateRange';
     }
 }

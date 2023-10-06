@@ -2,20 +2,51 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use Aws\S3\S3Client;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
+use AsyncAws\SimpleS3\SimpleS3Client;
+use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
+use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use League\Flysystem\FilesystemAdapter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @phpstan-type S3Config = array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
+ */
+#[Package('core')]
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
-    public function create(array $config): AdapterInterface
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function create(array $config): FilesystemAdapter
     {
         $options = $this->resolveS3Options($config);
 
-        $client = new S3Client($options);
+        $s3Opts = [
+            'region' => $options['region'],
+        ];
 
-        return new AwsS3Adapter($client, $options['bucket'], $options['root'], $options['options'], false);
+        if (\array_key_exists('endpoint', $options)) {
+            $s3Opts['endpoint'] = $options['endpoint'];
+        }
+
+        if (\array_key_exists('use_path_style_endpoint', $options)) {
+            $s3Opts['pathStyleEndpoint'] = (string) $options['use_path_style_endpoint'];
+        }
+
+        if (isset($options['credentials'])) {
+            $s3Opts['accessKeyId'] = $options['credentials']['key'];
+            $s3Opts['accessKeySecret'] = $options['credentials']['secret'];
+        }
+
+        $client = new SimpleS3Client($s3Opts);
+
+        return new DecoratedAsyncS3Adapter(
+            new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter()),
+            $options['bucket'],
+            $client,
+            $options['root']
+        );
     }
 
     public function getType(): string
@@ -23,25 +54,29 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         return 'amazon-s3';
     }
 
+    /**
+     * @param  array<string, mixed> $definition
+     *
+     * @return S3Config
+     */
     private function resolveS3Options(array $definition): array
     {
         $options = new OptionsResolver();
 
         $options->setRequired(['bucket', 'region']);
-        $options->setDefined(['credentials', 'version', 'root', 'options', 'endpoint', 'use_path_style_endpoint', 'url']);
+        $options->setDefined(['credentials', 'root', 'options', 'endpoint', 'use_path_style_endpoint', 'url', 'visibility']);
 
         $options->setAllowedTypes('credentials', 'array');
         $options->setAllowedTypes('region', 'string');
-        $options->setAllowedTypes('version', 'string');
         $options->setAllowedTypes('root', 'string');
         $options->setAllowedTypes('options', 'array');
         $options->setAllowedTypes('endpoint', 'string');
         $options->setAllowedTypes('use_path_style_endpoint', 'bool');
 
-        $options->setDefault('version', 'latest');
         $options->setDefault('root', '');
         $options->setDefault('options', []);
 
+        /** @var S3Config $config */
         $config = $options->resolve($definition);
 
         if (\array_key_exists('credentials', $config)) {
@@ -51,6 +86,11 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         return $config;
     }
 
+    /**
+     * @param array<string, mixed> $credentials
+     *
+     * @return array{key: string, secret: string}
+     */
     private function resolveCredentialsOptions(array $credentials): array
     {
         $options = new OptionsResolver();
@@ -60,6 +100,9 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $options->setAllowedTypes('key', 'string');
         $options->setAllowedTypes('secret', 'string');
 
-        return $options->resolve($credentials);
+        /** @var array{key: string, secret: string} $resolved */
+        $resolved = $options->resolve($credentials);
+
+        return $resolved;
     }
 }

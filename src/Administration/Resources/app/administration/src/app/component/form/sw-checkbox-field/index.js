@@ -5,16 +5,21 @@ const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Boolean input field based on checkbox.
  * @status ready
  * @example-type static
  * @component-example
- * <sw-checkbox-field label="Name" v-model="aBooleanProperty"></sw-checkbox-field>
+ * <sw-checkbox-field v-model="aBooleanProperty" label="Name"></sw-checkbox-field>
  */
 Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -68,6 +73,18 @@ Component.register('sw-checkbox-field', {
             required: false,
             default: false,
         },
+
+        padded: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        partlyChecked: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -83,8 +100,15 @@ Component.register('sw-checkbox-field', {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
+                'is--partly-checked': this.isPartlyChecked,
                 'sw-field__checkbox--ghost': this.ghostValue,
+            };
+        },
+
+        swCheckboxFieldContentClasses() {
+            return {
                 'is--bordered': this.bordered,
+                'is--padded': this.padded,
             };
         },
 
@@ -113,6 +137,14 @@ Component.register('sw-checkbox-field', {
             }
             return this.isInheritanceField && this.currentValue === null;
         },
+
+        isPartlyChecked() {
+            return this.partlyChecked && !this.inputState;
+        },
+
+        iconName() {
+            return this.isPartlyChecked ? 'regular-minus-xxs' : 'regular-checkmark-xxs';
+        },
     },
 
     watch: {
@@ -121,6 +153,12 @@ Component.register('sw-checkbox-field', {
 
     methods: {
         onChange(changeEvent) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', changeEvent.target.checked);
+
+                return;
+            }
+
             this.$emit('change', changeEvent.target.checked);
         },
     },

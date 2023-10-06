@@ -1,10 +1,13 @@
 import template from './sw-category-link-settings.html.twig';
 import './sw-category-link-settings.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-category-link-settings', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl', 'repositoryFactory'],
@@ -88,21 +91,21 @@ Component.register('sw-category-link-settings', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         categoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'page'));
 
             return criteria;
         },
 
         internalLinkCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.category.internalLink));
 
             return criteria;
@@ -154,4 +157,4 @@ Component.register('sw-category-link-settings', {
             this.category.internalLink = null;
         },
     },
-});
+};

@@ -5,17 +5,21 @@ namespace Shopware\Core\Content\Test\ImportExport\Commands;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 /**
+ * @internal
+ *
  * @group slow
  */
+#[Package('services-settings')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,30 +29,15 @@ class ImportEntityCommandTest extends TestCase
     private const TEST_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/categories.csv';
     private const TEST_INVALID_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/products_with_invalid.csv';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $fileRepository;
+    private EntityRepository $fileRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
+    private EntityRepository $profileRepository;
 
-    /**
-     * @var ImportEntityCommand
-     */
-    private $importEntityCommand;
+    private ImportEntityCommand $importEntityCommand;
 
-    /**
-     * @var DemodataService
-     */
-    private $demoDataService;
+    private DemodataService $demoDataService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -87,7 +76,7 @@ class ImportEntityCommandTest extends TestCase
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();
-        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
 
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
@@ -111,7 +100,7 @@ class ImportEntityCommandTest extends TestCase
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();
-        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
 
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
@@ -136,7 +125,7 @@ class ImportEntityCommandTest extends TestCase
 
         $message = $commandTester->getDisplay();
         static::assertStringContainsString('[WARNING] Not all records could be imported due to errors', $message);
-        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
 
         $repository = $this->getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
@@ -161,7 +150,7 @@ class ImportEntityCommandTest extends TestCase
         $this->startTransactionBefore();
 
         $message = $commandTester->getDisplay();
-        static::assertStringContainsString(sprintf('[ERROR] Errors on import. Rolling back transactions for %s records.', $num), $message);
+        static::assertStringContainsString(sprintf('[ERROR] Errors on import. Rolling back transactions for %d records.', $num), $message);
         static::assertStringContainsString('Integrity constraint violation', $message);
 
         $repository = $this->getContainer()->get('product.repository');

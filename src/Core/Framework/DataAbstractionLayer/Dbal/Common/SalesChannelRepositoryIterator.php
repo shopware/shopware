@@ -2,30 +2,29 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @template TEntityCollection of EntityCollection
+ */
+#[Package('core')]
 class SalesChannelRepositoryIterator
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @param SalesChannelRepository<TEntityCollection> $repository
      */
-    private $repository;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    public function __construct(SalesChannelRepositoryInterface $repository, SalesChannelContext $context, ?Criteria $criteria = null)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $repository,
+        private readonly SalesChannelContext $context,
+        ?Criteria $criteria = null
+    ) {
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
@@ -33,8 +32,6 @@ class SalesChannelRepositoryIterator
         }
 
         $this->criteria = $criteria;
-        $this->repository = $repository;
-        $this->context = $context;
     }
 
     public function getTotal(): int
@@ -44,11 +41,12 @@ class SalesChannelRepositoryIterator
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        $result = $this->repository->searchIds($criteria, $this->context);
-
-        return $result->getTotal();
+        return $this->repository->searchIds($criteria, $this->context)->getTotal();
     }
 
+    /**
+     * @return list<string>|list<array<string, string>>|null
+     */
     public function fetchIds(): ?array
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
@@ -62,6 +60,9 @@ class SalesChannelRepositoryIterator
         return null;
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>|null
+     */
     public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);

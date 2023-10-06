@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\Store\Command;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -15,55 +17,39 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @internal
+ */
+#[AsCommand(
+    name: 'store:download',
+    description: 'Downloads a plugin from the store',
+)]
+#[Package('services-settings')]
 class StoreDownloadCommand extends Command
 {
-    public static $defaultName = 'store:download';
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
+    private readonly string $relativePluginDir;
 
     public function __construct(
-        StoreClient $storeClient,
-        EntityRepositoryInterface $pluginRepo,
-        PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $userRepository
+        private readonly StoreClient $storeClient,
+        private readonly EntityRepository $pluginRepo,
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly EntityRepository $userRepository,
+        string $pluginDir,
+        string $projectDir,
     ) {
-        $this->storeClient = $storeClient;
-        $this->pluginRepo = $pluginRepo;
-        $this->pluginManagementService = $pluginManagementService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->userRepository = $userRepository;
-
         parent::__construct();
+
+        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     protected function configure(): void
@@ -99,7 +85,7 @@ class StoreDownloadCommand extends Command
             if ($plugin->getUpgradeVersion()) {
                 $this->pluginLifecycleService->updatePlugin($plugin, $context);
             }
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // don't update plugins that are not installed
         }
 
@@ -129,13 +115,17 @@ class StoreDownloadCommand extends Command
     {
         try {
             $plugin = $this->getPluginFromInput($pluginName, $context);
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // plugins no installed can still be downloaded
             return;
         }
 
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw StoreException::cannotDeleteManaged($pluginName);
+            }
+
+            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
         }
     }
 

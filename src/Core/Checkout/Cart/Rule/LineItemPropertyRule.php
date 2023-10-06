@@ -3,32 +3,27 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class LineItemPropertyRule extends Rule
 {
+    final public const RULE_NAME = 'cartLineItemProperty';
+
     /**
-     * @var string[]
+     * @param list<string> $identifiers
+     *
+     * @internal
      */
-    protected array $identifiers;
-
-    protected string $operator;
-
-    public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
-    {
+    public function __construct(
+        protected array $identifiers = [],
+        protected string $operator = self::OPERATOR_EQ
+    ) {
         parent::__construct();
-        $this->identifiers = $identifiers;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemProperty';
     }
 
     public function match(RuleScope $scope): bool
@@ -41,7 +36,7 @@ class LineItemPropertyRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatch($lineItem)) {
                 return true;
             }
@@ -53,8 +48,8 @@ class LineItemPropertyRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'identifiers' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
@@ -63,17 +58,9 @@ class LineItemPropertyRule extends Rule
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
 
+        /** @var list<string> $ids */
         $ids = array_merge($properties, $options);
 
-        $diff = array_intersect($ids, $this->identifiers);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty($diff);
-            case self::OPERATOR_NEQ:
-                return empty($diff);
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($ids, $this->identifiers, $this->operator);
     }
 }

@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1585744384ChangeCategoryProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,11 +24,11 @@ class Migration1585744384ChangeCategoryProfile extends MigrationStep
         $id = $connection->executeQuery(
             'SELECT `id` FROM `import_export_profile` WHERE `name` = :name AND `system_default` = 1',
             ['name' => 'Default category']
-        )->fetchColumn();
+        )->fetchOne();
 
         if ($id) {
             $mapping = $this->getMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $id]);
         }
     }
 
@@ -30,6 +37,9 @@ class Migration1585744384ChangeCategoryProfile extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<array{key: string, mappedKey: string}>
+     */
     private function getMapping(): array
     {
         return [

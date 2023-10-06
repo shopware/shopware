@@ -1,10 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-seo-form.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-seo-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -50,7 +55,7 @@ Component.register('sw-product-seo-form', {
         },
 
         variantCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('options.group');
 
@@ -197,4 +202,4 @@ Component.register('sw-product-seo-form', {
             });
         },
     },
-});
+};

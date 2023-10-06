@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductNameTypeCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

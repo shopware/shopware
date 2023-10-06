@@ -2,6 +2,9 @@ import template from './sw-verify-user-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-verify-user-modal', {
     template,
 

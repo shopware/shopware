@@ -1,0 +1,37 @@
+<sw-modal
+    v-if="display"
+    class="sw-app-wrong-app-url-modal"
+    variant="large"
+    :title="$tc('sw-app.component.sw-app-wrong-app-url-modal.title')"
+    @modal-close="closeModal"
+>
+    <template #default>
+        <div class="sw-app-wrong-app-url-modal__content-description">
+            <img
+                class="sw-app-wrong-app-url-modal__content-image"
+                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                alt=""
+            >
+            <h3>{{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanationHeader') }}</h3>
+            <div>
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
+            </div>
+            <br>
+            <div>
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
+            </div>
+
+            <sw-button
+                class="sw-app-wrong-app-url-modal__content-link-button"
+                variant="ghost"
+                :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+            >
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+            </sw-button>
+
+            <div class="sw-app-wrong-app-url_modal__content-description-technical-details">
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textDetails') }}
+            </div>
+        </div>
+    </template>
+</sw-modal>

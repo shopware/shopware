@@ -1,8 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_field_error %}
 <div
     v-if="!!error"
     class="sw-field__error"
 >
+    <sw-icon
+        name="solid-exclamation-circle"
+        size="12"
+    />
     {{ errorMessage }}
 </div>
 {% endblock %}

@@ -2,14 +2,26 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 {
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly int $maxRulePrices,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         if (!$field instanceof CheapestPriceField) {
@@ -18,6 +30,13 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 
         // cheapest price is only indexed for parent product
         $keys = $context->getRuleIds();
+        if (\count($keys) > $this->maxRulePrices) {
+            $this->logger->warning(\sprintf('More than %d rules are active, only the first %d rules are considered for the cheapest price calculation', $this->maxRulePrices, $this->maxRulePrices));
+            $this->logger->info(
+                'More rules then the configured `dal.max_rule_prices` are active, thus not all rule prices are considered for the cheapest price. You can increase the `dal.max_rule_prices`, but this will have a negative performance impact. Consider restructuring your rules, so that not so many match at the same time.'
+            );
+            $keys = \array_slice($keys, 0, $this->maxRulePrices);
+        }
         $keys[] = 'default';
 
         $jsonAccessor = 'net';

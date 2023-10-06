@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class RefreshIndexCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -41,6 +44,14 @@ class RefreshIndexCommandTest extends TestCase
         $message = $commandTester->getDisplay();
 
         static::assertStringNotContainsString('sales_channel.indexer', $message);
+        static::assertStringNotContainsString('category.indexer', $message);
+
+        $commandTester = new CommandTester($this->refreshIndexCommand);
+        $commandTester->execute(['--only' => 'sales_channel.indexer']);
+
+        $message = $commandTester->getDisplay();
+
+        static::assertStringContainsString('sales_channel.indexer', $message);
         static::assertStringNotContainsString('category.indexer', $message);
     }
 
@@ -105,7 +116,7 @@ class RefreshIndexCommandTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        /** @var string[] $categories */
+        /** @var array<string> $categories */
         $categories = $this->getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext())->getIds();
 

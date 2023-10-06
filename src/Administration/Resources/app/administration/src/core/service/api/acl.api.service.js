@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 class AclApiService {
     constructor(httpClient, loginService) {
         this.httpClient = httpClient;
@@ -28,4 +32,5 @@ class AclApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default AclApiService;

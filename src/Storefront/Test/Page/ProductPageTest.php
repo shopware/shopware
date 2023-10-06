@@ -2,13 +2,18 @@
 
 namespace Shopware\Storefront\Test\Page;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,10 +21,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -53,7 +60,7 @@ class ProductPageTest extends TestCase
         $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
         $this->expectException(ProductNotFoundException::class);
-        $this->getPageLoader()->load($request, $context, $this->createCustomer());
+        $this->getPageLoader()->load($request, $context);
     }
 
     public function testItDoesLoadATestProduct(): void
@@ -131,6 +138,8 @@ class ProductPageTest extends TestCase
 
     public function testItLoadsReviews(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
 
@@ -145,12 +154,15 @@ class ProductPageTest extends TestCase
         static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
 
         $matrix = $page->getReviews()->getMatrix();
-        static::assertEquals(3.3333333333333, $matrix->getAverageRating());
+
+        static::assertEquals(3.333, \round($matrix->getAverageRating(), 3));
         static::assertEquals(6, $matrix->getTotalReviewCount());
     }
 
     public function testItLoadsReviewsWithCustomer(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $product = $this->getRandomProduct($context);
 
@@ -164,10 +176,11 @@ class ProductPageTest extends TestCase
         static::assertCount(7, $page->getReviews());
         static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
         static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
+        static::assertNotNull($context->getCustomer());
         static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
 
         $matrix = $page->getReviews()->getMatrix();
-        static::assertEquals(3.4285714285714, $matrix->getAverageRating());
+        static::assertEquals(3.429, \round($matrix->getAverageRating(), 3));
         static::assertEquals(7, $matrix->getTotalReviewCount());
     }
 
@@ -194,10 +207,15 @@ class ProductPageTest extends TestCase
             ],
         ]);
 
+        $this->updateProductStream($product->getId(), Uuid::randomHex());
+
         $request = new Request([], [], ['productId' => $product->getId()]);
 
         $page = $this->getPageLoader()->load($request, $context);
 
+        static::assertNotNull($page->getHeader());
+        static::assertNotNull($page->getHeader()->getNavigation());
+        static::assertNotNull($page->getHeader()->getNavigation()->getActive());
         static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
         static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());
     }
@@ -212,9 +230,32 @@ class ProductPageTest extends TestCase
                 'type' => 'product_detail',
                 'sections' => [],
             ],
+            'cover' => [
+                'id' => Uuid::randomHex(),
+                'position' => 0,
+                'media' => [
+                    'fileName' => 'cover-1',
+                ],
+            ],
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'media-1',
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 2,
+                    'media' => [
+                        'fileName' => 'media-2',
+                    ],
+                ],
+            ],
         ];
 
-        $product = $this->getRandomProduct($context, 10, false, $productCmsPageData);
+        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
 
         static::assertEquals($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);
@@ -226,6 +267,7 @@ class ProductPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(ProductPage::class, $page);
+        static::assertInstanceOf(CmsPageEntity::class, $page->getCmsPage());
         static::assertEquals($cmsPageId, $page->getCmsPage()->getId());
 
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
@@ -302,19 +344,30 @@ class ProductPageTest extends TestCase
         $cmsPage = $page->getCmsPage();
         $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrittenByProduct')]);
 
+        static::assertNotNull($cmsPage);
+        static::assertIsIterable($cmsPage->getSections());
+        static::assertNotNull($cmsPage->getSections()->first());
+        static::assertIsIterable($cmsPage->getSections()->first()->getBlocks());
+
+        $blocks = $cmsPage->getSections()->first()->getBlocks();
+        static::assertInstanceOf(CmsBlockCollection::class, $blocks);
+        static::assertIsIterable($blocks->getSlots());
+        static::assertNotNull($blocks->getSlots()->get($firstSlotId));
+        static::assertNotNull($blocks->getSlots()->get($secondSlotId));
+
         static::assertEquals(
             $productCmsPageData['slotConfig'][$firstSlotId],
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getConfig()
+            $blocks->getSlots()->get($firstSlotId)->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getFieldConfig()
+            $blocks->getSlots()->get($firstSlotId)->getFieldConfig()
         );
 
         static::assertEquals(
             $productCmsPageData['slotConfig'][$secondSlotId],
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId)->getConfig()
+            $blocks->getSlots()->get($secondSlotId)->getConfig()
         );
     }
 
@@ -366,5 +419,17 @@ class ProductPageTest extends TestCase
 
         $this->getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());
+    }
+
+    private function updateProductStream(string $productId, string $streamId): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
+            [
+                'streamIds' => json_encode([$streamId], \JSON_THROW_ON_ERROR),
+                'id' => Uuid::fromHexToBytes($productId),
+            ]
+        );
     }
 }

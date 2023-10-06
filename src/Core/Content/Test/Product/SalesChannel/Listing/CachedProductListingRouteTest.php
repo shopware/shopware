@@ -26,16 +26,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @group cache
  * @group store-api
  */
 class CachedProductListingRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const ALL_TAG = 'test-tag';
 
@@ -78,8 +81,7 @@ class CachedProductListingRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            [],
-            $this->getContainer()->get('logger')
+            []
         );
 
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
@@ -92,7 +94,7 @@ class CachedProductListingRouteTest extends TestCase
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];
@@ -137,8 +139,7 @@ class CachedProductListingRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            $config,
-            $this->getContainer()->get('logger')
+            $config
         );
 
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
@@ -146,7 +147,7 @@ class CachedProductListingRouteTest extends TestCase
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
     }
 
-    public function stateProvider(): \Generator
+    public static function stateProvider(): \Generator
     {
         yield 'No states' => [[], []];
         yield 'Has one state' => [['logged-in'], ['logged-in', 'cart-filled']];
@@ -183,92 +184,92 @@ class CachedProductListingRouteTest extends TestCase
 
         $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
 
-        $before($categoryId);
+        $before($categoryId, $this->getContainer());
 
         $route = $this->getContainer()->get(ProductListingRoute::class);
         $route->load($categoryId, new Request(), $this->context, new Criteria());
         $route->load($categoryId, new Request(), $this->context, new Criteria());
 
-        $after($categoryId);
+        $after($categoryId, $this->getContainer());
 
         $route->load($categoryId, new Request(), $this->context, new Criteria());
         $route->load($categoryId, new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider(): \Generator
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 
         yield 'cache is invalidated if the created product is linked to the category' => [
             function (): void {
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the updated product is linked to the category' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('product'), 'name' => 'test'];
-                $this->getContainer()->get('product.repository')->update([$update], $ids->getContext());
+                $container->get('product.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the deleted product is linked to the category' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('product')];
-                $this->getContainer()->get('product.repository')->delete([$delete], $ids->getContext());
+                $container->get('product.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the updated manufacturer is used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId),
                     ['manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test']]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('manufacturer'), 'name' => 'test'];
-                $this->getContainer()->get('product_manufacturer.repository')->update([$update], $ids->getContext());
+                $container->get('product_manufacturer.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the deleted manufacturer is used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId),
                     ['manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test']]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('manufacturer')];
-                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], $ids->getContext());
+                $container->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the updated property is used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId),
@@ -279,17 +280,17 @@ class CachedProductListingRouteTest extends TestCase
                     ]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('property'), 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the deleted property is used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId),
@@ -300,11 +301,11 @@ class CachedProductListingRouteTest extends TestCase
                     ]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('property')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $container->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -312,82 +313,82 @@ class CachedProductListingRouteTest extends TestCase
         yield 'cache is not invalidated if the created product is not linked to the category' => [
             function (): void {
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container): void {
                 $product = self::DATA;
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the updated product is not linked to the category' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA);
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('product'), 'name' => 'test'];
-                $this->getContainer()->get('product.repository')->update([$update], $ids->getContext());
+                $container->get('product.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the deleted product is not linked to the category' => [
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA);
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('product')];
-                $this->getContainer()->get('product.repository')->delete([$delete], $ids->getContext());
+                $container->get('product.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the updated manufacturer is not used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
-                $this->getContainer()->get('product_manufacturer.repository')
-                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], $ids->getContext());
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
+                $container->get('product_manufacturer.repository')
+                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], Context::createDefaultContext());
 
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId)
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('manufacturer-not-used'), 'name' => 'test'];
-                $this->getContainer()->get('product_manufacturer.repository')->update([$update], $ids->getContext());
+                $container->get('product_manufacturer.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the deleted manufacturer is not used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
-                $this->getContainer()->get('product_manufacturer.repository')
-                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], $ids->getContext());
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
+                $container->get('product_manufacturer.repository')
+                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], Context::createDefaultContext());
 
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId)
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('manufacturer-not-used')];
-                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], $ids->getContext());
+                $container->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the updated property is not used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property'), 'name' => 'red', 'group' => ['name' => 'color']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $product = array_merge(
@@ -395,22 +396,22 @@ class CachedProductListingRouteTest extends TestCase
                     self::assign($categoryId),
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('property'), 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the deleted property is not used as filter in the category listing' => [
-            function (string $categoryId) use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property'), 'name' => 'red', 'group' => ['name' => 'color']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $product = array_merge(
@@ -418,11 +419,11 @@ class CachedProductListingRouteTest extends TestCase
                     self::assign($categoryId),
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('property')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $container->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];

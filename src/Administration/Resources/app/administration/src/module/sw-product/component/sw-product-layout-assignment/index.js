@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-layout-assignment.html.twig';
 import './sw-product-layout-assignment.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-product-layout-assignment', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -29,4 +32,4 @@ Component.register('sw-product-layout-assignment', {
             this.$emit('button-delete-click');
         },
     },
-});
+};

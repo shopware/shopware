@@ -2,16 +2,22 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal - Compiler passes are always internal
+ */
+#[Package('core')]
 class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        /** @var array{type?: string, config?: array}[] $services */
         $services = $container->getParameter('shopware.increment');
         $tag = 'shopware.increment.gateway';
 
@@ -78,6 +84,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
 
                 $definition = new Definition($referenceDefinition->getClass());
                 $definition->setArguments($referenceDefinition->getArguments());
+                $definition->setTags($referenceDefinition->getTags());
 
                 $container->setDefinition($active, $definition);
 
@@ -89,7 +96,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
                     return $active;
                 }
 
-                $definition->setFactory([RedisAdapter::class, 'createConnection'])->addArgument($config['url']);
+                $definition->setFactory([new Reference(RedisConnectionFactory::class), 'create'])->addArgument($config['url']);
 
                 $adapter = sprintf('shopware.increment.%s.redis_adapter', $pool);
 

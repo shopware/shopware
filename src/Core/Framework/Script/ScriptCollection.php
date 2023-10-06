@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\Script;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  *
- * @method void                     add(ScriptEntity $entity)
- * @method void                     set(string $key, ScriptEntity $entity)
- * @method \Generator<ScriptEntity> getIterator()
- * @method array<ScriptEntity>      getElements()
- * @method ScriptEntity|null        get(string $key)
- * @method ScriptEntity|null        first()
- * @method ScriptEntity|null        last()
+ * @extends EntityCollection<ScriptEntity>
  */
+#[Package('core')]
 class ScriptCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

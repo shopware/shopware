@@ -8,10 +8,14 @@ const { ShopwareError } = Shopware.Classes;
 const { debounce } = Shopware.Utils;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
-const Criteria = Shopware.Data.Criteria;
+const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
 
-Component.register('sw-cms-detail', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: [
@@ -23,6 +27,8 @@ Component.register('sw-cms-detail', {
         'cmsDataResolverService',
         'acl',
         'appCmsService',
+        'systemConfigApiService',
+        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -104,16 +110,10 @@ Component.register('sw-cms-detail', {
                 },
             ],
             showLayoutAssignmentModal: false,
+            showLayoutSetAsDefaultModal: false,
+            isDefaultLayout: false,
             showMissingElementModal: false,
-
-            /** @deprecated tag:v6.5.0 - will be removed without replacement */
-            isSaveable: false,
-
-            /** @deprecated tag:v6.5.0 - will be removed without replacement */
             missingElements: [],
-
-            /** @deprecated tag:v6.5.0 - will be removed without replacement */
-            previousRoute: '',
         };
     },
 
@@ -121,13 +121,6 @@ Component.register('sw-cms-detail', {
         return {
             title: this.$createTitle(this.identifier),
         };
-    },
-
-    /** @deprecated tag:v6.5.0 navigation guard can be removed completely */
-    beforeRouteEnter(to, from, next) {
-        next((vm) => {
-            vm.previousRoute = from.name;
-        });
     },
 
     computed: {
@@ -163,37 +156,21 @@ Component.register('sw-cms-detail', {
             return this.cmsService.getCmsBlockRegistry();
         },
 
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
         cmsStageClasses() {
             return [
                 `is--${this.currentDeviceView}`,
             ];
         },
 
-        cmsTypeMappingEntities() {
-            return {
-                product_detail: {
-                    entity: 'product',
-                    mode: 'single',
-                },
-                product_list: {
-                    entity: 'category',
-                    mode: 'single',
-                },
-            };
-        },
-
-        cmsPageTypes() {
-            return {
-                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
-            };
-        },
-
         cmsPageTypeSettings() {
-            if (this.cmsTypeMappingEntities[this.page.type]) {
-                return this.cmsTypeMappingEntities[this.page.type];
+            const mappingEntity = CMS.TYPE_MAPPING_ENTITIES;
+
+            if (mappingEntity.hasOwnProperty(this.page.type)) {
+                return mappingEntity[this.page.type];
             }
 
             return {
@@ -247,10 +224,6 @@ Component.register('sw-cms-detail', {
             const sortCriteria = Criteria.sort('position', 'ASC', true);
 
             criteria
-                .addAssociation('categories')
-                .addAssociation('landingPages')
-                .addAssociation('products.manufacturer')
-
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -260,20 +233,30 @@ Component.register('sw-cms-detail', {
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
 
+            criteria
+                .getAssociation('categories')
+                .setLimit(25);
+            criteria
+                .getAssociation('landingPages')
+                .setLimit(25);
+
+            criteria.getAssociation('products').setLimit(25);
+            criteria.getAssociation('products.manufacturer').setLimit(25);
+
             return criteria;
         },
 
-        currentDeviceView() {
-            return this.cmsPageState.currentCmsDeviceView;
-        },
-
         demoProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('media');
             criteria.addAssociation('deliveryTime');
             criteria.addAssociation('manufacturer.media');
 
             return criteria;
+        },
+
+        currentDeviceView() {
+            return this.cmsPageState.currentCmsDeviceView;
         },
 
         isProductPage() {
@@ -298,6 +281,10 @@ Component.register('sw-cms-detail', {
             return this.pageErrors.length > 0;
         },
 
+        pageType() {
+            this.cmsPageTypeService.getType(this.page.type);
+        },
+
         ...mapPropertyErrors('page', [
             'name',
             'sections',
@@ -317,6 +304,11 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-cms-detail__page',
+                path: 'page',
+                scope: this,
+            });
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
@@ -329,7 +321,9 @@ Component.register('sw-cms-detail', {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                const criteria = new Criteria();
+                Shopware.State.commit('shopwareApps/setSelectedIds', [this.pageId]);
+
+                const criteria = new Criteria(1, 25);
                 criteria.addFilter(
                     Criteria.equals('typeId', defaultStorefrontId),
                 );
@@ -342,6 +336,10 @@ Component.register('sw-cms-detail', {
                         this.loadPage(this.pageId);
                     }
                 });
+            }
+
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
             }
 
             this.setPageContext();
@@ -378,22 +376,14 @@ Component.register('sw-cms-detail', {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
-        onBlockNavigatorSort(isCrossSectionMove = false) {
-            if (isCrossSectionMove) {
-                this.loadPage(this.pageId);
-                return;
-            }
-
-            this.onPageUpdate();
-            this.debouncedPageSave();
-        },
-
         loadPage(pageId) {
             this.isLoading = true;
 
-            this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
+            return this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
+
+                Shopware.State.commit('cmsPageState/setCurrentPageType', page.type);
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
@@ -415,6 +405,12 @@ Component.register('sw-cms-detail', {
                             }
                         });
                     }
+
+                    Shopware.ExtensionAPI.publishData({
+                        id: 'sw-cms-detail__page',
+                        path: 'page',
+                        scope: this,
+                    });
 
                     this.isLoading = false;
                 }).catch((exception) => {
@@ -444,6 +440,7 @@ Component.register('sw-cms-detail', {
                 Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');
                 Shopware.State.commit('cmsPageState/removeCurrentMappingTypes');
                 Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+                Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityRepo = null;
@@ -463,23 +460,6 @@ Component.register('sw-cms-detail', {
 
                 this.loadFirstDemoEntity();
             }
-        },
-
-        loadFirstDemoEntity() {
-            if (this.cmsPageState.currentMappingEntity === 'product') {
-                return;
-            }
-
-            const criteria = new Criteria();
-
-            if (this.cmsPageState.currentMappingEntity === 'category') {
-                criteria.addAssociation('media');
-            }
-
-            this.currentMappingEntityRepo.search(criteria).then((response) => {
-                this.demoEntityId = response[0].id;
-                Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
-            });
         },
 
         onDeviceViewChange(view) {
@@ -502,7 +482,7 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria()).then((response) => {
+            return this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
                 const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
@@ -518,34 +498,84 @@ Component.register('sw-cms-detail', {
             return this.onSave();
         },
 
-        onDemoEntityChange(demoEntityId) {
-            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+        async loadDemoProduct(entityId) {
+            const criteria = Criteria.fromCriteria(this.demoProductCriteria);
+            criteria.setLimit(1);
 
-            if (!demoEntityId) {
+            if (entityId) {
+                criteria.setIds([entityId]);
+            }
+
+            const context = { ...Shopware.Context.api, inheritance: true };
+
+            const response = await this.productRepository.search(criteria, context);
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
+        },
+
+        async loadDemoCategory(entityId) {
+            const criteria = new Criteria(1, 1);
+
+            if (entityId) {
+                criteria.setIds([entityId]);
+            }
+
+            const response = await this.repositoryFactory.create('category').search(criteria);
+            const category = response[0];
+
+            this.demoEntityId = category.id;
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
+
+            this.loadDemoCategoryProducts(category);
+
+            if (category.mediaId) {
+                this.loadDemoCategoryMedia(category);
+            }
+        },
+
+        async loadDemoCategoryProducts(entity) {
+            const productCriteria = Criteria.fromCriteria(this.demoProductCriteria);
+
+            productCriteria.setLimit(8);
+
+            const products = await this.repositoryFactory.create(
+                entity.products.entity,
+                entity.products.source,
+            ).search(productCriteria);
+
+            Shopware.State.commit('cmsPageState/setCurrentDemoProducts', products);
+        },
+
+        async loadDemoCategoryMedia(entity) {
+            const media = await this.repositoryFactory.create('media').get(entity.mediaId);
+
+            entity.media = media;
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
+        },
+
+        loadFirstDemoEntity() {
+            const demoMappingType = this.cmsPageTypeSettings?.entity;
+
+            if (demoMappingType === 'category') {
+                this.loadDemoCategory();
+            }
+        },
+
+        onDemoEntityChange(demoEntityId) {
+            const demoMappingType = this.cmsPageTypeSettings?.entity;
+
+            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+            Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
+
+            if (demoMappingType === 'product') {
+                if (demoEntityId) {
+                    this.loadDemoProduct(demoEntityId);
+                }
                 return;
             }
 
-            const demoContext = this.cmsPageState.currentMappingEntity === 'product'
-                ? { ...Shopware.Context.api, inheritance: true }
-                : Shopware.Context.api;
-
-            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product'
-                ? this.demoProductCriteria : new Criteria();
-
-            this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
-                if (!entity) {
-                    return;
-                }
-
-                if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
-                    this.repositoryFactory.create('media').get(entity.mediaId).then((media) => {
-                        entity.media = media;
-                        Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
-                    });
-                } else {
-                    Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
-                }
-            });
+            if (demoMappingType === 'category') {
+                this.loadDemoCategory(demoEntityId);
+            }
         },
 
         addFirstSection(type, index) {
@@ -567,6 +597,12 @@ Component.register('sw-cms-detail', {
             section.sizingMode = 'boxed';
             section.position = index;
             section.pageId = this.page.id;
+
+            section.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();
@@ -623,10 +659,6 @@ Component.register('sw-cms-detail', {
                     message: this.$tc('sw-cms.detail.notification.pageInvalid'),
                 });
 
-                return Promise.reject();
-            }
-
-            if (this.showMissingElementModal) {
                 return Promise.reject();
             }
 
@@ -711,34 +743,13 @@ Component.register('sw-cms-detail', {
             };
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed without replacement
-         */
-        getRedundantElementsWarning(uniqueSlotCount) {
-            const warningMessages = [];
-
-            Object.entries(uniqueSlotCount).forEach(([key, value]) => {
-                if (value > 1) {
-                    warningMessages.push(
-                        this.$tc('sw-cms.detail.notification.messageRedundantElements', 0, {
-                            name: this.$tc(`sw-cms.elements.${key}.label`),
-                        }),
-                    );
-                }
-            });
-
-            return warningMessages;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed without replacement
-         */
-        getMissingElements(elements) {
-            return Object.keys(elements).filter((key) => elements[key] === 0);
-        },
-
         pageIsValid() {
+            if (localStorage.getItem('cmsMissingElementDontRemind') === 'true') {
+                this.cmsMissingElementDontRemind = true;
+            }
+
             this.validationWarnings = [];
+            Shopware.State.dispatch('error/resetApiErrors');
 
             const valid = [
                 this.missingFieldsValidation(),
@@ -747,7 +758,7 @@ Component.register('sw-cms-detail', {
                 this.slotValidation(),
             ].every(validation => validation);
 
-            if (valid && this.validationWarnings.length > 0) {
+            if (!this.cmsMissingElementDontRemind && valid && this.validationWarnings.length > 0) {
                 this.showMissingElementModal = true;
             }
 
@@ -917,70 +928,50 @@ Component.register('sw-cms-detail', {
             this.updateDataMapping();
         },
 
-        onBlockDuplicate(block, section) {
-            this.cloneBlockInSection(block, section);
-            this.updateSectionAndBlockPositions();
+        async onBlockDuplicate(block, { position: sectionPosition = 0 }) {
+            const behavior = {
+                overwrites: {
+                    position: block.position + 1,
+                },
+                cloneChildren: true,
+            };
 
-            this.debouncedPageSave();
-        },
+            const { id: clonedBlockID } = await this.blockRepository.clone(block.id, Shopware.Context.api, behavior);
+            const clonedBlock = await this.blockRepository.get(clonedBlockID);
 
-        cloneBlockInSection(block, section) {
-            const newBlock = this.blockRepository.create();
+            const section = this.page.sections[sectionPosition];
 
-            const blockClone = cloneDeep(block);
-            blockClone.id = newBlock.id;
-            blockClone.position = block.position + 1;
-            blockClone.sectionId = section.id;
-            blockClone.sectionPosition = block.sectionPosition;
-            blockClone.slots = [];
+            section.blocks.splice(clonedBlock.position, 0, clonedBlock);
+            this.updateBlockPositions(section);
 
-            Object.assign(newBlock, blockClone);
-
-            this.cloneSlotsInBlock(block, newBlock);
-
-            section.blocks.splice(newBlock.position, 0, newBlock);
-        },
-
-        cloneSlotsInBlock(block, newBlock) {
-            block.slots.forEach((slot) => {
-                const element = this.slotRepository.create();
-                element.blockId = newBlock.id;
-                element.slot = slot.slot;
-                element.type = slot.type;
-                element.config = cloneDeep(slot.config);
-                element.data = cloneDeep(slot.data);
-
-                newBlock.slots.push(element);
-            });
-        },
-
-        onSectionDuplicate(section) {
-            this.prepareSectionClone(section);
             this.onSave();
         },
 
-        prepareSectionClone(section) {
-            const newSection = this.sectionRepository.create();
+        async onSectionDuplicate(section) {
+            const behavior = {
+                overwrites: {
+                    position: section.position + 1,
+                },
+                cloneChildren: true,
+            };
 
-            const sectionClone = cloneDeep(section);
-            sectionClone.id = newSection.id;
-            sectionClone.position = section.position + 1;
-            sectionClone.pageId = this.page.id;
-            sectionClone.blocks = [];
+            const { id: clonedSectionID } = await this.sectionRepository.clone(section.id, Shopware.Context.api, behavior);
+            const clonedSection = await this.sectionRepository.get(clonedSectionID);
 
-            Object.assign(newSection, sectionClone);
 
-            section.blocks.forEach((block) => {
-                this.cloneBlockInSection(block, newSection);
-            });
+            this.page.sections.splice(clonedSection.position, 0, clonedSection);
+            this.updateSectionAndBlockPositions(section);
 
-            this.page.sections.splice(newSection.position, 0, newSection);
-            this.updateSectionAndBlockPositions();
-
-            return newSection;
+            this.onSave();
         },
 
-        onPageTypeChange() {
+        onPageTypeChange(pageType) {
+            // if pageType wasn't passed along just assume the page was directly mutated
+            if (typeof pageType === 'string') {
+                Shopware.State.commit('cmsPageState/setCurrentPageType', pageType);
+                this.page.type = pageType;
+            }
+
             if (this.page.type === CMS.PAGE_TYPES.LISTING) {
                 this.processProductListingType();
             } else {
@@ -1076,7 +1067,7 @@ Component.register('sw-cms-detail', {
                 sections.blocks.forEach((block) => {
                     block.slots.forEach((slot) => {
                         Object.keys(slot.config).forEach((key) => {
-                            if (slot.config[key].source && slot.config[key].source === 'mapped') {
+                            if (slot.config[key]?.source === 'mapped') {
                                 const mappingPath = slot.config[key].value.split('.');
 
                                 if (mappingPath[0] !== this.demoEntity) {
@@ -1102,17 +1093,50 @@ Component.register('sw-cms-detail', {
             this.showLayoutAssignmentModal = true;
         },
 
-        closeLayoutAssignmentModal() {
+        closeLayoutAssignmentModal(saveAfterClose = false) {
             this.showLayoutAssignmentModal = false;
+            if (saveAfterClose) {
+                this.$nextTick(() => {
+                    this.onSaveEntity();
+                });
+            }
         },
 
-        /** @deprecated tag:v6.5.0 method can be removed completely */
-        onConfirmLayoutAssignment() {
-            this.previousRoute = '';
+        onOpenLayoutSetAsDefault() {
+            this.showLayoutSetAsDefaultModal = true;
+        },
+
+        onCloseLayoutSetAsDefault() {
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async onConfirmLayoutSetAsDefault() {
+            let configKey = 'category_cms_page';
+            if (this.page.type === 'product_detail') {
+                configKey = 'product_cms_page';
+            }
+
+            await this.systemConfigApiService.saveValues({
+                [`core.cms.default_${configKey}`]: this.pageId,
+            });
+
+            this.isDefaultLayout = true;
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+            const productDetailId = response['core.cms.default_category_cms_page'];
+            const productListId = response['core.cms.default_product_cms_page'];
+
+            if ([productDetailId, productListId].includes(this.pageId)) {
+                this.isDefaultLayout = true;
+            }
         },
 
         onCloseMissingElementModal() {
             this.showMissingElementModal = false;
+            this.cmsMissingElementDontRemind = false;
 
             this.$nextTick(() => {
                 this.loadPage(this.pageId);
@@ -1120,11 +1144,19 @@ Component.register('sw-cms-detail', {
         },
 
         onSaveMissingElementModal() {
+            if (this.cmsMissingElementDontRemind) {
+                localStorage.setItem('cmsMissingElementDontRemind', true);
+            }
+
             this.showMissingElementModal = false;
 
             this.$nextTick(() => {
                 this.onSaveEntity();
             });
         },
+
+        onChangeDontRemindCheckbox() {
+            this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
+        },
     },
-});
+};

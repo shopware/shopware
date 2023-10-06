@@ -1,7 +1,23 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-preview-image-slider', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-config-image-slider', () => import('./config'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'));
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',
     label: 'sw-cms.elements.imageSlider.label',
@@ -37,12 +53,25 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: null,
         },
+        speed: {
+            value: 300,
+            source: 'static',
+        },
+        autoSlide: {
+            value: false,
+            source: 'static',
+        },
+        autoplayTimeout: {
+            value: 5000,
+            source: 'static',
+        },
     },
     enrich: function enrich(elem, data) {
         if (Object.keys(data).length < 1) {
             return;
         }
 
+        let entityCount = 0;
         Object.keys(elem.config).forEach((configKey) => {
             const entity = elem.config[configKey].entity;
 
@@ -50,8 +79,10 @@ Shopware.Service('cmsService').registerCmsElement({
                 return;
             }
 
-            const entityKey = entity.name;
-            if (!data[`entity-${entityKey}`]) {
+            const entityKey = `entity-${entity.name}-${entityCount}`;
+            entityCount += 1;
+
+            if (!data[entityKey]) {
                 return;
             }
 
@@ -60,7 +91,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 elem.data[configKey].push({
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId),
+                    media: data[entityKey].get(sliderItem.mediaId),
                 });
             });
         });

@@ -9,24 +9,23 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('inventory')]
 class ProductConfiguratorLoader
 {
-    private EntityRepositoryInterface $configuratorRepository;
-
-    private AvailableCombinationLoader $combinationLoader;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EntityRepositoryInterface $configuratorRepository,
-        AvailableCombinationLoader $combinationLoader
+        private readonly EntityRepository $configuratorRepository,
+        private readonly AbstractAvailableCombinationLoader $combinationLoader
     ) {
-        $this->combinationLoader = $combinationLoader;
-        $this->configuratorRepository = $configuratorRepository;
     }
 
     /**
@@ -44,10 +43,9 @@ class ProductConfiguratorLoader
 
         $groups = $this->sortSettings($groups, $product);
 
-        $combinations = $this->combinationLoader->load(
+        $combinations = $this->combinationLoader->loadCombinations(
             $product->getParentId(),
-            $context->getContext(),
-            $context->getSalesChannelId()
+            $context,
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
@@ -76,6 +74,8 @@ class ProductConfiguratorLoader
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<string, PropertyGroupEntity>|null
      */
     private function loadSettings(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
@@ -116,11 +116,14 @@ class ProductConfiguratorLoader
 
             $groups[$groupId] = $group;
 
-            if ($group->getOptions() === null) {
-                $group->setOptions(new PropertyGroupOptionCollection());
+            $options = $group->getOptions();
+            if ($options === null) {
+                $options = new PropertyGroupOptionCollection();
+                $group->setOptions($options);
             }
+            $options->add($option);
 
-            $group->getOptions()->add($option);
+            $options->add($option);
 
             $option->setConfiguratorSetting($setting);
         }
@@ -128,6 +131,9 @@ class ProductConfiguratorLoader
         return $groups;
     }
 
+    /**
+     * @param array<string, PropertyGroupEntity>|null $groups
+     */
     private function sortSettings(?array $groups, SalesChannelProductEntity $product): PropertyGroupCollection
     {
         if (!$groups) {
@@ -149,14 +155,22 @@ class ProductConfiguratorLoader
 
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
-            $group->getOptions()->sort(
+            $options = $group->getOptions();
+            if ($options === null) {
+                continue;
+            }
+            $options->sort(
                 static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
-                    if ($a->getConfiguratorSetting()->getPosition() !== $b->getConfiguratorSetting()->getPosition()) {
-                        return $a->getConfiguratorSetting()->getPosition() <=> $b->getConfiguratorSetting()->getPosition();
+                    $configuratorSettingA = $a->getConfiguratorSetting();
+                    $configuratorSettingB = $b->getConfiguratorSetting();
+
+                    if ($configuratorSettingA !== null && $configuratorSettingB !== null
+                        && $configuratorSettingA->getPosition() !== $configuratorSettingB->getPosition()) {
+                        return $configuratorSettingA->getPosition() <=> $configuratorSettingB->getPosition();
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                        return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
                     }
 
                     return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);
@@ -166,8 +180,12 @@ class ProductConfiguratorLoader
 
         $collection = new PropertyGroupCollection($sorted);
 
-        // check if product has an individual sorting configuration for property groups
-        $config = $product->getConfiguratorGroupConfig();
+        // check if product has an individual sorting configuration for property groups\
+        $config = $product->getVariantListingConfig();
+        if ($config) {
+            $config = $config->getConfiguratorGroupConfig();
+        }
+
         if (!$config) {
             $collection->sortByPositions();
 
@@ -184,6 +202,9 @@ class ProductConfiguratorLoader
         return $collection;
     }
 
+    /**
+     * @param array<string> $current
+     */
     private function isCombinable(
         PropertyGroupOptionEntity $option,
         array $current,
@@ -205,12 +226,21 @@ class ProductConfiguratorLoader
         return null;
     }
 
+    /**
+     * @return array<int|string, string>
+     */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
         $keyMap = $groups->getOptionIdMap();
 
+        $optionIds = $product->getOptionIds() ?? [];
         $current = [];
-        foreach ($product->getOptionIds() as $optionId) {
+
+        if ($product->getOptionIds() === null) {
+            return $current;
+        }
+
+        foreach ($optionIds as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

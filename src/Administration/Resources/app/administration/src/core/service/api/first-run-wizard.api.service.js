@@ -1,7 +1,10 @@
 const ApiService = Shopware.Classes.ApiService;
 
 /**
+ * @package merchant-services
+ *
  * Gateway for the API end point "frw"
+ * @private
  * @class
  * @extends ApiService
  */
@@ -9,6 +12,13 @@ class FirstRunWizardApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'frw') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'firstRunWizardService';
+    }
+
+    getBasicHeaders(additionalHeaders = {}) {
+        return {
+            ...super.getBasicHeaders(additionalHeaders),
+            'sw-language-id': Shopware.Context.api.languageId,
+        };
     }
 
     /**
@@ -118,4 +128,8 @@ class FirstRunWizardApiService extends ApiService {
     }
 }
 
+/**
+ * @private
+ * @package merchant-services
+ */
 export default FirstRunWizardApiService;

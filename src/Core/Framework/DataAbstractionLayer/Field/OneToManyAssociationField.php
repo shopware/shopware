@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class OneToManyAssociationField extends AssociationField
 {
     /**

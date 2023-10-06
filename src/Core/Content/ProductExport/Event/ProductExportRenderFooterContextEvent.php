@@ -2,27 +2,33 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('inventory')]
 class ProductExportRenderFooterContextEvent extends Event
 {
-    public const NAME = 'product_export.render.footer_context';
+    final public const NAME = 'product_export.render.footer_context';
 
     /**
-     * @var array
+     * @param array<string, Struct> $context
      */
-    private $context;
-
-    public function __construct(array $context)
+    public function __construct(private array $context)
     {
-        $this->context = $context;
     }
 
+    /**
+     * @return array<string, Struct>
+     */
     public function getContext(): array
     {
         return $this->context;
     }
 
+    /**
+     * @param array<string, Struct> $context
+     */
     public function setContext(array $context): void
     {
         $this->context = $context;

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_recovery %}
 <div class="sw-login-recovery">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_headline %}
     <h2 class="sw-login__form-headline">
         <router-link
@@ -8,7 +10,7 @@
         >
             <sw-icon
                 class="sw-login__back-arrow"
-                name="default-arrow-simple-left"
+                name="regular-long-arrow-left"
                 small
             />
         </router-link>
@@ -16,24 +18,32 @@
     </h2>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_text %}
     <p>{{ $tc('sw-login.recovery.text') }}</p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_form %}
     <form
         class="sw-login__recovery-form"
         @submit.prevent="sendRecoveryMail"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_form_email_field %}
         <sw-text-field
             ref="swLoginRecoveryEmailField"
+            {% if VUE3 %}
+            v-model:value="email"
+            {% else %}
             v-model="email"
+            {% endif %}
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_form_submit %}
         <div class="sw-login__submit">
             <sw-button

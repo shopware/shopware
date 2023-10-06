@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_image %}
 <div
     class="sw-product-image"
     :class="productImageClasses"
 >
     <template v-if="!isPlaceholder">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_image_preview %}
         <sw-media-preview-v2
             class="sw-product-image__image"
@@ -22,19 +24,24 @@
         </sw-label>
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
                 v-if="showCoverLabel && !isCover"
+                class="sw-product-image__button-cover"
                 @click="$emit('sw-product-image-cover')"
             >
                 {{ $tc('global.sw-product-image.context.buttonAsCover') }}
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context_delete_action %}
             <sw-context-menu-item
                 variant="danger"
+                class="sw-product-image__button-delete"
                 @click="$emit('sw-product-image-delete')"
             >
                 {{ $tc('global.sw-product-image.context.buttonRemove') }}
@@ -43,17 +50,18 @@
             {% endblock %}
         </sw-context-button>
     </template>
-    <template
+    <div
         v-else
         class="is--invalid-drag"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_image_placeholder %}
         <sw-icon
             class="sw-product-image__placeholder-icon"
-            :name="'default-object-image'"
+            :name="'regular-image'"
             :small="true"
         />
         {% endblock %}
-    </template>
+    </div>
 </div>
 {% endblock %}

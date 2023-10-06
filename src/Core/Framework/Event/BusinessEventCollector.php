@@ -2,29 +2,23 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('business-ops')]
 class BusinessEventCollector
 {
     /**
-     * @var BusinessEventRegistry
+     * @internal
      */
-    private $registry;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     public function __construct(
-        BusinessEventRegistry $registry,
-        EventDispatcherInterface $eventDispatcher
+        private readonly BusinessEventRegistry $registry,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection
     ) {
-        $this->registry = $registry;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function collect(Context $context): BusinessEventCollectorResponse
@@ -32,6 +26,8 @@ class BusinessEventCollector
         $events = $this->registry->getClasses();
 
         $result = new BusinessEventCollectorResponse();
+        $result = $this->fetchAppEvents($result);
+
         foreach ($events as $class) {
             $definition = $this->define($class);
 
@@ -47,9 +43,7 @@ class BusinessEventCollector
 
         $result = $event->getCollection();
 
-        $result->sort(function (BusinessEventDefinition $a, BusinessEventDefinition $b) {
-            return $a->getName() <=> $b->getName();
-        });
+        $result->sort(fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
 
         return $result;
     }
@@ -59,37 +53,25 @@ class BusinessEventCollector
      */
     public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
-        if ($class === BusinessEvent::class) {
-            return null;
-        }
-
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            if (!$instance instanceof FlowEventAware) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
-        } else {
-            if (!$instance instanceof BusinessEventInterface) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
+        if (!$instance instanceof FlowEventAware) {
+            throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
         }
 
-        $name = $name ?? $instance->getName();
+        $name ??= $instance->getName();
         if (!$name) {
             return null;
         }
 
-        /** @var array $interfaces */
         $interfaces = class_implements($instance);
 
         $aware = [];
         foreach ($interfaces as $interface) {
             if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class
-                && !is_subclass_of($interface, BusinessEventInterface::class)
-                && $interface !== BusinessEventInterface::class) {
+                && $interface !== FlowEventAware::class) {
+                $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }
         }
@@ -97,11 +79,28 @@ class BusinessEventCollector
         return new BusinessEventDefinition(
             $name,
             $class,
-            $instance instanceof MailActionInterface,
-            $instance instanceof LogAwareBusinessEventInterface,
-            $instance instanceof SalesChannelAware,
-            $instance::getAvailableData()->toArray(),
+            $instance->getAvailableData()->toArray(),
             $aware
         );
+    }
+
+    private function fetchAppEvents(BusinessEventCollectorResponse $result): BusinessEventCollectorResponse
+    {
+        $appEvents = $this->connection->fetchAllAssociative('SELECT `app_flow_event`.`name`, `app_flow_event`.`aware` FROM `app_flow_event` JOIN `app` ON `app_flow_event`.`app_id` = `app`.`id` WHERE `app`.`active` = 1');
+
+        array_map(function ($event) use ($result): void {
+            $definition = new BusinessEventDefinition(
+                $event['name'],
+                CustomAppEvent::class,
+                [],
+                json_decode($event['aware'], true) ?? []
+            );
+
+            if (!$result->get($definition->getName())) {
+                $result->set($definition->getName(), $definition);
+            }
+        }, $appEvents);
+
+        return $result;
     }
 }

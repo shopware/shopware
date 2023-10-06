@@ -3,16 +3,15 @@ Tab Menu
 ==============================================
 Custom skin styling for bootstrap card with included tab navigation.
 
-https://getbootstrap.com/docs/4.3/components/card/#navigation
+https://getbootstrap.com/docs/5.2/components/card/#navigation
 */
 
 .card-tabs {
-    border: 0;
+    --#{$prefix}card-border-width: 0;
 
     .card-header {
-        background: none;
-        padding-left: 10px;
-        padding-right: 10px;
+        --#{$prefix}card-cap-bg: none;
+        --#{$prefix}card-cap-padding-x: 10px;
     }
 
     .nav-item {
@@ -20,35 +19,28 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
     }
 
     .nav-link {
-        border: 0;
+        --#{$prefix}nav-link-padding-x: 0;
+        --#{$prefix}nav-link-padding-y: 5px;
+        --#{$prefix}nav-link-color: #{$body-color};
+        --#{$prefix}nav-tabs-border-width: 0;
+        --#{$prefix}nav-tabs-border-radius: 0;
+        --#{$prefix}nav-tabs-link-hover-border-color: #{$primary};
+        --#{$prefix}nav-link-hover-color: #{$primary};
+        --#{$prefix}nav-tabs-link-active-color: #{$body-color};
+        --#{$prefix}nav-tabs-link-active-border-color: #{$primary};
         border-bottom: 2px solid $border-color;
-        border-radius: 0;
-        color: $body-color;
-        padding-left: 0;
-        padding-right: 0;
-        padding-bottom: 5px;
-
-        &:hover {
-            border-color: $primary;
-            color: $primary;
-        }
-
-        &.active {
-            border-color: $primary;
-            color: $gray-800;
-        }
 
         &.active,
         &:hover {
             background-image: none;
         }
 
-        &:hover {
-            background-color: darken($body-bg, 20%);
-        }
-
         .product-cross-selling-tab-navigation {
             padding: 0;
+        }
+
+        &:hover {
+            background-color: darken($body-bg, 20%);
         }
     }
 

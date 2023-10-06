@@ -1,10 +1,14 @@
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-Component.register('sw-cms-el-config-product-slider', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -51,7 +55,7 @@ Component.register('sw-cms-el-config-product-slider', {
         },
 
         productMultiSelectContext() {
-            const context = Object.assign({}, Shopware.Context.api);
+            const context = { ...Shopware.Context.api };
             context.inheritance = true;
 
             return context;
@@ -149,7 +153,7 @@ Component.register('sw-cms-el-config-product-slider', {
                 criteria.setIds(this.element.config.products.value);
 
                 this.productRepository
-                    .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
+                    .search(criteria, { ...Shopware.Context.api, inheritance: true })
                     .then((result) => {
                         this.productCollection = result;
                     });
@@ -168,7 +172,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
         loadProductStream() {
             this.productStreamRepository
-                .get(this.element.config.products.value, Shopware.Context.api, new Criteria())
+                .get(this.element.config.products.value, Shopware.Context.api, new Criteria(1, 25))
                 .then((result) => {
                     this.productStream = result;
                 });
@@ -209,4 +213,4 @@ Component.register('sw-cms-el-config-product-slider', {
             return this.productCollection.has(itemId);
         },
     },
-});
+};

@@ -1,0 +1,80 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/indexing": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Run indexer",
+                "description": "Runs all registered indexer in the shop asynchronously.",
+                "operationId": "indexing",
+                "responses": {
+                    "200": {
+                        "description": "Returns an empty response indicating that the indexing process started."
+                    }
+                }
+            }
+        },
+        "\/_action\/indexing\/{indexer}": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Iterate an indexer",
+                "description": "Starts a defined indexer with an offset.\n\nfor the next request. `finish: true` in the response indicates that the indexer is finished",
+                "operationId": "iterate",
+                "parameters": [
+                    {
+                        "name": "indexer",
+                        "in": "path",
+                        "description": "Name of the indexer to iterate.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "properties": {
+                                    "offset": {
+                                        "description": "The offset for the iteration.",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns information about the iteration.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "finish": {
+                                            "description": "Indicates if the indexing process finished.",
+                                            "type": "boolean"
+                                        },
+                                        "offset": {
+                                            "description": "Offset to be used for the next iteration.",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

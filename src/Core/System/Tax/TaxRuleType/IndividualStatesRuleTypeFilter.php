@@ -4,11 +4,13 @@ namespace Shopware\Core\System\Tax\TaxRuleType;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
+#[Package('checkout')]
+class IndividualStatesRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
-    public const TECHNICAL_NAME = 'individual_states';
+    final public const TECHNICAL_NAME = 'individual_states';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
@@ -23,6 +25,10 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
 
         if (!\in_array($stateId, $states, true)) {
             return false;
+        }
+
+        if ($taxRuleEntity->getActiveFrom() !== null) {
+            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

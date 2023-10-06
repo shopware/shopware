@@ -1,9 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-custom-field-set-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -33,6 +37,7 @@ Component.register('sw-settings-custom-field-set-detail', {
             setId: '',
             isLoading: true,
             isSaveSuccessful: false,
+            technicalNameError: null,
         };
     },
 
@@ -58,14 +63,14 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('customFieldSetId', this.setId));
 
             return criteria;
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('relations');
 
@@ -180,5 +185,9 @@ Component.register('sw-settings-custom-field-set-detail', {
         onLoadingChanged(loading) {
             this.isLoading = loading;
         },
+
+        onResetErrors() {
+            this.technicalNameError = null;
+        },
     },
-});
+};

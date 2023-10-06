@@ -1,12 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_grid_row %}
 <div
     ref="swGridRow"
     class="sw-grid-row"
+    role="row"
+    tabindex="0"
     @dblclick="onInlineEditStart($event.currentTarget)"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_grid_row_actions %}
     <div class="sw-grid-row__actions">
         <slot name="actions">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_grid_row_slot_actions %}
             <sw-button
                 size="small"
@@ -27,6 +32,9 @@
     </div>
     {% endblock %}
 
-    <slot>{% block sw_grid_row_slot_default %}{% endblock %}</slot>
+    <slot>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_grid_row_slot_default %}{% endblock %}
+    </slot>
 </div>
 {% endblock %}

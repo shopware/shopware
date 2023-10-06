@@ -1,7 +1,23 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-preview-image-gallery', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-config-image-gallery', () => import('./config'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-image-gallery', () => import('./component'));
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',
     label: 'sw-cms.elements.imageGallery.label',
@@ -65,6 +81,7 @@ Shopware.Service('cmsService').registerCmsElement({
             return;
         }
 
+        let entityCount = 0;
         Object.keys(elem.config).forEach((configKey) => {
             const entity = elem.config[configKey].entity;
 
@@ -72,17 +89,20 @@ Shopware.Service('cmsService').registerCmsElement({
                 return;
             }
 
-            const entityKey = entity.name;
-            if (!data[`entity-${entityKey}`]) {
+            const entityKey = `entity-${entity.name}-${entityCount}`;
+
+            if (!data[entityKey]) {
                 return;
             }
+
+            entityCount += 1;
 
             elem.data[configKey] = [];
             elem.config[configKey].value.forEach((sliderItem) => {
                 elem.data[configKey].push({
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId),
+                    media: data[entityKey].get(sliderItem.mediaId),
                 });
             });
         });

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait SalesChannelFunctionalTestBehaviour
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 }

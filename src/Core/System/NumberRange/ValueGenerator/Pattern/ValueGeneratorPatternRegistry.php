@@ -3,40 +3,41 @@ declare(strict_types=1);
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class ValueGeneratorPatternRegistry
 {
     /**
-     * @var ValueGeneratorPatternInterface[]
+     * @var AbstractValueGenerator[]
      */
-    private $pattern = [];
+    private array $pattern = [];
 
     /**
-     * @var ValueGeneratorPatternInterface[]
+     * @internal
+     *
+     * @param AbstractValueGenerator[] $patterns
      */
-    private $mapped;
-
-    public function __construct(iterable $pattern)
+    public function __construct(iterable $patterns)
     {
-        $this->pattern = $pattern;
+        /** @var AbstractValueGenerator $pattern */
+        foreach ($patterns as $pattern) {
+            $this->pattern[$pattern->getPatternId()] = $pattern;
+        }
     }
 
-    public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
+    /**
+     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array<int, string>|null $args
+     */
+    public function generatePattern(string $pattern, string $patternPart, array $config, ?array $args = null, ?bool $preview = false): string
     {
-        $this->mapPatternResolvers();
+        $generator = $this->pattern[$pattern] ?? null;
 
-        return $this->mapped[$patternId] ?? null;
-    }
-
-    private function mapPatternResolvers(): array
-    {
-        if ($this->mapped === null) {
-            $this->mapped = [];
-
-            foreach ($this->pattern as $singlePattern) {
-                $this->mapped[$singlePattern->getPatternId()] = $singlePattern;
-            }
+        if (!$generator) {
+            return $patternPart;
         }
 
-        return $this->mapped;
+        return $generator->generate($config, $args, $preview);
     }
 }

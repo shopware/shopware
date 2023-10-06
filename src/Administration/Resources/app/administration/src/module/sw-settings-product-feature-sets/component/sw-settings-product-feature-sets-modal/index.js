@@ -1,11 +1,14 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
 
-
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-product-feature-sets-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -102,11 +105,11 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         productFeatureSetCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -118,7 +121,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             const featureIds = this.getFeaturesIds('property');
             if (featureIds.length > 0) {
@@ -423,4 +426,4 @@ Component.register('sw-settings-product-feature-sets-modal', {
             return field.config.label[language] || field.config.label[fallback];
         },
     },
-});
+};

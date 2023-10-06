@@ -7,20 +7,21 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
 use Twig\Error\LoaderError;
 
+/**
+ * @internal
+ */
 class ScriptTwigLoaderTest extends TestCase
 {
     private Script $script;
 
     private ScriptTwigLoader $scriptLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->script = new Script(
             'simple-function-case.twig',
             file_get_contents(__DIR__ . '/_fixtures/simple-function-case/Resources/scripts/simple-function-case/simple-function-case.twig'),
-            new \DateTimeImmutable(),
-            null,
-            []
+            new \DateTimeImmutable()
         );
 
         $this->scriptLoader = new ScriptTwigLoader($this->script);

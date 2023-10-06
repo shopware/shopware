@@ -1,14 +1,19 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
 const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
-Component.register('sw-settings-customer-group-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -67,6 +72,25 @@ Component.register('sw-settings-customer-group-detail', {
 
         seoUrlRepository() {
             return this.repositoryFactory.create('seo_url');
+        },
+
+        seoUrlCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            if (this.customerGroup?.registrationSalesChannels.length) {
+                const salesChannelIds = this.customerGroup.registrationSalesChannels?.getIds();
+
+                criteria.addFilter(Criteria.equalsAny('salesChannelId', salesChannelIds));
+            }
+
+            criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
+            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            criteria.addFilter(Criteria.equals('isCanonical', true));
+            criteria.addAssociation('salesChannel.domains');
+            criteria.addGroupField('seoPathInfo');
+            criteria.addGroupField('salesChannelId');
+
+            return criteria;
         },
 
         entityDescription() {
@@ -140,6 +164,9 @@ Component.register('sw-settings-customer-group-detail', {
         'customerGroup.registrationTitle'() {
             this.registrationTitleError = null;
         },
+        'customerGroup.registrationSalesChannels'() {
+            this.loadSeoUrls();
+        },
     },
 
     created() {
@@ -152,7 +179,7 @@ Component.register('sw-settings-customer-group-detail', {
             if (this.customerGroupId) {
                 this.loadSeoUrls();
                 this.loadCustomFieldSets();
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('registrationSalesChannels');
 
                 this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria)
@@ -169,15 +196,11 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         async loadSeoUrls() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
-            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
-            criteria.addFilter(Criteria.equals('isCanonical', true));
-            criteria.addAssociation('salesChannel.domains');
-            criteria.addGroupField('seoPathInfo');
-            criteria.addGroupField('salesChannelId');
-
-            this.seoUrls = await this.seoUrlRepository.search(criteria);
+            if (!this.customerGroup?.registrationSalesChannels.length) {
+                this.seoUrls = [];
+                return;
+            }
+            this.seoUrls = await this.seoUrlRepository.search(this.seoUrlCriteria);
         },
 
         loadCustomFieldSets() {
@@ -247,4 +270,4 @@ Component.register('sw-settings-customer-group-detail', {
             }
         },
     },
-});
+};

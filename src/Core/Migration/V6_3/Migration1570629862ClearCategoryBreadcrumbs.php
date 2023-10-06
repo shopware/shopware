@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1570629862ClearCategoryBreadcrumbs extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +21,7 @@ class Migration1570629862ClearCategoryBreadcrumbs extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('UPDATE `category_translation` SET `breadcrumb` = NULL');
+        $connection->executeStatement('UPDATE `category_translation` SET `breadcrumb` = NULL');
     }
 
     public function updateDestructive(Connection $connection): void

@@ -5,24 +5,27 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class SalutationSerializer extends EntitySerializer
+#[Package('core')]
+class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $salutationRepository;
-
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheSalutations = [];
 
-    public function __construct(EntityRepositoryInterface $salutationRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $salutationRepository)
     {
-        $this->salutationRepository = $salutationRepository;
     }
 
     /**
@@ -56,6 +59,11 @@ class SalutationSerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === SalutationDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheSalutations = [];
     }
 
     private function getSalutationId(string $salutationKey): ?string

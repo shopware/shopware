@@ -4,6 +4,9 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Renders a multi select field with a defined list of options. This component uses the sw-field base
@@ -25,6 +28,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-multi-select', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -138,6 +143,12 @@ Component.register('sw-multi-select', {
                 return this.value;
             },
             set(newValue) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },

@@ -1,5 +1,10 @@
+/**
+ * @package admin
+ */
+
 const { string } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapPropertyErrors(entityName, properties = []) {
     const computedValues = {};
 
@@ -21,6 +26,12 @@ export function mapPropertyErrors(entityName, properties = []) {
     return computedValues;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function mapSystemConfigErrors(entityName, saleChannelId, key = '') {
+    return Shopware.State.getters['error/getSystemConfigApiError'](entityName, saleChannelId, key);
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapCollectionPropertyErrors(entityCollectionName, properties = []) {
     const computedValues = {};
 
@@ -41,6 +52,7 @@ export function mapCollectionPropertyErrors(entityCollectionName, properties = [
     return computedValues;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapPageErrors(errorConfig) {
     const map = {};
     Object.keys(errorConfig).forEach((routeName) => {

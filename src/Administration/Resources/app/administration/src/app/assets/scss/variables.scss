@@ -10,6 +10,7 @@
  * 6. Typography
  * 7. Miscellaneous
  * 8. z-index
+ * 9. Global widths
  * ------------------------------------ */
 
 /* ------------------------------------
@@ -59,6 +60,9 @@ $color-shopware-brand-900: #0870ff;
 // Color description: Very dark desaturated blue
 $color-menu-start: #303a4f;
 $color-menu-end: #2a3345;
+
+// Slate
+$color-neutrals-slate-100: #f1f5f9;
 
 /* ------------------------------------
  * 2. Status colors
@@ -197,7 +201,7 @@ $color-module-green-900: #2cc077;
 
 $color-white: #fff;
 $color-black: #000;
-$color-drag-select-box: rgba(0, 162, 255, 0.4);
+$color-drag-select-box: rgba(0, 162, 255, 40%);
 
 /* ------------------------------------
  * 5. Gradients
@@ -209,25 +213,45 @@ $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
  * 6. Typography
  * ------------------------------------ */
 
-$font-family-default: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-$font-size-default: 16px;
-$font-size-large: 18px;
-$font-size-small: 14px;
-$font-size-extra-small: 12px;
+// font-family
+$font-family-default: "Inter", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
+$font-family-variables: "Inter var", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
+$font-family-default-feature-settings: "cv10" on, "cv05" on, "cv02" on, "cv07" on, "cv09" on, "cv04" on, "cv03" on;
 
-$font-weight-light: 300;
+// font-size
+$font-size-xxs: 12px;
+$font-size-xs: 14px;
+$font-size-s: 16px;
+$font-size-m: 18px;
+$font-size-l: 20px;
+$font-size-xl: 24px;
+$font-size-3xl: 28px;
+
+// weight
 $font-weight-regular: 400;
+$font-weight-medium: 500;
 $font-weight-semi-bold: 600;
 $font-weight-bold: 700;
+
+// line-height
+$line-height-auto: auto;
+$line-height-xs: 18px;
+$line-height-sm: 20px;
+$line-height-md: 24px;
+$line-height-lg: 28px;
 
 /* ------------------------------------
  * 7. Miscellaneous
  * ------------------------------------ */
 
+$border-radius-sm: 6px;
 $border-radius-default: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 8px;
 $border-radius-pill: 100vh;
-$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
-$asset-base-url: '/administration/static/';
+$transparent-background-url: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC");
+$asset-base-url: "/administration/static/";
 
 /* ------------------------------------
  * 8. z-index
@@ -243,9 +267,15 @@ $z-index-select-results: 600;
 $z-index-flyout: 700;
 $z-index-off-canvas: 750;
 $z-index-search-bar-results: 800;
+$z-index-sw-page-search-bar: 650;
 $z-index-modal: 1000;
 $z-index-context-menu: 1100;
 $z-index-tooltip: 1100;
 $z-index-notifications: 1200;
 $z-index-hover-image: 1300;
 $z-index-dragdrop: 1400;
+
+/* ------------------------------------
+ * 8. Global widths
+ * ------------------------------------ */
+$content-width: 960px;

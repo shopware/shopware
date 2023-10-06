@@ -2,25 +2,26 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Exception\MissingPriceDefinitionException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class CurrencyPriceCalculator
 {
-    private QuantityPriceCalculator $priceCalculator;
-
-    private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
-
-    public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
-    {
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly QuantityPriceCalculator $priceCalculator,
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
     }
 
     public function calculate(PriceCollection $price, CalculatedPriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice
@@ -28,7 +29,7 @@ class CurrencyPriceCalculator
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
 
         if (!$currency) {
-            throw new MissingPriceDefinitionException();
+            throw CartException::invalidPriceDefinition();
         }
 
         $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $currency->getGross() : $currency->getNet();

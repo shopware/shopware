@@ -13,9 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class NestedDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_nullable';
+    final public const ENTITY_NAME = '_test_nullable';
 
     public function getEntityName(): string
     {

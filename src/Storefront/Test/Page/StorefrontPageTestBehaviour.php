@@ -13,15 +13,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\PageLoadedEvent;
@@ -33,6 +32,9 @@ trait StorefrontPageTestBehaviour
 {
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @param class-string<object> $expectedClass
+     */
     public static function assertPageEvent(
         string $expectedClass,
         PageLoadedEvent $event,
@@ -47,6 +49,9 @@ trait StorefrontPageTestBehaviour
         TestCase::assertSame($page, $event->getPage());
     }
 
+    /**
+     * @param class-string<object> $expectedClass
+     */
     public static function assertPageletEvent(
         string $expectedClass,
         PageletLoadedEvent $event,
@@ -63,21 +68,9 @@ trait StorefrontPageTestBehaviour
 
     abstract protected function getPageLoader();
 
-    /**
-     * @deprecated tag:v6.5.0 This assertion is useless. All loaders that require a customer take a non-null customer parameter
-     */
-    protected function assertLoginRequirement(array $queryParams = []): void
-    {
-        @trigger_deprecation(
-            'shopware/platform',
-            '6.5.0',
-            'Loader that require a customer no only accept non-null customers. So this assertion is useless. Login requirements should be validated on route level. For example with the `LoginRequired` annotation.'
-        );
-    }
-
     protected function expectParamMissingException(string $paramName): void
     {
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 
@@ -96,7 +89,10 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context, new RequestDataBag());
     }
 
-    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, ?array $config = []): ProductEntity
+    /**
+     * @param array<int|string, mixed> $config
+     */
+    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, array $config = []): ProductEntity
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
@@ -125,11 +121,14 @@ trait StorefrontPageTestBehaviour
         $productRepository->create([$data], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $data['tax']);
 
-        /** @var SalesChannelRepositoryInterface $storefrontProductRepository */
+        /** @var SalesChannelRepository $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 
-        return $searchResult->first();
+        /** @var ProductEntity $product */
+        $product = $searchResult->first();
+
+        return $product;
     }
 
     protected function createSalesChannelContextWithNavigation(): SalesChannelContext
@@ -203,6 +202,9 @@ trait StorefrontPageTestBehaviour
         ]);
     }
 
+    /**
+     * @param array<string, mixed>|null $salesChannelData
+     */
     protected function createSalesChannelContext(?array $salesChannelData = null): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
@@ -242,14 +244,14 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function catchEvent(string $eventName, &$eventResult): void
+    protected function catchEvent(string $eventName, ?object &$eventResult): void
     {
         $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     private function createCustomer(): CustomerEntity
     {
@@ -286,9 +288,17 @@ trait StorefrontPageTestBehaviour
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $result = $repo->search(new Criteria([$customerId]), Context::createDefaultContext());
+        /** @var CustomerEntity $customer */
+        $customer = $result->first();
+
+        return $customer;
     }
 
+    /**
+     * @param array<string, mixed> $salesChannel
+     * @param array<string, mixed> $options
+     */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -303,8 +313,6 @@ trait StorefrontPageTestBehaviour
         $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
 
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
-        $rulesProperty->setValue($ruleLoader, null);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;

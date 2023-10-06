@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Promotion;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
@@ -14,16 +15,18 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+#[Package('buyers-experience')]
 class PromotionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
-    public const CODE_TYPE_NO_CODE = 'no_code';
+    final public const CODE_TYPE_NO_CODE = 'no_code';
 
     /**
      * @var string|null
@@ -137,6 +140,8 @@ class PromotionEntity extends Entity
      */
     protected $cartRules;
 
+    protected ?OrderLineItemCollection $orderLineItems = null;
+
     /**
      * @var PromotionTranslationCollection|null
      */
@@ -148,12 +153,12 @@ class PromotionEntity extends Entity
     protected $orderCount;
 
     /**
-     * @var array|null
+     * @var array<string, int>|null
      */
     protected $ordersPerCustomerCount;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $exclusionIds;
 
@@ -416,6 +421,16 @@ class PromotionEntity extends Entity
         $this->orderRules = $orderRules;
     }
 
+    public function getOrderLineItems(): ?OrderLineItemCollection
+    {
+        return $this->orderLineItems;
+    }
+
+    public function setOrderLineItems(OrderLineItemCollection $orderLineItems): void
+    {
+        $this->orderLineItems = $orderLineItems;
+    }
+
     public function getOrderCount(): int
     {
         return $this->orderCount;
@@ -426,11 +441,17 @@ class PromotionEntity extends Entity
         $this->orderCount = $orderCount;
     }
 
+    /**
+     * @return array<string, int>|null
+     */
     public function getOrdersPerCustomerCount(): ?array
     {
         return $this->ordersPerCustomerCount;
     }
 
+    /**
+     * @param array<string, int> $ordersPerCustomerCount
+     */
     public function setOrdersPerCustomerCount(array $ordersPerCustomerCount): void
     {
         $this->ordersPerCustomerCount = $ordersPerCustomerCount;
@@ -501,6 +522,9 @@ class PromotionEntity extends Entity
         $this->translations = $translations;
     }
 
+    /**
+     * @return string[]
+     */
     public function getExclusionIds(): array
     {
         if ($this->exclusionIds === null) {
@@ -510,6 +534,9 @@ class PromotionEntity extends Entity
         return $this->exclusionIds;
     }
 
+    /**
+     * @param array<string> $exclusionIds
+     */
     public function setExclusionIds(array $exclusionIds): void
     {
         $this->exclusionIds = $exclusionIds;
@@ -558,7 +585,10 @@ class PromotionEntity extends Entity
                 $personaRuleOR = new OrRule();
 
                 foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
-                    $personaRuleOR->addRule($ruleEntity->getPayload());
+                    $payload = $ruleEntity->getPayload();
+                    if ($payload instanceof Rule) {
+                        $personaRuleOR->addRule($payload);
+                    }
                 }
 
                 $requirements->addRule($personaRuleOR);
@@ -569,7 +599,10 @@ class PromotionEntity extends Entity
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
-                $cartOR->addRule($ruleEntity->getPayload());
+                $payload = $ruleEntity->getPayload();
+                if ($payload instanceof Rule) {
+                    $cartOR->addRule($payload);
+                }
             }
 
             $requirements->addRule($cartOR);
@@ -604,7 +637,10 @@ class PromotionEntity extends Entity
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
-                $orderOR->addRule($ruleEntity->getPayload());
+                $payload = $ruleEntity->getPayload();
+                if ($payload instanceof Rule) {
+                    $orderOR->addRule($payload);
+                }
             }
 
             $requirements->addRule($orderOR);

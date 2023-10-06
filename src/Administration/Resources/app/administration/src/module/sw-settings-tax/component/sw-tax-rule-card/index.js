@@ -1,10 +1,15 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
-const { Component, Context } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-tax-rule-card', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -95,7 +100,19 @@ Component.register('sw-tax-rule-card', {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
                 label: 'sw-settings-tax.taxRuleCard.labelTaxRate',
+            }, {
+                property: 'activeFrom',
+                dataIndex: 'activeFrom',
+                label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
             }];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -173,4 +190,4 @@ Component.register('sw-tax-rule-card', {
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
         },
     },
-});
+};

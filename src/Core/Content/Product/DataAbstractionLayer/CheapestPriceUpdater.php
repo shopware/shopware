@@ -2,31 +2,30 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class CheapestPriceUpdater
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    /**
-     * @var AbstractCheapestPriceQuantitySelector
-     */
-    private $quantitySelector;
-
-    public function __construct(Connection $connection, AbstractCheapestPriceQuantitySelector $quantitySelector)
-    {
-        $this->connection = $connection;
-        $this->quantitySelector = $quantitySelector;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector
+    ) {
     }
 
+    /**
+     * @param array<string> $parentIds
+     */
     public function update(array $parentIds, Context $context): void
     {
         $parentIds = array_unique(array_filter($parentIds));
@@ -38,14 +37,6 @@ class CheapestPriceUpdater
         $all = $this->fetchPrices($parentIds, $context);
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
-
-        RetryableQuery::retryable($this->connection, function () use ($parentIds, $versionId): void {
-            $this->connection->executeUpdate(
-                'UPDATE product SET cheapest_price = NULL, cheapest_price_accessor = NULL WHERE (id IN (:ids) OR parent_id IN (:ids)) AND version_id = :version',
-                ['ids' => Uuid::fromHexToBytesList($parentIds), 'version' => $versionId],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
-        });
 
         $cheapestPrice = new RetryableQuery(
             $this->connection,
@@ -66,9 +57,26 @@ class CheapestPriceUpdater
                 'version' => $versionId,
             ]);
 
+            $variantIds = $container->getVariantIds();
+
+            if (!$variantIds) {
+                continue;
+            }
+
+            $existingAccessors = $this->connection->fetchAllKeyValue(
+                'SELECT id, cheapest_price_accessor FROM product WHERE parent_id = :id AND version_id = :version',
+                ['id' => Uuid::fromHexToBytes($productId), 'version' => $versionId]
+            );
+
             foreach ($container->getVariantIds() as $variantId) {
+                $accessor = Json::encode($this->buildAccessor($container, $variantId));
+
+                if (($existingAccessors[Uuid::fromHexToBytes($variantId)] ?? null) === $accessor) {
+                    continue;
+                }
+
                 $accessorQuery->execute([
-                    'accessor' => JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId)),
+                    'accessor' => $accessor,
                     'id' => Uuid::fromHexToBytes($variantId),
                     'version' => $versionId,
                 ]);
@@ -76,6 +84,9 @@ class CheapestPriceUpdater
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildAccessor(CheapestPriceContainer $container, string $variantId): array
     {
         $rules = $container->getRuleIds();
@@ -100,6 +111,12 @@ class CheapestPriceUpdater
         return $formattedPrices;
     }
 
+    /**
+     * @param array<string, mixed> $prices
+     * @param array<string, mixed>|null $default
+     *
+     * @return array<string, mixed>|null
+     */
     private function getCheapest(?string $ruleId, array $prices, ?array $default): ?array
     {
         if (isset($prices[$ruleId])) {
@@ -113,6 +130,11 @@ class CheapestPriceUpdater
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $price
+     *
+     * @return array<string, mixed>
+     */
     private function mapPrice(array $price): array
     {
         $array = ['gross' => $price['gross'], 'net' => $price['net']];
@@ -134,6 +156,11 @@ class CheapestPriceUpdater
         return $array;
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<mixed>
+     */
     private function fetchPrices(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -161,15 +188,15 @@ class CheapestPriceUpdater
 
         $ids = Uuid::fromHexToBytesList($ids);
 
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $data = $query->execute()->fetchAllAssociative();
+        $data = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
-        /** @var array $row */
+        /** @var array<string, mixed> $row */
         foreach ($data as $row) {
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
         }
 
@@ -193,12 +220,12 @@ class CheapestPriceUpdater
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
 
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $defaults = $query->execute()->fetchAllAssociative();
+        $defaults = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array $row */
+        /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
                 $grouped[$row['parent_id']][$row['variant_id']]['default'] = null;
@@ -206,7 +233,7 @@ class CheapestPriceUpdater
                 continue;
             }
 
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
                 $grouped[$row['parent_id']]['default'] = $row;
@@ -220,6 +247,11 @@ class CheapestPriceUpdater
         return $grouped;
     }
 
+    /**
+     * @param array<string, mixed> $prices
+     *
+     * @return array<string, mixed>
+     */
     private function normalizePrices(array $prices): array
     {
         foreach ($prices as &$price) {

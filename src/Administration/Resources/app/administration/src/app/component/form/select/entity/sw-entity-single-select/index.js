@@ -5,10 +5,16 @@ const { Component, Mixin, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-entity-single-select', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -72,9 +78,7 @@ Component.register('sw-entity-single-select', {
         context: {
             type: Object,
             required: false,
-            default() {
-                return Shopware.Context.api;
-            },
+            default: () => Shopware.Context.api,
         },
         selectionDisablingMethod: {
             type: Function,
@@ -97,9 +101,9 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right'],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return ['bottom', 'right'].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -111,8 +115,30 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-single-select.labelEntity');
+                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
             },
+        },
+        advancedSelectionComponent: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        advancedSelectionParameters: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        shouldShowActiveState: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -128,6 +154,7 @@ Component.register('sw-entity-single-select', {
             lastSelection: null,
             entityExists: true,
             newEntityName: '',
+            isAdvancedSelectionModalVisible: false,
         };
     },
 
@@ -152,6 +179,18 @@ Component.register('sw-entity-single-select', {
          */
         results() {
             return this.resultCollection;
+        },
+
+        isAdvancedSelectionActive() {
+            return this.advancedSelectionComponent && Component.getComponentRegistry().has(this.advancedSelectionComponent);
+        },
+
+        advancedSelectionInitialSearchTerm() {
+            if (this.singleSelection && this.tryGetSearchText(this.singleSelection) === this.searchTerm) {
+                return '';
+            }
+
+            return this.searchTerm;
         },
     },
 
@@ -198,8 +237,15 @@ Component.register('sw-entity-single-select', {
             }
 
             this.isLoading = true;
-
             return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
+                if (!item) {
+                    if (this.feature.isActive('VUE3')) {
+                        this.$emit('update:value', null);
+                    } else {
+                        this.$emit('change', null);
+                    }
+                }
+
                 this.criteria.setIds([]);
 
                 this.singleSelection = item;
@@ -235,7 +281,7 @@ Component.register('sw-entity-single-select', {
             this.isLoading = true;
             return this.checkEntityExists(this.searchTerm).then(() => {
                 if (!this.entityExists && this.searchTerm) {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, this.resultLimit);
                     criteria.addFilter(
                         Criteria.contains('name', this.searchTerm),
                     );
@@ -247,12 +293,14 @@ Component.register('sw-entity-single-select', {
                         this.resultCollection = result;
 
                         const newEntity = this.repository.create(this.context, -1);
-                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                        newEntity.name = this.$tc(
+                            'global.sw-single-select.labelEntityAdd',
                             0,
                             {
                                 term: this.searchTerm,
                                 entity: this.entityCreationLabel,
-                            });
+                            },
+                        );
 
                         this.resultCollection.unshift(newEntity);
 
@@ -310,7 +358,7 @@ Component.register('sw-entity-single-select', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
                 [this.entity]: ['id', 'name'],
             });
@@ -427,7 +475,11 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            this.$emit('change', item.id, item);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', item.id, item);
+            } else {
+                this.$emit('change', item.id, item);
+            }
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);
             return null;
@@ -448,7 +500,11 @@ Component.register('sw-entity-single-select', {
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            this.$emit('change', null);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', null);
+            } else {
+                this.$emit('change', null);
+            }
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), null);
         },
@@ -503,7 +559,11 @@ Component.register('sw-entity-single-select', {
 
             this.repository.save(entity, this.context).then(() => {
                 this.lastSelection = entity;
-                this.$emit('change', entity.id, entity);
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', entity.id, entity);
+                } else {
+                    this.$emit('change', entity.id, entity);
+                }
 
                 this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                 this.createNotificationSuccess({
@@ -529,6 +589,28 @@ Component.register('sw-entity-single-select', {
             this.resultCollection = this.resultCollection.filter(entity => {
                 return entity.id !== -1;
             });
+        },
+
+        openAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = true;
+        },
+
+        closeAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = false;
+        },
+
+        onAdvancedSelectionSubmit(selectedItems) {
+            if (selectedItems.length > 0) {
+                this.setValue(selectedItems[0]);
+            }
+        },
+
+        getActiveIconColor(item) {
+            if (item?.active) {
+                return item.active === true ? '#37d046' : '#d1d9e0';
+            }
+
+            return '#d1d9e0';
         },
     },
 });

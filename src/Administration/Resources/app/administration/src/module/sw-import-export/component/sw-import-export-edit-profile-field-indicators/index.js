@@ -1,10 +1,12 @@
+/**
+ * @package services-settings
+ */
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-import-export-edit-profile-field-indicators.html.twig';
 import './sw-import-export-edit-profile-field-indicators.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-import-export-edit-profile-field-indicators', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -15,11 +17,13 @@ Component.register('sw-import-export-edit-profile-field-indicators', {
     },
 
     computed: {
-        ...mapPropertyErrors('profile',
+        ...mapPropertyErrors(
+            'profile',
             [
                 'delimiter',
                 'enclosure',
-            ]),
+            ],
+        ),
 
         supportedDelimiter() {
             return [
@@ -47,4 +51,4 @@ Component.register('sw-import-export-edit-profile-field-indicators', {
             ];
         },
     },
-});
+};

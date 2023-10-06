@@ -1,9 +1,12 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-settings-rule-selection.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-promotion-v2-settings-rule-selection', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -19,8 +22,8 @@ Component.register('sw-promotion-v2-settings-rule-selection', {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC', false));
         },
     },
-});
+};

@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
 $sw-sidebar-color-background: $color-white;
-$sw-sidebar-color-border:     $color-gray-300;
-$sw-sidebar-item-width:       400px;
+$sw-sidebar-color-border: $color-gray-300;
+$sw-sidebar-item-width: 400px;
 $sw-sidebar-navigation-width: 64px;
-$sw-sidebar-transition:       cubic-bezier(0.5, 0.32, 0.01, 1) 0.3s;
+$sw-sidebar-transition: cubic-bezier(0.5, 0.32, 0.01, 1) 0.3s;
 
 .sw-sidebar {
     height: 100%;

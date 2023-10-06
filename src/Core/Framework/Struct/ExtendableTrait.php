@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait ExtendableTrait
 {
     /**
@@ -15,12 +18,14 @@ trait ExtendableTrait
      * Adds a new extension struct into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
      */
-    public function addExtension(string $name, ?Struct $extension): void
+    public function addExtension(string $name, Struct $extension): void
     {
         $this->extensions[$name] = $extension;
     }
 
     /**
+     * @param array<string|int, mixed> $extension
+     *
      * Adds a new array struct as extension into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
      */
@@ -48,10 +53,20 @@ trait ExtendableTrait
         return $this->extensions[$name] ?? null;
     }
 
+    /**
+     * @template T of Struct
+     *
+     * @param class-string<T> $type
+     *
+     * @return T|null
+     */
     public function getExtensionOfType(string $name, string $type): ?Struct
     {
         if ($this->hasExtensionOfType($name, $type)) {
-            return $this->getExtension($name);
+            /** @var T $extension */
+            $extension = $this->getExtension($name);
+
+            return $extension;
         }
 
         return null;
@@ -68,20 +83,29 @@ trait ExtendableTrait
 
     public function hasExtensionOfType(string $name, string $type): bool
     {
-        return $this->hasExtension($name) && \get_class($this->getExtension($name)) === $type;
+        $extension = $this->getExtension($name);
+
+        if ($extension === null) {
+            return false;
+        }
+
+        return $extension::class === $type;
     }
 
     /**
      * Returns all stored extension structures of this class.
      * The array has to be an associated array with name and extension instance.
      *
-     * @return Struct[]
+     * @return array<string, Struct>
      */
     public function getExtensions(): array
     {
         return $this->extensions;
     }
 
+    /**
+     * @param array<string, Struct> $extensions
+     */
     public function setExtensions(array $extensions): void
     {
         $this->extensions = $extensions;

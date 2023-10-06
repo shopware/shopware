@@ -1,0 +1,19 @@
+<admin-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../../src/Core/System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd">
+    <entity name="ce_invalid_ref_in_columns" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="test_string"/>
+                <column ref="i_am_an_invalid_reference"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="firstTab">
+                    <card name="testWithString">
+                        <field ref="test_string"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+</admin-ui>

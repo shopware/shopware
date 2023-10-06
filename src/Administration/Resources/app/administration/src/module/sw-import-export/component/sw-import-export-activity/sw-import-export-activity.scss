@@ -10,7 +10,7 @@
     }
 
     &__progress-indicator {
-        @include animated-truncate();
+        @include animated-truncate;
 
         &::after {
             right: 0;

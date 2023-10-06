@@ -1,4 +1,3 @@
 ## Reporting a vulnerability
 
-Visit our [issue tracker](https://issues.shopware.com/createissue) to report security vulnerabilities. 
-Please make sure to use the issue type "Security Issue".
+Visit our [security reporting](https://www.shopware.com/en/contact/security-reporting) form to report security vulnerabilities and to take part in our bug bounty program.

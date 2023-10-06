@@ -1,9 +1,12 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-settings-trigger.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-promotion-v2-settings-trigger', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -26,7 +29,7 @@ Component.register('sw-promotion-v2-settings-trigger', {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC', false));
         },
     },
@@ -51,4 +54,4 @@ Component.register('sw-promotion-v2-settings-trigger', {
             }];
         },
     },
-});
+};

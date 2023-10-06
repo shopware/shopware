@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_config_form %}
 <sw-tabs
     position-identifier="sw-cms-element-config-form"
@@ -5,7 +6,8 @@
     default-item="content"
 >
 
-    <template slot-scope="{ active }">
+    <template #default="{ active }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_form_tab_content %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -16,6 +18,7 @@
         </sw-tabs-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_tab_options %}
         <sw-tabs-item
             v-if="element.config.type.value === 'contact'"
@@ -29,20 +32,26 @@
     </template>
 
     <template
-        slot="content"
-        slot-scope="{ active }"
+        #content="{ active }"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_content %}
         <sw-container
             v-if="active === 'content'"
             class="sw-cms-el-config-form__tab-content"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_type %}
             <sw-select-field
+                {% if VUE3 %}
+                v-model:value="element.config.type.value"
+                {% else %}
                 v-model="element.config.type.value"
+                {% endif %}
                 :label="$tc('sw-cms.elements.form.config.label.type')"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_el_form_config_content_form_type_options %}
                 <option
                     value=""
@@ -60,35 +69,54 @@
             </sw-select-field>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_title %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="element.config.title.value"
+                {% else %}
                 v-model="element.config.title.value"
+                {% endif %}
                 :label="$tc('sw-cms.elements.form.config.label.title')"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_confirmation_text %}
             <sw-textarea-field
                 v-if="element.config.type.value === 'contact'"
+                {% if VUE3 %}
+                v-model:value="element.config.confirmationText.value"
+                {% else %}
                 v-model="element.config.confirmationText.value"
+                {% endif %}
                 :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
             />
             {% endblock %}
         </sw-container>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_options %}
         <sw-container
             v-else-if="active === 'options' && element.config.type.value === 'contact'"
             class="sw-cms-el-config-form__tab-options"
         >
             <sw-tagged-field
+                {% if VUE3 %}
+                v-model:value="element.config.mailReceiver.value"
+                {% else %}
                 v-model="element.config.mailReceiver.value"
+                {% endif %}
                 :class="getLastMailClass"
                 :label="$tc('sw-cms.elements.form.config.label.receiverEmail')"
                 name="mailReceiver"
                 placeholder="john@doe.com"
+                {% if VUE3 %}
+                @update:value="updateMailReceiver"
+                {% else %}
                 @change="updateMailReceiver"
+                {% endif %}
             />
         </sw-container>
         {% endblock %}

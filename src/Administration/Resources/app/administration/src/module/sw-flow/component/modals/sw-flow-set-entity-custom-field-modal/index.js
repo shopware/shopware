@@ -5,9 +5,12 @@ const { Component, Mixin, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { capitalizeString } = Shopware.Utils.string;
 
-Component.register('sw-flow-set-entity-custom-field-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -57,7 +60,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('customFieldSetId', this.customFieldSetId),
             );
@@ -70,7 +73,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                 return null;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('relations.entityName', this.convertToEntityTechnicalName(this.entity)),
             );
@@ -85,16 +88,16 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         defaultFieldOptions() {
             return [
                 {
-                    id: 'upsert',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
+                    value: 'upsert',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
                 },
                 {
-                    id: 'create',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
+                    value: 'create',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
                 },
                 {
-                    id: 'clear',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
+                    value: 'clear',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
                 },
             ];
         },
@@ -103,14 +106,18 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             return [
                 ...this.defaultFieldOptions,
                 {
-                    id: 'add',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.add')}`,
+                    value: 'add',
+                    label: `${this.$tc('global.default.add')}`,
                 },
                 {
-                    id: 'remove',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.remove')}`,
+                    value: 'remove',
+                    label: `${this.$tc('global.default.remove')}`,
                 },
             ];
+        },
+
+        labelProperty() {
+            return `config.label.${Shopware.State.get('session').currentLocale}`;
         },
 
         ...mapState('swFlowState', ['triggerEvent', 'customFieldSets', 'customFields', 'triggerActions']),
@@ -243,8 +250,8 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                     customFieldValue: this.customFieldValue,
                     option: this.fieldOptionSelected,
                     optionLabel: this.fieldOptions.find((option) => {
-                        return option.id === this.fieldOptionSelected;
-                    })?.name,
+                        return option.value === this.fieldOptionSelected;
+                    })?.label,
                 },
             };
 
@@ -288,18 +295,8 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             this.entityOptions = options;
         },
 
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
-         */
-        convertEntityName(camelCaseText) {
-            if (!camelCaseText) return '';
-
-            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
-            return capitalizeString(normalText);
-        },
-
         convertToEntityTechnicalName(camelCaseText) {
             return camelCaseText.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         },
     },
-});
+};

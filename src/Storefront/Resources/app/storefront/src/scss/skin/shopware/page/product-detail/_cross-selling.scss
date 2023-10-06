@@ -1,6 +1,6 @@
 .product-detail-cross-selling {
 
-    @include media-breakpoint-down(xs) {
+    @include media-breakpoint-down(sm) {
         .product-detail-tabs-content {
             display: block;
         }

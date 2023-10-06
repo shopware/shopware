@@ -4,9 +4,16 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1624884801MakeMailLinksConfigurable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,21 +29,21 @@ class Migration1624884801MakeMailLinksConfigurable extends MigrationStep
                     configuration_key = :configKey,
                     created_at = :createdAt;';
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.newsletter.subscribeUrl',
             'configValue' => '{"_value": "/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.loginRegistration.pwdRecoverUrl',
             'configValue' => '{"_value": "/account/recover/password?hash=%%RECOVERHASH%%"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.loginRegistration.confirmationUrl',
             'configValue' => '{"_value": "/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%"}',

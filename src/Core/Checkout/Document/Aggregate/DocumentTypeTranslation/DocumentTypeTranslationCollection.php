@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                               add(DocumentTypeTranslationEntity $entity)
- * @method void                               set(string $key, DocumentTypeTranslationEntity $entity)
- * @method DocumentTypeTranslationEntity[]    getIterator()
- * @method DocumentTypeTranslationEntity[]    getElements()
- * @method DocumentTypeTranslationEntity|null get(string $key)
- * @method DocumentTypeTranslationEntity|null first()
- * @method DocumentTypeTranslationEntity|null last()
+ * @extends EntityCollection<DocumentTypeTranslationEntity>
  */
+#[Package('checkout')]
 class DocumentTypeTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

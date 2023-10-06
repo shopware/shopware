@@ -1,13 +1,27 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-mailer-smtp.html.twig';
 import './sw-settings-mailer-smtp.scss';
 
-Shopware.Component.register('sw-settings-mailer-smtp', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
         mailerSettings: {
             type: Object,
             required: true,
+        },
+        hostError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+        portError: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -20,4 +34,4 @@ Shopware.Component.register('sw-settings-mailer-smtp', {
             ];
         },
     },
-});
+};

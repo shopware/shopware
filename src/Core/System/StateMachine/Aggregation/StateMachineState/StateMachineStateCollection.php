@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                         add(StateMachineStateEntity $entity)
- * @method void                         set(string $key, StateMachineStateEntity $entity)
- * @method StateMachineStateEntity[]    getIterator()
- * @method StateMachineStateEntity[]    getElements()
- * @method StateMachineStateEntity|null get(string $key)
- * @method StateMachineStateEntity|null first()
- * @method StateMachineStateEntity|null last()
+ * @extends EntityCollection<StateMachineStateEntity>
  */
+#[Package('checkout')]
 class StateMachineStateCollection extends EntityCollection
 {
     public function getApiAlias(): string

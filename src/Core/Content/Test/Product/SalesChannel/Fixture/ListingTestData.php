@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Fixture;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ListingTestData
 {
     /**

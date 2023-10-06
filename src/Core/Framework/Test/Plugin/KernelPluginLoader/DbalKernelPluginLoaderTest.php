@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DbalKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

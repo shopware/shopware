@@ -5,14 +5,18 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
+#[Package('core')]
 class AppPrinter
 {
     private const PRIVILEGE_TO_HUMAN_READABLE = [
@@ -22,14 +26,8 @@ class AppPrinter
         AclRoleDefinition::PRIVILEGE_DELETE => 'delete',
     ];
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
-
-    public function __construct(EntityRepositoryInterface $appRepository)
+    public function __construct(private readonly EntityRepository $appRepository)
     {
-        $this->appRepository = $appRepository;
     }
 
     public function printInstalledApps(ShopwareStyle $io, Context $context): void
@@ -60,7 +58,7 @@ class AppPrinter
     }
 
     /**
-     * @psalm-param list<array{manifest: Manifest, exception: \Exception}> $fails
+     * @param list<array{manifest: Manifest, exception: \Exception}> $fails
      */
     public function printIncompleteInstallations(ShopwareStyle $io, array $fails): void
     {
@@ -84,38 +82,79 @@ class AppPrinter
         );
     }
 
-    public function printPermissions(Manifest $app, ShopwareStyle $io, bool $install): void
+    public function printPermissions(Manifest $manifest, ShopwareStyle $io, bool $install): void
+    {
+        $permissions = $manifest->getPermissions();
+
+        if (!$permissions) {
+            return;
+        }
+
+        $io->caution(
+            sprintf(
+                'App "%s" should be %s but requires the following permissions:',
+                $manifest->getMetadata()->getName(),
+                $install ? 'installed' : 'updated'
+            )
+        );
+
+        $this->printPermissionTable($io, $permissions);
+    }
+
+    /**
+     * @throws UserAbortedCommandException
+     */
+    public function checkHosts(Manifest $manifest, ShopwareStyle $io): void
+    {
+        $hosts = $manifest->getAllHosts();
+        if (empty($hosts)) {
+            return;
+        }
+
+        $this->printHosts($manifest, $hosts, $io, true);
+
+        if (!$io->confirm(
+            'Do you consent with data being shared or transferred to the domains listed above?',
+            false
+        )) {
+            throw new UserAbortedCommandException();
+        }
+    }
+
+    private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
     {
         $io->caution(
             sprintf(
-                'App "%s" should be %s but requires following permissions:',
+                'App "%s" should be %s but requires communication with the following hosts:',
                 $app->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'
             )
         );
 
-        $this->printPermissionTable($io, $this->reducePermissions($app));
-    }
-
-    private function reducePermissions(Manifest $app): array
-    {
-        $permissions = [];
-        foreach ($app->getPermissions()->getPermissions() as $resource => $privileges) {
-            foreach ($privileges as $privilege) {
-                $permissions[$resource][] = self::PRIVILEGE_TO_HUMAN_READABLE[$privilege];
-            }
+        $data = [];
+        foreach ($hosts as $host) {
+            $data[] = [$host];
         }
 
-        return $permissions;
+        $io->table(
+            ['Domain'],
+            $data
+        );
     }
 
-    private function printPermissionTable(ShopwareStyle $io, array $permissions): void
+    private function printPermissionTable(ShopwareStyle $io, Permissions $permissions): void
     {
         $permissionTable = [];
-        foreach ($permissions as $resource => $privileges) {
+        foreach ($this->reducePermissions($permissions) as $resource => $privileges) {
             $permissionTable[] = [
                 $resource,
                 implode(', ', array_unique($privileges)),
+            ];
+        }
+        foreach ($permissions->getAdditionalPrivileges() as $additionalPrivilege) {
+            $permissionTable[] = [
+                '',
+                $additionalPrivilege,
             ];
         }
 
@@ -123,5 +162,17 @@ class AppPrinter
             ['Resource', 'Privileges'],
             $permissionTable
         );
+    }
+
+    private function reducePermissions(Permissions $permissions): array
+    {
+        $reduced = [];
+        foreach ($permissions->getPermissions() as $resource => $privileges) {
+            foreach ($privileges as $privilege) {
+                $reduced[$resource][] = self::PRIVILEGE_TO_HUMAN_READABLE[$privilege];
+            }
+        }
+
+        return $reduced;
     }
 }

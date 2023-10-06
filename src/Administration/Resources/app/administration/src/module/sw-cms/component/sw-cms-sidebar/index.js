@@ -8,13 +8,20 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
-Component.register('sw-cms-sidebar', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
+        'acl',
         'cmsService',
         'repositoryFactory',
         'feature',
+        'cmsBlockFavorites',
+        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -58,6 +65,10 @@ Component.register('sw-cms-sidebar', {
     },
 
     computed: {
+        pageTypes() {
+            return this.cmsPageTypeService.getTypes();
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -67,7 +78,13 @@ Component.register('sw-cms-sidebar', {
         },
 
         cmsBlocks() {
-            return this.cmsService.getCmsBlockRegistry();
+            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
+                return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+            });
+
+            return Object.fromEntries(blocks);
         },
 
         mediaRepository() {
@@ -103,13 +120,13 @@ Component.register('sw-cms-sidebar', {
 
         demoCriteria() {
             if (this.demoEntity === 'product') {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('options.group');
 
                 return criteria;
             }
 
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         demoContext() {
@@ -121,7 +138,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockTypes() {
-            return Object.keys(this.cmsBlocks);
+            return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
 
         pageConfigErrors() {
@@ -132,12 +149,48 @@ Component.register('sw-cms-sidebar', {
             return this.pageConfigErrors.length > 0;
         },
 
+        showDefaultLayoutSelection() {
+            if (!this.acl.can('system_config.editor')) {
+                return false;
+            }
+
+            if (this.page.type === 'product_list') {
+                return true;
+            }
+
+            if (this.page.type === 'product_detail' && this.feature.isActive('v6.6.0.0')) {
+                return true;
+            }
+
+            return false;
+        },
+
+        cmsBlocksBySelectedBlockCategory() {
+            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
+
+            if (this.currentBlockCategory === 'favorite') {
+                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
+            }
+
+            return result.filter(b => b.category === this.currentBlockCategory);
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        onPageTypeChange() {
-            this.$emit('page-type-change');
+        createdComponent() {
+            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+                this.currentBlockCategory = 'favorite';
+            }
+        },
+
+        onPageTypeChange(pageType) {
+            this.$emit('page-type-change', pageType);
         },
 
         onDemoEntityChange(demoEntityId) {
@@ -149,6 +202,18 @@ Component.register('sw-cms-sidebar', {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
+        isDisabledPageType(pageType) {
+            if (this.page.type === 'product_detail') {
+                return true;
+            }
+
+            if (this.page.type.includes('custom_entity_')) {
+                return !pageType.name.includes('custom_entity_');
+            }
+
+            return pageType.name === 'product_detail' || pageType.name.includes('custom_entity_');
+        },
+
         openSectionSettings(sectionIndex) {
             this.$refs.pageConfigSidebar.openContent();
             this.$nextTick(() => {
@@ -157,7 +222,8 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockIsRemovable(block) {
-            return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
+            return (cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block) {
@@ -186,6 +252,8 @@ Component.register('sw-cms-sidebar', {
             const dragSectionIndex = dragData.sectionIndex;
             const dropSectionIndex = dropData.sectionIndex;
 
+            const dropSection = this.page.sections[dropSectionIndex];
+
             if (dragSectionIndex < 0 || dragSectionIndex >= this.page.sections.length ||
                 dropSectionIndex < 0 || dropSectionIndex >= this.page.sections.length) {
                 return;
@@ -202,7 +270,7 @@ Component.register('sw-cms-sidebar', {
             }
 
             // check if the section where the block is moved already has the block
-            const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            const dropSectionHasBlock = dropSection.blocks.has(dragData.block.id);
             if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
 
@@ -224,10 +292,16 @@ Component.register('sw-cms-sidebar', {
                     this.currentDragSectionIndex -= 1;
                 }
 
-                dragData.block.sectionId = this.page.sections[dropSectionIndex].id;
+                dragData.block.sectionId = dropSection.id;
 
-                await this.blockMoveSave(dragData.block, dropSectionIndex, removeIndex);
+                dropSection.blocks.add(dragData.block);
 
+                const oldSection = this.page.sections[removeIndex];
+                oldSection.blocks.remove(dragData.block.id);
+                oldSection._origin.blocks.remove(dragData.block.id);
+
+                this.refreshPosition(oldSection.blocks);
+                this.refreshPosition(dropSection.blocks);
                 return;
             }
 
@@ -237,29 +311,13 @@ Component.register('sw-cms-sidebar', {
 
             // move item inside the section
             this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
-
-            this.$emit('block-navigator-sort');
+            this.refreshPosition(dropSection.blocks);
         },
 
-        async blockMoveSave(block, dropSectionIndex, removeIndex) {
-            block.slots.forEach((slot) => {
-                Object.values(slot.config).forEach((configField) => {
-                    if (configField.entity) {
-                        delete configField.entity;
-                    }
-                    if (configField.hasOwnProperty('required')) {
-                        delete configField.required;
-                    }
-                });
+        refreshPosition(elements) {
+            return elements.forEach((element, index) => {
+                element.position = index;
             });
-
-            await this.blockRepository.save(block, Shopware.Context.api);
-
-            // Add and remove the blocks from the sidebar for display reasons
-            this.page.sections[dropSectionIndex].blocks.add(block);
-            this.page.sections[removeIndex].blocks.remove(block.id);
-
-            this.$emit('block-navigator-sort', true);
         },
 
         onSidebarNavigatorClick() {
@@ -289,42 +347,6 @@ Component.register('sw-cms-sidebar', {
             this.showSidebarNavigatorModal = false;
             this.$nextTick(() => {
                 this.$refs.pageConfigSidebar.openContent();
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
-         */
-        cloneBlock(block, sectionId) {
-            const newBlock = this.blockRepository.create();
-
-            const blockClone = cloneDeep(block);
-            blockClone.position = block.position + 1;
-            blockClone.sectionId = sectionId;
-            blockClone.sectionPosition = block.sectionPosition;
-            blockClone.slots = [];
-
-            Object.assign(newBlock, blockClone);
-
-            this.cloneSlotsInBlock(block, newBlock);
-
-            return newBlock;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
-         */
-        cloneSlotsInBlock(block, newBlock) {
-            block.slots.forEach(slot => {
-                const element = this.slotRepository.create();
-                element.id = slot.id;
-                element.blockId = newBlock.id;
-                element.slot = slot.slot;
-                element.type = slot.type;
-                element.config = cloneDeep(slot.config);
-                element.data = cloneDeep(slot.data);
-
-                newBlock.slots.push(element);
             });
         },
 
@@ -371,14 +393,21 @@ Component.register('sw-cms-sidebar', {
                 return;
             }
 
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
             const section = dropData.section;
-            const blockConfig = this.cmsBlocks[dragData.block.name];
+            const blockConfig = cmsBlocks[dragData.block.name];
             const newBlock = this.blockRepository.create();
 
             newBlock.type = dragData.block.name;
             newBlock.position = dropData.dropIndex;
             newBlock.sectionPosition = dropData.sectionPosition;
             newBlock.sectionId = section.id;
+
+            newBlock.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
 
             Object.assign(
                 newBlock,
@@ -402,9 +431,13 @@ Component.register('sw-cms-sidebar', {
                     }
                 }
 
+                const slotDefaultData = slotConfig.default?.data;
+                if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
+                    element.config = { ...element.config, ...slotDefaultData };
+                }
+
                 newBlock.slots.add(element);
             });
-
             this.page.sections[section.position].blocks.splice(dropData.dropIndex, 0, newBlock);
 
             this.$emit('block-stage-drop');
@@ -469,6 +502,10 @@ Component.register('sw-cms-sidebar', {
             this.pageUpdate();
         },
 
+        onToggleBlockFavorite(blockName) {
+            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
+        },
+
         successfulUpload(media, section) {
             section.backgroundMediaId = media.targetId;
 
@@ -498,8 +535,16 @@ Component.register('sw-cms-sidebar', {
             this.$emit('open-layout-assignment');
         },
 
+        onOpenLayoutSetAsDefault() {
+            this.$emit('open-layout-set-as-default');
+        },
+
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
         },
+
+        onVisibilityChange(selectedBlock, viewport, isVisible) {
+            selectedBlock.visibility[viewport] = isVisible;
+        },
     },
-});
+};

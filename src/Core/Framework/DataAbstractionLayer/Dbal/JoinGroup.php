@@ -4,35 +4,23 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class JoinGroup extends Filter
 {
     /**
-     * @var SingleFieldFilter[]
+     * @param list<SingleFieldFilter> $queries
      */
-    protected $queries;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var string
-     */
-    protected $suffix;
-
-    /**
-     * @var string
-     */
-    protected $operator;
-
-    public function __construct(array $queries, string $path, string $suffix, string $operator)
-    {
-        $this->queries = $queries;
-        $this->path = $path;
-        $this->suffix = $suffix;
-        $this->operator = $operator;
+    public function __construct(
+        private readonly array $queries,
+        private readonly string $path,
+        private readonly string $suffix,
+        private string $operator
+    ) {
     }
 
     public function getFields(): array
@@ -67,6 +55,9 @@ class JoinGroup extends Filter
         $this->operator = $operator;
     }
 
+    /**
+     * @return list<SingleFieldFilter>
+     */
     public function getQueries(): array
     {
         return $this->queries;

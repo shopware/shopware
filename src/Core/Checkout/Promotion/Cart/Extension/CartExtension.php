@@ -2,23 +2,25 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('buyers-experience')]
 class CartExtension extends Struct
 {
     /**
      * this is the key that should be
      * used for the cart extension
      */
-    public const KEY = 'cart-promotions';
+    final public const KEY = 'cart-promotions';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $addedCodes = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $blockedPromotionIds = [];
 
@@ -56,7 +58,7 @@ class CartExtension extends Struct
     }
 
     /**
-     * @return array|string[]
+     * @return array<string>
      */
     public function getCodes(): array
     {

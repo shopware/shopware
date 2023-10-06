@@ -1,10 +1,12 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_label %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <span
     class="sw-label"
     :class="labelClasses"
     @click.stop="$emit('selected')"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_label_status_color_badge %}
     <sw-color-badge
         v-if="appearance === 'badged'"
@@ -13,12 +15,17 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_label_text_holder %}
     <span class="sw-label__caption">
-        <slot>{% block sw_label_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_label_slot_default %}{% endblock %}
+        </slot>
     </span>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_label_dismiss %}
     <button
         v-if="showDismissable"
@@ -27,9 +34,10 @@
         @click.prevent.stop="$emit('dismiss')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_selection_dismiss_icon %}
         <slot name="dismiss-icon">
-            <sw-icon name="small-default-x-line-medium" />
+            <sw-icon name="regular-times-s" />
         </slot>
         {% endblock %}
     </button>

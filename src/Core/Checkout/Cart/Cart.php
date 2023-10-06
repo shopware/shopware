@@ -5,11 +5,6 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,99 +13,60 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class Cart extends Struct
 {
     use StateAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected CartPrice $price;
+
+    protected LineItemCollection $lineItems;
+
+    protected ErrorCollection $errors;
+
+    protected DeliveryCollection $deliveries;
+
+    protected TransactionCollection $transactions;
+
+    protected bool $modified = false;
+
+    protected ?string $customerComment = null;
+
+    protected ?string $affiliateCode = null;
+
+    protected ?string $campaignCode = null;
 
     /**
-     * @var string
+     * This can be used to identify carts, that are used for different purposes.
+     * Setting this will call different hook names for respective cart sources.
+     * This may be used for multi-cart or subscription applications,
+     * where the regular calculation process is not desired and separate calculation processes are used as an opt-in usage.
      */
-    protected $token;
+    protected ?string $source = null;
+
+    private ?CartDataCollection $data = null;
 
     /**
-     * @var CartPrice
-     */
-    protected $price;
-
-    /**
-     * @var LineItemCollection
-     */
-    protected $lineItems;
-
-    /**
-     * @var ErrorCollection
-     */
-    protected $errors;
-
-    /**
-     * @var DeliveryCollection
-     */
-    protected $deliveries;
-
-    /**
-     * @var TransactionCollection
-     */
-    protected $transactions;
-
-    /**
-     * @var bool
-     */
-    protected $modified = false;
-
-    /**
-     * @var string|null
-     */
-    protected $customerComment;
-
-    /**
-     * @var string|null
-     */
-    protected $affiliateCode;
-
-    /**
-     * @var string|null
-     */
-    protected $campaignCode;
-
-    /**
-     * @var CartDataCollection|null
-     */
-    private $data;
-
-    /**
-     * @var string[]
+     * @var array<string>
      */
     private array $ruleIds = [];
 
     private ?CartBehavior $behavior = null;
 
-    public function __construct(string $name, string $token)
+    /**
+     * @internal
+     */
+    public function __construct(protected string $token)
     {
-        $this->name = $name;
-        $this->token = $token;
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getToken(): string
@@ -154,9 +110,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function addLineItems(LineItemCollection $lineItems): void
     {
@@ -190,9 +144,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function add(LineItem $lineItem): self
     {
@@ -201,6 +153,9 @@ class Cart extends Struct
         return $this;
     }
 
+    /**
+     * @return LineItem|null
+     */
     public function get(string $lineItemKey)
     {
         return $this->lineItems->get($lineItemKey);
@@ -212,17 +167,18 @@ class Cart extends Struct
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
+     * @throws CartException
      */
     public function remove(string $key): void
     {
-        if (!$this->has($key)) {
-            throw new LineItemNotFoundException($key);
+        $item = $this->get($key);
+
+        if (!$item) {
+            throw CartException::lineItemNotFound($key);
         }
 
-        if (!$this->get($key)->isRemovable()) {
-            throw new LineItemNotRemovableException($key);
+        if (!$item->isRemovable()) {
+            throw CartException::lineItemNotRemovable($key);
         }
 
         $this->lineItems->remove($key);
@@ -310,7 +266,7 @@ class Cart extends Struct
     }
 
     /**
-     * @param string[] $ruleIds
+     * @param array<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
@@ -318,7 +274,7 @@ class Cart extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIds(): array
     {
@@ -340,5 +296,15 @@ class Cart extends Struct
     public function setBehavior(?CartBehavior $behavior): void
     {
         $this->behavior = $behavior;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): void
+    {
+        $this->source = $source;
     }
 }

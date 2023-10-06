@@ -1,3 +1,8 @@
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default class ErrorResolver {
     constructor() {
         this.EntityDefinition = Shopware.EntityDefinition;
@@ -10,9 +15,11 @@ export default class ErrorResolver {
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Default param errors will be last
      * @param errors
      * @param changeset
      */
+    // eslint-disable-next-line default-param-last
     handleWriteErrors({ errors } = {}, changeset) {
         if (!errors) {
             throw new Error('[error-resolver] handleWriteError was called without errors');
@@ -148,18 +155,23 @@ export default class ErrorResolver {
             return;
         }
 
+        if (!(error instanceof this.ShopwareError)) {
+            error = new this.ShopwareError(error);
+        }
+
         Shopware.State.dispatch('error/addApiError', {
             expression: this.getErrorPath(entity, fieldName),
-            error: new this.ShopwareError(error),
+            error: error,
         });
     }
 
     buildAssociationChangeset(entity, changeset, error, associationName) {
-        if (!Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
+        if (!changeset || !Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
             Shopware.State.dispatch('error/addApiError', {
                 expression: this.getErrorPath(entity, associationName),
                 error: new this.ShopwareError(error),
             });
+            return [];
         }
 
         return changeset[associationName].map((associationChange) => {

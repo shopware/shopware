@@ -3,11 +3,23 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="env(APP_URL_CHECK_DISABLED)">false</parameter>
+    </parameters>
     <services>
         <defaults autowire="true"/>
 
+        <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemInstallCommand">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="console.command"/>
         </service>
 
@@ -24,6 +36,12 @@
         <service id="Shopware\Core\Maintenance\System\Command\SystemSetupCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="service" id="Symfony\Component\Dotenv\Command\DotenvDumpCommand"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Symfony\Component\Dotenv\Command\DotenvDumpCommand">
+            <argument>%kernel.project_dir%</argument>
             <tag name="console.command"/>
         </service>
 
@@ -51,16 +69,20 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
 
+        <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
+            <argument type="service" id="shopware.maintenance.client"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+            <argument>%env(bool:APP_URL_CHECK_DISABLED)%</argument>
+        </service>
+
+        <service id="shopware.maintenance.client" class="GuzzleHttp\Client"/>
+
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
 
             <tag name="console.command"/>
@@ -106,5 +128,7 @@
         <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
     </services>
 </container>

@@ -2,48 +2,40 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
-class UrlGenerator implements UrlGeneratorInterface
+/**
+ * @deprecated tag:v6.6.0 - reason:remove-subscriber - Use AbstractMediaUrlGenerator instead
+ */
+#[Package('buyers-experience')]
+class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**
-     * @var RequestStack
+     * @internal
      */
-    private $requestStack;
-
-    /**
-     * @var string
-     */
-    private $baseUrl;
-
-    /**
-     * @var PathnameStrategyInterface
-     */
-    private $pathnameStrategy;
-
     public function __construct(
-        PathnameStrategyInterface $pathnameStrategy,
-        RequestStack $requestStack,
-        ?string $baseUrl = null
+        private readonly PathnameStrategyInterface $pathnameStrategy,
+        private readonly FilesystemOperator $filesystem
     ) {
-        $this->pathnameStrategy = $pathnameStrategy;
-        $this->requestStack = $requestStack;
-
-        $this->baseUrl = $this->normalizeBaseUrl($baseUrl);
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeMediaUrl(MediaEntity $media): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -55,20 +47,28 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
-        return $this->getBaseUrl() . '/' . $this->getRelativeMediaUrl($media);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
+        return $this->filesystem->publicUrl($media->getPath());
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -80,61 +80,41 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $thumbnail);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
+        return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
     }
 
-    private function normalizeBaseUrl(?string $baseUrl): ?string
+    public function reset(): void
     {
-        if ($baseUrl === null) {
-            return null;
-        }
-
-        return rtrim($baseUrl, '/');
     }
 
-    private function getBaseUrl(): string
-    {
-        if (!$this->baseUrl) {
-            $this->baseUrl = $this->createFallbackUrl();
-        }
-
-        return $this->baseUrl;
-    }
-
-    private function createFallbackUrl(): string
-    {
-        $request = $this->requestStack->getMainRequest();
-        if ($request) {
-            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-
-            return rtrim($basePath, '/');
-        }
-
-        return (string) EnvironmentHelper::getVariable('APP_URL');
-    }
-
+    /**
+     * @param array<string|null> $parts
+     */
     private function toPathString(array $parts): string
     {
         return implode('/', array_filter($parts));
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     private function validateMedia(MediaEntity $media): void
     {
         if (empty($media->getId())) {
-            throw new EmptyMediaIdException();
+            throw MediaException::emptyMediaId();
         }
 
         if (empty($media->getFileName())) {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
     }
 }

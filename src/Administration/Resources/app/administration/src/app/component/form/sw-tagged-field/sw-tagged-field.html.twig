@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tagged_field %}
 <sw-block-field
     class="sw-tagged-field"
@@ -6,8 +7,9 @@
     v-on="$listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tagged_field_inner %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
             class="sw-tagged-field__tag-list"
             @click="setFocus(true)"
@@ -25,8 +27,10 @@
                     {{ tag }}
                 </sw-label>
             </li>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tagged_field_item_input %}
             <li class="sw-tagged-field__input-list-entry">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tagged_field_input %}
                 <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input
@@ -47,6 +51,14 @@
             {% endblock %}
         </ul>
         {% endblock %}
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-block-field>
 {% endblock %}

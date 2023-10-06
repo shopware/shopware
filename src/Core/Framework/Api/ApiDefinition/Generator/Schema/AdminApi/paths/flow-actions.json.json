@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_info\/flow-actions.json": {
+            "get": {
+                "tags": [
+                    "System Info & Healthcheck"
+                ],
+                "summary": "Get actions for flow builder",
+                "description": "Get a list of action for flow builder.",
+                "operationId": "flow-actions",
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of action for flow builder.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/flowBulderActionsResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

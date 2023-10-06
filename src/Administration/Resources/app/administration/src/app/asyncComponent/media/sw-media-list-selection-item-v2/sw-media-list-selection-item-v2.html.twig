@@ -1,0 +1,61 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_list_selection_item_v2 %}
+<div
+    class="sw-media-list-selection-item-v2"
+    :class="productImageClasses"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_list_selection_item_v2_preview %}
+    <template v-if="!isPlaceholder">
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_list_selection_item_v2_preview_media %}
+        <sw-media-preview-v2
+            class="sw-media-list-selection-item-v2__image"
+            :source="sourceId"
+            :hide-tooltip="hideTooltip"
+            @click="$emit('click')"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_list_selection_item_v2_preview_actions %}
+        <sw-context-button
+            v-if="!hideActions"
+            class="sw-media-list-selection-item-v2__context-button"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_list_selection_item_v2_context %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_list_selection_item_v2_context_delete_action %}
+            <sw-context-menu-item
+                variant="danger"
+                @click="$emit('item-remove')"
+            >
+                {{ $tc('global.sw-media-list-selection-item-v2.buttonRemove') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% endblock %}
+        </sw-context-button>
+        {% endblock %}
+    </template>
+
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_list_selection_item_v2_placeholder %}
+    <template v-else>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_list_selection_item_v2_placeholder_icon %}
+        <sw-icon
+            class="sw-media-list-selection-item-v2__placeholder-icon"
+            :name="'regular-image'"
+            :small="true"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+</div>
+{% endblock %}

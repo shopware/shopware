@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_menu %}
 <div class="sw-sales-channel-menu">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_menu_modal %}
     <sw-sales-channel-modal
         v-if="showModal"
@@ -7,19 +9,25 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_menu_headline_text %}
-        <div class="collapsible-text">
-            {{ $tc('sw-sales-channel.general.titleMenuItems') }}
+        <div class="collapsible-text sw-admin-menu__headline_text">
+            <router-link
+                :to="{ name: 'sw.sales.channel.list' }"
+            >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_menu_headline_context_button %}
         <sw-context-button
             class="sw-admin-menu__headline-context-menu"
-            icon="default-action-more-vertical"
+            icon="solid-ellipsis-h"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_menu_headline_context_button_item %}
             <sw-context-menu-item
                 class="sw-admin-menu__headline-context-menu-manage-sales-channels"
@@ -31,6 +39,7 @@
         </sw-context-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_menu_headline_action %}
         <button
             v-if="canCreateSalesChannels"
@@ -39,7 +48,7 @@
         >
             <sw-icon
                 class="sw-admin-menu__headline-icon"
-                name="small-default-plus-circle"
+                name="regular-plus-circle-s"
                 small
             />
         </button>
@@ -47,12 +56,15 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_menu_navigation %}
     <nav class="sw-admin-menu__navigation">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_menu_navigation_main_list %}
         <ul class="sw-admin-menu__navigation-list">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_menu_navigation_main_items %}
             <sw-admin-menu-item
                 v-for="(entry, index) in buildMenuTree"
@@ -63,6 +75,7 @@
                 :class="['sw-admin-menu__sales-channel-item--' + index]"
             >
                 <template #additional-text>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
                     <button
                         v-if="entry.domainLink && entry.active"
@@ -72,7 +85,7 @@
                     >
                         <sw-icon
                             class="sw-sales-channel-menu-domain-link__icon"
-                            name="small-eye"
+                            name="regular-eye-s"
                             size="16px"
                         />
                     </button>
@@ -81,6 +94,7 @@
             </sw-admin-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_menu_navigation_more_items %}
             <sw-admin-menu-item
                 v-if="moreSalesChannelAvailable"
@@ -91,6 +105,22 @@
             {% endblock %}
         </ul>
         {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_sales_channel_menu_context_button_collapsed %}
+        <sw-context-button
+            class="sw-sales-channel-menu__collapsed-context-menu"
+            icon="regular-ellipsis-v"
+        >
+            <sw-context-menu-item
+                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
+                :router-link="{ name: 'sw.sales.channel.list' }"
+            >
+                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+        {% endblock %}
+
     </nav>
     {% endblock %}
 </div>

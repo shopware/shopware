@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-modal-delivery.html.twig';
 import './sw-product-modal-delivery.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-product-modal-delivery', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -33,7 +36,21 @@ Component.register('sw-product-modal-delivery', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (!this.product.variantListingConfig) {
+                this.$set(
+                    this.product,
+                    'variantListingConfig',
+                    { displayParent: null, configuratorGroupConfig: [], mainVariantId: null },
+                );
+            }
+        },
+
         saveDeliveryConfiguration() {
             this.isLoading = true;
 
@@ -51,9 +68,13 @@ Component.register('sw-product-modal-delivery', {
         },
 
         handleExpandedListing(product) {
-            if (product && product.listingMode !== 'single') {
-                // remove main_variant_id from configuratorGroupConfig
-                product.mainVariantId = null;
+            if (product && product.listingMode === 'expanded') {
+                const configuratorGroupConfig = product.variantListingConfig.configuratorGroupConfig ?? [];
+
+                // remove main_variant_id and display_parent from configuratorGroupConfig
+                product.variantListingConfig.mainVariantId = null;
+                product.variantListingConfig.displayParent = null;
+                product.variantListingConfig.configuratorGroupConfig = configuratorGroupConfig;
             }
 
             delete product.listingMode;
@@ -61,4 +82,4 @@ Component.register('sw-product-modal-delivery', {
             return product;
         },
     },
-});
+};

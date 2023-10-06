@@ -8,7 +8,7 @@
         {% set videoUrl = 'https://www.youtube.com/embed/' %}
     {% endif %}
 
-    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ 'rel=0' ~ '&'  %}
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ 'rel=0' ~ '&' %}
 
     {% if config.autoPlay.value %}
        {% set videoUrl = videoUrl ~ 'autoplay=1' ~ '&' %}
@@ -49,13 +49,14 @@
                 </iframe>
             {% else %}
                 {% set pluginConfiguration = {
+                    cookieName: 'youtube-video',
                     videoUrl: videoUrl,
                     iframeClasses: [ iframeClass ],
                     btnClasses: [ 'btn', 'btn-outline-secondary' ],
                     backdropClasses: [ 'cms-element-youtube-video__backdrop' ],
                     confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,
-                    overlayText: 'component.cms.vimeo.privacyNotice'|trans({
-                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
+                    overlayText: 'component.cms.vimeo.privacyNoticeText'|trans({
+                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
                         '%platform%': 'YouTube'
                     })|raw
                 } %}

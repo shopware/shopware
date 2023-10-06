@@ -7,8 +7,11 @@ import objectPick from 'lodash/pick';
 import type from 'src/core/service/utils/types.utils';
 
 /**
+ * @package admin
+ *
  * @module core/service/utils/object
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     deepCopyObject,
     hasOwnProperty,
@@ -25,22 +28,28 @@ export default {
 /**
  * Lodash import for object merges.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const merge = objectMerge;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const mergeWith = objectMergeWith;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const cloneDeep = objectCopy;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const get = objectGet;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const set = objectSet;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const pick = objectPick;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, sw-deprecation-rules/private-feature-declarations
 export function hasOwnProperty(scope: any, prop: string): boolean {
     return Object.prototype.hasOwnProperty.call(scope, prop);
 }
@@ -48,6 +57,7 @@ export function hasOwnProperty(scope: any, prop: string): boolean {
 /**
  * Deep copy an object
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function deepCopyObject<O extends object>(copyObject: O): O {
     return JSON.parse(JSON.stringify(copyObject)) as O;
 }
@@ -55,6 +65,7 @@ export function deepCopyObject<O extends object>(copyObject: O): O {
 /**
  * Deep merge two objects
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function deepMergeObject<FO extends object, SO extends object>(firstObject: FO, secondObject: SO): FO & SO {
     return mergeWith(firstObject, secondObject, (objValue, srcValue) => {
         if (Array.isArray(objValue)) {
@@ -73,7 +84,7 @@ export function deepMergeObject<FO extends object, SO extends object>(firstObjec
  * @param {Object} b
  * @return {*}
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, sw-deprecation-rules/private-feature-declarations
 export function getObjectDiff(a: any, b: any): any {
     if (a === b) {
         return {};
@@ -145,7 +156,7 @@ export function getObjectDiff(a: any, b: any): any {
  * In case of a change we will always use the complete compare array,
  * because it always holds the newest state regarding deletions, additions and the order.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, sw-deprecation-rules/private-feature-declarations
 export function getArrayChanges(a: any[], b: any[]): any[] {
     if (a === b) {
         return [];

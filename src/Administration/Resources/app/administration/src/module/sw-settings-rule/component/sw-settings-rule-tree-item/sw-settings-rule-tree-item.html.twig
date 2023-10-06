@@ -1,19 +1,27 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks, vue/no-multi-spaces -->
 {% block sw_tree_item_element_actions %}
 <span v-if="hideActions"></span>
+<!-- eslint-disable-next-line vue/no-multi-spaces -->
 <span v-else>{% parent %}</span>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree_item_element_selection %}
 <div class="sw-tree-item__selection">
     <sw-checkbox-field
         :disabled="hasItemAssociation(item)"
         :ghost-value="checkedGhost"
         :value="checked || hasItemAssociation(item)"
+        {% if VUE3 %}
+        @update:value="toggleItemCheck($event, item)"
+        {% else %}
         @change="toggleItemCheck($event, item)"
+        {% endif %}
     />
 </div>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree_item_children_items %}
 <sw-settings-rule-tree-item
     v-for="child in item.children"

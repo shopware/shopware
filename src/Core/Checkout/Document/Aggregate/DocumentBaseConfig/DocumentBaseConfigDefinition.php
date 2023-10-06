@@ -20,11 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
+#[Package('checkout')]
 class DocumentBaseConfigDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'document_base_config';
+    final public const ENTITY_NAME = 'document_base_config';
 
     public function getEntityName(): string
     {
@@ -39,6 +41,13 @@ class DocumentBaseConfigDefinition extends EntityDefinition
     public function getEntityClass(): string
     {
         return DocumentBaseConfigEntity::class;
+    }
+
+    public function getDefaults(): array
+    {
+        return [
+            'global' => false,
+        ];
     }
 
     public function since(): ?string
@@ -68,7 +77,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new CreatedAtField())->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
 
-            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id')),
+            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
             (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

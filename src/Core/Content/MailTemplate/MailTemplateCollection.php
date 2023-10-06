@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(MailTemplateEntity $entity)
- * @method void                    set(string $key, MailTemplateEntity $entity)
- * @method MailTemplateEntity[]    getIterator()
- * @method MailTemplateEntity[]    getElements()
- * @method MailTemplateEntity|null get(string $key)
- * @method MailTemplateEntity|null first()
- * @method MailTemplateEntity|null last()
+ * @extends EntityCollection<MailTemplateEntity>
  */
+#[Package('sales-channel')]
 class MailTemplateCollection extends EntityCollection
 {
     public function getApiAlias(): string

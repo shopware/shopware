@@ -3,7 +3,8 @@ import template from './sw-settings-listing-option-general-info.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-settings-listing-option-general-info', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     model: {
@@ -28,4 +29,4 @@ Component.register('sw-settings-listing-option-general-info', {
             'label',
         ]),
     },
-});
+};

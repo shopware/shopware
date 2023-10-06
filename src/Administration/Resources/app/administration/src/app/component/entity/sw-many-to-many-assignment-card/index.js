@@ -6,6 +6,9 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type code-only
@@ -15,17 +18,19 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :entityCollection="entity.association"
  *     :localMode="entity.isNew()"
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
- *
- * <sw-many-to-many-assignment-card>
+ * </sw-many-to-many-assignment-card>
  */
 Component.register('sw-many-to-many-assignment-card', {
     template,
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     model: {
-        property: 'entityCollection',
+        prop: 'entityCollection',
         event: 'change',
     },
 
@@ -83,7 +88,7 @@ Component.register('sw-many-to-many-assignment-card', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.entity-components.placeholderToManyAssociationCard');
+                return Shopware.Snippet.tc('global.entity-components.placeholderToManyAssociationCard');
             },
         },
 
@@ -281,6 +286,12 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
 
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:entityCollection', newCollection);
+
+                    return;
+                }
+
                 this.$emit('change', newCollection);
                 return;
             }
@@ -298,6 +309,12 @@ Component.register('sw-many-to-many-assignment-card', {
 
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
+
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:entityCollection', newCollection);
+
+                    return Promise.resolve();
+                }
 
                 this.$emit('change', newCollection);
                 return Promise.resolve();

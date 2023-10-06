@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('content')]
 interface StorefrontMediaValidatorInterface
 {
     /**

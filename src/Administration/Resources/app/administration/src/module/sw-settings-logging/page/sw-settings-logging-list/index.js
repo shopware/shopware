@@ -1,9 +1,10 @@
 import template from './sw-settings-logging-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-logging-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -41,7 +42,6 @@ Component.register('sw-settings-logging-list', {
     },
 
     computed: {
-
         logEntryRepository() {
             return this.repositoryFactory.create('log_entry');
         },
@@ -58,6 +58,10 @@ Component.register('sw-settings-logging-list', {
                 return `sw-settings-logging-${subComponentName}-info`;
             }
             return 'sw-settings-logging-entry-info';
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -126,4 +130,4 @@ Component.register('sw-settings-logging-list', {
             }];
         },
     },
-});
+};

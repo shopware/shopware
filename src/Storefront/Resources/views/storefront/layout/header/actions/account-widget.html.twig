@@ -4,8 +4,13 @@
             <button class="btn account-menu-btn header-actions-btn"
                     type="button"
                     id="accountWidget"
-                    data-offcanvas-account-menu="true"
-                    data-toggle="dropdown"
+                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead #}
+                    {% if feature('v6.6.0.0') %}
+                        data-account-menu="true"
+                    {% else %}
+                        data-offcanvas-account-menu="true"
+                    {% endif %}
+                    data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
                     aria-label="{{ "account.myAccount"|trans|striptags }}"
@@ -15,7 +20,7 @@
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_menu %}
-            <div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown"
+            <div class="dropdown-menu dropdown-menu-end account-menu-dropdown js-account-menu-dropdown"
                  aria-labelledby="accountWidget">
                 {% sw_include '@Storefront/storefront/layout/header/account-menu.html.twig' %}
             </div>

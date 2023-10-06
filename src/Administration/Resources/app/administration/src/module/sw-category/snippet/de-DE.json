@@ -27,6 +27,7 @@
       "general": "Allgemein",
       "cms": "Layout",
       "products": "Produkte",
+      "customEntity": "Individuelle Entitäten",
       "seo": "SEO",
       "columnInfoHeader": "Fußzeilen-Element",
       "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
@@ -43,6 +44,7 @@
           "title": "Kategorietyp",
           "page": "Seite / Liste",
           "folder": "Strukturelement / Einstiegspunkt",
+          "customEntity": "Individuelle Entitäten",
           "link": "Link",
           "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
@@ -66,7 +68,7 @@
           "helpTextMainNavigation": "Der Einstiegspunkt für die Hauptnavigation ist ein Pflichtfeld für Verkaufskanäle. Wenn Sie diese Kategorie als Einstiegspunkt für die Hauptnavigation einem oder mehreren Verkaufskanälen zuordnen, können Sie diese Zuordnung nur am Verkaufskanal selbst ändern.",
           "labelFooterNavigation": "Footernavigation",
           "helpTextFooterNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Footernavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien auf der nächsten Ebene zu Spalten. So können Sie Ihre Footernavigation in mehrere Bereiche unterteilen.",
-          "labelServiceNavigation": "Servicenavigation",
+          "labelServiceNavigation": "Footer-Service-Navigation",
           "helpTextServiceNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Servicenavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien der nächsten Ebene als zweite Navigation im Fußbereich angezeigt."
         }
       },
@@ -101,6 +103,21 @@
         "imageLabel": "Anzeigebild",
         "descriptionLabel": "Beschreibung",
         "descriptionPlaceholder": "Gib eine Beschreibung ein ..."
+      },
+      "customEntity": {
+        "cardTitle": "Eintragszuweisung",
+        "assignment": {
+          "label": "Eintragstyp",
+          "helpText": "Hier muss der Eintragstyp ausgewählt werden."
+        },
+        "instanceAssignment": {
+          "title": "Titel",
+          "label": "Einträge",
+          "placeholder": "Einträge auswählen ...",
+          "emptyState": {
+            "title": "Keine Einträge ausgewählt"
+          }
+        }
       },
       "cms": {
         "title": "Layout-Zuweisung",
@@ -189,18 +206,27 @@
       },
       "seo": {
         "title": "SEO",
+        "titleGeneralInformation": "Allgemeine Information",
+        "titleSocialMedia": "Social Media",
         "labelSalesChannel": "Verkaufskanäle",
         "labelMetaTitle": "Meta-Titel",
+        "labelSocialMediaTitle": "Titel",
         "labelMetaDescription": "Meta-Beschreibung",
+        "labelSocialMediaDescription": "Beschreibung",
         "labelKeywords": "SEO-Schlüsselwörter",
-        "labelUrl": "SEO URL",
+        "labelUrl": "SEO-URL",
+        "labelPreviewImage": "Vorschaubild",
         "placeholderSalesChannel": "Wähle einen Verkaufskanal aus ...",
         "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+        "placeholderSocialMediaTitle": "Gib einen Social-Media-Titel ein ...",
         "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
+        "placeholderSocialMediaDescription": "Gib eine Social-Media-Beschreibung an ...",
         "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
         "placeholderUrl": "Gib eine URL an ...",
-        "helpTextMetaTitle": "Meta-Titel sollten nicht länger als {limit} Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und der Titel wird nicht vollständig im SERP-Snippet angezeigt.",
-        "helpTextMetaDescription": "Meta-Beschreibungen sollte nicht länger als {limit} Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und die Beschreibung wird nicht vollständig im SERP-Snippet angezeigt."
+        "socialMediaPreview": "Social-Media-Vorschau",
+        "searchResultPreview": "Suchergebnisvorschau",
+        "helpTextMetaTitle": "Meta-Titel sollten nicht länger als 70 Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und der Titel wird nicht vollständig im SERP-Snippet angezeigt.",
+        "helpTextMetaDescription": "Die mögliche Länge bei Meta-Beschreibungen bei Google liegt bei etwa 175 Zeichen und wird nach Pixelbreite beschnitten. Es ist aber empfehlenswert eine Länge von etwa 150 Zeichen anzustreben, damit die Beschreibung im SERP-Snippet nicht abgeschnitten wird. Shopware erlaubt eine maximale Länge von 255 Zeichen."
       },
       "cms": {
         "title": "Layout-Zuweisung",

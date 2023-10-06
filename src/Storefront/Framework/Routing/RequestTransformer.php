@@ -3,16 +3,21 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
-use TrueBV\Punycode;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
+ */
+#[Package('storefront')]
 class RequestTransformer implements RequestTransformerInterface
 {
-    public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;
+    final public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;
 
     /**
      * Virtual path of the "domain"
@@ -22,7 +27,7 @@ class RequestTransformer implements RequestTransformerInterface
      * - `/en`
      * - {empty} - the virtual path is optional
      */
-    public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
+    final public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
 
     /**
      * Scheme + Host + port + subdir in web root
@@ -31,7 +36,7 @@ class RequestTransformer implements RequestTransformerInterface
      * - `https://shop.example` - no subdir
      * - `http://localhost:8000/subdir` - with sub dir `/subdir`
      */
-    public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
+    final public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
 
     /**
      * Scheme + Host + port + subdir in web root + virtual path
@@ -42,11 +47,11 @@ class RequestTransformer implements RequestTransformerInterface
      * - `http://localhost:8000/subdir` - with sub directory `/subdir`
      * - `http://localhost:8000/subdir/de` - with sub directory `/subdir` and virtual path `/de`
      */
-    public const STOREFRONT_URL = 'sw-storefront-url';
+    final public const STOREFRONT_URL = 'sw-storefront-url';
 
-    public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
+    final public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
-    public const ORIGINAL_REQUEST_URI = 'sw-original-request-uri';
+    final public const ORIGINAL_REQUEST_URI = 'sw-original-request-uri';
 
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
@@ -67,56 +72,30 @@ class RequestTransformer implements RequestTransformerInterface
         SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
 
         SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
-
-        SalesChannelRequest::ATTRIBUTE_CSRF_PROTECTED,
     ];
 
     /**
-     * @var RequestTransformerInterface
-     */
-    private $decorated;
-
-    /**
-     * @var string[]
+     * @var array<string>
      */
     private array $whitelist = [
         '/_wdt/',
         '/_profiler/',
         '/_error/',
         '/payment/finalize-transaction',
+        '/installer',
     ];
 
     /**
-     * @var Punycode
+     * @internal
+     *
+     * @param list<string> $registeredApiPrefixes
      */
-    private $punycode;
-
-    /**
-     * @var AbstractSeoResolver
-     */
-    private $resolver;
-
-    /**
-     * @var array
-     */
-    private $registeredApiPrefixes;
-
-    /**
-     * @var AbstractDomainLoader
-     */
-    private $domainLoader;
-
     public function __construct(
-        RequestTransformerInterface $decorated,
-        AbstractSeoResolver $resolver,
-        array $registeredApiPrefixes,
-        AbstractDomainLoader $domainLoader
+        private readonly RequestTransformerInterface $decorated,
+        private readonly AbstractSeoResolver $resolver,
+        private readonly array $registeredApiPrefixes,
+        private readonly AbstractDomainLoader $domainLoader
     ) {
-        $this->decorated = $decorated;
-        $this->resolver = $resolver;
-        $this->punycode = new Punycode();
-        $this->registeredApiPrefixes = $registeredApiPrefixes;
-        $this->domainLoader = $domainLoader;
     }
 
     public function transform(Request $request): Request
@@ -220,7 +199,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
 
             $baseUrlPath = trim($urlPath, '/');
-            if (\strlen($baseUrlPath) > 1 && strpos($baseUrlPath, '/') !== 0) {
+            if (\strlen($baseUrlPath) > 1 && !str_starts_with($baseUrlPath, '/')) {
                 $baseUrlPath = '/' . $baseUrlPath;
             }
 
@@ -237,6 +216,9 @@ class RequestTransformer implements RequestTransformerInterface
         return $transformedRequest;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function extractInheritableAttributes(Request $sourceRequest): array
     {
         $inheritableAttributes = $this->decorated
@@ -255,7 +237,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function isSalesChannelRequired(string $pathInfo): bool
     {
-        $pathInfo = rtrim($pathInfo, '/') . '/';
+        $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
             if (mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {
@@ -272,6 +254,9 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
+    /**
+     * @return Domain|null
+     */
     private function findSalesChannel(Request $request): ?array
     {
         $domains = $this->domainLoader->load();
@@ -292,9 +277,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, function ($baseUrl) use ($requestUrl) {
-            return mb_strpos($requestUrl, $baseUrl) === 0;
-        }, \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, fn ($baseUrl) => mb_strpos($requestUrl, (string) $baseUrl) === 0, \ARRAY_FILTER_USE_KEY);
 
         if (empty($domains)) {
             return null;
@@ -317,6 +300,9 @@ class RequestTransformer implements RequestTransformerInterface
         return $bestMatch;
     }
 
+    /**
+     * @return ResolvedSeoUrl
+     */
     private function resolveSeoUrl(Request $request, string $baseUrl, string $languageId, string $salesChannelId): array
     {
         $seoPathInfo = $request->getPathInfo();
@@ -342,7 +328,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function getSchemeAndHttpHost(Request $request): string
     {
-        return $request->getScheme() . '://' . $this->punycode->decode($request->getHttpHost());
+        return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
     }
 
     /**

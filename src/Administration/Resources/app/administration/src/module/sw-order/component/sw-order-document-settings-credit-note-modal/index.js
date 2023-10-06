@@ -1,9 +1,12 @@
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -30,6 +33,7 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
 
             return items;
         },
+
         documentPreconditionsFulfilled() {
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         },
@@ -43,9 +47,15 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
         createdComponent() {
             this.$super('createdComponent');
 
-            this.invoiceNumbers = this.order.documents.map((item) => {
-                return item.config.custom.invoiceNumber;
-            });
+            const invoiceNumbers = this.order.documents
+                .filter(document => {
+                    return document.documentType.technicalName === 'invoice';
+                })
+                .map(item => {
+                    return item.config.custom.invoiceNumber;
+                });
+
+            this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
         onCreateDocument(additionalAction = false) {
@@ -72,4 +82,4 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
             }
         },
     },
-});
+};

@@ -5,9 +5,16 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,7 +24,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $orderTotalAmountColumn = $connection->fetchColumn(
+        $orderTotalAmountColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `customer` WHERE `Field` LIKE :column;',
             ['column' => 'order_total_amount']
         );
@@ -26,7 +33,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
             return;
         }
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `customer` ADD COLUMN order_total_amount DOUBLE DEFAULT 0 AFTER order_count;
         ');
 

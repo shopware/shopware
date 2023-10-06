@@ -2,9 +2,11 @@ import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import CMS from '../../constant/sw-cms.constant';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-page-form', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['cmsService'],
@@ -13,6 +15,11 @@ Component.register('sw-cms-page-form', {
         page: {
             type: Object,
             required: true,
+        },
+        elementUpdate: {
+            type: Function,
+            required: false,
+            default: () => {},
         },
     },
 
@@ -44,7 +51,15 @@ Component.register('sw-cms-page-form', {
 
                         return positionA - positionB;
                     });
+
+                    if (!block.visibility) {
+                        block.visibility = { mobile: true, tablet: true, desktop: true };
+                    }
                 });
+
+                if (!section.visibility) {
+                    section.visibility = { mobile: true, tablet: true, desktop: true };
+                }
             });
         },
 
@@ -94,5 +109,22 @@ Component.register('sw-cms-page-form', {
                 this.$tc('sw-cms.section.positionRight') :
                 this.$tc('sw-cms.section.positionLeft');
         },
+
+        getDeviceActive(viewport, section, block = null) {
+            const isActive = block
+                ? section?.visibility?.[viewport] && block?.visibility?.[viewport]
+                : section?.visibility?.[viewport];
+
+            return isActive
+                ? `regular-${viewport}`
+                : `regular-${viewport}-slash`;
+        },
+
+        displayNotification(section, block) {
+            const isSectionDisplay = !(Object.values(section?.visibility).indexOf(true) > -1);
+            const isBlockDisplay = !(Object.values(block?.visibility).indexOf(true) > -1);
+
+            return isSectionDisplay || isBlockDisplay;
+        },
     },
-});
+};

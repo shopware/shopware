@@ -1,8 +1,16 @@
 import template from './sw-cms-preview-image-cover.html.twig';
 import './sw-cms-preview-image-cover.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-cms-preview-image-cover', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+};

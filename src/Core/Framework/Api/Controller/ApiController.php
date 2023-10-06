@@ -2,31 +2,24 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
-use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
-use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
-use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
-use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -36,188 +29,47 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
-use Symfony\Component\Serializer\Serializer;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @phpstan-type EntityPathSegment array{entity: string, value: ?string, definition: EntityDefinition, field: ?Field}
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class ApiController extends AbstractController
 {
-    public const WRITE_UPDATE = 'update';
-    public const WRITE_CREATE = 'create';
-    public const WRITE_DELETE = 'delete';
+    final public const WRITE_UPDATE = 'update';
+    final public const WRITE_CREATE = 'create';
+    final public const WRITE_DELETE = 'delete';
 
     /**
-     * @var DefinitionInstanceRegistry
+     * @internal
      */
-    private $definitionRegistry;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
-     * @var CompositeEntitySearcher
-     */
-    private $compositeEntitySearcher;
-
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    /**
-     * @var EntityProtectionValidator
-     */
-    private $entityProtectionValidator;
-
-    /**
-     * @var AclCriteriaValidator
-     */
-    private $criteriaValidator;
-
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        Serializer $serializer,
-        RequestCriteriaBuilder $criteriaBuilder,
-        CompositeEntitySearcher $compositeEntitySearcher,
-        ApiVersionConverter $apiVersionConverter,
-        EntityProtectionValidator $entityProtectionValidator,
-        AclCriteriaValidator $criteriaValidator
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly DecoderInterface $serializer,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly EntityProtectionValidator $entityProtectionValidator,
+        private readonly AclCriteriaValidator $criteriaValidator
     ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->serializer = $serializer;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->compositeEntitySearcher = $compositeEntitySearcher;
-        $this->apiVersionConverter = $apiVersionConverter;
-        $this->entityProtectionValidator = $entityProtectionValidator;
-        $this->criteriaValidator = $criteriaValidator;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @OA\Get(
-     *      path="/_search",
-     *      summary="Search for multiple entites by a given term",
-     *      operationId="compositeSearch",
-     *      tags={"Admin Api"},
-     *      deprecated=true,
-     *      @OA\Parameter(
-     *          name="limit",
-     *          in="query",
-     *          description="Max amount of resources per entity",
-     *          @OA\Schema(type="integer"),
-     *      ),
-     *      @OA\Parameter(
-     *          name="term",
-     *          in="query",
-     *          description="The term to search for",
-     *          required=true,
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The list of found entities",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="entity",
-     *                      type="string",
-     *                      description="The name of the entity",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="total",
-     *                      type="integer",
-     *                      description="The total amount of search results for this entity",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="entities",
-     *                      type="array",
-     *                      description="The found entities",
-     *                      @OA\Items(type="object", additionalProperties=true),
-     *                  ),
-     *              ),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/400"
-     *      ),
-     *     @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/401"
-     *      )
-     * )
-     * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
-     *
-     * @deprecated tag:v6.5.0 - Will be removed in the next major
-     */
-    public function compositeSearch(Request $request, Context $context): JsonResponse
-    {
-        Feature::throwException('FEATURE_NEXT_18762', 'Will be removed in v6.5.0, use Shopware\Administration\Controller\AdminSearchController::search instead.');
-
-        $term = (string) $request->query->get('term');
-        if ($term === '') {
-            throw new MissingRequestParameterException('term');
-        }
-        $limit = $request->query->getInt('limit', 5);
-
-        $results = $this->compositeEntitySearcher->search($term, $limit, $context);
-
-        foreach ($results as &$result) {
-            $definition = $this->definitionRegistry->getByEntityName($result['entity']);
-            /** @var EntityCollection $entityCollection */
-            $entityCollection = $result['entities'];
-            $entities = [];
-            foreach ($entityCollection->getElements() as $key => $entity) {
-                $entities[$key] = $this->apiVersionConverter->convertEntity($definition, $entity);
-            }
-            $result['entities'] = $entities;
-        }
-
-        return new JsonResponse(['data' => $results]);
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
-     *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
-     * })
-     *
-     * @throws DefinitionNotFoundException
-     */
+    #[Route(path: '/api/_action/clone/{entity}/{id}', name: 'api.clone', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
     {
         $behavior = new CloneBehavior(
@@ -230,11 +82,11 @@ class ApiController extends AbstractController
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $missing = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
         if ($missing) {
-            throw new MissingPrivilegeException([$missing]);
+            throw ApiException::missingPrivileges([$missing]);
         }
 
+        /** @var EntityWrittenContainerEvent $eventContainer */
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
-            /** @var EntityRepository $entityRepo */
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
 
             return $entityRepo->clone($id, $context, null, $behavior);
@@ -242,7 +94,7 @@ class ApiController extends AbstractController
 
         $event = $eventContainer->getEventByEntityName($definition->getEntityName());
         if (!$event) {
-            throw new NoEntityClonedException($entity, $id);
+            throw ApiException::noEntityCloned($entity, $id);
         }
 
         $ids = $event->getIds();
@@ -251,15 +103,7 @@ class ApiController extends AbstractController
         return new JsonResponse(['id' => $newId]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
-     *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
-     * })
-     *
-     * @throws InvalidUuidException
-     * @throws InvalidVersionNameException
-     */
+    #[Route(path: '/api/_action/version/{entity}/{id}', name: 'api.createVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
     {
         $entity = $this->urlToSnakeCase($entity);
@@ -268,22 +112,20 @@ class ApiController extends AbstractController
         $versionName = $request->request->has('versionName') ? (string) $request->request->get('versionName') : null;
 
         if ($versionId !== null && !Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         if ($versionName !== null && !ctype_alnum($versionName)) {
-            throw new InvalidVersionNameException();
+            throw ApiException::invalidVersionName();
         }
 
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($entity);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
-        $versionId = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($entityDefinition, $id, $versionName, $versionId): string {
-            return $this->definitionRegistry->getRepository($entityDefinition->getEntityName())->createVersion($id, $context, $versionName, $versionId);
-        });
+        $versionId = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): string => $this->definitionRegistry->getRepository($entityDefinition->getEntityName())->createVersion($id, $context, $versionName, $versionId));
 
         return new JsonResponse([
             'versionId' => $versionId,
@@ -293,20 +135,13 @@ class ApiController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
-     *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
-     * })
-     *
-     * @throws InvalidUuidException
-     */
+    #[Route(path: '/api/_action/version/merge/{entity}/{versionId}', name: 'api.mergeVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'])]
     public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
     {
         $entity = $this->urlToSnakeCase($entity);
 
         if (!Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         $entityDefinition = $this->getEntityDefinition($entity);
@@ -320,34 +155,25 @@ class ApiController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/version/{versionId}/{entity}/{entityId}", name="api.deleteVersion", methods={"POST"},
-     *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
-     * })
-     *
-     * @throws InvalidUuidException
-     * @throws InvalidVersionNameException
-     * @throws LiveVersionDeleteException
-     */
+    #[Route(path: '/api/_action/version/{versionId}/{entity}/{entityId}', name: 'api.deleteVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
-        if ($versionId !== null && !Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+        if (!Uuid::isValid($versionId)) {
+            throw ApiException::invalidVersionId($versionId);
         }
 
         if ($versionId === Defaults::LIVE_VERSION) {
-            throw new LiveVersionDeleteException();
+            throw ApiException::deleteLiveVersion();
         }
 
-        if ($entityId !== null && !Uuid::isValid($entityId)) {
-            throw new InvalidUuidException($entityId);
+        if (!Uuid::isValid($entityId)) {
+            throw ApiException::invalidVersionId($versionId);
         }
 
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($this->urlToSnakeCase($entity));
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -370,7 +196,9 @@ class ApiController extends AbstractController
         $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $root = $pathSegments[0]['entity'];
+        /* id is always set, otherwise the route would not match */
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
+        \assert(\is_string($id));
 
         $definition = $this->definitionRegistry->getByEntityName($root);
 
@@ -400,15 +228,13 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException($permissions);
+            throw ApiException::missingPrivileges($permissions);
         }
 
-        $entity = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria, $id): ?Entity {
-            return $repository->search($criteria, $context)->get($id);
-        });
+        $entity = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): ?Entity => $repository->search($criteria, $context)->get($id));
 
         if ($entity === null) {
-            throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
+            throw ApiException::resourceNotFound($definition->getEntityName(), ['id' => $id]);
         }
 
         return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
@@ -418,9 +244,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria): IdSearchResult {
-            return $repository->searchIds($criteria, $context);
-        });
+        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([
             'total' => $result->getTotal(),
@@ -432,9 +256,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria): EntitySearchResult {
-            return $repository->search($criteria, $context);
-        });
+        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): EntitySearchResult => $repository->search($criteria, $context));
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
 
@@ -445,9 +267,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria): EntitySearchResult {
-            return $repository->search($criteria, $context);
-        });
+        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): EntitySearchResult => $repository->search($criteria, $context));
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
 
@@ -470,12 +290,14 @@ class ApiController extends AbstractController
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
+        /** @var string $id id is always set, otherwise the route would not match */
         $id = $last['value'];
 
+        /** @var EntityPathSegment $first */
         $first = array_shift($pathSegments);
 
         if (\count($pathSegments) === 0) {
-            //first api level call /product/{id}
+            // first api level call /product/{id}
             $definition = $first['definition'];
 
             $this->executeWriteOperation($definition, ['id' => $id], $context, self::WRITE_DELETE);
@@ -503,10 +325,12 @@ class ApiController extends AbstractController
 
         // DELETE api/product/{id}/category/{id}
         if ($association instanceof ManyToManyAssociationField) {
+            /** @var Field $local */
             $local = $definition->getFields()->getByStorageName(
                 $association->getMappingLocalColumn()
             );
 
+            /** @var Field $reference */
             $reference = $definition->getFields()->getByStorageName(
                 $association->getMappingReferenceColumn()
             );
@@ -538,8 +362,13 @@ class ApiController extends AbstractController
             /** @var EntityTranslationDefinition $refClass */
             $refClass = $association->getReferenceDefinition();
 
-            $refPropName = $refClass->getFields()->getByStorageName($association->getReferenceField())->getPropertyName();
-            $refLanguagePropName = $refClass->getPrimaryKeys()->getByStorageName($association->getLanguageField())->getPropertyName();
+            /** @var Field $refField */
+            $refField = $refClass->getFields()->getByStorageName($association->getReferenceField());
+            $refPropName = $refField->getPropertyName();
+
+            /** @var Field $langField */
+            $langField = $refClass->getPrimaryKeys()->getByStorageName($association->getLanguageField());
+            $refLanguagePropName = $langField->getPropertyName();
 
             $mapping = [
                 $refPropName => $parent['value'],
@@ -557,22 +386,21 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw ApiException::unsupportedAssociation($association->getPropertyName());
     }
 
+    /**
+     * @return array{0: Criteria, 1: EntityRepository}
+     */
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $context);
         $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
+        /** @var EntityPathSegment $first */
         $first = array_shift($pathSegments);
 
-        /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
-
-        if (!$definition) {
-            throw new NotFoundHttpException('The requested entity does not exist.');
-        }
 
         $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
@@ -585,7 +413,7 @@ class ApiController extends AbstractController
             $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
             if (!empty($permissions)) {
-                throw new MissingPrivilegeException($permissions);
+                throw ApiException::missingPrivileges($permissions);
             }
 
             return [$criteria, $repository];
@@ -595,6 +423,7 @@ class ApiController extends AbstractController
         $parent = $first;
 
         if (!empty($pathSegments)) {
+            /** @var EntityPathSegment $parent */
             $parent = array_pop($pathSegments);
         }
 
@@ -610,17 +439,16 @@ class ApiController extends AbstractController
         $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         if ($association instanceof ManyToManyAssociationField) {
-            //fetch inverse association definition for filter
-            $reverse = $definition->getFields()->filter(
-                function (Field $field) use ($association) {
-                    return $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition();
-                }
+            // fetch inverse association definition for filter
+            $reverses = $definition->getFields()->filter(
+                fn (Field $field) => $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition()
             );
 
-            //contains now the inverse side association: category.products
-            $reverse = $reverse->first();
+            // contains now the inverse side association: category.products
+            /** @var ManyToManyAssociationField|null $reverse */
+            $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
@@ -646,14 +474,15 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
              */
 
-            //get foreign key definition of reference
+            // get foreign key definition of reference
+            /** @var Field $foreignKey */
             $foreignKey = $definition->getFields()->getByStorageName(
                 $association->getReferenceField()
             );
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //add filter to parent value: prices.productId = SW1
+                    // add filter to parent value: prices.productId = SW1
                     $definition->getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -665,20 +494,19 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
              */
 
-            //get inverse association to filter to parent value
-            $reverse = $definition->getFields()->filter(
-                function (Field $field) use ($parentDefinition) {
-                    return $field instanceof AssociationField && $parentDefinition === $field->getReferenceDefinition();
-                }
+            // get inverse association to filter to parent value
+            $reverses = $definition->getFields()->filter(
+                fn (Field $field) => $field instanceof AssociationField && $parentDefinition === $field->getReferenceDefinition()
             );
-            $reverse = $reverse->first();
+            /** @var AssociationField|null $reverse */
+            $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    // filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -690,20 +518,19 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
              */
 
-            //get inverse association to filter to parent value
-            $reverse = $definition->getFields()->filter(
-                function (Field $field) use ($parentDefinition) {
-                    return $field instanceof OneToOneAssociationField && $parentDefinition === $field->getReferenceDefinition();
-                }
+            // get inverse association to filter to parent value
+            $reverses = $definition->getFields()->filter(
+                fn (Field $field) => $field instanceof OneToOneAssociationField && $parentDefinition === $field->getReferenceDefinition()
             );
-            $reverse = $reverse->first();
+            /** @var OneToOneAssociationField|null $reverse */
+            $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //filter inverse association to parent value:  order_customer.order_id = xxxx
+                    // filter inverse association to parent value:  order_customer.order_id = xxxx
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -716,7 +543,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException($permissions);
+            throw ApiException::missingPrivileges($permissions);
         }
 
         return [$criteria, $repository];
@@ -726,9 +553,9 @@ class ApiController extends AbstractController
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $context);
 
+        /** @var EntityPathSegment $first */
         $first = array_shift($pathSegments);
 
-        /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
 
         if (empty($pathSegments)) {
@@ -759,7 +586,7 @@ class ApiController extends AbstractController
         $appendLocationHeader = false;
 
         if ($this->isCollection($payload)) {
-            throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
+            throw ApiException::badRequest('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
         }
 
         $pathSegments = $this->buildEntityPath($entityName, $path, $context, [WriteProtection::class]);
@@ -769,18 +596,20 @@ class ApiController extends AbstractController
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
-            throw new MethodNotAllowedHttpException($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
+            throw ApiException::methodNotAllowed($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
         }
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
             $payload['id'] = $last['value'];
         }
 
+        /** @var EntityPathSegment $first */
         $first = array_shift($pathSegments);
 
         if (\count($pathSegments) === 0) {
             $definition = $first['definition'];
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+            /** @var EntityWrittenEvent $event */
             $event = $events->getEventByEntityName($definition->getEntityName());
             $eventIds = $event->getIds();
             $entityId = array_pop($eventIds);
@@ -796,18 +625,21 @@ class ApiController extends AbstractController
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
+        /** @var EntityPathSegment $child */
         $child = array_pop($pathSegments);
 
         $parent = $first;
         if (!empty($pathSegments)) {
+            /** @var EntityPathSegment $parent */
             $parent = array_pop($pathSegments);
         }
 
-        /** @var EntityDefinition $definition */
         $definition = $child['definition'];
 
         $association = $child['field'];
@@ -815,34 +647,42 @@ class ApiController extends AbstractController
         $parentDefinition = $parent['definition'];
 
         if ($association instanceof OneToManyAssociationField) {
+            /** @var Field $foreignKey */
             $foreignKey = $definition->getFields()
                 ->getByStorageName($association->getReferenceField());
 
-            $payload[$foreignKey->getPropertyName()] = $parent['value'];
+            /** @var string $parentId, for parents the id is always set */
+            $parentId = $parent['value'];
+            $payload[$foreignKey->getPropertyName()] = $parentId;
 
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
 
             if ($noContent) {
-                return $responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
+                return $responseFactory->createRedirectResponse($definition, $parentId, $request, $context);
             }
 
+            /** @var EntityWrittenEvent $event */
             $event = $events->getEventByEntityName($definition->getEntityName());
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+            /** @var EntityWrittenEvent $event */
             $event = $events->getEventByEntityName($definition->getEntityName());
 
             $entityIds = $event->getIds();
             $entityId = array_pop($entityIds);
 
+            /** @var Field $foreignKey */
             $foreignKey = $parentDefinition->getFields()->getByStorageName($association->getStorageName());
 
             $payload = [
@@ -859,19 +699,21 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $manyToManyAssociation */
         $manyToManyAssociation = $association;
 
-        /** @var EntityDefinition|string $reference */
         $reference = $manyToManyAssociation->getToManyReferenceDefinition();
 
         // check if we need to create the entity first
         if (\count($payload) > 1 || !\array_key_exists('id', $payload)) {
             $events = $this->executeWriteOperation($reference, $payload, $context, $type);
+            /** @var EntityWrittenEvent $event */
             $event = $events->getEventByEntityName($reference->getEntityName());
 
             $ids = $event->getIds();
@@ -896,14 +738,18 @@ class ApiController extends AbstractController
 
         $entities = $repository->search($criteria, $context);
         $entity = $entities->first();
+        \assert($entity instanceof Entity);
 
         if ($noContent) {
-            return $responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
+            return $responseFactory->createRedirectResponse($reference, $id, $request, $context);
         }
 
         return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function executeWriteOperation(
         EntityDefinition $entity,
         array $payload,
@@ -911,10 +757,6 @@ class ApiController extends AbstractController
         string $type
     ): EntityWrittenContainerEvent {
         $repository = $this->definitionRegistry->getRepository($entity->getEntityName());
-
-        $conversionException = new ApiConversionException();
-        $payload = $this->apiVersionConverter->convertPayload($entity, $payload, $conversionException);
-        $conversionException->tryToThrow();
 
         $event = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $payload, $entity, $type): ?EntityWrittenContainerEvent {
             if ($type === self::WRITE_CREATE) {
@@ -929,7 +771,7 @@ class ApiController extends AbstractController
                 $event = $repository->delete([$payload], $context);
 
                 if (!empty($event->getErrors())) {
-                    throw new ResourceNotFoundException($entity->getEntityName(), $payload);
+                    throw ApiException::resourceNotFound($entity->getEntityName(), $payload);
                 }
 
                 return $event;
@@ -939,12 +781,15 @@ class ApiController extends AbstractController
         });
 
         if (!$event) {
-            throw new \RuntimeException('Unsupported write operation.');
+            throw ApiException::unsupportedOperation('write');
         }
 
         return $event;
     }
 
+    /**
+     * @param non-empty-list<string> $keys
+     */
     private function getAssociation(FieldCollection $fields, array $keys): AssociationField
     {
         $key = array_shift($keys);
@@ -962,6 +807,11 @@ class ApiController extends AbstractController
         return $this->getAssociation($nested, $keys);
     }
 
+    /**
+     * @param list<class-string<EntityProtection>> $protections
+     *
+     * @return list<EntityPathSegment>
+     */
     private function buildEntityPath(
         string $entityName,
         string $pathInfo,
@@ -995,15 +845,13 @@ class ApiController extends AbstractController
             ];
         }
 
-        $parts = array_filter($parts);
-
         /** @var array{'entity': string, 'value': string|null} $first */
         $first = array_shift($parts);
 
         try {
             $root = $this->definitionRegistry->getByEntityName($first['entity']);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         $entities = [
@@ -1021,7 +869,7 @@ class ApiController extends AbstractController
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
 
-                throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
+                throw ApiException::notExistingRelation($path);
             }
 
             if ($field instanceof ManyToManyAssociationField) {
@@ -1060,6 +908,8 @@ class ApiController extends AbstractController
 
     /**
      * Return a nested array structure of based on the content-type
+     *
+     * @return array<string, mixed>
      */
     private function getRequestBody(Request $request): array
     {
@@ -1077,13 +927,16 @@ class ApiController extends AbstractController
                 case 'application/json':
                     return $request->request->all();
             }
-        } catch (InvalidArgumentException | UnexpectedValueException $exception) {
-            throw new BadRequestHttpException($exception->getMessage());
+        } catch (InvalidArgumentException|UnexpectedValueException $exception) {
+            throw ApiException::badRequest($exception->getMessage());
         }
 
-        throw new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+        throw ApiException::unsupportedMediaType($contentType);
     }
 
+    /**
+     * @param array<mixed> $array
+     */
     private function isCollection(array $array): bool
     {
         return array_keys($array) === range(0, \count($array) - 1);
@@ -1094,7 +947,7 @@ class ApiController extends AbstractController
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($entityName);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         return $entityDefinition;
@@ -1115,8 +968,14 @@ class ApiController extends AbstractController
         return null;
     }
 
+    /**
+     * @param list<EntityPathSegment> $pathSegments
+     *
+     * @return array<string|null>
+     */
     private function validatePathSegments(Context $context, array $pathSegments, string $privilege): array
     {
+        /** @var EntityPathSegment $child */
         $child = array_pop($pathSegments);
 
         $missing = [];
@@ -1132,9 +991,12 @@ class ApiController extends AbstractController
 
         $missing[] = $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);
 
-        return array_unique(array_filter($missing));
+        return array_values(array_unique(array_filter($missing)));
     }
 
+    /**
+     * @param EntityPathSegment $segment
+     */
     private function getDefinitionForPathSegment(array $segment): EntityDefinition
     {
         $definition = $segment['definition'];

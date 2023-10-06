@@ -1,0 +1,91 @@
+{% if displayMode is not defined %}
+    {% set displayMode = 'default' %}
+{% endif %}
+
+{% if showRemoveButton is not defined %}
+    {% set showRemoveButton = true %}
+{% endif %}
+
+{% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
+
+{% if displayMode === 'offcanvas' %}
+    {% set lineItemClasses = lineItemClasses ~ ' js-cart-item' %}
+{% endif %}
+
+{% if not showRemoveButton %}
+    {% set lineItemClasses = lineItemClasses ~ ' no-remove-button' %}
+{% endif %}
+
+{% block component_line_item_type_discount %}
+    <div class="{{ lineItemClasses }}">
+        <div class="row line-item-row">
+
+            {% block component_line_item_type_discount_col_info %}
+                <div class="line-item-info">
+                    <div class="row line-item-row">
+
+                        {% if nestingLevel < 1 %}
+                            {% block component_line_item_type_discount_image %}
+                                <div class="col-auto line-item-info-img">
+                                    <div class="line-item-img-container">
+                                        {% block component_line_item_type_discount_image_inner %}
+                                            {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
+                                                fallbackIcon: 'marketing'
+                                            } %}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+
+                        {% block component_line_item_type_discount_details %}
+                            <div class="line-item-details">
+                                <div class="line-item-details-container">
+                                    {% block component_line_item_type_discount_label %}
+                                        {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block component_line_item_type_discount_col_quantity %}
+                <div class="line-item-quantity">
+                </div>
+            {% endblock %}
+
+            {% if showTaxPrice %}
+                {% block component_line_item_type_discount_col_tax_price %}
+                    <div class="line-item-tax-price">
+                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                            {% sw_include '@Storefront/storefront/component/line-item/element/tax-price.html.twig' %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block component_line_item_type_discount_col_unit_price %}
+                    <div class="line-item-unit-price">
+                    </div>
+                {% endblock %}
+            {% endif %}
+
+            {% block component_line_item_type_discount_col_total_price %}
+                <div class="line-item-total-price">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' %}
+                </div>
+            {% endblock %}
+
+            {% if showRemoveButton %}
+                {% block component_line_item_type_discount_col_total_remove %}
+                    <div class="line-item-remove">
+                        {% if lineItem.removable and nestingLevel < 1 %}
+                            {% sw_include '@Storefront/storefront/component/line-item/element/remove.html.twig' %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

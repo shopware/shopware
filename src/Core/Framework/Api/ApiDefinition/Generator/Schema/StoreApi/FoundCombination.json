@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "variantId": {
+      "type": "string"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

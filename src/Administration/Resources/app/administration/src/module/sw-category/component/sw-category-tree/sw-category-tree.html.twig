@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_tree %}
 <div class="sw-category-tree">
     <sw-tree
@@ -22,10 +23,11 @@
         @checked-elements-count="checkedElementsCount"
     >
 
-        <template slot="headline">
+        <template #headline>
             <span></span>
         </template>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_tree_items %}
         <template
             #items="{

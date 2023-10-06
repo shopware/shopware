@@ -2,17 +2,20 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var StorefrontSearchResult
+     * @var StorefrontSearchResult<ProductReviewCollection>
      */
     protected $searchResult;
 
@@ -26,13 +29,22 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
      */
     protected $request;
 
-    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    /**
+     * @param StorefrontSearchResult<ProductReviewCollection> $searchResult
+     */
+    public function __construct(
+        StorefrontSearchResult $searchResult,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->searchResult = $searchResult;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }
 
+    /**
+     * @return StorefrontSearchResult<ProductReviewCollection>
+     */
     public function getSearchResult(): StorefrontSearchResult
     {
         return $this->searchResult;

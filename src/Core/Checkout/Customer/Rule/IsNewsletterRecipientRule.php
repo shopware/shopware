@@ -4,20 +4,24 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class IsNewsletterRecipientRule extends Rule
 {
-    protected bool $isNewsletterRecipient;
+    final public const RULE_NAME = 'customerIsNewsletterRecipient';
 
-    public function __construct(bool $isNewsletterRecipient = true)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $isNewsletterRecipient = true)
     {
         parent::__construct();
-        $this->isNewsletterRecipient = $isNewsletterRecipient;
     }
 
     public function match(RuleScope $scope): bool
@@ -40,13 +44,14 @@ class IsNewsletterRecipientRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNewsletterRecipient' => [new NotNull(), new Type('bool')],
+            'isNewsletterRecipient' => RuleConstraints::bool(true),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerIsNewsletterRecipient';
+        return (new RuleConfig())
+            ->booleanField('isNewsletterRecipient');
     }
 
     private function matchIsNewsletterRecipient(CustomerEntity $customer, SalesChannelContext $context): bool

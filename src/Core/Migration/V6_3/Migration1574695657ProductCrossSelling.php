@@ -3,9 +3,16 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1574695657ProductCrossSelling extends MigrationStep
 {
     use InheritanceUpdaterTrait;
@@ -17,7 +24,7 @@ class Migration1574695657ProductCrossSelling extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `product_cross_selling` (
                 `id` BINARY(16) NOT NULL,
                 `position` INT(11) NOT NULL,
@@ -37,7 +44,7 @@ class Migration1574695657ProductCrossSelling extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `product_cross_selling_translation` (
                 `product_cross_selling_id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,

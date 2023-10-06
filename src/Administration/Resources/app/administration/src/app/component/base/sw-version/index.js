@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 
@@ -18,24 +22,43 @@ Component.register('sw-version', {
 
     computed: {
         version() {
+            let output = '';
             const version = Shopware.Context.app.config.version;
-            const match = version.match(/(\d+\.?\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
+
+            // https://regex101.com/r/oRuJjS/1
+            const match = version.match(/(\d+)\.?(\d+)\.?(\d+)?\.?(\d+)?-?([a-z]+)?(\d+(.\d+)*)?/i);
 
             if (match === null) {
                 return version;
             }
 
-            let output = `v${match[1]}`;
+            // Get rid of whole regex match for example "6.4.99999.9999999-dev"
+            match.shift();
 
-            if (match[2]) {
-                output += ` ${this.getHumanReadableText(match[2])}`;
-            } else {
-                output += ' Stable Version';
-            }
+            // Iterate version parts and append to output
+            match.forEach(((versionPart, index) => {
+                if (typeof versionPart !== 'string') {
+                    return;
+                }
 
-            if (match[3]) {
-                output += ` ${match[3]}`;
-            }
+                const hrt = this.getHumanReadableText(versionPart);
+
+                if (hrt !== versionPart) {
+                    output += ` ${hrt}`;
+
+                    return;
+                }
+
+                // Special case for the first version part. Don't append a dot to the string
+                if (index === 0) {
+                    output += `${hrt}`;
+
+                    return;
+                }
+
+                // Add dot and version part to output
+                output += `.${hrt}`;
+            }));
 
             return output;
         },

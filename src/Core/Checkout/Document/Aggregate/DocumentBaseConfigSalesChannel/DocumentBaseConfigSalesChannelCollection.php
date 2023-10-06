@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                      add(DocumentBaseConfigSalesChannelEntity $entity)
- * @method void                                      set(string $key, DocumentBaseConfigSalesChannelEntity $entity)
- * @method DocumentBaseConfigSalesChannelEntity[]    getIterator()
- * @method DocumentBaseConfigSalesChannelEntity[]    getElements()
- * @method DocumentBaseConfigSalesChannelEntity|null get(string $key)
- * @method DocumentBaseConfigSalesChannelEntity|null first()
- * @method DocumentBaseConfigSalesChannelEntity|null last()
+ * @extends EntityCollection<DocumentBaseConfigSalesChannelEntity>
  */
+#[Package('checkout')]
 class DocumentBaseConfigSalesChannelCollection extends EntityCollection
 {
     public function getApiAlias(): string

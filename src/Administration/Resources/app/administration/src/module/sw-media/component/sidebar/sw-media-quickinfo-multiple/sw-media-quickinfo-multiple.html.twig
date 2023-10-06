@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_quickinfo_multiple %}
 <div class="sw-media-quickinfo-multiple">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_multiple_quickactions %}
     <sw-media-collapse
         v-if="editable"
@@ -7,56 +9,66 @@
         :expand-on-loading="true"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_quickactions_content %}
-        <template slot="content">
+        <template #content>
             <ul class="sw-media-sidebar__quickactions-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
 
                     <sw-icon
                         small
-                        name="default-action-move-file"
+                        name="regular-file-export"
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.move') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!isPrivate"
                     class="is--danger"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
 
                     <sw-icon
                         small
-                        name="default-action-trash"
+                        name="regular-trash"
                         class="sw-media-sidebar__quickactions-icon is--danger"
                     />
                     {{ $tc('sw-media.sidebar.actions.delete') }}
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!hasMedia"
                     class="quickaction--dissolve"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderDissolve"
+                    @keydown.enter="openFolderDissolve"
                 >
 
                     <sw-icon
                         small
-                        name="default-web-loading-star"
+                        name="regular-spinner-star"
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.dissolve') }}
@@ -68,14 +80,16 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_multiple_file_names %}
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$tc('sw-media.sidebar.sections.selectedFiles')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_file_names_content %}
-        <template slot="content">
+        <template #content>
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label class="sw-media-quickinfo-multiple__second-headline">{{ getFileSizeLabel }}</label>
             <sw-media-entity-mapper
@@ -93,6 +107,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_modal_delete %}
     <sw-media-modal-delete
         v-if="showModalDelete"
@@ -102,6 +117,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_folder_dissolve_modal %}
     <sw-media-modal-folder-dissolve
         v-if="!hasMedia && showFolderDissolve"
@@ -111,6 +127,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_folder_move_modal %}
     <sw-media-modal-move
         v-if="showModalMove"

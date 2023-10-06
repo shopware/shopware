@@ -1,0 +1,134 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_dynamic_url_field %}
+<div class="sw-dynamic-url-field">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_dynamic_url_field_content %}
+    <div class="sw-dynamic-url-field_link-category">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type %}
+        <sw-select-field
+            :value="linkCategory"
+            :label="$tc('sw-text-editor-toolbar.link.labelType')"
+            require
+            {% if VUE3 %}
+            @update:value="onSelectFieldChange"
+            {% else %}
+            @change="onSelectFieldChange"
+            {% endif %}
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dynamic_url_field_content_type_options %}
+            <option value="link">
+                {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
+            </option>
+            <option value="detail">
+                {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
+            </option>
+            <option value="navigation">
+                {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
+            </option>
+            <option value="email">
+                {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
+            </option>
+            <option value="phone">
+                {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
+            </option>
+            {% endblock %}
+        </sw-select-field>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs_link %}
+        <sw-text-field
+            v-if="linkCategory === 'link'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
+            v-model="linkTarget"
+            {% endif %}
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs_phone %}
+        <sw-text-field
+            v-else-if="linkCategory === 'phone'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
+            v-model="linkTarget"
+            {% endif %}
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs_email %}
+        <sw-email-field
+            v-else-if="linkCategory === 'email'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
+            v-model="linkTarget"
+            {% endif %}
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs_detail %}
+        <sw-entity-single-select
+            v-else-if="linkCategory === 'detail'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
+            v-model="linkTarget"
+            {% endif %}
+            class="sw-dynamic-url-field__entity-single-select"
+            should-show-active-state
+            display-variants
+            entity="product"
+            :criteria="entityFilter"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            show-clearable-button
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_dynamic_url_field_content_type_inputs_category %}
+        <sw-category-tree-field
+            v-else-if="linkCategory === 'navigation'"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :criteria="entityFilter"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
+            :categories-collection="categoryCollection"
+            single-select
+            @selection-add="replaceCategorySelection"
+            @selection-remove="removeCategorySelection"
+        />
+        {% endblock %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_dynamic_url_field_button_remove %}
+    <sw-button
+        class="sw-dynamic-url-field__link-menu-buttons-button-remove"
+        variant="ghost-danger"
+        size="small"
+        :disabled="!linkTarget"
+        @click="removeLink"
+    >
+        {{ $tc('global.default.remove') }}
+    </sw-button>
+    {% endblock %}
+</div>
+{% endblock %}

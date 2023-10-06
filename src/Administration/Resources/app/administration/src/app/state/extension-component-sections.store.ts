@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import type { Module } from 'vuex';
 import type { uiComponentSectionRenderer } from '@shopware-ag/admin-extension-sdk/es/ui/componentSection';
@@ -33,5 +37,9 @@ const ExtensionComponentSectionsStore: Module<ExtensionComponentSectionsState, V
     },
 };
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default ExtensionComponentSectionsStore;
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ExtensionComponentSectionsState, ComponentSectionEntry };

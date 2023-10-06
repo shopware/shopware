@@ -1,10 +1,14 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-promotion-v2-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -56,6 +60,10 @@ Component.register('sw-promotion-v2-list', {
                 showOnDisabledElements: true,
                 position: 'bottom',
             };
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -116,4 +124,4 @@ Component.register('sw-promotion-v2-list', {
             this.total = total;
         },
     },
-});
+};

@@ -1,0 +1,203 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_entity_advanced_selection_modal %}
+<sw-modal
+    class="sw-entity-advanced-selection-modal"
+    v-bind="$attrs"
+    variant="large"
+    :title="modalTitle"
+    @modal-close="$emit('modal-close')"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_entity_advanced_selection_modal_content_card %}
+    <sw-card
+        class="sw-entity-advanced-selection-modal__content"
+        position-identifier="sw-entity-advanced-selection-modal-content"
+        :large="true"
+        :is-loading="isLoading"
+    >
+        <template #toolbar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_entity_advanced_selection_modal_toolbar %}
+            <sw-card-filter
+                class="sw-entity-advanced-selection-modal__card-filter"
+                :placeholder="$tc('global.sw-entity-advanced-selection-modal.searchPlaceholder')"
+                :initial-search-term="initialSearchTerm"
+                @sw-card-filter-term-change="onSearch"
+            >
+                <template #filter>
+                    <div class="sw-entity-advanced-selection-modal__filter-list-button">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
+                        <sw-button
+                            size="small"
+                            @click="filterWindowOpen = !filterWindowOpen"
+                        >
+                            <sw-icon
+                                name="regular-filter-s"
+                                small
+                            />
+                            <i
+                                v-if="activeFilterNumber > 0"
+                                class="sw-entity-advanced-selection-modal__filter-badge"
+                            >{{ activeFilterNumber }}</i>
+                            {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_entity_advanced_selection_modal_toolbar_filter_panel %}
+                        <sw-context-menu v-show="filterWindowOpen">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_headline %}
+                            <h3 class="sw-entity-advanced-selection-modal__filter-headline">
+                                {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
+                            </h3>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_filters %}
+                            <div class="sw-entity-advanced-selection-modal__filter-panel">
+                                {# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
+                                <sw-filter-panel
+                                    ref="filterPanel"
+                                    class="sw-entity-advanced-selection-modal__filter-panel"
+                                    entity="product"
+                                    :store-key="storeKey"
+                                    :active-filter-number="activeFilterNumber"
+                                    :filters="listFilters"
+                                    :defaults="defaultFilters"
+                                    @criteria-changed="updateCriteria"
+                                />
+                            </div>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_footer %}
+                            <div class="sw-entity-advanced-selection-modal__filter-footer">
+                                <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus vuejs-accessibility/click-events-have-key-events -->
+                                <a
+                                    role="button"
+                                    class="sw-entity-advanced-selection-modal__filter-reset"
+                                    @click="clearFilters"
+                                >
+                                    {{ $tc('global.sw-entity-advanced-selection-modal.resetFilters') }}
+                                </a>
+                            </div>
+                            {% endblock %}
+                        </sw-context-menu>
+                        {% endblock %}
+                    </div>
+                </template>
+            </sw-card-filter>
+            {% endblock %}
+        </template>
+
+        <template #grid>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_entity_advanced_selection_modal_list_grid %}
+            <sw-entity-advanced-selection-modal-grid
+                v-if="entities && entities.length"
+                class="sw-entity-advanced-selection-modal__grid"
+                :items="entities"
+                :columns="entityColumns"
+                :repository="entityRepository"
+                :full-page="true"
+                :plain-appearance="true"
+                :compact-mode="true"
+                :show-selection="true"
+                :show-actions="true"
+                :show-settings="true"
+                :is-loading="isLoading"
+                :allow-view="acl.can(`${entityName}.viewer`)"
+                :allow-edit="false"
+                :allow-delete="false"
+                :allow-inline-edit="false"
+                :allow-bulk-edit="false"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :maximum-select-items="isSingleSelect ? 1 : null"
+                :pre-selection="currentSelection"
+                :is-record-selectable-callback="isRecordSelectableCallback"
+                @selection-change="onSelectionChange"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_entity_advanced_selection_modal_list_grid_slots %}
+                {# Re-expose essential column slots #}
+                <template
+                    v-for="column in previewColumns"
+                    #[`preview-${column.property}`]="slotData"
+                >
+                    <slot
+                        :name="`preview-${column.property}`"
+                        v-bind="slotData"
+                    ></slot>
+                </template>
+
+                <template
+                    v-for="column in entityColumns"
+                    #[`column-${column.property}`]="slotData"
+                >
+                    <slot
+                        :name="`column-${column.property}`"
+                        v-bind="{ ...slotData, aggregations }"
+                    ></slot>
+                </template>
+                {% endblock %}
+
+            </sw-entity-advanced-selection-modal-grid>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_entity_advanced_selection_modal_list_empty_state %}
+            <sw-empty-state
+                v-else
+                class="sw-entity-advanced-selection-modal__empty-state"
+                :absolute="false"
+                :show-description="true"
+                :title="$tc('sw-empty-state.messageNoResultTitle')"
+                :subline="$tc('sw-empty-state.messageNoResultSublineSimple')"
+            >
+                <template #icon>
+                    <img
+                        :src="assetFilter(emptyImagePath)"
+                        :alt="$tc('sw-empty-state.messageNoResultTitle')"
+                    >
+                </template>
+            </sw-empty-state>
+            {% endblock %}
+        </template>
+    </sw-card>
+    {% endblock %}
+
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_entity_advanced_selection_modal_button_cancel %}
+        <sw-button
+            size="small"
+            class="sw-entity-advanced-selection-modal__button-cancel"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_entity_advanced_selection_modal_button_apply %}
+        <sw-button
+            variant="primary"
+            size="small"
+            class="sw-entity-advanced-selection-modal__button-apply"
+            :disabled="isLoading"
+            @click="onApply"
+        >
+            {{ $tc('global.sw-entity-advanced-selection-modal.applySelection') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+
+</sw-modal>
+{% endblock %}

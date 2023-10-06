@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -44,24 +47,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
  */
+#[Package('core')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'entity-schema';
+    final public const FORMAT = 'entity-schema';
 
     public function supports(string $format, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi', ?string $bundleName = null): never
     {
-        return $this->getSchema($definitions);
+        throw new \RuntimeException();
     }
 
+    /**
+     * @return array<
+     *     string,
+     *     array{
+     *          entity: string,
+     *          properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *          write-protected: bool,
+     *          read-protected: bool,
+     *          flags?: list<Flag>
+     *      }
+     * >
+     */
     public function getSchema(array $definitions): array
     {
         $schema = [];
@@ -71,12 +89,27 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         foreach ($definitions as $definition) {
             $entity = $definition->getEntityName();
 
-            $schema[$entity] = $this->getEntitySchema($definition);
+            $entitySchema = $this->getEntitySchema($definition);
+
+            if ($entitySchema['write-protected'] && $entitySchema['read-protected']) {
+                continue;
+            }
+
+            $schema[$entity] = $entitySchema;
         }
 
         return $schema;
     }
 
+    /**
+     * @return array{
+     *     entity: string,
+     *     properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *     write-protected: bool,
+     *     read-protected: bool,
+     *     flags?: list<Flag>
+     *  }
+     */
     private function getEntitySchema(EntityDefinition $definition): array
     {
         $fields = $definition->getFields();
@@ -86,14 +119,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             $properties[$field->getPropertyName()] = $this->parseField($definition, $field);
         }
 
-        return [
+        $result = [
             'entity' => $definition->getEntityName(),
             'properties' => $properties,
+            'write-protected' => $definition->getProtections()->get(WriteProtection::class) !== null,
+            'read-protected' => $definition->getProtections()->get(ReadProtection::class) !== null,
         ];
+
+        if ($definition instanceof DynamicEntityDefinition) {
+            $result['flags'] = $definition->getFlags();
+        }
+
+        return $result;
     }
 
+    /**
+     * @return array{type: string, flags: array<string, mixed>}
+     */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
+        /** @var array<string, mixed> $flags */
         $flags = [];
         foreach ($field->getFlags() as $flag) {
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
@@ -110,7 +155,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
                 return $property;
 
-            // fields with uuid
+                // fields with uuid
             case $field instanceof VersionField:
             case $field instanceof ReferenceVersionField:
             case $field instanceof ParentFkField:
@@ -118,7 +163,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof IdField:
                 return ['type' => 'uuid', 'flags' => $flags];
 
-            // json fields
+                // json fields
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
             case $field instanceof CalculatedPriceField:
@@ -129,12 +174,13 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return $this->createJsonObjectType($definition, $field, $flags);
 
             case $field instanceof ListField:
+            case $field instanceof BreadcrumbField:
                 return ['type' => 'json_list', 'flags' => $flags];
 
             case $field instanceof JsonField:
                 return $this->createJsonObjectType($definition, $field, $flags);
 
-            // association fields
+                // association fields
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
@@ -226,25 +272,25 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
-            // int fields
+                // int fields
             case $field instanceof ChildCountField:
             case $field instanceof TreeLevelField:
             case $field instanceof IntField:
                 return ['type' => 'int', 'flags' => $flags];
 
-            // long text fields
+                // long text fields
             case $field instanceof TreePathField:
             case $field instanceof LongTextField:
                 return ['type' => 'text', 'flags' => $flags];
 
-            // date fields
+                // date fields
             case $field instanceof UpdatedAtField:
             case $field instanceof CreatedAtField:
             case $field instanceof DateTimeField:
             case $field instanceof DateField:
                 return ['type' => 'date', 'flags' => $flags];
 
-            // scalar fields
+                // scalar fields
             case $field instanceof PasswordField:
                 return ['type' => 'password', 'flags' => $flags];
 
@@ -261,12 +307,19 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'boolean', 'flags' => $flags];
 
             default:
-                return ['type' => \get_class($field), 'flags' => $flags];
+                return ['type' => $field::class, 'flags' => $flags];
         }
     }
 
     /**
-     * @param Flag[] $flags
+     * @param array<string, mixed> $flags
+     *
+     * @return array{
+     *     type: string,
+     *     properties: array<string,
+     *     array{type: string, flags: array<string, mixed>}>,
+     *     flags: array<string, mixed>
+     * }
      */
     private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
     {

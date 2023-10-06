@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\Api\Acl;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -13,19 +14,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class AclAnnotationValidator implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => [
@@ -38,17 +43,15 @@ class AclAnnotationValidator implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $acl = $request->attributes->get('_acl');
+        $privileges = $request->attributes->get(PlatformRequest::ATTRIBUTE_ACL);
 
-        if (!$acl || !($acl instanceof Acl)) {
+        if (!$privileges) {
             return;
         }
 
-        $privileges = $acl->getValue();
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        if ($context === null) {
-            throw new MissingPrivilegeException([]);
+        if (!$context instanceof Context) {
+            throw ApiException::missingPrivileges([]);
         }
 
         foreach ($privileges as $privilege) {
@@ -61,7 +64,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
             }
 
             if (!$context->isAllowed($privilege)) {
-                throw new MissingPrivilegeException([$privilege]);
+                throw ApiException::missingPrivileges([$privilege]);
             }
         }
     }
@@ -71,7 +74,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
         $actionId = $request->get('id');
 
         if (empty($actionId)) {
-            throw new MissingPrivilegeException();
+            throw ApiException::appIdParameterIsMissing();
         }
 
         $appName = $this->connection->fetchOne(

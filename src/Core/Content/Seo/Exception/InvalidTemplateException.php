@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Seo\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('buyers-experience')]
 class InvalidTemplateException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';
+    final public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';
 
     public function __construct(string $message)
     {

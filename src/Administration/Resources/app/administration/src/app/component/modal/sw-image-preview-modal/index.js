@@ -3,6 +3,9 @@ import './sw-image-preview-modal.scss';
 
 const { Component } = Shopware;
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @status ready
  * @example-type static
@@ -50,6 +53,7 @@ Component.register('sw-image-preview-modal', {
             isDisabledReset: true,
             isDisabledZoomIn: true,
             isDisabledZoomOut: true,
+            imageSliderMounted: false,
         };
     },
 
@@ -82,10 +86,6 @@ Component.register('sw-image-preview-modal', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     updated() {
         this.updatedComponent();
     },
@@ -101,7 +101,14 @@ Component.register('sw-image-preview-modal', {
             }
         },
 
-        mountedComponent() {
+        afterComponentsMounted() {
+            if (this.imageSliderMounted) {
+                return;
+            }
+            this.imageSliderMounted = true;
+
+            document.querySelector('body').appendChild(this.$el);
+
             this.$el.addEventListener('wheel', this.onMouseWheel);
 
             this.getActiveImage().then(() => {
@@ -113,6 +120,15 @@ Component.register('sw-image-preview-modal', {
             this.getActiveImage().then(() => {
                 this.setActionButtonState();
             });
+        },
+
+        beforeDestroyComponent() {
+            if (this.$parent?.$el !== this.$el) {
+                // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
+                this.$parent.$el.appendChild(this.$el);
+            } else {
+                this.$el.remove();
+            }
         },
 
         destroyedComponent() {
@@ -215,7 +231,7 @@ Component.register('sw-image-preview-modal', {
         },
 
         onMouseWheel(event) {
-            const zoomAmount = event.wheelDelta / 800;
+            const zoomAmount = event.wheelDelta / 960;
 
             if (this.scale + zoomAmount > this.maxZoomValue) {
                 this.scale = this.maxZoomValue;

@@ -1,20 +1,24 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_range_filter %}
 <sw-base-filter
     v-bind="$attrs"
     class="sw-range-filter"
     v-on="$listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_range_filter_content %}
     <sw-container
         :class="{ 'sw-container--has-divider': isShowDivider }"
     >
-        <slot v-if="feature.isActive('FEATURE_NEXT_7530')"></slot>
+        <slot></slot>
 
         <slot name="from-field">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_range_filter_from_field %}{% endblock %}
         </slot>
 
         <slot name="divider">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_range_filter_divider %}
             <span
                 v-if="isShowDivider"
@@ -24,6 +28,7 @@
         </slot>
 
         <slot name="to-field">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_range_filter_to_field %}{% endblock %}
         </slot>
     </sw-container>

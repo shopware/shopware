@@ -1,6 +1,7 @@
 import ApiService from '../api.service';
 
 /**
+ * @package business-ops
  * @class
  * @extends ApiService
  */
@@ -32,4 +33,5 @@ class FlowActionApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default FlowActionApiService;

@@ -3,17 +3,16 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('content')]
 class Config extends XmlElement
 {
-    protected array $items = [];
-
-    private function __construct(array $items)
+    private function __construct(protected array $items)
     {
-        $this->items = $items;
     }
 
     public function toArray(string $defaultLocale): array

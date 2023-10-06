@@ -9,22 +9,25 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class AppLifecycleSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
 
@@ -68,7 +71,7 @@ class AppLifecycleSubscriberTest extends TestCase
         static::assertCount(0, $apps);
     }
 
-    public function themeProvideData(): array
+    public static function themeProvideData(): array
     {
         return [
             'Test with keep data' => [true],

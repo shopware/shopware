@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
+/**
+ * @internal
+ */
 class AccessKeyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -16,7 +19,7 @@ class AccessKeyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
         static::assertIsArray($body);
@@ -40,7 +43,7 @@ class AccessKeyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
         static::assertIsArray($body);
@@ -64,7 +67,7 @@ class AccessKeyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
         static::assertIsArray($body);

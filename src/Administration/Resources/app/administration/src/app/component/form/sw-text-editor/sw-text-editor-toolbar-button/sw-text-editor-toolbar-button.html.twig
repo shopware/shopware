@@ -1,17 +1,21 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_toolbar_button %}
 <div
     class="sw-text-editor-toolbar-button"
     :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_icon %}
     <template v-if="buttonConfig.icon">
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
             class="sw-text-editor-toolbar-button__icon"
             :class="classes"
+            role="button"
+            tabindex="0"
             @click="buttonHandler($event, buttonConfig)"
+            @keydown.enter="buttonHandler($event, buttonConfig)"
         >
             <sw-icon
                 :name="buttonConfig.icon"
@@ -19,44 +23,58 @@
             />
             <sw-icon
                 v-if="buttonConfig.children"
-                name="default-arrow-head-down"
+                name="regular-chevron-down"
                 size="8"
             />
         </div>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_name %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-else-if="buttonConfig.name"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
         :class="classes"
+        role="button"
+        tabindex="0"
         @click="buttonHandler($event, buttonConfig)"
     >
         {{ buttonConfig.name }}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_color %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-else-if="buttonConfig.type === 'foreColor'"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
         :class="classes"
+        role="button"
+        tabindex="0"
         @click="buttonHandler($event, buttonConfig)"
     >
-        <sw-field
+        <sw-compact-colorpicker
+            {% if VUE3 %}
+            v-model:value="buttonConfig.value"
+            {% else %}
             v-model="buttonConfig.value"
-            type="compactColorpicker"
+            {% endif %}
             :disabled="disabled"
             compact
             :alpha="false"
+            {% if VUE3 %}
+            @update:value="handleButtonClick(buttonConfig)"
+            {% else %}
             @input="handleButtonClick(buttonConfig)"
+            {% endif %}
         />
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_child %}
     <div
         v-if="buttonConfig.children && buttonConfig.expanded"
@@ -64,7 +82,7 @@
         :class="getDropdownClasses(buttonConfig)"
     >
         <div class="sw-text-editor-toolbar-button__children-inner-container">
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 v-for="(child, childIndex) in buttonConfig.children"
                 :key="childIndex"
@@ -73,12 +91,12 @@
                 class="sw-text-editor-toolbar-button__children-child"
                 @click="handleButtonClick(child)"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
                     <sw-icon
                         v-if="child.icon"
                         :name="child.icon"
-                        size="16"
                     />
                     <div
                         v-else
@@ -93,79 +111,41 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_link_menu %}
     <div
-        v-if="buttonConfig.type === 'link' && buttonConfig.expanded"
-        class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__link-menu"
+        v-else-if="buttonConfig.type === 'link' && buttonConfig.expanded"
+        ref="flyoutLinkMenu"
+        class="sw-text-editor-toolbar-button__children"
     >
-        {% block sw_text_editor_toolbar_button_link_menu_content %}
-        <p class="sw-text-editor-toolbar-button__link-menu-text">
-            {{ $tc('sw-text-editor-toolbar.link.linkTo') }}
-        </p>
-        <sw-field
-            v-model="buttonConfig.value"
-            type="text"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+        <sw-text-editor-link-menu
+            :button-config="buttonConfig"
+            @button-click="handleButtonClick"
+            @mounted="positionLinkMenu"
         />
-        <sw-switch-field
-            v-model="buttonConfig.newTab"
-            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
-            :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
-        />
-        <sw-switch-field
-            v-model="buttonConfig.displayAsButton"
-            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
-            :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
-        />
-        <sw-field
-            v-if="buttonConfig.displayAsButton"
-            v-model="buttonConfig.buttonVariant"
-            :options="buttonConfig.buttonVariantList"
-            type="select"
-            :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
-        />
-        <div class="sw-text-editor-toolbar-button__link-menu-buttons">
-            {% block sw_text_editor_toolbar_button_link_menu_buttons %}
-            {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
-            <sw-button
-                size="small"
-                class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
-                @click="handleButtonClick({ type: 'linkRemove' })"
-            >
-                {{ $tc('global.default.remove') }}
-            </sw-button>
-            {% endblock %}
-
-            {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
-            <sw-button
-                size="small"
-                variant="primary"
-                class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
-                @click="handleButtonClick(buttonConfig)"
-            >
-                {{ $tc('global.default.add') }}
-            </sw-button>
-            {% endblock %}
-            {% endblock %}
-        </div>
-        {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_table %}
     <div
-        v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        v-else-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        ref="flyoutMenu"
         class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu"
+        :class="flyoutClasses"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_table_menu_content %}
         <sw-text-editor-toolbar-table-button
             :button-config="buttonConfig"
+            @mounted="onChildMounted"
             @table-create="handleButtonClick(buttonConfig)"
         />
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_slot %}
     <slot name="buttonSlot"></slot>
     {% endblock %}

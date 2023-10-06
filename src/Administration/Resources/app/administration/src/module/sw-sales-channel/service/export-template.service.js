@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ */
+
 const { Application } = Shopware;
 
 Application.addServiceProvider('exportTemplateService', () => {

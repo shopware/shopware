@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
-class RemoveOrderTagAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class RemoveOrderTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepositoryInterface $orderTagRepository;
-
-    public function __construct(EntityRepositoryInterface $orderTagRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $orderTagRepository)
     {
-        $this->orderTagRepository = $orderTagRepository;
     }
 
     public static function getName(): string
@@ -20,39 +27,43 @@ class RemoveOrderTagAction extends FlowAction
         return 'action.remove.order.tag';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [OrderAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $config = $event->getConfig();
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
+            return;
+        }
+
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $orderId): void
+    {
         if (!\array_key_exists('tagIds', $config)) {
             return;
         }
 
         $tagIds = array_keys($config['tagIds']);
-        $baseEvent = $event->getEvent();
 
-        if (!$baseEvent instanceof OrderAware || empty($tagIds)) {
+        if (empty($tagIds)) {
             return;
         }
 
-        $tags = array_map(static function ($tagId) use ($baseEvent) {
-            return [
-                'orderId' => $baseEvent->getOrderId(),
-                'tagId' => $tagId,
-            ];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => [
+            'orderId' => $orderId,
+            'tagId' => $tagId,
+        ], $tagIds);
 
-        $this->orderTagRepository->delete($tags, $baseEvent->getContext());
+        $this->orderTagRepository->delete($tags, $context);
     }
 }

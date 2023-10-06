@@ -13,7 +13,7 @@
     padding: 1em 1em 3em;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
     .confirm-message {
         padding: 10% 0;
     }

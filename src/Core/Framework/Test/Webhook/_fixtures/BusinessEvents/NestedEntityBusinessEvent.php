@@ -3,23 +3,20 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 
-class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+/**
+ * @internal
+ */
+class NestedEntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var TaxEntity
-     */
-    private $tax;
-
-    public function __construct(TaxEntity $tax)
+    public function __construct(private readonly TaxEntity $tax)
     {
-        $this->tax = $tax;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -29,6 +26,9 @@ class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEvent
                 ->add('tax', new EntityType(TaxDefinition::class)));
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
@@ -38,18 +38,13 @@ class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEvent
                     '_uniqueIdentifier' => $this->tax->getId(),
                     'versionId' => null,
                     'name' => $this->tax->getName(),
-                    'taxRate' => (int) $this->tax->getTaxRate(),
+                    'taxRate' => $this->tax->getTaxRate(),
                     'position' => $this->tax->getPosition(),
                     'customFields' => null,
                     'translated' => [],
-                    'createdAt' => $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
+                    'createdAt' => $this->tax->getCreatedAt() ? $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                     'updatedAt' => null,
-                    'extensions' => [
-                        'foreignKeys' => [
-                            'extensions' => [],
-                            'apiAlias' => null,
-                        ],
-                    ],
+                    'extensions' => [],
                     'apiAlias' => 'tax',
                 ],
             ],

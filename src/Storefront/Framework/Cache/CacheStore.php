@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
@@ -15,51 +16,40 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('storefront')]
 class CacheStore implements StoreInterface
 {
-    private TagAwareAdapterInterface $cache;
+    final public const TAG_HEADER = 'sw-cache-tags';
 
+    /**
+     * @var array<string, bool>
+     */
     private array $locks = [];
 
-    private CacheStateValidator $stateValidator;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly string $sessionName;
 
     /**
-     * @var AbstractCacheTracer<StoreApiResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    private AbstractHttpCacheKeyGenerator $cacheKeyGenerator;
-
-    private MaintenanceModeResolver $maintenanceResolver;
-
-    /**
+     * @internal
+     *
      * @param AbstractCacheTracer<StoreApiResponse> $tracer
+     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
-        TagAwareAdapterInterface $cache,
-        CacheStateValidator $stateValidator,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCacheTracer $tracer,
-        AbstractHttpCacheKeyGenerator $cacheKeyGenerator,
-        MaintenanceModeResolver $maintenanceModeResolver
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly CacheStateValidator $stateValidator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly AbstractHttpCacheKeyGenerator $cacheKeyGenerator,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
+        array $sessionOptions
     ) {
-        $this->cache = $cache;
-        $this->stateValidator = $stateValidator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->tracer = $tracer;
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->maintenanceResolver = $maintenanceModeResolver;
+        $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
 
-    /**
-     * @return Response|null
-     */
-    public function lookup(Request $request)
+    public function lookup(Request $request): ?Response
     {
         // maintenance mode active and current ip is whitelisted > disable caching
-        if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
+        if (!$this->maintenanceResolver->shouldBeCached($request)) {
             return null;
         }
 
@@ -85,10 +75,7 @@ class CacheStore implements StoreInterface
         return $response;
     }
 
-    /**
-     * @return string
-     */
-    public function write(Request $request, Response $response)
+    public function write(Request $request, Response $response): string
     {
         $key = $this->cacheKeyGenerator->generate($request);
 
@@ -98,30 +85,57 @@ class CacheStore implements StoreInterface
         }
 
         if ($response instanceof StorefrontResponse) {
-            $response->setData(null);
+            $response->setData([]);
             $response->setContext(null);
         }
-
-        $item = $this->cache->getItem($key);
-
-        $item = CacheCompressor::compress($item, $response);
-        $item->expiresAt($response->getExpires());
 
         $tags = $this->tracer->get('all');
 
         $tags = array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'theme-config') !== false) {
+            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'theme-config')) {
                 return false;
             }
 
-            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'system-config') !== false) {
+            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'system-config')) {
+                return false;
+            }
+
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
                 return false;
             }
 
             return true;
         });
+
+        if ($response->headers->has(self::TAG_HEADER)) {
+            /** @var string $tagHeader */
+            $tagHeader = $response->headers->get(self::TAG_HEADER);
+            $responseTags = \json_decode($tagHeader, true, 512, \JSON_THROW_ON_ERROR);
+            $tags = array_merge($responseTags, $tags);
+
+            $response->headers->remove(self::TAG_HEADER);
+        }
+
+        $item = $this->cache->getItem($key);
+
+        /**
+         * Symfony pops out in AbstractSessionListener(https://github.com/symfony/symfony/blob/v5.4.5/src/Symfony/Component/HttpKernel/EventListener/AbstractSessionListener.php#L139-L186) the session and assigns it to the Response
+         * We should never cache the cookie of the actual browser session, this part removes it again from the cloned response object. As they popped it out of the PHP stack, we need to from it only from the cached response
+         */
+        $cacheResponse = clone $response;
+        $cacheResponse->headers = clone $response->headers;
+
+        foreach ($cacheResponse->headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $this->sessionName) {
+                $cacheResponse->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
+            }
+        }
+
+        $item = CacheCompressor::compress($item, $cacheResponse);
+        $item->expiresAt($cacheResponse->getExpires());
 
         $item->tag($tags);
 
@@ -136,9 +150,7 @@ class CacheStore implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $this->cache->deleteItem(
-            $this->cacheKeyGenerator->generate($request)
-        );
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**
@@ -153,10 +165,8 @@ class CacheStore implements StoreInterface
 
     /**
      * Tries to lock the cache for a given Request, without blocking.
-     *
-     * @return bool|string true if the lock is acquired, the path to the current lock otherwise
      */
-    public function lock(Request $request)
+    public function lock(Request $request): bool|string
     {
         $key = $this->getLockKey($request);
         if ($this->cache->hasItem($key)) {
@@ -165,6 +175,7 @@ class CacheStore implements StoreInterface
 
         $item = $this->cache->getItem($key);
         $item->set(true);
+        $item->expiresAfter(3);
 
         $this->cache->save($item);
         $this->locks[$key] = true;
@@ -174,10 +185,8 @@ class CacheStore implements StoreInterface
 
     /**
      * Releases the lock for the given Request.
-     *
-     * @return bool False if the lock file does not exist or cannot be unlocked, true otherwise
      */
-    public function unlock(Request $request)
+    public function unlock(Request $request): bool
     {
         $key = $this->getLockKey($request);
 
@@ -190,20 +199,15 @@ class CacheStore implements StoreInterface
 
     /**
      * Returns whether or not a lock exists.
-     *
-     * @return bool true if lock exists, false otherwise
      */
-    public function isLocked(Request $request)
+    public function isLocked(Request $request): bool
     {
         return $this->cache->hasItem(
             $this->getLockKey($request)
         );
     }
 
-    /**
-     * @return bool
-     */
-    public function purge(string $url)
+    public function purge(string $url): bool
     {
         $http = preg_replace('#^https:#', 'http:', $url);
         if ($http === null) {

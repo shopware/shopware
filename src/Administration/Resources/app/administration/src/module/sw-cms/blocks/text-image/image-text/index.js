@@ -1,6 +1,20 @@
-import './component';
-import './preview';
+import CMS from '../../../constant/sw-cms.constant';
 
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-image-text', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-image-text', () => import('./component'));
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text',
     label: 'sw-cms.blocks.textImage.imageText.label',
@@ -15,7 +29,20 @@ Shopware.Service('cmsService').registerCmsBlock({
         sizingMode: 'boxed',
     },
     slots: {
-        left: 'image',
+        left: {
+            type: 'image',
+            default: {
+                config: {
+                    displayMode: { source: 'static', value: 'standard' },
+                },
+                data: {
+                    media: {
+                        value: CMS.MEDIA.previewMountain,
+                        source: 'default',
+                    },
+                },
+            },
+        },
         right: 'text',
     },
 });

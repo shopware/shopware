@@ -3,15 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method Price[]    getIterator()
- * @method Price[]    getElements()
- * @method Price|null get(string $currencyId)
- * @method Price|null first()
- * @method Price|null last()
+ * @extends Collection<Price>
  */
+#[Package('core')]
 class PriceCollection extends Collection
 {
     public function add($element): void

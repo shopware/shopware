@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_box %}
 <div
     v-if="product"
@@ -5,12 +6,14 @@
     :class="`box-${element.config.boxLayout.value}`"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_box_content %}
     <div
         class="sw-cms-el-product-box__content"
         :style="verticalAlignStyle"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_badges %}
         <div class="sw-cms-el-product-box__badges">
             <div
@@ -34,6 +37,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_media %}
         <div class="sw-cms-el-product-box__media">
             <a
@@ -51,26 +55,31 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_info_skeleton %}
         <div
             v-if="displaySkeleton"
             class="sw-cms-el-product-box__info"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_name_skeleton %}
             <div class="sw-cms-el-product-box__skeleton-name"></div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_description_skeleton %}
             <div class="sw-cms-el-product-box__skeleton-description"></div>
             <div class="sw-cms-el-product-box__skeleton-description"></div>
             <div class="sw-cms-el-product-box__skeleton-description"></div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_price_skeleton %}
             <div class="sw-cms-el-product-box__skeleton-price"></div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_actions_skeleton %}
             <div class="sw-cms-el-product-box__actions">
                 <a
@@ -85,12 +94,14 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_info %}
         <div
             v-else
             class="sw-cms-el-product-box__info"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_name %}
             <a
                 href="#"
@@ -101,18 +112,21 @@
             </a>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_description %}
             <div
                 v-if="element.config.boxLayout.value === 'standard'"
                 class="sw-cms-el-product-box__description"
             >
-                {{ placeholder(product, 'description', product.description) | truncate(200, true, '...') }}
+                {{ truncateFilter(placeholder(product, 'description', product.description), 200, true, '...') }}
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_price_info %}
             <div class="sw-cms-el-product-box__price-info">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_box_price_unit %}
                 <div
                     v-if="product.purchaseUnit && product.purchaseUnit !== 0"
@@ -125,21 +139,23 @@
                         v-if="product.purchaseUnit && product.referenceUnit && product.purchaseUnit !== product.referenceUnit"
                         class="sw-cms-el-product-box__price-unit-reference"
                     >
-                        ({{ (product.price[0].gross * product.referenceUnit / product.purchaseUnit) | currency('EUR') }}
+                        ({{ currencyFilter(product.price[0].gross * product.referenceUnit / product.purchaseUnit, 'EUR') }}
                         * / {{ product.referenceUnit }} {{ product.packUnit }})
                     </span>
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_box_price %}
                 <div class="sw-cms-el-product-box__price">
-                    {{ product.price[0].gross | currency('EUR') }}
+                    {{ currencyFilter(product.price[0].gross, 'EUR') }}
                 </div>
                 {% endblock %}
 
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_product_box_actions %}
             <div class="sw-cms-el-product-box__actions">
                 <a

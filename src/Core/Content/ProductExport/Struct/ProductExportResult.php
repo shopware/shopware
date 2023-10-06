@@ -3,29 +3,19 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductExportResult
 {
     /**
-     * @var string
+     * @param list<Error> $errors
      */
-    private $content;
-
-    /**
-     * @var Error[]
-     */
-    private $errors;
-
-    /**
-     * @var int
-     */
-    private $total;
-
-    public function __construct(string $content, array $errors, int $total)
-    {
-        $this->content = $content;
-        $this->errors = $errors;
-        $this->total = $total;
+    public function __construct(
+        private readonly string $content,
+        private readonly array $errors,
+        private readonly int $total
+    ) {
     }
 
     public function getContent(): string
@@ -33,6 +23,9 @@ class ProductExportResult
         return $this->content;
     }
 
+    /**
+     * @return list<Error>
+     */
     public function getErrors(): array
     {
         return $this->errors;

@@ -20,6 +20,9 @@ use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class CartPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -1,6 +1,11 @@
-
 .sw-confirm-field {
     position: relative;
+
+    &.has--error {
+        .sw-confirm-field__button-list {
+            padding-bottom: 19px;
+        }
+    }
 
     .sw-field input {
         padding: 8px 16px;

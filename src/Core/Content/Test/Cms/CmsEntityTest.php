@@ -18,11 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class CmsEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function provideEntityClasses(): array
+    public static function provideEntityClasses(): array
     {
         return [
             [CmsBlockDefinition::class],

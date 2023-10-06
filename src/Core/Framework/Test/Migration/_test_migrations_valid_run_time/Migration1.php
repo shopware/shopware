@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 class Migration1 extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,11 +17,11 @@ class Migration1 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        //nth
+        // nth
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        //nth
+        // nth
     }
 }

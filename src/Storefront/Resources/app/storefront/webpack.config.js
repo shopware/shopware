@@ -1,14 +1,21 @@
+/**
+ * @package storefront
+ */
+
 const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const babelrc = require('./.babelrc');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const chokidar = require('chokidar');
 const chalk = require('chalk');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const crypto = require('crypto');
+
+if (process.env.IPV4FIRST) {
+    require('dns').setDefaultResultOrder('ipv4first');
+}
 
 const isProdMode = process.env.NODE_ENV === 'production';
 const isHotMode = process.env.MODE === 'hot';
@@ -19,11 +26,23 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
-let features;
+let watchFilePaths = [];
+let features = {};
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
     themeFiles = require(themeFilesConfigPath);
+
+    const pluginsConfigPath = path.resolve(projectRootPath, 'var/plugins.json');
+    const plugins = require(pluginsConfigPath);
+
+    Object.values(plugins).map((plugin) => {
+        if (plugin.views && plugin.views.length > 0) {
+            watchFilePaths.push(...plugin.views.map((viewEntry) => {
+                return path.resolve(projectRootPath, plugin.basePath, viewEntry).replace(projectRootPath + '/', '') + '/**/*.twig'; // resolve to normalize it and cut the root path to work with the cwd option of the devServer
+            }));
+        }
+    });
 }
 const featureConfigPath = path.resolve(projectRootPath, 'var/config_js_features.json');
 
@@ -51,51 +70,55 @@ let webpackConfig = {
     devServer: (() => {
         if (isHotMode) {
             return {
-                contentBase: path.resolve(__dirname, 'dist'),
-                public: hostName,
-                publicPath: `${hostName}/`,
+                static: {
+                    directory: path.resolve(__dirname, 'dist'),
+                },
                 open: false,
-                overlay: {
-                    warnings: false,
-                    errors: true
+                devMiddleware: {
+                    publicPath: `${hostName}/`,
+                    stats: {
+                        colors: true
+                    }
                 },
-                stats: {
-                    colors: true
-                },
-                quiet: true,
                 hot: true,
                 compress: false,
-                disableHostCheck: true,
+                allowedHosts: 'all',
                 port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
                 host: '127.0.0.1',
-                clientLogLevel: 'warning',
-                headers: {
-                    'Access-Control-Allow-Origin': '*'
+                client: {
+                    webSocketURL: {
+                        hostname: '0.0.0.0',
+                        protocol: 'ws',
+                        port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                    },
+                    logging: 'warn',
+                    overlay: {
+                        warnings: false,
+                        errors: true,
+                    },
                 },
-                before(app, server) {
-                    const themePattern = `${themeFiles.basePath}/**/*.twig`;
-
-                    chokidar
-                        .watch([themePattern], {
-                            persistent: true,
-                            cwd: projectRootPath,
-                            ignorePermissionErrors: true
-                        })
-                        .on('all', () => {
-                            server.sockWrite(server.sockets, 'content-changed');
-                        });
-                }
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                },
+                watchFiles: {
+                    paths: watchFilePaths,
+                    options: {
+                        persistent: true,
+                        cwd: projectRootPath,
+                        ignorePermissionErrors: true,
+                    },
+                },
             }
         }
         return {};
     })(),
     devtool: (() => {
         if (isDevMode || isHotMode) {
-            return 'cheap-module-eval-source-map';
+            return 'eval-cheap-module-source-map';
         }
 
         if (isProdMode) {
-            return 'none';
+            return false;
         }
 
         return 'inline-cheap-source-map';
@@ -106,9 +129,9 @@ let webpackConfig = {
         if (isHotMode) {
             return {
                 entry: {
-                    app: [path.resolve(__dirname, 'src/scss/base.scss')],
-                    storefront: []
-                }
+                    app: [],
+                    storefront: [],
+                },
             };
         }
 
@@ -117,22 +140,22 @@ let webpackConfig = {
     module: {
         rules: [
             {
-                test: /\.m?js$/,
-                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|eslint-plugin-cypress|fs-extra|nunito-fontface|query-string|split-on-first)\/).*/,
+                test: /\.m?(t|j)s$/,
+                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|query-string|split-on-first)\/).*/,
                 use: [
                     {
                         loader: 'babel-loader',
                         options: {
                             ...babelrc,
                             cacheDirectory: true,
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
                 include: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font')
+                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
                 ],
                 use: [
                     {
@@ -140,15 +163,15 @@ let webpackConfig = {
                         options: {
                             name: '[name].[ext]',
                             outputPath: 'assets/font',
-                            publicPath: '../assets/font'
-                        }
-                    }
-                ]
+                            publicPath: '../assets/font',
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
                 exclude: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font')
+                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
                 ],
                 use: [
                     {
@@ -156,21 +179,10 @@ let webpackConfig = {
                         options: {
                             name: '[name].[ext]',
                             outputPath: 'assets/img',
-                            publicPath: '../assets/img'
-                        }
-                    }
-                ]
-            },
-            // Expose jQuery to the global scope for plugins which don't want to use Webpack
-            {
-                test: require.resolve('jquery/dist/jquery.slim'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'jQuery'
-                }, {
-                    loader: 'expose-loader',
-                    options: '$'
-                }]
+                            publicPath: '../assets/img',
+                        },
+                    },
+                ],
             },
             ...(() => {
                 if (isHotMode) {
@@ -179,30 +191,32 @@ let webpackConfig = {
                             test: /\.scss$/,
                             use: [
                                 {
-                                    loader: 'style-loader'
+                                    loader: 'style-loader',
                                 },
                                 {
                                     loader: 'css-loader',
                                     options: {
-                                        sourceMap: true
-                                    }
+                                        sourceMap: true,
+                                        // Skip auto resolving of url(), see: https://github.com/webpack-contrib/css-loader/blob/master/CHANGELOG.md#400-2020-07-25
+                                        url: false,
+                                    },
                                 },
                                 {
                                     loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
                                     options: {
                                         sourceMap: true,
-                                        config: {
-                                            path: path.join(__dirname)
-                                        }
-                                    }
+                                        postcssOptions: {
+                                            config: false,
+                                        },
+                                    },
                                 },
                                 {
                                     loader: 'sass-loader',
                                     options: {
-                                        sourceMap: true
-                                    }
-                                }
-                            ]
+                                        sourceMap: true,
+                                    },
+                                },
+                            ],
                         },
                         {
                             test: /\.(woff(2)?|ttf|eot|svg|otf)$/,
@@ -211,24 +225,24 @@ let webpackConfig = {
                                     loader: 'file-loader',
                                     options: {
                                         name: '[name].[ext]',
-                                        outputPath: 'fonts/'
-                                    }
-                                }
-                            ]
-                        }
+                                        outputPath: 'fonts/',
+                                    },
+                                },
+                            ],
+                        },
                     ]
                 }
 
                 return [];
-            })()
-        ]
+            })(),
+        ],
     },
     name: 'shopware-6-storefront',
     optimization: {
-        moduleIds: 'hashed',
+        moduleIds: 'deterministic',
         chunkIds: 'named',
         runtimeChunk: {
-            name: 'runtime'
+            name: 'runtime',
         },
         splitChunks: {
             minSize: 0,
@@ -238,7 +252,7 @@ let webpackConfig = {
                     enforce: true,
                     test: path.resolve(__dirname, 'node_modules'),
                     name: 'vendor-node',
-                    chunks: 'all'
+                    chunks: 'all',
                 },
                 'vendor-shared': {
                     enforce: true,
@@ -254,7 +268,7 @@ let webpackConfig = {
 
                     },
                     name: 'vendor-shared',
-                    chunks: 'all'
+                    chunks: 'all',
                 },
                 ...(() => {
                     if (isProdMode) {
@@ -263,13 +277,13 @@ let webpackConfig = {
                                 test: path.resolve(__dirname, 'node_modules'),
                                 name: 'vendors',
                                 chunks: 'all',
-                            }
+                            },
                         }
                     }
 
                     return {};
-                })()
-            }
+                })(),
+            },
         },
         ...(() => {
             if (isProdMode) {
@@ -280,74 +294,61 @@ let webpackConfig = {
                                 ecma: 5,
                                 warnings: false,
                             },
-                            cache: true,
                             parallel: true,
-                            sourceMap: false,
                         }),
                     ],
                 }
             }
 
             return {}
-        })()
+        })(),
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: './js/[name].js',
         publicPath: `${hostName}/`,
-        chunkFilename: './js/[name].js'
+        chunkFilename: './js/[name].js',
     },
     performance: {
-        hints: false
+        hints: false,
     },
     plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
-            $: require.resolve('jquery/dist/jquery.slim'),
-            jQuery: require.resolve('jquery/dist/jquery.slim'),
-            'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
-            Popper: ['popper.js', 'default']
+            Popper: ['popper.js', 'default'],
         }),
         new WebpackBar({
-            name: 'Shopware 6 Storefront'
+            name: 'Shopware 6 Storefront',
         }),
         new MiniCssExtractPlugin({
             filename: './css/[name].css',
-            chunkFilename: './css/[name].css'
+            chunkFilename: './css/[name].css',
         }),
         ...(() => {
-            if (isDevMode) {
-                return [
-                    new FriendlyErrorsWebpackPlugin()
-                ];
-            }
-
             if (isHotMode) {
                 return [
-                    new FriendlyErrorsWebpackPlugin(),
-                    new webpack.HotModuleReplacementPlugin()
+                    new webpack.HotModuleReplacementPlugin(),
                 ];
             }
 
             return []
-        })()
+        })(),
     ],
     resolve: {
-        extensions: [ '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
+        extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
-            path.resolve(__dirname, 'node_modules')
+            path.resolve(__dirname, 'node_modules'),
         ],
         alias: {
             src: path.resolve(__dirname, 'src'),
             assets: path.resolve(__dirname, 'assets'),
-            jquery: 'jquery/dist/jquery.slim',
             scss: path.resolve(__dirname, 'src/scss'),
-            vendor: path.resolve(__dirname, 'vendor')
-        }
+            vendor: path.resolve(__dirname, 'vendor'),
+        },
     },
     stats: 'minimal',
-    target: 'web'
+    target: 'web',
 };
 
 if (isHotMode) {
@@ -379,9 +380,18 @@ if (isHotMode) {
     const scssEntryFilePath = path.resolve(projectRootPath, 'var/theme-entry.scss');
     const scssDumpedVariables = path.resolve(projectRootPath, 'var/theme-variables.scss');
     const scssEntryFileContent = (() => {
+        const themeConfig = JSON.parse(fs.readFileSync(path.resolve(projectRootPath, 'files/theme-config/index.json'), { encoding: 'utf8' }));
+        const themeId = Object.values(themeConfig)[0];
+
         const fileComment = '// ATTENTION! This file is auto generated by webpack.hot.config.js and should not be edited.\n\n';
         const dumpedVariablesImport = `@import "${scssDumpedVariables}";\n`;
-        const assetOverrides = '$app-css-relative-asset-path: \'/bundles/storefront/assets\'; $sw-asset-public-url: \'\';\n$sw-asset-theme-url: \'\';\n$sw-asset-asset-url: \'\';\n$sw-asset-sitemap-url: \'\';\n'
+        const assetOverrides = `
+            $app-css-relative-asset-path: '/theme/${themeId}/assets';
+            $sw-asset-public-url: '';
+            $sw-asset-theme-url: '';
+            $sw-asset-asset-url: '';
+            $sw-asset-sitemap-url: '';
+        `;
 
         const collectedImports = [dumpedVariablesImport, assetOverrides, ...themeFiles.style.map((value) => {
             return `@import "${value.filepath}";\n`;
@@ -400,7 +410,9 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    webpackConfig.entry.storefront = [...themeFiles.script, { filepath: scssEntryFilePath }].map((file) => {
+    webpackConfig.entry.app = [scssEntryFilePath];
+
+    webpackConfig.entry.storefront = [...themeFiles.script].map((file) => {
         return file.filepath;
     });
 }

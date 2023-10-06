@@ -1,5 +1,12 @@
+/**
+ * @package admin
+ */
+
 let isInitialized = false;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function LanguageAutoFetchingService() {
     if (isInitialized) return;
     isInitialized = true;

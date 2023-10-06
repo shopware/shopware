@@ -1,5 +1,9 @@
+/**
+ * @package inventory
+ */
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FeatureGridTranslationService {
     /**
      * @param {Vue} component
@@ -50,7 +54,7 @@ export default class FeatureGridTranslationService {
             return Promise.resolve();
         }
 
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equalsAny(
             filterBy,

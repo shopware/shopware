@@ -5,11 +5,9 @@
             add: {
                 afterLoginPath: path('frontend.wishlist.add.after.login', { productId: productId }),
                 path: path('frontend.wishlist.product.add', { productId: productId }),
-                token: sw_csrf('frontend.wishlist.product.add', {"mode": "token"})
             },
             remove: {
                 path: path('frontend.wishlist.product.remove', { productId: productId }),
-                token: sw_csrf('frontend.wishlist.product.remove', {"mode": "token"}),
             }
         }
     } %}
@@ -35,7 +33,6 @@
                         <span class="product-wishlist-btn-content text-wishlist-remove product-wishlist-btn-content-{{ size }}">
                             {{ "listing.removeFromWishlist"|trans|sw_sanitize }}
                         </span>
-
                     {% endif %}
                 {% endblock %}
             </button>

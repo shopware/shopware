@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class StoreApiSeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -24,7 +27,7 @@ class StoreApiSeoResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -45,7 +48,10 @@ class StoreApiSeoResolverTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNull($response['seoUrls']);
         static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
@@ -63,9 +69,11 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
 
-        static::assertIsArray($response['extensions']);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
@@ -85,9 +93,11 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
 
-        static::assertIsArray($response['extensions']);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
@@ -165,7 +175,7 @@ class StoreApiSeoResolverTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 
     private function setVisibilities(): void
@@ -181,6 +191,6 @@ class StoreApiSeoResolverTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
+            ->update($products, Context::createDefaultContext());
     }
 }

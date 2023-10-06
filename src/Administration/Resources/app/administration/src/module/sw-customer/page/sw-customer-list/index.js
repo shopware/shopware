@@ -1,10 +1,15 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-customer-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
@@ -26,16 +31,6 @@ Component.register('sw-customer-list', {
             filterLoading: false,
             availableAffiliateCodes: [],
             availableCampaignCodes: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            affiliateCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            campaignCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            showOnlyCustomerGroupRequests: false,
-
             filterCriteria: [],
             defaultFilters: [
                 'affiliate-code-filter',
@@ -107,8 +102,8 @@ Component.register('sw-customer-list', {
             return criteria;
         },
 
-        listFilters() {
-            return this.filterFactory.create('customer', {
+        listFilterOptions() {
+            return {
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -171,7 +166,15 @@ Component.register('sw-customer-list', {
                     label: this.$tc('sw-customer.filter.tags.label'),
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('customer', this.listFilterOptions);
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -190,7 +193,7 @@ Component.register('sw-customer-list', {
 
     methods: {
         createdComponent() {
-            this.loadFilterValues();
+            return this.loadFilterValues();
         },
 
         onInlineEditSave(promise, customer) {
@@ -212,7 +215,7 @@ Component.register('sw-customer-list', {
             const criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
 
-            const newCriteria = await this.addQueryScores(this.term, this.defaultCriteria);
+            const newCriteria = await this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length;
 
@@ -221,6 +224,10 @@ Component.register('sw-customer-list', {
                 this.total = 0;
 
                 return;
+            }
+
+            if (this.freshSearchTerm) {
+                newCriteria.resetSorting();
             }
 
             try {
@@ -249,6 +256,11 @@ Component.register('sw-customer-list', {
             return this.customerRepository.delete(id).then(() => {
                 this.getList();
             });
+        },
+
+        async onChangeLanguage() {
+            await this.createdComponent();
+            await this.getList();
         },
 
         getCustomerColumns() {
@@ -322,6 +334,13 @@ Component.register('sw-customer-list', {
                 allowResize: true,
                 visible: false,
                 useCustomSort: true,
+            }, {
+                property: 'active',
+                inlineEdit: 'boolean',
+                label: 'sw-customer.list.columnActive',
+                allowResize: true,
+                visible: false,
+                useCustomSort: true,
             }];
 
             return columns;
@@ -332,32 +351,14 @@ Component.register('sw-customer-list', {
 
             return this.customerRepository.search(this.filterSelectCriteria)
                 .then(({ aggregations }) => {
-                    this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
-                    this.availableCampaignCodes = aggregations.campaignCodes.buckets;
+                    this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
+                    this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
                     this.filterLoading = false;
 
                     return aggregations;
                 }).catch(() => {
                     this.filterLoading = false;
                 });
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeAffiliateCodeFilter(value) {
-            this.affiliateCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeCampaignCodeFilter(value) {
-            this.campaignCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeRequestedGroupFilter(value) {
-            this.showOnlyCustomerGroupRequests = value;
-            this.getList();
         },
 
         updateCriteria(criteria) {
@@ -378,4 +379,4 @@ Component.register('sw-customer-list', {
             this.showBulkEditModal = false;
         },
     },
-});
+};

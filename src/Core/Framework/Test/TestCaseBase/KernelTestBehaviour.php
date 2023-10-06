@@ -9,7 +9,7 @@ trait KernelTestBehaviour
 {
     use EventDispatcherBehaviour;
 
-    protected function getKernel(): Kernel
+    protected static function getKernel(): Kernel
     {
         return KernelLifecycleManager::getKernel();
     }
@@ -17,14 +17,17 @@ trait KernelTestBehaviour
     /**
      * This results in the test container, with all private services public
      */
-    protected function getContainer(): ContainerInterface
+    protected static function getContainer(): ContainerInterface
     {
-        $container = $this->getKernel()->getContainer();
+        $container = static::getKernel()->getContainer();
 
         if (!$container->has('test.service_container')) {
             throw new \RuntimeException('Unable to run tests against kernel without test.service_container');
         }
 
-        return $container->get('test.service_container');
+        /** @var ContainerInterface $testContainer */
+        $testContainer = $container->get('test.service_container');
+
+        return $testContainer;
     }
 }

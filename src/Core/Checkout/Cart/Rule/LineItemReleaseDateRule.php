@@ -2,58 +2,41 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemReleaseDateRule extends Rule
 {
-    protected ?string $lineItemReleaseDate;
+    final public const RULE_NAME = 'cartLineItemReleaseDate';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemReleaseDate = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $lineItemReleaseDate = null
+    ) {
         parent::__construct();
-
-        $this->lineItemReleaseDate = $lineItemReleaseDate;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemReleaseDate';
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'operator' => RuleConstraints::datetimeOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['lineItemReleaseDate'] = [new NotBlank(), new Type('string')];
+        $constraints['lineItemReleaseDate'] = RuleConstraints::datetime();
 
         return $constraints;
     }
@@ -62,7 +45,7 @@ class LineItemReleaseDateRule extends Rule
     {
         try {
             $ruleValue = $this->buildDate($this->lineItemReleaseDate);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -74,7 +57,7 @@ class LineItemReleaseDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -83,8 +66,15 @@ class LineItemReleaseDateRule extends Rule
         return false;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->dateTimeField('lineItemReleaseDate');
+    }
+
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesReleaseDate(LineItem $lineItem, ?\DateTime $ruleValue): bool
     {
@@ -92,44 +82,20 @@ class LineItemReleaseDateRule extends Rule
             $releasedAtString = $lineItem->getPayloadValue('releaseDate');
 
             if ($releasedAtString === null) {
-                return $this->operator === self::OPERATOR_EMPTY;
+                return RuleComparison::isNegativeOperator($this->operator);
             }
 
             /** @var \DateTime $itemReleased */
             $itemReleased = $this->buildDate($releasedAtString);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $ruleValue && $itemReleased->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_NEQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $ruleValue && $itemReleased->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_GT:
-                return $ruleValue && $itemReleased > $ruleValue;
-
-            case self::OPERATOR_LT:
-                return $ruleValue && $itemReleased < $ruleValue;
-
-            case self::OPERATOR_GTE:
-                return $ruleValue && $itemReleased >= $ruleValue;
-
-            case self::OPERATOR_LTE:
-                return $ruleValue && $itemReleased <= $ruleValue;
-
-            case self::OPERATOR_EMPTY:
-                return false;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if ($ruleValue === null) {
+            return false;
         }
+
+        return RuleComparison::datetime($itemReleased, $ruleValue, $this->operator);
     }
 
     /**

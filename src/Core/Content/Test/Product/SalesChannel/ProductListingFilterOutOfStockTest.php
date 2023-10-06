@@ -10,7 +10,6 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -20,25 +19,22 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductListingFilterOutOfStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
@@ -84,10 +80,8 @@ class ProductListingFilterOutOfStockTest extends TestCase
         static::assertTrue($listing->has($this->testData->getId('product2-green')));
         static::assertTrue($listing->has($this->testData->getId('product2-red')));
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
-        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
         $ids = array_keys($options->getOptionIdMap());
@@ -126,10 +120,8 @@ class ProductListingFilterOutOfStockTest extends TestCase
         static::assertFalse($listing->has($this->testData->getId('product2-green')));
         static::assertFalse($listing->has($this->testData->getId('product2-red')));
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
-        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
         $ids = array_keys($options->getOptionIdMap());
@@ -176,6 +168,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
         );
     }
 
+    /**
+     * @param array<array{combination: array<string>, stock: int}> $options
+     * @param array<string> $listingGroups
+     */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
@@ -198,7 +194,9 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $data = [
             [
                 'id' => $id,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => $id,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -236,21 +234,17 @@ class ProductListingFilterOutOfStockTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
-                        return ['id' => $id];
-                    }, $combination),
+                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
                 ];
             }
         }
 
-        $repo = $this->getContainer()->get('product.repository');
-
-        $repo->create($data, Context::createDefaultContext());
+        $this->getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
     }
 
     private function insertOptions(): void
     {
-        $data = [
+        $this->getContainer()->get('property_group.repository')->create([
             [
                 'id' => $this->testData->createId('color'),
                 'name' => 'color',
@@ -260,10 +254,6 @@ class ProductListingFilterOutOfStockTest extends TestCase
                     ['id' => $this->testData->createId('blue'), 'name' => 'blue'],
                 ],
             ],
-        ];
-
-        /** @var EntityRepositoryInterface $repo */
-        $repo = $this->getContainer()->get('property_group.repository');
-        $repo->create($data, Context::createDefaultContext());
+        ], Context::createDefaultContext());
     }
 }

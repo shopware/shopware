@@ -4,10 +4,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="customer.account_types" type="collection">
+            <parameter type="constant">Shopware\Core\Checkout\Customer\CustomerEntity::ACCOUNT_TYPE_BUSINESS</parameter>
+            <parameter type="constant">Shopware\Core\Checkout\Customer\CustomerEntity::ACCOUNT_TYPE_PRIVATE</parameter>
+        </parameter>
+    </parameters>
+
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" priority="900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">
@@ -39,7 +45,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
@@ -49,6 +55,7 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
             <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%customer.account_types%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
@@ -56,7 +63,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="validator.constraint_validator"/>
         </service>
@@ -69,6 +76,11 @@
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator">
+            <argument type="service" id="country.repository"/>
             <tag name="validator.constraint_validator"/>
         </service>
 
@@ -90,10 +102,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerNewsletterSubscriber">
-            <argument type="service" id="customer.repository"/>
+        <service id="Shopware\Core\Checkout\Customer\Service\ProductReviewCountService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\ProductReviewCountService"/>
+
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14001"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">
@@ -124,17 +140,17 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
         </service>
@@ -166,6 +182,15 @@
             <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute" public="true">
+            <argument type="service" id="customer_recovery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="shopware.rate_limiter"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
@@ -177,6 +202,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute" public="true">
@@ -192,13 +219,18 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
             <argument type="service" id="customer.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute" public="true">
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute" public="true">
@@ -211,6 +243,10 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
@@ -218,6 +254,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute" public="true">
@@ -231,6 +268,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute" public="true">
@@ -258,8 +297,9 @@
 
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_group.repository" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition">
@@ -275,18 +315,21 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="customer_wishlist_product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerWishlistProductExceptionHandler">
@@ -317,6 +360,31 @@
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">
             <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
             <tag name="console.command" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
+
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute" public="true">
+            <argument type="service" id="order_line_item_download.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

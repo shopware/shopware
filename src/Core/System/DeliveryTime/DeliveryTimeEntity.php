@@ -8,14 +8,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 
+#[Package('checkout')]
 class DeliveryTimeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
-    public const DELIVERY_TIME_DAY = 'day';
-    public const DELIVERY_TIME_WEEK = 'week';
-    public const DELIVERY_TIME_MONTH = 'month';
+    use EntityIdTrait;
+    final public const DELIVERY_TIME_HOUR = 'hour';
+    final public const DELIVERY_TIME_DAY = 'day';
+    final public const DELIVERY_TIME_WEEK = 'week';
+    final public const DELIVERY_TIME_MONTH = 'month';
+    final public const DELIVERY_TIME_YEAR = 'year';
 
     /**
      * @var string|null
@@ -43,7 +48,7 @@ class DeliveryTimeEntity extends Entity
     protected $shippingMethods;
 
     /**
-     * @var EntityCollection
+     * @var DeliveryTimeTranslationCollection|null
      */
     protected $translations;
 
@@ -102,11 +107,17 @@ class DeliveryTimeEntity extends Entity
         $this->shippingMethods = $shippingMethods;
     }
 
+    /**
+     * @return DeliveryTimeTranslationCollection|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param DeliveryTimeTranslationCollection $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;

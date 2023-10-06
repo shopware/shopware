@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                              add(LandingPageTranslationEntity $entity)
- * @method void                              set(string $key, LandingPageTranslationEntity $entity)
- * @method LandingPageTranslationEntity[]    getIterator()
- * @method LandingPageTranslationEntity[]    getElements()
- * @method LandingPageTranslationEntity|null get(string $key)
- * @method LandingPageTranslationEntity|null first()
- * @method LandingPageTranslationEntity|null last()
+ * @extends EntityCollection<LandingPageTranslationEntity>
  */
+#[Package('buyers-experience')]
 class LandingPageTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_select_document_type_modal %}
 <sw-modal
     v-bind="$attrs"
@@ -7,17 +8,27 @@
     @modal-close="$emit('modal-close', false)"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_select_document_type_modal_document_types %}
     <sw-radio-field
         v-if="!isLoading && documentTypes.length"
+        {% if VUE3 %}
+        v-model:value="documentType"
+        {% else %}
         v-model="documentType"
+        {% endif %}
         :options="documentTypes"
         class="sw-order-select-document-type-modal__radio-field"
+        {% if VUE3 %}
+        @update:value="onRadioFieldChange"
+        {% else %}
         @change="onRadioFieldChange"
+        {% endif %}
     />
     {% endblock %}
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_select_document_type_modal_footer_action_cancel %}
         <sw-button
             @click="$emit('modal-close', false)"
@@ -26,6 +37,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_select_document_type_modal_footer_action_create %}
         <sw-button
             variant="primary"

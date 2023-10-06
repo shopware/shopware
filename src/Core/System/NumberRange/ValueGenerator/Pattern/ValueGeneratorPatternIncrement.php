@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 
-class ValueGeneratorPatternIncrement implements ValueGeneratorPatternInterface
+#[Package('checkout')]
+class ValueGeneratorPatternIncrement extends AbstractValueGenerator
 {
     /**
-     * @var IncrementStorageInterface
+     * @internal
      */
-    private $incrementConnector;
-
-    public function __construct(IncrementStorageInterface $incrementConnector)
+    public function __construct(private readonly AbstractIncrementStorage $incrementConnector)
     {
-        $this->incrementConnector = $incrementConnector;
     }
 
     public function getPatternId(): string
@@ -22,12 +21,20 @@ class ValueGeneratorPatternIncrement implements ValueGeneratorPatternInterface
         return 'n';
     }
 
-    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
+    /**
+     * @param array<int, string> $args
+     */
+    public function generate(array $config, ?array $args = null, ?bool $preview = false): string
     {
         if ($preview === true) {
-            return $this->incrementConnector->getNext($configuration);
+            return (string) $this->incrementConnector->preview($config);
         }
 
-        return $this->incrementConnector->pullState($configuration);
+        return (string) $this->incrementConnector->reserve($config);
+    }
+
+    public function getDecorated(): AbstractValueGenerator
+    {
+        throw new DecorationPatternException(self::class);
     }
 }

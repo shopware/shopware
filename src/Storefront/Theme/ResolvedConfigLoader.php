@@ -3,28 +3,23 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('storefront')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $repository;
-
-    /**
-     * @var ThemeService
-     */
-    private $service;
-
-    public function __construct(EntityRepositoryInterface $repository, ThemeService $service)
-    {
-        $this->repository = $repository;
-        $this->service = $service;
+    public function __construct(
+        private readonly EntityRepository $repository,
+        private readonly ThemeService $service
+    ) {
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader
@@ -50,7 +45,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
         $result = new MediaCollection();
 
-        /** @var string[] $mediaIds */
+        /** @var array<string> $mediaIds */
         $mediaIds = array_keys($mediaItems);
         if (!empty($mediaIds)) {
             $criteria = new Criteria($mediaIds);

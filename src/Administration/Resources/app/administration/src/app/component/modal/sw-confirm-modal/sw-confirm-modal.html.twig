@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_confirm_modal %}
 <sw-modal
     class="sw-confirm-modal"
@@ -7,9 +8,11 @@
     @modal-close="$emit('close')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_confirm_modal_text %}
     <slot>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_confirm_modal_text_default %}
         <p class="sw-confirm-modal__text">
             {{ descriptionText }}
@@ -19,9 +22,11 @@
     </slot>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_confirm_modal_footer %}
     <template #modal-footer>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_confirm_modal_footer_cancel %}
         <sw-button
             class="sw-confirm-modal__button-cancel"
@@ -32,10 +37,11 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_confirm_modal_footer_confirm %}
         <sw-button
             class="sw-confirm-modal__button-confirm"
-            :variant="type === 'delete' ? 'danger' : 'primary'"
+            :variant="confirmButtonVariant"
             size="small"
             @click="$emit('confirm')"
         >

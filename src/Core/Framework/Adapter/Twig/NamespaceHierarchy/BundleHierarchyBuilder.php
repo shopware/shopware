@@ -4,18 +4,19 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+#[Package('core')]
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
-    private KernelInterface $kernel;
-
-    private Connection $connection;
-
-    public function __construct(KernelInterface $kernel, Connection $connection)
-    {
-        $this->kernel = $kernel;
-        $this->connection = $connection;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection
+    ) {
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
@@ -35,23 +36,35 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
                 continue;
             }
 
-            // bundle or plugin version unknown at this point
-            $bundles[$bundle->getName()] = 1;
+            $bundles[$bundle->getName()] = $bundle->getTemplatePriority();
         }
 
         $bundles = array_reverse($bundles);
+        $apps = $this->getAppTemplateNamespaces();
+
+        /** @var array<int, array<string, mixed>> $combinedApps */
+        $combinedApps = array_combine(array_keys($apps), array_column($apps, 'template_load_priority'));
+
+        $extensions = array_merge($combinedApps, $bundles);
+        asort($extensions);
+
+        foreach ($apps as $appName => ['version' => $version]) {
+            $extensions[$appName] = $version;
+        }
 
         return array_merge(
-            $this->getAppTemplateNamespaces(),
-            $bundles,
+            $extensions,
             $namespaceHierarchy
         );
     }
 
+    /**
+     * @return array<mixed, array<string, mixed>>
+     */
     private function getAppTemplateNamespaces(): array
     {
-        return $this->connection->fetchAllKeyValue(
-            'SELECT `app`.`name`, `app`.`version`
+        return $this->connection->fetchAllAssociativeIndexed(
+            'SELECT `app`.`name`, `app`.`version`, `app`.`template_load_priority`
              FROM `app`
              INNER JOIN `app_template` ON `app_template`.`app_id` = `app`.`id`
              WHERE `app`.`active` = 1 AND `app_template`.`active` = 1'

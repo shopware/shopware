@@ -4,6 +4,24 @@
       "mainMenuItemGeneral": "Zahlungsarten",
       "placeholderSearchBar": "Durchsuche alle Zahlungsarten ..."
     },
+    "overview": {
+      "openSortingModalButton": "Darstellungsreihenfolge im Bestellprozess ändern",
+      "editDetails": "Details bearbeiten",
+      "activeToggle": "Aktiv",
+      "missingEditorPermission": "Du hast nicht die nötigen Zugriffsrechte, um Zahlarten zu bearbeiten",
+      "notification": {
+        "activationSuccess": "{name} wurde erfolgreich aktiviert.",
+        "deactivationSuccess": "{name} wurde erfolgreich deaktiviert.",
+        "activationError": "{name} konnte nicht aktiviert werden.",
+        "deactivationError": "{name} konnte nicht deaktiviert werden."
+      }
+    },
+    "sorting-modal": {
+      "modalTitle": "Darstellungsreihenfolge im Bestellprozess",
+      "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden.",
+      "saveSuccessful": "Reihenfolge der Zahlungsmethoden wurde aktualisiert.",
+      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsmethoden ist ein Fehler aufgetreten."
+    },
     "list": {
       "textHeadline": "Zahlungsarten",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",

@@ -6,15 +6,17 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('core')]
 class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
-    public const ID = DefinitionService::STORE_API;
+    final public const ID = DefinitionService::STORE_API;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $allowedPaths = [DefinitionService::STORE_API];
 

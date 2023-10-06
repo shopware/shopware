@@ -1,0 +1,15 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "NavigationRouteResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#\/components\/schemas\/Category"
+                }
+            }
+        }
+    }
+}

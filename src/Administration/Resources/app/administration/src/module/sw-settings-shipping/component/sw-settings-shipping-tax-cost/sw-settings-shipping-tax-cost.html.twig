@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_shipping_tax_cost %}
 <sw-card
     class="sw-settings-shipping-tax-cost"
@@ -5,11 +6,15 @@
     :title="$tc('sw-settings-shipping.detail.tax.fieldName')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
     <sw-single-select
-        v-model="shippingMethod.taxType"
+        {% if VUE3 %}
+        v-model:value="taxType"
+        {% else %}
+        v-model="taxType"
+        {% endif %}
         class="sw-settings-shipping__tax-type-selection"
-        required
         show-clearable-button
         :disabled="disabled"
         :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"
@@ -20,11 +25,16 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_shipping_cost_tax_rate_select %}
     <sw-entity-single-select
         v-if="shippingMethod.taxType === 'fixed'"
         ref="taxIdSelection"
+        {% if VUE3 %}
+        v-model:value="shippingMethod.taxId"
+        {% else %}
         v-model="shippingMethod.taxId"
+        {% endif %}
         class="sw-settings-shipping__tax-rate"
         validation="required"
         required

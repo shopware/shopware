@@ -1,8 +1,11 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-settings-seo.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-settings-seo', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -27,4 +30,4 @@ Component.register('sw-settings-seo', {
             this.isLoading = loading;
         },
     },
-});
+};

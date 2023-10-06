@@ -1,9 +1,14 @@
 import template from './sw-customer-address-form-options.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-customer-address-form-options', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
+
+    emits: ['default-address-change'],
 
     props: {
         customer: {
@@ -49,4 +54,4 @@ Component.register('sw-customer-address-form-options', {
         },
     },
 
-});
+};

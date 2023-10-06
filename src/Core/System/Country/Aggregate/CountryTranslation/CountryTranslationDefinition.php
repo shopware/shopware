@@ -6,13 +6,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
+#[Package('buyers-experience')]
 class CountryTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'country_translation';
+    final public const ENTITY_NAME = 'country_translation';
 
     public function getEntityName(): string
     {
@@ -34,6 +37,13 @@ class CountryTranslationDefinition extends EntityTranslationDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'addressFormat' => CountryDefinition::DEFAULT_ADDRESS_FORMAT,
+        ];
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return CountryDefinition::class;
@@ -43,6 +53,7 @@ class CountryTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new JsonField('address_format', 'addressFormat'))->addFlags(new ApiAware(), new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

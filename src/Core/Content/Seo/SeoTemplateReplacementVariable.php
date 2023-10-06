@@ -2,22 +2,15 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('buyers-experience')]
 class SeoTemplateReplacementVariable
 {
-    /**
-     * @var string
-     */
-    private $mappedEntityName;
-
-    /**
-     * @var string|null
-     */
-    private $mappedEntityFields;
-
-    public function __construct(string $mappedEntityName, ?string $mappedEntityFields = null)
-    {
-        $this->mappedEntityName = $mappedEntityName;
-        $this->mappedEntityFields = $mappedEntityFields;
+    public function __construct(
+        private readonly string $mappedEntityName,
+        private readonly ?string $mappedEntityFields = null
+    ) {
     }
 
     public function hasMappedFields(): bool

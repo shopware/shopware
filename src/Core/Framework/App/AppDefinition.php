@@ -5,8 +5,11 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -30,18 +34,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
+use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
 /**
  * @internal
  */
+#[Package('core')]
 class AppDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app';
+    final public const ENTITY_NAME = 'app';
 
     public function getEntityName(): string
     {
@@ -63,8 +69,11 @@ class AppDefinition extends EntityDefinition
         return [
             'active' => false,
             'configurable' => false,
+            'allowDisable' => true,
             'modules' => [],
             'cookies' => [],
+            'allowedHosts' => [],
+            'templateLoadPriority' => 0,
         ];
     }
 
@@ -75,7 +84,7 @@ class AppDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('path', 'path'))->addFlags(new Required()),
@@ -89,9 +98,13 @@ class AppDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new ListField('modules', 'modules', JsonField::class))->setStrict(true),
+            new ListField('modules', 'modules', JsonField::class),
             new JsonField('main_module', 'mainModule'),
-            (new ListField('cookies', 'cookies', JsonField::class))->setStrict(true),
+            new ListField('cookies', 'cookies', JsonField::class),
+            (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required()),
+            new StringField('base_app_url', 'baseAppUrl', 1024),
+            new ListField('allowed_hosts', 'allowedHosts', StringField::class),
+            new IntField('template_load_priority', 'templateLoadPriority'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),
@@ -111,15 +124,11 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('scripts', ScriptDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('webhooks', WebhookDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
+            (new OneToManyAssociationField('taxProviders', TaxProviderDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('scriptConditions', AppScriptConditionDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('flowEvents', AppFlowEventDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_17950')) {
-            $fields->add(
-                new StringField('base_app_url', 'baseAppUrl', 1024)
-            );
-        }
-
-        return $fields;
     }
 }

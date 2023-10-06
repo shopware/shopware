@@ -2,31 +2,28 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[Package('checkout')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $customerRepository;
-
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->customerRepository = $customerRepository;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerEmailUnique) {
             throw new UnexpectedTypeException($constraint, CustomerEmailUnique::class);
@@ -36,18 +33,35 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customer.email', $value));
-        $criteria->addFilter(new EqualsFilter('customer.guest', false));
+        $query = $this->connection->createQueryBuilder();
 
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $constraint->getSalesChannelContext()->getSalesChannel()->getId()),
-        ]));
+        /** @var array{email: string, guest: int, bound_sales_channel_id: string|null}[] $results */
+        $results = $query
+            ->select('email', 'guest', 'LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
+            ->from('customer')
+            ->where($query->expr()->eq('email', $query->createPositionalParameter($value)))
+            ->executeQuery()
+            ->fetchAllAssociative();
 
-        $result = $this->customerRepository->searchIds($criteria, $constraint->getContext());
+        $results = \array_filter($results, static function (array $entry) use ($constraint) {
+            // Filter out guest entries
+            if ($entry['guest']) {
+                return null;
+            }
 
-        if ($result->getTotal() === 0) {
+            if ($entry['bound_sales_channel_id'] === null) {
+                return true;
+            }
+
+            if ($entry['bound_sales_channel_id'] !== $constraint->getSalesChannelContext()->getSalesChannelId()) {
+                return null;
+            }
+
+            return true;
+        });
+
+        // If we don't have anything, skip
+        if ($results === []) {
             return;
         }
 

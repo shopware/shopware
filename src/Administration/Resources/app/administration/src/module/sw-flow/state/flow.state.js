@@ -1,8 +1,11 @@
-import { ACTION } from '../constant/flow.constant';
-
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
+const { types } = Shopware.Utils;
 
+/**
+ * @private
+ * @package services-settings
+ */
 export default {
     namespaced: true,
 
@@ -11,7 +14,9 @@ export default {
             eventName: '',
             sequences: [],
         },
+        originFlow: {},
         triggerEvent: {},
+        triggerEvents: [],
         triggerActions: [],
         invalidSequences: [],
         stateMachineState: [],
@@ -20,13 +25,33 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
-        /* @internal (flag:FEATURE_NEXT_18215) */
         restrictedRules: [],
+        appActions: [],
+        originAvailableActions: [],
     },
 
     mutations: {
+        setAppActions(state, actions) {
+            state.appActions = [
+                ...state.appActions,
+                ...actions,
+            ];
+        },
+
         setFlow(state, flow) {
             state.flow = flow;
+            if (flow.config) {
+                state.flow.description = flow.config.description;
+                state.flow.sequences = flow.config.sequences;
+                state.flow.eventName = flow.config.eventName;
+            }
+        },
+
+        setOriginFlow(state, flow) {
+            state.originFlow = {
+                ...flow,
+                sequences: Array.from(flow.sequences).map(item => Object.assign(item, {})),
+            };
         },
 
         setTriggerActions(state, actions) {
@@ -35,6 +60,10 @@ export default {
 
         setTriggerEvent(state, event) {
             state.triggerEvent = event;
+        },
+
+        setTriggerEvents(state, events) {
+            state.triggerEvents = events;
         },
 
         setEventName(state, eventName) {
@@ -46,7 +75,12 @@ export default {
         },
 
         addSequence(state, sequence) {
-            state.flow.sequences.add(sequence);
+            if (state.flow.sequences instanceof EntityCollection) {
+                state.flow.sequences.add(sequence);
+                return;
+            }
+
+            state.flow.sequences.push(sequence);
         },
 
         removeSequences(state, sequenceIds) {
@@ -122,15 +156,39 @@ export default {
             state.customFields = customField;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         setRestrictedRules(state, rules) {
             state.restrictedRules = rules;
         },
     },
 
     getters: {
+        appActions(state) {
+            return state.appActions;
+        },
+
+        getSelectedAppAction(state) {
+            return (actionName) => {
+                return state.appActions?.find((item) => item.name === actionName);
+            };
+        },
+
         sequences(state) {
             return state.flow.sequences;
+        },
+
+        hasFlowChanged(state) {
+            const flow = {
+                ...state.flow,
+                sequences: Array.from(state.flow.sequences).filter(item => {
+                    if (item.actionName || item.ruleId) {
+                        return Object.assign(item, {});
+                    }
+
+                    return false;
+                }),
+            };
+
+            return !types.isEqual(state.originFlow, flow);
         },
 
         isSequenceEmpty(state) {
@@ -142,17 +200,20 @@ export default {
                 return false;
             }
 
-            const firstSequence = state.flow.sequences.first();
+            const firstSequence = state.flow.sequences[0];
             return !firstSequence.actionName && !firstSequence.ruleId;
         },
 
         availableActions(state) {
+            state.originAvailableActions = [];
+
             if (!state.triggerEvent || !state.triggerActions) return [];
 
             const availableAction = [];
 
             state.triggerActions.forEach((action) => {
                 if (!action.requirements.length) {
+                    state.originAvailableActions.push(action.name);
                     availableAction.push(action.name);
                     return;
                 }
@@ -162,6 +223,10 @@ export default {
 
                 if (!isActive) {
                     return;
+                }
+
+                if (!state.originAvailableActions.includes(action.name)) {
+                    state.originAvailableActions.push(action.name);
                 }
 
                 const actionType = Service('flowBuilderService').mapActionType(action.name);
@@ -183,24 +248,38 @@ export default {
 
         mailTemplateIds(state) {
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.MAIL_SEND)
+                .filter(item => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
                 .map(item => item.config?.mailTemplateId);
         },
 
         customFieldSetIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldSetId);
         },
 
         customFieldIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldId);
+        },
+
+        actionGroups() {
+            return Service('flowBuilderService').getGroups();
+        },
+
+        triggerEvents(state) {
+            return state.triggerEvents;
+        },
+
+        hasAvailableAction: (state) => (actionName) => {
+            return state.originAvailableActions.some(name => name === actionName);
         },
     },
 
@@ -209,6 +288,25 @@ export default {
             commit('removeCurrentFlow');
             commit('removeInvalidSequences');
             commit('removeTriggerEvent');
+        },
+
+        setRestrictedRules({ commit }, id) {
+            Shopware.Service('ruleConditionDataProviderService')
+                .getRestrictedRules(`flowTrigger.${id}`)
+                .then((result) => {
+                    commit('setRestrictedRules', result);
+                });
+        },
+
+        fetchTriggerActions({ commit }) {
+            Service('businessEventService')
+                .getBusinessEvents()
+                .then((result) => {
+                    commit('setTriggerEvents', result);
+                })
+                .catch(() => {
+                    commit('setTriggerEvents', []);
+                });
         },
     },
 };

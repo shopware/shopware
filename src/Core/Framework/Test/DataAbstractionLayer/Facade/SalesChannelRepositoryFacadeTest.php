@@ -7,7 +7,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -19,19 +21,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\SalesChannelTestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
+/**
+ * @internal
+ */
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -39,13 +45,16 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     private SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(SalesChannelRepositoryFacadeHookFactory::class);
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
+     * @param array<string, array<int, mixed>> $criteria
+     * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
+     *
      * @dataProvider testCases
      */
     public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
@@ -55,15 +64,18 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
 
         $expectation($result);
     }
 
-    public function testCases(): array
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function testCases(): array
     {
         $ids = new IdsCollection();
 
@@ -199,7 +211,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        static::asserttrue($page->hasExtension('myProduct'));
+        static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
         static::assertEquals($this->ids->get('p1'), $product->getId());
@@ -326,12 +338,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
         $criteria = [
             'aggregations' => [
-                ['name' => 'sum', 'type' => 'sum', 'field' => 'price.gross'],
+                ['name' => 'sum', 'type' => 'sum', 'field' => 'autoIncrement'],
             ],
         ];
 
@@ -373,22 +385,22 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     {
         $this->loadAppsFromDir($appDir);
 
-        /** @var string $appId */
         $appId = $this->getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        static::assertIsString($appId);
 
         return $appId;
     }
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Standard rate'));
 
-        /** @var string $taxId */
         $taxId = $taxRepository->searchIds($criteria, $this->context->getContext())->firstId();
+        static::assertIsString($taxId);
 
         return $taxId;
     }

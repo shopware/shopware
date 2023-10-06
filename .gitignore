@@ -12,11 +12,19 @@ Thumbs.db
 
 # PhpStorm-Project
 /.idea/
+/.fleet/
+/*.http
+/.run/
 
 # Composer
 /composer.phar
+/auth.json
 /vendor/*
 /composer.lock
+
+# Symfony-CLI
+php.ini
+.php-version
 
 # Caches/Proxies
 .php_cs
@@ -26,6 +34,9 @@ Thumbs.db
 /var/config_administration_plugins.json
 /var/jwt/public.pem
 /var/jwt/private.pem
+.eslintcache
+.stylelintcache
+.jestcache
 
 /public/*
 !/public/index.php
@@ -59,7 +70,6 @@ npm-debug.log
 
 # User configurations
 app/config/parameters.yml
-src/Docs/Command/wiki.secret
 
 # tooling
 /dev-ops/docker/_volumes
@@ -71,15 +81,18 @@ src/Docs/Command/wiki.secret
 /.psh.yml.override
 /.env
 .env.local
+.env.local.php
 .env.test
 .env.e2e
 .env.dev
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
-/src/Docs/**/dist
-/src/Core/DevOps/Locust/fixtures/*
-/src/Core/DevOps/Locust/env.json
-/src/Core/DevOps/Locust/**/__pycache__/
+src/Core/DevOps/Locust/fixtures/*
+src/Core/DevOps/Locust/env.json
+src/Core/DevOps/Locust/**/__pycache__/
+/.shopware-project.yml
+/.tinkerwell
+/shop
 
 .php-cs-fixer.cache
 
@@ -102,19 +115,34 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 /public/bundles/
 /var/
 /vendor/
+phpstan.neon
 ###< symfony/framework-bundle ###
 
-.gitkeep
 config/jwt/
 config/packages/
+config/routes*
+!config/routes/
+config/routes/*
+!config/routes/test/
 config/services*
+!/config/services_test.xml
 
 custom
+!/custom/scripts/boot
+!/custom/scripts/examples
 files/*
 install.lock
-/phpstan.neon
 docker-compose.override.yaml
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
 .uniqueid.txt
+
+# nix
+.direnv/
+.phpbench/*
+
+# Devenv
+.devenv*
+devenv.local.nix
+

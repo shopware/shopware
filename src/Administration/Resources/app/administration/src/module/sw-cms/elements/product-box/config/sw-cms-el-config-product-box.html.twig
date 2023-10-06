@@ -1,16 +1,26 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_box_config %}
 <div class="sw-cms-el-config-product-box">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_box_config_product_select %}
     <sw-entity-single-select
         ref="cmsProductSelection"
+        {% if VUE3 %}
+        v-model:value="element.config.product.value"
+        {% else %}
         v-model="element.config.product.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.productBox.config.label.selection')"
         :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
         entity="product"
         :criteria="productCriteria"
         :context="productSelectContext"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onProductChange"
+        {% else %}
         @change="onProductChange"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <sw-product-variant-info
@@ -24,10 +34,10 @@
                 name="result-item"
                 v-bind="{ item, index }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     v-bind="{ item, index }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_base_results_list_result_label %}
                     <span class="sw-select-result__result-item-text">
                         <sw-product-variant-info :variations="item.variation">
@@ -35,17 +45,23 @@
                         </sw-product-variant-info>
                     </span>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
         </template>
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_box_config_layout_select %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="element.config.boxLayout.value"
+        {% else %}
         v-model="element.config.boxLayout.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_config_layout_select_options %}
         <option value="standard">
             {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
@@ -60,11 +76,17 @@
     </sw-select-field>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_box_config_displaymode_select %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="element.config.displayMode.value"
+        {% else %}
         v-model="element.config.displayMode.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_config_displaymode_select_options %}
         <option value="standard">
             {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
@@ -79,12 +101,18 @@
     </sw-select-field>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_product_box_config_settings_vertical_align %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="element.config.verticalAlign.value"
+        {% else %}
         v-model="element.config.verticalAlign.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_product_box_config_settings_vertical_align_options %}
         <option value="flex-start">
             {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}

@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-delivery-order.html.twig';
 import './sw-product-variants-delivery-order.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-product-variants-delivery-order', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -40,15 +43,16 @@ Component.register('sw-product-variants-delivery-order', {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.configuratorGroupConfig && this.product.configuratorGroupConfig.length > 0) {
+            if (this.product.variantListingConfig.configuratorGroupConfig
+                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.configuratorGroupConfig.reduce((acc, configGroup) => {
+                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
                     const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
 
-                        // remove from orignal array
+                        // remove from original array
                         selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
                     }
 
@@ -116,8 +120,8 @@ Component.register('sw-product-variants-delivery-order', {
             const groups = this.orderObjects.filter((object) => object.parentId === null);
 
             // when configuratorGroupConfig is null then add empty array
-            if (!this.product.configuratorGroupConfig) {
-                this.product.configuratorGroupConfig = [];
+            if (!this.product.variantListingConfig.configuratorGroupConfig) {
+                this.product.variantListingConfig.configuratorGroupConfig = [];
             }
 
             // get order from administration ui
@@ -132,25 +136,36 @@ Component.register('sw-product-variants-delivery-order', {
 
             // create new groupConfig Objects in sorted order
             const newConfiguratorGroupConfig = [];
-            orderedGroupIds.forEach((groupId) => {
-                const foundGroup = this.product.configuratorGroupConfig.find((group) => group.id === groupId);
+            const currentConfiguratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig ?? [];
 
-                // when group exists
-                if (foundGroup) {
-                    // add to newConfiguratorGroupConfig
-                    newConfiguratorGroupConfig.push(foundGroup);
-                } else {
-                    // otherwise create new group
+            if (currentConfiguratorGroupConfig.length) {
+                orderedGroupIds.forEach((groupId) => {
+                    const foundGroup = currentConfiguratorGroupConfig.find((group) => group.id === groupId);
+                    // when group exists
+                    if (foundGroup) {
+                        // add to newConfiguratorGroupConfig
+                        newConfiguratorGroupConfig.push(foundGroup);
+                    } else {
+                        // otherwise create new group
+                        newConfiguratorGroupConfig.push({
+                            id: groupId,
+                            expressionForListings: false,
+                            representation: 'box',
+                        });
+                    }
+                });
+            } else {
+                orderedGroupIds.forEach((groupId) => {
                     newConfiguratorGroupConfig.push({
                         id: groupId,
                         expressionForListings: false,
                         representation: 'box',
                     });
-                }
-            });
+                });
+            }
 
             // set new order
-            this.product.configuratorGroupConfig = newConfiguratorGroupConfig;
+            this.product.variantListingConfig.configuratorGroupConfig = newConfiguratorGroupConfig;
 
             // Set option ordering
             const options = this.orderObjects.filter((object) => object.parentId);
@@ -168,4 +183,4 @@ Component.register('sw-product-variants-delivery-order', {
             });
         },
     },
-});
+};

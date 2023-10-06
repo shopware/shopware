@@ -5,12 +5,11 @@ namespace Shopware\Core\Framework\App\Api;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,23 +17,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- *
- * @RouteScope(scopes={"api"})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class AppCmsController extends AbstractController
 {
-    private EntityRepositoryInterface $cmsBlockRepository;
-
-    public function __construct(
-        EntityRepositoryInterface $cmsBlockRepository
-    ) {
-        $this->cmsBlockRepository = $cmsBlockRepository;
+    public function __construct(private readonly EntityRepository $cmsBlockRepository)
+    {
     }
 
-    /**
-     * @Since("6.4.4.0")
-     * @Route("api/app-system/cms/blocks", name="api.app_system.cms.blocks", methods={"GET"})
-     */
+    #[Route(path: 'api/app-system/cms/blocks', name: 'api.app_system.cms.blocks', methods: ['GET'])]
     public function getBlocks(Context $context): Response
     {
         $criteria = new Criteria();

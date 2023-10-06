@@ -2,8 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
+/**
+ * @internal
+ */
 class ReflectionHelper
 {
+    /**
+     * @param class-string<object> $className
+     */
     public static function getMethod(string $className, string $methodName): \ReflectionMethod
     {
         $method = (new \ReflectionClass($className))->getMethod($methodName);
@@ -12,6 +18,9 @@ class ReflectionHelper
         return $method;
     }
 
+    /**
+     * @param class-string<object> $className
+     */
     public static function getProperty(string $className, string $propertyName): \ReflectionProperty
     {
         $property = (new \ReflectionClass($className))->getProperty($propertyName);
@@ -20,8 +29,8 @@ class ReflectionHelper
         return $property;
     }
 
-    public static function getPropertyValue(object $object, string $propertyName)
+    public static function getPropertyValue(object $object, string $propertyName): mixed
     {
-        return static::getProperty(\get_class($object), $propertyName)->getValue($object);
+        return static::getProperty($object::class, $propertyName)->getValue($object);
     }
 }

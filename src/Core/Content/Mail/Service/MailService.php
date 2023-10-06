@@ -2,19 +2,21 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Monolog\Level;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -25,87 +27,24 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('system-settings')]
 class MailService extends AbstractMailService
 {
     /**
-     * @var DataValidator
+     * @internal
      */
-    private $dataValidator;
-
-    /**
-     * @var StringTemplateRenderer
-     */
-    private $templateRenderer;
-
-    /**
-     * @var AbstractMailFactory
-     */
-    private $mailFactory;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
-     * @var SalesChannelDefinition
-     */
-    private $salesChannelDefinition;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-
-    /**
-     * @var AbstractMailSender
-     */
-    private $mailSender;
-
     public function __construct(
-        DataValidator $dataValidator,
-        StringTemplateRenderer $templateRenderer,
-        AbstractMailFactory $mailFactory,
-        AbstractMailSender $emailSender,
-        EntityRepositoryInterface $mediaRepository,
-        SalesChannelDefinition $salesChannelDefinition,
-        EntityRepositoryInterface $salesChannelRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator
+        private readonly DataValidator $dataValidator,
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly AbstractMailFactory $mailFactory,
+        private readonly AbstractMailSender $mailSender,
+        private readonly EntityRepository $mediaRepository,
+        private readonly SalesChannelDefinition $salesChannelDefinition,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger
     ) {
-        $this->dataValidator = $dataValidator;
-        $this->templateRenderer = $templateRenderer;
-        $this->mailFactory = $mailFactory;
-        $this->mailSender = $emailSender;
-        $this->mediaRepository = $mediaRepository;
-        $this->salesChannelDefinition = $salesChannelDefinition;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function getDecorated(): AbstractMailService
@@ -113,6 +52,10 @@ class MailService extends AbstractMailService
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param mixed[] $data
+     * @param mixed[] $templateData
+     */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $event = new MailBeforeValidateEvent($data, $context, $templateData);
@@ -146,34 +89,57 @@ class MailService extends AbstractMailService
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->getSender($data, $salesChannelId);
+        $senderEmail = $data['senderMail'] ?? $this->getSender($data, $salesChannelId);
+
+        if ($senderEmail === null) {
+            $event = new MailErrorEvent(
+                $context,
+                Level::Error,
+                null,
+                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
+                null,
+                $templateData
+            );
+
+            $this->eventDispatcher->dispatch($event);
+            $this->logger->error(
+                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
+                $templateData
+            );
+        }
 
         $contents = $this->buildContents($data, $salesChannel);
         if ($this->isTestMode($data)) {
             $this->templateRenderer->enableTestMode();
-            if (!isset($templateData['order']) && !isset($templateData['order']['deepLinkCode']) || $templateData['order']['deepLinkCode'] === '') {
+            if (\is_array($templateData['order'] ?? []) && empty($templateData['order']['deepLinkCode'])) {
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }
-
         $template = $data['subject'];
 
         try {
-            $data['subject'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
+            $data['subject'] = $this->templateRenderer->render($template, $templateData, $context, false);
             $template = $data['senderName'];
-            $data['senderName'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
+            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
             foreach ($contents as $index => $template) {
-                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
+                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context, $index !== 'text/plain');
             }
         } catch (\Throwable $e) {
-            $this->logger->error(
-                "Could not render Mail-Template with error message:\n"
-                . $e->getMessage() . "\n"
-                . 'Error Code:' . $e->getCode() . "\n"
-                . 'Template source:'
-                . $template . "\n"
-                . "Template data: \n"
-                . json_encode($templateData) . "\n"
+            $event = new MailErrorEvent(
+                $context,
+                Level::Warning,
+                $e,
+                'Could not render Mail-Template with error message: ' . $e->getMessage(),
+                $template,
+                $templateData
+            );
+            $this->eventDispatcher->dispatch($event);
+            $this->logger->warning(
+                'Could not render Mail-Template with error message: ' . $e->getMessage(),
+                array_merge([
+                    'template' => $template,
+                    'exception' => (string) $e,
+                ], $templateData)
             );
 
             return null;
@@ -196,19 +162,26 @@ class MailService extends AbstractMailService
             $binAttachments
         );
 
-        if ($mail->getBody()->toString() === '') {
+        if (trim($mail->getBody()->toString()) === '') {
+            $event = new MailErrorEvent(
+                $context,
+                Level::Error,
+                null,
+                'mail body is null',
+                null,
+                $templateData
+            );
+
+            $this->eventDispatcher->dispatch($event);
             $this->logger->error(
-                "message is null:\n"
-                . 'Data:'
-                . json_encode($data) . "\n"
-                . "Template data: \n"
-                . json_encode($templateData) . "\n"
+                'mail body is null',
+                $templateData
             );
 
             return null;
         }
 
-        $event = new MailBeforeSentEvent($data, $mail, $context);
+        $event = new MailBeforeSentEvent($data, $mail, $context, $templateData['eventName'] ?? null);
         $this->eventDispatcher->dispatch($event);
 
         if ($event->isPropagationStopped()) {
@@ -217,39 +190,46 @@ class MailService extends AbstractMailService
 
         $this->mailSender->send($mail);
 
-        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context, $templateData['eventName'] ?? null);
         $this->eventDispatcher->dispatch($event);
 
         return $mail;
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function getSender(array $data, ?string $salesChannelId): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
-            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        if ($senderEmail !== null && trim((string) $senderEmail) !== '') {
+            return $senderEmail;
         }
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
-            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
+        $senderEmail = $this->systemConfigService->getString('core.basicInformation.email', $salesChannelId);
+
+        if (trim($senderEmail) !== '') {
+            return $senderEmail;
         }
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
-            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+        $senderEmail = $this->systemConfigService->getString('core.mailerSettings.senderAddress', $salesChannelId);
 
-            return null;
+        if (trim($senderEmail) !== '') {
+            return $senderEmail;
         }
 
-        return $senderEmail;
+        return null;
     }
 
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param array $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     * @param mixed[] $data
+     * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     * @return mixed[]
+     * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
      */
@@ -257,9 +237,16 @@ class MailService extends AbstractMailService
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             $headerPlain = $mailHeaderFooter->getTranslation('headerPlain') ?? '';
+            \assert(\is_string($headerPlain));
             $footerPlain = $mailHeaderFooter->getTranslation('footerPlain') ?? '';
+            \assert(\is_string($footerPlain));
             $headerHtml = $mailHeaderFooter->getTranslation('headerHtml') ?? '';
+            \assert(\is_string($headerHtml));
             $footerHtml = $mailHeaderFooter->getTranslation('footerHtml') ?? '';
+            \assert(\is_string($footerHtml));
+
+            \assert(\is_string($data['contentPlain']));
+            \assert(\is_string($data['contentHtml']));
 
             return [
                 'text/plain' => sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
@@ -287,22 +274,28 @@ class MailService extends AbstractMailService
         return $definition;
     }
 
+    /**
+     * @param mixed[] $data
+     *
+     * @return string[]
+     */
     private function getMediaUrls(array $data, Context $context): array
     {
         if (!isset($data['mediaIds']) || empty($data['mediaIds'])) {
             return [];
         }
         $criteria = new Criteria($data['mediaIds']);
+        $criteria->setTitle('mail-service::resolve-media-ids');
         $media = null;
         $mediaRepository = $this->mediaRepository;
         $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
-            /** @var MediaCollection $media */
+            /** @var MediaEntity[] $media */
             $media = $mediaRepository->search($criteria, $context)->getElements();
         });
 
         $urls = [];
         foreach ($media ?? [] as $mediaItem) {
-            $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+            $urls[] = $mediaItem->getPath();
         }
 
         return $urls;
@@ -311,6 +304,7 @@ class MailService extends AbstractMailService
     private function getSalesChannelDomainCriteria(string $salesChannelId, Context $context): Criteria
     {
         $criteria = new Criteria([$salesChannelId]);
+        $criteria->setTitle('mail-service::resolve-sales-channel-domain');
         $criteria->addAssociation('mailHeaderFooter');
         $criteria->getAssociation('domains')
             ->addFilter(
@@ -320,11 +314,17 @@ class MailService extends AbstractMailService
         return $criteria;
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function isTestMode(array $data = []): bool
     {
         return isset($data['testMode']) && (bool) $data['testMode'] === true;
     }
 
+    /**
+     * @param mixed[] $templateData
+     */
     private function templateDataContainsSalesChannel(array $templateData): bool
     {
         return isset($templateData['salesChannel']) && $templateData['salesChannel'] instanceof SalesChannelEntity;

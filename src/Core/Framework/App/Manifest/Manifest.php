@@ -3,88 +3,46 @@
 namespace Shopware\Core\Framework\App\Manifest;
 
 use Shopware\Core\Framework\App\Manifest\Xml\Admin;
+use Shopware\Core\Framework\App\Manifest\Xml\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
+use Shopware\Core\Framework\App\Manifest\Xml\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Manifest
 {
-    private const XSD_FILE = __DIR__ . '/Schema/manifest-1.0.xsd';
+    private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var Metadata
-     */
-    private $metadata;
-
-    /**
-     * @var Setup|null
-     */
-    private $setup;
-
-    /**
-     * @var Admin|null
-     */
-    private $admin;
-
-    /**
-     * @var Permissions|null
-     */
-    private $permissions;
-
-    /**
-     * @var CustomFields|null
-     */
-    private $customFields;
-
-    /**
-     * @var Webhooks|null
-     */
-    private $webhooks;
-
-    /**
-     * @var Cookies|null
-     */
-    private $cookies;
-
-    /**
-     * @var Payments|null
-     */
-    private $payments;
+    private bool $managedByComposer = false;
 
     private function __construct(
-        string $path,
-        Metadata $metadata,
-        ?Setup $setup,
-        ?Admin $admin,
-        ?Permissions $permissions,
-        ?CustomFields $customFields,
-        ?Webhooks $webhooks,
-        ?Cookies $cookies,
-        ?Payments $payments
+        private string $path,
+        private readonly Metadata $metadata,
+        private readonly ?Setup $setup,
+        private readonly ?Admin $admin,
+        private ?Permissions $permissions,
+        private readonly ?AllowedHosts $allowedHosts,
+        private readonly ?CustomFields $customFields,
+        private readonly ?Webhooks $webhooks,
+        private readonly ?Cookies $cookies,
+        private readonly ?Payments $payments,
+        private readonly ?RuleConditions $ruleConditions,
+        private readonly ?Storefront $storefront,
+        private readonly ?Tax $tax
     ) {
-        $this->path = $path;
-        $this->metadata = $metadata;
-        $this->setup = $setup;
-        $this->admin = $admin;
-        $this->permissions = $permissions;
-        $this->customFields = $customFields;
-        $this->webhooks = $webhooks;
-        $this->cookies = $cookies;
-        $this->payments = $payments;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -101,6 +59,8 @@ class Manifest
             $admin = $admin === null ? null : Admin::fromXml($admin);
             $permissions = $doc->getElementsByTagName('permissions')->item(0);
             $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
+            $allowedHosts = $doc->getElementsByTagName('allowed-hosts')->item(0);
+            $allowedHosts = $allowedHosts === null ? null : AllowedHosts::fromXml($allowedHosts);
             $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
             $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
             $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
@@ -109,11 +69,31 @@ class Manifest
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
+            $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
+            $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
+            $storefront = $doc->getElementsByTagName('storefront')->item(0);
+            $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
+            $tax = $doc->getElementsByTagName('tax')->item(0);
+            $tax = $tax === null ? null : Tax::fromXml($tax);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies, $payments);
+        return new self(
+            \dirname($xmlFile),
+            $metadata,
+            $setup,
+            $admin,
+            $permissions,
+            $allowedHosts,
+            $customFields,
+            $webhooks,
+            $cookies,
+            $payments,
+            $ruleConditions,
+            $storefront,
+            $tax
+        );
     }
 
     public function getPath(): string
@@ -146,6 +126,23 @@ class Manifest
         return $this->permissions;
     }
 
+    public function getAllowedHosts(): ?AllowedHosts
+    {
+        return $this->allowedHosts;
+    }
+
+    /**
+     * @param array<string, string[]> $permission
+     */
+    public function addPermissions(array $permission): void
+    {
+        if ($this->permissions === null) {
+            $this->permissions = Permissions::fromArray([]);
+        }
+
+        $this->permissions->add($permission);
+    }
+
     public function getCustomFields(): ?CustomFields
     {
         return $this->customFields;
@@ -164,5 +161,63 @@ class Manifest
     public function getPayments(): ?Payments
     {
         return $this->payments;
+    }
+
+    public function getRuleConditions(): ?RuleConditions
+    {
+        return $this->ruleConditions;
+    }
+
+    public function getStorefront(): ?Storefront
+    {
+        return $this->storefront;
+    }
+
+    public function getTax(): ?Tax
+    {
+        return $this->tax;
+    }
+
+    /**
+     * @return array<string> all hosts referenced in the manifest file
+     */
+    public function getAllHosts(): array
+    {
+        $hosts = $this->allowedHosts ? $this->allowedHosts->getHosts() : [];
+
+        $urls = [];
+        if ($this->setup) {
+            $urls[] = $this->setup->getRegistrationUrl();
+        }
+
+        if ($this->webhooks) {
+            $urls = \array_merge($urls, $this->webhooks->getUrls());
+        }
+
+        if ($this->admin) {
+            $urls = \array_merge($urls, $this->admin->getUrls());
+        }
+
+        if ($this->payments) {
+            $urls = \array_merge($urls, $this->payments->getUrls());
+        }
+
+        if ($this->tax) {
+            $urls = \array_merge($urls, $this->tax->getUrls());
+        }
+
+        $urls = \array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
+
+        return \array_values(\array_unique(\array_merge($hosts, $urls)));
+    }
+
+    public function isManagedByComposer(): bool
+    {
+        return $this->managedByComposer;
+    }
+
+    public function setManagedByComposer(bool $managedByComposer): void
+    {
+        $this->managedByComposer = $managedByComposer;
     }
 }

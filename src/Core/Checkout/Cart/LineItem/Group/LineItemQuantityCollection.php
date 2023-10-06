@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method LineItemQuantity[]    getIterator()
- * @method LineItemQuantity[]    getElements()
- * @method LineItemQuantity|null first()
- * @method LineItemQuantity|null last()
+ * @extends Collection<LineItemQuantity>
  */
+#[Package('checkout')]
 class LineItemQuantityCollection extends Collection
 {
     /**

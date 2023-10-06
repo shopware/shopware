@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class TimeZoneFieldTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -75,7 +78,7 @@ class TimeZoneFieldTest extends TestCase
         static::assertNull($array[$name]);
     }
 
-    public function validTimeZones(): array
+    public static function validTimeZones(): array
     {
         return [
             ['UTC'],
@@ -83,7 +86,7 @@ class TimeZoneFieldTest extends TestCase
         ];
     }
 
-    public function inValidTimeZones(): array
+    public static function inValidTimeZones(): array
     {
         return [
             ['+01:00'],

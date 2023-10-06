@@ -1,18 +1,22 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_empty_state_hero %}
 <div
     v-bind="$attrs"
     class="sw-promotion-v2-empty-state-hero"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_empty_state_hero_content %}
     <div class="sw-promotion-v2-empty-state-hero__column-content">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_empty_state_hero_content_title %}
         <h1 class="sw-promotion-v2-empty-state-hero__title">
             {{ title }}
         </h1>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_empty_state_hero_content_description %}
         <div
             v-if="showDescription"
@@ -22,12 +26,14 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_empty_state_hero_content_actions %}
         <div
             v-if="!!$slots.actions || !!$scopedSlots.actions"
             class="sw-promotion-v2-empty-state-hero__actions"
         >
             <slot name="actions">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_empty_state_hero_slot_actions %}{% endblock %}
             </slot>
         </div>
@@ -36,13 +42,15 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_empty_state_hero_image %}
     <div class="sw-promotion-v2-empty-state-hero__column-image">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_empty_state_hero_image_asset %}
         <img
             class="sw-promotion-v2-empty-state-hero__asset"
-            :src="imagePath | asset"
+            :src="assetFilter(imagePath)"
             alt=""
         >
         {% endblock %}

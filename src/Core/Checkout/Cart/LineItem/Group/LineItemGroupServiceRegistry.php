@@ -4,23 +4,18 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class LineItemGroupServiceRegistry
 {
     /**
-     * @var iterable
+     * @internal
      */
-    private $packagers;
-
-    /**
-     * @var iterable
-     */
-    private $sorters;
-
-    public function __construct(iterable $packagers, iterable $sorters)
-    {
-        $this->packagers = $packagers;
-        $this->sorters = $sorters;
+    public function __construct(
+        private readonly iterable $packagers,
+        private readonly iterable $sorters
+    ) {
     }
 
     /**

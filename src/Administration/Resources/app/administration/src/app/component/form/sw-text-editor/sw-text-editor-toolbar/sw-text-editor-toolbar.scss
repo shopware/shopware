@@ -17,7 +17,7 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
     z-index: 250;
 
     &::before {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -5px;
         left: var(--left);
@@ -36,7 +36,6 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         left: 0;
         position: initial;
         background: $color-gray-100;
-        border-radius: 0;
         border-bottom: 1px solid $color-gray-300;
         color: $sw-text-editor-toolbar-item-color-boxed;
         display: grid;

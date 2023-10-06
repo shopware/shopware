@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class PluginAclTest extends TestCase
 {
     private const PLUGINS_NAMESPACE = 'SwagTestPluginAcl';
@@ -31,17 +34,14 @@ class PluginAclTest extends TestCase
     /**
      * @var Plugin[]
      */
-    private $plugins;
+    private array $plugins = [];
 
     /**
      * @var string
      */
     private $testPluginBaseDir;
 
-    /**
-     * @var PluginAclPrivilegesSubscriber
-     */
-    private $pluginAclSubscriber;
+    private PluginAclPrivilegesSubscriber $pluginAclSubscriber;
 
     protected function setUp(): void
     {
@@ -55,11 +55,7 @@ class PluginAclTest extends TestCase
 
         $pluginCollection
             ->method('getActives')
-            ->willReturnCallback(function () {
-                return array_filter($this->plugins, static function (Plugin $plugin) {
-                    return $plugin->isActive();
-                });
-            });
+            ->willReturnCallback(fn () => array_filter($this->plugins, static fn (Plugin $plugin) => $plugin->isActive()));
 
         $this->pluginAclSubscriber = new PluginAclPrivilegesSubscriber($pluginCollection);
     }
@@ -102,6 +98,26 @@ class PluginAclTest extends TestCase
         $enrichedAclRole = $event->getEntities()[0];
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedAclRole->getPrivileges());
+    }
+
+    public function testAclPluginSubscriberAssociativeArray(): void
+    {
+        $this->activatePlugin(self::PLUGIN_ACL_PRODUCT_VIEWER);
+
+        $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
+
+        $event = new EntityLoadedEvent(
+            $this->createMock(AclRoleDefinition::class),
+            $aclRoles,
+            Context::createDefaultContext()
+        );
+
+        $this->pluginAclSubscriber->onAclRoleLoaded($event);
+
+        /** @var AclRoleEntity $enrichedAclRole */
+        $enrichedAclRole = $event->getEntities()[0];
+
+        static::assertSame($enrichedAclRole->getPrivileges(), array_values($enrichedAclRole->getPrivileges()));
     }
 
     public function testAclPluginOpenToAllDeactivated(): void

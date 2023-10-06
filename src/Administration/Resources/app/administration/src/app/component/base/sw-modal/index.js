@@ -5,6 +5,9 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Modal box component which can be displayed in different variants and sizes
  * @status ready
@@ -25,6 +28,12 @@ Component.register('sw-modal', {
         title: {
             type: String,
             default: '',
+        },
+
+        subtitle: {
+            type: String,
+            default: null,
+            required: false,
         },
 
         size: {
@@ -87,8 +96,18 @@ Component.register('sw-modal', {
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
         identifierClass() {
             return `sw-modal--${this.id}`;
+        },
+
+        modalDialogClasses() {
+            return [
+                `sw-modal--${this.id}`,
+                { 'has--header': this.showHeader },
+            ];
         },
 
         hasFooterSlot() {
@@ -125,12 +144,9 @@ Component.register('sw-modal', {
         },
 
         beforeDestroyComponent() {
-            if (this.$parent?.$el !== this.$el) {
-                // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
-                this.$parent.$el.appendChild(this.$el);
-            } else {
+            window.setTimeout(() => {
                 this.$el.remove();
-            }
+            }, 400); // use timeout to wait for modal leave transition
         },
 
         destroyedComponent() {

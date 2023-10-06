@@ -25,13 +25,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\BundleConfigDumper">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigGenerator" />
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="kernel.event_subscriber" />
-        </service>
-
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -45,7 +38,6 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
         </service>
@@ -62,6 +54,11 @@
             <argument type="service" id="cache.messenger.restart_workers_signal"/>
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
@@ -106,6 +103,7 @@
         <service id="Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
 
             <tag name="console.command"/>
         </service>
@@ -150,6 +148,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\Subscriber\PluginLoadedSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -173,11 +178,12 @@
 
         <service id="Shopware\Core\Framework\Plugin\Util\AssetService">
             <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="kernel"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
-            <argument>%kernel.shopware_core_dir%</argument>
+            <argument type="service" id="parameter_bag"/>
         </service>
 
         <!-- Requirement -->

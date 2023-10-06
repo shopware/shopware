@@ -1,7 +1,7 @@
 {% block element_image %}
     {% set config = element.fieldConfig.elements %}
 
-    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}{% if config.horizontalAlign.value == "center" %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" %} justify-content-end{% else %} justify-content-start{% endif %}">
         {% block element_product_slider_alignment %}
             {% if config.verticalAlign.value %}
                 <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
@@ -16,7 +16,8 @@
                                         {% set attributes = {
                                             'class': 'cms-image',
                                             'alt': (element.data.media.translated.alt ?: ''),
-                                            'title': (element.data.media.translated.title ?: '')
+                                            'title': (element.data.media.translated.title ?: ''),
+                                            'loading': 'lazy'
                                         } %}
 
                                         {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}

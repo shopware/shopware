@@ -1,0 +1,26 @@
+.sw-condition {
+    .sw-condition-generic.sw-condition__condition-value {
+        display: flex;
+
+        .sw-condition-operator-select,
+        .is--max-content {
+            max-width: max-content;
+            min-width: 128px;
+        }
+    }
+
+    .sw-condition-generic__input-wrapper {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+    }
+
+    .sw-condition-generic__unit-menu {
+        height: 100%;
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: left;
+    }
+}

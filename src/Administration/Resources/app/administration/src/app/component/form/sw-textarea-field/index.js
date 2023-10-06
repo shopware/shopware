@@ -4,6 +4,9 @@ import './sw-textarea-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description textarea input field.
  * @status ready
  * @example-type static
@@ -13,6 +16,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -45,6 +50,11 @@ Component.register('sw-textarea-field', {
 
     methods: {
         onInput(event) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', event.target.value);
+                return;
+            }
+
             this.$emit('input', event.target.value);
         },
 

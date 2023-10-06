@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\ProductExport;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                     add(ProductExportEntity $entity)
- * @method void                     set(string $key, ProductExportEntity $entity)
- * @method ProductExportEntity[]    getIterator()
- * @method ProductExportEntity[]    getElements()
- * @method ProductExportEntity|null get(string $key)
- * @method ProductExportEntity|null first()
- * @method ProductExportEntity|null last()
+ * @extends EntityCollection<ProductExportEntity>
  */
+#[Package('inventory')]
 class ProductExportCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Guid\Fields;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -22,16 +23,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
+ *
+ * @internal
  */
+#[Package('core')]
 class EntityDefinitionQueryHelper
 {
-    public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+    final public const HAS_TO_MANY_JOIN = 'has_to_many_join';
 
     public static function escape(string $string): string
     {
@@ -42,6 +46,31 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
+    public static function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
+    public static function tableExists(Connection $connection, string $table): bool
+    {
+        return !empty(
+            $connection->fetchOne(
+                'SHOW TABLES LIKE :table',
+                [
+                    'table' => $table,
+                ]
+            )
+        );
+    }
+
+    /**
+     * @return list<Field>
+     */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
         $parts = explode('.', $accessor);
@@ -54,14 +83,20 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            $fields = $source->getFields();
-
             if ($part === 'extensions') {
                 continue;
             }
+
+            $fields = $source->getFields();
             $field = $fields->get($part);
 
+            // continue if the current part is not a real field to allow access on collections
+            if (!$field) {
+                continue;
+            }
+
             if ($field instanceof TranslatedField && $resolveTranslated) {
+                /** @var EntityDefinition $source */
                 $source = $source->getTranslationDefinition();
                 $fields = $source->getFields();
                 $accessorFields[] = $fields->get($part);
@@ -87,7 +122,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return array_filter($accessorFields);
+        return \array_values(\array_filter($accessorFields));
     }
 
     /**
@@ -174,7 +209,7 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
+        if (str_starts_with($fieldName, $prefix)) {
             $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
@@ -194,13 +229,13 @@ class EntityDefinitionQueryHelper
             $associationKey = array_shift($parts);
         }
 
-        if (!$fields->has($associationKey)) {
+        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 
         $field = $fields->get($associationKey);
 
-        //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
+        // case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
         if (!$field instanceof AssociationField && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
@@ -224,7 +259,7 @@ class EntityDefinitionQueryHelper
 
     public static function getAssociationPath(string $accessor, EntityDefinition $definition): ?string
     {
-        $fields = self::getFieldsOfAccessor($definition, $accessor, true);
+        $fields = self::getFieldsOfAccessor($definition, $accessor);
 
         $path = [];
         foreach ($fields as $field) {
@@ -263,16 +298,14 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                function ($f) {
-                    return $f instanceof VersionField || $f instanceof ReferenceVersionField;
-                }
+                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
                 throw new \RuntimeException('Missing `VersionField` in `' . $definition->getClass() . '`');
             }
 
-            /** @var FkField|null $versionIdField */
+            /** @var FkField $versionIdField */
             $versionIdField = array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
@@ -361,6 +394,8 @@ class EntityDefinitionQueryHelper
      * Adds the full translation select part to the provided sql query.
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
+     *
+     * @param array<string, mixed> $partial
      */
     public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
     {
@@ -372,11 +407,9 @@ class EntityDefinitionQueryHelper
 
         $fields = $translationDefinition->getFields();
         if (!empty($partial)) {
-            $fields = $translationDefinition->getFields()->filter(function (Field $field) use ($partial) {
-                return $field->is(PrimaryKey::class)
-                    || isset($partial[$field->getPropertyName()])
-                    || $field instanceof FkField;
-            });
+            $fields = $translationDefinition->getFields()->filter(fn (Field $field) => $field->is(PrimaryKey::class)
+                || isset($partial[$field->getPropertyName()])
+                || $field instanceof FkField);
         }
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
@@ -409,7 +442,7 @@ class EntityDefinitionQueryHelper
                 );
             }
 
-            //check if current field is a translated field of the origin definition
+            // check if current field is a translated field of the origin definition
             $origin = $definition->getFields()->get($field->getPropertyName());
             if (!$origin instanceof TranslatedField) {
                 continue;
@@ -417,7 +450,7 @@ class EntityDefinitionQueryHelper
 
             $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
 
-            //add selection for resolved parent-child and language inheritance
+            // add selection for resolved parent-child and language inheritance
             $query->addSelect(
                 sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '
                 . self::escape($root . '.' . $field->getPropertyName())
@@ -460,7 +493,7 @@ class EntityDefinitionQueryHelper
                 sprintf(
                     'Missing translated storage aware property %s in %s',
                     $translatedField->getPropertyName(),
-                    $translationDefinition->getClass()
+                    $translationDefinition->getEntityName()
                 )
             );
         }
@@ -468,8 +501,12 @@ class EntityDefinitionQueryHelper
         return $field;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
+        $chain = [];
         $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
@@ -499,10 +536,7 @@ class EntityDefinitionQueryHelper
 
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
-            /** @feature-deprecated (flag:FEATURE_NEXT_14872) remove FeatureCheck
-             * if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
-             */
-            if ($primaryKeyField instanceof IdField || (Feature::isActive('FEATURE_NEXT_14872') && $primaryKeyField instanceof FkField)) {
+            if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
                 $primaryKeys = array_map(function ($id) {
                     if (\is_array($id)) {
                         /** @var string $shiftedId */
@@ -525,7 +559,7 @@ class EntityDefinitionQueryHelper
                 EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
             ));
 
-            $query->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', $primaryKeys, ArrayParameterType::STRING);
 
             return;
         }
@@ -558,13 +592,6 @@ class EntityDefinitionQueryHelper
             foreach ($primaryKey as $propertyName => $value) {
                 $field = $definition->getFields()->get($propertyName);
 
-                /*
-                 * @deprecated tag:v6.5.0 - with 6.5.0 the only passing the propertyName will be supported
-                 */
-                if (!$field) {
-                    $field = $definition->getFields()->getByStorageName($propertyName);
-                }
-
                 if (!$field) {
                     throw new UnmappedFieldException($propertyName, $definition);
                 }
@@ -581,15 +608,9 @@ class EntityDefinitionQueryHelper
 
                 $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                /*
-                 * @deprecated tag:v6.5.0 - check for duplication in accessors will be removed,
-                 * when we only support propertyNames to be used in search and when IdSearchResult only returns the propertyNames
-                 */
-                if (!\array_key_exists($accessor, $where)) {
-                    $where[$accessor] = $accessor . ' = :' . $key;
+                $where[$accessor] = $accessor . ' = :' . $key;
 
-                    $query->setParameter($key, $value);
-                }
+                $query->setParameter($key, $value);
             }
 
             $wheres[] = '(' . implode(' AND ', $where) . ')';
@@ -600,6 +621,9 @@ class EntityDefinitionQueryHelper
         $query->andWhere($wheres);
     }
 
+    /**
+     * @param list<string> $chain
+     */
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
     {
         if (!$field instanceof StorageAware) {
@@ -656,6 +680,17 @@ class EntityDefinitionQueryHelper
 
     private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
-        return $field->getAccessorBuilder()->buildAccessor($root, $field, $context, $accessor);
+        $accessorBuilder = $field->getAccessorBuilder();
+        if (!$accessorBuilder) {
+            throw new FieldAccessorBuilderNotFoundException($field->getPropertyName());
+        }
+
+        $accessor = $accessorBuilder->buildAccessor($root, $field, $context, $accessor);
+
+        if (!$accessor) {
+            throw new \RuntimeException(sprintf('Can not build accessor for field "%s" on root "%s"', $field->getPropertyName(), $root));
+        }
+
+        return $accessor;
     }
 }

@@ -5,11 +5,17 @@ const { debounce, get } = Shopware.Utils;
 const { deepCopyObject } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-entity-many-to-many-select', {
     template,
     inheritAttrs: false,
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     model: {
         prop: 'entityCollection',
@@ -68,6 +74,18 @@ Component.register('sw-entity-many-to-many-select', {
                 return Shopware.Context.api;
             },
         },
+        advancedSelectionComponent: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        advancedSelectionParameters: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
     },
 
     data() {
@@ -79,6 +97,7 @@ Component.register('sw-entity-many-to-many-select', {
             displayItemsResultCollection: null,
             totalAssigned: 0,
             displayItemLimit: this.valueLimit,
+            isAdvancedSelectionModalVisible: false,
         };
     },
 
@@ -120,6 +139,10 @@ Component.register('sw-entity-many-to-many-select', {
             }
 
             return Math.max(0, this.totalAssigned - this.displayItemLimit);
+        },
+
+        isAdvancedSelectionActive() {
+            return this.advancedSelectionComponent && Component.getComponentRegistry().has(this.advancedSelectionComponent);
         },
     },
 
@@ -177,6 +200,7 @@ Component.register('sw-entity-many-to-many-select', {
 
             collection.forEach((item) => {
                 if (!this.entityCollection.has(item.id)) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.entityCollection.push(item);
                 }
             });
@@ -200,6 +224,8 @@ Component.register('sw-entity-many-to-many-select', {
 
             if (this.criteria) {
                 this.searchCriteria.filters = this.criteria.filters;
+                this.searchCriteria.associations = this.criteria.associations;
+                this.searchCriteria.sortings = this.criteria.sortings;
             }
 
             return this.searchRepository.search(this.searchCriteria, Shopware.Context.api)
@@ -220,7 +246,7 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         findAssignedEntities(ids, searchResult) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(ids);
 
             return this.repository.searchIds(criteria, this.entityCollection.context).then((assigned) => {
@@ -291,6 +317,12 @@ Component.register('sw-entity-many-to-many-select', {
 
                 newEntityCollection.push(deepCopyObject(entity));
             });
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:entityCollection', newEntityCollection);
+
+                return;
+            }
 
             this.$emit('change', newEntityCollection);
         },
@@ -393,6 +425,58 @@ Component.register('sw-entity-many-to-many-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
+        },
+
+        openAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = true;
+        },
+
+        closeAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = false;
+        },
+
+        onAdvancedSelectionSubmit(selectedItems) {
+            this.isLoading = true;
+
+            const added = selectedItems.filter(value => !this.selectedIds.includes(value.id));
+            const removedIds = this.selectedIds.filter(id => !selectedItems.some((item) => { return item.id === id; }));
+
+            const addPromises = added.map((item) => {
+                this.$emit('item-add', item);
+
+                this.selectedIds = [...this.selectedIds, item.id];
+
+                if (this.localMode) {
+                    this.totalAssigned += 1;
+                    return Promise.resolve();
+                }
+
+                return this.repository.assign(item.id, this.entityCollection.context).then((response) => {
+                    this.totalAssigned += 1;
+                    return response;
+                });
+            });
+
+            const removePromises = removedIds.map((id) => {
+                this.$emit('item-remove', this.entityCollection.get(id));
+
+                if (this.localMode) {
+                    this.removeIdFromList(id);
+                    return Promise.resolve();
+                }
+
+                this.isLoading = true;
+                return this.repository.delete(id, this.entityCollection.context).then((response) => {
+                    this.removeIdFromList(id);
+                    return response;
+                });
+            });
+
+            Promise.all([...addPromises, ...removePromises]).then(() => {
+                this.$refs.selectionList.select();
+                this.$refs.selectionList.focus();
+                this.isLoading = false;
+            });
         },
     },
 });

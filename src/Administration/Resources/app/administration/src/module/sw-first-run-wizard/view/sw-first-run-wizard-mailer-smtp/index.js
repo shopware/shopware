@@ -1,7 +1,11 @@
 import './sw-first-run-wizard-mailer-smtp.scss';
 import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 
-Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['systemConfigApiService'],
@@ -111,4 +115,4 @@ Shopware.Component.register('sw-first-run-wizard-mailer-smtp', {
             });
         },
     },
-});
+};

@@ -1,8 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_configurator_restrictions %}
 <div class="sw-product-variants-configurator-restrictions">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_configurator_restrictions_search %}
     <div class="sw-product-variants-configurator-restrictions__search">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_search_field %}
         <sw-simple-search-field
             v-model="term"
@@ -12,6 +15,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_buttons %}
         <sw-button
             variant="ghost"
@@ -24,8 +28,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_configurator_restrictions_grid_wrapper %}
     <div class="sw-product-variants-configurator-restrictions__grid-wrapper">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_data_grid %}
         <sw-data-grid
             v-if="product.variantRestrictions"
@@ -37,10 +43,10 @@
             full-page
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_data_grid_column_id %}
             <template
-                slot="column-id"
-                slot-scope="{ item, isInlineEdit, compact }"
+                #column-id="{ item, isInlineEdit, compact }"
             >
                 <template v-for="restriction in getRestrictionsWithNaming(item.id).values">
                     <span
@@ -60,11 +66,12 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_data_grid_actions %}
             <template
-                slot="actions"
-                slot-scope="{ item }"
+                #actions="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_restrictions_data_grid_actions_items %}
                 <sw-context-menu-item @click="editRestrictionCombination(item)">
                     {{ $tc('sw-product.variations.configuratorModal.editRestriction') }}
@@ -84,6 +91,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_configurator_restrictions_modal %}
     <sw-modal
         v-if="restrictionModalIsOpen"
@@ -92,8 +100,10 @@
         @modal-close="cancelAddRestriction"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_modal_main %}
         <div class="sw-product-variants-configurator-restrictions__modal-main">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_modal_main_restriction_selection %}
             <sw-product-restriction-selection
                 v-for="(restriction, index) in actualRestriction.values"
@@ -103,16 +113,18 @@
                 @restriction-delete="deleteRestriction"
             >
 
-                <p
-                    v-if="index < actualRestrictionValueLength - 1"
-                    slot="contentAfter"
-                    class="sw-product-variants-configurator-restrictions__seperator"
-                >
-                    {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
-                </p>
+                <template #contentAfter>
+                    <p
+                        v-if="index < actualRestrictionValueLength - 1"
+                        class="sw-product-variants-configurator-restrictions__seperator"
+                    >
+                        {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
+                    </p>
+                </template>
             </sw-product-restriction-selection>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_modal_main_button_new_restriction %}
             <sw-button
                 class="sw-product-variants-configurator-restrictions__button-new-restriction"
@@ -124,8 +136,10 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
             <sw-button
                 size="small"
@@ -134,6 +148,7 @@
                 {{ $tc('sw-product.variations.configuratorModal.cancel') }}
             </sw-button>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_modal_footer_save_add_restriction %}
             <sw-button
                 variant="primary"
@@ -148,6 +163,7 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_configurator_restrictions_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

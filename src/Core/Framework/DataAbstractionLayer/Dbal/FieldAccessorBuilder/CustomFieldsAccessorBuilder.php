@@ -8,20 +8,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
 {
     /**
-     * @var CustomFieldService
+     * @internal
      */
-    private $customFieldService;
-
-    public function __construct(CustomFieldService $attributeService, Connection $connection)
-    {
+    public function __construct(
+        private readonly CustomFieldService $customFieldService,
+        Connection $connection
+    ) {
         parent::__construct($connection);
-
-        $this->customFieldService = $attributeService;
     }
 
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
@@ -37,6 +40,8 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
          * - propertyName.attribute_name.foo -> attribute_name
          * - propertyName."attribute.name" -> attribute.name
          * - propertyName."attribute.name".foo -> attribute.name
+         *
+         * @var string $attributeName
          */
         $attributeName = preg_replace(
             '#^' . preg_quote($field->getPropertyName(), '#') . '\.("([^"]*)"|([^.]*)).*#',

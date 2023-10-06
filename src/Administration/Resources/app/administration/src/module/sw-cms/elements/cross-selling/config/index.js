@@ -1,10 +1,14 @@
 import template from './sw-cms-el-config-cross-selling.html.twig';
 import './sw-cms-el-config-cross-selling.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-cms-el-config-cross-selling', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -26,14 +30,14 @@ Component.register('sw-cms-el-config-cross-selling', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         selectedProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('crossSellings.assignedProducts.product');
 
             return criteria;
@@ -68,4 +72,4 @@ Component.register('sw-cms-el-config-cross-selling', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

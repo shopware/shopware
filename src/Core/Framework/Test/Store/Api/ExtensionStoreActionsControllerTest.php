@@ -16,15 +16,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ExtensionStoreActionsControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
+    use IntegrationTestBehaviour;
 
     public function testRefreshExtensions(): void
     {
@@ -147,13 +145,13 @@ class ExtensionStoreActionsControllerTest extends TestCase
     public function testInstallExtension(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('install');
+        $lifecycle->expects(static::once())->method('install');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -164,13 +162,13 @@ class ExtensionStoreActionsControllerTest extends TestCase
     public function testUninstallExtension(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('uninstall');
+        $lifecycle->expects(static::once())->method('uninstall');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -181,13 +179,13 @@ class ExtensionStoreActionsControllerTest extends TestCase
     public function testRemoveExtension(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('remove');
+        $lifecycle->expects(static::once())->method('remove');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -198,13 +196,13 @@ class ExtensionStoreActionsControllerTest extends TestCase
     public function testActivateExtension(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('activate');
+        $lifecycle->expects(static::once())->method('activate');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -215,13 +213,13 @@ class ExtensionStoreActionsControllerTest extends TestCase
     public function testDeactivateExtension(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('deactivate');
+        $lifecycle->expects(static::once())->method('deactivate');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -229,20 +227,41 @@ class ExtensionStoreActionsControllerTest extends TestCase
         );
     }
 
-    public function testUpdateExtension(): void
+    public function testUpdateExtensionWithConsent(): void
     {
         $controller = new ExtensionStoreActionsController(
-            $lifecyle = $this->createMock(ExtensionLifecycleService::class),
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class)
         );
 
-        $lifecyle->expects(static::once())->method('update');
+        $lifecycle->expects(static::once())->method('update');
+
+        $request = new Request([], ['allowNewPermissions' => true]);
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
-            $controller->updateExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
+            $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
+        );
+    }
+
+    public function testUpdateExtensionWithoutConsent(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
+            $this->createMock(ExtensionDownloader::class),
+            $this->createMock(PluginService::class),
+            $this->createMock(PluginManagementService::class)
+        );
+
+        $lifecycle->expects(static::once())->method('update');
+
+        $request = new Request([], ['allowNewPermissions' => false]);
+
+        static::assertEquals(
+            Response::HTTP_NO_CONTENT,
+            $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
     }
 }

@@ -5,7 +5,9 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @public
+ * @package admin
+ *
+ * @private
  * @status ready
  * @description
  * Renders custom-field sets
@@ -15,7 +17,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-custom-field-set-renderer', {
     template,
 
-    inject: ['feature'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
+
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -80,63 +86,35 @@ Component.register('sw-custom-field-set-renderer', {
         },
     },
 
+    data() {
+        return {
+            customFields: {},
+            loadingFields: [],
+            tabWaitMaxAttempts: 10,
+            tabWaitsAttempts: 0,
+            refreshVisibleSets: false,
+        };
+    },
+
     computed: {
         hasParent() {
             return this.parentEntity ? !!this.parentEntity.id : false;
         },
 
-        // Check if it is possible to use custom field set selection
-        customFieldSetSelectionAvailable() {
-            return this.showCustomFieldSetSelection
-                && this.entity.hasOwnProperty('customFieldSets')
-                && this.entity.hasOwnProperty('customFieldSetSelectionActive');
-        },
-
-        filterCustomFields() {
-            if (!this.customFieldSetSelectionAvailable) {
-                return false;
-            }
-
-            if (this.entity.customFieldSetSelectionActive === false) {
-                return false;
-            }
-
-            // Main product with customFieldSetSelectionActive not set
-            if (this.entity.customFieldSetSelectionActive === null && !this.hasParent) {
-                return false;
-            }
-
-            // customFieldSetSelectionActive not set and parent product has no selection
-            if (this.entity.customFieldSetSelectionActive === null
-                && this.getInheritValue('customFieldSetSelectionActive') === null) {
-                return false;
-            }
-
-            return true;
-        },
-
         visibleCustomFieldSets() {
-            if (!this.filterCustomFields) {
-                return this.sortSets(this.sets);
-            }
+            return this.sortSets(this.sets);
+        },
 
-            return this.sortSets(this.sets.filter(set => {
-                // Return custom field sets of parent if current state is inherited
-                if (this.hasParent && this.entity.customFieldSets.length < 1) {
-                    return this.parentEntity.customFieldSets.has(set.id) || set.global;
-                }
-
-                return this.entity.customFieldSets.has(set.id) || set.global;
-            }));
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 500);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
             criteria
-                .getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
@@ -171,6 +149,14 @@ Component.register('sw-custom-field-set-renderer', {
             },
             deep: true,
         },
+
+        customFields: {
+            handler(customFields) {
+                // eslint-disable-next-line vue/no-mutating-props
+                this.entity.customFields = customFields;
+            },
+            deep: true,
+        },
     },
 
     created() {
@@ -184,9 +170,16 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         initializeCustomFields() {
-            if (!this.entity.customFields) {
-                this.entity.customFields = {};
+            if (!this.entity.customFields && !this.entity.translated?.customFields) {
+                return;
             }
+
+            // Check if translated custom fields are available
+            if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
+                return;
+            }
+
+            this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
         },
 
         getInheritedCustomField(customFieldName) {
@@ -287,7 +280,7 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             if (customFieldClone.config.customFieldType === 'entity' && customFieldClone.config.entity === 'product') {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('options.group');
 
                 customFieldClone.config.criteria = criteria;
@@ -311,13 +304,84 @@ Component.register('sw-custom-field-set-renderer', {
             };
         },
 
-        onChangeCustomFieldSets(value, updateFn) {
+        customFieldSetCriteriaById() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+
+            return criteria;
+        },
+
+        loadCustomFieldSet(setId) {
+            if (this.loadingFields.includes(setId)) {
+                // as we might triggered multiple times with the same item, we store the loading set in a heap cache
+                return;
+            }
+
+            // failsave dealing with sets (should be an entityCollection, but in reality might be just an array)
+            const set = this.sets.get ? this.sets.get(setId) : this.sets.find(s => s.id === setId);
+
+            if (set.customFields && set.customFields.length > 0) {
+                // already loaded, so do nothing
+                return;
+            }
+
+            // indicate the loading of this item
+            this.loadingFields.push(setId);
+
+            // fully load the set
+            this.customFieldSetRepository
+                .get(setId, Shopware.Context.api, this.customFieldSetCriteriaById())
+                .then(newSet => {
+                    // replace the fully fetched set
+                    this.sets.forEach((originalSet, index) => {
+                        if (originalSet.id === newSet.id) {
+                            this.$set(this.sets, index, newSet);
+                        }
+                    });
+
+                    // remove the set from the currently loading onces and refresh the visible sets
+                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
+                }).catch(() => {
+                    // in case of error make loading again possible
+                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
+                });
+        },
+
+        resetTabs() {
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
-                this.$nextTick(() => {
-                    this.$refs.tabComponent.mountedComponent();
-                    this.$refs.tabComponent.setActiveItem(this.visibleCustomFieldSets[0]);
-                });
+                this.$refs.tabComponent.mountedComponent();
+                this.$refs.tabComponent.setActiveItem({ name: this.visibleCustomFieldSets[0].id });
+            }
+        },
+
+        waitForTabComponent() {
+            if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
+                return this.resetTabs();
+            }
+            // eslint-disable-next-line vue/valid-next-tick
+            return this.$nextTick(() => {
+                this.tabWaitsAttempts += 1;
+                this.waitForTabComponent();
+            });
+        },
+
+        getTabLabel(set) {
+            if (set.config && this.getInlineSnippet(set.config.label)) {
+                return this.getInlineSnippet(set.config.label);
+            }
+
+            return set.name;
+        },
+
+        onChangeCustomFieldSets(value, updateFn) {
+            if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
+                // when rendered initially we wait for the tabcomponent to load so we can activate the first item
+                this.waitForTabComponent();
+            } else {
+                this.resetTabs();
             }
 
             if (typeof updateFn === 'function') {
@@ -332,6 +396,7 @@ Component.register('sw-custom-field-set-renderer', {
                     this.initializeCustomFields();
                     return;
                 }
+                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });
@@ -343,6 +408,10 @@ Component.register('sw-custom-field-set-renderer', {
          */
         sortSets(sets) {
             return sets.sort((a, b) => a.position - b.position);
+        },
+
+        onUpdateActiveSelection(value) {
+            this.$emit('change-active-selection', value);
         },
     },
 });

@@ -1,0 +1,1003 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/account/newsletter-recipient": {
+            "post": {
+                "tags": [
+                    "Profile",
+                    "Newsletter",
+                    "Endpoints supporting Criteria"
+                ],
+                "summary": "Fetch newsletter recipients",
+                "description": "Perform a filtered search for newsletter recipients.",
+                "operationId": "readNewsletterRecipient",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AccountNewsletterRecipientResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/change-profile": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the customer's information",
+                "description": "Make changes to a customer's account, like changing their name, salutation or title.",
+                "operationId": "changeProfile",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "salutationId",
+                                    "firstName",
+                                    "lastName"
+                                ],
+                                "properties": {
+                                    "salutationId": {
+                                        "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "description": "(Academic) title of the customer",
+                                        "type": "string"
+                                    },
+                                    "firstName": {
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "type": "string"
+                                    },
+                                    "company": {
+                                        "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                        "type": "string"
+                                    },
+                                    "birthdayDay": {
+                                        "description": "Birthday day",
+                                        "type": "integer"
+                                    },
+                                    "birthdayMonth": {
+                                        "description": "Birthday month",
+                                        "type": "integer"
+                                    },
+                                    "birthdayYear": {
+                                        "description": "Birthday year",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/change-email": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the customer's email address",
+                "description": "Changes a customer's email address to a new email address, using their current password as a validation.",
+                "operationId": "changeEmail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "emailConfirmation",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "New email address. Has to be unique amongst all customers",
+                                        "type": "string"
+                                    },
+                                    "emailConfirmation": {
+                                        "description": "Confirmation of the new email address.",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Customer's current password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/change-language": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the customer's language.",
+                "description": "Changes the language of the logged in customer",
+                "operationId": "changeLanguage",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "languageId"
+                                ],
+                                "properties": {
+                                    "language": {
+                                        "description": "New languageId",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/change-password": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the customer's password",
+                "description": "Changes a customer's password using their current password as a validation.",
+                "operationId": "changePassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password",
+                                    "newPassword",
+                                    "newPasswordConfirm"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "Current password of the customer",
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "description": "New Password for the customer",
+                                        "type": "string"
+                                    },
+                                    "newPasswordConfirm": {
+                                        "description": "Confirmation of the new password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/change-payment-method/{paymentMethodId}": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the customer's default payment method",
+                "description": "Changes a customer's default (preselected) payment method.",
+                "operationId": "changePaymentMethod",
+                "parameters": [
+                    {
+                        "name": "paymentMethodId",
+                        "in": "path",
+                        "description": "Identifier of the desired default payment method",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/customer-recovery-is-expired": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Checks if the customer recovery entry for a given hash is expired.",
+                "description": "This can be used to validate a provided hash has a valid and not expired customer recovery hash.",
+                "operationId": "getCustomerRecoveryIsExpired",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hash"
+                                ],
+                                "properties": {
+                                    "hash": {
+                                        "description": "Parameter from the link in the confirmation mail sent in Step 1",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a CustomerRecoveryIsExpiredResponse that indicates if the hash is expired or not.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ArrayStruct"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/customer": {
+            "post": {
+                "tags": [
+                    "Profile",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Get information about current customer",
+                "description": "Returns information about the current customer.",
+                "operationId": "readCustomer",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the logged in customer, also for guest sessions. Check for the value of `guest` field to see whether the customer is a guest.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Customer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Delete the customer's profile",
+                "description": "Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
+                "operationId": "deleteCustomer",
+                "responses": {
+                    "204": {
+                        "description": "Returns a no content response indicating a successful removal of the customer profile"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/address/{addressId}": {
+            "delete": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Delete an address of a customer",
+                "description": "Delete an address of customer.\n\n    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.\n\n    **A customer must have at least one address (which can be used for shipping and billing).**\n\n    An automatic fallback is not applied.",
+                "operationId": "deleteCustomerAddress",
+                "parameters": [
+                    {
+                        "name": "addressId",
+                        "in": "path",
+                        "description": "ID of the address to be deleted.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content response, when the address has been deleted"
+                    },
+                    "400": {
+                        "description": "Response containing a list of errors, most likely due to the address being in use"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Modify an address of a customer",
+                "description": "Modifies an existing address of a customer.",
+                "operationId": "updateCustomerAddress",
+                "parameters": [
+                    {
+                        "name": "addressId",
+                        "in": "path",
+                        "description": "Address ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerAddress"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/list-address": {
+            "post": {
+                "tags": [
+                    "Address",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch addresses of a customer",
+                "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
+                "operationId": "listAddress",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/login": {
+            "post": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Log in a customer",
+                "description": "Logs in customers given their credentials.",
+                "operationId": "loginCustomer",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "description": "Email",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "401": {
+                        "description": "If credentials are incorrect an error is returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/logout": {
+            "post": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Log out a customer",
+                "description": "Logs out a customer.",
+                "operationId": "logoutCustomer",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/register-confirm": {
+            "post": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Confirm a customer registration",
+                "description": "Confirms a customer registration when double opt-in is activated.\n\nLearn more about double opt-in registration in our guide \"Register a customer\".",
+                "operationId": "registerConfirm",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hash",
+                                    "em"
+                                ],
+                                "properties": {
+                                    "hash": {
+                                        "description": "Hash from the email received",
+                                        "type": "string"
+                                    },
+                                    "em": {
+                                        "description": "Email hash from the email received",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
+                    },
+                    "404": {
+                        "description": "No hash provided"
+                    },
+                    "412": {
+                        "description": "The customer has already been confirmed"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/register": {
+            "post": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Register a customer",
+                "description": "Registers a customer. Used both for normal customers and guest customers.See the Guide \"Register a customer\" for more information on customer registration.",
+                "operationId": "register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "salutationId",
+                                    "firstName",
+                                    "lastName",
+                                    "acceptedDataProtection",
+                                    "storefrontUrl",
+                                    "billingAddress"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email of the customer. Has to be unique, unless `guest` is `true`",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Password for the customer. Required, unless `guest` is `true`",
+                                        "type": "string"
+                                    },
+                                    "salutationId": {
+                                        "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
+                                        "type": "string"
+                                    },
+                                    "firstName": {
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "type": "string"
+                                    },
+                                    "acceptedDataProtection": {
+                                        "description": "Flag indicating accepted data protection",
+                                        "type": "boolean"
+                                    },
+                                    "storefrontUrl": {
+                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "type": "string"
+                                    },
+                                    "billingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    "shippingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    "accountType": {
+                                        "description": "Account type of the customer which can be either `private` or `business`.",
+                                        "type": "string",
+                                        "default": "private"
+                                    },
+                                    "guest": {
+                                        "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "birthdayDay": {
+                                        "description": "Birthday day",
+                                        "type": "integer"
+                                    },
+                                    "birthdayMonth": {
+                                        "description": "Birthday month",
+                                        "type": "integer"
+                                    },
+                                    "birthdayYear": {
+                                        "description": "Birthday year",
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "description": "(Academic) title of the customer",
+                                        "type": "string"
+                                    },
+                                    "affiliateCode": {
+                                        "description": "Field can be used to store an affiliate tracking code",
+                                        "type": "string"
+                                    },
+                                    "campaignCode": {
+                                        "description": "Field can be used to store a campaign tracking code",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Customer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/recovery-password-confirm": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Reset a password with recovery credentials",
+                "description": "This operation is Step 2 of the password reset flow. It is required to conduct Step 1 \"Send a password recovery mail\" in order to obtain the required credentials for this step.Resets a customer's password using credentials from a password recovery mail as a validation.",
+                "operationId": "recoveryPassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hash",
+                                    "newPassword",
+                                    "newPasswordConfirm"
+                                ],
+                                "properties": {
+                                    "hash": {
+                                        "description": "Parameter from the link in the confirmation mail sent in Step 1",
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "description": "New password for the customer",
+                                        "type": "string"
+                                    },
+                                    "newPasswordConfirm": {
+                                        "description": "Confirmation of the new password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful update.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/recovery-password": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Send a password recovery mail",
+                "description": "This operation is Step 1 of the password reset flow. Make sure to implement Step 2 \"Reset password with recovery credentials\" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
+                "operationId": "sendRecoveryMail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "storefrontUrl"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "E-Mail address to identify the customer",
+                                        "type": "string"
+                                    },
+                                    "storefrontUrl": {
+                                        "description": "URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "If email corresponds to an existing customer, a mail will be sent out to that customer containing a link assembled using the following schema:\n\nReturns a success indicating a successful initialisation of the reset flow.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/address/default-shipping/{addressId}": {
+            "patch": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Change a customer's default shipping address",
+                "description": "Updates the default (preselected) shipping addresses of a customer.",
+                "operationId": "defaultShippingAddress",
+                "parameters": [
+                    {
+                        "name": "addressId",
+                        "in": "path",
+                        "description": "Address ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/address/default-billing/{addressId}": {
+            "patch": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Change a customer's default billing address",
+                "description": "Updates the default (preselected) billing addresses of a customer.",
+                "operationId": "defaultBillingAddress",
+                "parameters": [
+                    {
+                        "name": "addressId",
+                        "in": "path",
+                        "description": "Address ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/account/address": {
+            "post": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Create a new address for a customer",
+                "description": "Creates a new address for a customer.",
+                "operationId": "createCustomerAddress",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerAddress"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -8,10 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = ProductFeatureSetDefinition::ENTITY_NAME . '_translation';
+    final public const ENTITY_NAME = ProductFeatureSetDefinition::ENTITY_NAME . '_translation';
 
     public function getCollectionClass(): string
     {
@@ -28,14 +30,14 @@ class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
         return self::ENTITY_NAME;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return ProductFeatureSetDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.3.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return ProductFeatureSetDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

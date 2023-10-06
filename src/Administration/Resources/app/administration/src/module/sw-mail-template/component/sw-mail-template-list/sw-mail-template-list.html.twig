@@ -1,30 +1,31 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_mail_template_list_grid %}
 <sw-card
     :title="$tc('sw-mail-template.list.titleMailTemplateList')"
     position-identifier="sw-mail-template-list"
 >
 
-    <template>
-        {% block sw_mail_template_list_grid_empty_state %}
-        <sw-empty-state
-            v-if="!isLoading && !showListing"
-            :title="$tc('sw-mail-template.list.emptyStateTitle')"
-            :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
-            :absolute="false"
-        >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_mail_template_list_grid_empty_state %}
+    <sw-empty-state
+        v-if="!isLoading && !showListing"
+        :title="$tc('sw-mail-template.list.emptyStateTitle')"
+        :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
+        :absolute="false"
+    >
 
-            {% block sw_mail_template_list_grid_empty_state_icon %}
-            <template #icon>
-                <img
-                    :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
-                    alt=""
-                >
-            </template>
-            {% endblock %}
-
-        </sw-empty-state>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_mail_template_list_grid_empty_state_icon %}
+        <template #icon>
+            <img
+                :src="assetFilter('/administration/static/img/empty-states/settings-empty-state.svg')"
+                alt=""
+            >
+        </template>
         {% endblock %}
-    </template>
+
+    </sw-empty-state>
+    {% endblock %}
 
     <template #grid>
         <sw-entity-listing
@@ -45,8 +46,14 @@
             :skeleton-item-amount="skeletonItemAmount"
             @update-records="updateRecords"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_mail_template_list_grid_columns %}
+            {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_mail_template_list_grid_actions %}
             <template #more-actions="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_list_grid_columns_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-mail-template-list-grid__duplicate-action"
@@ -57,6 +64,7 @@
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
+            {% endblock %}
         </sw-entity-listing>
     </template>
 </sw-card>

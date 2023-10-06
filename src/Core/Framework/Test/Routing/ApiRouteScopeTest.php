@@ -14,11 +14,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ApiRouteScopeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function provideAllowedData()
+    public static function provideAllowedData()
     {
         return [
             [new AdminApiSource(null, null), true],
@@ -27,7 +30,7 @@ class ApiRouteScopeTest extends TestCase
         ];
     }
 
-    public function provideForbiddenData()
+    public static function provideForbiddenData()
     {
         return [
             [new SalesChannelApiSource(Uuid::randomHex()), true],

@@ -1,23 +1,33 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_price_field %}
 <div
     class="sw-product-variants-price-field"
     :class="{'is--readonly': readonly}"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_price_field_gross %}
     <div class="sw-field">
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="price.gross"
+            {% else %}
             v-model="price.gross"
-            type="number"
+            {% endif %}
             size="small"
             class="sw-product-variants-price-field__input"
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
+            {% if VUE3 %}
+            @update:value="onPriceGrossChange"
+            {% else %}
             @change="onPriceGrossChange"
+            {% endif %}
         />
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_price_field_lock_button %}
     <button
         class="sw-product-variants-price-field__lock"
@@ -26,28 +36,36 @@
     >
         <sw-icon
             v-if="price.linked"
-            name="default-lock-closed"
+            name="regular-lock"
             size="16"
         />
         <sw-icon
             v-else
-            name="default-lock-open"
+            name="regular-lock-open"
             size="16"
         />
     </button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_price_field_net %}
     <div class="sw-field">
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="price.net"
+            {% else %}
             v-model="price.net"
-            type="number"
+            {% endif %}
             size="small"
             class="sw-field sw-product-variants-price-field__input"
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
+            {% if VUE3 %}
+            @update:value="onPriceNetChange"
+            {% else %}
             @change="onPriceNetChange"
+            {% endif %}
         />
     </div>
     {% endblock %}

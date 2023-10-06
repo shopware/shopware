@@ -24,21 +24,27 @@
 
     &.sw-field--medium {
         .sw-select__selection {
-            padding: 0 6px 0;
+            padding: 0 6px;
         }
 
         .sw-entity-single-select__selection-input {
-            padding: 8px 8px;
+            padding: 8px;
         }
     }
 
     &.sw-field--small {
         .sw-select__selection {
-            padding: 0 6px 0;
+            padding: 0 6px;
         }
 
         .sw-entity-single-select__selection-input {
             padding: 4px 8px;
         }
+    }
+
+    &__selection {
+        display: flex;
+        align-items: center;
+        padding-right: 48px;
     }
 }

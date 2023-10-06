@@ -4,32 +4,32 @@ namespace Shopware\Core\Checkout\Cart\Processor;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
-use Shopware\Core\Checkout\Cart\Exception\MissingPriceDefinitionException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class DiscountCartProcessor implements CartProcessorInterface
 {
-    private PercentagePriceCalculator $percentageCalculator;
-
-    private CurrencyPriceCalculator $currencyCalculator;
-
-    public function __construct(PercentagePriceCalculator $percentageCalculator, CurrencyPriceCalculator $currencyCalculator)
-    {
-        $this->percentageCalculator = $percentageCalculator;
-        $this->currencyCalculator = $currencyCalculator;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly PercentagePriceCalculator $percentageCalculator,
+        private readonly CurrencyPriceCalculator $currencyCalculator
+    ) {
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -43,7 +43,7 @@ class DiscountCartProcessor implements CartProcessorInterface
 
             try {
                 $price = $this->calculate($definition, $goods, $context);
-            } catch (MissingPriceDefinitionException $e) {
+            } catch (CartException) {
                 $original->remove($item->getId());
                 $toCalculate->addErrors(new IncompleteLineItemError($item->getId(), 'price'));
 
@@ -92,10 +92,6 @@ class DiscountCartProcessor implements CartProcessorInterface
             return $this->currencyCalculator->calculate($definition->getPrice(), $goods->getPrices(), $context);
         }
 
-        if ($definition instanceof AbsolutePriceDefinition) {
-            throw new MissingPriceDefinitionException('AbsolutePriceDefinitions are not supported for generic discounts, use CurrencyPriceDefinition instead');
-        }
-
-        throw new MissingPriceDefinitionException();
+        throw CartException::invalidPriceDefinition();
     }
 }

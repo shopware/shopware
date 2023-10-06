@@ -1,7 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_image_preview %}
 <div class="sw-cms-preview-image">
     <img
-        :src="'/administration/static/img/cms/preview_mountain_small.jpg' | asset"
+        :src="assetFilter('/administration/static/img/cms/preview_mountain_small.jpg')"
         alt=""
     >
 </div>

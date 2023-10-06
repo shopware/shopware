@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import domPurify from 'dompurify';
 
 /**
@@ -16,6 +20,7 @@ const middlewareNames = [
     'afterSanitizeShadowDOM',
 ];
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class Sanitizer {
     // eslint-disable-next-line inclusive-language/use-inclusive-words
     /**
@@ -52,7 +57,7 @@ export default class Sanitizer {
         if (!middlewareNames.includes(middlewareName)) {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
-                `No middleware found for name "${middlewareName}", 
+                `No middleware found for name "${middlewareName}",
                 the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;
@@ -73,7 +78,7 @@ export default class Sanitizer {
         if (!middlewareNames.includes(middlewareName)) {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
-                `No middleware found for name "${middlewareName}", 
+                `No middleware found for name "${middlewareName}",
                 the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;

@@ -4,25 +4,33 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1620374229UpdateCustomFieldNameInProductStreamTable;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
-    private EntityRepositoryInterface $productStreamRepository;
+    private EntityRepository $productStreamRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
@@ -71,12 +79,12 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $migration = new Migration1620374229UpdateCustomFieldNameInProductStreamTable();
         $migration->update($this->getContainer()->get(Connection::class));
@@ -91,6 +99,8 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             'field' => 'product.' . $customField,
             'value' => '1',
         ]], $stream->getApiFilter());
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals($customField, $stream->getFilters()->first()->getField());
     }
 
@@ -111,12 +121,12 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $migration = new Migration1620374229UpdateCustomFieldNameInProductStreamTable();
         $migration->update($this->getContainer()->get(Connection::class));
@@ -131,6 +141,8 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             'field' => 'product.customFields.custom_field_a',
             'value' => '1',
         ]], $stream->getApiFilter());
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals('customFields.custom_field_a', $stream->getFilters()->first()->getField());
     }
 
@@ -151,12 +163,12 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $migration = new Migration1620374229UpdateCustomFieldNameInProductStreamTable();
         $migration->update($this->getContainer()->get(Connection::class));
@@ -171,6 +183,8 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             'field' => 'product.active',
             'value' => '1',
         ]], $stream->getApiFilter());
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals('active', $stream->getFilters()->first()->getField());
     }
 }

@@ -3,38 +3,36 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 
-class TemplateFinder implements TemplateFinderInterface
+#[Package('core')]
+class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
-    private Environment $twig;
-
-    private LoaderInterface $loader;
-
+    /**
+     * @var string[]
+     */
     private array $namespaceHierarchy = [];
 
-    private string $cacheDir;
-
-    private NamespaceHierarchyBuilder $namespaceHierarchyBuilder;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Environment $twig,
-        LoaderInterface $loader,
-        string $cacheDir,
-        NamespaceHierarchyBuilder $namespaceHierarchyBuilder
+        private readonly Environment $twig,
+        private readonly LoaderInterface $loader,
+        private readonly string $cacheDir,
+        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
+        private readonly TemplateScopeDetector $templateScopeDetector,
     ) {
-        $this->twig = $twig;
-        $this->loader = $loader;
-        $this->cacheDir = $cacheDir . '/twig';
-        $this->namespaceHierarchyBuilder = $namespaceHierarchyBuilder;
     }
 
     public function getTemplateName(string $template): string
     {
-        //remove static template inheritance prefix
+        // remove static template inheritance prefix
         if (mb_strpos($template, '@') !== 0) {
             return $template;
         }
@@ -87,7 +85,7 @@ class TemplateFinder implements TemplateFinderInterface
             return $name;
         }
 
-        // Throw an useful error when the template cannot be found
+        // Throw a useful error when the template cannot be found
         if ($originalTemplate === null) {
             if ($ignoreMissing === true) {
                 return $templatePath;
@@ -108,6 +106,11 @@ class TemplateFinder implements TemplateFinderInterface
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
     }
 
+    public function reset(): void
+    {
+        $this->namespaceHierarchy = [];
+    }
+
     private function getSourceBundleName(string $source): ?string
     {
         if (mb_strpos($source, '@') !== 0) {
@@ -121,6 +124,9 @@ class TemplateFinder implements TemplateFinderInterface
         return $source ?: null;
     }
 
+    /**
+     * @return string[]
+     */
     private function getNamespaceHierarchy(): array
     {
         if ($this->namespaceHierarchy) {
@@ -128,18 +134,23 @@ class TemplateFinder implements TemplateFinderInterface
         }
 
         $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
+
         $this->defineCache($namespaceHierarchy);
 
         return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
     }
 
+    /**
+     * @param string[] $queue
+     */
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
-            $configHash = md5((string) json_encode($queue));
+            $configHash = md5((string) json_encode($queue, \JSON_THROW_ON_ERROR));
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);
+            $fileSystemCache->setTemplateScopes($this->templateScopeDetector->getScopes());
             // Set individual twig cache for different configurations
             $this->twig->setCache($fileSystemCache);
         }

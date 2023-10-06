@@ -5,7 +5,11 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
-Component.register('sw-flow-generate-document-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
@@ -42,15 +46,6 @@ Component.register('sw-flow-generate-document-modal', {
     },
 
     watch: {
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        documentType(value) {
-            if (value && this.fieldError) {
-                this.fieldError = null;
-            }
-        },
-
         documentTypesSelected(value) {
             if (value.length > 0 && this.fieldError) {
                 this.fieldError = null;
@@ -115,4 +110,4 @@ Component.register('sw-flow-generate-document-modal', {
             this.$emit('process-finish', sequence);
         },
     },
-});
+};

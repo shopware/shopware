@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-entity-listing.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
@@ -178,10 +185,15 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         applyResult(result) {
             this.records = result;
-            this.total = result.total;
-            this.page = result.criteria.page;
-            this.limit = result.criteria.limit;
+            const { total, criteria } = result;
+            this.total = total;
+            this.page = criteria.page || 1;
+            this.limit = criteria.limit || this.criteriaLimit;
             this.loading = false;
+
+            if (criteria?.sortings?.[0]?.field) {
+                this.currentSortBy = criteria.sortings[0].field;
+            }
 
             this.$emit('update-records', result);
         },
@@ -267,11 +279,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.currentSortDirection = direction;
             this.currentNaturalSorting = this.lastSortedColumn.naturalSorting;
 
-            if (this.feature.isActive('FEATURE_NEXT_17421')) {
-                this.$emit('column-sort', this.lastSortedColumn, this.currentSortDirection);
-            } else {
-                this.$emit('column-sort', this.lastSortedColumn);
-            }
+            this.$emit('column-sort', this.lastSortedColumn, this.currentSortDirection);
 
             if (this.lastSortedColumn.useCustomSort) {
                 return false;

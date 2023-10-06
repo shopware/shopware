@@ -25,11 +25,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('buyers-experience')]
 class CmsPageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_page';
+    final public const ENTITY_NAME = 'cms_page';
 
     public function getEntityName(): string
     {
@@ -59,6 +61,7 @@ class CmsPageDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
             (new JsonField('config', 'config', [
                 (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
             ]))->addFlags(new ApiAware()),

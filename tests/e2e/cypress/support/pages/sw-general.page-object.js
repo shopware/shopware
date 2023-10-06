@@ -41,7 +41,7 @@ export default {
     alert: '.sw-alert',
     alertClose: '.sw-alert__close',
     notification: '.sw-notifications__notification',
-    successIcon: '.icon--small-default-checkmark-line-medium',
+    successIcon: '.icon--regular-checkmark-xs',
 
     // Rule conditions
     conditionOrContainer: '.sw-condition-container__or-child',
@@ -57,8 +57,8 @@ export default {
     manufacturerFilter:
         '#filter-panel-wrapper .filter-multi-select-manufacturer',
     productCard: '.cms-block-product-listing .card-body',
-    filterLabel: '.custom-control-label',
+    filterLabel: '.filter-multi-select-item-label',
 
     // Product detail page
-    productDetailManufacturerLink: '.filter-active',
+    productDetailManufacturerLink: '.product-detail-manufacturer-link',
 }

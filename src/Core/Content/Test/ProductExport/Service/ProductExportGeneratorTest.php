@@ -17,33 +17,33 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Context $context;
-
-    private SalesChannelContext $salesChannelContext;
 
     private ProductExportGeneratorInterface $service;
 
@@ -52,23 +52,19 @@ class ProductExportGeneratorTest extends TestCase
         $this->repository = $this->getContainer()->get('product_export.repository');
         $this->service = $this->getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
     public function testExport(): void
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
     }
 
@@ -76,9 +72,7 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
@@ -131,9 +125,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -151,9 +146,7 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
@@ -198,14 +191,15 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         try {
             $exportGenerator->generate($productExport, $exportBehavior);
-        } catch (EmptyExportException $emptyExportException) {
+        } catch (EmptyExportException) {
         }
 
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
@@ -215,9 +209,80 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
     }
 
+    public function testExportWithNestedAssociations(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.name }},{{ product.stock }},{{ product.options.first.group.name }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString('options-group', $exportResult->getContent());
+    }
+
+    public function testExportWithForLoop(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{% for foo in product.options %} {{ foo.group.name }} {% endfor %}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString('options-group', $exportResult->getContent());
+    }
+
+    /**
+     * @dataProvider isoCodeProvider
+     */
+    public function testExportRendersGivenCurrencies(string $code): void
+    {
+        $productExportId = $this->createTestEntity([
+            'currencyId' => $this->getCurrencyIdByIso($code),
+            'bodyTemplate' => '{{ context.currency.isoCode }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $result = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $result);
+        static::assertStringContainsString($code, $result->getContent());
+    }
+
+    public static function isoCodeProvider(): \Generator
+    {
+        yield 'Polish zloty iso code' => ['PLN'];
+        yield 'Euro iso code' => ['EUR'];
+        yield 'US dollar iso code' => ['USD'];
+        yield 'British pound iso code' => ['GBP'];
+    }
+
+    private function createProductExportCriteria(string $id): Criteria
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociations([
+            'salesChannel',
+            'salesChannelDomain.language',
+        ]);
+
+        return $criteria;
+    }
+
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -225,7 +290,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();
@@ -236,13 +301,13 @@ class ProductExportGeneratorTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
-    private function createTestEntity(): string
+    private function createTestEntity(array $override = []): string
     {
         $this->createProductStream();
 
         $id = Uuid::randomHex();
         $this->repository->upsert([
-            [
+            array_merge([
                 'id' => $id,
                 'fileName' => 'Testexport.csv',
                 'accessKey' => Uuid::randomHex(),
@@ -257,7 +322,7 @@ class ProductExportGeneratorTest extends TestCase
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
-            ],
+            ], $override),
         ], $this->context);
 
         return $id;
@@ -269,13 +334,13 @@ class ProductExportGeneratorTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
         ");
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
@@ -293,6 +358,8 @@ class ProductExportGeneratorTest extends TestCase
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {
+            $groupId = Uuid::randomHex();
+
             $products[] = [
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
@@ -303,6 +370,41 @@ class ProductExportGeneratorTest extends TestCase
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'options' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'position' => 99,
+                        'colorHexCode' => '#189eff',
+                        'group' => [
+                            'id' => $groupId,
+                            'position' => 1,
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => [
+                                    'name' => 'options-group',
+                                    'description' => 'Default',
+                                    'displayType' => 'Default',
+                                    'sortingType' => 'Default',
+                                ],
+                            ],
+                        ],
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'Default',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'position' => 98,
+                        'colorHexCode' => '#ff0000',
+                        'groupId' => $groupId,
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'options-group',
+                            ],
+                        ],
+                    ],
                 ],
             ];
         }

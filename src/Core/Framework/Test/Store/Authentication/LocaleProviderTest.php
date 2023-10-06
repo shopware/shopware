@@ -5,20 +5,24 @@ namespace Shopware\Core\Framework\Test\Store\Authentication;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class LocaleProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     private LocaleProvider $localeProvider;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->userRepository = $this->getContainer()->get('user.repository');
         $this->localeProvider = $this->getContainer()->get(LocaleProvider::class);
@@ -35,7 +39,7 @@ class LocaleProviderTest extends TestCase
             'firstName' => 'first',
             'lastName' => 'last',
             'email' => 'first@last.de',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'locale' => [
                 'code' => $userLocale,
                 'name' => 'testLocale',

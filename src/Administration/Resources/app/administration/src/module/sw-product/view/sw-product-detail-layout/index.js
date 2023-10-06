@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
@@ -6,7 +10,8 @@ const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
-Component.register('sw-product-detail-layout', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
@@ -44,7 +49,7 @@ Component.register('sw-product-detail-layout', {
         ]),
 
         cmsPageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
@@ -55,6 +60,10 @@ Component.register('sw-product-detail-layout', {
                 .addAssociation('slots');
 
             return criteria;
+        },
+
+        languageId() {
+            return Shopware.Context.api.languageId;
         },
     },
 
@@ -73,6 +82,11 @@ Component.register('sw-product-detail-layout', {
 
                 this.updateCmsPageDataMapping();
             },
+        },
+
+        languageId() {
+            State.dispatch('cmsPageState/resetCmsPageState');
+            this.handleGetCmsPage();
         },
     },
 
@@ -163,5 +177,12 @@ Component.register('sw-product-detail-layout', {
         onResetLayout() {
             this.onSelectLayout(null);
         },
+
+        elementUpdate(element) {
+            const slotContent = this.product.slotConfig[element.id]?.content;
+            if (slotContent && slotContent.value) {
+                slotContent.value = element.config.content.value;
+            }
+        },
     },
-});
+};

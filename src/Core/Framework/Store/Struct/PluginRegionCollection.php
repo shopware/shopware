@@ -2,27 +2,25 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
  * Pseudo immutable collection
  *
- * @method PluginRegionStruct[]    getIterator()
- * @method PluginRegionStruct[]    getElements()
- * @method PluginRegionStruct|null get(string $key)
- * @method PluginRegionStruct|null first()
- * @method PluginRegionStruct|null last()
+ * @extends Collection<PluginRegionStruct>
  */
+#[Package('services-settings')]
 final class PluginRegionCollection extends Collection
 {
-    public function getExpectedClass(): string
-    {
-        return PluginRegionStruct::class;
-    }
-
     public function getApiAlias(): string
     {
         return 'store_plugin_region_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return PluginRegionStruct::class;
     }
 }

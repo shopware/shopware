@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\System\StateMachine\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+#[Package('checkout')]
 class StateMachineGraphvizDumper
 {
+    /**
+     * @var array<string, array<string, string|int|float>>
+     */
     protected static array $defaultOptions = [
         'graph' => ['ratio' => 'compress', 'rankdir' => 'LR'],
         'node' => ['fontsize' => 9, 'fontname' => 'Arial', 'color' => '#333333', 'fillcolor' => 'lightblue', 'fixedsize' => 'false', 'width' => 1],
@@ -20,6 +25,8 @@ class StateMachineGraphvizDumper
      *  * graph: The default options for the whole graph
      *  * node: The default options for nodes (places)
      *  * edge: The default options for edges
+     *
+     * @param array<string, mixed> $options
      */
     public function dump(StateMachineEntity $stateMachine, array $options = []): string
     {
@@ -34,11 +41,18 @@ class StateMachineGraphvizDumper
             . $this->endDot();
     }
 
+    /**
+     * @return array<string, array<string, array<string, string>>>
+     */
     private function findStates(StateMachineEntity $stateMachine): array
     {
         $states = [];
+        $stateMachineStates = $stateMachine->getStates();
+        if ($stateMachineStates === null) {
+            return $states;
+        }
 
-        foreach ($stateMachine->getStates() as $state) {
+        foreach ($stateMachineStates as $state) {
             $attributes = [];
             if ($state->getId() === $stateMachine->getInitialStateId()) {
                 $attributes['style'] = 'filled';
@@ -53,6 +67,9 @@ class StateMachineGraphvizDumper
         return $states;
     }
 
+    /**
+     * @param array<string, array<string, array<string, string>>> $states
+     */
     private function addStates(array $states): string
     {
         $code = '';
@@ -63,6 +80,9 @@ class StateMachineGraphvizDumper
         return $code;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function startDot(array $options): string
     {
         return sprintf(
@@ -78,7 +98,7 @@ class StateMachineGraphvizDumper
         return "}\n";
     }
 
-    private function dotize($id): string
+    private function dotize(string $id): string
     {
         return hash('sha1', $id);
     }
@@ -88,26 +108,41 @@ class StateMachineGraphvizDumper
         return addslashes($string);
     }
 
+    /**
+     * @return array<string, array<array<string, string>>>
+     */
     private function findEdges(StateMachineEntity $stateMachine): array
     {
         $edges = [];
+        $transitions = $stateMachine->getTransitions();
+        if ($transitions === null) {
+            return $edges;
+        }
 
-        foreach ($stateMachine->getTransitions() as $transition) {
-            $edges[$transition->getFromStateMachineState()->getName()][] = [
+        foreach ($transitions as $transition) {
+            $fromStateMachineState = $transition->getFromStateMachineState();
+            $toStateMachineState = $transition->getToStateMachineState();
+            if ($fromStateMachineState === null || $toStateMachineState === null) {
+                continue;
+            }
+            $edges[$fromStateMachineState->getName()][] = [
                 'name' => $transition->getActionName(),
-                'to' => $transition->getToStateMachineState()->getName(),
+                'to' => $toStateMachineState->getName(),
             ];
         }
 
         return $edges;
     }
 
+    /**
+     * @param array<string, array<array<string, string>>> $edges
+     */
     private function addEdges(array $edges): string
     {
         $code = '';
 
-        foreach ($edges as $id => $edges) {
-            foreach ($edges as $edge) {
+        foreach ($edges as $id => $edgeCases) {
+            foreach ($edgeCases as $edge) {
                 $code .= sprintf("  place_%s -> place_%s [label=\"%s\" style=\"%s\"];\n", $this->dotize($id), $this->dotize($edge['to']), $this->escape($edge['name']), 'solid');
             }
         }
@@ -115,6 +150,9 @@ class StateMachineGraphvizDumper
         return $code;
     }
 
+    /**
+     * @param array<string, string> $attributes
+     */
     private function addAttributes(array $attributes): string
     {
         $code = [];
@@ -125,10 +163,15 @@ class StateMachineGraphvizDumper
         return $code ? ', ' . implode(', ', $code) : '';
     }
 
+    /**
+     * @param array<array-key, mixed> $options
+     */
     private function addOptions(array $options): string
     {
         $code = [];
         foreach ($options as $k => $v) {
+            \assert(\is_string($k));
+            \assert(\is_string($v));
             $code[] = sprintf('%s="%s"', $k, $v);
         }
 

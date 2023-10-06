@@ -2,26 +2,21 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
+#[Package('storefront')]
 class TemplateConfigAccessor
 {
     /**
-     * @var SystemConfigService
+     * @internal
      */
-    private $systemConfigService;
-
-    /**
-     * @var ThemeConfigValueAccessor
-     */
-    private $themeConfigAccessor;
-
-    public function __construct(SystemConfigService $config, ThemeConfigValueAccessor $themeConfigAccessor)
-    {
-        $this->systemConfigService = $config;
-        $this->themeConfigAccessor = $themeConfigAccessor;
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ThemeConfigValueAccessor $themeConfigAccessor
+    ) {
     }
 
     /**
@@ -49,7 +44,7 @@ class TemplateConfigAccessor
     private function getStatic(): array
     {
         return [
-            'seo.descriptionMaxLength' => 150,
+            'seo.descriptionMaxLength' => 255,
             'cms.revocationNoticeCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             'cms.taxCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             'cms.tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',

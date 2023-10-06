@@ -2,41 +2,43 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
-use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class AddCustomerTagActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
-
-    private ?AbstractFlowLoader $flowLoader;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -46,20 +48,13 @@ class AddCustomerTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
-
-        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
-
-        $this->resetCachedFlows();
     }
 
     public function testAddCustomerTagAction(): void
@@ -67,8 +62,7 @@ class AddCustomerTagActionTest extends TestCase
         $this->createDataTest();
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -125,12 +119,12 @@ class AddCustomerTagActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         $customerTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM customer_tag WHERE tag_id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertCount(3, $customerTag);
@@ -148,14 +142,16 @@ class AddCustomerTagActionTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(string $password, ?string $email = null): void
+    private function createCustomer(?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -175,7 +171,7 @@ class AddCustomerTagActionTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -183,7 +179,7 @@ class AddCustomerTagActionTest extends TestCase
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -201,21 +197,6 @@ class AddCustomerTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
+        ], Context::createDefaultContext());
     }
 }

@@ -2,10 +2,12 @@ import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { EntityCollection } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @private
+ * @package business-ops
  * @status ready
  * @description The <u>sw-rule-modal</u> component is used to create or modify a rule.
  * @example-type code-only
@@ -19,6 +21,8 @@ Component.register('sw-rule-modal', {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
+        'ruleConditionsConfigApiService',
+        'feature',
     ],
 
     mixins: [
@@ -29,6 +33,11 @@ Component.register('sw-rule-modal', {
     props: {
         allowedRuleScopes: {
             type: Array,
+            required: false,
+            default: null,
+        },
+        ruleAwareGroupKey: {
+            type: String,
             required: false,
             default: null,
         },
@@ -58,8 +67,12 @@ Component.register('sw-rule-modal', {
             );
         },
 
+        appScriptConditionRepository() {
+            return this.repositoryFactory.create('app_script_condition');
+        },
+
         modalTitle() {
-            if (this.rule.isNew()) {
+            if (!this.rule || this.rule.isNew()) {
                 return this.$tc('sw-rule-modal.modalTitleNew');
             }
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
@@ -74,15 +87,86 @@ Component.register('sw-rule-modal', {
 
     methods: {
         createdComponent() {
-            this.rule = this.ruleRepository.create(Context.api);
-            this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+            this.isLoading = true;
+
+            this.loadConditionData().then((scripts) => {
+                this.ruleConditionDataProviderService.addScriptConditions(scripts);
+                this.rule = this.ruleRepository.create(Context.api);
+                this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+
+                if (this.rule[this.ruleAwareGroupKey]) {
+                    this.rule[this.ruleAwareGroupKey].push({});
+                }
+
+                this.isLoading = false;
+            });
+        },
+
+        loadConditionData() {
+            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const criteria = new Criteria(1, 500);
+
+            return Promise.all([
+                this.appScriptConditionRepository.search(criteria, context),
+                this.ruleConditionsConfigApiService.load(),
+            ]).then((results) => {
+                return results[0];
+            });
         },
 
         conditionsChanged({ conditions }) {
             this.rule.conditions = conditions;
         },
 
+        getChildrenConditions(condition) {
+            const conditions = [];
+            condition.children.forEach((child) => {
+                conditions.push(child);
+                if (child.children) {
+                    const children = this.getChildrenConditions(child);
+                    conditions.push(...children);
+                }
+            });
+
+            return conditions;
+        },
+
+        validateRuleAwareness() {
+            const conditions = [];
+            this.rule.conditions.forEach((condition) => {
+                conditions.push(condition);
+
+                if (condition.children) {
+                    const children = this.getChildrenConditions(condition);
+                    conditions.push(...children);
+                }
+            });
+
+            const tooltip = this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                conditions,
+                this.ruleAwareGroupKey,
+            );
+
+            if (!tooltip.disabled) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: tooltip.message,
+                });
+                return false;
+            }
+
+            return true;
+        },
+
         saveAndClose() {
+            if (!this.validateRuleAwareness()) {
+                return Promise.resolve();
+            }
+            if (this.rule[this.ruleAwareGroupKey]) {
+                this.rule[this.ruleAwareGroupKey] = [];
+            }
+
+
             const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(
                 'sw-rule-modal.messageSaveSuccess',
@@ -91,9 +175,7 @@ Component.register('sw-rule-modal', {
             );
 
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'sw-rule-modal.messageSaveError', 0, { name: this.rule.name },
-            );
+            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', 0, { name: this.rule.name });
 
             this.isLoading = true;
             return this.ruleRepository.save(this.rule, Context.api).then(() => {

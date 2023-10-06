@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Kernel;
 
+/**
+ * @internal
+ */
 class InstanceServiceTest extends TestCase
 {
     public function testItReturnsInstanceIdIfNull(): void

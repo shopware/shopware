@@ -1,0 +1,8 @@
+services:
+    - PhpParser\NodeFinder
+
+    - Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+    - Symplify\PHPStanRules\NodeFinder\TypeAwareNodeFinder
+
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule

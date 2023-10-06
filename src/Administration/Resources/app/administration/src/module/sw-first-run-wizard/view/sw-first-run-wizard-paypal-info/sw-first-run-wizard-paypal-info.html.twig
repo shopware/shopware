@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_paypal_info %}
 <div class="sw-first-run-wizard-paypal">
     <div
@@ -6,7 +7,7 @@
     >
         <img
             class="sw-first-run-wizard-paypal-info__icon"
-            :src="'/administration/static/img/paypal-official-logo.svg' | asset"
+            :src="assetFilter('/administration/static/img/paypal-official-logo.svg')"
             alt=""
         >
 
@@ -20,28 +21,28 @@
         >
             <div class="paymethod">
                 <sw-icon
-                    name="default-basic-checkmark-circle"
+                    name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.paypal') }}</span>
             </div>
             <div class="paymethod">
                 <sw-icon
-                    name="default-basic-checkmark-circle"
+                    name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.debit') }}</span>
             </div>
             <div class="paymethod">
                 <sw-icon
-                    name="default-basic-checkmark-circle"
+                    name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.creditcard') }}</span>
             </div>
             <div class="paymethod">
                 <sw-icon
-                    name="default-basic-checkmark-circle"
+                    name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.invoice') }}**</span>

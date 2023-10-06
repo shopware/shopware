@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
@@ -13,12 +9,6 @@ describe('FilterMultiSelect tests', () => {
 
     beforeEach(() => {
         // create mocks
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
         mockElement = document.createElement('div');
 
         const cmsElementProductListingWrapper = document.createElement('div');
@@ -40,19 +30,9 @@ describe('FilterMultiSelect tests', () => {
 
         document.body.appendChild(mockElement);
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new ListingPlugin(mockElement);
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new ListingPlugin(mockElement);
+        }
 
         filterMultiSelectPlugin = new FilterMultiSelectPlugin(mockElement);
     });

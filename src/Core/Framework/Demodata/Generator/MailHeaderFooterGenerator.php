@@ -7,25 +7,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class MailHeaderFooterGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var EntityWriterInterface
+     * @internal
      */
-    private $writer;
-
-    /**
-     * @var MailHeaderFooterDefinition
-     */
-    private $mailHeaderFooterDefinition;
-
-    public function __construct(EntityWriterInterface $writer, MailHeaderFooterDefinition $mailHeaderFooterDefinition)
-    {
-        $this->writer = $writer;
-        $this->mailHeaderFooterDefinition = $mailHeaderFooterDefinition;
+    public function __construct(
+        private readonly EntityWriterInterface $writer,
+        private readonly MailHeaderFooterDefinition $mailHeaderFooterDefinition
+    ) {
     }
 
     public function getDefinition(): string
@@ -33,9 +31,6 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
         return MailHeaderFooterDefinition::class;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $this->createMailHeaderFooter(
@@ -44,9 +39,6 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
         );
     }
 
-    /**
-     * @throws \Exception
-     */
     private function createMailHeaderFooter(DemodataContext $context, int $numberOfItems): void
     {
         $context->getConsole()->progressStart($numberOfItems);
@@ -72,33 +64,35 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @throws \Exception
+     * @return array<string, mixed>
      */
     private function prepareHeaderFooterData(DemodataContext $context): array
     {
         $faker = $context->getFaker();
-        $mailHeaderFooter = [
+
+        return [
             'id' => Uuid::randomHex(),
             'name' => $faker->text(50),
-            'description' => $faker->text,
+            'description' => $faker->text(),
             'isSystemDefault' => false,
             'headerHtml' => $this->generateRandomHTML(
                 10,
                 ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'],
                 $context
             ),
-            'headerPlain' => $faker->text,
+            'headerPlain' => $faker->text(),
             'footerHtml' => $this->generateRandomHTML(
                 10,
                 ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'],
                 $context
             ),
-            'footerPlain' => $faker->text,
+            'footerPlain' => $faker->text(),
         ];
-
-        return $mailHeaderFooter;
     }
 
+    /**
+     * @param list<array<string, mixed>> $payload
+     */
     private function write(array $payload, DemodataContext $context): void
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
@@ -107,11 +101,9 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return string
+     * @param list<string> $tags
      */
-    private function generateRandomHTML(int $count, array $tags, DemodataContext $context)
+    private function generateRandomHTML(int $count, array $tags, DemodataContext $context): string
     {
         $output = '';
         for ($i = 0; $i < $count; ++$i) {

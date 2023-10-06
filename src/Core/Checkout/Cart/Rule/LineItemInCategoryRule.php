@@ -2,35 +2,30 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class LineItemInCategoryRule extends Rule
 {
+    final public const RULE_NAME = 'cartLineItemInCategory';
+
     /**
-     * @var string[]
+     * @internal
+     *
+     * @param list<string> $categoryIds
      */
-    protected array $categoryIds;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $categoryIds = []
+    ) {
         parent::__construct();
-
-        $this->categoryIds = $categoryIds;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInCategory';
     }
 
     public function match(RuleScope $scope): bool
@@ -43,7 +38,7 @@ class LineItemInCategoryRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }
@@ -55,43 +50,24 @@ class LineItemInCategoryRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['categoryIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['categoryIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {
-        $categoryIds = (array) $lineItem->getPayloadValue('categoryIds');
-
-        $matches = array_intersect($categoryIds, $this->categoryIds);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty($matches);
-
-            case self::OPERATOR_NEQ:
-                return empty($matches);
-
-            case self::OPERATOR_EMPTY:
-                return empty($categoryIds);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($lineItem->getPayloadValue('categoryIds'), $this->categoryIds, $this->operator);
     }
 }

@@ -17,6 +17,7 @@ $sw-media-library-color-background: $color-white;
         grid-gap: 16px;
         justify-content: end;
         justify-items: end;
+        z-index: $z-index-overlay;
 
         @media (max-width: 1550px) {
             grid-auto-flow: row;
@@ -25,12 +26,14 @@ $sw-media-library-color-background: $color-white;
 
     .sw-media-library__parent-folder {
         .sw-media-base-item__name-container {
-            font-weight: 600;
+            font-weight: $font-weight-semi-bold;
         }
 
         &:hover .sw-media-base-item__selected-indicator {
             visibility: hidden;
         }
+
+        z-index: $z-index-overlay;
     }
 
     .sw-media-library__scroll-container {

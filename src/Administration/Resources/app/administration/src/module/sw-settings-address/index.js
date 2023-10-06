@@ -1,7 +1,11 @@
-import './page/sw-settings-address';
+// @deprecated tag:v6.6.0 - Whole module will be removed as no longer necessary since the introduction of address formatting
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-address', () => import('./page/sw-settings-address'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-address', {
     type: 'core',
     name: 'settings-address',
@@ -10,7 +14,7 @@ Module.register('sw-settings-address', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
@@ -28,7 +32,7 @@ Module.register('sw-settings-address', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.address.index',
-        icon: 'default-object-address',
+        icon: 'regular-book-user',
         privilege: 'system.system_config',
     },
 });

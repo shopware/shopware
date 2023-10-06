@@ -5,33 +5,20 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('checkout')]
 class PasswordRecoveryUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $recoveryUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $hash;
-
-    private string $storefrontUrl;
-
-    private CustomerRecoveryEntity $customerRecovery;
-
     public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $recoveryUrl,
-        string $hash,
-        string $storefrontUrl,
-        CustomerRecoveryEntity $customerRecovery
+        private readonly SalesChannelContext $salesChannelContext,
+        private string $recoveryUrl,
+        private readonly string $hash,
+        private readonly string $storefrontUrl,
+        private readonly CustomerRecoveryEntity $customerRecovery
     ) {
-        $this->recoveryUrl = $recoveryUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->hash = $hash;
-        $this->storefrontUrl = $storefrontUrl;
-        $this->customerRecovery = $customerRecovery;
     }
 
     public function getRecoveryUrl(): string

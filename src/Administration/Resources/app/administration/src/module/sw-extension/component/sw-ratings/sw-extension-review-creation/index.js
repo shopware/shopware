@@ -2,12 +2,12 @@ import template from './sw-extension-review-creation.html.twig';
 import './sw-extension-review-creation.scss';
 
 const { ShopwareError } = Shopware.Classes;
-const { Component } = Shopware;
 
 /**
+ * @package services-settings
  * @private
  */
-Component.register('sw-extension-review-creation', {
+export default {
     template,
 
     inject: ['extensionStoreActionService'],
@@ -110,18 +110,6 @@ Component.register('sw-extension-review-creation', {
             }
         },
 
-        clearData() {
-            this.tocAccepted = false;
-            this.headline = null;
-            this.rating = null;
-            this.text = null;
-
-            this.$nextTick(() => {
-                this.errors.headlineError = null;
-                this.errors.ratingError = null;
-            });
-        },
-
         validateInputs() {
             this.validateHeadline();
             this.validateRating();
@@ -160,4 +148,4 @@ Component.register('sw-extension-review-creation', {
             this.isCreatedSuccessful = false;
         },
     },
-});
+};

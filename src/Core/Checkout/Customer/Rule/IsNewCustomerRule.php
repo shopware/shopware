@@ -3,18 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRule instead
+ */
+#[Package('services-settings')]
 class IsNewCustomerRule extends Rule
 {
+    final public const RULE_NAME = 'customerIsNewCustomer';
+
     /**
      * @var bool
      */
     protected $isNew;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isNew = true)
     {
         parent::__construct();
@@ -23,6 +34,11 @@ class IsNewCustomerRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+        );
+
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
@@ -44,13 +60,24 @@ class IsNewCustomerRule extends Rule
 
     public function getConstraints(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+        );
+
         return [
-            'isNew' => [new NotNull(), new Type('bool')],
+            'isNew' => RuleConstraints::bool(true),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerIsNewCustomer';
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+        );
+
+        return (new RuleConfig())
+            ->booleanField('isNew');
     }
 }

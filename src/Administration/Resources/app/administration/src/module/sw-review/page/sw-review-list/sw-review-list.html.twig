@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_review_list %}
 <sw-page class="sw-review-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="product_review"
             :initial-search="term"
@@ -12,16 +14,20 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_list_smart_bar_header_title %}
         <h2>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_smart_bar_header_title_text %}
             {{ $tc('sw-review.list.textReviewOverview') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -35,9 +41,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_content %}
-    <template slot="content">
+    <template #content>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_list_content_list %}
         <sw-entity-listing
             v-if="isLoading || items"
@@ -58,6 +66,7 @@
             @column-sort="onSortColumn"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_status %}
             <template #column-status="{ item }">
                 <sw-data-grid-column-boolean
@@ -67,6 +76,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_title %}
             <template #column-title="{ item }">
                 <div class="sw-review-text_ellipsis">
@@ -77,12 +87,14 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_created_at %}
             <template #column-createdAt="{ item }">
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_user %}
             <template #column-user="{ item }">
                 <router-link
@@ -94,6 +106,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_product %}
             <template #column-product="{ item }">
                 <template v-if="item.productId">
@@ -104,12 +117,14 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_points %}
             <template #column-points="{ item }">
                 <sw-rating-stars v-model="item.points" />
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_comment %}
             <template #column-comment="{ item }">
                 <!-- eslint-disable vue/valid-v-model -->
@@ -122,10 +137,11 @@
         </sw-entity-listing>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_list_empty_state %}
         <sw-empty-state
             v-if="!isLoading && !total"
-            icon="default-documentation-file"
+            icon="regular-file-text"
             :title="$tc('sw-review.list.messageEmpty')"
             :subline="$tc('sw-review.list.messageEmptySubline')"
         />
@@ -133,13 +149,15 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_sidebar %}
-    <template slot="sidebar">
+    <template #sidebar>
         <sw-sidebar>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-review.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

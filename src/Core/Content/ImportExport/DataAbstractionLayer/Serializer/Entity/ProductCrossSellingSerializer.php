@@ -7,18 +7,20 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class ProductCrossSellingSerializer extends EntitySerializer
 {
-    private EntityRepositoryInterface $assignedProductsRepository;
-
-    public function __construct(EntityRepositoryInterface $assignedProductsRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $assignedProductsRepository)
     {
-        $this->assignedProductsRepository = $assignedProductsRepository;
     }
 
     /**

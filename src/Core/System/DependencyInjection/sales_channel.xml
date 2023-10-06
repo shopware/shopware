@@ -52,32 +52,45 @@
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="currency.repository"/>
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="tax.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="country_state.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="tagged" tag="tax.rule_type_filter"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="currency_country_rounding.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="country_state.repository"/>
+            <argument type="service" id="currency_country_rounding.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
@@ -85,9 +98,19 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CartRestorer">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
@@ -111,34 +134,18 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute"/>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelListCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceEnableCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceDisableCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute" public="true"/>
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
             <argument type="string"/>
             <argument type="service" id="service_container" />
             <argument type="collection"/>
             <argument type="collection"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
@@ -155,7 +162,7 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain"/>
             <argument type="service" id="serializer"/>
         </service>
 
@@ -183,8 +190,14 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
         <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator">
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
     </services>
 </container>

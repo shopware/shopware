@@ -6,18 +6,17 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -49,7 +48,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
                 'issuedAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ])
-            ->execute();
+            ->executeStatement();
 
         $this->cleanUpExpiredRefreshTokens();
     }
@@ -63,7 +62,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
             ->delete('refresh_token')
             ->where('token_id = :tokenId')
             ->setParameter('tokenId', $tokenId)
-            ->execute();
+            ->executeStatement();
 
         $this->cleanUpExpiredRefreshTokens();
     }
@@ -78,8 +77,8 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
             ->from('refresh_token')
             ->where('token_id = :tokenId')
             ->setParameter('tokenId', $tokenId)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         $this->cleanUpExpiredRefreshTokens();
 
@@ -97,7 +96,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
             ->delete('refresh_token')
             ->where('user_id = UNHEX(:userId)')
             ->setParameter('userId', $userId)
-            ->execute();
+            ->executeStatement();
     }
 
     private function cleanUpExpiredRefreshTokens(): void
@@ -108,6 +107,6 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
             ->delete('refresh_token')
             ->where('expires_at < :now')
             ->setParameter('now', $now)
-            ->execute();
+            ->executeStatement();
     }
 }

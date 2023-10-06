@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import elements from '../sw-general.page-object';
 
 export default class CategoryPageObject {
@@ -9,7 +12,7 @@ export default class CategoryPageObject {
                 categoryListName: `${elements.dataGridColumn}--name`,
                 categoryTreeItem: '.sw-tree-item',
                 categoryTreeItemInner: '.sw-category-tree__inner .sw-tree-item'
-            }
+            },
         };
     }
 
@@ -23,7 +26,7 @@ export default class CategoryPageObject {
 
     selectCategory(value) {
         cy.get('.sw-category-tree__input-field').focus();
-        cy.get('.sw-category-tree-field__results').should('be.visible');
+        cy.get('.sw-category-tree-field__results_popover').should('be.visible');
         cy.get('.sw-tree-item__element').contains(value).parent().parent()
             .find('.sw-field__checkbox input')
             .click({ force: true });

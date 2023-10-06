@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
@@ -10,13 +14,28 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
+const crypto = require('crypto');
+
+if (process.env.IPV4FIRST) {
+    require('dns').setDefaultResultOrder('ipv4first');
+}
+
+/** HACK: OpenSSL 3 does not support md4 anymore,
+* but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
+*/
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha1' : algorithm);
 
 /* eslint-disable */
 
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
+const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN  !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -26,16 +45,18 @@ if (fs.existsSync(flagsPath)) {
     global.featureFlags = featureFlags;
 }
 
-let refactorAlias = false;
-if (featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
-    refactorAlias = featureFlags.FEATURE_NEXT_11634;
+if (featureFlags?.VUE3) {
+    console.log(chalk.yellow('#########################################'));
+    console.log(chalk.yellow('# Experimental Vue 3 build is activated #'));
+    console.log(chalk.yellow('#########################################'));
+    console.log();
 }
 
-// https://regex101.com/r/OGpZFt/1
-const versionRegex = /16\.\d{1,2}\.\d{1,2}/;
-if (!versionRegex.test(process.versions.node)) {
+const nodeMajor = process.versions.node.split('.')[0];
+const supportedNodeVersions = ['18', '19', '20'];
+if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
-    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^16.0.0'));
+    console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
     console.log();
 }
 
@@ -74,6 +95,15 @@ if (!process.env.PROJECT_ROOT) {
     process.exit(1);
 }
 
+const cssUrlMatcher = (url) => {
+    // Only handle font urls
+    if (url.match(/\.(woff2?|eot|ttf|otf)(\?.*)?$/)) {
+        return true;
+    }
+
+    return false;
+};
+
 /**
  * Create an array with information about all injected plugins.
  *
@@ -100,7 +130,7 @@ const pluginEntries = (() => {
     const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
 
     return Object.entries(pluginDefinition)
-        .filter(([name, definition]) => !!definition.administration && !!definition.administration.entryFilePath)
+        .filter(([name, definition]) => !!definition.administration && !!definition.administration.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
             console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
 
@@ -141,7 +171,7 @@ const assetsPluginInstance = new AssetsPlugin({
     processOutput: function filterAssetsOutput(output) {
         const filteredOutput = { ...output };
 
-        ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
+        ['', 'app', 'runtime'].forEach((key) => {
             delete filteredOutput[key];
         });
 
@@ -183,7 +213,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'eval-source-map' : '#source-map',
+    devtool: isDev ? 'eval-source-map' : 'source-map',
 
     optimization: {
         moduleIds: 'hashed',
@@ -213,25 +243,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     ...(() => {
-        if (refactorAlias) {
-            return {
-                resolve: {
-                    extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
-                    alias: {
-                        scss: path.join(__dirname, 'src/app/assets/scss'),
-                    },
-                },
-            };
-        }
-
         return {
             resolve: {
                 extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                 alias: {
-                    vue$: 'vue/dist/vue.esm.js',
-                    src: path.join(__dirname, 'src'),
                     scss: path.join(__dirname, 'src/app/assets/scss'),
-                    assets: path.join(__dirname, 'static'),
                 },
             },
         };
@@ -241,7 +257,24 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         rules: [
             {
                 test: /\.(html|twig)$/,
-                loader: 'html-loader',
+                use: [
+                    {
+                      loader: 'string-replace-loader',
+                      options: {
+                          multiple: [
+                              {
+                                  search: /<!--[\s\S]*?-->/gm,
+                                  replace: '',
+                              },
+                              {
+                                  search: /^(?!\{#-)\{#[\s\S]*?#\}/gm,
+                                  replace: '',
+                              }
+                          ],
+                      }
+                    },
+                    'raw-loader',
+                ],
             },
             {
                 test: /\.(js|ts|tsx?|vue)$/,
@@ -290,10 +323,9 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             },
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'url-loader',
+                loader: 'file-loader',
                 options: {
-                    limit: 10000,
-                    name: 'static/fonts/[name].[hash:7].[ext]',
+                    name: 'static/fonts/[name].[hash:7].[ext]'
                 },
             },
             {
@@ -301,7 +333,16 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 use: {
                     loader: 'worker-loader',
                     options: {
-                        inline: true,
+                        inline: 'no-fallback',
+                    },
+                },
+            },
+            {
+                test: /\.shared-worker\.(js|tsx?|vue)$/,
+                use: {
+                    loader: 'worker-loader',
+                    options: {
+                        worker: 'SharedWorker',
                     },
                 },
             },
@@ -309,12 +350,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.css$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher
                         },
                     },
                 ],
@@ -323,12 +369,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.postcss$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                 ],
@@ -337,12 +388,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.less$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -358,12 +414,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.sass$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -379,12 +440,18 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.scss$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            publicPath: isDev ? '/' : `../../`,
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -399,12 +466,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.stylus$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -419,12 +491,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.styl$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -449,6 +526,29 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             if (isDev) {
                 return [assetsPluginInstance];
             }
+
+            if (isProd) {
+                return [
+                    /**
+                     * All files inside webpack's output.path directory will be removed once, but the
+                     * directory itself will not be. If using webpack 4+'s default configuration,
+                     * everything under <PROJECT_DIR>/dist/ will be removed.
+                     * Use cleanOnceBeforeBuildPatterns to override this behavior.
+                     *
+                     * During rebuilds, all webpack assets that are not used anymore
+                     * will be removed automatically.
+                     *
+                     * See `Options and Defaults` for information
+                     */
+                    new CleanWebpackPlugin({
+                        cleanOnceBeforeBuildPatterns: [
+                            '!**/*',
+                            'static/**/*',
+                        ]
+                    }),
+                ]
+            }
+
             return [];
         })(),
     ],
@@ -467,12 +567,15 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
 const coreConfig = {
     ...(() => {
         if (isDev) {
+            const disableDevServerInlineMode = process.env.DISABLE_DEV_SERVER_INLINE_MODE === '1' || process.env.DISABLE_DEV_SERVER_INLINE_MODE === 'true';
+
             return {
                 devServer: {
+                    inline: disableDevServerInlineMode ? false : true,
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,
-                    open: true,
+                    open: openBrowserForWatch,
                     proxy: {
                         '/api': {
                             target: process.env.APP_URL,
@@ -504,24 +607,21 @@ const coreConfig = {
     })(),
 
     entry: {
-        commons: [`${path.resolve('src')}/core/shopware.ts`],
-        app: `${path.resolve('src')}/app/main.ts`,
+        app: `${path.resolve('src')}/index.ts`,
     },
 
     ...(() => {
-        if (refactorAlias) {
-            return {
-                resolve: {
-                    alias: {
-                        vue$: 'vue/dist/vue.esm.js',
-                        src: path.join(__dirname, 'src'),
-                        assets: path.join(__dirname, 'static'),
-                    },
-                },
-            };
-        }
+        const vueAlias = featureFlags.VUE3 ? '@vue/compat/dist/vue.esm-bundler.js' : 'vue/dist/vue.esm.js';
 
-        return {};
+        return {
+            resolve: {
+                alias: {
+                    vue$: vueAlias,
+                    src: path.join(__dirname, 'src'),
+                    assets: path.join(__dirname, 'static'),
+                },
+            },
+        };
     })(),
 
     output: {
@@ -531,39 +631,46 @@ const coreConfig = {
             ? path.resolve(__dirname, 'v_dist/')
             : path.resolve(__dirname, '../../public/'),
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
-        chunkFilename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
-        publicPath: isDev ? '/' : `${process.env.APP_URL}/bundles/administration/`,
+        chunkFilename: isDev ? 'bundles/administration/static/js/[chunkhash].js' : 'static/js/[chunkhash].js',
+        publicPath: isDev ? '/' : `bundles/administration/`,
         globalObject: 'this',
+        jsonpFunction: `webpackJsonpAdministration`
     },
 
     optimization: {
-        runtimeChunk: { name: 'runtime' },
         splitChunks: {
-            cacheGroups: {
-                'runtime-vendor': {
-                    chunks: 'all',
-                    name: 'vendors-node',
-                    test: path.join(__dirname, 'node_modules'),
-                },
-            },
-            minSize: 0,
+            chunks: 'async',
+            minSize: 30000,
         },
     },
 
     plugins: [
+        ...(() => {
+            if (process.env.ENABLE_ANALYZE) {
+                return [
+                    new BundleAnalyzerPlugin(),
+                ]
+            }
+
+            return [];
+        })(),
+
         new MiniCssExtractPlugin({
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
+            chunkFilename: isDev ? 'bundles/administration/static/css/[chunkhash].css' : 'static/css/[chunkhash].css',
         }),
 
         ...(() => {
-            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            // TODO: NEXT-18182 remove featureFlag condition
+            if (featureFlags.VUE3 || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 
             return [
                 new ForkTsCheckerWebpackPlugin({
+                    async: true,
                     typescript: {
-                        mode: 'write-references'
+                        mode: 'readonly',
                     },
                     logger: {
                         infrastructure: 'console',
@@ -577,7 +684,7 @@ const coreConfig = {
         ...(() => {
             if (isProd) {
                 return [
-                // copy custom static assets
+                    // copy custom static assets
                     new CopyWebpackPlugin({
                         patterns: [
                             {
@@ -589,12 +696,16 @@ const coreConfig = {
                             },
                         ],
                     }),
+                    // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
+                    new WebpackDynamicPublicPathPlugin({
+                        externalPublicPath: `(window.__sw__.assetPath + '/bundles/administration/')`,
+                    }),
                 ];
             }
 
             if (isDev) {
                 return [
-                // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
+                    // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
                     new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin(),
                     // https://github.com/ampedandwired/html-webpack-plugin
@@ -609,14 +720,13 @@ const coreConfig = {
                     new FriendlyErrorsPlugin(),
                 ];
             }
-        })(),
-
+        })()
     ],
 };
 
 /**
  * We iterate through all activated plugins and create a separate webpack configuration for each plugin. We use the
- * base configuration for this. Additionally we allow plugin developers to extend or modify their webpack configuration
+ * base configuration for this. Additionally, we allow plugin developers to extend or modify their webpack configuration
  * when needed.
  *
  * The entry file and the output will be defined for each plugin so that the generated files are in the correct folders.
@@ -655,17 +765,13 @@ const configsForPlugins = pluginEntries.map((plugin) => {
             },
 
             ...(() => {
-                if (refactorAlias) {
-                    return {
-                        resolve: {
-                            alias: {
-                                '@administration': path.join(__dirname, 'src'),
-                            },
+                return {
+                    resolve: {
+                        alias: {
+                            '@administration': path.join(__dirname, 'src'),
                         },
-                    };
-                }
-
-                return {};
+                    },
+                };
             })(),
 
             output: {
@@ -702,15 +808,21 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 }),
 
                 ...(() => {
-                    if (isProd) {
+                    if (isProd && !hasHtmlFile) {
                         return [
+                            // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
+                            new WebpackDynamicPublicPathPlugin({
+                                externalPublicPath: `(window.__sw__.assetPath + '/bundles/${plugin.technicalFolderName}/')`,
+                            }),
+
                             new ESLintPlugin({
                                 context: path.resolve(plugin.path),
                                 useEslintrc: false,
                                 baseConfig: {
-                                    parser: 'babel-eslint',
+                                    parser: '@babel/eslint-parser',
                                     parserOptions: {
-                                        sourceType: 'module'
+                                        sourceType: 'module',
+                                        requireConfigFile: false,
                                     },
                                     plugins: [ 'plugin-rules' ],
                                     rules: {
@@ -798,9 +910,11 @@ const coreUrlImageLoader = mergedCoreConfig.module.rules.find(r => {
     return r.loader === 'url-loader' && r.test.test('.png');
 });
 coreUrlImageLoader.exclude.push(path.join(__dirname, 'src/app/assets/icons/svg'));
+coreUrlImageLoader.exclude.push(/@shopware-ag\/meteor-icon-kit\/icons/);
 
 const coreSvgInlineLoader = mergedCoreConfig.module.rules.find(r => r.loader === 'svg-inline-loader');
 coreSvgInlineLoader.include.push(path.join(__dirname, 'src/app/assets/icons/svg'));
+coreSvgInlineLoader.include.push(/@shopware-ag\/meteor-icon-kit\/icons/);
 
 /**
  * Export all single configs in a array. Webpack uses then the webpack-multi-compiler for isolated

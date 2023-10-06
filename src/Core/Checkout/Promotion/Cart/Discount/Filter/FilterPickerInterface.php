@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 interface FilterPickerInterface
 {
     public function getKey(): string;

@@ -10,9 +10,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CanonicalRedirectServiceTest extends TestCase
 {
-    public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
+    final public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
 
     /**
      * @dataProvider requestDataProvider

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_permissions_modal %}
 <sw-modal
     class="sw-extension-permissions-modal"
@@ -5,25 +6,26 @@
     variant="small"
     v-on="$listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_content %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_intro %}
     <div class="sw-extension-permissions-modal__intro">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_intro_image %}
         <img
             class="sw-extension-permissions-modal__image"
-            :src="'/administration/static/img/extension-store/permissions.svg' | asset"
+            :src="assetFilter('/administration/static/img/extension-store/permissions.svg')"
             alt=""
         >
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_intro_text %}
         <p class="sw-extension-permissions-modal__description">
-            {{
-                $tc('sw-extension-store.component.sw-extension-permissions-modal.description',
-                    1,
-                    { extensionLabel: extensionLabel })
-            }}
+            {{ descriptionText }}
         </p>
+
         <p
             v-if="domainsList.length > 0"
             class="sw-extension-permissions-modal__domain-hint"
@@ -34,21 +36,26 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_categories %}
     <div class="sw-extension-permissions-modal__categories">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_category %}
         <div
             v-for="(permission, key) in permissionsWithGroupedOperations"
             :key="key"
             class="sw-extension-permissions-modal__category"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_category_inner %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_category_label %}
             <span class="sw-extension-permissions-modal__category-label">
                 {{ categoryLabel(key) }}
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_modal_link %}
             <sw-button
                 class="sw-extension-permissions-modal__link"
@@ -56,8 +63,8 @@
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
                 <sw-icon
-                    name="default-arrow-simple-right"
-                    size="12"
+                    name="regular-long-arrow-right"
+                    size="12px"
                 />
             </sw-button>
             {% endblock %}
@@ -65,6 +72,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_category_domains %}
         <div
             v-if="domainsList.length > 0"
@@ -81,8 +89,8 @@
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
 
                 <sw-icon
-                    name="default-arrow-simple-right"
-                    size="12"
+                    name="regular-long-arrow-right"
+                    size="12px"
                 />
             </sw-button>
         </div>
@@ -91,19 +99,23 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_inner %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_close %}
         <sw-button
             :variant="actionLabel === null ? 'primary' : ''"
             size="small"
             @click="close"
         >
-            {{ $tc('global.sw-modal.labelClose') }}
+            {{ closeBtnLabel }}
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_action %}
         <sw-button
             v-if="actionLabel"
@@ -118,6 +130,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_details %}
     <sw-extension-permissions-details-modal
         v-if="showDetailsModal"
@@ -128,6 +141,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_domains %}
     <sw-extension-domains-modal
         v-if="showDomainsModal"

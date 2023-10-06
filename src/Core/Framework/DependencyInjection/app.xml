@@ -18,8 +18,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
@@ -68,10 +73,10 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="script.repository"/>
             <argument type="service" id="app.repository"/>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
@@ -81,6 +86,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
@@ -90,6 +96,17 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
+            <argument type="service" id="tax_provider.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
+            <argument type="service" id="app_script_condition.repository"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
@@ -110,11 +127,23 @@
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppPayloadServiceHelper">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">
@@ -125,33 +154,29 @@
             <argument type="service" id="payment_method.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Payment\Payload\PayloadService">
-            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        <service id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="string">%env(APP_URL)%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler" abstract="true">
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
+            <argument type="service" id="order_transaction_capture_refund.repository"/>
+            <tag name="shopware.payment.method.prepared"/>
+            <tag name="shopware.payment.method.refund"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <tag name="shopware.payment.method.async"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
-            <tag name="shopware.payment.method.prepared"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">
@@ -179,6 +204,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -190,7 +217,16 @@
             <argument type="service" id="integration.repository"/>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="string">%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
+            <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -234,6 +270,8 @@
 
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
             <argument type="collection">
+                <argument key="timeout">5</argument>
+                <argument key="connect_timeout">1</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
@@ -290,6 +328,9 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="kernel"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">
@@ -316,6 +357,12 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Api\AppJWTGenerateRoute" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+
+        </service>
+
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
             <argument type="service" id="app.repository"/>
         </service>
@@ -330,6 +377,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
+            <argument type="service" id="app.repository"/>
 
             <tag name="console.command"/>
         </service>
@@ -364,6 +413,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Command\CreateAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument>%shopware.app_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Command\ValidateAppCommand">
             <argument>%shopware.app_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
@@ -379,7 +434,7 @@
 
         <service id="Shopware\Core\Framework\App\Api\AppUrlChangeController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -388,7 +443,6 @@
 
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver" public="true">
             <argument type="tagged" tag="shopware.app_url_changed_resolver"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy">
@@ -418,6 +472,15 @@
             <tag name="shopware.app_url_changed_resolver"/>
         </service>
 
+        <!-- DELTA -->
+        <service id="Shopware\Core\Framework\App\Delta\PermissionsDeltaProvider">
+            <tag name="shopware.app_delta"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Delta\DomainsDeltaProvider">
+            <tag name="shopware.app_delta"/>
+        </service>
+
         <!-- ENTITY DEFINITIONS -->
         <service id="Shopware\Core\Framework\App\AppDefinition">
             <tag name="shopware.entity.definition"/>
@@ -443,6 +506,14 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -451,7 +522,50 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
+            <argument type="service" id="app_flow_action.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider">
+            <argument type="tagged_iterator" tag="shopware.app_delta"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
+            <argument type="service" id="app_flow_event.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

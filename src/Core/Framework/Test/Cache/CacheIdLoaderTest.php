@@ -2,23 +2,22 @@
 
 namespace Shopware\Core\Framework\Test\Cache;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @internal
+ *
  * @group cache
  */
 class CacheIdLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var object|CacheIdLoader|null
-     */
-    private $loader;
+    private CacheIdLoader $loader;
 
     protected function setUp(): void
     {
@@ -30,56 +29,43 @@ class CacheIdLoaderTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
-            ->willReturn($id);
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn($id);
 
-        $loader = new CacheIdLoader($connection);
+        $loader = new CacheIdLoader($storage);
 
         static::assertSame($id, $loader->load());
     }
 
     public function testMissingCacheIdWritesId(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
-            ->willReturn(false);
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(false);
 
-        $connection
-            ->expects(static::once())
-            ->method('executeUpdate');
+        $loader = new CacheIdLoader($storage);
 
-        $loader = new CacheIdLoader($connection);
-
-        static::assertIsString($loader->load());
+        static::assertTrue(Uuid::isValid($loader->load()));
     }
 
     public function testCacheIdIsNotAString(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
-            ->willReturn(0);
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(0);
 
-        $connection
-            ->expects(static::once())
-            ->method('executeUpdate');
+        $loader = new CacheIdLoader($storage);
 
-        $loader = new CacheIdLoader($connection);
-
-        static::assertIsString($loader->load());
+        static::assertTrue(Uuid::isValid($loader->load()));
     }
 
     public function testCacheIdIsLoadedFromDatabase(): void
     {
         $old = $this->loader->load();
-        static::assertIsString($old);
+
+        static::assertTrue(Uuid::isValid($old));
 
         $new = Uuid::randomHex();
-        $this->getContainer()->get(Connection::class)
-            ->executeUpdate(
-                'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
-                ['cacheId' => $new, 'key' => 'cache-id']
-            );
+
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set('cache-id', $new);
 
         static::assertSame($new, $this->loader->load());
 

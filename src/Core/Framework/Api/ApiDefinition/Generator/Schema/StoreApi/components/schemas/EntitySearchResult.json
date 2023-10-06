@@ -1,0 +1,43 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "EntitySearchResult": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "entity": {
+                                "type": "string"
+                            },
+                            "total": {
+                                "type": "integer",
+                                "description": "The total number of found entities"
+                            },
+                            "aggregations": {
+                                "type": "array",
+                                "description": "Contains aggregated data. A simple example is the determination of the average price from a product search query.",
+                                "items": {
+                                    "type": "object"
+                                }
+                            },
+                            "page": {
+                                "type": "integer",
+                                "description": "The actual page. This can be used for pagination."
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "description": "The actual limit. This is used for pagination and goes together with the page."
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

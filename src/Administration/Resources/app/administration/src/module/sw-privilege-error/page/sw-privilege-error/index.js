@@ -1,7 +1,8 @@
 import template from './sw-privilege-error.html.twig';
 import './sw-privilege-error.scss';
 
-Shopware.Component.register('sw-privilege-error', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     metaInfo() {
@@ -10,9 +11,15 @@ Shopware.Component.register('sw-privilege-error', {
         };
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     methods: {
         routerGoBack() {
             this.$router.go(-1);
         },
     },
-});
+};

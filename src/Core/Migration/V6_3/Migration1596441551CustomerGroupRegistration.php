@@ -5,9 +5,16 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1596441551CustomerGroupRegistration extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -92,20 +99,20 @@ class Migration1596441551CustomerGroupRegistration extends MigrationStep
 
     private function updateCustomerTable(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `customer`
+        $connection->executeStatement('ALTER TABLE `customer`
 ADD `requested_customer_group_id` binary(16) NULL AFTER `customer_group_id`;');
 
-        $connection->exec('ALTER TABLE `customer`
+        $connection->executeStatement('ALTER TABLE `customer`
 ADD INDEX `fk.customer.requested_customer_group_id` (`requested_customer_group_id`);');
     }
 
     private function createTables(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
 ALTER TABLE `customer_group`
 ADD `registration_active` tinyint(1) NOT NULL DEFAULT \'0\' AFTER `display_gross`;
 ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
 ALTER TABLE `customer_group_translation`
 ADD `registration_title` varchar(255) NULL AFTER `custom_fields`,
 ADD `registration_introduction` longtext NULL AFTER `registration_title`,
@@ -117,7 +124,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         /** @var string|null $langId */
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 
@@ -128,6 +135,9 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
         return $langId;
     }
 
+    /**
+     * @param array{'en-GB': string, 'de-DE': string} $typeTranslations
+     */
     private function createMailTemplates(Connection $connection, array $typeTranslations, string $typeName, string $typeId, ?string $enLangId, ?string $deLangId): void
     {
         $mailTemplateContent = require __DIR__ . '/../Fixtures/MailTemplateContent.php';
@@ -206,7 +216,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($typeId),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

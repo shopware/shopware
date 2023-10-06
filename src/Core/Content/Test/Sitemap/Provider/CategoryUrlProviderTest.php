@@ -11,24 +11,29 @@ use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
+#[Package('sales-channel')]
 class CategoryUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    private SalesChannelRepositoryInterface $categorySalesChannelRepository;
+    private SalesChannelRepository $categorySalesChannelRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    private SalesChannelRepositoryInterface $seoUrlSalesChannelRepository;
+    private SalesChannelRepository $seoUrlSalesChannelRepository;
 
     protected function setUp(): void
     {
@@ -82,6 +87,12 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNull($urlResult->getNextOffset());
     }
 
+    public function testExcludeCategoryLink(): void
+    {
+        $urlResult = $this->getCategoryUrlProvider()->getUrls($this->salesChannelContext, 10);
+        static::assertCount(4, $urlResult->getUrls());
+    }
+
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
         return new CategoryUrlProvider(
@@ -133,6 +144,7 @@ class CategoryUrlProviderTest extends TestCase
                     [
                         'name' => 'Sub 5',
                         'active' => true,
+                        'type' => CategoryDefinition::TYPE_LINK,
                     ],
                 ],
             ],

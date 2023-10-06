@@ -3,11 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 trait CustomerAddressValidationTrait
 {
     private function validateAddress(string $id, SalesChannelContext $context, CustomerEntity $customer): void
@@ -19,6 +21,6 @@ trait CustomerAddressValidationTrait
             return;
         }
 
-        throw new AddressNotFoundException($id);
+        throw CustomerException::addressNotFound($id);
     }
 }

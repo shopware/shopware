@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                add(DocumentEntity $entity)
- * @method void                set(string $key, DocumentEntity $entity)
- * @method DocumentEntity[]    getIterator()
- * @method DocumentEntity[]    getElements()
- * @method DocumentEntity|null get(string $key)
- * @method DocumentEntity|null first()
- * @method DocumentEntity|null last()
+ * @extends EntityCollection<DocumentEntity>
  */
+#[Package('checkout')]
 class DocumentCollection extends EntityCollection
 {
     public function getApiAlias(): string

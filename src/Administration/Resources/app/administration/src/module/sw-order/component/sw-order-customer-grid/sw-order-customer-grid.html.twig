@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_customer_grid %}
 <sw-card
     class="sw-order-customer-grid"
@@ -5,14 +6,18 @@
     :is-loading="isSwitchingCustomer"
 >
     <template #toolbar>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_customer_grid_toolbar %}
         <div class="sw-order-customer-grid__toolbar">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_search_input %}
             <sw-card-filter
+                ref="customerFilter"
                 @sw-card-filter-term-change="onSearch"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_add_new_customer %}
             <sw-button
                 class="sw-order-customer-grid__add-customer"
@@ -28,7 +33,10 @@
     </template>
 
     <template #grid>
-        <div class="sw-order-customer-grid__container">
+        <div
+            class="sw-order-customer-grid__container"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_content %}
             <sw-entity-listing
                 class="sw-order-customer-grid__content"
@@ -39,6 +47,7 @@
                 :repository="customerRepository"
                 :is-loading="isLoading"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_column_select %}
                 <template #column-select="{ item }">
                     <div class="sw-field__radio-input">
@@ -53,6 +62,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_grid_column_name %}
                 <template #column-firstName="{ item }">
                     <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
@@ -61,6 +71,11 @@
                 </template>
                 {% endblock %}
 
+                <template #column-salesChannel="{ item }">
+                    {{ item.salesChannel.translated.name }}
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_list_grid_columns_actions %}
                 <template #actions="{ item }">
                     <sw-context-menu-item
@@ -75,6 +90,7 @@
             </sw-entity-listing>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_empty_state %}
             <sw-empty-state
                 v-if="showEmptyState"
@@ -82,10 +98,11 @@
                 :show-description="false"
                 :title="emptyTitle"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_empty_state_icon %}
                 <template #icon>
                     <img
-                        :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
                         :alt="$tc('sw-customer.list.messageEmpty')"
                     >
                 </template>
@@ -94,10 +111,11 @@
             {% endblock %}
         </div>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_customer_grid_new_customer_modal %}
         <sw-order-new-customer-modal
             v-if="showNewCustomerModal"
-            @on-select-existing-customer="onSelectExistingCustomer"
+            @on-select-existing-customer="onAddNewCustomer"
             @close="showNewCustomerModal = false"
         />
         {% endblock %}

@@ -3,30 +3,27 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LastNameRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $lastName;
+    final public const RULE_NAME = 'customerLastName';
 
     /**
-     * @var string
+     * @internal
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lastName = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $lastName = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->lastName = $lastName;
     }
 
     public function match(RuleScope $scope): bool
@@ -36,44 +33,35 @@ class LastNameRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) === 0;
-
-            case Rule::OPERATOR_NEQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) !== 0;
-
-            case Rule::OPERATOR_EMPTY:
-                return empty(trim($customer->getLastName()));
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if (!\is_string($this->lastName) && $this->operator !== self::OPERATOR_EMPTY) {
+            throw new UnsupportedValueException(\gettype($this->lastName), self::class);
         }
+
+        return RuleComparison::string($customer->getLastName(), $this->lastName ?? '', $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::stringOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['lastName'] = [new NotBlank(), new Type('string')];
+        $constraints['lastName'] = RuleConstraints::string();
 
         return $constraints;
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerLastName';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
+            ->stringField('lastName');
     }
 }

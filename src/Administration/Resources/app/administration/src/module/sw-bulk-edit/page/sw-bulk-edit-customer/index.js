@@ -2,11 +2,17 @@ import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
+const { cloneDeep } = Shopware.Utils.object;
 
-Component.register('sw-bulk-edit-customer', {
+/**
+ * @package system-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -50,19 +56,20 @@ Component.register('sw-bulk-edit-customer', {
             return this.repositoryFactory.create('customer');
         },
 
-        hasSelectedChanges() {
-            return Object.values(this.bulkEditData).some(field => field.isChanged) || this.bulkEditData.length > 0;
-        },
-
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria
-                .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
+        },
+
+        hasChanges() {
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
         actionsRequestGroup() {
@@ -153,6 +160,7 @@ Component.register('sw-bulk-edit-customer', {
 
     methods: {
         createdComponent() {
+            this.setRouteMetaModule();
             if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
                 Shopware.State.commit('context/resetLanguageToDefault');
             }
@@ -172,6 +180,11 @@ Component.register('sw-bulk-edit-customer', {
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        setRouteMetaModule() {
+            this.$set(this.$route.meta.$module, 'color', '#F88962');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-users');
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {
@@ -226,7 +239,7 @@ Component.register('sw-bulk-edit-customer', {
             };
 
             Object.keys(this.bulkEditData).forEach(key => {
-                const bulkEditField = this.bulkEditData[key];
+                const bulkEditField = cloneDeep(this.bulkEditData[key]);
 
                 let bulkEditValue = this.customer[key];
 
@@ -296,5 +309,4 @@ Component.register('sw-bulk-edit-customer', {
             Shopware.State.commit('context/setApiLanguageId', languageId);
         },
     },
-});
-
+};

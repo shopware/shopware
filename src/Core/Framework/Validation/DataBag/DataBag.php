@@ -2,10 +2,16 @@
 
 namespace Shopware\Core\Framework\Validation\DataBag;
 
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+#[Package('core')]
 class DataBag extends ParameterBag
 {
+    /**
+     * @param array<string|int, mixed> $parameters
+     */
     final public function __construct(array $parameters = [])
     {
         foreach ($parameters as $key => $value) {
@@ -17,19 +23,33 @@ class DataBag extends ParameterBag
         parent::__construct($parameters);
     }
 
-    public function all(): array
+    /**
+     * @return array<string|int, mixed>
+     */
+    public function all(?string $key = null): array
     {
         $data = $this->parameters;
 
-        foreach ($data as $key => $value) {
+        foreach ($data as $k => $value) {
             if ($value instanceof self) {
-                $data[$key] = $value->all();
+                $data[$k] = $value->all();
             }
+        }
+
+        if ($key === null) {
+            return $data;
+        }
+
+        if (!\is_array($data = $data[$key] ?? [])) {
+            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($data)));
         }
 
         return $data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function only(string ...$keys): array
     {
         return array_intersect_key($this->parameters, array_flip($keys));
@@ -37,6 +57,6 @@ class DataBag extends ParameterBag
 
     public function toRequestDataBag(): RequestDataBag
     {
-        return new RequestDataBag(self::all());
+        return new RequestDataBag($this->all());
     }
 }

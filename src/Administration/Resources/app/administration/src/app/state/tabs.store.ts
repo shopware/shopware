@@ -1,8 +1,13 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import type { Module } from 'vuex';
 import type { uiTabsAddTabItem } from '@shopware-ag/admin-extension-sdk/es/ui/tabs';
 
-export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>;
 
 interface TabsState {
     tabItems: {
@@ -31,5 +36,10 @@ const TabsStore: Module<TabsState, VuexRootState> = {
     },
 };
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default TabsStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { TabsState };

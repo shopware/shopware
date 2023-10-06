@@ -6,7 +6,7 @@
     display: flex;
     justify-content: stretch;
     align-items: stretch;
-    padding: 20px 20px;
+    padding: 20px;
 
     .sw-cms-block-preview-sidebar-filter__element {
         display: inline-block;
@@ -16,7 +16,7 @@
         margin-right: 6px;
 
         &::before {
-            content: '';
+            content: "";
             display: inline-block;
             position: relative;
             top: 2px;

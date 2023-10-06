@@ -5,17 +5,21 @@ namespace Shopware\Core\Framework\Test\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
 class HappyPathValidatorTest extends TestCase
 {
     /**
      * @dataProvider constraintDataProvider
      */
-    public function testRangeFilter(Constraint $constraint, $value, bool $isValid): void
+    public function testValidator(Constraint $constraint, $value, bool $isValid): void
     {
         $inner = $this->createMock(ValidatorInterface::class);
 
@@ -34,7 +38,7 @@ class HappyPathValidatorTest extends TestCase
         static::assertSame($isValid, $isEmpty);
     }
 
-    public function constraintDataProvider(): \Generator
+    public static function constraintDataProvider(): \Generator
     {
         yield 'min range valid' => [
             new Range(['min' => 11]),
@@ -75,6 +79,18 @@ class HappyPathValidatorTest extends TestCase
         yield 'min max range too high' => [
             new Range(['min' => 11, 'max' => 20]),
             21,
+            false,
+        ];
+
+        yield 'check not-blank against whitespace value without normalizer' => [
+            new NotBlank(),
+            ' ',
+            true,
+        ];
+
+        yield 'check not-blank against whitespace value with trim-normalizer' => [
+            new NotBlank(['normalizer' => 'trim']),
+            ' ',
             false,
         ];
     }

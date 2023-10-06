@@ -9,6 +9,8 @@ use Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @group cache
  */
 class HttpCacheKeyGeneratorTest extends TestCase
@@ -44,7 +46,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         );
     }
 
-    public function sameKeyProvider(): \Generator
+    public static function sameKeyProvider(): \Generator
     {
         yield 'same Url with same get Parameter in different order' => [
             Request::create('https://domain.com/method?limit=1&order=ASC'),
@@ -62,7 +64,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         ];
     }
 
-    public function differentKeyProvider(): \Generator
+    public static function differentKeyProvider(): \Generator
     {
         yield 'Urls with different actions' => [
             Request::create('https://domain.com/actionA'),

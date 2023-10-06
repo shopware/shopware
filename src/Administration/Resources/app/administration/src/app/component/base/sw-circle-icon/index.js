@@ -4,6 +4,9 @@ import './sw-circle-icon.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders an icon from the icon library. For a list of available variants see sw-label.
  * @status ready
@@ -11,11 +14,11 @@ const { Component } = Shopware;
  * @component-example
  * @see sw-label
  * <div>
- *     <sw-circle-icon size="10" iconName="default-action-settings">
- *     <sw-circle-icon size="20" variant="success" iconName="default-basic-checkmark-line">
- *     <sw-circle-icon size="30" variant="warning" iconName="default-badge-warning">
- *     <sw-circle-icon size="40" variant="error" iconName="default-badge-alert">
- *     <sw-circle-icon size="50" variant="info" iconName="default-badge-error">
+ *     <sw-circle-icon size="10" iconName="regular-cog">
+ *     <sw-circle-icon size="20" variant="success" iconName="regular-checkmark">
+ *     <sw-circle-icon size="30" variant="warning" iconName="regular-exclamation-triangle">
+ *     <sw-circle-icon size="40" variant="error" iconName="regular-exclamation-circle">
+ *     <sw-circle-icon size="50" variant="info" iconName="regular-times-hexagon">
  * </div>
  */
 Component.register('sw-circle-icon', {

@@ -2,38 +2,37 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+#[Package('core')]
 class CacheIdLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private const CONFIG_KEY = 'cache-id';
 
     /**
-     * @var CacheItemPoolInterface|null
+     * @internal
      */
-    private $restartSignalCachePool;
-
-    public function __construct(Connection $connection, ?CacheItemPoolInterface $restartSignalCachePool = null)
-    {
-        $this->connection = $connection;
-        $this->restartSignalCachePool = $restartSignalCachePool;
+    public function __construct(
+        private readonly AbstractKeyValueStorage $keyValueStorage,
+        private readonly ?CacheItemPoolInterface $restartSignalCachePool = null
+    ) {
     }
 
     public function load(): string
     {
+        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID');
+        if ($cacheId) {
+            return (string) $cacheId;
+        }
+
         try {
-            $cacheId = $this->connection->fetchColumn(
-                '# cache-id-loader
-                SELECT `value` FROM app_config WHERE `key` = :key',
-                ['key' => 'cache-id']
-            );
-        } catch (\Exception $e) {
+            $cacheId = $this->keyValueStorage->get(self::CONFIG_KEY);
+        } catch (\Exception) {
             $cacheId = null;
         }
 
@@ -47,17 +46,14 @@ class CacheIdLoader
             $this->write($cacheId);
 
             return $cacheId;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return 'live';
         }
     }
 
     public function write(string $cacheId): void
     {
-        $this->connection->executeUpdate(
-            'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
-            ['cacheId' => $cacheId, 'key' => 'cache-id']
-        );
+        $this->keyValueStorage->set(self::CONFIG_KEY, $cacheId);
 
         if ($this->restartSignalCachePool) {
             $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);

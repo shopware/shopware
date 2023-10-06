@@ -2,105 +2,205 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+#[Package('core')]
 class AssetService
 {
-    private FilesystemInterface $filesystem;
-
-    private KernelInterface $kernel;
-
-    private KernelPluginCollection $pluginCollection;
-
-    private CacheInvalidator $cacheInvalidator;
-
-    private AbstractAppLoader $appLoader;
-
-    private string $coreDir;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        FilesystemInterface $filesystem,
-        KernelInterface $kernel,
-        KernelPluginCollection $pluginCollection,
-        CacheInvalidator $cacheInvalidator,
-        AbstractAppLoader $appLoader,
-        string $coreDir
+        private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $privateFilesystem,
+        private readonly KernelInterface $kernel,
+        private readonly KernelPluginLoader $pluginLoader,
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly ParameterBagInterface $parameterBag
     ) {
-        $this->filesystem = $filesystem;
-        $this->kernel = $kernel;
-        $this->pluginCollection = $pluginCollection;
-        $this->cacheInvalidator = $cacheInvalidator;
-        $this->coreDir = $coreDir;
-        $this->appLoader = $appLoader;
     }
 
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $originDir = $bundle->getPath() . '/Resources/public';
-        if (!is_dir($originDir)) {
-            return;
+        $this->copyAssets($bundle, $force);
+
+        if ($bundle instanceof Plugin) {
+            foreach ($this->getAdditionalBundles($bundle) as $bundle) {
+                $this->copyAssets($bundle, $force);
+            }
         }
-
-        $targetDirectory = $this->getTargetDirectory($bundle->getName());
-        $this->filesystem->deleteDir($targetDirectory);
-
-        $this->copy($originDir, $targetDirectory);
-
-        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 
-    public function copyAssetsFromApp(string $appName, string $appPath): void
+    public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
-        $originDir = $this->appLoader->getAssetPathForAppPath($appPath);
+        $this->copyAssetsFromBundleOrApp(
+            $bundle->getPath() . '/Resources/public',
+            $bundle->getName(),
+            $force
+        );
+    }
 
-        if (!is_dir($originDir)) {
+    /**
+     * @decrecated tag:v6.6.0 - Will be removed without replacement
+     */
+    public function copyRecoveryAssets(): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
+    }
+
+    public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
+    {
+        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+
+        if ($publicDirectory === null) {
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($appName);
-        $this->filesystem->deleteDir($targetDirectory);
-
-        $this->copy($originDir, $targetDirectory);
-
-        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+        $this->copyAssetsFromBundleOrApp(
+            $publicDirectory,
+            $appName,
+            $force
+        );
     }
 
     public function removeAssetsOfBundle(string $bundleName): void
     {
-        $targetDirectory = $this->getTargetDirectory($bundleName);
+        $this->removeAssets($bundleName);
 
-        $this->filesystem->deleteDir($targetDirectory);
+        try {
+            $bundle = $this->getBundle($bundleName);
+
+            if ($bundle instanceof Plugin) {
+                foreach ($this->getAdditionalBundles($bundle) as $bundle) {
+                    $this->removeAssets($bundle->getName());
+                }
+            }
+        } catch (PluginNotFoundException) {
+            // plugin is already unloaded, we cannot find it. Ignore it
+        }
     }
 
-    public function copyRecoveryAssets(): void
+    public function removeAssets(string $name): void
     {
-        $targetDirectory = 'recovery';
+        $targetDirectory = $this->getTargetDirectory($name);
 
-        if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
-            // platform installation
-            $originDir = $this->coreDir . '/../Recovery/Resources/public';
-        } elseif (is_dir($this->coreDir . '/../recovery/Resources/public')) {
-            // composer installation over many repos
-            $originDir = $this->coreDir . '/../recovery/Resources/public';
-        } else {
+        $this->filesystem->deleteDirectory($targetDirectory);
+
+        $manifest = $this->getManifest();
+
+        unset($manifest[mb_strtolower($name)]);
+        $this->writeManifest($manifest);
+    }
+
+    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName, bool $force): void
+    {
+        $bundleOrAppName = mb_strtolower($bundleOrAppName);
+
+        if (!is_dir($originDirectory)) {
             return;
         }
 
-        $this->filesystem->deleteDir($targetDirectory);
+        $manifest = $this->getManifest();
 
-        $this->copy($originDir, $targetDirectory);
+        if ($force) {
+            unset($manifest[$bundleOrAppName]);
+        }
+
+        $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
+
+        if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
+            // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
+            $this->filesystem->deleteDirectory($targetDirectory);
+        }
+
+        if (!$this->filesystem->directoryExists($targetDirectory)) {
+            $this->filesystem->createDirectory($targetDirectory);
+        }
+
+        $remoteBundleManifest = $manifest[$bundleOrAppName] ?? [];
+        $localBundleManifest = $this->buildBundleManifest(
+            $this->getBundleFiles($originDirectory)
+        );
+
+        if ($remoteBundleManifest === $localBundleManifest) {
+            return;
+        }
+
+        $this->sync($originDirectory, $targetDirectory, $localBundleManifest, $remoteBundleManifest);
+
+        $manifest[$bundleOrAppName] = $localBundleManifest;
+        $this->writeManifest($manifest);
+
+        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+    }
+
+    /**
+     * @return array<SplFileInfo>
+     */
+    private function getBundleFiles(string $directory): array
+    {
+        $files = Finder::create()
+            ->ignoreDotFiles(false)
+            ->files()
+            ->in($directory)
+            ->getIterator();
+
+        return array_values(iterator_to_array($files));
+    }
+
+    /**
+     * @param array<SplFileInfo> $files
+     *
+     * @return array<string, string>
+     */
+    private function buildBundleManifest(array $files): array
+    {
+        $localManifest = array_combine(
+            array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
+            array_map(fn (SplFileInfo $file) => (string) hash_file('sha256', $file->getPathname()), $files)
+        );
+
+        ksort($localManifest);
+
+        return $localManifest;
+    }
+
+    private function copyFile(string $from, string $to): void
+    {
+        $fp = fopen($from, 'rb');
+
+        // @codeCoverageIgnoreStart
+        if (!\is_resource($fp)) {
+            throw new \RuntimeException('Could not open file ' . $from);
+        }
+        // @codeCoverageIgnoreEnd
+
+        $this->filesystem->writeStream($to, $fp);
+
+        // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
+        // error, we therefore need to check whether the stream has been closed yet.
+        if (\is_resource($fp)) {
+            fclose($fp);
+        }
     }
 
     private function getTargetDirectory(string $name): string
@@ -110,22 +210,32 @@ class AssetService
         return 'bundles/' . $assetDir;
     }
 
-    private function copy(string $originDir, string $targetDir): void
+    /**
+     * Each manifest is a hashmap of file names and their content hash, eg:
+     * [
+     *     'file1' => 'a1b2c3',
+     *     'file2' => 'a2b4c6',
+     * ]
+     *
+     * @param array<string, string> $localManifest
+     * @param array<string, string> $remoteManifest
+     */
+    private function sync(string $originDir, string $targetDirectory, array $localManifest, array $remoteManifest): void
     {
-        $this->filesystem->createDir($targetDir);
+        // compare the file names and hashes: will return a list of files not present in remote as well
+        // as files with changed hashes
+        $uploads = array_keys(array_diff_assoc($localManifest, $remoteManifest));
 
-        $files = Finder::create()
-            ->ignoreDotFiles(false)
-            ->files()
-            ->in($originDir)
-            ->getIterator();
+        // diff the opposite way to find files which are present remote, but not locally.
+        // we use array_diff_key because we don't care about the hash, just the file names
+        $removes = array_keys(array_diff_key($remoteManifest, $localManifest));
 
-        foreach ($files as $file) {
-            $fs = fopen($file->getPathname(), 'rb');
-            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
-            if (\is_resource($fs)) {
-                fclose($fs);
-            }
+        foreach ($removes as $file) {
+            $this->filesystem->delete($targetDirectory . '/' . $file);
+        }
+
+        foreach ($uploads as $file) {
+            $this->copyFile($originDir . '/' . $file, $targetDirectory . '/' . $file);
         }
     }
 
@@ -136,8 +246,8 @@ class AssetService
     {
         try {
             $bundle = $this->kernel->getBundle($bundleName);
-        } catch (\InvalidArgumentException $e) {
-            $bundle = $this->pluginCollection->get($bundleName);
+        } catch (\InvalidArgumentException) {
+            $bundle = $this->pluginLoader->getPluginInstances()->get($bundleName);
         }
 
         if ($bundle === null) {
@@ -145,5 +255,60 @@ class AssetService
         }
 
         return $bundle;
+    }
+
+    /**
+     * @return array<BundleInterface>
+     */
+    private function getAdditionalBundles(Plugin $bundle): array
+    {
+        $params = new AdditionalBundleParameters(
+            $this->pluginLoader->getClassLoader(),
+            $this->pluginLoader->getPluginInstances(),
+            $this->parameterBag->all()
+        );
+
+        return $bundle->getAdditionalBundles($params);
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function getManifest(): array
+    {
+        if ($this->areAssetsStoredLocally()) {
+            return [];
+        }
+
+        $hashes = [];
+        if ($this->privateFilesystem->fileExists('asset-manifest.json')) {
+            $hashes = json_decode(
+                $this->privateFilesystem->read('asset-manifest.json'),
+                true,
+                \JSON_THROW_ON_ERROR
+            );
+        }
+
+        return $hashes;
+    }
+
+    /**
+     * @param array<string, array<string, string>> $manifest
+     */
+    private function writeManifest(array $manifest): void
+    {
+        if ($this->areAssetsStoredLocally()) {
+            return;
+        }
+
+        $this->privateFilesystem->write(
+            'asset-manifest.json',
+            json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
+        );
+    }
+
+    private function areAssetsStoredLocally(): bool
+    {
+        return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
     }
 }

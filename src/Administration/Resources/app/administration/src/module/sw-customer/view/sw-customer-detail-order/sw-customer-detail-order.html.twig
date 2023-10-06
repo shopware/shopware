@@ -1,18 +1,44 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_detail_order_card %}
 <sw-card
     class="sw-customer-detail-order"
     position-identifier="sw-customer-detail-order"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_order_card_toolbar %}
     <template #toolbar>
         <sw-card-filter
             v-if="(orders && orders.total > 0) || term"
             :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
             @sw-card-filter-term-change="onChange"
-        />
+        >
+            <template #filter>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_customer_detail_order_add_button %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-customer-detail-order__add-order-action"
+                    size="small"
+                    :disabled="!acl.can('order.creator')"
+                    @click="navigateToCreateOrder"
+                >
+                    <sw-icon
+                        name="regular-plus-circle-s"
+                        small
+                    />
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-card-filter>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_order_card_grid %}
     <template
         v-if="(orders && orders.total > 0) || term"
@@ -28,7 +54,9 @@
             :full-page="false"
             :is-loading="isLoading"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_number %}
             <template #column-orderNumber="{ item }">
                 <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
@@ -37,15 +65,14 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_amount %}
             <template #column-amountTotal="{ item }">
-                {{ item.amountTotal | currency(item.currency.shortName) }}
+                {{ currencyFilter(item.amountTotal, item.currency.shortName) }}
             </template>
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - block will be removed - Use block `sw_customer_detail_order_card_grid_columns_order_date_time` instead #}
-            {% block sw_customer_detail_order_card_grid_columns_date %}{% endblock %}
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_order_date_time %}
             <template #column-orderDateTime="{ item }">
                 <sw-time-ago :date="item.orderDateTime" />
@@ -53,8 +80,10 @@
             {% endblock %}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_action %}
             <template #actions="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_order_card_grid_columns_action_button %}
                 <sw-context-menu-item
                     class="sw-order-list-order-view-action"
@@ -69,6 +98,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_order_card_grid_empty_state %}
     <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
         <sw-empty-state
@@ -78,9 +108,28 @@
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                     :alt="emptyTitle"
                 >
+            </template>
+
+            <template #actions>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_customer_detail_order_card_grid_empty_state_action %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    class="sw-customer-detail-order__add-order-action"
+                    :disabled="!acl.can('order.creator')"
+                    @click="navigateToCreateOrder"
+                >
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </sw-button>
+                {% endblock %}
             </template>
         </sw-empty-state>
     </template>

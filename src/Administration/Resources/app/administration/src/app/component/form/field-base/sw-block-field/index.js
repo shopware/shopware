@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-block-field', {
     template,
     inheritAttrs: false,

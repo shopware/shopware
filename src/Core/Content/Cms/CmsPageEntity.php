@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
@@ -12,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class CmsPageEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -39,7 +42,7 @@ class CmsPageEntity extends Entity
     protected $sections;
 
     /**
-     * @var EntityCollection|null
+     * @var EntityCollection<CmsPageTranslationEntity>|null
      */
     protected $translations;
 
@@ -52,6 +55,11 @@ class CmsPageEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var string|null
+     */
+    protected $cssClass;
 
     /**
      * @var array|null
@@ -123,11 +131,17 @@ class CmsPageEntity extends Entity
         $this->sections = $sections;
     }
 
+    /**
+     * @return EntityCollection<CmsPageTranslationEntity>|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param EntityCollection<CmsPageTranslationEntity> $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;
@@ -151,6 +165,16 @@ class CmsPageEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getCssClass(): ?string
+    {
+        return $this->cssClass;
+    }
+
+    public function setCssClass(?string $cssClass): void
+    {
+        $this->cssClass = $cssClass;
     }
 
     public function getConfig(): ?array

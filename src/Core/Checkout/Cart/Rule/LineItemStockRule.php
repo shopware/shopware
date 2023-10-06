@@ -4,31 +4,28 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemStockRule extends Rule
 {
-    protected ?int $stock;
+    final public const RULE_NAME = 'cartLineItemStock';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?int $stock = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->stock = $stock;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemStock';
     }
 
     public function match(RuleScope $scope): bool
@@ -37,14 +34,8 @@ class LineItemStockRule extends Rule
             return $this->matchStock($scope->getLineItem());
         }
 
-        if (!$scope instanceof CartRuleScope) {
-            return false;
-        }
-
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
-            if ($this->matchStock($lineItem)) {
-                return true;
-            }
+        if ($scope instanceof CartRuleScope) {
+            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->filterGoodsFlat());
         }
 
         return false;
@@ -53,21 +44,16 @@ class LineItemStockRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
-            'stock' => [new NotBlank(), new Type('int')],
+            'operator' => RuleConstraints::numericOperators(false),
+            'stock' => RuleConstraints::int(),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->intField('stock');
     }
 
     /**
@@ -82,32 +68,23 @@ class LineItemStockRule extends Rule
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $stock = $deliveryInformation->getStock();
+        return RuleComparison::numeric($deliveryInformation->getStock(), $this->stock, $this->operator);
+    }
 
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return $stock >= $this->stock;
-
-            case self::OPERATOR_LTE:
-                return $stock <= $this->stock;
-
-            case self::OPERATOR_GT:
-                return $stock > $this->stock;
-
-            case self::OPERATOR_LT:
-                return $stock < $this->stock;
-
-            case self::OPERATOR_EQ:
-                return $stock === $this->stock;
-
-            case self::OPERATOR_NEQ:
-                return $stock !== $this->stock;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+    /**
+     * @param LineItem[] $lineItems
+     */
+    private function matchStockFromCollection(array $lineItems): bool
+    {
+        foreach ($lineItems as $lineItem) {
+            if ($this->matchStock($lineItem)) {
+                return true;
+            }
         }
+
+        return false;
     }
 }

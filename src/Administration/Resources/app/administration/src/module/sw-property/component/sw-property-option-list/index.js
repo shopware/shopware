@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
-Component.register('sw-property-option-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -93,13 +98,13 @@ Component.register('sw-property-option-list', {
         },
 
         onDeleteOptions() {
-            if (this.selection) {
-                Object.values(this.selection).forEach((option) => {
-                    this.onOptionDelete(option);
-                });
-
-                this.refreshOptionList();
+            if (!this.selection) {
+                return;
             }
+
+            Promise.allSettled(Object.values(this.selection).map((option) => this.onOptionDelete(option))).then(() => {
+                this.refreshOptionList();
+            });
         },
 
         onAddOption() {
@@ -179,4 +184,4 @@ Component.register('sw-property-option-list', {
             }];
         },
     },
-});
+};

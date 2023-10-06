@@ -1,11 +1,16 @@
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-payment-detail', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -88,7 +93,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -97,7 +102,8 @@ Component.register('sw-settings-payment-detail', {
                 ],
             ));
 
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -105,6 +111,8 @@ Component.register('sw-settings-payment-detail', {
         showCustomFields() {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        ...mapPropertyErrors('paymentMethod', ['name']),
     },
 
     watch: {
@@ -154,7 +162,12 @@ Component.register('sw-settings-payment-detail', {
             this.paymentMethodRepository.get(this.paymentMethodId)
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
-                    this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+
+                    if (!paymentMethod?.mediaId) {
+                        return;
+                    }
+
+                    this.setMediaItem({ targetId: paymentMethod.mediaId });
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -197,7 +210,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         onCancel() {
-            this.$router.push({ name: 'sw.settings.payment.index' });
+            this.$router.push({ name: 'sw.settings.payment.overview' });
         },
 
         setMediaItem({ targetId }) {
@@ -226,4 +239,4 @@ Component.register('sw-settings-payment-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
     },
-});
+};

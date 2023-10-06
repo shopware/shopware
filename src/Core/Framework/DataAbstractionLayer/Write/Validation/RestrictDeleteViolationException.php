@@ -3,27 +3,31 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class RestrictDeleteViolationException extends ShopwareHttpException
 {
     /**
      * @var RestrictDeleteViolation[]
      */
-    private $restrictions;
+    private readonly array $restrictions;
 
     /**
      * @param RestrictDeleteViolation[] $restrictions
      */
-    public function __construct(EntityDefinition $definition, array $restrictions)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $restrictions
+    ) {
         $restriction = $restrictions[0];
         $usages = [];
         $usagesStrings = [];
 
         /** @var string $entityName */
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         foreach ($restriction->getRestrictions() as $entityName => $ids) {
             $name = $entityName;
             $usages[] = [

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 
+/**
+ * @internal
+ */
 class TokenizerTest extends TestCase
 {
     /**
@@ -12,16 +15,24 @@ class TokenizerTest extends TestCase
      */
     public function testInterpreter(string $term, array $expected): void
     {
-        $tokens = (new Tokenizer())->tokenize($term);
+        $tokens = (new Tokenizer(2))->tokenize($term);
         static::assertSame($expected, $tokens);
     }
 
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [
+                '    ',
+                [],
+            ],
+            [
                 'shopware AG',
-                ['shopware'],
+                ['shopware', 'ag'],
+            ],
+            [
+                'test a thing',
+                ['test', 'thing'],
             ],
             [
                 'Österreicher Essen',

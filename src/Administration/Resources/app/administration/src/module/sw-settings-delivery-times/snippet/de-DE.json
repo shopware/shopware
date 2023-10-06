@@ -19,10 +19,12 @@
       "columnUnit": "Einheit",
       "columnMin": "Minimum",
       "columnMax": "Maximum",
+      "columnUnit_hour": "Stunde",
       "columnUnit_day": "Tag",
       "columnUnit_week": "Woche",
       "columnUnit_month": "Monat",
       "columnUnit_year": "Jahr",
+      "columnUnit_hour": "Stunde",
       "errorLoad": "Die Lieferzeiten konnten nicht geladen werden."
     },
     "detail": {
@@ -31,6 +33,7 @@
       "labelUnit": "Einheit",
       "labelMin": "Minimum",
       "labelMax": "Maximum",
+      "selectionUnitHour": "Stunde",
       "selectionUnitDay": "Tag",
       "selectionUnitWeek": "Woche",
       "selectionUnitMonth": "Monat",

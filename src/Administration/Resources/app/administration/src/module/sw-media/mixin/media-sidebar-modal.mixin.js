@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 Shopware.Mixin.register('media-sidebar-modal-mixin', {
 
     inject: ['mediaService', 'acl'],

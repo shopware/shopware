@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_single_select %}
 <sw-select-base
     ref="selectBase"
@@ -10,12 +11,30 @@
     @select-collapsed="onSelectCollapsed"
     v-on="$listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_single_select_base %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_single_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_entity_single_select_advanced_selection_modal %}
+        <component
+            :is="advancedSelectionComponent"
+            v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
+            :is-single-select="true"
+            :initial-search-term="advancedSelectionInitialSearchTerm"
+            v-bind="advancedSelectionParameters"
+            @modal-close="closeAdvancedSelectionModal"
+            @selection-submit="onAdvancedSelectionSubmit"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_single_select_base_selection_slot %}
         <div class="sw-entity-single-select__selection">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_single_selection_inner %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_single_selection_inner_label %}
             <div
                 v-if="!isExpanded"
@@ -28,7 +47,7 @@
                         v-bind="{ item: singleSelection, labelProperty, searchTerm, getKey }"
                     >
                         <sw-product-variant-info
-                            v-if="$attrs.displayVariants"
+                            v-if="displayVariants"
                             :variations="singleSelection.variation"
                         >
                             {{ displayLabelProperty(singleSelection) }}
@@ -43,6 +62,7 @@
                 </template>
             </div>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_single_selection_inner_input %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -61,8 +81,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_single_select_base_results %}
     <template #results-list>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_single_select_base_results_slot %}
         <sw-select-result-list
             ref="resultsList"
@@ -73,21 +95,38 @@
             @paginate="paginate"
             @item-select="setValue"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_base_results_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_base_results_list_before %}
             <template #before-item-list>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_entity_single_select_base_results_list_before_advanced_selection %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                <div
+                    v-if="isAdvancedSelectionActive"
+                    class="sw-single-select-filtering__advanced-selection sw-select-result"
+                    @click="openAdvancedSelectionModal"
+                >
+                    {{ $tc('global.sw-entity-advanced-selection-modal.link') }}
+                </div>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_entity_single_select_base_results_list_before_slot %}
                 <slot name="before-item-list"></slot>
+                {% endblock %}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
                     v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         v-tooltip="getDisabledSelectionTooltip(item)"
                         :selected="isSelected(item)"
                         :disabled="isSelectionDisabled(item)"
@@ -95,13 +134,32 @@
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_entity_multi_select_base_results_list_result_preview %}
+                        <template
+                            v-if="shouldShowActiveState"
+                            #preview
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_entity_multi_select_base_results_list_result_active %}
+                            <sw-icon
+                                class="sw-entity-single-select__selection-active"
+                                size="6"
+                                :color="getActiveIconColor(item)"
+                                name="default-basic-shape-circle-filled"
+                            />
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_single_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
                             v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }"
                         >
                             <sw-product-variant-info
-                                v-if="$attrs.displayVariants"
+                                v-if="displayVariants"
                                 :variations="item.variation"
                                 :highlighted="true"
                                 :search-term="searchTerm"
@@ -120,6 +178,7 @@
                             </template>
                         </slot>
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_description %}
                         <template #description>
                             <slot
@@ -128,11 +187,12 @@
                             ></slot>
                         </template>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_single_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>
@@ -144,5 +204,13 @@
     </template>
     {% endblock %}
     {% endblock %}
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
 </sw-select-base>
 {% endblock %}

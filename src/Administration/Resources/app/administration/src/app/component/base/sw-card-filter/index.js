@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-card-filter.html.twig';
 import './sw-card-filter.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-card-filter', {
     template,
 
@@ -17,6 +24,12 @@ Component.register('sw-card-filter', {
             type: Number,
             required: false,
             default: 500,
+        },
+
+        initialSearchTerm: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -41,20 +54,17 @@ Component.register('sw-card-filter', {
         },
     },
 
-    watch: {
-        /* @deprecated tag:v6.5.0 switch to `@onSearchTermChange` function to use sw-simple-search-field debounce */
-        term() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.$emit('sw-card-filter-term-change', this.term);
-            }
-        },
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.term = `${this.initialSearchTerm}`;
+        },
+
         onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.$emit('sw-card-filter-term-change', this.term);
-            }
+            this.$emit('sw-card-filter-term-change', this.term);
         },
     },
 });

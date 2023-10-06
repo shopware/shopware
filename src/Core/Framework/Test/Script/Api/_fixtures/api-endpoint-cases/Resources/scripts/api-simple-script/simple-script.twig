@@ -1,0 +1,4 @@
+{% do debug.dump('some debug information') %}
+
+{% set response = services.response.json({ 'foo': 'bar' }) %}
+{% do hook.setResponse(response) %}

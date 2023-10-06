@@ -10,11 +10,13 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\Produ
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductStreamEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -27,7 +29,7 @@ class ProductStreamEntity extends Entity
     protected $description;
 
     /**
-     * @var array|null
+     * @var array<array<string, string|array<array<string, mixed>>>>|null
      */
     protected $apiFilter;
 
@@ -81,11 +83,17 @@ class ProductStreamEntity extends Entity
         $this->description = $description;
     }
 
+    /**
+     * @return array<array<string, string|array<array<string, mixed>>>>|null
+     */
     public function getApiFilter(): ?array
     {
         return $this->apiFilter;
     }
 
+    /**
+     * @param array<array<string, string|array<array<string, mixed>>>> $apiFilter
+     */
     public function setApiFilter(?array $apiFilter): void
     {
         $this->apiFilter = $apiFilter;

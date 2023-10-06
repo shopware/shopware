@@ -9,7 +9,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="cache.object"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%twig.cache%</argument>
             <argument>%kernel.debug%</argument>
 
             <tag name="kernel.event_subscriber"/>
@@ -21,6 +21,7 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="twig.extension.trans"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">
@@ -29,6 +30,29 @@
 
         <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces">
             <tag name="data_collector"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\ScriptApiRoute" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory" public="true">
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ScriptController" on-invalid="null"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
     </services>
 </container>

@@ -21,6 +21,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory" lazy="true">
@@ -59,11 +60,25 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
-            <argument type="service" id="dead_message.repository"/>
             <argument type="service" id="webhook.repository"/>
             <argument type="service" id="webhook_event_log.repository"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup"/>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

@@ -40,8 +40,10 @@ Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode,decimals
 Selected payment type: {{ order.transactions.first.paymentMethod.translated.name }}
 {{ order.transactions.first.paymentMethod.translated.description }}
 
+{% if delivery %}
 Selected shipping type: {{ delivery.shippingMethod.translated.name }}
 {{ delivery.shippingMethod.translated.description }}
+{% endif %}
 
 {% set billingAddress = order.addresses.get(order.billingAddressId) %}
 Billing address:
@@ -51,12 +53,14 @@ Billing address:
 {{ billingAddress.zipcode }} {{ billingAddress.city }}
 {{ billingAddress.country.translated.name }}
 
+{% if delivery %}
 Shipping address:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
 {{ delivery.shippingOrderAddress.street }}
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.translated.name }}
+{% endif %}
 
 {% if order.orderCustomer.vatIds %}
 Your VAT-ID: {{ order.orderCustomer.vatIds|first }}

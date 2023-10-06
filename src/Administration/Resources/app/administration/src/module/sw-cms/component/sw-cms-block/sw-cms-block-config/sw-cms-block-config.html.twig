@@ -1,33 +1,41 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_config %}
 <div class="sw-cms-block-config">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__quickactions %}
     <ul
         class="sw-cms-block-config__quickactions-list"
         :class="quickactionClasses"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_duplicate %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction"
+            role="button"
+            tabindex="0"
             @click="onBlockDuplicate"
+            @keydown.enter="onBlockDuplicate"
         >
             <sw-icon
-                name="default-action-duplicate"
+                name="regular-duplicate"
                 size="16"
             />
-            {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
+            {{ $tc('global.default.duplicate') }}
         </li>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_delete %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction is--danger"
+            role="button"
+            tabindex="0"
             @click="onBlockDelete"
+            @keydown.enter="onBlockDelete"
         >
             <sw-icon
-                name="default-action-trash"
+                name="regular-trash"
                 size="16"
             />
             {{ $tc('sw-cms.general.buttonDelete') }}
@@ -36,26 +44,39 @@
     </ul>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__settings %}
     <div class="sw-cms-section-config__settings">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_name_field %}
         <sw-text-field
-            v-model="block.name"
+            :value="block.name"
             :label="$tc('sw-cms.detail.label.blockNameField')"
             :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
             :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
+            {% if VUE3 %}
+            @update:value="onBlockNameChange"
+            {% else %}
+            @input="onBlockNameChange"
+            {% endif %}
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_color_field %}
         <sw-colorpicker
+            {% if VUE3 %}
+            v-model:value="block.backgroundColor"
+            {% else %}
             v-model="block.backgroundColor"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_field %}
         <sw-media-compact-upload-v2
             :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
@@ -72,9 +93,14 @@
             @media-upload-finish="successfulUpload"
         />
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_position_field %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="block.backgroundMediaMode"
+            {% else %}
             v-model="block.backgroundMediaMode"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!block.backgroundMediaId"
         >

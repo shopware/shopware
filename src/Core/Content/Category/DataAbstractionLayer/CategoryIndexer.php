@@ -8,51 +8,36 @@ use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('inventory')]
 class CategoryIndexer extends EntityIndexer
 {
-    public const CHILD_COUNT_UPDATER = 'category.child-count';
-    public const TREE_UPDATER = 'category.tree';
-    public const BREADCRUMB_UPDATER = 'category.breadcrumb';
+    final public const CHILD_COUNT_UPDATER = 'category.child-count';
+    final public const TREE_UPDATER = 'category.tree';
+    final public const BREADCRUMB_UPDATER = 'category.breadcrumb';
 
-    private IteratorFactory $iteratorFactory;
-
-    private Connection $connection;
-
-    private EntityRepositoryInterface $repository;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private TreeUpdater $treeUpdater;
-
-    private CategoryBreadcrumbUpdater $breadcrumbUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        ChildCountUpdater $childCountUpdater,
-        TreeUpdater $treeUpdater,
-        CategoryBreadcrumbUpdater $breadcrumbUpdater,
-        EventDispatcherInterface $eventDispatcher
+        private readonly Connection $connection,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly ChildCountUpdater $childCountUpdater,
+        private readonly TreeUpdater $treeUpdater,
+        private readonly CategoryBreadcrumbUpdater $breadcrumbUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->treeUpdater = $treeUpdater;
-        $this->breadcrumbUpdater = $breadcrumbUpdater;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -65,12 +50,7 @@ class CategoryIndexer extends EntityIndexer
         return $this->getIterator(null)->fetchCount();
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->getIterator($offset);
 
@@ -135,6 +115,7 @@ class CategoryIndexer extends EntityIndexer
     {
         $ids = $message->getData();
 
+        /** @var list<string> $ids */
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
@@ -170,6 +151,16 @@ class CategoryIndexer extends EntityIndexer
         ];
     }
 
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * @param array<string> $categoryIds
+     *
+     * @return array<string>
+     */
     private function fetchChildren(array $categoryIds, string $versionId): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -187,9 +178,12 @@ class CategoryIndexer extends EntityIndexer
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', Uuid::fromHexToBytes($versionId));
 
-        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return $query->executeQuery()->fetchFirstColumn();
     }
 
+    /**
+     * @param array{offset: int|null}|null $offset
+     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

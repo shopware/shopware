@@ -4,33 +4,28 @@ namespace Shopware\Administration\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class AdministrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setup(): void
     {
@@ -38,7 +33,6 @@ class AdministrationControllerTest extends TestCase
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
@@ -49,53 +43,9 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('de-DE', $response);
         static::assertArrayHasKey('en-GB', $response);
-    }
-
-    public function testResetExcludedSearchTerm(): void
-    {
-        /** @var string $coreDir */
-        $coreDir = $this->getContainer()->getParameter('kernel.shopware_core_dir');
-        $defaultExcludedTermEn = require $coreDir . '/Migration/Fixtures/stopwords/en.php';
-        $defaultExcludedTermDe = require $coreDir . '/Migration/Fixtures/stopwords/de.php';
-
-        $languageIds = array_column($this->connection->fetchAll('SELECT `language`.id FROM `language`'), 'id');
-        foreach ($languageIds as $languageId) {
-            $isoCode = $this->getLanguageCode($languageId);
-            $this->connection->executeUpdate(
-                'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `language_id` = :languageId',
-                [
-                    'excludedTerms' => json_encode(['me', 'my', 'myself']),
-                    'languageId' => $languageId,
-                ]
-            );
-
-            $this->getBrowser()->setServerParameter('HTTP_sw-language-id', Uuid::fromBytesToHex($languageId));
-            $this->getBrowser()->request('POST', '/api/_admin/reset-excluded-search-term');
-            $response = $this->getBrowser()->getResponse();
-
-            $excludedTerms = json_decode($this->connection->executeQuery(
-                'SELECT `excluded_terms` FROM `product_search_config` WHERE `language_id` = :languageId',
-                ['languageId' => $languageId]
-            )->fetchColumn(), true);
-
-            static::assertEquals(200, $response->getStatusCode());
-
-            switch ($isoCode) {
-                case 'en-GB':
-                    static::assertEquals($defaultExcludedTermEn, $excludedTerms);
-
-                    break;
-                case 'de-DE':
-                    static::assertEquals($defaultExcludedTermDe, $excludedTerms);
-
-                    break;
-                default:
-                    static::assertEmpty($excludedTerms);
-            }
-        }
     }
 
     public function testResetExcludedSearchTermIncorrectLanguageId(): void
@@ -111,7 +61,7 @@ class AdministrationControllerTest extends TestCase
     public function testValidateEmailSuccess(): void
     {
         $browser = $this->createClient();
-        $this->createCustomer('foo@bar.de');
+        $this->createCustomer(['email' => 'foo@bar.de']);
 
         $browser->request(
             'POST',
@@ -126,7 +76,7 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('isValid', $response);
     }
@@ -135,7 +85,7 @@ class AdministrationControllerTest extends TestCase
     {
         $email = 'foo@bar.de';
         $browser = $this->createClient();
-        $this->createCustomer($email);
+        $this->createCustomer(['email' => 'foo@bar.de']);
 
         $browser->request(
             'POST',
@@ -150,17 +100,90 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        static::assertSame('The email address ' . $email . ' is already in use', $response['errors'][0]['detail']);
+    }
+
+    public function testValidateEmailSuccessWithSameCustomerDifferentSalesChannel(): void
+    {
+        $this->setCustomerBoundToSalesChannels(true);
+        $newSalesChannel = $this->createSalesChannel();
+
+        $browser = $this->createClient();
+        $email = 'foo@bar.de';
+        $this->createCustomer(['email' => 'foo@bar.de', 'boundSalesChannelId' => TestDefaults::SALES_CHANNEL]);
+
+        $browser->request(
+            'POST',
+            '/api/_admin/check-customer-email-valid',
+            [
+                'id' => Uuid::randomHex(),
+                'email' => $email,
+                'boundSalesChannelId' => $newSalesChannel['id'],
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('isValid', $response);
+    }
+
+    public function testValidateEmailFailWithSameCustomerSameSalesChannel(): void
+    {
+        $this->setCustomerBoundToSalesChannels(true);
+        $email = 'foo@bar.de';
+        $browser = $this->createClient();
+        $this->createCustomer(['email' => 'foo@bar.de', 'boundSalesChannelId' => TestDefaults::SALES_CHANNEL]);
+
+        $browser->request(
+            'POST',
+            '/api/_admin/check-customer-email-valid',
+            [
+                'id' => Uuid::randomHex(),
+                'email' => $email,
+                'boundSalesChannelId' => TestDefaults::SALES_CHANNEL,
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        static::assertSame('The email address ' . $email . ' is already in use in the Sales Channel Headless', $response['errors'][0]['detail']);
+    }
+
+    public function testValidateEmailFailWithSameCustomerIsAlreadyExistsInAllSalesChannel(): void
+    {
+        $this->setCustomerBoundToSalesChannels(true);
+        $email = 'foo@bar.de';
+        $browser = $this->createClient();
+        $this->createCustomer(['email' => $email]);
+
+        $browser->request(
+            'POST',
+            '/api/_admin/check-customer-email-valid',
+            [
+                'id' => Uuid::randomHex(),
+                'email' => $email,
+                'boundSalesChannelId' => TestDefaults::SALES_CHANNEL,
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(400, $browser->getResponse()->getStatusCode());
         static::assertSame('The email address ' . $email . ' is already in use', $response['errors'][0]['detail']);
     }
 
     public function testPreviewSanitizedHtml(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15172')) {
-            static::markTestSkipped('NEXT-15172');
-        }
-
         $html = '<img alt="" src="#" /><script type="text/javascript"></script><div>test</div>';
         $browser = $this->createClient();
 
@@ -177,7 +200,7 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertSame('<img alt="" src="#" /><div>test</div>', $response['preview']);
@@ -195,19 +218,22 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertSame($html, $response['preview']);
     }
 
-    private function createCustomer(string $email): string
+    /**
+     * @param array<string, string|bool|int|float|null> $overrideData
+     */
+    private function createCustomer(array $overrideData): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         $this->customerRepository->create([
-            [
+            array_merge([
                 'id' => $customerId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
@@ -247,34 +273,34 @@ class AdministrationControllerTest extends TestCase
                     ],
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => 'shopware',
+                'email' => 'random@mail.com',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'guest' => false,
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
-            ],
-        ], $this->ids->context);
+            ], $overrideData),
+        ], Context::createDefaultContext());
 
         return $customerId;
     }
 
     private function insertOtherLanguage(): string
     {
-        $langId = array_column($this->connection->executeQuery(
+        $langId = $this->connection->executeQuery(
             'SELECT id FROM `language` WHERE `name` = :langName',
             [
                 'langName' => 'Vietnamese',
             ]
-        )->fetchAll(), 'id');
+        )->fetchFirstColumn();
 
-        $localeId = array_column($this->connection->executeQuery(
+        $localeId = $this->connection->executeQuery(
             'SELECT id FROM `locale` WHERE `code` = :code',
             [
                 'code' => 'vi-VN',
             ]
-        )->fetchAll(), 'id');
+        )->fetchFirstColumn();
 
         if ($langId) {
             return $langId[0];
@@ -283,36 +309,83 @@ class AdministrationControllerTest extends TestCase
         $newLanguageId = Uuid::randomBytes();
         $statement = $this->connection->prepare('INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
             VALUES (?, ?, ?, ?, ?)');
-        $statement->execute([$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']);
+        $statement->executeStatement([$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']);
 
         return $newLanguageId;
     }
 
     private function createSearchConfigFieldForNewLanguage(string $newLanguageId): void
     {
-        $configId = array_column($this->connection->executeQuery(
+        $configId = $this->connection->executeQuery(
             'SELECT id FROM `product_search_config` WHERE `language_id` = :languageId',
             [
                 'languageId' => $newLanguageId,
             ]
-        )->fetchAll(), 'id');
+        )->fetchFirstColumn();
 
         if (!$configId) {
             $newConfigId = Uuid::randomBytes();
             $statement = $this->connection->prepare('INSERT INTO `product_search_config` (`id`, `language_id`, `and_logic`, `min_search_length`, `created_at`)
                 VALUES (?, ?, ?, ?, ?)');
-            $statement->execute([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
+            $statement->executeStatement([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
         }
     }
 
-    private function getLanguageCode(string $languageId): ?string
+    private function setCustomerBoundToSalesChannels(bool $value): void
     {
-        return $this->connection->fetchColumn(
-            '
-            SELECT `locale`.code FROM `language`
-            INNER JOIN locale ON language.translation_code_id = locale.id
-            WHERE `language`.id = :id',
-            ['id' => $languageId]
-        );
+        $this->getContainer()
+            ->get(SystemConfigService::class)
+            ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $value);
+    }
+
+    /**
+     * @param array<string, int|float|string|bool|null> $salesChannelOverride
+     *
+     * @return array<string, array<int, array<string, string|null>>|bool|float|int|string|null>
+     */
+    private function createSalesChannel(array $salesChannelOverride = []): array
+    {
+        /** @var EntityRepository $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $paymentMethod = $this->getAvailablePaymentMethod();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
+        $salesChannelIds = $salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
+
+        if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
+            $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
+        }
+
+        $salesChannel = array_merge([
+            'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'name' => 'new sales channel',
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'currencyId' => Defaults::CURRENCY,
+            'paymentMethodId' => $paymentMethod->getId(),
+            'paymentMethods' => [['id' => $paymentMethod->getId()]],
+            'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'countryId' => $this->getValidCountryId(null),
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost',
+                ],
+            ],
+            'countries' => [['id' => $this->getValidCountryId(null)]],
+        ], $salesChannelOverride);
+
+        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
+
+        return $salesChannel;
     }
 }

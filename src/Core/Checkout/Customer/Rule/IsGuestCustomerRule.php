@@ -3,19 +3,23 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class IsGuestCustomerRule extends Rule
 {
-    protected bool $isGuest;
+    final public const RULE_NAME = 'customerIsGuest';
 
-    public function __construct(bool $isGuest = true)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $isGuest = true)
     {
         parent::__construct();
-        $this->isGuest = $isGuest;
     }
 
     public function match(RuleScope $scope): bool
@@ -38,12 +42,13 @@ class IsGuestCustomerRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isGuest' => [new NotNull(), new Type('bool')],
+            'isGuest' => RuleConstraints::bool(true),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerIsGuest';
+        return (new RuleConfig())
+            ->booleanField('isGuest');
     }
 }

@@ -2,17 +2,18 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -20,47 +21,30 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
- */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Package('checkout')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $customerProfileValidationFactory;
-
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        DataValidationFactoryInterface $customerProfileValidationFactory
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
+        private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
+        private readonly EntityRepository $salutationRepository,
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->customerProfileValidationFactory = $customerProfileValidationFactory;
     }
 
     public function getDecorated(): AbstractChangeCustomerProfileRoute
@@ -68,88 +52,56 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/change-profile",
-     *      summary="Change the customer's information",
-     *      description="Make changes to a customer's account, like changing their name, salutation or title.",
-     *      operationId="changeProfile",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "salutationId",
-     *                  "firstName",
-     *                  "lastName"
-     *              },
-     *              @OA\Property(
-     *                  property="salutationId",
-     *                  type="string",
-     *                  description="Id of the salutation for the customer account. Fetch options using `salutation` endpoint."),
-     *              @OA\Property(
-     *                  property="title",
-     *                  type="string",
-     *                  description="(Academic) title of the customer"),
-     *              @OA\Property(
-     *                  property="firstName",
-     *                  type="string",
-     *                  description="Customer first name. Value will be reused for shipping and billing address if not provided explicitly."),
-     *              @OA\Property(
-     *                  property="lastName",
-     *                  type="string",
-     *                  description="Customer last name. Value will be reused for shipping and billing address if not provided explicitly."),
-     *              @OA\Property(
-     *                  property="company",
-     *                  type="string",
-     *                  description="Company of the customer. Only required when `accountType` is `business`."),
-     *              @OA\Property(
-     *                  property="birthdayDay",
-     *                  type="integer",
-     *                  description="Birthday day"),
-     *              @OA\Property(
-     *                  property="birthdayMonth",
-     *                  type="integer",
-     *                  description="Birthday month"),
-     *              @OA\Property(
-     *                  property="birthdayYear",
-     *                  type="integer",
-     *                  description="Birthday year")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
 
+        if ($data->has('accountType') && empty($data->get('accountType'))) {
+            $data->remove('accountType');
+        }
+
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
+            $billingAddress = $customer->getDefaultBillingAddress();
+            if ($billingAddress) {
+                $this->addVatIdsValidation($validation, $billingAddress);
+            }
         } else {
             $data->set('company', '');
             $data->set('vatIds', null);
+        }
+
+        /** @var ?RequestDataBag $vatIds */
+        $vatIds = $data->get('vatIds');
+        if ($vatIds) {
+            $vatIds = \array_filter($vatIds->all());
+            $data->set('vatIds', empty($vatIds) ? null : $vatIds);
+        }
+
+        if (!$data->get('salutationId')) {
+            $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
 
         $this->validator->validate($data->all(), $validation);
 
-        $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
+        $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
-        if ($vatIds = $data->get('vatIds')) {
-            $customerData['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
+        if ($vatIds) {
+            $customerData['vatIds'] = $data->get('vatIds');
         }
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;
+        }
+
+        if ($data->get('customFields') instanceof RequestDataBag) {
+            $customerData['customFields'] = $this->storeApiCustomFieldMapper->map(
+                CustomerDefinition::ENTITY_NAME,
+                $data->get('customFields')
+            );
         }
 
         $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());
@@ -170,6 +122,22 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 
+    private function addVatIdsValidation(DataValidationDefinition $validation, CustomerAddressEntity $address): void
+    {
+        /** @var Constraint[] $constraints */
+        $constraints = [
+            new Type('array'),
+            new CustomerVatIdentification(
+                ['countryId' => $address->getCountryId()]
+            ),
+        ];
+        if ($address->getCountry() && $address->getCountry()->getVatIdRequired()) {
+            $constraints[] = new NotBlank();
+        }
+
+        $validation->add('vatIds', ...$constraints);
+    }
+
     private function getBirthday(DataBag $data): ?\DateTimeInterface
     {
         $birthdayDay = $data->get('birthdayDay');
@@ -179,6 +147,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
             return null;
         }
+        \assert(\is_numeric($birthdayDay));
+        \assert(\is_numeric($birthdayMonth));
+        \assert(\is_numeric($birthdayYear));
 
         return new \DateTime(sprintf(
             '%s-%s-%s',
@@ -186,5 +157,19 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $birthdayMonth,
             $birthdayDay
         ));
+    }
+
+    private function getDefaultSalutationId(SalesChannelContext $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
+        );
+
+        /** @var array<string> $ids */
+        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
+
+        return $ids[0] ?? null;
     }
 }

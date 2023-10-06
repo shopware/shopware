@@ -2,14 +2,25 @@
 
 namespace Shopware\Administration;
 
+use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerPass;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * @internal
+ */
+#[Package('administration')]
 class Administration extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -17,11 +28,6 @@ class Administration extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
 
-        // configure migration directories
-        $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
-        $migrationSourceV4->addMethodCall('addDirectory', [$this->getMigrationPath() . '/V6_4', $this->getMigrationNamespace() . '\V6_4']);
-
-        // we've moved the migrations from Shopware\Core\Migration to Shopware\Core\Migration\v6_4
-        $migrationSourceV4->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Administration\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
+        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

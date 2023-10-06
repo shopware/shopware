@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
+use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -21,19 +23,27 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ImageTypeDataResolverTest extends TestCase
 {
-    /**
-     * @var ImageCmsElementResolver
-     */
-    private $imageResolver;
+    use IntegrationTestBehaviour;
+
+    private const FIXTURES_DIRECTORY = '/../../fixtures/';
+
+    private ImageCmsElementResolver $imageResolver;
+
+    private FilesystemOperator $publicFilesystem;
 
     protected function setUp(): void
     {
-        $this->imageResolver = new ImageCmsElementResolver();
+        $this->publicFilesystem = $this->getPublicFilesystem();
+        $this->imageResolver = new ImageCmsElementResolver(new DefaultMediaResolver($this->publicFilesystem));
     }
 
     public function testType(): void
@@ -267,6 +277,30 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertEmpty($imageStruct->getMedia());
     }
 
+    public function testEnrichWithDefaultConfig(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $result = new ElementDataCollection();
+
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_DEFAULT, 'core/assets/default/cms/shopware.jpg'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        $media = $imageStruct->getMedia();
+
+        static::assertEquals('shopware', $media->getFileName());
+        static::assertEquals('image/jpeg', $media->getMimeType());
+        static::assertEquals('jpg', $media->getFileExtension());
+    }
+
     public function testMediaWithRemote(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
@@ -292,7 +326,7 @@ class ImageTypeDataResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
         $slot->setType('image');
-        $slot->setConfig(json_decode(json_encode($fieldConfig), true));
+        $slot->setConfig(json_decode(json_encode($fieldConfig, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
         $slot->setFieldConfig($fieldConfig);
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);

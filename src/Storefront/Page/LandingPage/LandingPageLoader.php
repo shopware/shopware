@@ -4,35 +4,28 @@ namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('content')]
 class LandingPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
+     * @internal
      */
-    private $genericPageLoader;
-
-    /**
-     * @var AbstractLandingPageRoute
-     */
-    private $landingPageRoute;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
-        GenericPageLoaderInterface $genericPageLoader,
-        AbstractLandingPageRoute $landingPageRoute,
-        EventDispatcherInterface $eventDispatcher
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly AbstractLandingPageRoute $landingPageRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->genericPageLoader = $genericPageLoader;
-        $this->landingPageRoute = $landingPageRoute;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -42,23 +35,22 @@ class LandingPageLoader
     {
         $landingPageId = $request->attributes->get('landingPageId');
         if (!$landingPageId) {
-            throw new MissingRequestParameterException('landingPageId', '/landingPageId');
+            throw RoutingException::missingRequestParameter('landingPageId', '/landingPageId');
         }
 
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
-        $cmsPage = $landingPage->getCmsPage();
-        if ($cmsPage === null) {
+        if ($landingPage->getCmsPage() === null) {
             throw new PageNotFoundException($landingPageId);
         }
 
         $page = $this->genericPageLoader->load($request, $context);
         $page = LandingPage::createFrom($page);
 
+        $page->setLandingPage($landingPage);
+
         $metaInformation = new MetaInformation();
         $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
-        $page->setCmsPage($cmsPage);
-        $page->setNavigationId($landingPage->getId());
         $metaInformation->setMetaTitle($metaTitle ?? '');
         $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
         $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');

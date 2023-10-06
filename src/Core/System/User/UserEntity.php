@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -10,16 +11,18 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
+#[Package('system-settings')]
 class UserEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -37,7 +40,7 @@ class UserEntity extends Entity
     protected $username;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string
      */
@@ -74,7 +77,7 @@ class UserEntity extends Entity
     protected $admin;
 
     /**
-     * @var AclRoleCollection|null
+     * @var AclRoleCollection
      */
     protected $aclRoles;
 
@@ -119,7 +122,7 @@ class UserEntity extends Entity
     protected $recoveryUser;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -139,6 +142,16 @@ class UserEntity extends Entity
      * @var OrderCollection|null
      */
     protected $updatedOrders;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $createdCustomers;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $updatedCustomers;
 
     protected string $timeZone;
 
@@ -193,7 +206,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getPassword(): string
     {
@@ -203,7 +216,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setPassword(string $password): void
     {
@@ -311,7 +324,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getStoreToken(): ?string
     {
@@ -321,7 +334,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setStoreToken(?string $storeToken): void
     {
@@ -376,6 +389,26 @@ class UserEntity extends Entity
     public function setUpdatedOrders(OrderCollection $updatedOrders): void
     {
         $this->updatedOrders = $updatedOrders;
+    }
+
+    public function getCreatedCustomers(): ?CustomerCollection
+    {
+        return $this->createdCustomers;
+    }
+
+    public function setCreatedCustomers(CustomerCollection $createdCustomers): void
+    {
+        $this->createdCustomers = $createdCustomers;
+    }
+
+    public function getUpdatedCustomers(): ?CustomerCollection
+    {
+        return $this->updatedCustomers;
+    }
+
+    public function setUpdatedCustomers(CustomerCollection $updatedCustomers): void
+    {
+        $this->updatedCustomers = $updatedCustomers;
     }
 
     public function getLastUpdatedPasswordAt(): ?\DateTimeInterface

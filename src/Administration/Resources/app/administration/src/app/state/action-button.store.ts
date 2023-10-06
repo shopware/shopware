@@ -1,5 +1,9 @@
+/**
+ * @package admin
+ */
+
 import type { Module } from 'vuex';
-import { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
+import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>
 
@@ -21,5 +25,10 @@ const ActionButtonStore: Module<ActionButtonState, VuexRootState> = {
     },
 };
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default ActionButtonStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ActionButtonState, ActionButtonConfig };

@@ -2,18 +2,19 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class InstanceService
 {
-    private string $shopwareVersion;
-
-    private ?string $instanceId;
-
-    public function __construct(string $shopwareVersion, ?string $instanceId)
-    {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->instanceId = $instanceId;
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly ?string $instanceId
+    ) {
     }
 
     public function getShopwareVersion(): string

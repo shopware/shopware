@@ -3,20 +3,15 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class PermissionCollection extends StoreCollection
 {
-    private const PRIVILEGE_DEPENDENCE = [
-        AclRoleDefinition::PRIVILEGE_READ => [],
-        AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
-    ];
-
     public function __construct(iterable $elements = [])
     {
         if (!empty($elements) && $this->hasNoPermissionStructElements((array) $elements)) {
@@ -57,24 +52,26 @@ class PermissionCollection extends StoreCollection
 
     private function getPermissionsForCategory(string $category): PermissionCollection
     {
-        return $this->filter(static function (PermissionStruct $element) use ($category) {
-            return PermissionCategorization::isInCategory($element->getEntity(), $category);
-        });
+        return $this->filter(static fn (PermissionStruct $element) => PermissionCategorization::isInCategory($element->getEntity(), $category));
     }
 
     private function generatePrivileges(array $permissions): array
     {
         foreach ($permissions as $permission) {
-            $operations = self::PRIVILEGE_DEPENDENCE[$permission['operation']];
+            if (!\array_key_exists($permission['operation'], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
+                continue;
+            }
+
+            $operations = AclRoleDefinition::PRIVILEGE_DEPENDENCE[$permission['operation']];
 
             foreach ($operations as $operation) {
-                $dependendPermission = [
+                $dependentPermission = [
                     'entity' => $permission['entity'],
                     'operation' => $operation,
                 ];
 
-                if (!\in_array($dependendPermission, $permissions, true)) {
-                    $permissions[] = $dependendPermission;
+                if (!\in_array($dependentPermission, $permissions, true)) {
+                    $permissions[] = $dependentPermission;
                 }
             }
         }
@@ -84,8 +81,6 @@ class PermissionCollection extends StoreCollection
 
     private function hasNoPermissionStructElements(array $elements): bool
     {
-        return empty(array_filter($elements, static function ($element) {
-            return $element instanceof PermissionStruct;
-        }));
+        return empty(array_filter($elements, static fn ($element) => $element instanceof PermissionStruct));
     }
 }

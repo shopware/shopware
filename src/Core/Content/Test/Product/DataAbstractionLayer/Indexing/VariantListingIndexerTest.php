@@ -7,35 +7,38 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class VariantListingIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
+
+    private EntityRepository $repository;
+
+    private string $productId;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var array<string, string>
      */
-    private $repository;
+    private array $optionIds = [];
 
     /**
-     * @var string
+     * @var array<string, string>
      */
-    private $productId;
+    private array $groupIds = [];
 
     /**
-     * @var string
+     * @var array<string, string>
      */
-    private $salesChannelId;
-
-    private $optionIds = [];
-
-    private $groupIds = [];
-
-    private $variantIds = [];
+    private array $variantIds = [];
 
     /**
      * @var Connection
@@ -93,7 +96,7 @@ class VariantListingIndexerTest extends TestCase
 
         static::assertCount(1, $listing->ids);
 
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM product WHERE display_group IS NOT NULL AND product.id = :parentId',
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
@@ -145,7 +148,11 @@ class VariantListingIndexerTest extends TestCase
         $data = [
             [
                 'id' => $this->productId,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'displayParent' => null,
+                    'mainVariantId' => null,
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -323,11 +330,13 @@ class VariantListingIndexerTest extends TestCase
         ];
 
         $this->repository->create($data, Context::createDefaultContext());
+
+        $this->runWorker();
     }
 
     private function fetchListing(): Listing
     {
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id, option_ids
              FROM product
              WHERE product.parent_id = :parentId
@@ -336,9 +345,8 @@ class VariantListingIndexerTest extends TestCase
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
 
-        $optionIds = array_map(function ($item) {
-            return json_decode((string) $item['option_ids'], true);
-        }, $listing);
+        /** @var array<array<string>> $optionIds */
+        $optionIds = array_map(fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
 
         if (!empty($optionIds)) {
             $optionIds = array_merge(...$optionIds);
@@ -348,21 +356,18 @@ class VariantListingIndexerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class Listing
 {
     /**
-     * @var array
+     * @param string[] $ids
+     * @param string[] $optionIds
      */
-    public $ids;
-
-    /**
-     * @var array
-     */
-    public $optionIds;
-
-    public function __construct(array $ids, array $optionIds)
-    {
-        $this->ids = $ids;
-        $this->optionIds = $optionIds;
+    public function __construct(
+        public array $ids,
+        public array $optionIds
+    ) {
     }
 }

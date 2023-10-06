@@ -2,35 +2,43 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Json;
 
-class Criteria extends Struct
+/**
+ * @final
+ */
+#[Package('core')]
+class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
+    final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
-    public const TOTAL_COUNT_MODE_NONE = 0;
+    final public const TOTAL_COUNT_MODE_NONE = 0;
 
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
-    public const TOTAL_COUNT_MODE_EXACT = 1;
+    final public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
-    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
+    final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
      * @var FieldSorting[]
@@ -83,7 +91,7 @@ class Criteria extends Struct
     protected $associations = [];
 
     /**
-     * @var string[]|array<int, string[]>
+     * @var array<string>|array<int, array<string>>
      */
     protected $ids = [];
 
@@ -98,7 +106,7 @@ class Criteria extends Struct
     protected $term;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, string>>|null
      */
     protected $includes;
 
@@ -107,8 +115,14 @@ class Criteria extends Struct
      */
     protected $title;
 
+    /**
+     * @var string[]
+     */
     protected array $fields = [];
 
+    /**
+     * @param array<string>|array<array<string, string>>|null $ids
+     */
     public function __construct(?array $ids = null)
     {
         if ($ids === null) {
@@ -117,14 +131,22 @@ class Criteria extends Struct
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            Feature::throwException('FEATURE_NEXT_16710', 'Empty ids provided in criteria');
+            throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
+        $this->validateIds($ids);
 
         $this->ids = $ids;
     }
 
+    public function __toString(): string
+    {
+        $parsed = (new CriteriaArrayConverter(new AggregationParser()))->convert($this);
+
+        return Json::encode($parsed);
+    }
+
     /**
-     * @return string[]|array<int, string[]>
+     * @return array<string>|array<array<string, string>>
      */
     public function getIds(): array
     {
@@ -175,12 +197,12 @@ class Criteria extends Struct
         return $this->filters;
     }
 
+    /**
+     * @param string $field
+     */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
-            /* EqualsFilter $filter */
-            return $filter instanceof EqualsFilter && $filter->getField() === $field;
-        })) > 0;
+        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
     }
 
     /**
@@ -239,6 +261,13 @@ class Criteria extends Struct
         foreach ($queries as $query) {
             $this->filters[] = $query;
         }
+
+        return $this;
+    }
+
+    public function setFilter(string $key, Filter $filter): self
+    {
+        $this->filters[$key] = $filter;
 
         return $this;
     }
@@ -305,6 +334,8 @@ class Criteria extends Struct
     }
 
     /**
+     * @param string[] $paths
+     *
      * Allows to add multiple associations paths
      *
      * e.g.:
@@ -394,6 +425,9 @@ class Criteria extends Struct
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAggregationQueryFields(): array
     {
         return $this->collectFields([
@@ -402,6 +436,9 @@ class Criteria extends Struct
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSearchQueryFields(): array
     {
         return $this->collectFields([
@@ -413,6 +450,9 @@ class Criteria extends Struct
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFilterFields(): array
     {
         return $this->collectFields([
@@ -421,6 +461,9 @@ class Criteria extends Struct
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAllFields(): array
     {
         return $this->collectFields([
@@ -434,10 +477,11 @@ class Criteria extends Struct
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param array<string>|array<array<string, string>> $ids
      */
     public function setIds(array $ids): self
     {
+        $this->validateIds($ids);
         $this->ids = $ids;
 
         return $this;
@@ -456,7 +500,7 @@ class Criteria extends Struct
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param array<string>|array<int, array<string>> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {
@@ -497,11 +541,17 @@ class Criteria extends Struct
         return $this;
     }
 
+    /**
+     * @param array<string, array<string, string>>|null $includes
+     */
     public function setIncludes(?array $includes): void
     {
         $this->includes = $includes;
     }
 
+    /**
+     * @return array<string, array<string, string>>|null
+     */
     public function getIncludes()
     {
         return $this->includes;
@@ -552,18 +602,20 @@ class Criteria extends Struct
     }
 
     /**
+     * @param string[] $fields
+     *
      * @internal
      */
     public function addFields(array $fields): self
     {
-        Feature::throwException('v6_5_0_0', 'Partial data loading is not active', false);
-
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;
     }
 
     /**
+     * @return string[]
+     *
      * @internal
      */
     public function getFields(): array
@@ -571,6 +623,11 @@ class Criteria extends Struct
         return $this->fields;
     }
 
+    /**
+     * @param array<array<CriteriaPartInterface>> $parts
+     *
+     * @return array<string>
+     */
     private function collectFields(array $parts): array
     {
         $fields = [];
@@ -585,5 +642,27 @@ class Criteria extends Struct
         }
 
         return $fields;
+    }
+
+    /**
+     * @param array<mixed> $ids
+     */
+    private function validateIds(array $ids): void
+    {
+        foreach ($ids as $id) {
+            if (!\is_string($id) && !\is_array($id)) {
+                throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+            }
+
+            if (!\is_array($id)) {
+                continue;
+            }
+
+            foreach ($id as $key => $value) {
+                if (!\is_string($key) || !\is_string($value)) {
+                    throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+                }
+            }
+        }
     }
 }

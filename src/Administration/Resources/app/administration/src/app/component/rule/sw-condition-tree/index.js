@@ -6,6 +6,7 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
+ * @package business-ops
  */
 Component.register('sw-condition-tree', {
     template,
@@ -24,6 +25,7 @@ Component.register('sw-condition-tree', {
             childAssociationField: this.childAssociationField,
             conditionDataProviderService: this.conditionDataProviderService,
             conditionScopes: this.scopes,
+            restrictedConditions: this.restrictedConditions,
         };
     },
 
@@ -73,6 +75,12 @@ Component.register('sw-condition-tree', {
             required: true,
         },
 
+        associationEntity: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+
         childAssociationField: {
             type: String,
             required: false,
@@ -89,6 +97,7 @@ Component.register('sw-condition-tree', {
     data() {
         return {
             conditionTree: null,
+            initialLoadingDone: false,
         };
     },
 
@@ -158,6 +167,14 @@ Component.register('sw-condition-tree', {
 
             return groups;
         },
+
+        restrictedConditions() {
+            if (typeof this.conditionDataProviderService.getRestrictedConditions !== 'function') {
+                return [];
+            }
+
+            return this.conditionDataProviderService.getRestrictedConditions(this.associationEntity);
+        },
     },
 
     watch: {
@@ -186,6 +203,10 @@ Component.register('sw-condition-tree', {
             const rootCondition = this.applyRootIfNecessary();
             this.conditionTree = this.createTreeRecursive(rootCondition, this.initialConditions);
             this.emitChange([]);
+            if (!this.initialLoadingDone) {
+                this.$emit('initial-loading-done');
+                this.initialLoadingDone = true;
+            }
         },
 
         createTreeRecursive(condition, conditions) {
@@ -219,6 +240,7 @@ Component.register('sw-condition-tree', {
                 0,
             );
 
+            // eslint-disable-next-line vue/no-mutating-props
             this.initialConditions.push(rootContainer);
 
             rootNodes.forEach(root => { root.parentId = rootContainer.id; });

@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class OrderConvertedEvent extends NestedEvent
 {
     /**
@@ -29,8 +31,11 @@ class OrderConvertedEvent extends NestedEvent
      */
     private $convertedCart;
 
-    public function __construct(OrderEntity $order, Cart $cart, Context $context)
-    {
+    public function __construct(
+        OrderEntity $order,
+        Cart $cart,
+        Context $context
+    ) {
         $this->context = $context;
         $this->order = $order;
         $this->cart = $cart;

@@ -1,7 +1,13 @@
-import './page/sw-settings-sitemap';
+/**
+ * @package services-settings
+ */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-sitemap', () => import('./page/sw-settings-sitemap'));
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-sitemap', {
     type: 'core',
     name: 'settings-sitemap',
@@ -10,7 +16,7 @@ Module.register('sw-settings-sitemap', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -27,7 +33,7 @@ Module.register('sw-settings-sitemap', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.sitemap.index',
-        icon: 'default-location-map',
+        icon: 'regular-map',
         privilege: 'system.system_config',
     },
 });

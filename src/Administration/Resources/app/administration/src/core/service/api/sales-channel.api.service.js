@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "application"
  * @class
  * @extends ApiService
+ * @package sales-channel
  */
 class SalesChannelApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sales-channel') {
@@ -33,4 +34,5 @@ class SalesChannelApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SalesChannelApiService;

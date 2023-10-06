@@ -2,68 +2,43 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 
-use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 {
     private const NAME = 'product-suggest-route';
 
-    private AbstractProductSuggestRoute $decorated;
-
-    private TagAwareAdapterInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
     /**
-     * @var AbstractCacheTracer<ProductSuggestRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private LoggerInterface $logger;
-
-    /**
+     * @internal
+     *
      * @param AbstractCacheTracer<ProductSuggestRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
-        AbstractProductSuggestRoute $decorated,
-        TagAwareAdapterInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        private readonly AbstractProductSuggestRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
     ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractProductSuggestRoute
@@ -71,90 +46,51 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("product")
-     * @OA\Post(
-     *      path="/search-suggest",
-     *      summary="Search for products (suggest)",
-     *      description="Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
-     *      operationId="searchSuggest",
-     *      tags={"Store API","Product"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "search"
-     *              },
-     *              @OA\Property(
-     *                  property="search",
-     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
-     *                  type="string"
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a product listing containing all products and additional fields.
-
-Note: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
-     *     )
-     * )
-     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"})
-     */
+    #[Route(path: '/store-api/search-suggest', name: 'store-api.search.suggest', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::NAME);
-
             return $this->getDecorated()->load($request, $context, $criteria);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($request, $context, $criteria)
-        );
+        $key = $this->generateKey($request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::NAME);
-
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
         }
 
-        $this->logger->info('cache-miss: ' . self::NAME);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
+            $response = $this->tracer->trace(self::NAME, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
-        $response = $this->tracer->trace(self::NAME, function () use ($request, $context, $criteria) {
-            return $this->getDecorated()->load($request, $context, $criteria);
+            $item->tag($this->generateTags($request, $response, $context, $criteria));
+
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
-            self::NAME,
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
             $request->get('search'),
         ];
 
         $event = new ProductSuggestRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
+        return self::NAME . '-' . md5(Json::encode($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

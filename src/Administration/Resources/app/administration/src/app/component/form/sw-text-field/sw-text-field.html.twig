@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
 <sw-contextual-field
     class="sw-field--text"
@@ -53,6 +54,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-contextual-field>
 {% endblock %}

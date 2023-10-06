@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,31 +11,28 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class RouteScopeListener implements EventSubscriberInterface
 {
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
-
-    /**
      * @var RouteScopeWhitelistInterface[]
      */
-    private $whitelists;
+    private readonly array $whitelists;
 
+    /**
+     * @internal
+     *
+     * @param iterable<RouteScopeWhitelistInterface> $whitelists
+     */
     public function __construct(
-        RouteScopeRegistry $routeScopeRegistry,
-        RequestStack $requestStack,
+        private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly RequestStack $requestStack,
         iterable $whitelists
     ) {
-        $this->routeScopeRegistry = $routeScopeRegistry;
-        $this->requestStack = $requestStack;
-        $this->whitelists = $whitelists;
+        $this->whitelists = \is_array($whitelists) ? $whitelists : iterator_to_array($whitelists);
     }
 
     public static function getSubscribedEvents(): array
@@ -56,10 +53,10 @@ class RouteScopeListener implements EventSubscriberInterface
             return;
         }
 
-        $currentRouteScopeAnnotation = $this->extractCurrentScopeAnnotation($event);
+        $scopes = $this->extractCurrentScopeAnnotation($event);
         $masterRequest = $this->getMainRequest();
 
-        foreach ($currentRouteScopeAnnotation->getScopes() as $routeScopeName) {
+        foreach ($scopes as $routeScopeName) {
             $routeScope = $this->routeScopeRegistry->getRouteScope($routeScopeName);
 
             $pathAllowed = $routeScope->isAllowedPath($masterRequest->getPathInfo());
@@ -73,23 +70,30 @@ class RouteScopeListener implements EventSubscriberInterface
         throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
     }
 
-    private function extractControllerClass(ControllerEvent $event): string
+    private function extractControllerClass(ControllerEvent $event): ?string
     {
         $controllerCallable = \Closure::fromCallable($event->getController());
         $controllerCallable = new \ReflectionFunction($controllerCallable);
-        $controllerClass = \get_class($controllerCallable->getClosureThis());
 
-        return $controllerClass;
+        $controller = $controllerCallable->getClosureThis();
+
+        if (!$controller) {
+            return null;
+        }
+
+        return $controller::class;
     }
 
     private function isWhitelistedController(ControllerEvent $event): bool
     {
         $controllerClass = $this->extractControllerClass($event);
 
-        foreach ($this->whitelists as $whitelist) {
-            $isWhitelisted = $whitelist->applies($controllerClass);
+        if (!$controllerClass) {
+            return false;
+        }
 
-            if ($isWhitelisted) {
+        foreach ($this->whitelists as $whitelist) {
+            if ($whitelist->applies($controllerClass)) {
                 return true;
             }
         }
@@ -97,17 +101,21 @@ class RouteScopeListener implements EventSubscriberInterface
         return false;
     }
 
-    private function extractCurrentScopeAnnotation(ControllerEvent $event): RouteScopeAnnotation
+    /**
+     * @return list<string>
+     */
+    private function extractCurrentScopeAnnotation(ControllerEvent $event): array
     {
         $currentRequest = $event->getRequest();
 
-        $currentRouteScopeAnnotation = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+        /** @var list<string> $scopes */
+        $scopes = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
-        if ($currentRouteScopeAnnotation === null) {
-            throw new InvalidRouteScopeException($currentRequest->attributes->get('_route'));
+        if ($scopes !== []) {
+            return $scopes;
         }
 
-        return $currentRouteScopeAnnotation;
+        throw new InvalidRouteScopeException($currentRequest->attributes->get('_route'));
     }
 
     private function getMainRequest(): Request

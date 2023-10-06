@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -15,16 +16,16 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * @internal
+ */
+#[Package('checkout')]
 class AccountProfileControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
-
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
 
     public function testDeleteCustomerProfile(): void
     {
@@ -39,7 +40,7 @@ class AccountProfileControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
-        static::assertTrue($response->isRedirect(), $response->getContent());
+        static::assertTrue($response->isRedirect(), (string) $response->getContent());
     }
 
     public function testAccountOverviewPageLoadedScriptsAreExecuted(): void
@@ -84,11 +85,11 @@ class AccountProfileControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'test',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         return $browser;
     }
@@ -116,7 +117,7 @@ class AccountProfileControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -133,6 +134,10 @@ class AccountProfileControllerTest extends TestCase
 
     private function getFlashBag(): FlashBagInterface
     {
-        return $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+
+        static::assertInstanceOf(Session::class, $session);
+
+        return $session->getFlashBag();
     }
 }

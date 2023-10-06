@@ -1,11 +1,15 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_context_button %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     ref="swContextButton"
     class="sw-context-button"
     :class="contextClass"
+    role="button"
+    tabindex="0"
     @click="onClickButton"
+    @keydown.enter="onClickButton"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_button %}
     <slot name="button">
         <button
@@ -14,13 +18,13 @@
         >
             <sw-icon
                 :name="icon"
-                small
                 decorative
             />
         </button>
     </slot>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_menu %}
     <sw-popover
         v-if="showMenu"
@@ -33,7 +37,10 @@
             :class="contextMenuClass"
             :style="menuStyles"
         >
-            <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
+            <slot>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_context_button_menu_slot_default %}{% endblock %}
+            </slot>
         </sw-context-menu>
     </sw-popover>
     {% endblock %}

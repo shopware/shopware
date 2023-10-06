@@ -2,20 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @experimental
- *
  * Read protection is currently experimental, as it is not guaranteed that the right scope is consistently
  * This can lead to unexpected side effects
  */
+#[Package('core')]
 class ReadProtection extends EntityProtection
 {
-    public const PROTECTION = 'read_protection';
+    final public const PROTECTION = 'read_protection';
 
     /**
-     * @var array[string]bool
+     * @var array<string, bool>
      */
-    private $allowedScopes = [];
+    private array $allowedScopes = [];
 
     public function __construct(string ...$allowedScopes)
     {
@@ -24,6 +25,9 @@ class ReadProtection extends EntityProtection
         }
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAllowedScopes(): array
     {
         return array_keys($this->allowedScopes);

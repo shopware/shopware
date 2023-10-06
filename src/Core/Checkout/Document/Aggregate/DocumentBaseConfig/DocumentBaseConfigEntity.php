@@ -8,11 +8,13 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class DocumentBaseConfigEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -50,7 +52,7 @@ class DocumentBaseConfigEntity extends Entity
     protected $logoId;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $config;
 
@@ -150,7 +152,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getConfig(): ?array
     {
@@ -158,7 +160,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @param string[]|null $config
+     * @param array<string>|null $config
      */
     public function setConfig(?array $config): void
     {

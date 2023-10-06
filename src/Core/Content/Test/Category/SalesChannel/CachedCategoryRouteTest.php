@@ -17,9 +17,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @group cache
  * @group store-api
  */
@@ -95,7 +98,7 @@ class CachedCategoryRouteTest extends TestCase
         $route->load($id, new Request(), $context);
         $route->load($id, new Request(), $context);
 
-        $after($ids, $context);
+        $after($ids, $context, $this->getContainer());
 
         $route->load($id, new Request(), $context);
         $route->load($id, new Request(), $context);
@@ -105,7 +108,7 @@ class CachedCategoryRouteTest extends TestCase
             ->removeListener(CategoryRouteCacheTagsEvent::class, $listener);
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 
@@ -118,14 +121,14 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test assign a new product to the category as listing product' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $product = (new ProductBuilder($ids, 'test-assign'))
                     ->price(100)
                     ->visibility()
                     ->category('navigation')
                     ->build();
 
-                $this->getContainer()->get('product.repository')
+                $container->get('product.repository')
                     ->create([$product], $context->getContext());
             },
             2,
@@ -133,12 +136,12 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test update a product which is assigned as listing product' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('to-update'),
                     'name' => 'test',
                 ];
-                $this->getContainer()->get('product.repository')
+                $container->get('product.repository')
                     ->update([$update], $context->getContext());
             },
             2,
@@ -146,13 +149,13 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test remove a product from listing assignment' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $mapping = [
                     'productId' => $ids->get('slider-remove'),
                     'categoryId' => $ids->get('navigation'),
                 ];
 
-                $this->getContainer()->get('product_category.repository')
+                $container->get('product_category.repository')
                     ->delete([$mapping], $context->getContext());
             },
             2,
@@ -160,8 +163,8 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test delete a product which is assigned as listing product' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
-                $this->getContainer()->get('product.repository')
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('product.repository')
                     ->delete([['id' => $ids->get('listing-delete')]], $context->getContext());
             },
             2,
@@ -169,36 +172,36 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test update the category data' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('navigation'),
                     'name' => 'update',
                 ];
-                $this->getContainer()->get('category.repository')->update([$update], $context->getContext());
+                $container->get('category.repository')->update([$update], $context->getContext());
             },
             2,
         ];
 
         yield 'Test update the layout data' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('layout'),
                     'name' => 'update',
                 ];
-                $this->getContainer()->get('cms_page.repository')->update([$update], $context->getContext());
+                $container->get('cms_page.repository')->update([$update], $context->getContext());
             },
             2,
         ];
 
         yield 'Test update a product which is inside a slider element' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('other-slider-product'),
                     'name' => 'test',
                 ];
-                $this->getContainer()->get('product.repository')
+                $container->get('product.repository')
                     ->update([$update], $context->getContext());
             },
             2,
@@ -206,8 +209,8 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test delete a product which is inside a slider element' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
-                $this->getContainer()->get('product.repository')
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('product.repository')
                     ->delete([['id' => $ids->get('slider-delete')]], $context->getContext());
             },
             2,
@@ -215,12 +218,12 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test update a product which is inside a box element' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('other-box-product'),
                     'name' => 'test',
                 ];
-                $this->getContainer()->get('product.repository')
+                $container->get('product.repository')
                     ->update([$update], $context->getContext());
             },
             2,
@@ -228,8 +231,8 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test delete a product which is inside a box element' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
-                $this->getContainer()->get('product.repository')
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('product.repository')
                     ->delete([['id' => $ids->get('box-delete')]], $context->getContext());
             },
             2,
@@ -237,12 +240,12 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test update a product which is not assigned to an element or the listing' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $update = [
                     'id' => $ids->get('not-assigned'),
                     'name' => 'test',
                 ];
-                $this->getContainer()->get('product.repository')
+                $container->get('product.repository')
                     ->update([$update], $context->getContext());
             },
             1,
@@ -250,11 +253,26 @@ class CachedCategoryRouteTest extends TestCase
 
         yield 'Test delete a product which is not assigned to an element or the listing' => [
             $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
-                $this->getContainer()->get('product.repository')
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('product.repository')
                     ->delete([['id' => $ids->get('not-assigned-delete')]], $context->getContext());
             },
             1,
+        ];
+
+        yield 'Test create product included in stream' => [
+            $ids,
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $product = (new ProductBuilder($ids, 'in-stream'))
+                    ->name('foobar')
+                    ->price(100)
+                    ->visibility()
+                    ->build();
+
+                $container->get('product.repository')
+                    ->create([$product], $context->getContext());
+            },
+            2,
         ];
     }
 
@@ -265,6 +283,20 @@ class CachedCategoryRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
+
+        $this->getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $ids->get('stream'),
+                'filters' => [
+                    [
+                        'type' => 'equals',
+                        'field' => 'name',
+                        'value' => 'foobar',
+                    ],
+                ],
+                'name' => 'testStream',
+            ],
+        ], $context->getContext());
 
         $products = [
             (new ProductBuilder($ids, 'to-update'))
@@ -318,6 +350,7 @@ class CachedCategoryRouteTest extends TestCase
             ->productSlider(['other-slider-product', 'slider-delete', 'slider-remove'])
             ->listing()
             ->productThreeColumnBlock(['other-box-product', 'box-delete', 'other-box-product'])
+            ->productStreamSlider('stream')
         ;
 
         // generate layout with product boxes, listing and slider

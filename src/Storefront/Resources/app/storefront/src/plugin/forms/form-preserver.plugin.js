@@ -10,6 +10,8 @@ const TYPE_RADIO = 'radio';
 /**
  * This plugin preserves a form, if the element or the form itself has changed.
  * After a reload of the page the form is filled up with the stored values
+ *
+ * @package content
  */
 export default class FormPreserverPlugin extends Plugin {
 
@@ -59,7 +61,7 @@ export default class FormPreserverPlugin extends Plugin {
      * @private
      */
     _prepareElements() {
-        let formElements = this.el.children;
+        let formElements = this.el.elements;
         const outSideFormElements = DomAccess.querySelectorAll(document, `:not(form) > [form="${this.el.id}"]`, this.options.strictMode);
 
         formElements = Array.from(formElements);

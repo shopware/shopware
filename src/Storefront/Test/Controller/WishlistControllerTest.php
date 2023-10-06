@@ -28,16 +28,20 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * @internal
+ */
 class WishlistControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontControllerTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
-    private $customerId;
+    private string $customerId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->customerId = Uuid::randomHex();
@@ -47,6 +51,7 @@ class WishlistControllerTest extends TestCase
 
     /**
      * @before
+     *
      * @after
      */
     public function clearFlashBag(): void
@@ -68,7 +73,7 @@ class WishlistControllerTest extends TestCase
         $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(WishlistPage::class, $response->getData()['page']);
     }
@@ -150,8 +155,8 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
-        static::assertEmpty(json_decode($response->getContent()));
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertEmpty(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testAjaxAdd(): void
@@ -164,9 +169,9 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
@@ -180,7 +185,7 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testAjaxRemove(): void
@@ -193,15 +198,15 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/remove/' . $productId, $this->tokenize('frontend.wishlist.product.remove', []));
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
@@ -222,8 +227,9 @@ class WishlistControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashBag */
-        $flashBag = $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($successFlash = $flashBag->get('success'));
         static::assertEquals('You have successfully added the product to your wishlist.', $successFlash[0]);
@@ -238,9 +244,9 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/wishlist', []);
+        $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -277,9 +283,9 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/widgets/wishlist', []);
+        $browser->request('GET', '/widgets/wishlist');
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -290,7 +296,7 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/wishlist/merge/pagelet', []);
+        $browser->request('GET', '/wishlist/merge/pagelet');
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -321,7 +327,7 @@ class WishlistControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -346,16 +352,18 @@ class WishlistControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }
@@ -384,17 +392,19 @@ class WishlistControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }
 
-    private function createProduct(?string $salesChannelId = null, array $config = []): string
+    private function createProduct(?string $salesChannelId = null): string
     {
         $id = Uuid::randomHex();
 
@@ -414,8 +424,6 @@ class WishlistControllerTest extends TestCase
                 ],
             ],
         ];
-
-        $product = array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 
@@ -447,6 +455,12 @@ class WishlistControllerTest extends TestCase
 
     private function getFlashBag(): FlashBagInterface
     {
-        return $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+
+        if (!method_exists($session, 'getFlashBag')) {
+            throw new \RuntimeException('session does not have flashbag');
+        }
+
+        return $session->getFlashBag();
     }
 }

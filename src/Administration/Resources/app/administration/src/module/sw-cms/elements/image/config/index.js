@@ -1,9 +1,13 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-cms-el-config-image', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -29,7 +33,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         previewSource() {
-            if (this.element.data && this.element.data.media && this.element.data.media.id) {
+            if (this.element?.data?.media?.id) {
                 return this.element.data.media;
             }
 
@@ -50,6 +54,7 @@ Component.register('sw-cms-el-config-image', {
             const mediaEntity = await this.mediaRepository.get(targetId);
 
             this.element.config.media.value = mediaEntity.id;
+            this.element.config.media.source = 'static';
 
             this.updateElementData(mediaEntity);
 
@@ -71,6 +76,7 @@ Component.register('sw-cms-el-config-image', {
         onSelectionChanges(mediaEntity) {
             const media = mediaEntity[0];
             this.element.config.media.value = media.id;
+            this.element.config.media.source = 'static';
 
             this.updateElementData(media);
 
@@ -79,10 +85,8 @@ Component.register('sw-cms-el-config-image', {
 
         updateElementData(media = null) {
             const mediaId = media === null ? null : media.id;
-
             if (!this.element.data) {
-                this.$set(this.element, 'data', { mediaId });
-                this.$set(this.element, 'data', { media });
+                this.$set(this.element, 'data', { mediaId, media });
             } else {
                 this.$set(this.element.data, 'mediaId', mediaId);
                 this.$set(this.element.data, 'media', media);
@@ -102,9 +106,10 @@ Component.register('sw-cms-el-config-image', {
         onChangeDisplayMode(value) {
             if (value === 'cover') {
                 this.element.config.verticalAlign.value = null;
+                this.element.config.horizontalAlign.value = null;
             }
 
             this.$emit('element-update', this.element);
         },
     },
-});
+};

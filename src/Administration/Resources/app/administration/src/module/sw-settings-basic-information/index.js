@@ -1,10 +1,13 @@
 import CaptchaService from './service/captcha.service';
-import './page/sw-settings-basic-information';
-import './component/sw-settings-captcha-select';
-import './component/sw-settings-captcha-select-v2';
 
 const { Module } = Shopware;
 
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-basic-information', () => import('./page/sw-settings-basic-information'));
+Shopware.Component.register('sw-settings-captcha-select-v2', () => import('./component/sw-settings-captcha-select-v2'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('captchaService', () => {
     return new CaptchaService(
         Shopware.Application.getContainer('init').httpClient,
@@ -12,6 +15,7 @@ Shopware.Service().register('captchaService', () => {
     );
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-basic-information', {
     type: 'core',
     name: 'settings-basic-information',
@@ -20,7 +24,7 @@ Module.register('sw-settings-basic-information', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -37,7 +41,7 @@ Module.register('sw-settings-basic-information', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.basic.information.index',
-        icon: 'default-basic-stack-line',
+        icon: 'regular-bars',
         privilege: 'system.system_config',
     },
 });

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Rule\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('services-settings')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
     /**
@@ -17,8 +19,10 @@ class UnsupportedOperatorException extends ShopwareHttpException
      */
     protected $class;
 
-    public function __construct(string $operator, string $class)
-    {
+    public function __construct(
+        string $operator,
+        string $class
+    ) {
         $this->operator = $operator;
         $this->class = $class;
 

@@ -1,6 +1,16 @@
 import template from './sw-cms-el-preview-youtube-video.html.twig';
 import './sw-cms-el-preview-youtube-video.scss';
 
-Shopware.Component.register('sw-cms-el-preview-youtube-video', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+};

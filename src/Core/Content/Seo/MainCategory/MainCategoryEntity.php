@@ -6,8 +6,10 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+#[Package('buyers-experience')]
 class MainCategoryEntity extends Entity
 {
     use EntityIdTrait;
@@ -28,6 +30,11 @@ class MainCategoryEntity extends Entity
     protected $categoryId;
 
     /**
+     * @var string
+     */
+    protected $categoryVersionId;
+
+    /**
      * @var CategoryEntity
      */
     protected $category;
@@ -36,6 +43,11 @@ class MainCategoryEntity extends Entity
      * @var string
      */
     protected $productId;
+
+    /**
+     * @var string
+     */
+    protected $productVersionId;
 
     /**
      * @var ProductEntity|null
@@ -100,5 +112,25 @@ class MainCategoryEntity extends Entity
     public function setProduct(?ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getCategoryVersionId(): string
+    {
+        return $this->categoryVersionId;
+    }
+
+    public function setCategoryVersionId(string $categoryVersionId): void
+    {
+        $this->categoryVersionId = $categoryVersionId;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

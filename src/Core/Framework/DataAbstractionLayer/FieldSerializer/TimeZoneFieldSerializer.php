@@ -3,18 +3,23 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Timezone;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class TimeZoneFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -24,7 +29,7 @@ class TimeZoneFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof TimeZoneField) {
-            throw new InvalidSerializerFieldException(TimeZoneField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TimeZoneField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -32,12 +37,13 @@ class TimeZoneFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
-        return $value;
+        if ($value === null) {
+            return $value;
+        }
+
+        return (string) $value;
     }
 
     /**

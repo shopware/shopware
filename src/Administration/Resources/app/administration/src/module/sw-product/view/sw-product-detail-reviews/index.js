@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
 
@@ -5,7 +9,8 @@ const { Component, Data, Context } = Shopware;
 const { Criteria } = Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
-Component.register('sw-product-detail-reviews', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -39,13 +44,11 @@ Component.register('sw-product-detail-reviews', {
         },
 
         reviewCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(
                 Criteria.equals('productId', this.product.id),
             );
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             criteria.setTotalCountMode(1);
 
             return criteria;
@@ -76,6 +79,14 @@ Component.register('sw-product-detail-reviews', {
                     routerLink: 'sw.review.detail',
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -150,4 +161,4 @@ Component.register('sw-product-detail-reviews', {
             this.getReviews();
         },
     },
-});
+};

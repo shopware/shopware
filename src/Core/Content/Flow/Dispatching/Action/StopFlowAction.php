@@ -2,9 +2,15 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Log\Package;
 
-class StopFlowAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class StopFlowAction extends FlowAction implements DelayableAction
 {
     public static function getName(): string
     {
@@ -12,22 +18,15 @@ class StopFlowAction extends FlowAction
     }
 
     /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
+     * @return array<int, string|null>
      */
-    public static function getSubscribedEvents()
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
     public function requirements(): array
     {
         return [];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $event->stop();
+        $flow->stop();
     }
 }

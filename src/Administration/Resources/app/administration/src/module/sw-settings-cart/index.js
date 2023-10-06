@@ -1,7 +1,9 @@
-import './page/sw-settings-cart';
-
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-cart', () => import('./page/sw-settings-cart'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-cart', {
     type: 'core',
     name: 'settings-cart',
@@ -10,7 +12,7 @@ Module.register('sw-settings-cart', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
@@ -28,7 +30,7 @@ Module.register('sw-settings-cart', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.cart.index',
-        icon: 'default-lock-closed',
+        icon: 'regular-shopping-cart',
         privilege: 'system.system_config',
     },
 });

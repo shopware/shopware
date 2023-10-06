@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                          add(SalesChannelDomainEntity $entity)
- * @method void                          set(string $key, SalesChannelDomainEntity $entity)
- * @method SalesChannelDomainEntity[]    getIterator()
- * @method SalesChannelDomainEntity[]    getElements()
- * @method SalesChannelDomainEntity|null get(string $key)
- * @method SalesChannelDomainEntity|null first()
- * @method SalesChannelDomainEntity|null last()
+ * @extends EntityCollection<SalesChannelDomainEntity>
  */
+#[Package('buyers-experience')]
 class SalesChannelDomainCollection extends EntityCollection
 {
     public function getApiAlias(): string

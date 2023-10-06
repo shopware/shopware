@@ -13,10 +13,6 @@
                       class="buy-widget"
                       data-add-to-cart="true">
 
-                    {% block component_product_box_action_buy_csrf %}
-                        {{ sw_csrf('frontend.checkout.line-item.add') }}
-                    {% endblock %}
-
                     {% block component_product_box_action_form %}
 
                         {% block component_product_box_action_buy_redirect_input %}
@@ -59,21 +55,25 @@
                         {% endblock %}
 
                         {% block page_product_detail_product_buy_button %}
-                            <button class="btn btn-block btn-buy"
-                                    title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                {{ "listing.boxAddProduct"|trans|sw_sanitize }}
-                            </button>
+                            <div class="d-grid">
+                                <button class="btn btn-buy"
+                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                    {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                                </button>
+                            </div>
                         {% endblock %}
                     {% endblock %}
                 </form>
             {% endblock %}
         {% else %}
             {% block component_product_box_action_detail %}
-                <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
-                   class="btn btn-block btn-light"
-                   title="{{ "listing.boxProductDetails"|trans|striptags }}">
-                    {{ "listing.boxProductDetails"|trans|sw_sanitize }}
-                </a>
+                <div class="d-grid">
+                    <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                       class="btn btn-light"
+                       title="{{ "listing.boxProductDetails"|trans|striptags }}">
+                        {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+                    </a>
+                </div>
             {% endblock %}
         {% endif %}
     </div>

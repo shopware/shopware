@@ -6,7 +6,11 @@ const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
-Component.register('sw-flow-mail-send-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: [
@@ -31,12 +35,14 @@ Component.register('sw-flow-mail-send-modal', {
             selectedRecipient: null,
             mailTemplateIdError: null,
             recipientGridError: null,
+            replyTo: null,
+            replyToError: null,
         };
     },
 
     computed: {
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;
@@ -50,20 +56,100 @@ Component.register('sw-flow-mail-send-modal', {
             return !this.sequence?.id;
         },
 
-        recipientOptions() {
+        recipientCustomer() {
+            return [
+                {
+                    value: 'default',
+                    label: this.$tc('sw-flow.modals.mail.labelCustomer'),
+                },
+            ];
+        },
+
+        recipientAdmin() {
+            return [
+                {
+                    value: 'admin',
+                    label: this.$tc('sw-flow.modals.mail.labelAdmin'),
+                },
+            ];
+        },
+
+        recipientCustom() {
+            return [
+                {
+                    value: 'custom',
+                    label: this.$tc('sw-flow.modals.mail.labelCustom'),
+                },
+            ];
+        },
+
+        recipientDefault() {
             return [
                 {
                     value: 'default',
                     label: this.$tc('sw-flow.modals.mail.labelDefault'),
                 },
+            ];
+        },
+
+        recipientContactFormMail() {
+            return [
                 {
-                    value: 'admin',
-                    label: this.$tc('sw-flow.modals.mail.labelAdmin'),
+                    value: 'contactFormMail',
+                    label: this.$tc('sw-flow.modals.mail.labelContactFormMail'),
                 },
-                {
-                    value: 'custom',
-                    label: this.$tc('sw-flow.modals.mail.labelCustom'),
-                },
+            ];
+        },
+
+        entityAware() {
+            return ['CustomerAware', 'UserAware', 'OrderAware', 'CustomerGroupAware'];
+        },
+
+        recipientOptions() {
+            const allowedAwareOrigin = this.triggerEvent.aware ?? [];
+            const allowAwareConverted = [];
+            allowedAwareOrigin.forEach(aware => {
+                aware = aware.slice(aware.lastIndexOf('\\') + 1);
+                const awareUpperCase = aware.charAt(0).toUpperCase() + aware.slice(1);
+                if (!allowAwareConverted.includes(awareUpperCase)) {
+                    allowAwareConverted.push(awareUpperCase);
+                }
+            });
+
+            if (allowAwareConverted.length === 0) {
+                return this.recipientCustom;
+            }
+
+            if (this.triggerEvent.name === 'contact_form.send') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
+                .includes(this.triggerEvent.name)) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
+
+            if (hasEntityAware) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            return [
+                ...this.recipientAdmin,
+                ...this.recipientCustom,
             ];
         },
 
@@ -79,7 +165,37 @@ Component.register('sw-flow-mail-send-modal', {
             }];
         },
 
-        ...mapState('swFlowState', ['mailTemplates']),
+        replyToOptions() {
+            if (this.triggerEvent.name === 'contact_form.send') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            return [
+                ...this.recipientDefault,
+                ...this.recipientCustom,
+            ];
+        },
+
+        replyToSelection() {
+            switch (this.replyTo) {
+                case null:
+                    return 'default';
+                case 'contactFormMail':
+                    return 'contactFormMail';
+                default:
+                    return 'custom';
+            }
+        },
+
+        showReplyToField() {
+            return !(this.replyTo === null || this.replyTo === 'contactFormMail');
+        },
+
+        ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     created() {
@@ -88,7 +204,7 @@ Component.register('sw-flow-mail-send-modal', {
 
     methods: {
         createdComponent() {
-            this.mailRecipient = this.recipientOptions.find(recipient => recipient.value === 'default').value;
+            this.mailRecipient = this.recipientOptions[0].value;
 
             if (!this.isNewMail) {
                 const { config } = this.sequence;
@@ -109,6 +225,10 @@ Component.register('sw-flow-mail-send-modal', {
 
                     this.addRecipient();
                     this.showRecipientEmails = true;
+                }
+
+                if (config.replyTo) {
+                    this.replyTo = config.replyTo;
                 }
 
                 this.mailTemplateId = config.mailTemplateId;
@@ -161,10 +281,13 @@ Component.register('sw-flow-mail-send-modal', {
         },
 
         onAddAction() {
-            this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
+            this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
+            if (this.showReplyToField) {
+                this.replyToError = this.setMailError(this.replyTo);
+            }
             this.recipientGridError = this.isRecipientGridError();
 
-            if (this.mailTemplateIdError || this.recipientGridError) {
+            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError) {
                 return;
             }
 
@@ -179,6 +302,7 @@ Component.register('sw-flow-mail-send-modal', {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),
                     },
+                    replyTo: this.replyTo,
                 },
             };
 
@@ -295,8 +419,8 @@ Component.register('sw-flow-mail-send-modal', {
             this.recipients.splice(itemIndex, 1);
         },
 
-        fieldError(text) {
-            if (!text) {
+        mailTemplateError(mailTemplate) {
+            if (!mailTemplate) {
                 return new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
@@ -356,5 +480,33 @@ Component.register('sw-flow-mail-send-modal', {
         allowDeleteRecipient(itemIndex) {
             return itemIndex !== this.recipients.length - 1;
         },
+
+        changeShowReplyToField(value) {
+            switch (value) {
+                case 'default':
+                    this.replyToError = null;
+                    this.replyTo = null;
+
+                    return;
+                case 'contactFormMail':
+                    this.replyToError = null;
+                    this.replyTo = 'contactFormMail';
+
+                    return;
+                default:
+                    this.replyTo = '';
+            }
+        },
+
+        buildReplyToTooltip(snippet) {
+            const route = { name: 'sw.settings.basic.information.index' };
+            const routeData = this.$router.resolve(route);
+
+            const data = {
+                settingsLink: routeData.href,
+            };
+
+            return this.$tc(snippet, 0, data);
+        },
     },
-});
+};

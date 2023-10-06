@@ -21,6 +21,15 @@ $sw-select-field-color-error: $color-crimson-500;
             text-align: center;
             color: $sw-select-field-color-text;
             pointer-events: none;
+
+            .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 6px;
+                padding-right: 3px;
+                padding-bottom: 4px;
+                padding-left: 3px;
+            }
         }
     }
 

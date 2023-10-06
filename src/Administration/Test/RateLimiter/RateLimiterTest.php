@@ -3,24 +3,26 @@
 namespace Shopware\Administration\Test\RateLimiter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 
 /**
+ * @internal
+ *
  * @group slow
  */
 class RateLimiterTest extends TestCase
 {
-    use CustomerTestTrait;
     use AdminApiTestBehaviour;
+    use CustomerTestTrait;
 
     private Context $context;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public static function setUpBeforeClass(): void
     {
@@ -32,13 +34,13 @@ class RateLimiterTest extends TestCase
         DisableRateLimiterCompilerPass::enableNoLimit();
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->appRepository = $this->getContainer()->get('app.repository');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
     }
@@ -59,7 +61,7 @@ class RateLimiterTest extends TestCase
         for ($i = 0; $i <= 10; ++$i) {
             $client->request('POST', $url, [], [], [], (string) json_encode($data));
 
-            $response = json_decode((string) $client->getResponse()->getContent(), true);
+            $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 10) {
                 static::assertArrayHasKey('errors', $response);

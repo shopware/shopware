@@ -2,49 +2,43 @@
 
 namespace Shopware\Core\Framework\Update\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ *
+ * @phpstan-type VersionFixedVulnerabilities array{severity: string, summary: string, link: string}
+ */
+#[Package('system-settings')]
 class Version extends Struct
 {
-    /**
-     * @var string
-     */
-    public $version;
+    public string $title = '';
+
+    public string $body = '';
+
+    public \DateTimeImmutable $date;
+
+    public string $version = '';
 
     /**
-     * @var bool
+     * @var VersionFixedVulnerabilities[]
      */
-    public $isNewer;
+    public array $fixedVulnerabilities = [];
 
     /**
-     * @var array
+     * @param array<string, mixed> $data
      */
-    public $changelog;
+    public function __construct(array $data = [])
+    {
+        $this->date = new \DateTimeImmutable();
 
-    /**
-     * @var string
-     */
-    public $uri;
+        if (isset($data['date']) && \is_string($data['date'])) {
+            $data['date'] = new \DateTimeImmutable($data['date']);
+        }
 
-    /**
-     * @var string
-     */
-    public $size;
-
-    /**
-     * @var string
-     */
-    public $sha1;
-
-    /**
-     * @var string
-     */
-    public $sha256;
-
-    /**
-     * @var array
-     */
-    public $checks;
+        $this->assign($data);
+    }
 
     public function getApiAlias(): string
     {

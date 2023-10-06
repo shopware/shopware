@@ -2,25 +2,26 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ */
+#[Package('storefront')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
-    public const CACHE_KEY = 'routing-domains';
+    final public const CACHE_KEY = 'routing-domains';
 
-    private AbstractDomainLoader $decorated;
-
-    private TagAwareAdapterInterface $cache;
-
-    private LoggerInterface $logger;
-
-    public function __construct(AbstractDomainLoader $decorated, TagAwareAdapterInterface $cache, LoggerInterface $logger)
-    {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->logger = $logger;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly AbstractDomainLoader $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function getDecorated(): AbstractDomainLoader
@@ -28,28 +29,18 @@ class CachedDomainLoader extends AbstractDomainLoader
         return $this->decorated;
     }
 
+    /**
+     * @return array<string, Domain>
+     */
     public function load(): array
     {
-        $item = $this->cache->getItem(self::CACHE_KEY);
+        $value = $this->cache->get(self::CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
+            $this->getDecorated()->load()
+        ));
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::CACHE_KEY);
+        /** @var array<string, Domain> $value */
+        $value = CacheValueCompressor::uncompress($value);
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . self::CACHE_KEY);
-
-        $domains = $this->getDecorated()->load();
-
-        $item = CacheCompressor::compress($item, $domains);
-
-        $this->cache->save($item);
-
-        return $domains;
+        return $value;
     }
 }

@@ -3,29 +3,17 @@
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Symfony\Component\HttpFoundation\Response;
 
+#[Package('storefront')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
-    /**
-     * @var string[]
-     */
-    private array $hosts;
-
-    private Client $client;
-
-    private int $concurrency;
-
-    private string $banMethod;
-
-    /**
-     * @var \Redis|\RedisCluster
-     */
-    private $redis;
-
     private string $keyScript = <<<LUA
 local list = {}
 
@@ -47,29 +35,34 @@ return final
 LUA;
 
     /**
-     * @param \Redis|\RedisCluster $redis
+     * @param string[] $hosts
+     * param cannot be natively typed, as symfony might change the type in the future
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     * @param array{'method': string, 'headers': array<string, string>} $singlePurge
+     * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
-    public function __construct(array $hosts, int $concurrency, string $banMethod, $redis)
-    {
-        $this->hosts = $hosts;
-        $this->client = new Client();
-        $this->concurrency = $concurrency;
-        $this->banMethod = $banMethod;
-        $this->redis = $redis;
+    public function __construct(
+        private readonly array $hosts,
+        protected array $singlePurge,
+        protected array $entirePurge,
+        private readonly int $concurrency,
+        private $redis,
+        private readonly Client $client
+    ) {
     }
 
     /**
      * @param string[] $tags
      */
-    public function tag(array $tags, string $url): void
+    public function tag(array $tags, string $url, Response $response): void
     {
         foreach ($tags as $tag) {
-            $this->redis->lPush($tag, $url);
+            $this->redis->lPush($tag, $url); // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
         }
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      */
     public function invalidate(array $tags): void
     {
@@ -85,14 +78,42 @@ LUA;
 
         foreach ($urls as $url) {
             foreach ($this->hosts as $host) {
-                $list[] = new Request($this->banMethod, $host . $url);
+                $list[] = new Request($this->singlePurge['method'], $host . $url, $this->singlePurge['headers']);
             }
         }
 
         $pool = new Pool($this->client, $list, [
             'concurrency' => $this->concurrency,
-            'reject' => function (RequestException $reason): void {
-                throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()));
+            'rejected' => function (TransferException $reason): void {
+                if ($reason instanceof ServerException) {
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                }
+
+                throw $reason;
+            },
+        ]);
+
+        $pool->promise()->wait();
+    }
+
+    public function banAll(): void
+    {
+        $list = [];
+
+        foreach ($this->entirePurge['urls'] as $url) {
+            foreach ($this->hosts as $host) {
+                $list[] = new Request($this->entirePurge['method'], $host . $url, $this->entirePurge['headers']);
+            }
+        }
+
+        $pool = new Pool($this->client, $list, [
+            'concurrency' => $this->concurrency,
+            'rejected' => function (\Throwable $reason): void {
+                if ($reason instanceof ServerException) {
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                }
+
+                throw $reason;
             },
         ]);
 

@@ -10,7 +10,6 @@
         </parameter>
         <parameter key="import_export.supported_file_types" type="collection">
             <parameter>text/csv</parameter>
-<!--            <parameter>text/xml</parameter>-->
         </parameter>
         <parameter key="import_export.read_buffer_size">100</parameter>
         <parameter key="import_export.write_buffer_size">100</parameter>
@@ -19,19 +18,19 @@
 
     <services>
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_profile"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_log"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_file"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_profile_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator">
@@ -64,8 +63,6 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DownloadService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>
@@ -139,6 +136,11 @@
             <argument type="service" id="media.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializerSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -146,18 +148,21 @@
             <argument type="service" id="salutation.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CountrySerializer">
             <argument type="service" id="country.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\LanguageSerializer">
             <argument type="service" id="language.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CustomerSerializer">
@@ -166,6 +171,7 @@
             <argument type="service" id="sales_channel.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\PromotionIndividualCodeSerializer">
@@ -173,6 +179,7 @@
             <argument type="service" id="promotion.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
@@ -191,8 +198,6 @@
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer">
-            <argument type="service" id="order_delivery.repository" />
-
             <tag name="shopware.import_export.entity_serializer" priority="-400" />
         </service>
 
@@ -268,6 +273,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
@@ -281,6 +287,7 @@
             <argument type="service" id="property_group_option.repository"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">

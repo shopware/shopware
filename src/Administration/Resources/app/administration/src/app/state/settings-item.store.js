@@ -1,5 +1,10 @@
 const { hasOwnProperty } = Shopware.Utils.object;
 
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     namespaced: true,
     state: {

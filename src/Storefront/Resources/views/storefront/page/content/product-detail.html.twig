@@ -17,7 +17,8 @@
             {% endblock %}
 
             {% block cms_content %}
-                <div class="cms-page" itemscope itemtype="https://schema.org/Product">
+                {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
+                <div class="{{ cmsPageClasses }}" itemscope itemtype="https://schema.org/Product">
                     {% block page_content_blocks %}
                         {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
                     {% endblock %}

@@ -2,7 +2,7 @@
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
     {% set maxLength = config('seo.descriptionMaxLength') %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 160, '…') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
 
@@ -19,55 +19,57 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{% block layout_head_meta_tags_general_author %}{{ metaInformation.author|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_general_author %}{{ metaInformation.author|striptags }}{% endblock %}">
                 <meta name="robots"
-                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}">
                 <meta name="revisit-after"
-                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}">
                 <meta name="keywords"
-                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}">
                 <meta name="description"
-                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_opengraph %}
+                <meta property="og:url"
+                      content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}">
                 <meta property="og:type"
-                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}">
                 <meta property="og:site_name"
-                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta property="og:title"
-                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}">
                 <meta property="og:description"
-                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}">
                 <meta property="og:image"
-                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
 
                 <meta name="twitter:card"
-                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}">
                 <meta name="twitter:site"
-                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta name="twitter:title"
-                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}">
                 <meta name="twitter:description"
-                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}">
                 <meta name="twitter:image"
-                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}
                 <meta itemprop="copyrightHolder"
-                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta itemprop="copyrightYear"
-                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}">
                 <meta itemprop="isFamilyFriendly"
-                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}">
                 <meta itemprop="image"
-                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_hreflangs %}
                 {% for link in hrefLang %}
-                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}" />
+                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}">
                 {% endfor %}
             {% endblock %}
         {% endblock %}
@@ -78,18 +80,16 @@
         {% endblock %}
 
         {% block layout_head_apple %}
+            {% if theme_config('sw-logo-share') %}
             <link rel="apple-touch-icon"
                   sizes="180x180"
                   href="{{ theme_config('sw-logo-share') }}">
-        {% endblock %}
-
-        {% block layout_head_android %}
-            {# @deprecated tag:v6.5.0 - Use the block above, "layout_head_apple", instead #}
+            {% endif %}
         {% endblock %}
 
         {% block layout_head_canonical %}
             {% if page.metaInformation.canonical %}
-                <link rel="canonical" href="{{ page.metaInformation.canonical }}" />
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}">
             {% endif %}
         {% endblock %}
 
@@ -117,7 +117,7 @@
             {% sw_include "@Storefront/storefront/component/feature.html.twig" %}
         {% endblock %}
 
-        {# Block for tracking scripts which are required to include in the `head` section of the document #}
+        {# Block for tracking scripts which are required to be included in the `head` section of the document #}
         {% block layout_head_javascript_tracking %}
             {% sw_include "@Storefront/storefront/component/analytics.html.twig" %}
         {% endblock %}
@@ -129,77 +129,76 @@
         {% block layout_head_javascript_token %}
         {% endblock %}
 
-        {% if feature('FEATURE_NEXT_15917') %}
-            {% block layout_head_javascript_router %}
-                {# Register all routes that will be needed in JavaScript to the window.router object #}
+        {% if config('core.basicInformation.useDefaultCookieConsent') %}
+            {% block layout_head_javascript_cookie_state %}
                 <script>
-                    window.activeNavigationId = '{{ page.header.navigation.active.id }}';
-                    window.router = {
-                        'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
-                        'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
-                        'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
-                        'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
-                        'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
-                        'frontend.cms.page': '{{ path('frontend.cms.page') }}',
-                        'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
-                        'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
-                        'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
-                        'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
-                        'frontend.store-api.proxy': '{{ path('frontend.store-api.proxy') }}',
-                    };
-                    window.storeApiProxyToken = '{{ sw_csrf("frontend.store-api.proxy", {"mode": "token"}) }}';
-                    window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
+                    window.useDefaultCookieConsent = true;
                 </script>
-            {% endblock %}
-
-            {% block layout_head_javascript_breakpoints %}
-                {# Register the available viewport breakpoints the window.breakpoints object #}
-                <script>
-                    {% set breakpoint = {
-                        'xs': theme_config('breakpoint.xs'),
-                        'sm': theme_config('breakpoint.sm'),
-                        'md': theme_config('breakpoint.md'),
-                        'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl')
-                    } %}
-
-                    window.breakpoints = {{ breakpoint|json_encode()|raw }};
-                </script>
-            {% endblock %}
-
-            {% block layout_head_javascript_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
-                </script>
-            {% endblock %}
-
-            {% if config('core.cart.wishlistEnabled') %}
-                {% block layout_head_javascript_wishlist_state %}
-                    <script>
-                        window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
-
-                        window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
-                    </script>
-                {% endblock %}
-            {% endif %}
-
-            {% block layout_head_javascript_hmr_mode %}
-                {% if isHMRMode %}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
-                    {# The storefront entry is a combined entry point which contains all plugins & themes #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
-                {% else %}
-                    {% for file in theme_config('assets.js') %}
-                        <script type="text/javascript" src="{{ asset(file, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% endif %}
             {% endblock %}
         {% endif %}
+
+        {% block layout_head_javascript_router %}
+            {# Register all routes that will be needed in JavaScript to the window.router object #}
+            <script>
+                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+                window.router = {
+                    'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
+                    'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                    'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                    'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                    'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                    'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                    'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
+                    'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
+                    'frontend.app-system.generate-token': '{{ path('frontend.app-system.generate-token', { name: "Placeholder" }) }}',
+                    };
+                window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
+            </script>
+        {% endblock %}
+
+        {% block layout_head_javascript_breakpoints %}
+            {# Register the available viewport breakpoints as window.breakpoints object #}
+            <script>
+                {% set breakpoint = {
+                    'xs': theme_config('breakpoint.xs'),
+                    'sm': theme_config('breakpoint.sm'),
+                    'md': theme_config('breakpoint.md'),
+                    'lg': theme_config('breakpoint.lg'),
+                    'xl': theme_config('breakpoint.xl')
+                } %}
+
+                window.breakpoints = {{ breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
+
+        {% if config('core.cart.wishlistEnabled') %}
+            {% block layout_head_javascript_wishlist_state %}
+                <script>
+                    window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
+
+                    window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
+                </script>
+            {% endblock %}
+        {% endif %}
+
+        {# jQuery is removed from the default Storefront since tag:v6.5.0 - This block should be used to add jQuery as a `<script>` if needed. #}
+        {% block layout_head_javascript_jquery %}
+        {% endblock %}
+
+        {% block layout_head_javascript_hmr_mode %}
+            {% if isHMRMode %}
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
+                {# The storefront entry is a combined entry point which contains all plugins & themes #}
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
+            {% else %}
+                {% for file in theme_config('assets.js') %}
+                    <script type="text/javascript" src="{{ asset(file, 'theme') }}" defer></script>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
     </head>
 {% endblock %}

@@ -2,27 +2,26 @@
 
 namespace Shopware\Core\Framework\Test;
 
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class IdsCollection
 {
     /**
-     * @var Context
-     */
-    public $context;
-
-    /**
-     * @var string[]
+     * @var array<string, string>
      */
     protected $ids = [];
 
-    public function __construct(?Context $context = null)
+    /**
+     * @param array<string, string> $ids
+     */
+    public function __construct(array $ids = [])
     {
-        if (!$context) {
-            $context = Context::createDefaultContext();
-        }
-        $this->context = $context;
+        $this->ids = $ids;
     }
 
     public function create(string $key): string
@@ -39,11 +38,42 @@ class IdsCollection
         return $this->create($key);
     }
 
+    /**
+     * @param array<string> $keys
+     *
+     * @return array{id: string}[]
+     */
+    public function getIdArray(array $keys, bool $bytes = false): array
+    {
+        $list = $this->getList($keys);
+
+        $list = $bytes ? Uuid::fromHexToBytesList($list) : $list;
+
+        $list = \array_map(static fn (string $id) => ['id' => $id], $list);
+
+        return \array_values($list);
+    }
+
     public function getBytes(string $key): string
     {
         return Uuid::fromHexToBytes($this->get($key));
     }
 
+    /**
+     * @param array<string> $keys
+     *
+     * @return array<string>
+     */
+    public function getByteList(array $keys): array
+    {
+        return Uuid::fromHexToBytesList($this->getList($keys));
+    }
+
+    /**
+     * @param array<string> $keys
+     *
+     * @return array<string, string>
+     */
     public function getList(array $keys): array
     {
         $ordered = [];
@@ -54,11 +84,17 @@ class IdsCollection
         return $ordered;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function all(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function prefixed(string $prefix): array
     {
         $ids = [];
@@ -76,11 +112,6 @@ class IdsCollection
         $this->ids[$key] = $value;
     }
 
-    public function getContext(): Context
-    {
-        return $this->context;
-    }
-
     public function has(string $key): bool
     {
         return isset($this->ids[$key]);
@@ -95,5 +126,24 @@ class IdsCollection
         }
 
         return null;
+    }
+
+    /**
+     * @param array<string> $ids
+     */
+    public function getKeys(array $ids): string
+    {
+        $keys = [];
+
+        foreach ($ids as $id) {
+            $key = $this->getKey($id);
+            if ($key) {
+                $keys[] = $key;
+            } else {
+                throw new \RuntimeException('Key not found for id ' . $id);
+            }
+        }
+
+        return implode(', ', $keys);
     }
 }

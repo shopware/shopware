@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_review_creation %}
 <div class="sw-extension-review-creation">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_inputs %}
     <sw-extension-review-creation-inputs
         :errors="errors"
@@ -7,22 +9,21 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_gtc_checkbox %}
-    <sw-gtc-checkbox v-model="tocAccepted" />
+    <sw-gtc-checkbox
+        {% if VUE3 %}
+        v-model:value="tocAccepted"
+        {% else %}
+        v-model="tocAccepted"
+        {% endif %}
+    />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_buttons %}
     <div class="sw-extension-review-creation__buttons">
-        {% block sw_extension_review_creation_buttons_cancel_button %}
-        <sw-button
-            size="small"
-            :disabled="isLoading"
-            @click="clearData"
-        >
-            {{ $tc('global.default.cancel') }}
-        </sw-button>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_buttons_submit_button %}
         <sw-button-process
             variant="primary"
@@ -30,7 +31,11 @@
             :is-loading="isLoading"
             :process-success="isCreatedSuccessful"
             :disabled="disabled"
+            {% if VUE3 %}
+            @update:process-success="emitCreated"
+            {% else %}
             @process-finish="emitCreated"
+            {% endif %}
             @click="handleCreateReview"
         >
             {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}

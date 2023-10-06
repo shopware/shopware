@@ -1,9 +1,12 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_detail %}
 <sw-page class="sw-property-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_header_title %}
         <h2>{{ placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
         {% endblock %}
@@ -11,8 +14,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -24,6 +29,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip="tooltipSave"
@@ -32,7 +38,11 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('property.editor')"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-property.detail.buttonSave') }}
@@ -41,8 +51,9 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
@@ -52,55 +63,62 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton variant="detail-bold" />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
 
-        {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
-        <div v-show="!isLoading">
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <div v-show="!isLoading">
 
-            {% block sw_property_detail_content_language_info %}
-            <sw-language-info
-                :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
-            />
-            {% endblock %}
-
-            {% block sw_property_detail_content_detail_base %}
-            <sw-property-detail-base
-                v-if="propertyGroup"
-                :property-group="propertyGroup"
-                :allow-edit="acl.can('property.editor')"
-            />
-            {% endblock %}
-
-            {% block sw_property_detail_content_option_list %}
-            <sw-property-option-list
-                v-if="propertyGroup"
-                ref="optionListing"
-                :is-loading="isLoading"
-                :option-repository="optionRepository"
-                :property-group="propertyGroup"
-            />
-            {% endblock %}
-
-            {% block sw_property_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-property-detail"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="propertyGroup"
-                    :disabled="!acl.can('property.editor')"
-                    :sets="customFieldSets"
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_property_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
                 />
-            </sw-card>
-            {% endblock %}
-        </div>
-    </sw-card-view>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_property_detail_content_detail_base %}
+                <sw-property-detail-base
+                    v-if="propertyGroup"
+                    :property-group="propertyGroup"
+                    :allow-edit="acl.can('property.editor')"
+                />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_property_detail_content_option_list %}
+                <sw-property-option-list
+                    v-if="propertyGroup"
+                    ref="optionListing"
+                    :is-loading="isLoading"
+                    :option-repository="optionRepository"
+                    :property-group="propertyGroup"
+                />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_property_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-property-detail"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="propertyGroup"
+                        :disabled="!acl.can('property.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </div>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

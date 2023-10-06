@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/data/ShopwareError
  */
 import utils from 'src/core/service/util.service';
@@ -8,6 +10,7 @@ import utils from 'src/core/service/util.service';
  * @description Simple data structure to hold information about Api Errors.
  * @memberOf module:core/data/ShopwareError
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareError {
     constructor({
         code,

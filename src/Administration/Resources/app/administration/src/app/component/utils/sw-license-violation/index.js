@@ -45,14 +45,6 @@ Shopware.Component.register('sw-license-violation', {
             return this.violations.length > 0;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 will be removed
-         */
-        pluginRepository() {
-            const repositoryFactory = Shopware.Service('repositoryFactory');
-            return repositoryFactory.create('plugin');
-        },
-
         pluginCriteria() {
             return new Shopware.Data.Criteria(1, 50);
         },

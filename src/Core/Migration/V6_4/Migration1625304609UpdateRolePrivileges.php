@@ -4,8 +4,15 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1625304609UpdateRolePrivileges extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,11 +31,11 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
         $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
         foreach ($roles as $role) {
-            $currentPrivileges = json_decode($role['privileges'], true);
+            $currentPrivileges = json_decode((string) $role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
             $currentPrivileges = array_merge($currentPrivileges, $privileges);
             $currentPrivileges = array_unique($currentPrivileges);
 
-            $role['privileges'] = json_encode($currentPrivileges);
+            $role['privileges'] = json_encode($currentPrivileges, \JSON_THROW_ON_ERROR);
             $role['updated_at'] = $updatedAt;
 
             $connection->update('acl_role', $role, ['id' => $role['id']]);
@@ -40,11 +47,19 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAllApps(Connection $connection): array
     {
-        return $connection->executeQuery('SELECT name from `app`')->fetchAll(\PDO::FETCH_COLUMN);
+        return $connection->executeQuery('SELECT name from `app`')->fetchFirstColumn();
     }
 
+    /**
+     * @param list<string> $appNames
+     *
+     * @return list<string>
+     */
     private function getAppPrivileges(array $appNames): array
     {
         $privileges = [
@@ -52,9 +67,9 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
         ];
 
         foreach ($appNames as $appName) {
-            $privileges = array_merge($privileges, [
+            $privileges = [...$privileges, ...[
                 'app.' . $appName,
-            ]);
+            ]];
         }
 
         return $privileges;

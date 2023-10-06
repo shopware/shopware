@@ -6,10 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait EntityFixturesBase
 {
@@ -32,20 +33,24 @@ trait EntityFixturesBase
         $this->entityFixtureContext = $context;
     }
 
-    public static function getFixtureRepository(string $fixtureName): EntityRepositoryInterface
+    public static function getFixtureRepository(string $fixtureName): EntityRepository
     {
         self::ensureATransactionIsActive();
 
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         if ($container->has('test.service_container')) {
+            /** @var ContainerInterface $container */
             $container = $container->get('test.service_container');
         }
 
         return $container->get(DefinitionInstanceRegistry::class)->getRepository($fixtureName);
     }
 
-    public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
+    /**
+     * @param array<string, array<string, mixed>> $fixtureData
+     */
+    public function createFixture(string $fixtureName, array $fixtureData, EntityRepository $repository): Entity
     {
         self::ensureATransactionIsActive();
 
@@ -66,9 +71,13 @@ trait EntityFixturesBase
 
         $criteria = new Criteria([$fixtureData[$fixtureName]['id']]);
 
-        return $repository
+        $entity = $repository
             ->search($criteria, $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);
+
+        static::assertInstanceOf(Entity::class, $entity);
+
+        return $entity;
     }
 
     private static function ensureATransactionIsActive(): void

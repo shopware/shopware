@@ -1,4 +1,5 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_search_preferences_modal %}
 <sw-modal
     class="sw-search-preferences-modal"
@@ -6,6 +7,7 @@
     :is-loading="isLoading"
     @modal-close="onClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_preferences_modal_description %}
     <p
         class="sw-search-preferences-modal__description"
@@ -14,6 +16,7 @@
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_preferences_modal_grid %}
     <sw-data-grid
         :show-selection="false"
@@ -23,15 +26,25 @@
         :columns="searchPreferencesColumns"
     >
         <template #column-active="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_preferences_modal_grid_column_active %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="item._searchable"
+                {% else %}
                 v-model="item._searchable"
+                {% endif %}
+                {% if VUE3 %}
+                @update:value="onChangeSearchPreference(item)"
+                {% else %}
                 @change="onChangeSearchPreference(item)"
+                {% endif %}
             />
             {% endblock %}
         </template>
 
         <template #column-moduleName="{ item }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_preferences_modal_grid_column_module_name %}
             <span>{{ getModuleName(item.entityName) }}</span>
             {% endblock %}
@@ -40,6 +53,7 @@
     {% endblock %}
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_preferences_modal_button_cancel %}
         <sw-button
             size="small"
@@ -50,6 +64,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_preferences_modal_button_save %}
         <sw-button
             variant="primary"

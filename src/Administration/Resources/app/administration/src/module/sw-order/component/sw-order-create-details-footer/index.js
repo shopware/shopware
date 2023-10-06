@@ -1,15 +1,15 @@
 import template from './sw-order-create-details-footer.html.twig';
 
-const { Component, State, Service } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-create-details-footer', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed without replacement.
-     */
-    inject: ['feature'],
 
     props: {
         cart: {
@@ -50,7 +50,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
@@ -60,7 +60,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
@@ -165,4 +165,4 @@ Component.register('sw-order-create-details-footer', {
             });
         },
     },
-});
+};

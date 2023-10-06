@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
 
+/**
+ * @internal
+ */
 class MaintenanceControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -24,9 +27,9 @@ class MaintenanceControllerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -36,7 +39,7 @@ class MaintenanceControllerTest extends TestCase
         $this->setMaintenanceMode();
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
         $response = $browser->getResponse();
@@ -98,17 +101,20 @@ class MaintenanceControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$page], $this->ids->context);
+        $this->getContainer()->get('cms_page.repository')->create([$page], Context::createDefaultContext());
     }
 
     private function setMaintenanceMode(): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            (new Criteria())->addFilter(
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                new EqualsFilter('domains.url', $_SERVER['APP_URL'])
+            ),
             Context::createDefaultContext()
         )->first();
 

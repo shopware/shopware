@@ -4,6 +4,10 @@ const uniqueSlotsKebab = [
     'cross-selling',
 ];
 
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Object.freeze({
     REQUIRED_FIELD_ERROR_CODE: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
     PAGE_TYPES: {
@@ -11,6 +15,16 @@ export default Object.freeze({
         LANDING: 'landingpage',
         LISTING: 'product_list',
         PRODUCT_DETAIL: 'product_detail',
+    },
+    TYPE_MAPPING_ENTITIES: {
+        product_detail: {
+            entity: 'product',
+            mode: 'single',
+        },
+        product_list: {
+            entity: 'category',
+            mode: 'single',
+        },
     },
     UNIQUE_SLOTS: uniqueSlotsKebab
         .map((slotName) => slotName.replace(/-./g, char => char.toUpperCase()[1])),
@@ -39,5 +53,11 @@ export default Object.freeze({
         imageSlider: 3300,
         imageGalery: 3400,
         default: 5000,
+    },
+    MEDIA: {
+        previewCamera: 'framework/assets/default/cms/preview_camera_large.jpg',
+        previewMountain: 'framework/assets/default/cms/preview_mountain_large.jpg',
+        previewPlant: 'framework/assets/default/cms/preview_plant_large.jpg',
+        previewGlasses: 'framework/assets/default/cms/preview_glasses_large.jpg',
     },
 });

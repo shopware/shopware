@@ -1,6 +1,10 @@
-import './component';
-import './config';
+Shopware.Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', () => import('./config'));
+Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', () => import('./component'));
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'manufacturer-logo',
     label: 'sw-cms.elements.productHeading.logo.label',
@@ -32,6 +36,10 @@ Shopware.Service('cmsService').registerCmsElement({
             value: null,
         },
         verticalAlign: {
+            source: 'static',
+            value: null,
+        },
+        horizontalAlign: {
             source: 'static',
             value: null,
         },

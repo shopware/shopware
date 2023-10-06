@@ -2,32 +2,27 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-class AdminApiSource implements ContextSource
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
+
+#[Package('core')]
+class AdminApiSource implements ContextSource, \JsonSerializable
 {
-    /**
-     * @var string|null
-     */
-    private $userId;
+    use JsonSerializableTrait;
+
+    public string $type = 'admin-api';
+
+    private bool $isAdmin;
 
     /**
-     * @var string|null
+     * @var array<string>
      */
-    private $integrationId;
+    private array $permissions = [];
 
-    /**
-     * @var bool
-     */
-    private $isAdmin;
-
-    /**
-     * @var array
-     */
-    private $permissions = [];
-
-    public function __construct(?string $userId, ?string $integrationId = null)
-    {
-        $this->userId = $userId;
-        $this->integrationId = $integrationId;
+    public function __construct(
+        private readonly ?string $userId,
+        private readonly ?string $integrationId = null
+    ) {
         $this->isAdmin = false;
     }
 
@@ -46,6 +41,9 @@ class AdminApiSource implements ContextSource
         $this->isAdmin = $isAdmin;
     }
 
+    /**
+     * @param array<string> $permissions
+     */
     public function setPermissions(array $permissions): void
     {
         $this->permissions = $permissions;

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_entry_point_card %}
 <sw-card
     class="sw-category-entry-point-card"
@@ -5,9 +6,14 @@
     :title="$tc('sw-category.base.entry-point-card.cardTitle')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_selection %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="selectedEntryPoint"
+        {% else %}
         v-model="selectedEntryPoint"
+        {% endif %}
         class="sw-category-entry-point-card__entry-point-selection"
         :options="entryPoints"
         :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
@@ -15,22 +21,29 @@
         :help-text="helpText"
         :disabled="hasExistingNavigation || !acl.can('category.editor')"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onEntryPointChange"
+        {% else %}
         @change="onEntryPointChange"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_headline %}
     <p v-if="hasExistingNavigation">
         {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_list %}
     <div
         v-if="hasExistingNavigation"
         class="sw-category-entry-point-card__navigation-list"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_navigation_list_link %}
         <router-link
             v-for="salesChannel in initialNavigationSalesChannels"
@@ -45,6 +58,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_sales_channel_selection %}
     <sw-category-sales-channel-multi-select
         v-if="associatedCollection"
@@ -54,10 +68,15 @@
         :criteria="salesChannelCriteria"
         :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
         :disabled="!selectedEntryPoint || !acl.can('category.editor')"
+        {% if VUE3 %}
+        @update:entity-collection="onSalesChannelChange"
+        {% else %}
         @change="onSalesChannelChange"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_button_configure_home %}
     <sw-button
         class="sw-category-entry-point-card__button-configure-home"
@@ -70,6 +89,7 @@
     </sw-button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_configure_home_modal %}
     <sw-category-entry-point-modal
         v-if="configureHomeModalVisible"

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
@@ -6,6 +10,7 @@ const { cloneDeep } = Shopware.Utils.object;
 * @module app/filter-service
 */
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FilterService {
     _userConfigRepository;
 
@@ -106,7 +111,7 @@ export default class FilterService {
 
     _getUserConfigCriteria(storeKey) {
         const currentUser = Shopware.State.get('session').currentUser;
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', storeKey));
         criteria.addFilter(Criteria.equals('userId', currentUser?.id));
@@ -114,7 +119,7 @@ export default class FilterService {
         return criteria;
     }
 
-    _pushFiltersToUrl() {
+    async _pushFiltersToUrl() {
         const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
@@ -122,20 +127,40 @@ export default class FilterService {
         const route = router?.currentRoute;
 
         const query = { ...route.query };
+        const routeParams = { ...route.params };
         delete query[this._filterEntity.key];
 
-        router.push({
+        const newRoute = {
             name: route.name,
             query: {
                 ...query,
                 [this._filterEntity.key]: urlEncodedValue,
             },
-        });
+        };
+
+        if (!Shopware.Utils.types.isEmpty(routeParams)) {
+            newRoute.params = routeParams;
+        }
+
+        try {
+            await router.push(newRoute);
+            return Promise.resolve();
+        } catch (error) {
+            if (error?.name === 'NavigationDuplicated') {
+                return error;
+            }
+
+            return Promise.reject(error);
+        }
     }
 
     _getQueryFilterValue(storeKey) {
         const router = Shopware.Application.view.router;
         const route = router?.currentRoute;
+
+        if (window._features_?.vue3) {
+            return route?.value?.query[storeKey];
+        }
 
         return route?.query[storeKey];
     }

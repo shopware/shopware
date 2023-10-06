@@ -2,26 +2,19 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class AccessTokenStruct extends Struct
 {
-    /**
-     * @var ShopUserTokenStruct
-     */
-    protected $shopUserToken;
-
-    /**
-     * @var string
-     */
-    protected $shopSecret;
-
-    public function setShopUserToken(ShopUserTokenStruct $shopUserToken): void
-    {
-        $this->shopUserToken = $shopUserToken;
+    public function __construct(
+        protected ShopUserTokenStruct $shopUserToken,
+        protected ?string $shopSecret = null,
+    ) {
     }
 
     public function getShopUserToken(): ShopUserTokenStruct
@@ -29,7 +22,7 @@ class AccessTokenStruct extends Struct
         return $this->shopUserToken;
     }
 
-    public function getShopSecret(): string
+    public function getShopSecret(): ?string
     {
         return $this->shopSecret;
     }

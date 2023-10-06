@@ -3,7 +3,7 @@ Bootstrap variables
 ==================================================
 Contains all overrides of bootstrap default variables.
 
-https://getbootstrap.com/docs/4.3/getting-started/theming/#variable-defaults
+https://getbootstrap.com/docs/5.2/customize/sass/#variable-defaults
 */
 
 // Color system
@@ -36,9 +36,9 @@ $body-color: $sw-text-color !default;
 // Components
 $border-color: $sw-border-color !default;
 
-$border-radius: 3px !default;
-$border-radius-lg: 3px !default;
-$border-radius-sm: 3px !default;
+$border-radius: 0 !default;
+$border-radius-lg: 0 !default;
+$border-radius-sm: 0 !default;
 
 // Typography
 $font-family-base: $sw-font-family-base !default;
@@ -58,11 +58,16 @@ $h6-font-size: 14px !default;
 $headings-font-weight: 700 !default;
 $headings-font-family: $sw-font-family-headline !default;
 
+$link-decoration: none !default;
+$link-hover-decoration: underline !default;
+
 // Buttons + Forms
 $input-btn-padding-y: 0.5625rem !default;
 $input-btn-padding-x: 0.5625rem !default;
 
 $input-placeholder-color: #c3c3c3 !default;
+
+$form-label-margin-bottom: 3px !default;
 
 // Buttons
 $btn-padding-y: 2px !default;
@@ -79,15 +84,27 @@ $btn-padding-x-lg: 12px !default;
 $btn-font-size-lg: 16px !default;
 $btn-line-height-lg: 38px !default;
 
+$btn-font-weight: 600 !default;
+$btn-link-disabled-color: $gray-300 !default;
+$btn-disabled-opacity: 1 !default;
+
 // Forms
 $enable-validation-icons: false !default;
 $input-color: $sw-text-color !default;
 $input-border-color: $sw-border-color !default;
+$form-check-input-border: 1px solid $sw-border-color !default;
+$form-check-input-width: 1rem !default;
+$form-check-padding-start: 1.5rem !default;
 $input-focus-border-color: $sw-color-brand-primary !default;
 $custom-select-indicator-color: $input-color !default;
 $custom-control-indicator-active-bg: $sw-color-brand-primary !default;
 
 // Pagination
+$pagination-color: $sw-text-color !default;
+$pagination-hover-color: $sw-text-color !default;
+$pagination-border-width: 0 !default;
+$pagination-padding-y: 0.595rem;
+$pagination-padding-x: 0.75rem;
 $pagination-border-color: $sw-border-color !default;
 $pagination-hover-border-color: $sw-border-color !default;
 $pagination-focus-border-color: $sw-border-color !default;
@@ -105,6 +122,9 @@ $spinner-border-width: 2px !default;
 // Modals
 $modal-header-padding-y: 10px !default;
 $modal-header-padding-x: 10px !default;
+$modal-content-border-width: 0 !default;
+$modal-content-box-shadow-xs: 0 43px 43px -6px rgba(#000, 0.2) !default;
+$modal-content-box-shadow-sm-up: 0 43px 43px -6px rgba(#000, 0.2) !default;
 
 // Breadcrumb
 $breadcrumb-bg: transparent !default;
@@ -113,9 +133,29 @@ $breadcrumb-border-radius: 0 !default;
 // Cards
 $card-border-color: transparent !default;
 $card-bg: transparent !default;
+$card-spacer-y: 0 !default;
+$card-spacer-x: 0 !default;
 
 // Tables
-$table-accent-bg: #f9f9f9 !default;
+$table-striped-bg: #f9f9f9 !default;
 
 // Switch
 $custom-switch-indicator-border-radius: 0.5rem;
+
+// OffCanvas
+$offcanvas-padding-y: $grid-gutter-width / 2 !default;
+$offcanvas-padding-x: $grid-gutter-width / 2 !default;
+$offcanvas-border-width: 0 !default;
+$offcanvas-border-color: transparent !default;
+$offcanvas-backdrop-opacity: 1 !default;
+
+
+// Alerts
+$alert-padding-x: 0 !default;
+$alert-padding-y: 0 !default;
+$alert-border-width: 0 !default;
+
+// Badges
+$badge-border-radius: 50px !default;
+$badge-padding-x: 5px !default;
+$badge-padding-y: 0 !default;

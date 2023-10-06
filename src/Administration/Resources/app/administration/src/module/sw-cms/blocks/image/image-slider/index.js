@@ -1,6 +1,20 @@
-import './component';
-import './preview';
+import CMS from '../../../constant/sw-cms.constant';
 
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-preview-image-slider', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-block-image-slider', () => import('./component'));
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-slider',
     label: 'sw-cms.blocks.image.imageSlider.label',
@@ -15,6 +29,25 @@ Shopware.Service('cmsService').registerCmsBlock({
         sizingMode: 'boxed',
     },
     slots: {
-        imageSlider: 'image-slider',
+        imageSlider: {
+            type: 'image-slider',
+            default: {
+                config: {},
+                data: {
+                    sliderItems: {
+                        source: 'default',
+                        value: [
+                            {
+                                url: null,
+                                newTab: false,
+                                mediaId: null,
+                                fileName: CMS.MEDIA.previewMountain,
+                                mediaUrl: null,
+                            },
+                        ],
+                    },
+                },
+            },
+        },
     },
 });

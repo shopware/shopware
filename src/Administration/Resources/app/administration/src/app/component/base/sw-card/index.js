@@ -1,9 +1,12 @@
 import template from './sw-card.html.twig';
 import './sw-card.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A card is a flexible and extensible content container.
  * @status ready
@@ -15,12 +18,14 @@ const { Component, Feature } = Shopware;
  */
 Component.register('sw-card', {
     template,
+    inheritAttrs: !window._features_.VUE3,
+
+    inject: ['feature'],
 
     props: {
         positionIdentifier: {
             type: String,
-            // eslint-disable-next-line no-unneeded-ternary
-            required: Feature.isActive('FEATURE_NEXT_18129') ? true : false,
+            required: true,
             default: null,
         },
         title: {
@@ -48,6 +53,28 @@ Component.register('sw-card', {
             required: false,
             default: false,
         },
+        aiBadge: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    computed: {
+        showHeader() {
+            return !!this.title
+                || !!this.$slots.title
+                || !!this.$scopedSlots.title
+                || !!this.subtitle
+                || !!this.$slots.subtitle
+                || !!this.$scopedSlots.subtitle
+                || !!this.$slots.avatar
+                || !!this.$scopedSlots.avatar;
+        },
+
+        hasAvatar() {
+            return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
+        },
     },
 
     methods: {
@@ -57,8 +84,17 @@ Component.register('sw-card', {
                 'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
-                'has--header': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                'has--header': !!this.showHeader,
+                'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
+                'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
+                'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
+
+            // With Vue 3 there is no sw-ignore-class
+            if (this.feature.isActive('VUE3')) {
+                return classes;
+            }
 
             if (!this.$refs.swIgnoreClass) {
                 this.$nextTick(() => {

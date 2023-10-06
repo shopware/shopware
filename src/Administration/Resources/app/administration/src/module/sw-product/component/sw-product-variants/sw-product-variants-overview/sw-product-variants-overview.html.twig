@@ -1,14 +1,19 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_overview %}
 <div class="sw-product-variants-overview">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_overview_option_list_toolbar %}
     <div class="sw-configuration-option-list__toolbar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 180px)"
+            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px)"
             gap="0 10px"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
             <sw-simple-search-field
                 v-model="term"
@@ -18,16 +23,19 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_filter_list %}
             <div class="sw-product-variants-overview__filter-list-button">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
                 <sw-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <sw-icon name="default-action-filter" />
+                    <sw-icon name="regular-filter" />
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_context_menu %}
                 <sw-context-menu v-show="filterWindowOpen">
                     <sw-container
@@ -35,6 +43,7 @@
                         gap="5px"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
                         <sw-tree
                             v-show="filterOptions.length"
@@ -45,8 +54,7 @@
                             bind-items-to-folder
                         >
                             <template
-                                slot="items"
-                                slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }"
+                                #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }"
                             >
                                 <sw-tree-item
                                     v-for="(item, index) in treeItems"
@@ -60,14 +68,17 @@
                         </sw-tree>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
                             <sw-button @click="resetFilterOptions()">
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
                             <sw-button
                                 variant="primary"
@@ -85,6 +96,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
             <sw-button
                 v-tooltip="{
@@ -116,13 +128,15 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_overview_data_grid %}
     <sw-data-grid
+        ref="variantGrid"
         class="sw-product-variants-overview__data-grid"
         :data-source="variants"
         :columns="variantColumns"
         :show-settings="true"
-        :show-selection="false"
+        :show-selection="acl.can('product.deleter')"
         :sort-by="sortBy"
         :sort-direction="sortDirection"
         :is-loading="isLoading"
@@ -134,10 +148,10 @@
         @inline-edit-cancel="onInlineEditCancel"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_name %}
         <template
-            slot="column-name"
-            slot-scope="{ item }"
+            #column-name="{ item }"
         >
             <template v-if="item.options">
                 <router-link
@@ -146,7 +160,7 @@
                     @click="onOptionEdit(item)"
                 >
 
-                    <sw-icon name="default-text-editor-link" />
+                    <sw-icon name="regular-link-xs" />
 
                     <span
                         v-for="(singleVariation, index) in item.options"
@@ -157,18 +171,27 @@
                     </span>
                 </router-link>
             </template>
+
+            <sw-label
+                v-if="variantIsDigital(item)"
+                class="sw-product-variants-overview__digital-indicator"
+            >
+                {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+            </sw-label>
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
-            :slot="`column-price.${currency.id}.net`"
-            slot-scope="{ item, compact, isInlineEdit }"
+            #[`column-price.${currency.id}.net`]="{ item, compact, isInlineEdit }"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
             <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
                 <sw-inheritance-switch
                     :key="`switch-${currency.isoCode}`"
@@ -179,6 +202,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
                 <sw-price-field
                     :key="`price-field-${currency.isoCode}`"
@@ -194,8 +218,10 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_price_preview %}
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_preview_inherit %}
                 <sw-inheritance-switch
                     :key="`else-switch-${currency.isoCode}`"
@@ -205,6 +231,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
                 <sw-price-preview
                     :key="`else-price-field-${currency.isoCode}`"
@@ -220,20 +247,25 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_stock %}
         <template
-            slot="column-stock"
-            slot-scope="{ item, isInlineEdit, compact }"
+            #column-stock="{ item, isInlineEdit, compact }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
-            <sw-field
-                v-if="isInlineEdit"
+            <sw-number-field
+                v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
+                {% if VUE3 %}
+                v-model:value="item.stock"
+                {% else %}
                 v-model="item.stock"
-                type="number"
+                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_preview %}
             <span v-else>
                 {{ item.stock }}
@@ -242,20 +274,25 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_product_number %}
         <template
-            slot="column-productNumber"
-            slot-scope="{ item, isInlineEdit, compact }"
+            #column-productNumber="{ item, isInlineEdit, compact }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
-            <sw-field
+            <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.productNumber"
+                {% else %}
                 v-model="item.productNumber"
-                type="text"
+                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_product_number_preview %}
             <span
                 v-else
@@ -267,9 +304,12 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_media %}
         <template #column-media="{ item, isInlineEdit, compact }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_inherit %}
             <sw-inheritance-switch
                 :is-inherited="isMediaFieldInherited(item)"
@@ -280,6 +320,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_content %}
             <sw-product-variants-media-upload
                 :source="item"
@@ -293,10 +334,34 @@
         </template>
         {% endblock %}
 
+        <template #column-downloads="{item, isInlineEdit, compact}">
+            <sw-upload-listener
+                :upload-tag="item.productNumber"
+                auto-upload
+                @media-upload-finish="(event) => successfulUpload(event, item)"
+            />
+
+            <sw-media-compact-upload-v2
+                :upload-tag="item.productNumber"
+                :disabled="!isInlineEdit"
+                private-filesystem
+                allow-multi-select
+                add-files-on-multiselect
+                :disable-deletion-for-last-item="{
+                    value: true,
+                    helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                }"
+                :source-multiselect="getDownloadsSource(item)"
+                default-folder="product_download"
+                file-accept="*/*"
+                @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
+            />
+        </template>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_active %}
         <template
-            slot="column-active"
-            slot-scope="{ item, isInlineEdit }"
+            #column-active="{ item, isInlineEdit }"
         >
             <template v-if="isInlineEdit">
                 <sw-data-grid-column-boolean
@@ -316,71 +381,32 @@
             <template v-else>
                 <sw-icon
                     v-if="item.active === true"
-                    name="small-default-checkmark-line-medium"
-                    small
+                    name="regular-checkmark-xs"
+                    size="12px"
                     class="is--active"
                 />
                 <sw-icon
                     v-else-if="item.active === false"
-                    name="small-default-x-line-medium"
-                    small
+                    name="regular-times-s"
+                    size="10px"
                     class="is--inactive"
                 />
                 <sw-icon
                     v-else
                     key="inherit-icon"
-                    :multicolor="true"
-                    name="custom-inherited"
-                    size="16"
+                    name="regular-link-horizontal"
+                    size="16px"
                 />
             </template>
         </template>
         {% endblock %}
 
-        {% block sw_product_variants_overview_data_grid_action_modals %}
-        <template
-            slot="action-modals"
-            slot-scope="{ item }"
-        >
-            <sw-modal
-                v-if="showDeleteModal === item.id"
-                :title="$tc('global.default.warning')"
-                variant="small"
-                @modal-close="onCloseDeleteModal"
-            >
-
-                <p class="sw-product-variants-overview__modal--confirm-delete-text">
-                    {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
-                </p>
-
-                <template slot="modal-footer">
-                    {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
-                    <sw-button
-                        size="small"
-                        :disabled="modalLoading"
-                        @click="onCloseDeleteModal"
-                    >
-                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
-                    </sw-button>
-                    <sw-button
-                        variant="danger"
-                        size="small"
-                        :disabled="modalLoading"
-                        @click="onConfirmDelete(item)"
-                    >
-                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
-                    </sw-button>
-                    {% endblock %}
-                </template>
-            </sw-modal>
-        </template>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_actions %}
         <template
-            slot="actions"
-            slot-scope="{ item }"
+            #actions="{ item }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_actions_items %}
             <sw-context-menu-item
                 v-tooltip="{
@@ -410,8 +436,9 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_pagination %}
-        <template slot="pagination">
+        <template #pagination>
             <sw-pagination
                 :page="page"
                 :limit="limit"
@@ -422,8 +449,204 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variants_overview_bulk %}
+        <template #bulk>
+            {% block sw_product_variants_overview_bulk_edit %}
+            <span
+                v-if="acl.can('product.editor')"
+                class="link link-primary"
+                role="link"
+                tabindex="0"
+                @click="toggleBulkEditModal"
+            >
+                {{ $tc('global.default.bulkEdit') }}
+            </span>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variants_overview_bulk_delete %}
+            <span
+                v-if="acl.can('product.deleter')"
+                class="link link-danger sw-product-variants-overview__bulk-delete-action"
+                role="link"
+                tabindex="0"
+                @click="onClickBulkDelete"
+            >
+                {{ $tc('global.default.delete') }}
+            </span>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variants_overview_bulk_edit_modal %}
+        <template #bulk-modals="{ selection }">
+            <sw-bulk-edit-modal
+                v-if="showBulkEditModal"
+                class="sw-product-variants-overview__bulk-edit-modal"
+                :selection="selection"
+                :bulk-grid-edit-columns="variantColumns"
+                @edit-items="onEditItems"
+                @modal-close="toggleBulkEditModal"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variants_overview_bulk_edit_modal_column_name %}
+                <template #column-name="{ item }">
+                    <template v-if="item.options">
+                        <router-link
+                            class="sw-product-variants-overview__variation-link"
+                            :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
+                            @click="onOptionEdit(item)"
+                        >
+                            <sw-icon
+                                class="sw-product-variants-overview__variation-link-icon"
+                                name="regular-link-xs"
+                            />
+                            <span
+                                v-for="(singleVariation, index) in item.options"
+                                :key="index"
+                                class="sw-product-variants-overview__variation-link-name"
+                            >
+                                {{ singleVariation.translated.name }}
+                            </span>
+                        </router-link>
+                    </template>
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
+                <template
+                    v-for="currency in currencies"
+                    #[`column-price.${currency.id}.net`]="{ item }"
+                >
+                    <sw-inheritance-switch
+                        :key="`else-switch-${currency.isoCode}`"
+                        :is-inherited="isPriceFieldInherited(item, currency)"
+                        disabled
+                    />
+                    <sw-price-preview
+                        :key="`else-price-field-${currency.isoCode}`"
+                        :price="item.price ? item.price : []"
+                        :default-price="getDefaultPriceForVariant(item, currency)"
+                        :tax-rate="productTaxRate"
+                        :currency="currency"
+                    />
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variants_overview_bulk_edit_modal_column_media %}
+                <template #column-media="{ item }">
+                    <sw-inheritance-switch
+                        class="sw-product-variants-overview_media__inherited-icon"
+                        :is-inherited="isMediaFieldInherited(item)"
+                        disabled
+                    />
+                    <sw-product-variants-media-upload
+                        :source="item"
+                        :upload-tag="item.id"
+                        :is-inherited="isMediaFieldInherited(item)"
+                        :parent-product="product"
+                        disabled
+                    />
+                </template>
+                {% endblock %}
+
+                <template #column-downloads="{item, isInlineEdit, compact}">
+                    <sw-upload-listener
+                        :upload-tag="item.productNumber"
+                        auto-upload
+                        @media-upload-finish="(event) => successfulUpload(event, item)"
+                    />
+
+                    <sw-media-compact-upload-v2
+                        :upload-tag="item.productNumber"
+                        :disabled="!isInlineEdit"
+                        private-filesystem
+                        allow-multi-select
+                        :disable-deletion-for-last-item="{
+                            value: true,
+                            helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                        }"
+                        :add-files-on-multiselect="true"
+                        :source-multiselect="getDownloadsSource(item)"
+                        default-folder="product_download"
+                        file-accept="*/*"
+                        @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
+                    />
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variants_overview_bulk_edit_modal_column_active %}
+                <template #column-active="{ item }">
+                    <sw-icon
+                        v-if="item.active === true"
+                        class="is--active"
+                        name="regular-checkmark-xs"
+                        small
+                    />
+                    <sw-icon
+                        v-else-if="item.active === false"
+                        class="is--inactive"
+                        name="regular-times-s"
+                        small
+                    />
+                    <sw-icon
+                        v-else
+                        key="inherit-icon"
+                        name="regular-link-horizontal"
+                        size="16"
+                        multicolor
+                    />
+                </template>
+                {% endblock %}
+            </sw-bulk-edit-modal>
+        </template>
+        {% endblock %}
+
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_variants_overview_data_grid_action_modals %}
+    <sw-modal
+        v-if="showDeleteModal"
+        class="sw-product-variants-overview__delete-modal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+
+        <p
+            class="sw-product-variants-overview__modal--confirm-delete-text"
+        >
+            {{ toBeDeletedVariantIds.length > 1 ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural') : $tc('sw-product.variations.generatedListDeleteModalMessage') }}
+        </p>
+
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
+            <sw-button
+                class="sw-product-variants-overview__modal--cancel-button"
+                size="small"
+                :disabled="modalLoading"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
+            </sw-button>
+            <sw-button
+                variant="danger"
+                size="small"
+                :disabled="modalLoading"
+                @click="onConfirmDelete"
+            >
+                {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+    </sw-modal>
+    {% endblock %}
 </div>
 {% endblock %}

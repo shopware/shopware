@@ -1,10 +1,14 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-review-list', {
+/**
+ * @package inventory
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -71,9 +75,11 @@ Component.register('sw-review-list', {
                 },
             ];
         },
+
         repository() {
             return this.repositoryFactory.create('product_review');
         },
+
         criteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -86,6 +92,10 @@ Component.register('sw-review-list', {
             criteria.addAssociation('product');
 
             return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -118,4 +128,4 @@ Component.register('sw-review-list', {
             });
         },
     },
-});
+};

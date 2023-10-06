@@ -3,29 +3,21 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
+#[Package('core')]
 class MigrationRuntime
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
-        Connection $connection,
-        LoggerInterface $logger
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger
     ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
     }
 
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
@@ -55,7 +47,7 @@ class MigrationRuntime
             }
 
             $this->setExecuted($migration);
-            yield \get_class($migration);
+            yield $migration::class;
         }
     }
 
@@ -84,30 +76,44 @@ class MigrationRuntime
             }
 
             $this->setExecutedDestructive($migration);
-            yield \get_class($migration);
+            yield $migration::class;
         }
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NULL')
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->executeQuery()
+            ->fetchFirstColumn();
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->executeQuery()
+            ->fetchFirstColumn();
+    }
+
+    public function getTotalMigrationCount(MigrationSource $source, ?int $until = null, ?int $limit = null): int
+    {
+        return (int) $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
+            ->select('COUNT(*)')
+            ->executeQuery()
+            ->fetchOne();
     }
 
     protected function setDefaultStorageEngine(): void
     {
-        $this->connection->exec('SET default_storage_engine=InnoDB');
+        $this->connection->executeStatement('SET default_storage_engine=InnoDB');
     }
 
     private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder
@@ -127,7 +133,7 @@ class MigrationRuntime
             $query->setMaxResults($limit);
         }
 
-        $query->setParameter(':pattern', $source->getNamespacePattern());
+        $query->setParameter('pattern', $source->getNamespacePattern());
 
         return $query;
     }
@@ -137,35 +143,35 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                '`message`' => utf8_encode($message),
+                '`message`' => mb_convert_encoding($message, 'UTF-8', 'ISO-8859-1'),
             ],
             [
-                '`class`' => \get_class($migration),
+                '`class`' => $migration::class,
             ]
         );
 
-        $this->logger->error('Migration: "' . \get_class($migration) . '" failed: "' . $message . '"');
+        $this->logger->error('Migration: "' . $migration::class . '" failed: "' . $message . '"');
     }
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `migration`
                SET `message` = NULL,
                    `update_destructive` = NOW(6)
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep)]
+            ['class' => $migrationStep::class]
         );
     }
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `migration`
                SET `message` = NULL,
                    `update` = NOW(6)
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep)]
+            ['class' => $migrationStep::class]
         );
     }
 

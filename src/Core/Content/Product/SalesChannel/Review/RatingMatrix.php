@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('inventory')]
 class RatingMatrix extends Struct
 {
     private const MAX_POINTS = 5;
@@ -12,17 +14,11 @@ class RatingMatrix extends Struct
     /**
      * @var MatrixElement[]
      */
-    protected $matrix = [];
+    protected array $matrix = [];
 
-    /**
-     * @var int
-     */
-    protected $totalReviewCount = 0;
+    protected int $totalReviewCount = 0;
 
-    /**
-     * @var float
-     */
-    protected $pointSum = 0;
+    protected float $pointSum = 0;
 
     /**
      * we expect an array of CountResult elements
@@ -60,6 +56,9 @@ class RatingMatrix extends Struct
         });
     }
 
+    /**
+     * @return MatrixElement[]
+     */
     public function getMatrix(): array
     {
         return $this->matrix;

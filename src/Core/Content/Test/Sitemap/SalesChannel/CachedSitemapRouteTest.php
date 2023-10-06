@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -23,17 +24,21 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @group cache
  * @group store-api
  */
+#[Package('sales-channel')]
 class CachedSitemapRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     use DatabaseTransactionBehaviour;
+
+    use KernelTestBehaviour;
 
     private SalesChannelContext $context;
 
@@ -93,7 +98,7 @@ class CachedSitemapRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $ids->getContext());
+            ->create($products, Context::createDefaultContext());
 
         $counter = new SitemapRouteCounter(
             $this->getContainer()->get('Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner')
@@ -112,30 +117,29 @@ class CachedSitemapRouteTest extends TestCase
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
             [],
-            $this->getContainer()->get('logger'),
             $config
         );
 
-        $before($this->context);
+        $before($this->context, $this->getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
 
-        $after($this->context);
+        $after($this->context, $this->getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
 
-        static::assertSame($calls, $counter->getCount());
+        static::assertSame($calls, $counter->count);
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         yield 'Cache invalidated if sitemap generated' => [
             function (): void {
             },
-            function (SalesChannelContext $context): void {
-                $this->getContainer()->get(SitemapExporter::class)->generate($context, true);
+            function (SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get(SitemapExporter::class)->generate($context, true);
             },
             2,
         ];
@@ -151,20 +155,15 @@ class CachedSitemapRouteTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class SitemapRouteCounter extends AbstractSitemapRoute
 {
-    protected $count = 0;
+    public int $count = 0;
 
-    private AbstractSitemapRoute $decorated;
-
-    public function __construct(AbstractSitemapRoute $decorated)
+    public function __construct(private readonly AbstractSitemapRoute $decorated)
     {
-        $this->decorated = $decorated;
-    }
-
-    public function getCount(): int
-    {
-        return $this->count;
     }
 
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse

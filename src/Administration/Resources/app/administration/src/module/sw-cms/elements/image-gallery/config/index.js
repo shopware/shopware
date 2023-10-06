@@ -1,11 +1,15 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { Mixin } = Shopware;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
-Component.register('sw-cms-el-config-image-gallery', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -110,7 +114,7 @@ Component.register('sw-cms-el-config-image-gallery', {
                     return configElement.mediaId;
                 });
 
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds(mediaIds);
 
                 const searchResult = await this.mediaRepository.search(criteria);
@@ -166,7 +170,15 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         onImageUpload(mediaItem) {
-            this.element.config.sliderItems.value.push({
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+
+                this.mediaItems = [];
+            }
+
+            sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
@@ -194,6 +206,14 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         onMediaSelectionChange(mediaItems) {
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+
+                this.mediaItems = [];
+            }
+
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
@@ -228,6 +248,14 @@ Component.register('sw-cms-el-config-image-gallery', {
             }
         },
 
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
+        },
+
         onChangeMinHeight(value) {
             this.element.config.minHeight.value = value === null ? '' : value;
 
@@ -246,4 +274,4 @@ Component.register('sw-cms-el-config-image-gallery', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

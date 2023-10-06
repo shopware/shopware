@@ -4,17 +4,16 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class AdvancedPackagePicker
 {
     /**
-     * @var FilterServiceRegistry
+     * @internal
      */
-    private $registry;
-
-    public function __construct(FilterServiceRegistry $registry)
+    public function __construct(private readonly FilterServiceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function pickItems(DiscountLineItem $discount, DiscountPackageCollection $scopePackages): DiscountPackageCollection

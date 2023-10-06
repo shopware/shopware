@@ -7,33 +7,20 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class PercentagePriceCalculator
 {
     /**
-     * @var CashRounding
+     * @internal
      */
-    private $rounding;
-
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $priceCalculator;
-
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
-
     public function __construct(
-        CashRounding $rounding,
-        QuantityPriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+        private readonly CashRounding $rounding,
+        private readonly QuantityPriceCalculator $priceCalculator,
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {
-        $this->rounding = $rounding;
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     /**

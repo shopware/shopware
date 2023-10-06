@@ -4,25 +4,32 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 
-class SetCustomerGroupCustomFieldAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
+    private readonly Connection $connection;
 
-    private EntityRepositoryInterface $customerGroupRepository;
-
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $customerGroupRepository
+        private readonly EntityRepository $customerGroupRepository
     ) {
         $this->connection = $connection;
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public static function getName(): string
@@ -30,30 +37,30 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
         return 'action.set.customer.group.custom.field';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [CustomerGroupAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof CustomerGroupAware) {
+        if (!$flow->hasData(CustomerGroupAware::CUSTOMER_GROUP_ID)) {
             return;
         }
 
-        $config = $event->getConfig();
-        $customerGroupId = $baseEvent->getCustomerGroupId();
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerGroupAware::CUSTOMER_GROUP_ID));
+    }
 
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $customerGroupId): void
+    {
         /** @var CustomerGroupEntity $customerGroup */
-        $customerGroup = $this->customerGroupRepository->search(new Criteria([$customerGroupId]), $baseEvent->getContext())->first();
+        $customerGroup = $this->customerGroupRepository->search(new Criteria([$customerGroupId]), $context)->first();
 
         $customFields = $this->getCustomFieldForUpdating($customerGroup->getCustomfields(), $config);
 
@@ -68,6 +75,6 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
                 'id' => $customerGroupId,
                 'customFields' => $customFields,
             ],
-        ], $baseEvent->getContext());
+        ], $context);
     }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -20,25 +22,22 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
- * this validator implements a subset of the functionality and calls into the real validator if needed.
- */
+#[Package('core
+calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+this validator implements a subset of the functionality and calls into the real validator if needed.')]
 class HappyPathValidator implements ValidatorInterface
 {
-    private ValidatorInterface $inner;
-
-    public function __construct(ValidatorInterface $inner)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ValidatorInterface $inner)
     {
-        $this->inner = $inner;
     }
 
     /**
      * @param Constraint|Constraint[]|null $constraints
-     *
-     * @return ConstraintViolationListInterface
      */
-    public function validate($value, $constraints = null, $groups = null)
+    public function validate(mixed $value, Constraint|array $constraints = null, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
     {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
@@ -56,62 +55,74 @@ class HappyPathValidator implements ValidatorInterface
         return new ConstraintViolationList();
     }
 
-    /**
-     * @return MetadataInterface
-     */
-    public function getMetadataFor($value)
+    public function getMetadataFor(mixed $value): MetadataInterface
     {
         return $this->inner->getMetadataFor($value);
     }
 
-    /**
-     * @return bool
-     */
-    public function hasMetadataFor($value)
+    public function hasMetadataFor(mixed $value): bool
     {
         return $this->inner->hasMetadataFor($value);
     }
 
-    /**
-     * @param object $object can not use native type hint as it is incompatible with symfony <5.3.4
-     *
-     * @return ConstraintViolationListInterface
-     */
-    public function validateProperty($object, $propertyName, $groups = null)
+    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    /**
-     * @return ConstraintViolationListInterface
-     */
-    public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null)
+    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
-    /**
-     * @return ContextualValidatorInterface
-     */
-    public function startContext()
+    public function startContext(): ContextualValidatorInterface
     {
         return $this->inner->startContext();
     }
 
-    /**
-     * @return ContextualValidatorInterface
-     */
-    public function inContext(ExecutionContextInterface $context)
+    public function inContext(ExecutionContextInterface $context): ContextualValidatorInterface
     {
         return $this->inner->inContext($context);
     }
 
     /**
-     * @param string|int|float|bool|array|object|callable|resource|null $value
-     * @param Constraint|Constraint[]|null                              $constraint
+     * @param Constraint|Constraint[]|null $constraint
      */
-    private function validateConstraint($value, $constraint): bool
+    private function normalizeValueIfRequired(mixed $value, Constraint|array|null $constraint): mixed
     {
+        if (!$constraint instanceof Constraint) {
+            return $value;
+        }
+
+        if (!\property_exists($constraint, 'normalizer')) {
+            return $value;
+        }
+
+        if (empty($constraint->normalizer)) {
+            return $value;
+        }
+
+        $normalizer = $constraint->normalizer;
+
+        if (!\is_callable($normalizer)) {
+            return $value;
+        }
+
+        /** @var callable(mixed): mixed $normalizer */
+        return $normalizer($value);
+    }
+
+    /**
+     * @param Constraint|Constraint[]|null $constraint
+     */
+    private function validateConstraint(mixed $value, Constraint|array|null $constraint): bool
+    {
+        // apply defined normalizers to check $value from constraint if defined
+        $value = $this->normalizeValueIfRequired(
+            $value,
+            $constraint
+        );
+
         switch (true) {
             case $constraint instanceof Uuid:
                 if ($value !== null && \is_string($value) && !\Shopware\Core\Framework\Uuid\Uuid::isValid($value)) {
@@ -135,17 +146,17 @@ class HappyPathValidator implements ValidatorInterface
                 $types = (array) $constraint->type;
 
                 foreach ($types as $type) {
-                    $type = strtolower($type);
+                    $type = strtolower((string) $type);
                     $type = $type === 'boolean' ? 'bool' : $type;
                     $isFunction = 'is_' . $type;
                     $ctypeFunction = 'ctype_' . $type;
 
                     if (\function_exists($isFunction)) {
-                        if (\is_callable($isFunction) && !$isFunction($value)) {
+                        if (\is_callable($isFunction) && !$isFunction($value)) { /* @phpstan-ignore-line */
                             return false;
                         }
                     } elseif (\function_exists($ctypeFunction)) {
-                        if (\is_callable($ctypeFunction) && !$ctypeFunction($value)) {
+                        if (\is_callable($ctypeFunction) && !$ctypeFunction($value)) { /* @phpstan-ignore-line */
                             return false;
                         }
                     } elseif (!$value instanceof $type) {
@@ -192,13 +203,14 @@ class HappyPathValidator implements ValidatorInterface
 
             case $constraint instanceof Collection:
                 foreach ($constraint->fields as $field => $fieldConstraint) {
+                    \assert($fieldConstraint instanceof Constraint);
                     // bug fix issue #2779
                     $existsInArray = \is_array($value) && \array_key_exists($field, $value);
                     $existsInArrayAccess = $value instanceof \ArrayAccess && $value->offsetExists($field);
 
-                    if ($existsInArray || $existsInArrayAccess) {
-                        if (\count($fieldConstraint->constraints) > 0) {
-                            /** @var array|\ArrayAccess<string|int,mixed> $value */
+                    if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
+                        if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
+                            /** @var array<mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }
@@ -217,7 +229,7 @@ class HappyPathValidator implements ValidatorInterface
                 }
 
                 break;
-            // unknown constraint
+                // unknown constraint
             default:
                 return false;
         }

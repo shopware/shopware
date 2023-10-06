@@ -22,7 +22,7 @@
 
         .sw-theme-manager-detail__inheritance-text {
             color: $color-darkgray-200;
-            font-size: $font-size-small;
+            font-size: $font-size-xxs;
             line-height: 22px;
         }
     }
@@ -99,7 +99,7 @@
     .sw-theme-manager-detail__content--section_field {
         display: grid;
         gap: 28px;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 
         .sw-media-upload {
             height: 192px;
@@ -128,9 +128,10 @@
         .sw-media-upload-v2__header {
             flex-direction: row-reverse;
             position: relative;
-            top: -18px;
-            margin-bottom: -12px;
+            top: -28px;
+            margin-bottom: -24px;
             z-index: 99;
+            height: 24px;
         }
 
         .sw-inherit-wrapper__toggle-wrapper {
@@ -139,18 +140,60 @@
             width: fit-content;
         }
 
-        .sw-media-upload-v2__switch-mode {
-            position: absolute;
+        .sw-block-field {
+            .sw-field__label {
+                @extend .sw-media-upload-v2__header;
+            }
+        }
+    }
+
+    .sw-field-id-sw-default-switch,
+    .sw-field-id-sw-custom-switch,
+    .sw-field-id-sw-default-checkbox,
+    .sw-field-id-sw-custom-checkbox {
+        .sw-inherit-wrapper__inheritance-label {
+            display: none;
+        }
+
+        .sw-field__label {
+            width: 100%;
+            gap: 10px;
+
+            label {
+                margin-right: 0;
+                flex-grow: 0;
+                padding-right: 0;
+            }
+        }
+    }
+
+    .sw-field-id-sw-default-switch,
+    .sw-field-id-sw-custom-switch {
+        .sw-field--switch {
+            margin: 0 0 22px 0;
+
+            .sw-field__label label,
+            .sw-field--switch__input {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
         }
     }
 
     &__content-skeleton {
         margin-top: 60px;
     }
+
+    .sw-theme-manager-detail__save-button-group {
+        .sw-icon {
+            padding: 4px 3px;
+        }
+    }
 }
 
 .sw-theme-manager-detail-modal {
-    .sw_theme_manager__confirm-save-text, .sw-theme-manager-detail__sales-channel-warning {
+    .sw_theme_manager__confirm-save-text,
+    .sw-theme-manager-detail__sales-channel-warning {
         margin-bottom: 15px;
     }
 }

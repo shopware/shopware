@@ -1,3 +1,11 @@
+/* istanbul ignore file */
+
+/* Vue devtools plugins couldn't be tested well yet */
+/**
+ * @package admin
+ */
+
+import type { CustomInspectorNode } from '@vue/devtools-api';
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import type { App } from '@vue/devtools-api/lib/esm/api/app';
 import type { DevtoolsPluginApi } from '@vue/devtools-api/lib/esm/api/api';
@@ -16,12 +24,17 @@ let highlightedElements: HTMLElement[] = [];
 const POSITION_INSPECTOR_ID = 'sw-admin-extension-position-inspector';
 const HIGHLIGHT_CLASS = 'sw-devtool-element-highlight';
 const CLICKABLE_CLASS = 'sw-devtool-element-clickable';
+const DATASET_ID_PREFIX = 'sw-extension-api-dataset__';
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function setupShopwareDevtools(app: App): void {
     setupDevtoolsPlugin({
         // Options
         id: 'sw-admin-extension-plugin',
         label: 'Shopware Admin extensions plugin',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         app,
     }, (api) => {
         // Add CSS for highlighting elements
@@ -57,7 +70,7 @@ export default function setupShopwareDevtools(app: App): void {
         // Add new inspector for finding the extension positions
         api.addInspector({
             id: POSITION_INSPECTOR_ID,
-            label: 'Shopware Extension Positions',
+            label: 'Shopware Extension API',
             icon: 'picture_in_picture_alt',
             actions: [
                 {
@@ -90,7 +103,6 @@ export default function setupShopwareDevtools(app: App): void {
             payload.rootNodes = [];
             extensionComponentCollection = [];
 
-            // @ts-expect-error
             componentIterator(payload.app as Component, (component) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (component.$options.extensionApiDevtoolInformation) {
@@ -116,6 +128,26 @@ export default function setupShopwareDevtools(app: App): void {
                     extensionComponentCollection.push(component);
                 }
             });
+
+            const publishedDatasets = Shopware.ExtensionAPI.getPublishedDataSets();
+            if (publishedDatasets.length <= 0) {
+                return;
+            }
+
+            const children: CustomInspectorNode[] = [];
+
+            publishedDatasets.forEach(({ id }) => {
+                children.push({
+                    id: DATASET_ID_PREFIX + id,
+                    label: id,
+                });
+            });
+
+            payload.rootNodes.push({
+                id: 'datasets',
+                label: 'data.get',
+                children: children,
+            });
         });
 
         // Update the state of the inspector depending on the selected node
@@ -123,6 +155,28 @@ export default function setupShopwareDevtools(app: App): void {
             unhighlightElements();
 
             if (payload.inspectorId !== POSITION_INSPECTOR_ID) {
+                return;
+            }
+
+            if (payload.nodeId.startsWith(DATASET_ID_PREFIX)) {
+                payload.state = {
+                    General: [],
+                };
+
+                const datasetId = payload.nodeId.substring(DATASET_ID_PREFIX.length, payload.nodeId.length);
+                const value = Shopware.ExtensionAPI.getPublishedDataSets()
+                    .find(set => set.id === datasetId)?.data ?? 'unknown';
+
+                payload.state.General.push({
+                    key: 'id',
+                    value: datasetId,
+                });
+
+                payload.state.General.push({
+                    key: 'value',
+                    value: value,
+                });
+
                 return;
             }
 

@@ -20,23 +20,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('inventory')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
     private const FALLBACK_LIMIT = 50;
 
-    private ProductStreamBuilderInterface $productStreamBuilder;
-
-    private SystemConfigService $systemConfigService;
-
-    public function __construct(ProductStreamBuilderInterface $productStreamBuilder, SystemConfigService $systemConfigService)
-    {
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->systemConfigService = $systemConfigService;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function getType(): string
@@ -58,6 +59,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $criteria = new Criteria($products->getArrayValue());
             $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');
+            $criteria->addAssociation('manufacturer');
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
 
@@ -159,6 +161,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         return $criteria;
     }
@@ -185,6 +188,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $criteria->addFilter(...$filters);
         $criteria->setLimit($limit);
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         // Ensure storefront presentation settings of product variants
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
@@ -196,7 +200,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         );
 
         if ($sorting === 'random') {
-            return $this->setRandomSort($criteria);
+            return $this->addRandomSort($criteria);
         }
 
         if ($sorting) {
@@ -210,7 +214,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         return $criteria;
     }
 
-    private function setRandomSort(Criteria $criteria): Criteria
+    private function addRandomSort(Criteria $criteria): Criteria
     {
         $fields = [
             'id',

@@ -4,6 +4,8 @@ import BulkEditCustomerHandler from './handler/bulk-edit-customer.handler';
 
 /**
  * @class
+ *
+ * @package system-settings
  */
 class BulkEditApiFactory {
     constructor() {
@@ -24,4 +26,5 @@ class BulkEditApiFactory {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default BulkEditApiFactory;

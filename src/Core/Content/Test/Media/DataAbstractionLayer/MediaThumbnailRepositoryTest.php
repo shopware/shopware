@@ -3,80 +3,61 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class MediaThumbnailRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
-
     /**
-     * @var EntityRepositoryInterface
+     * @dataProvider deleteThumbnailProvider
      */
-    private $mediaRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $thumbnailRepository;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    protected function setUp(): void
+    public function testDeleteThumbnail(bool $private): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
+        $service = $private ? 'shopware.filesystem.private' : 'shopware.filesystem.public';
 
-        $this->context = Context::createDefaultContext();
-    }
-
-    public function testRemoveThumbnail(): void
-    {
         $mediaId = Uuid::randomHex();
-        $media = $this->createThumbnailWithMedia($mediaId);
-        $thumbnailPath = $this->createThumbnailFile($media);
 
-        $thumbnailIds = $this->thumbnailRepository->searchIds(new Criteria(), $this->context);
-        $this->thumbnailRepository->delete($thumbnailIds->getIds(), $this->context);
+        $media = $this->createThumbnailWithMedia($mediaId, $private);
+
+        $thumbnailPath = $this->createThumbnailFile($media, $service);
+
+        $thumbnailIds = $this->getContainer()->get('media_thumbnail.repository')
+            ->searchIds(new Criteria(), Context::createDefaultContext());
+
+        $delete = \array_values(\array_map(static fn ($id) => ['id' => $id], $thumbnailIds->getIds()));
+
+        $this->getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
         $this->runWorker();
 
-        static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
+        static::assertFalse($this->getFilesystem($service)->has($thumbnailPath));
     }
 
-    public function testRemoveThumbnailFromMedia(): void
+    public static function deleteThumbnailProvider(): \Generator
     {
-        $mediaId = Uuid::randomHex();
-        $media = $this->createThumbnailWithMedia($mediaId);
-        $thumbnailPath = $this->createThumbnailFile($media);
-
-        $this->thumbnailRepository->delete($media->getThumbnails()->getIds(), $this->context);
-        $this->runWorker();
-
-        static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
+        yield 'Test private filesystem' => [true];
+        yield 'Test public filesystem' => [true];
     }
 
-    private function createThumbnailWithMedia(string $mediaId): MediaEntity
+    private function createThumbnailWithMedia(string $mediaId, bool $private): MediaEntity
     {
-        $this->mediaRepository->create([
+        $this->getContainer()->get('media.repository')->create([
             [
                 'id' => $mediaId,
                 'name' => 'test media',
                 'fileExtension' => 'png',
                 'mimeType' => 'image/png',
                 'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                'private' => $private,
                 'thumbnails' => [
                     [
                         'width' => 100,
@@ -85,20 +66,35 @@ class MediaThumbnailRepositoryTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->context);
+        ], Context::createDefaultContext());
 
-        return $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->getContainer()->get('media.repository')
+            ->search(new Criteria([$mediaId]), Context::createDefaultContext())
+            ->get($mediaId);
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        return $media;
     }
 
-    private function createThumbnailFile(MediaEntity $media)
+    private function createThumbnailFile(MediaEntity $media, string $service): string
     {
-        $thumbnailPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeThumbnailUrl(
-            $media,
-            (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200])
-        );
+        $data = [
+            'mediaId' => $media->getId(),
+            'width' => 100,
+            'height' => 200,
+            'path' => 'foo/bar.png',
+        ];
 
-        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getContainer()->get('media_thumbnail.repository')
+            ->create([$data], Context::createDefaultContext());
 
-        return $thumbnailPath;
+        $fs = $this->getFilesystem($service);
+
+        $fs->write('foo/bar.png', 'foo');
+
+        static::assertTrue($fs->has('foo/bar.png'));
+
+        return 'foo/bar.png';
     }
 }

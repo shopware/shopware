@@ -3,32 +3,41 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
-class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
+/**
+ * @internal
+ */
+#[Package('core')]
+class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
+    /**
+     * @var array<string, array<string, array{template: string, updatedAt: \DateTimeInterface|null}|null>>
+     */
     private array $databaseTemplateCache = [];
 
-    private Connection $connection;
-
-    private string $environment;
-
-    public function __construct(Connection $connection, string $environment)
-    {
-        $this->connection = $connection;
-        $this->environment = $environment;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly string $environment
+    ) {
     }
 
     public static function getSubscribedEvents(): array
     {
-        return ['app_template.written' => 'clearInternalCache'];
+        return ['app_template.written' => 'reset'];
     }
 
-    public function clearInternalCache(): void
+    public function reset(): void
     {
         $this->databaseTemplateCache = [];
     }
@@ -72,8 +81,15 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return true;
     }
 
+    /**
+     * @return array{template: string, updatedAt: \DateTimeInterface|null}|null
+     */
     private function findDatabaseTemplate(string $name): ?array
     {
+        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
+            return null;
+        }
+
         /*
          * In dev env app templates are directly loaded over the filesystem
          * @see TwigLoaderConfigCompilerPass::addAppTemplatePaths()
@@ -87,7 +103,8 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         $path = $templateName['path'];
 
         if (empty($this->databaseTemplateCache)) {
-            $templates = $this->connection->fetchAll('
+            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string}> $templates */
+            $templates = $this->connection->fetchAllAssociative('
                 SELECT
                     `app_template`.`path` AS `path`,
                     `app_template`.`template` AS `template`,
@@ -98,7 +115,6 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
                 WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
             ');
 
-            /** @var array $template */
             foreach ($templates as $template) {
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [
                     'template' => $template['template'],
@@ -116,6 +132,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return $this->databaseTemplateCache[$path][$namespace] = null;
     }
 
+    /**
+     * @return array{namespace: string, path: string}
+     */
     private function splitTemplateName(string $template): array
     {
         // remove static template inheritance prefix

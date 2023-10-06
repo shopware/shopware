@@ -1,4 +1,4 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-search-preferences-modal {
     &.sw-modal .sw-modal__body {
@@ -11,7 +11,7 @@
 
     &__description {
         padding: 20px 32px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__description span {

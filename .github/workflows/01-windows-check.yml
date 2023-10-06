@@ -1,10 +1,10 @@
 name: Windows clone check
 
 on:
-    push:
-      branches:
-          - trunk
-    pull_request:
+  push:
+    branches:
+      - trunk
+  pull_request:
 
 jobs:
   build:

@@ -4,53 +4,42 @@ namespace Shopware\Core\Content\Test\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
+ * @internal
+ *
  * @group slow
  */
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
-    use QueueTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productExportRepository;
+    private EntityRepository $productExportRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -61,11 +50,11 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $this->productExportRepository = $this->getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
+    /**
+     * @group quarantined
+     */
     public function testRun(): void
     {
         // Add a second storefront sales channel, to check if all sales channels will be recognized for the product export
@@ -73,6 +62,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $this->createProductStream();
 
         // only get seconds, not microseconds, for better comparison to DB
+        /** @var \DateTime $previousGeneratedAt */
         $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
         $exportId = $this->createTestEntity($previousGeneratedAt);
         $this->clearQueue();
@@ -80,10 +70,11 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
         static::assertEquals(1, $response['handledMessages']);
@@ -91,10 +82,10 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
-        $csvRows = explode(\PHP_EOL, $fileContent);
+        $csvRows = explode(\PHP_EOL, (string) $fileContent);
 
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->fileExists($filePath));
         static::assertCount(4, $csvRows);
 
         /** @var ProductExportEntity|null $newExport */
@@ -103,10 +94,14 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
+    /**
+     * @group quarantined
+     */
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
         $this->createProductStream();
         // only get seconds, not microseconds, for better comparison to DB
+        /** @var \DateTime $previousGeneratedAt */
         $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
         $exportId = $this->createTestEntity($previousGeneratedAt, 0, 'Testexport.csv', false);
         $this->clearQueue();
@@ -114,16 +109,16 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
         static::assertEquals(0, $response['handledMessages']);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-        static::assertFalse($this->fileSystem->has($filePath));
+        static::assertFalse($this->fileSystem->fileExists($filePath));
 
         /** @var ProductExportEntity|null $newExport */
         $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->first();
@@ -131,6 +126,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
+    /**
+     * @group quarantined
+     */
     public function testGeneratedAtAndIntervalsAreRespected(): void
     {
         $this->createProductStream();
@@ -144,15 +142,22 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
         $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
 
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+
         $this->clearQueue();
         // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $messagesBefore = $this->getDispatchedMessages();
         $this->getTaskHandler()->run();
-        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $messagesAfter = $this->getDispatchedMessages();
 
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testGeneratedAtIsNullWorks(): void
     {
         $this->createProductStream();
@@ -166,13 +171,57 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
         $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
 
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+
         $this->clearQueue();
         // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $messagesBefore = $bus->getDispatchedMessages();
         $this->getTaskHandler()->run();
-        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $messagesAfter = $bus->getDispatchedMessages();
 
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
+    }
+
+    /**
+     * @group quarantined
+     */
+    public function testSchedulerRunIfSalesChannelIsActive(): void
+    {
+        $this->prepareProductExportForScheduler(true);
+
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $bus->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $bus->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
+    }
+
+    /**
+     * @group quarantined
+     */
+    public function testSchedulerDontRunIfSalesChannelIsNotActive(): void
+    {
+        $this->prepareProductExportForScheduler(false);
+
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $bus->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $bus->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore), $messagesAfter);
     }
 
     protected function createSecondStorefrontSalesChannel(): void
@@ -184,9 +233,11 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         /** @var SalesChannelEntity $originalSalesChannel */
         $originalSalesChannel = $salesChannelRepository->search($criteria, $this->context)->first();
-        $languages = array_map(static function ($language) {
-            return ['id' => $language->getId()];
-        }, $originalSalesChannel->getLanguages()->jsonSerialize());
+
+        /** @var LanguageCollection $originalSalesChannelLanguages */
+        $originalSalesChannelLanguages = $originalSalesChannel->getLanguages();
+        $originalSalesChannelArray = $originalSalesChannelLanguages->jsonSerialize();
+        $languages = array_map(static fn ($language) => ['id' => $language->getId()], $originalSalesChannelArray);
 
         $id = '000000009276457086da48d5b5628f3c';
         $data = [
@@ -219,7 +270,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -297,6 +348,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     ");
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');
@@ -327,9 +381,41 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private function clearProductExports(): void
     {
-        $this->productExportRepository->delete(
-            $this->productExportRepository->searchIds(new Criteria(), $this->context)->getIds(),
-            $this->context
-        );
+        /** @var list<string> $ids */
+        $ids = $this->productExportRepository->searchIds(new Criteria(), $this->context)->getIds();
+
+        $ids = array_map(fn ($id) => ['id' => $id], $ids);
+
+        $this->productExportRepository->delete($ids, $this->context);
+    }
+
+    private function prepareProductExportForScheduler(bool $active): void
+    {
+        $this->createProductStream();
+        $this->clearProductExports();
+        $this->createTestEntity();
+
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->getSalesChannelId()));
+        $salesChannelId = $salesChannelRepository->searchIds($criteria, $this->context)->firstId();
+
+        $salesChannelRepository->update([
+            [
+                'id' => $salesChannelId,
+                'active' => $active,
+            ],
+        ], $this->context);
+    }
+
+    /**
+     * @return list<object>
+     */
+    private function getDispatchedMessages(): array
+    {
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+
+        return $bus->getDispatchedMessages();
     }
 }

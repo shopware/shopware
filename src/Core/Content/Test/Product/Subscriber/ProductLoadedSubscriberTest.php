@@ -14,7 +14,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -24,16 +26,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
-use function array_keys;
-use function array_values;
 
+/**
+ * @internal
+ */
 class ProductLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,8 +74,6 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testCheapestPriceOnSalesChannelProductEntityPartial(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
-
         $ids = new IdsCollection();
 
         $this->getContainer()->get('product.repository')
@@ -103,6 +103,10 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
@@ -129,14 +133,21 @@ class ProductLoadedSubscriberTest extends TestCase
         );
         $subscriber->loaded($productLoadedEvent);
 
-        $sortedProperties = $productEntity->getSortedProperties()->getElements();
+        $sortedPropertiesCollection = $productEntity->getSortedProperties();
+
+        static::assertInstanceOf(PropertyGroupCollection::class, $sortedPropertiesCollection);
+
+        $sortedProperties = $sortedPropertiesCollection->getElements();
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
-            $optionElements = $sortedProperties[$expectedGroupKey]->getOptions()->getElements();
+            $optionElementsCollection = $sortedProperties[$expectedGroupKey]->getOptions();
+
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElementsCollection);
+            $optionElements = $optionElementsCollection->getElements();
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(array_keys($expectedGroup['options']), array_keys($optionElements));
+            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 static::assertEquals($option['id'], $optionElements[$optionId]->getId());
@@ -151,11 +162,13 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
-
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
@@ -172,23 +185,14 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent(
-            $this->getContainer()->get(ProductDefinition::class),
-            [$productEntity],
-            Context::createDefaultContext()
-        );
-
-        $subscriber->loaded($productLoadedEvent);
-
-        $sortedProperties = array_values($productEntity->get('sortedProperties')->getElements());
+        $sortedProperties = \array_values($productEntity->get('sortedProperties')->getElements());
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
             $optionElements = $sortedProperties[$expectedGroupKey]->get('options')->getElements();
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->get('name'));
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(array_keys($expectedGroup['options']), array_keys($optionElements));
+            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 static::assertEquals($option['id'], $optionElements[$optionId]->getId());
@@ -201,7 +205,10 @@ class ProductLoadedSubscriberTest extends TestCase
         }
     }
 
-    public function propertyCases(): array
+    /**
+     * @return array<mixed>
+     */
+    public static function propertyCases(): array
     {
         $ids = new TestDataCollection();
 
@@ -275,7 +282,7 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ],
-                (new Criteria()),
+                new Criteria(),
             ],
             [
                 array_merge($defaults, [
@@ -343,19 +350,38 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ],
                 [],
-                (new Criteria()),
+                new Criteria(),
             ],
         ];
     }
 
     /**
+     * @param non-empty-array<string> $languageChain
+     *
      * @dataProvider variationCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<string> $languageChain
      */
-    public function testVariation(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, string $languageId): void
     {
         $this->getContainer()
             ->get('language.repository')
-            ->create([$language], Context::createDefaultContext());
+            ->create([
+                [
+                    'id' => $languageId,
+                    'name' => 'sub_en',
+                    'parentId' => Defaults::LANGUAGE_SYSTEM,
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                ],
+            ], Context::createDefaultContext());
+
+        foreach ($languageChain as &$language) {
+            if ($language === 'de-DE') {
+                $language = $this->getDeDeLanguageId();
+            }
+        }
 
         $productId = $product['id'];
         $context = Context::createDefaultContext();
@@ -391,7 +417,10 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertEquals($expected, $variation);
     }
 
-    public function variationCases(): array
+    /**
+     * @return array<mixed>
+     */
+    public static function variationCases(): array
     {
         $ids = new TestDataCollection();
 
@@ -404,13 +433,6 @@ class ProductLoadedSubscriberTest extends TestCase
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-        ];
-
-        $language = [
-            'id' => $ids->create('language'),
-            'name' => 'sub_en',
-            'parentId' => Defaults::LANGUAGE_SYSTEM,
-            'localeId' => $this->getLocaleIdOfSystemLanguage(),
         ];
 
         return [
@@ -436,9 +458,9 @@ class ProductLoadedSubscriberTest extends TestCase
                 ]),
                 [],
                 [Defaults::LANGUAGE_SYSTEM],
-                (new Criteria()),
+                new Criteria(),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             1 => [
                 array_merge($defaults, [
@@ -468,7 +490,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 true,
-                $language,
+                $ids->get('language'),
             ],
             2 => [
                 array_merge($defaults, [
@@ -479,12 +501,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('color'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
-                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                    'de-DE' => ['name' => 'farbe'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
-                                $this->getDeDeLanguageId() => ['name' => 'rot'],
+                                'de-DE' => ['name' => 'rot'],
                             ],
                         ],
                         [
@@ -493,12 +515,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('size'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
-                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                    'de-DE' => ['name' => 'größe'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
-                                $this->getDeDeLanguageId() => ['name' => 'extra gross'],
+                                'de-DE' => ['name' => 'extra gross'],
                             ],
                         ],
                         [
@@ -507,12 +529,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('fit'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
-                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                    'de-DE' => ['name' => 'passform'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
-                                $this->getDeDeLanguageId() => ['name' => 'schmal'],
+                                'de-DE' => ['name' => 'schmal'],
                             ],
                         ],
                     ],
@@ -522,10 +544,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'größe', 'option' => 'extra gross'],
                     ['group' => 'passform', 'option' => 'schmal'],
                 ],
-                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                ['de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 true,
-                $language,
+                $ids->get('language'),
             ],
             3 => [
                 array_merge($defaults, [
@@ -573,10 +595,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'size', 'option' => 'xl'],
                     ['group' => 'fit', 'option' => 'slim fit'],
                 ],
-                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                ['de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 true,
-                $language,
+                $ids->get('language'),
             ],
             4 => [
                 array_merge($defaults, [
@@ -624,10 +646,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'size', 'option' => 'xl'],
                     ['group' => 'fit', 'option' => 'slim fit'],
                 ],
-                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), 'de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 true,
-                $language,
+                $ids->get('language'),
             ],
             5 => [
                 array_merge($defaults, [
@@ -638,7 +660,7 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('color'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
-                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                    'de-DE' => ['name' => 'farbe'],
                                 ],
                             ],
                             'translations' => [
@@ -652,7 +674,7 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('size'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
-                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                    'de-DE' => ['name' => 'größe'],
                                 ],
                             ],
                             'translations' => [
@@ -666,7 +688,7 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('fit'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
-                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                    'de-DE' => ['name' => 'passform'],
                                 ],
                             ],
                             'translations' => [
@@ -681,10 +703,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'größe', 'option' => 'lx'],
                     ['group' => 'passform', 'option' => 'tif mils'],
                 ],
-                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), 'de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 true,
-                $language,
+                $ids->get('language'),
             ],
             6 => [
                 array_merge($defaults, [
@@ -731,7 +753,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             7 => [
                 array_merge($defaults, [
@@ -742,12 +764,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('color'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
-                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                    'de-DE' => ['name' => 'farbe'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
-                                $this->getDeDeLanguageId() => ['name' => 'rot'],
+                                'de-DE' => ['name' => 'rot'],
                             ],
                         ],
                         [
@@ -756,12 +778,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('size'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
-                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                    'de-DE' => ['name' => 'größe'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
-                                $this->getDeDeLanguageId() => ['name' => 'extra gross'],
+                                'de-DE' => ['name' => 'extra gross'],
                             ],
                         ],
                         [
@@ -770,12 +792,12 @@ class ProductLoadedSubscriberTest extends TestCase
                                 'id' => $ids->get('fit'),
                                 'translations' => [
                                     Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
-                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                    'de-DE' => ['name' => 'passform'],
                                 ],
                             ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
-                                $this->getDeDeLanguageId() => ['name' => 'schmal'],
+                                'de-DE' => ['name' => 'schmal'],
                             ],
                         ],
                     ],
@@ -802,10 +824,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'größe', 'option' => 'extra gross'],
                     ['group' => 'passform', 'option' => 'schmal'],
                 ],
-                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                ['de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             8 => [
                 array_merge($defaults, [
@@ -870,10 +892,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'fit', 'option' => 'slim fit'],
                     ['group' => 'size', 'option' => 'xl'],
                 ],
-                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                ['de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             9 => [
                 array_merge($defaults, [
@@ -938,10 +960,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'fit', 'option' => 'slim fit'],
                     ['group' => 'size', 'option' => 'xl'],
                 ],
-                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), 'de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             10 => [
                 array_merge($defaults, [
@@ -1012,10 +1034,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['group' => 'baz', 'option' => 'tif mils'],
                     ['group' => 'foo', 'option' => 'der'],
                 ],
-                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), 'de-DE', Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
             11 => [
                 array_merge($defaults, [
@@ -1062,20 +1084,19 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
-                $language,
+                $ids->get('language'),
             ],
         ];
     }
 
     /**
      * @dataProvider optionCases
+     *
+     * @param array<mixed> $product
+     * @param array<string, string> $expected
      */
-    public function testOptionSorting(array $product, $expected, Criteria $criteria, array $language): void
+    public function testOptionSorting(array $product, array $expected, Criteria $criteria): void
     {
-        $this->getContainer()
-            ->get('language.repository')
-            ->create([$language], Context::createDefaultContext());
-
         $productId = $product['id'];
         $context = Context::createDefaultContext();
 
@@ -1097,17 +1118,22 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $context)
             ->first();
 
+        /** @var PropertyGroupOptionCollection $options */
         $options = $productEntity->getOptions();
-        $names = $options->map(function (PropertyGroupOptionEntity $option) {
-            return [
-                'name' => $option->getName(),
-            ];
-        });
 
-        static::assertEquals($expected, array_values($names));
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
+
+        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+            'name' => $option->getName(),
+        ]);
+
+        static::assertEquals($expected, \array_values($names));
     }
 
-    public function optionCases(): array
+    /**
+     * @return array<mixed>
+     */
+    public static function optionCases(): array
     {
         $ids = new TestDataCollection();
 
@@ -1120,13 +1146,6 @@ class ProductLoadedSubscriberTest extends TestCase
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-        ];
-
-        $language = [
-            'id' => $ids->create('language'),
-            'name' => 'sub_en',
-            'parentId' => Defaults::LANGUAGE_SYSTEM,
-            'localeId' => $this->getLocaleIdOfSystemLanguage(),
         ];
 
         $optionsAscCriteria = (new Criteria())->addAssociation('options.group');
@@ -1162,7 +1181,6 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['name' => 'xl'],
                 ],
                 $optionsAscCriteria,
-                $language,
             ],
             2 => [
                 array_merge($defaults, [
@@ -1190,17 +1208,16 @@ class ProductLoadedSubscriberTest extends TestCase
                     ['name' => 'red'],
                 ],
                 $optionsDescCriteria,
-                $language,
             ],
         ];
     }
 
     public function testListPrices(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $taxId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
         $this->getContainer()->get('currency.repository')
             ->create([
@@ -1212,10 +1229,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     'symbol' => 'XXX',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 3,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
+                    'itemRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
+                    'totalRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $defaults = [
             'id' => 1,
@@ -1289,7 +1306,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ]);
 
             $this->getContainer()->get('product.repository')
-                ->create([$data], $ids->context);
+                ->create([$data], Context::createDefaultContext());
 
             $product = $this->getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)
@@ -1307,29 +1324,42 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
             static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
 
-            if (Feature::isActive('v6_5_0_0')) {
-                $partialCriteria = new Criteria([$id]);
-                $partialCriteria->addFields(['price', 'taxId']);
-                $product = $this->getContainer()->get('sales_channel.product.repository')
-                    ->search($partialCriteria, $context)
-                    ->get($id);
+            $partialCriteria = new Criteria([$id]);
+            $partialCriteria->addFields(['price', 'taxId']);
+            $product = $this->getContainer()->get('sales_channel.product.repository')
+                ->search($partialCriteria, $context)
+                ->get($id);
 
-                static::assertInstanceOf(PartialEntity::class, $product);
+            static::assertInstanceOf(PartialEntity::class, $product);
 
-                $price = $product->get('calculatedPrice');
+            $price = $product->get('calculatedPrice');
 
-                static::assertInstanceOf(ListPrice::class, $price->getListPrice());
+            static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-                static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-                static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
+            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
 
-                static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-                static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
-            }
+            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
         }
+    }
+
+    /**
+     * @throws \JsonException
+     *
+     * @return array<mixed>
+     */
+    private function objectToArray(object $obj): array
+    {
+        $jsonString = \json_encode($obj, \JSON_THROW_ON_ERROR);
+
+        return \json_decode($jsonString, true, 512, \JSON_THROW_ON_ERROR);
     }
 }
 
+/**
+ * @internal
+ */
 class ListPriceTestCase
 {
     /**

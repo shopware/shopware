@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_settings %}
 <sw-context-button
     v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
@@ -8,7 +9,8 @@
     :additional-context-menu-classes="contextMenuClasses"
 >
 
-    <template slot="button">
+    <template #button>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_trigger %}
         <sw-button
             class="sw-data-grid-settings__trigger"
@@ -17,9 +19,10 @@
             size="x-small"
             square
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_settings_trigger_icon %}
             <sw-icon
-                name="small-default-stack-line"
+                name="regular-bars-s"
                 size="14px"
             />
             {% endblock %}
@@ -27,43 +30,67 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_settings_content %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_settings_general %}
     <div class="sw-data-grid__settings-container">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_compact_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="currentCompact"
+            {% else %}
             v-model="currentCompact"
+            {% endif %}
             size="medium"
             no-margin-top
             :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
+            {% if VUE3 %}
+            @update:value="onChangeCompactMode(currentCompact)"
+            {% else %}
             @change="onChangeCompactMode(currentCompact)"
+            {% endif %}
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_preview_switch %}
         <sw-switch-field
             v-if="enablePreviews"
+            {% if VUE3 %}
+            v-model:value="currentPreviews"
+            {% else %}
             v-model="currentPreviews"
+            {% endif %}
             size="medium"
             no-margin-top
             :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
+            {% if VUE3 %}
+            @update:value="onChangePreviews(currentPreviews)"
+            {% else %}
             @change="onChangePreviews(currentPreviews)"
+            {% endif %}
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_additional_settings %}
         <slot name="additionalSettings">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_settings_additional_settings_slot %}{% endblock %}
         </slot>
         {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_settings_devider %}
     <sw-context-menu-divider />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_settings_columns %}
     <transition-group
         name="columns-list"
@@ -71,6 +98,7 @@
         class="sw-data-grid__settings-container sw-data-grid__settings-column-list"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_settings_column_element %}
         <div
             v-for="(column, index) in currentColumns"
@@ -78,21 +106,28 @@
             :class="['sw-data-grid__settings-column-item', 'sw-data-grid__settings-item--' + index]"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_settings_column_visibility_checkbox %}
             <sw-checkbox-field
                 :disabled="column.primary"
                 :label="$te(column.label) ? $tc(column.label) : column.label"
                 :value="currentColumns[index].visible"
+                {% if VUE3 %}
+                @update:value="onChangeColumnVisibility($event, index)"
+                {% else %}
                 @change="onChangeColumnVisibility($event, index)"
+                {% endif %}
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_settings_column_item_conrols %}
             <sw-button-group
                 v-if="currentColumns.length >= 2"
                 class="sw-data-grid__settings-column-item-controls"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_settings_column_control_up %}
                 <sw-button
                     size="x-small"
@@ -100,15 +135,17 @@
                     :disabled="index === 0"
                     @click="onClickChangeColumnOrderUp(index)"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_settings_column_control_up_icon %}
                     <sw-icon
-                        name="small-arrow-small-up"
+                        name="regular-chevron-up-xxs"
                         size="14px"
                     />
                     {% endblock %}
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_settings_column_control_down %}
                 <sw-button
                     size="x-small"
@@ -117,9 +154,10 @@
                     class="down"
                     @click="onClickChangeColumnOrderDown(index)"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_settings_column_control_down_icon %}
                     <sw-icon
-                        name="small-arrow-small-down"
+                        name="regular-chevron-down-xxs"
                         size="14px"
                     />
                     {% endblock %}

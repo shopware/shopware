@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/base/sw-alert should render correctly 1`] = `
+<div
+  class="sw-alert sw-alert--default sw-alert--info sw-alert--icon"
+  role="alert"
+>
+  <sw-icon-stub
+    class="sw-alert__icon"
+    decorative=""
+    name="regular-info-circle"
+    size="20px"
+  />
+   
+  <div
+    class="sw-alert__body sw-alert__body--icon"
+  >
+    <div
+      class="sw-alert__title"
+    >
+      
+            Alert title
+        
+    </div>
+     
+    <div
+      class="sw-alert__message"
+    >
+      <p>
+        Alert message
+      </p>
+    </div>
+  </div>
+   
+  <!---->
+   
+  <!---->
+</div>
+`;
+
+exports[`components/base/sw-alert should use custom icon 1`] = `
+<div
+  class="sw-alert sw-alert--default sw-alert--info sw-alert--icon"
+  role="alert"
+>
+  <sw-icon-stub
+    class="sw-alert__icon"
+    decorative=""
+    name="your-icon-here"
+    size="20px"
+  />
+   
+  <div
+    class="sw-alert__body sw-alert__body--icon"
+  >
+    <!---->
+     
+    <div
+      class="sw-alert__message"
+    />
+  </div>
+   
+  <!---->
+   
+  <!---->
+</div>
+`;

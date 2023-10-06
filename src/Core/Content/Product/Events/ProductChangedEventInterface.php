@@ -2,7 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 interface ProductChangedEventInterface
 {
+    /**
+     * @return list<string>
+     */
     public function getIds(): array;
 }

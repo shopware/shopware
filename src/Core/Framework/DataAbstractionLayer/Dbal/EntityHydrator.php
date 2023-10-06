@@ -24,35 +24,55 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Allows to hydrate database values into struct objects.
+ *
+ * @internal
  */
+#[Package('core')]
 class EntityHydrator
 {
+    /**
+     * @var array<mixed>
+     */
     protected static array $partial = [];
 
+    /**
+     * @var array<mixed>
+     */
     private static array $hydrated = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private static array $manyToOne = [];
 
+    /**
+     * @var array<string, array<string, Field>>
+     */
     private static array $translatedFields = [];
 
-    private ContainerInterface $container;
-
     /**
-     * @psalm-suppress ContainerDependency
+     * @internal
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
+    /**
+     * @template TEntityCollection of EntityCollection<Entity>
+     *
+     * @param TEntityCollection $collection
+     * @param array<mixed> $rows
+     * @param array<string|array<string>> $partial
+     *
+     * @return TEntityCollection
+     */
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context, array $partial = []): EntityCollection
     {
         self::$hydrated = [];
@@ -60,6 +80,7 @@ class EntityHydrator
         self::$partial = $partial;
 
         if (!empty(self::$partial)) {
+            /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
         }
 
@@ -70,11 +91,23 @@ class EntityHydrator
         return $collection;
     }
 
+    /**
+     * @template EntityClass
+     *
+     * @param class-string<EntityClass> $class
+     *
+     * @return EntityClass
+     */
     final public static function createClass(string $class)
     {
         return new $class();
     }
 
+    /**
+     * @param array<mixed> $row
+     *
+     * @return array<mixed>
+     */
     final public static function buildUniqueIdentifier(EntityDefinition $definition, array $row, string $root): array
     {
         $primaryKeyFields = $definition->getPrimaryKeys();
@@ -92,6 +125,11 @@ class EntityHydrator
         return $primaryKey;
     }
 
+    /**
+     * @param array<string> $primaryKey
+     *
+     * @return array<string>
+     */
     final public static function encodePrimaryKey(EntityDefinition $definition, array $primaryKey, Context $context): array
     {
         $fields = $definition->getPrimaryKeys();
@@ -123,6 +161,8 @@ class EntityHydrator
 
     /**
      * Allows simple overwrite for specialized entity hydrators
+     *
+     * @param array<mixed> $row
      */
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
@@ -131,9 +171,13 @@ class EntityHydrator
         return $entity;
     }
 
+    /**
+     * @param array<mixed> $row
+     * @param iterable<Field> $fields
+     */
     protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields): Entity
     {
-        /** @var ArrayStruct $foreignKeys */
+        /** @var ArrayStruct<string, mixed> $foreignKeys */
         $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
         $isPartial = self::$partial !== [];
 
@@ -145,6 +189,11 @@ class EntityHydrator
             }
 
             $key = $root . '.' . $property;
+
+            // initialize not loaded associations with null
+            if ($field instanceof AssociationField && $entity instanceof ArrayEntity) {
+                $entity->set($property, null);
+            }
 
             if ($field instanceof ParentAssociationField) {
                 continue;
@@ -164,7 +213,9 @@ class EntityHydrator
                 }
 
                 if ($field->is(Extension::class)) {
-                    $entity->addExtension($property, $association);
+                    if ($association) {
+                        $entity->addExtension($property, $association);
+                    }
                 } else {
                     $entity->assign([$property => $association]);
                 }
@@ -172,7 +223,7 @@ class EntityHydrator
                 continue;
             }
 
-            //other association fields are not handled in entity reader query
+            // other association fields are not handled in entity reader query
             if ($field instanceof AssociationField) {
                 continue;
             }
@@ -223,6 +274,9 @@ class EntityHydrator
         return $entity;
     }
 
+    /**
+     * @param array<mixed> $row
+     */
     protected function manyToMany(array $row, string $root, Entity $entity, ?Field $field): void
     {
         if ($field === null) {
@@ -231,22 +285,26 @@ class EntityHydrator
 
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
 
-        //many to many isn't loaded in case of limited association criterias
+        // many to many isn't loaded in case of limited association criterias
         if (!\array_key_exists($accessor, $row)) {
             return;
         }
 
-        //explode hexed ids
+        // explode hexed ids
         $ids = explode('||', (string) $row[$accessor]);
 
         $ids = array_map('strtolower', array_filter($ids));
 
-        /** @var ArrayStruct $mapping */
+        /** @var ArrayStruct<string, mixed> $mapping */
         $mapping = $entity->getExtension(EntityReader::INTERNAL_MAPPING_STORAGE);
 
         $mapping->set($field->getPropertyName(), $ids);
     }
 
+    /**
+     * @param array<mixed> $row
+     * @param array<string, Field> $fields
+     */
     protected function translate(EntityDefinition $definition, Entity $entity, array $row, string $root, Context $context, array $fields): void
     {
         $inherited = $definition->isInheritanceAware() && $context->considerInheritance();
@@ -258,10 +316,15 @@ class EntityHydrator
         foreach ($translatedFields as $field => $typed) {
             $entity->addTranslated($field, $typed->getSerializer()->decode($typed, self::value($row, $root, $field)));
 
-            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field));
+            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field)); /* @phpstan-ignore-line */
         }
     }
 
+    /**
+     * @param array<Field> $fields
+     *
+     * @return array<string, Field>
+     */
     protected function getTranslatedFields(EntityDefinition $definition, array $fields): array
     {
         $key = $definition->getEntityName();
@@ -278,6 +341,9 @@ class EntityHydrator
         return self::$translatedFields[$key] = $translatedFields;
     }
 
+    /**
+     * @param array<mixed> $row
+     */
     protected function manyToOne(array $row, string $root, ?Field $field, Context $context): ?Entity
     {
         if ($field === null) {
@@ -300,6 +366,9 @@ class EntityHydrator
         return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
     }
 
+    /**
+     * @param array<mixed> $row
+     */
     protected function customFields(EntityDefinition $definition, array $row, string $root, Entity $entity, ?Field $field, Context $context): void
     {
         if ($field === null) {
@@ -323,8 +392,7 @@ class EntityHydrator
 
             $values = [];
             foreach ($chain as $accessor) {
-                $key = $accessor . '.' . $propertyName;
-                $values[] = $row[$key] ?? null;
+                $values[] = self::value($row, $accessor, $propertyName);
             }
 
             if (empty($values)) {
@@ -340,6 +408,23 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
+                /*
+                 * The translations chains array has the structure: [
+                 *      main language,
+                 *      parent with main language,
+                 *      fallback language,
+                 *      parent with fallback language,
+                 * ]
+                 *
+                 * We need to join the first two to get the inherited field value of the main translation
+                 */
+                $values = [
+                    self::value($row, $chain[1], $propertyName),
+                    self::value($row, $chain[0], $propertyName),
+                ];
+
+                $merged = $this->mergeJson($values);
+                $decoded = $customField->getSerializer()->decode($customField, $merged);
                 $entity->assign([$propertyName => $decoded]);
             }
 
@@ -373,6 +458,9 @@ class EntityHydrator
         $entity->assign([$propertyName => $merged]);
     }
 
+    /**
+     * @param array<mixed> $row
+     */
     protected static function value(array $row, string $root, string $property): ?string
     {
         $accessor = $root . '.' . $property;
@@ -413,7 +501,7 @@ class EntityHydrator
                 continue;
             }
 
-            $decoded = json_decode($string, true);
+            $decoded = json_decode($string, true, 512, \JSON_THROW_ON_ERROR);
 
             if (!$decoded) {
                 continue;
@@ -428,9 +516,13 @@ class EntityHydrator
             }
         }
 
-        return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @param array<mixed> $row
+     * @param array<string|array<string>> $partial
+     */
     private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context, array $partial = []): Entity
     {
         $isPartial = $partial !== [];
@@ -458,10 +550,10 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', \get_class($entity)));
+            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
-        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct([], $definition->getEntityName() . '_foreign_keys_extension'));
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, new ArrayStruct());
 
         $entity->setUniqueIdentifier($identifier);

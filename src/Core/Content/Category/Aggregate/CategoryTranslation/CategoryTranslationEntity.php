@@ -5,8 +5,10 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
+#[Package('inventory')]
 class CategoryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -17,12 +19,17 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $categoryId;
 
     /**
+     * @var string
+     */
+    protected $categoryVersionId;
+
+    /**
      * @var string|null
      */
     protected $name;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $breadcrumb;
 
@@ -37,7 +44,7 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $language;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $slotConfig;
 
@@ -111,11 +118,17 @@ class CategoryTranslationEntity extends TranslationEntity
         $this->category = $category;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, mixed> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -171,11 +184,17 @@ class CategoryTranslationEntity extends TranslationEntity
         $this->description = $description;
     }
 
+    /**
+     * @return string[]|null
+     */
     public function getBreadcrumb(): ?array
     {
         return $this->breadcrumb;
     }
 
+    /**
+     * @param array<string>|null $breadcrumb
+     */
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
@@ -209,5 +228,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
+    }
+
+    public function getCategoryVersionId(): string
+    {
+        return $this->categoryVersionId;
+    }
+
+    public function setCategoryVersionId(string $categoryVersionId): void
+    {
+        $this->categoryVersionId = $categoryVersionId;
     }
 }

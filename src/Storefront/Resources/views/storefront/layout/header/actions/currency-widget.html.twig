@@ -11,17 +11,13 @@
                       class="currency-form"
                       data-form-auto-submit="true">
 
-                    {% block layout_header_actions_currency_widget_form_csrf %}
-                        {{ sw_csrf('frontend.checkout.configure') }}
-                    {% endblock %}
-
                     {% block layout_header_actions_currency_widget_content %}
                         <div class="currencies-menu dropdown">
                             {% block layout_header_actions_currency_widget_dropdown_toggle %}
                                 <button class="btn dropdown-toggle top-bar-nav-btn"
                                         type="button"
                                         id="currenciesDropdown-{{ position }}"
-                                        data-toggle="dropdown"
+                                        data-bs-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
@@ -32,7 +28,7 @@
                             {% endblock %}
 
                             {% block layout_header_actions_currency_widget_form_items %}
-                                <div class="top-bar-list dropdown-menu dropdown-menu-right"
+                                <div class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-labelledby="currenciesDropdown-{{ position }}">
                                     {% for currency in page.header.currencies %}
                                         {% block layout_header_actions_currency_widget_form_items_element %}
@@ -61,7 +57,7 @@
                             {% block layout_header_actions_currency_widget_form_redirect %}
                                 <input name="redirectTo"
                                        type="hidden"
-                                       value="{{ app.request.get('_route') }}"/>
+                                       value="{{ app.request.get('_route') }}">
 
                                 {% for key, value in app.request.attributes.get('_route_params') %}
                                     <input name="redirectParameters[{{ key }}]"

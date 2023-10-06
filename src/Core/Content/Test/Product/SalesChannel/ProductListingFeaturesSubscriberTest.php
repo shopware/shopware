@@ -2,39 +2,36 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
-use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
-use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ProductListingFeaturesSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,7 +40,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     private EventDispatcherInterface $eventDispatcher;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $optionIds;
 
@@ -53,6 +50,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         parent::setUp();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -112,14 +111,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
-        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            new Criteria([TestDefaults::SALES_CHANNEL]),
-            Context::createDefaultContext()
-        )->first();
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepo */
+        $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
+
+        $salesChannel = $salesChannelRepo
+            ->search(new Criteria([TestDefaults::SALES_CHANNEL]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertNotNull($salesChannel);
+
+        $this->salesChannel = $salesChannel;
     }
 
     /**
      * @dataProvider manufacturerProvider
+     *
+     * @param list<string> $expected
      */
     public function testManufacturerFilter(array $expected, Request $request): void
     {
@@ -140,7 +148,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($expected, $filter->getValue());
     }
 
-    public function manufacturerProvider(): array
+    /**
+     * @return list<array{0: list<string>, 1: Request}>
+     */
+    public static function manufacturerProvider(): array
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -162,21 +173,26 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
 
-        $filters = $this->getFiltersOfField($criteria->getPostFilters(), 'product.shippingFree');
+        /** @var list<SingleFieldFilter> $postFilters */
+        $postFilters = $criteria->getPostFilters();
+        $filters = $this->getFiltersOfField($postFilters, 'product.shippingFree');
         if ($expected === null) {
             static::assertCount(0, $filters);
 
             return;
         }
 
-        static::assertCount(1, $filters, print_r($request, true));
+        static::assertCount(1, $filters);
         $filter = array_shift($filters);
 
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($expected, $filter->getValue());
     }
 
-    public function shippingFreeProvider()
+    /**
+     * @return list<array{0: ?bool, 1: Request}>
+     */
+    public static function shippingFreeProvider(): array
     {
         return [
             [null, new Request()],
@@ -188,6 +204,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider priceFilterProvider
+     *
+     * @param array{min?: int|null, max?: int|null} $expected
      */
     public function testPriceFilter(array $expected, Request $request): void
     {
@@ -209,7 +227,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($expected['max'], $filter->getParameter(RangeFilter::LTE));
     }
 
-    public function priceFilterProvider(): array
+    /**
+     * @return list<array{0: array{min?: int|null, max?: int|null}, 1: Request}>
+     */
+    public static function priceFilterProvider(): array
     {
         return [
             [['min' => 10, 'max' => null], new Request(['min-price' => 10])],
@@ -222,6 +243,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider listSortingProvider
+     *
+     * @param array<string, string> $expectedFields
      */
     public function testListSorting(array $expectedFields, Request $request): void
     {
@@ -241,7 +264,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider searchSortingProvider
+     *
      * @group slow
+     *
+     * @param array<string, string> $expectedFields
      */
     public function testSearchSorting(array $expectedFields, Request $request): void
     {
@@ -254,7 +280,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertCount(\count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
-            static::assertArrayHasKey($sorting->getField(), $expectedFields);
+            static::assertArrayHasKey($sorting->getField(), $expectedFields, print_r($expectedFields, true));
             static::assertSame($sorting->getDirection(), $expectedFields[$sorting->getField()]);
         }
     }
@@ -267,7 +293,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
 
-        static::expectException(ProductSortingNotFoundException::class);
+        static::expectException(ProductException::class);
 
         $this->eventDispatcher->dispatch($event);
     }
@@ -280,16 +306,55 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $criteria = new Criteria();
         $event = new ProductSearchCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
 
-        static::expectException(ProductSortingNotFoundException::class);
+        static::expectException(ProductException::class);
 
         $this->eventDispatcher->dispatch($event);
     }
 
-    public function searchSortingProvider(): array
+    /**
+     * @return list<array{0: array<string, string>, 1: Request}>
+     */
+    public static function searchSortingProvider(): array
     {
         return [
             [
-                ['_score' => FieldSorting::DESCENDING],
+                ['product.name' => FieldSorting::ASCENDING],
+                new Request(['order' => 'name-asc']),
+            ],
+            [
+                ['product.name' => FieldSorting::DESCENDING],
+                new Request(['order' => 'name-desc']),
+            ],
+            [
+                ['product.cheapestPrice' => FieldSorting::ASCENDING],
+                new Request(['order' => 'price-asc']),
+            ],
+            [
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc']),
+            ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.cheapestPrice' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
+        ];
+    }
+
+    /**
+     * @return list<array{0: array<string, string>, 1: Request}>
+     */
+    public static function listSortingProvider(): array
+    {
+        return [
+            [
+                ['product.name' => FieldSorting::ASCENDING],
                 new Request(),
             ],
             [
@@ -322,64 +387,29 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
-    public function listSortingProvider(): array
+    /**
+     * @return list<array{0: Request}>
+     */
+    public static function unavailableSearchSortingProvider(): array
     {
         return [
-            [
-                ['product.name' => FieldSorting::ASCENDING],
-                new Request(),
-            ],
-            [
-                ['product.name' => FieldSorting::ASCENDING],
-                new Request(['order' => 'name-asc']),
-            ],
-            [
-                ['product.name' => FieldSorting::DESCENDING],
-                new Request(['order' => 'name-desc']),
-            ],
-            [
-                ['product.cheapestPrice' => FieldSorting::ASCENDING],
-                new Request(['order' => 'price-asc']),
-            ],
-            [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
-                new Request(['order' => 'price-desc']),
-            ],
-            [
-                [
-                    'product.name' => FieldSorting::ASCENDING,
-                    'product.cheapestPrice' => FieldSorting::DESCENDING,
-                ],
-                new Request(['order' => 'test-multiple-sortings']),
-            ],
-            [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
-                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-            ],
+            [new Request(['order' => 'unknown'])],
+            [new Request(['order' => 'test-inactive'])],
+            [new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]])],
+            [new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]])],
         ];
     }
 
-    public function unavailableSearchSortingProvider(): array
+    /**
+     * @return list<array{0: Request}>
+     */
+    public static function unavailableListSortingProvider(): array
     {
         return [
-            [
-                new Request(['order' => 'unknown']),
-                new Request(['order' => 'test-inactive']),
-                new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
-            ],
-        ];
-    }
-
-    public function unavailableListSortingProvider(): array
-    {
-        return [
-            [
-                new Request(['order' => 'unknown']),
-                new Request(['order' => 'test-inactive']),
-                new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
-            ],
+            [new Request(['order' => 'unknown'])],
+            [new Request(['order' => 'test-inactive'])],
+            [new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]])],
+            [new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]])],
         ];
     }
 
@@ -433,7 +463,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $eventChannel = new ProductListingCriteriaEvent(
             $request,
             $criteriaChannel,
-            Generator::createSalesChannelContext(null, null, null, $this->salesChannel)
+            Generator::createSalesChannelContext(null, null, $this->salesChannel)
         );
 
         $this->eventDispatcher->dispatch($eventChannel);
@@ -444,7 +474,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($offsetChannel, $criteriaChannel->getOffset());
     }
 
-    public function paginationProvider()
+    /**
+     * @return list<array{0: int, 1: int, 2: Request, 3?: int}>
+     */
+    public static function paginationProvider(): array
     {
         return [
             [24, 0, new Request()],
@@ -473,7 +506,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
-    public function paginationSalesChannelProvider()
+    /**
+     * @return list<array{0: int, 1: int, 2: Request, 3: int}>
+     */
+    public static function paginationSalesChannelProvider(): array
     {
         return [
             [12, 0, new Request(), 12, 0],
@@ -571,6 +607,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider filterAggregationsProvider
+     *
+     * @param list<string> $expectedAggregations
+     * @param array<string, bool|list<string>|null> $expectedRequestFilters
      */
     public function testFilterAggregations(array $expectedAggregations, array $expectedRequestFilters, Request $request): void
     {
@@ -581,7 +620,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         foreach ($expectedRequestFilters as $filter => $expected) {
             $default = \gettype($expected) === 'boolean' ? true : null;
 
-            static::assertSame($expected, $request->request->get($filter, $default));
+            if (\is_array($expected)) {
+                static::assertSame($expected, $request->request->all($filter));
+            } else {
+                static::assertSame($expected, $request->request->get($filter, $default));
+            }
         }
 
         $aggregationKeys = array_keys($criteria->getAggregations());
@@ -589,7 +632,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertEquals($expectedAggregations, $aggregationKeys);
     }
 
-    public function filterAggregationsProvider(): array
+    /**
+     * @return list<array{0: list<string>, 1: array<string, bool|list<string>|null>, 2: Request}>
+     */
+    public static function filterAggregationsProvider(): array
     {
         $defaultAggregations = [
             'manufacturer',
@@ -821,380 +867,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider filterAggregationsWithProducts
+     * @param array<string, list<string>> $properties
      */
-    public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
-    {
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
-            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
-        );
-
-        $this->getContainer()->get('category.repository')
-            ->create([['id' => $ids->get('category'), 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
-
-        $categoryId = $product['categories'][0]['id'];
-
-        $this->getContainer()->get('product.repository')
-            ->create([$product], Context::createDefaultContext());
-
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $listing = $this->getContainer()
-            ->get(ProductListingRoute::class)
-            ->load($categoryId, $request, $context, new Criteria())
-            ->getResult();
-
-        $aggregation = $listing->getAggregations()->get($expected['aggregation']);
-
-        if ($expected['instanceOf'] === null) {
-            static::assertNull($aggregation);
-        } else {
-            static::assertInstanceOf($expected['instanceOf'], $aggregation);
-        }
-
-        if ($expected['aggregation'] === 'properties' && isset($expected['propertyWhitelistIds'])) {
-            static::assertInstanceOf(EntityResult::class, $aggregation);
-            /** @var PropertyGroupCollection $properties */
-            $properties = $aggregation->getEntities();
-
-            static::assertSame($expected['propertyWhitelistIds'], $properties->getIds());
-        }
-    }
-
-    public function filterAggregationsWithProducts(): array
-    {
-        $ids = new TestDataCollection();
-
-        $defaults = [
-            'id' => $ids->get('product'),
-            'name' => 'test-product',
-            'productNumber' => $ids->get('product'),
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'visibilities' => [
-                [
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
-            ],
-            'categories' => [
-                ['id' => $ids->get('category')],
-            ],
-        ];
-
-        return [
-            // property-filter
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request(),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => EntityResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => true]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => EntityResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => false]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => null,
-                ],
-            ],
-
-            // property-whitelist
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => null,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => []]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => null,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$ids->get('textile')]]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => EntityResult::class,
-                    'propertyWhitelistIds' => [$ids->get('textile')],
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'properties' => [
-                        [
-                            'id' => $ids->get('red'),
-                            'name' => 'red',
-                            'groupId' => $ids->get('color'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
-                        ],
-                        [
-                            'id' => $ids->get('cotton'),
-                            'name' => 'cotton',
-                            'groupId' => $ids->get('textile'),
-                            'group' => ['id' => $ids->get('textile'), 'name' => 'textile'],
-                        ],
-                    ],
-                ]),
-                new Request([], ['property-filter' => false]),
-                [
-                    'aggregation' => 'properties',
-                    'instanceOf' => null,
-                ],
-            ],
-
-            // manufacturer-filter
-            [
-                $ids,
-                $defaults,
-                new Request(),
-                [
-                    'aggregation' => 'manufacturer',
-                    'instanceOf' => EntityResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'manufacturer' => [
-                        'id' => $ids->get('test-manufacturer'),
-                        'name' => 'test-manufacturer',
-                    ],
-                ]),
-                new Request([], ['manufacturer-filter' => true]),
-                [
-                    'aggregation' => 'manufacturer',
-                    'instanceOf' => EntityResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'manufacturer' => [
-                        'id' => $ids->get('test-manufacturer'),
-                        'name' => 'test-manufacturer',
-                    ],
-                ]),
-                new Request([], ['manufacturer-filter' => false]),
-                [
-                    'aggregation' => 'manufacturer',
-                    'instanceOf' => null,
-                ],
-            ],
-
-            // price-filter
-            [
-                $ids,
-                $defaults,
-                new Request(),
-                [
-                    'aggregation' => 'price',
-                    'instanceOf' => StatsResult::class,
-                ],
-            ],
-            [
-                $ids,
-                $defaults,
-                new Request([], ['manufacturer-filter' => true]),
-                [
-                    'aggregation' => 'price',
-                    'instanceOf' => StatsResult::class,
-                ],
-            ],
-            [
-                $ids,
-                $defaults,
-                new Request([], ['price-filter' => false]),
-                [
-                    'aggregation' => 'price',
-                    'instanceOf' => null,
-                ],
-            ],
-
-            // rating-filter
-            [
-                $ids,
-                $defaults,
-                new Request(),
-                [
-                    'aggregation' => 'rating',
-                    'instanceOf' => MaxResult::class,
-                ],
-            ],
-            [
-                $ids,
-                $defaults,
-                new Request([], ['rating-filter' => true]),
-                [
-                    'aggregation' => 'rating',
-                    'instanceOf' => MaxResult::class,
-                ],
-            ],
-            [
-                $ids,
-                $defaults,
-                new Request([], ['rating-filter' => false]),
-                [
-                    'aggregation' => 'rating',
-                    'instanceOf' => null,
-                ],
-            ],
-
-            // shipping-free-filter
-            [
-                $ids,
-                array_merge($defaults, [
-                    'shippingFree' => false,
-                ]),
-                new Request(),
-                [
-                    'aggregation' => 'shipping-free',
-                    'instanceOf' => MaxResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'shippingFree' => true,
-                ]),
-                new Request([], ['shipping-free-filter' => true]),
-                [
-                    'aggregation' => 'shipping-free',
-                    'instanceOf' => MaxResult::class,
-                ],
-            ],
-            [
-                $ids,
-                array_merge($defaults, [
-                    'shippingFree' => true,
-                ]),
-                new Request([], ['shipping-free-filter' => false]),
-                [
-                    'aggregation' => 'shipping-free',
-                    'instanceOf' => null,
-                ],
-            ],
-        ];
-    }
-
     private function assertPropertyFilter(array $properties, Request $request, string $message): void
     {
         $criteria = new Criteria();
@@ -1225,6 +899,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @param Filter[] $filters
+     *
+     * @return array<mixed>
+     */
     private function getFilteredValues(array $filters): array
     {
         $filtered = [];
@@ -1241,7 +920,12 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         return $filtered;
     }
 
-    private function getFiltersOfField(array $filters, string $field)
+    /**
+     * @param list<SingleFieldFilter> $filters
+     *
+     * @return list<SingleFieldFilter>
+     */
+    private function getFiltersOfField(array $filters, string $field): array
     {
         $matches = [];
         foreach ($filters as $filter) {
@@ -1250,7 +934,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             }
 
             if ($filter instanceof MultiFilter) {
-                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries(), $field));
+                $matches = [...$matches, ...$this->getFiltersOfField($filter->getQueries(), $field)];
             }
         }
 

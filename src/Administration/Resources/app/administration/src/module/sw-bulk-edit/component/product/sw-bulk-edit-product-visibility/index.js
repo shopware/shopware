@@ -1,9 +1,13 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-product-visibility.html.twig';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-bulk-edit-product-visibility', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -12,6 +16,11 @@ Component.register('sw-bulk-edit-product-visibility', {
         bulkEditProduct: {
             type: Object,
             required: true,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -59,4 +68,4 @@ Component.register('sw-bulk-edit-product-visibility', {
             this.displayVisibilityDetail = false;
         },
     },
-});
+};

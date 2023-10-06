@@ -2,54 +2,38 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $wishlistRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractAddWishlistProductRoute
@@ -57,39 +41,11 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.4.0")
-     * @OA\Post(
-     *      path="/customer/wishlist/add/{productId}",
-     *      summary="Add a product to a wishlist",
-     *      description="Adds a product to a customers wishlist.
-
-**Important constraints**
-
-* Anonymous (not logged-in) customers can not have wishlists.
-* The wishlist feature has to be activated.",
-     *      operationId="addProductOnWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\Parameter(
-     *        name="productId",
-     *        in="path",
-     *        description="Identifier of the product to be added.",
-     *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})
-     */
+    #[Route(path: '/store-api/customer/wishlist/add/{productId}', name: 'store-api.customer.wishlist.add', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $this->validateProduct($productId, $context);
@@ -108,6 +64,8 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
                 ],
             ],
         ], $context->getContext());
+
+        $this->eventDispatcher->dispatch(new WishlistProductAddedEvent($wishlistId, $productId, $context));
 
         return new SuccessResponse();
     }

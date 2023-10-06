@@ -14,7 +14,7 @@ export default class SnippetPageObject {
     }
 
     createSnippet(name, translations) {
-        cy.get(this.elements.smartBarHeader).contains('New snippet');
+        cy.contains(this.elements.smartBarHeader, 'New snippet');
         cy.get(this.elements.snippetSaveAction).should('not.be.enabled');
 
         cy.get('input[name=sw-field--translationKey]').type(name);
@@ -34,13 +34,14 @@ export default class SnippetPageObject {
         cy.get(this.elements.editSetAction).should('be.enabled');
 
         cy.get(this.elements.editSetAction).click();
-        cy.get(this.elements.smartBarHeader).contains('Snippets');
+        cy.contains(this.elements.smartBarHeader, 'Snippets');
     }
 
     filterSnippets(name, position = 0) {
-        cy.get('.icon--default-action-filter').click();
+        cy.get('.icon--regular-filter').click();
         cy.get('input[name=addedSnippets]').click();
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${this.elements.dataGridRow}--${position}`).should('be.visible');
         cy.get(`${this.elements.dataGridRow}--${position} .sw-data-grid__cell--id`).contains(name);
     }

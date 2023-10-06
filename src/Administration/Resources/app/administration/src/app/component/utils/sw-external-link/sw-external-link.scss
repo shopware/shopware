@@ -1,8 +1,10 @@
 @import "~scss/variables";
 
 .sw-external-link {
+    display: inline-flex;
+    align-items: center;
     color: $color-shopware-brand-500;
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
     text-decoration: underline;
     cursor: pointer;
 
@@ -16,7 +18,7 @@
     }
 
     &--small {
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
 
         .sw-external-link__icon {
             margin-left: 2px;

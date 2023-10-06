@@ -13,9 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class TestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_lock';
+    final public const ENTITY_NAME = '_test_lock';
 
     public function getEntityName(): string
     {

@@ -2,32 +2,32 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[Package('system-settings')]
 class MailFactory extends AbstractMailFactory
 {
     /**
-     * @var ValidatorInterface
+     * @internal
      */
-    private $validator;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
-        $this->filesystem = $filesystem;
     }
 
+    /**
+     * @param string[] $sender
+     * @param string[] $recipients
+     * @param string[] $contents
+     * @param string[] $attachments
+     * @param mixed[] $additionalData
+     * @param array<int, mixed[]>|null $binAttachments
+     */
     public function create(
         string $subject,
         array $sender,
@@ -39,10 +39,11 @@ class MailFactory extends AbstractMailFactory
     ): Email {
         $this->assertValidAddresses(array_keys($recipients));
 
-        $mail = (new Email())
+        $mail = (new Mail())
             ->subject($subject)
             ->from(...$this->formatMailAddresses($sender))
-            ->to(...$this->formatMailAddresses($recipients));
+            ->to(...$this->formatMailAddresses($recipients))
+            ->setMailAttachmentsConfig($additionalData['attachmentsConfig'] ?? null);
 
         foreach ($contents as $contentType => $data) {
             if ($contentType === 'text/html') {
@@ -53,12 +54,12 @@ class MailFactory extends AbstractMailFactory
         }
 
         foreach ($attachments as $url) {
-            $mail->embed($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
+            $mail->addAttachmentUrl($url);
         }
 
         if (isset($binAttachments)) {
             foreach ($binAttachments as $binAttachment) {
-                $mail->embed(
+                $mail->attach(
                     $binAttachment['content'],
                     $binAttachment['fileName'],
                     $binAttachment['mimeType']
@@ -69,19 +70,27 @@ class MailFactory extends AbstractMailFactory
         foreach ($additionalData as $key => $value) {
             switch ($key) {
                 case 'recipientsCc':
-                    $mail->addCc(...$this->formatMailAddresses([$value => $value]));
+                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addCc(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'recipientsBcc':
-                    $mail->addBcc(...$this->formatMailAddresses([$value => $value]));
+                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addBcc(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'replyTo':
-                    $mail->addReplyTo(...$this->formatMailAddresses([$value => $value]));
+                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addReplyTo(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'returnPath':
-                    $mail->returnPath(...$this->formatMailAddresses([$value => $value]));
+                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->returnPath(...$this->formatMailAddresses($mailAddresses));
             }
         }
 
@@ -94,6 +103,8 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
+     * @param string[] $addresses
+     *
      * @throws ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
@@ -113,6 +124,11 @@ class MailFactory extends AbstractMailFactory
         }
     }
 
+    /**
+     * @param string[] $addresses
+     *
+     * @return string[]
+     */
     private function formatMailAddresses(array $addresses): array
     {
         $formattedAddresses = [];

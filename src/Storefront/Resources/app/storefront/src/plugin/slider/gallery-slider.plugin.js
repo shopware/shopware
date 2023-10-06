@@ -31,6 +31,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               md: {},
               lg: {},
               xl: {},
+              xxl: {},
           },
       },
       thumbnailSlider: {
@@ -47,6 +48,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               md: {},
               lg: {},
               xl: {},
+              xxl: {},
           },
       },
   });

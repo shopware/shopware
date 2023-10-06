@@ -2,16 +2,54 @@
   # install node $NODE_VERSION
   install-node:
       script:
-        - apk add curl bash wget coreutils || true
-        - apt-update && apt-get install curl bash || true
-        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-        - export NVM_DIR="$HOME/.nvm"
-        - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-        - export NODE_VERSION="${NODE_VERSION:-16}"
-        - nvm install $NODE_VERSION
-        - rm /usr/bin/npm
-        - rm /usr/bin/node
-        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/node /usr/bin/node
-        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
-        - npm config set --global user 0
-        - npm config set --global unsafe-perm true
+        - export NODE_VERSION="${NODE_VERSION:-18}"
+        - export NVM_DIR=/opt/nvm
+        # found no way to automatically load shell initialization scripts in gitlab
+        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm install $NODE_VERSION'
+        - rm -f /usr/bin/{npm,node,npx}
+        - VERSION_DIRS=($NVM_DIR/versions/node/v$NODE_VERSION*)
+        - ln -s "${VERSION_DIRS[-1]}/bin/node" /usr/bin/node
+        - ln -s "${VERSION_DIRS[-1]}/bin/npm" /usr/bin/npm
+        - ln -s "${VERSION_DIRS[-1]}/bin/npx" /usr/bin/npx
+        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm use $NODE_VERSION'
+        - node --version
+  handle-failed-merge-train:
+      after_script:
+        - >
+          if [[ $CI_JOB_STATUS == 'failed' && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" && "$ALLOW_FAILURE" != "true" && -n "$CI_MERGE_REQUEST_IID" ]]; then
+            apk add jq || true
+            LABEL="${CI_JOB_STAGE}::all";
+            COMMENT="The job $CI_JOB_URL failed in the merge train. We've added the label '$LABEL' to make sure it's not caused by your MR";
+            MR_API_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}";
+            if ! curl -H "Private-Token: ${CI_GITLAB_API_TOKEN}" $MR_API_URL --insecure | jq .labels | grep -i "$LABEL"; then
+              curl -X POST -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H 'Content-Type: application/json' -d "{\"body\": \"$COMMENT\"}" $MR_API_URL/notes --insecure;
+              curl -X PUT -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H 'Content-Type: application/json' -d "{\"add_labels\": \"$LABEL\"}" $MR_API_URL --insecure;
+            fi
+          fi
+
+  init:
+    composer:
+      - echo -e "\e[0Ksection_start:$(date +%s):composerinstall[collapsed=true]\r\e[0Kcomposer install"
+      - composer install -o -n --no-scripts
+      - echo -e "\e[0Ksection_end:`date +%s`:composerinstall\r\e[0K"
+    composer_full:
+      - echo -e "\e[0Ksection_start:$(date +%s):composerfull[collapsed=true]\r\e[0Kcomposer install"
+      - composer install -o -n
+      - echo -e "\e[0Ksection_end:`date +%s`:composerfull\r\e[0K"
+    composer_update:
+      - echo -e "\e[0Ksection_start:$(date +%s):composer_update[collapsed=true]\r\e[0Kcomposer update"
+      - composer update -n
+      - echo -e "\e[0Ksection_end:`date +%s`:composer_update\r\e[0K"
+    npm:
+      admin:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstalladmin[collapsed=true]\r\e[0Knpm install admin"
+        - 'npm --no-audit --prefer-offline --prefix src/Administration/Resources/app/administration/ ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstalladmin\r\e[0K"
+      storefront:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
+        - 'npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
+      e2e:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstalle2e[collapsed=true]\r\e[0Knpm install e2e"
+        - 'npm --prefix tests/e2e ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstalle2e\r\e[0K"

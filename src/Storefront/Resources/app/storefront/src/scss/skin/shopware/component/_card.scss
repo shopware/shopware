@@ -3,14 +3,10 @@ Card
 ==============================================
 Custom skin styling for bootstrap card component.
 
-https://getbootstrap.com/docs/4.3/components/card/
+https://getbootstrap.com/docs/5.2/components/card
 */
 
 .card-title {
     border-bottom: 1px solid $border-color;
     padding-bottom: 10px;
-}
-
-.card-body {
-    padding: 0;
 }

@@ -1,6 +1,9 @@
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description select input field. Values will be transformed to numbers.
  * @status ready
@@ -17,6 +20,8 @@ const { Component } = Shopware;
 Component.extend('sw-select-number-field', 'sw-select-field', {
 
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     model: {
         prop: 'value',
@@ -47,6 +52,12 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
             if (Number.isNaN(this.currentValue)) {
                 this.currentValue = null;
+            }
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.currentValue);
+
+                return;
             }
 
             this.$emit('change', this.currentValue);

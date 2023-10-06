@@ -1,20 +1,27 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_simple_search_field %}
 <div class="sw-simple-search-field">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_simple_search_field_input %}
-    <sw-field
-        type="text"
+    <sw-text-field
         class="sw-simple-search-field__input"
         :class="fieldClasses"
         :placeholder="placeholder"
         v-bind="$attrs"
-        :value="searchTerm"
+        :value="value"
         v-on="$listeners"
-        @input="onSearchTermChanged"
+        {% if VUE3 %}
+        @update:value="onInput"
+        {% else %}
+        @input="onInput"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_simple_search_field_search_icon %}
     <slot name="sw-simple-search-field-icon">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_simple_search_field_slot_search_icon %}
         <sw-icon
             v-if="icon"

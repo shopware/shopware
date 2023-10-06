@@ -1,18 +1,23 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_many_to_many_assignment_card %}
 <sw-card
     class="sw-many-to-many-assignment-card"
     position-identifier="sw-many-to-many-assignment"
     v-bind="$attrs"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_many_to_many_assignment_card_content %}
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_many_to_many_assignment_card_head %}
         <div class="sw-many-to-many-assignment-card__select-container">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_assignment_card_pre_select %}
             <slot name="prepend-select"></slot>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_assignment_card_select %}
             <slot name="select">
                 <sw-select-base
@@ -28,6 +33,7 @@
                 >
 
                     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_many_to_many_assignment_card_search_field %}
                         <input
                             ref="searchInput"
@@ -41,6 +47,7 @@
                     </template>
 
                     <template #results-list>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_many_to_many_assignment_card_results_list %}
                         <sw-select-result-list
                             ref="swSelectResultList"
@@ -53,26 +60,29 @@
                         >
 
                             <template #before-item-list>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_many_to_many_assignment_card_results_list_before %}
                                 <slot name="before-item-list"></slot>
                                 {% endblock %}
                             </template>
 
                             <template #result-item="{ item, index }">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_many_to_many_assignment_card_results_list_result %}
                                 <slot
                                     name="result-item"
                                     v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }"
                                 >
 
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_entity_many_to_many_assignment_card_results_list_list_item %}
-                                    <li
-                                        is="sw-select-result"
+                                    <sw-select-result
                                         :selected="isSelected(item)"
                                         v-bind="{ item, index }"
                                         @item-select="onItemSelect"
                                     >
 
+                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_entity_many_to_many_assignment_card_results_list_list_item_label %}
                                         <slot
                                             name="result-label-property"
@@ -90,13 +100,14 @@
                                             </template>
                                         </slot>
                                         {% endblock %}
-                                    </li>
+                                    </sw-select-result>
                                     {% endblock %}
                                 </slot>
                                 {% endblock %}
                             </template>
 
                             <template #after-item-list>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_many_to_many_assignment_card_results_list_after %}
                                 <slot name="after-item-list"></slot>
                                 {% endblock %}
@@ -113,6 +124,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_many_to_many_assignment_card_grid %}
     <template #grid>
         <slot name="data-grid">
@@ -130,6 +142,7 @@
                     v-for="column in columns"
                     #[`column-${column.property}`]="columnProps"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_many_to_many_assignment_card_grid_column %}
                     <slot
                         :name="`column-${column.property}`"
@@ -139,6 +152,7 @@
                 </template>
 
                 <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
                     <sw-context-menu-item
                         variant="danger"
@@ -151,7 +165,9 @@
                 </template>
 
                 <template #pagination>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_many_to_many_assignment_card_grid_footer %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_many_to_many_assignment_card_grid_footer_remote_mode %}
                     <template v-if="!localMode">
                         <sw-pagination
@@ -166,7 +182,7 @@
                             class="sw-many-to-many-assignment-card__empty-state"
                         >
                             <sw-icon
-                                name="default-action-search"
+                                name="regular-search"
                                 size="20px"
                             />
                             {{ $tc('global.sw-select-result-list.messageNoResults') }}
@@ -181,6 +197,7 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_many_to_many_assignment_card_grid_footer_local_mode %}
                     <template v-else>
                         <div

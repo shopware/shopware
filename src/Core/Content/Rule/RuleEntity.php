@@ -14,14 +14,16 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
+#[Package('services-settings')]
 class RuleEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -39,14 +41,14 @@ class RuleEntity extends Entity
     protected $priority;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|Rule|null
      */
     protected $payload;
 
     /**
-     * @var array|null
+     * @var string[]|null
      */
     protected $moduleTypes;
 
@@ -66,13 +68,6 @@ class RuleEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var EventActionCollection|null
-     */
-    protected $eventActions;
-
-    /**
      * @var RuleConditionCollection|null
      */
     protected $conditions;
@@ -81,6 +76,11 @@ class RuleEntity extends Entity
      * @var bool
      */
     protected $invalid;
+
+    /**
+     * @var string[]|null
+     */
+    protected ?array $areas = null;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -113,6 +113,11 @@ class RuleEntity extends Entity
     protected $flowSequences;
 
     /**
+     * @var TagCollection|null
+     */
+    protected $tags;
+
+    /**
      * @var PromotionCollection|null
      */
     protected $orderPromotions;
@@ -121,6 +126,8 @@ class RuleEntity extends Entity
      * @var PromotionCollection|null
      */
     protected $cartPromotions;
+
+    protected ?TaxProviderCollection $taxProviders = null;
 
     public function getName(): string
     {
@@ -133,7 +140,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @return Rule|string|null
      */
     public function getPayload()
     {
@@ -143,7 +150,9 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
+     *
+     * @param Rule|string|null $payload
      */
     public function setPayload($payload): void
     {
@@ -220,11 +229,33 @@ class RuleEntity extends Entity
         $this->invalid = $invalid;
     }
 
+    /**
+     * @return string[]|null
+     */
+    public function getAreas(): ?array
+    {
+        return $this->areas;
+    }
+
+    /**
+     * @param string[] $areas
+     */
+    public function setAreas(array $areas): void
+    {
+        $this->areas = $areas;
+    }
+
+    /**
+     * @return string[]|null
+     */
     public function getModuleTypes(): ?array
     {
         return $this->moduleTypes;
     }
 
+    /**
+     * @param string[]|null $moduleTypes
+     */
     public function setModuleTypes(?array $moduleTypes): void
     {
         $this->moduleTypes = $moduleTypes;
@@ -298,6 +329,16 @@ class RuleEntity extends Entity
         $this->flowSequences = $flowSequences;
     }
 
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
+    }
+
     /**
      * Gets a list of all promotions where this rule is
      * being used within the Order Conditions.
@@ -334,23 +375,13 @@ class RuleEntity extends Entity
         $this->cartPromotions = $cartPromotions;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function getEventActions(): ?EventActionCollection
+    public function getTaxProviders(): ?TaxProviderCollection
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
-
-        return $this->eventActions;
+        return $this->taxProviders;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function setEventActions(EventActionCollection $eventActions): void
+    public function setTaxProviders(TaxProviderCollection $taxProviders): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
-
-        $this->eventActions = $eventActions;
+        $this->taxProviders = $taxProviders;
     }
 }

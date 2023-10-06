@@ -2,9 +2,12 @@
 
 namespace Shopware\Elasticsearch\Test;
 
-use Elasticsearch\Client;
+use Doctrine\DBAL\Connection;
+use OpenSearch\Client;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -16,6 +19,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+#[Package('core')]
 trait ElasticsearchTestTestBehaviour
 {
     /**
@@ -92,4 +96,22 @@ trait ElasticsearchTestTestBehaviour
     }
 
     abstract protected function getDiContainer(): ContainerInterface;
+
+    abstract protected function runWorker(): void;
+
+    protected function clearElasticsearch(): void
+    {
+        $c = $this->getDiContainer();
+
+        $client = $c->get(Client::class);
+
+        $indices = $client->indices()->get(['index' => EnvironmentHelper::getVariable('SHOPWARE_ES_INDEX_PREFIX') . '*']);
+
+        foreach ($indices as $index) {
+            $client->indices()->delete(['index' => $index['settings']['index']['provided_name']]);
+        }
+
+        $connection = $c->get(Connection::class);
+        $connection->executeStatement('DELETE FROM elasticsearch_index_task');
+    }
 }

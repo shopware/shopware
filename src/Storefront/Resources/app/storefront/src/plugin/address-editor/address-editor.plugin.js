@@ -4,9 +4,10 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
-import PluginManager from 'src/plugin-system/plugin.manager';
 
 /**
+ * @package checkout
+ *
  * this plugins opens a modal
  * where an address can be edited or created
  */
@@ -19,7 +20,6 @@ export default class AddressEditorPlugin extends Plugin {
         changeBilling: false,
         editorModalClass: 'address-editor-modal',
         closeEditorClass: 'js-close-address-editor',
-        csrfToken: '',
     };
 
     init() {
@@ -77,10 +77,6 @@ export default class AddressEditorPlugin extends Plugin {
                 changeBilling: this.options.changeBilling,
             },
         };
-
-        if (window.csrf.enabled && window.csrf.mode === 'twig') {
-            data['_csrf_token'] = this.options.csrfToken;
-        }
 
         return data;
     }
@@ -144,17 +140,17 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _registerCollapseCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
-        const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-toggle="collapse"]', false);
+
+        const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-bs-toggle="collapse"]', false);
 
         if (collapseTriggers) {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
-                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-target');
+                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
                 const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
-                const $parent = $(parent);
 
-                $parent.on('hidden.bs.collapse', () => {
+                parent.addEventListener('hidden.bs.collapse', () => {
                     pseudoModal.updatePosition();
 
                     this.$emitter.publish('collapseHidden', { pseudoModal });
@@ -166,7 +162,8 @@ export default class AddressEditorPlugin extends Plugin {
     }
 
     /**
-     * callback to close the modal after address selection
+     * callback to close the modal after address selection success
+     * callback to display the validation message nearby the invalid field
      * callback to register the modal events after ajax submit
      *
      * @param {PseudoModalUtil} pseudoModal
@@ -181,24 +178,43 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(ajaxForms, ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
-                const FormAjaxSubmitInstance = PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
+                const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
 
                 if (FormAjaxSubmitInstance) {
                     FormAjaxSubmitInstance.addCallback(() => {
                         this._registerAjaxSubmitCallback(pseudoModal);
 
+                        const invalidFields = DomAccess.querySelectorAll(
+                            modal,
+                            `${FormAjaxSubmitInstance.options.replaceSelectors[0]} .is-invalid`,
+                            false
+                        );
+
+                        if (invalidFields) {
+                            return;
+                        }
+
                         const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
                         if (shouldBeClosed) {
                             pseudoModal.close();
                             PageLoadingIndicatorUtil.create();
-                            window.location.reload();
+
+                            // dirty hack, because chromium cache is weird
+                            // basically a window.location.reload() but chrome reloads
+                            // with ?redirected=1 which is not the wanted behaviour
+                            // this replaces the redirected=1 to a redirected=0
+                            if (typeof URL === 'function') {
+                                const url = new URL(window.location.href);
+                                url.searchParams.delete('redirected');
+                                window.location.assign(url.toString());
+                            } else {
+                                window.location.reload();
+                            }
                         }
                     });
                 }
-
             });
         }
-
         this.$emitter.publish('registerAjaxSubmitCallback', { pseudoModal });
     }
 }

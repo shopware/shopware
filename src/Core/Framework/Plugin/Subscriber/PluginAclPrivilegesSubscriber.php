@@ -6,19 +6,21 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var KernelPluginCollection
+     * @internal
      */
-    private $plugins;
-
-    public function __construct(KernelPluginCollection $plugins)
+    public function __construct(private readonly KernelPluginCollection $plugins)
     {
-        $this->plugins = $plugins;
     }
 
     public static function getSubscribedEvents(): array
@@ -46,7 +48,7 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
         foreach ($additionalRolePrivileges as $additionalRole => $additionalPrivileges) {
             foreach ($aclRoles as $aclRole) {
                 if ($additionalRole === AclRoleDefinition::ALL_ROLE_KEY || \in_array($additionalRole, $aclRole->getPrivileges(), true)) {
-                    $newPrivileges = array_unique(array_merge($aclRole->getPrivileges(), $additionalPrivileges));
+                    $newPrivileges = array_values(array_unique(array_merge($aclRole->getPrivileges(), $additionalPrivileges)));
                     $aclRole->setPrivileges($newPrivileges);
                 }
             }
@@ -55,6 +57,8 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 
     /**
      * returns a unique, merged array of all role privileges to be added by plugins
+     *
+     * @return array<string, list<string>>
      */
     private function getAdditionalRolePrivileges(): array
     {

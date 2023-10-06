@@ -12,19 +12,18 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class SetGroupScopeDiscountPackager extends DiscountPackager
 {
     /**
-     * @var LineItemGroupBuilder
+     * @internal
      */
-    private $groupBuilder;
-
-    public function __construct(LineItemGroupBuilder $groupBuilder)
+    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
     {
-        $this->groupBuilder = $groupBuilder;
     }
 
     public function getDecorated(): DiscountPackager

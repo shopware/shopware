@@ -1,9 +1,14 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
 import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
     template,
 
@@ -60,10 +65,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         productStreamCriteria() {
-            const criteria = new Criteria();
-
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -80,6 +82,10 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
                     sortable: false,
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -110,9 +116,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         onSearch(term) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.term = term;
-            }
+            this.term = term;
 
             if (term) {
                 this.page = 1;

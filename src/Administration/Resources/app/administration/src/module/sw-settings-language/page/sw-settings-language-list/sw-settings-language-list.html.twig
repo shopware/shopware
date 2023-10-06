@@ -1,7 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_language_index %}
 <sw-page class="sw-settings-language-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -13,20 +16,24 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_list_smart_bar_header %}
     <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_list_smart_bar_header_title %}
         <h2>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             /> {{ $tc('sw-settings-language.list.textHeadline') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -42,9 +49,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_list_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="{
@@ -64,12 +73,7 @@
     </template>
     {% endblock %}
 
-    {% block sw_settings_language_list_language_switch %}
-    <template #language-switch>
-        <sw-language-switch @on-change="onChangeLanguage" />
-    </template>
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_list_content %}
     <template #content>
         <sw-entity-listing
@@ -91,13 +95,20 @@
             @page-change="onPageChange"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_content %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_columns %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-field
+                <sw-text-field
                     v-if="isInlineEdit"
+                    {% if VUE3 %}
+                    v-model:value="item.name"
+                    {% else %}
                     v-model="item.name"
+                    {% endif %}
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link
@@ -110,17 +121,19 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_locale %}
             <template #column-locale="{ item, column, compact, isInlineEdit }">
                 {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_id %}
             <template #column-id="{ item, column, compact, isInlineEdit }">
                 <sw-icon
                     v-if="isDefault(item.id)"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                     class="is--default"
                 />
@@ -128,6 +141,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_parent %}
             <template #column-parent="{ item, column, compact, isInlineEdit }">
                 {{ getParentName(item) }}
@@ -135,7 +149,9 @@
             {% endblock %}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_delete %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_delete_action %}
             <template #delete-action="{ item, showDelete }">
                 <sw-context-menu-item
@@ -150,6 +166,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_delete_confirm_action %}
             <template #delete-confirm-text="{ item }">
                 {{ $tc('sw-settings-language.list.textDeleteConfirm', 1, { name: item.name } ) }}
@@ -162,43 +179,52 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
         <sw-sidebar :propagate-width="true">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
-                icon="default-action-filter"
+                icon="regular-filter"
                 :title="$tc('sw-settings-language.list.titleSidebarFilter')"
             >
                 <sw-collapse expand-on-loading>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_language_list_grid_sidebar_filter_header %}
                     <template #header="{ expanded }">
                         <div class="sw-settings-language-list__collapse-header">
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_language_list_grid_sidebar_filter_header_title %}
                             <h4 class="sw-settings-language-list__collapse-title">
                                 {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
                             </h4>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}
                             <sw-icon
                                 v-if="expanded"
                                 key="filter-collapse-expanded-indicator"
                                 class="sw-media-collapse__button"
-                                name="small-arrow-small-down"
+                                name="regular-chevron-down-xxs"
+                                size="12px"
                             />
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}
                             <sw-icon
                                 v-else
                                 key="filter-collapse-expanded-indicator"
                                 class="sw-media-collapse__button"
-                                name="small-arrow-small-right"
+                                name="regular-chevron-right-xxs"
+                                size="12px"
                             />
                             {% endblock %}
                             {% endblock %}
@@ -207,22 +233,31 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_language_list_grid_sidebar_filter_content %}
                     <template #content>
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <sw-field
+                        <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="filterRootLanguages"
+                            {% else %}
                             v-model="filterRootLanguages"
-                            type="switch"
+                            {% endif %}
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <sw-field
+                        <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="filterInheritedLanguages"
+                            {% else %}
                             v-model="filterInheritedLanguages"
-                            type="switch"
+                            {% endif %}
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

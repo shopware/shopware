@@ -2,17 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void             add(Transaction $entity)
- * @method void             set(string $key, Transaction $entity)
- * @method Transaction[]    getIterator()
- * @method Transaction[]    getElements()
- * @method Transaction|null get(string $key)
- * @method Transaction|null first()
- * @method Transaction|null last()
+ * @extends Collection<Transaction>
  */
+#[Package('checkout')]
 class TransactionCollection extends Collection
 {
     public function getApiAlias(): string

@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -17,14 +18,18 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class DateRangeRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -184,7 +189,7 @@ class DateRangeRuleTest extends TestCase
         static::assertSame($expectedResult, $matchResult);
     }
 
-    public function matchDataProvider(): array
+    public static function matchDataProvider(): array
     {
         return [
             // from and to set, useTime = false
@@ -214,6 +219,27 @@ class DateRangeRuleTest extends TestCase
                 '2021-01-01 00:00:00 UTC',
                 false,
                 '2021-01-02 00:00:00 UTC',
+                false,
+            ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-01 10:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-02 10:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-03 10:00:00 UTC',
                 false,
             ],
 
@@ -331,7 +357,7 @@ class DateRangeRuleTest extends TestCase
                 '2021-01-02 00:00:00 +02:00',
                 false,
                 '2021-01-01 21:59:59 UTC',
-                false,
+                true,
             ],
             // with useTime = true
             [

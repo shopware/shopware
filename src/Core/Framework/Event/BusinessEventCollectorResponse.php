@@ -2,17 +2,13 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                         add(BusinessEventDefinition $entity)
- * @method void                         set(string $key, BusinessEventDefinition $entity)
- * @method BusinessEventDefinition[]    getIterator()
- * @method BusinessEventDefinition[]    getElements()
- * @method BusinessEventDefinition|null get(string $key)
- * @method BusinessEventDefinition|null first()
- * @method BusinessEventDefinition|null last()
+ * @extends Collection<BusinessEventDefinition>
  */
+#[Package('business-ops')]
 class BusinessEventCollectorResponse extends Collection
 {
     protected function getExpectedClass(): ?string

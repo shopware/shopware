@@ -2,40 +2,46 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
     use OrderActionTrait;
+
+    private EntityRepository $flowRepository;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**
+     * @param array<string, mixed> $existedData
+     * @param array<string, mixed> $updateData
+     * @param array<string, mixed> $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testAddAffiliateAndCampaignCodeForOrder(array $existedData, array $updateData, array $expectData): void
@@ -64,13 +70,16 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
         $this->cancelOrder();
 
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), $this->ids->context)->first();
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), Context::createDefaultContext())->first();
 
         static::assertEquals($order->getAffiliateCode(), $expectData['affiliateCode']);
         static::assertEquals($order->getCampaignCode(), $expectData['campaignCode']);
     }
 
-    public function createDataProvider(): array
+    /**
+     * @return array<int, mixed>
+     */
+    public static function createDataProvider(): array
     {
         return [
             // existed data / update data / expect data

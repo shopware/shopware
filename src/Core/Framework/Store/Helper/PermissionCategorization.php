@@ -105,6 +105,7 @@ use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinitio
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -152,6 +153,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @internal
  */
+#[Package('services-settings')]
 class PermissionCategorization
 {
     private const CATEGORY_APP = 'app';
@@ -177,6 +179,8 @@ class PermissionCategorization
     private const CATEGORY_SOCIAL_SHOPPING = 'social_shopping';
     private const CATEGORY_TAG = 'tag';
     private const CATEGORY_THEME = 'theme';
+    private const CATEGORY_ADDITIONAL_PRIVILEGES = 'additional_privileges';
+
     /**
      * @see \Shopware\Storefront\Theme\ThemeDefinition::ENTITY_NAME
      */
@@ -396,6 +400,9 @@ class PermissionCategorization
             self::THEME_MEDIA_ENTITY_NAME,
             self::THEME_SALES_CHANNEL_ENTITY_NAME,
         ],
+        self::CATEGORY_ADDITIONAL_PRIVILEGES => [
+            'additional_privileges',
+        ],
     ];
 
     public static function isInCategory(string $entity, string $category): bool
@@ -409,6 +416,9 @@ class PermissionCategorization
         return \in_array($entity, self::PERMISSION_CATEGORIES[$category], true);
     }
 
+    /**
+     * @return string[]
+     */
     public static function getCategoryNames(): array
     {
         $categories = array_keys(self::PERMISSION_CATEGORIES);

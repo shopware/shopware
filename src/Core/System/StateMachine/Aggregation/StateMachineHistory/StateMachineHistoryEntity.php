@@ -4,10 +4,13 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
 
+#[Package('checkout')]
 class StateMachineHistoryEntity extends Entity
 {
     use EntityIdTrait;
@@ -28,9 +31,21 @@ class StateMachineHistoryEntity extends Entity
     protected $entityName;
 
     /**
-     * @var array
+     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
+     *
+     * @var array{id: string, version_id: string}
      */
     protected $entityId;
+
+    /**
+     * @var string
+     */
+    protected $referencedId;
+
+    /**
+     * @var string
+     */
+    protected $referencedVersionId;
 
     /**
      * @var string
@@ -107,14 +122,54 @@ class StateMachineHistoryEntity extends Entity
         $this->entityName = $entityName;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
+     *
+     * @return array{id: string, version_id: string}
+     */
     public function getEntityId(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            'Will be removed. Use the dedicated properties \'referencedId\' and \'referencedVersionId\'',
+        );
+
         return $this->entityId;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
+     *
+     * @param array{id: string, version_id: string} $entityId
+     */
     public function setEntityId(array $entityId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            'Will be removed. Use the dedicated properties \'referencedId\' and \'referencedVersionId\'',
+        );
+
         $this->entityId = $entityId;
+    }
+
+    public function getReferencedId(): string
+    {
+        return $this->referencedId;
+    }
+
+    public function setReferencedId(string $referencedId): void
+    {
+        $this->referencedId = $referencedId;
+    }
+
+    public function getReferencedVersionId(): string
+    {
+        return $this->referencedVersionId;
+    }
+
+    public function setReferencedVersionId(string $referencedVersionId): void
+    {
+        $this->referencedVersionId = $referencedVersionId;
     }
 
     public function getFromStateId(): string

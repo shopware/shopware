@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_inheritance_switch %}
 <div
     class="sw-inheritance-switch"
@@ -7,26 +8,26 @@
         'sw-inheritance-switch--is-not-inherited': !isInherited,
     }"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inheritance_switch_inherit_icon %}
     <sw-icon
         v-if="isInherited"
         key="inherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
-        :multicolor="true"
-        :name="disabled ? 'custom-inherited-disabled' : 'custom-inherited'"
-        size="16"
+        name="regular-link-horizontal"
+        size="16px"
         @click="onClickRemoveInheritance"
     />
     {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_inheritance_switch_uninherit_icon %}
     <sw-icon
         v-else
         key="uninherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"
         :class="unInheritClasses"
-        :multicolor="true"
-        name="custom-uninherited"
-        size="16"
+        name="regular-link-horizontal-slash"
+        size="16px"
         @click="onClickRestoreInheritance"
     />
     {% endblock %}

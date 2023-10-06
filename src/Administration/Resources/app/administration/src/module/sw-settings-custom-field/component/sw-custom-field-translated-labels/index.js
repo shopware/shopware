@@ -1,9 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-custom-field-translated-labels.html.twig';
 import './sw-custom-field-translated-labels.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-custom-field-translated-labels', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -82,4 +86,4 @@ Component.register('sw-custom-field-translated-labels', {
             }
         },
     },
-});
+};

@@ -1,10 +1,18 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
+import errorConfig from '../../error-config.json';
 
-const { Component } = Shopware;
+import CUSTOMER from '../../constant/sw-customer.constant';
+
+/**
+ * @package checkout
+ */
+
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-customer-base-info', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -55,10 +63,39 @@ Component.register('sw-customer-base-info', {
         },
 
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
 
             return criteria;
+        },
+
+        orderCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
+                Criteria.not('AND', [
+                    Criteria.equals('stateMachineState.technicalName', 'cancelled'),
+                ]),
+            ], Criteria.sum('orderAmount', 'amountTotal')));
+            criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
+
+            return criteria;
+        },
+
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 
@@ -79,13 +116,10 @@ Component.register('sw-customer-base-info', {
 
     methods: {
         createdComponent() {
-            const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.sum('orderAmount', 'amountTotal'));
-            criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
-            this.orderRepository.search(criteria).then((response) => {
+            this.orderRepository.search(this.orderCriteria).then((response) => {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });
         },
     },
-});
+};

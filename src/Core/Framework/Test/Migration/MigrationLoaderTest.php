@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MigrationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -36,7 +39,7 @@ class MigrationLoaderTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM `migration`
               WHERE `class` LIKE \'%_test_migrations_valid%\'
               OR `class` LIKE \'%_test_migrations_invalid_namespace%\''
@@ -128,7 +131,7 @@ class MigrationLoaderTest extends TestCase
             ->from('migration')
             ->where('`class` LIKE \'%_test_migrations_valid%\'')
             ->orderBy('creation_timestamp', 'ASC')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 }

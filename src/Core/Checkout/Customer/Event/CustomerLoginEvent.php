@@ -4,41 +4,46 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContextTokenAware is deprecated and will be removed in v6.6.0
+ */
+#[Package('checkout')]
+class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'checkout.customer.login';
+    final public const EVENT_NAME = 'checkout.customer.login';
+
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerEntity $customer,
+        private readonly string $contextToken
+    ) {
+    }
 
     /**
-     * @var CustomerEntity
+     * @return array<string, scalar|array<mixed>|null>
      */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $contextToken;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $contextToken)
+    public function getValues(): array
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->contextToken = $contextToken;
+        return [
+            FlowMailVariables::CONTEXT_TOKEN => $this->contextToken,
+        ];
     }
 
     public function getName(): string
@@ -81,5 +86,14 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesC
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        return new MailRecipientStruct(
+            [
+                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+            ]
+        );
     }
 }

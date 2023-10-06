@@ -4,26 +4,18 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class DiscountCalculatorResult
 {
     /**
-     * @var CalculatedPrice
+     * @param DiscountCompositionItem[] $compositionItems
      */
-    private $price;
-
-    /**
-     * @var DiscountCompositionItem[]
-     */
-    private $compositionItems;
-
-    /**
-     * @param DiscountCompositionItem[] $discountedItems
-     */
-    public function __construct(CalculatedPrice $price, array $discountedItems)
-    {
-        $this->price = $price;
-        $this->compositionItems = $discountedItems;
+    public function __construct(
+        private readonly CalculatedPrice $price,
+        private readonly array $compositionItems
+    ) {
     }
 
     public function getPrice(): CalculatedPrice

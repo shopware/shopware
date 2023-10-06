@@ -1,12 +1,11 @@
+/**
+ * @package admin
+ */
+
 import ApiService from '../api.service';
+import InvalidActionButtonParameterError from './errors/InvalidActionButtonParameterError';
 
-export class InvalidActionButtonParameterError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'InvalidActionButtonParameterError';
-    }
-}
-
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppActionButtonService extends ApiService {
     /**
      * @param {AxiosInstance} httpClient
@@ -40,10 +39,12 @@ export default class AppActionButtonService extends ApiService {
         }
 
         return this.httpClient
-            .get(`app-system/action-button/${entity}/${view}`,
+            .get(
+                `app-system/action-button/${entity}/${view}`,
                 {
                     headers: this.getBasicHeaders(),
-                }).then(({ data }) => {
+                },
+            ).then(({ data }) => {
                 return data.actions;
             });
     }

@@ -3,12 +3,13 @@
 $sw-price-field-lock-color-default: $color-darkgray-200;
 $sw-price-field-lock-color-locked: $color-shopware-brand-500;
 $sw-price-field-suffix-font-size: 20px;
-$sw-price-field-suffix-font-weight: 400;
+$sw-price-field-suffix-font-weight: $font-weight-regular;
 
 .sw-price-field {
     .price-field-grid {
         display: grid;
         grid-template-columns: 1fr 30px 1fr;
+        min-width: 120px;
     }
 
     .sw-price-field__lock {
@@ -26,6 +27,10 @@ $sw-price-field-suffix-font-weight: 400;
         &.is--disabled {
             color: $color-gray-700;
             cursor: default;
+        }
+
+        .sw-icon {
+            padding: 0 3px;
         }
     }
 

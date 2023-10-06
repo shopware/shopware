@@ -2,33 +2,26 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 
+#[Package('system-settings')]
 class SnippetValidator implements SnippetValidatorInterface
 {
     /**
-     * @var SnippetFileCollection
+     * @internal
      */
-    private $deprecatedSnippetFiles;
-
-    /**
-     * @var SnippetFileHandler
-     */
-    private $snippetFileHandler;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    public function __construct(SnippetFileCollection $deprecatedSnippetFiles, SnippetFileHandler $snippetFileHandler, string $projectDir)
-    {
-        $this->deprecatedSnippetFiles = $deprecatedSnippetFiles;
-        $this->snippetFileHandler = $snippetFileHandler;
-        $this->projectDir = $projectDir;
+    public function __construct(
+        private readonly SnippetFileCollection $deprecatedSnippetFiles,
+        private readonly SnippetFileHandler $snippetFileHandler,
+        private readonly string $projectDir
+    ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function validate(): array
     {
         $files = $this->getAllFiles();
@@ -64,6 +57,9 @@ class SnippetValidator implements SnippetValidatorInterface
         return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
     }
 
+    /**
+     * @param array<string> $files
+     */
     private function hydrateFiles(array $files): SnippetFileCollection
     {
         $snippetFileCollection = new SnippetFileCollection();
@@ -75,7 +71,8 @@ class SnippetValidator implements SnippetValidatorInterface
                 $filePath,
                 $this->getLocaleFromFileName($fileName),
                 'Shopware',
-                false
+                false,
+                ''
             ));
         }
 
@@ -94,6 +91,11 @@ class SnippetValidator implements SnippetValidatorInterface
         return $matches[1];
     }
 
+    /**
+     * @param array<mixed> $dataSet
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function getRecursiveArrayKeys(array $dataSet, string $keyString = ''): array
     {
         $keyPaths = [];
@@ -109,12 +111,18 @@ class SnippetValidator implements SnippetValidatorInterface
                 continue;
             }
 
-            $keyPaths = array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
+            $keyPaths = [...$keyPaths, ...$this->getRecursiveArrayKeys($data, $key . '.')];
         }
 
         return $keyPaths;
     }
 
+    /**
+     * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
+     * @param array<int, string> $availableISOs
+     *
+     * @return array<string, mixed>
+     */
     private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
     {
         $availableISOs = array_keys(array_flip($availableISOs));
@@ -142,6 +150,9 @@ class SnippetValidator implements SnippetValidatorInterface
         return $missingSnippetsArray;
     }
 
+    /**
+     * @return array<string>
+     */
     private function findDeprecatedSnippetFiles(): array
     {
         return array_column($this->deprecatedSnippetFiles->toArray(), 'path');

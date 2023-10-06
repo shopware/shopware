@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_plugins %}
 <div class="sw-first-run-wizard-plugins">
     <h3 class="recommended-plugins__headline">
@@ -69,8 +70,8 @@
             v-for="plugin in categoryLead"
             :key="plugin.name"
             :plugin="plugin"
-            @onPluginInstalled="reloadRecommendations"
-            @onPluginRemoved="reloadRecommendations"
+            @on-plugin-installed="reloadRecommendations"
+            @extension-activated="$emit('extension-activated', $event)"
         />
     </div>
 
@@ -100,6 +101,8 @@
                 :key="plugin.name"
                 :plugin="plugin"
                 :show-description="false"
+                @on-plugin-installed="reloadRecommendations"
+                @extension-activated="$emit('extension-activated', $event)"
             />
         </sw-container>
     </div>

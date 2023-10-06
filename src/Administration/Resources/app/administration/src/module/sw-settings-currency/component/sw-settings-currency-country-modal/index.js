@@ -1,10 +1,14 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-currency-country-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-currency-country-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -28,7 +32,7 @@ Component.register('sw-settings-currency-country-modal', {
 
     computed: {
         countryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
@@ -81,4 +85,4 @@ Component.register('sw-settings-currency-country-modal', {
             return this.assignedCountryIds.includes(country.id);
         },
     },
-});
+};

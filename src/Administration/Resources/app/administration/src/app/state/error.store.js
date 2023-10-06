@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Application } = Shopware;
 const { ErrorStore } = Shopware.Data;
 const utils = Shopware.Utils;
@@ -62,6 +66,24 @@ class VuexErrorStore {
                 return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
             },
 
+            getSystemConfigApiError: (state, getters) => (entityName, saleChannelId, key) => {
+                const errors = getters.getErrorsForEntity(entityName, saleChannelId);
+
+                if (!errors) {
+                    return null;
+                }
+
+                if (errors.hasOwnProperty(key)) {
+                    return errors[key];
+                }
+
+                return null;
+            },
+
+            getAllApiErrors: (state) => () => {
+                return Object.values(state.api);
+            },
+
             existsErrorInProperty: (state) => (entity, properties) => {
                 const entityErrors = state.api[entity];
                 if (!entityErrors) {
@@ -78,6 +100,10 @@ class VuexErrorStore {
 
             getSystemError: (state) => (id) => {
                 return state.system[id] || null;
+            },
+
+            countSystemError: (state) => () => {
+                return Object.keys(state.system).length;
             },
         };
 
@@ -106,4 +132,7 @@ class VuexErrorStore {
     }
 }
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default new VuexErrorStore();

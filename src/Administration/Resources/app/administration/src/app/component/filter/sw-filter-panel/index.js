@@ -3,17 +3,15 @@ import './sw-filter-panel.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-filter-panel', {
     template,
 
     inject: ['repositoryFactory'],
 
     props: {
-        entity: {
-            type: String,
-            required: true,
-        },
-
         filters: {
             type: Array,
             required: true,

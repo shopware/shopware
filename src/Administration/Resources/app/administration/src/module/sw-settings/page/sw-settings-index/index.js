@@ -1,10 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 
-const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
-Component.register('sw-settings-index', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -27,7 +30,12 @@ Component.register('sw-settings-index', {
 
                         return this.acl.can(setting.privilege);
                     })
-                    .sort((a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label))));
+                    .sort((a, b) => {
+                        const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
+                        const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
+
+                        return this.$tc(labelA).localeCompare(this.$tc(labelB));
+                    });
 
                 if (group.length > 0) {
                     acc[groupName] = group;
@@ -87,4 +95,4 @@ Component.register('sw-settings-index', {
             return this.$tc(settingsItem.label.label);
         },
     },
-});
+};

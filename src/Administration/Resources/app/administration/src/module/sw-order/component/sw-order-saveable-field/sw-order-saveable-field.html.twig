@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_saveable_field %}
 <sw-container
     v-if="isEditing"
@@ -5,16 +6,21 @@
     gap="0px 10px"
     class="sw-order-saveable-field"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_input %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block  sw_order_saveable_field_input_field%}
-                <sw-field ref="edit-field"
-                    :type="type"
-                    :value="value"
-                    :placeholder="placeholder">
-                </sw-field>
-            {% endblock %}
+    <component
+        :is="component"
+        ref="edit-field"
+        :value="value"
+        :placeholder="placeholder"
+    />
     {% endblock %}
+    {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_actions %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_cancel_button %}
     <sw-button
         size="x-small"
@@ -22,7 +28,7 @@
         @click="onCancelButtonClicked"
     >
         <sw-icon
-            name="small-default-x-line-small"
+            name="regular-times-xs"
             small
         />
     </sw-button>
@@ -35,18 +41,21 @@
         @click="onSaveButtonClicked"
     >
         <sw-icon
-            name="small-default-checkmark-line-small"
+            name="regular-checkmark-xxs"
             small
         />
     </sw-button>
     {%  endblock %}
     {% endblock %}
 </sw-container>
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     v-else
+    role="button"
+    tabindex="0"
     @click="onClick"
+    @keydown.enter="onClick"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_content %}
     <slot></slot>
     {% endblock %}

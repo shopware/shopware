@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MailUpdate
 {
     /**
@@ -29,8 +32,13 @@ class MailUpdate
      */
     protected $deHtml;
 
-    public function __construct(string $type, ?string $enPlain = null, ?string $enHtml = null, ?string $dePlain = null, ?string $deHtml = null)
-    {
+    public function __construct(
+        string $type,
+        ?string $enPlain = null,
+        ?string $enHtml = null,
+        ?string $dePlain = null,
+        ?string $deHtml = null
+    ) {
         $this->type = $type;
         $this->enPlain = $enPlain;
         $this->enHtml = $enHtml;

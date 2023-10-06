@@ -32,6 +32,9 @@ html {
         @include media-breakpoint-only(xl) {
             content: 'xl';
         }
+        @include media-breakpoint-only(xxl) {
+            content: 'xxl';
+        }
     }
 
     /* stylelint-disable selector-class-pattern -- allow BEM here as it is a generated class name from the administration

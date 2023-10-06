@@ -1,12 +1,18 @@
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin, Defaults } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-customer-card', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -38,15 +44,15 @@ Component.register('sw-customer-card', {
 
     computed: {
         hasActionSlot() {
-            return !!this.$slots.actions;
+            return !!this.$slots.actions?.[0];
         },
 
         hasAdditionalDataSlot() {
-            return !!this.$slots['data-additional'];
+            return !!this.$slots['data-additional']?.[0];
         },
 
         hasSummarySlot() {
-            return !!this.$slots.summary;
+            return !!this.$slots.summary?.[0];
         },
 
         moduleColor() {
@@ -66,7 +72,7 @@ Component.register('sw-customer-card', {
         },
 
         salutationCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('or', [
                 Criteria.equals('id', Defaults.defaultSalutationId),
@@ -75,7 +81,37 @@ Component.register('sw-customer-card', {
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
+
+        accountTypeOptions() {
+            return [{
+                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
+            }, {
+                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
+            }];
+        },
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+    },
+
+    watch: {
+        'customer.accountType'(value) {
+            if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
+                return;
+            }
+
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                {
+                    expression: `customer.${this.customer.id}.company`,
+                },
+            );
+        },
     },
 
     methods: {
@@ -83,4 +119,4 @@ Component.register('sw-customer-card', {
             return `mailto:${mail}`;
         },
     },
-});
+};

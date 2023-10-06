@@ -8,17 +8,20 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * @internal
+ */
 class RouteScopeListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,9 +46,11 @@ class RouteScopeListenerTest extends TestCase
         $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
         $event = $this->createEvent($request);
-        $event->setController([$this->getContainer()->get('web_profiler.controller.profiler'), 'panelAction']);
+        /** @var ProfilerController $profilerController */
+        $profilerController = $this->getContainer()->get('web_profiler.controller.profiler');
+        $event->setController($profilerController->panelAction(...));
 
-        static::assertNull($listener->checkScope($event));
+        $listener->checkScope($event);
     }
 
     public function testRouteScopeListenerFailsHardWithoutAnnotation(): void
@@ -71,7 +76,7 @@ class RouteScopeListenerTest extends TestCase
         $stack->push($request);
         $event = $this->createEvent($request);
 
-        static::assertNull($listener->checkScope($event));
+        $listener->checkScope($event);
     }
 
     public function testRouteScopeListenerDeniesInvalidAdminRequest(): void
@@ -101,14 +106,16 @@ class RouteScopeListenerTest extends TestCase
 
         $event = $this->createEvent($requestSub);
 
-        static::assertNull($listener->checkScope($event));
+        $listener->checkScope($event);
     }
 
     private function createEvent(Request $request): ControllerEvent
     {
+        $controller = $this->getContainer()->get(ApiController::class);
+
         return new ControllerEvent(
             $this->getContainer()->get('kernel'),
-            [$this->getContainer()->get(ApiController::class), 'compositeSearch'],
+            $controller->clone(...),
             $request,
             HttpKernelInterface::SUB_REQUEST
         );
@@ -118,7 +125,7 @@ class RouteScopeListenerTest extends TestCase
     {
         $request = Request::create($route);
 
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => [$scopeName]]));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [$scopeName]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext($source));
         $request->attributes->set('_route', 'test.it');
 

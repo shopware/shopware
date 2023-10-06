@@ -2,17 +2,13 @@
 
 namespace Shopware\Core\Content\Flow\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                      add(FlowActionDefinition $entity)
- * @method void                      set(string $key, FlowActionDefinition $entity)
- * @method FlowActionDefinition[]    getIterator()
- * @method FlowActionDefinition[]    getElements()
- * @method FlowActionDefinition|null get(string $key)
- * @method FlowActionDefinition|null first()
- * @method FlowActionDefinition|null last()
+ * @extends Collection<FlowActionDefinition>
  */
+#[Package('services-settings')]
 class FlowActionCollectorResponse extends Collection
 {
     protected function getExpectedClass(): ?string

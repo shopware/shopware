@@ -3,44 +3,32 @@
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                         add(LocaleTranslationEntity $entity)
- * @method void                         set(string $key, LocaleTranslationEntity $entity)
- * @method LocaleTranslationEntity[]    getIterator()
- * @method LocaleTranslationEntity[]    getElements()
- * @method LocaleTranslationEntity|null get(string $key)
- * @method LocaleTranslationEntity|null first()
- * @method LocaleTranslationEntity|null last()
+ * @extends EntityCollection<LocaleTranslationEntity>
  */
+#[Package('buyers-experience')]
 class LocaleTranslationCollection extends EntityCollection
 {
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
-            return $localeTranslation->getLocaleId();
-        });
+        return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId());
     }
 
     public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
-            return $localeTranslation->getLocaleId() === $id;
-        });
+        return $this->filter(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId() === $id);
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
-            return $localeTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
-            return $localeTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

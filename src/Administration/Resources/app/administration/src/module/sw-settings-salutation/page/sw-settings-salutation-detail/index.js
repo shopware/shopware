@@ -1,12 +1,16 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
-Component.register('sw-settings-salutation-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -108,7 +112,14 @@ Component.register('sw-settings-salutation-detail', {
             };
         },
 
-        ...mapPropertyErrors('salutation', ['displayName', 'letterName']),
+        ...mapPropertyErrors(
+            'salutation',
+            [
+                'displayName',
+                'letterName',
+                'salutationKey',
+            ],
+        ),
 
         showCustomFields() {
             return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
@@ -173,6 +184,8 @@ Component.register('sw-settings-salutation-detail', {
                     this.isLoading = false;
                 });
             }).catch(() => {
+                this.isLoading = false;
+
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),
@@ -222,4 +235,4 @@ Component.register('sw-settings-salutation-detail', {
             });
         }, 500),
     },
-});
+};

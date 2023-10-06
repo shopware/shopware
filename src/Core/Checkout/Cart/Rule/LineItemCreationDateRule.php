@@ -2,51 +2,35 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemCreationDateRule extends Rule
 {
-    protected ?string $lineItemCreationDate;
+    final public const RULE_NAME = 'cartLineItemCreationDate';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemCreationDate = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $lineItemCreationDate = null
+    ) {
         parent::__construct();
-
-        $this->lineItemCreationDate = $lineItemCreationDate;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemCreationDate';
     }
 
     public function getConstraints(): array
     {
         return [
-            'lineItemCreationDate' => [new NotBlank(), new Type('string')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
+            'lineItemCreationDate' => RuleConstraints::datetime(),
+            'operator' => RuleConstraints::datetimeOperators(false),
         ];
     }
 
@@ -58,7 +42,7 @@ class LineItemCreationDateRule extends Rule
 
         try {
             $ruleValue = $this->buildDate($this->lineItemCreationDate);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -70,7 +54,7 @@ class LineItemCreationDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesCreationDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -79,8 +63,15 @@ class LineItemCreationDateRule extends Rule
         return false;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->dateTimeField('lineItemCreationDate');
+    }
+
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesCreationDate(LineItem $lineItem, \DateTime $ruleValue): bool
     {
@@ -89,40 +80,15 @@ class LineItemCreationDateRule extends Rule
             $itemCreatedString = $lineItem->getPayloadValue('createdAt');
 
             if ($itemCreatedString === null) {
-                return false;
+                return RuleComparison::isNegativeOperator($this->operator);
             }
 
             $itemCreated = $this->buildDate($itemCreatedString);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemCreated->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_NEQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemCreated->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_GT:
-                return $itemCreated > $ruleValue;
-
-            case self::OPERATOR_LT:
-                return $itemCreated < $ruleValue;
-
-            case self::OPERATOR_GTE:
-                return $itemCreated >= $ruleValue;
-
-            case self::OPERATOR_LTE:
-                return $itemCreated <= $ruleValue;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::datetime($itemCreated, $ruleValue, $this->operator);
     }
 
     /**

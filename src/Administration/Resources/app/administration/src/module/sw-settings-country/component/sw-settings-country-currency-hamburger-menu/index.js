@@ -1,9 +1,11 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-country-currency-hamburger-menu.html.twig';
 import './sw-settings-country-currency-hamburger-menu.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-settings-country-currency-hamburger-menu', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -25,4 +27,4 @@ Component.register('sw-settings-country-currency-hamburger-menu', {
             this.$emit('currency-change', currencyId, isChecked);
         },
     },
-});
+};

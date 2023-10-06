@@ -3,39 +3,100 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
+use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class AvailableCombinationLoader
+#[Package('inventory')]
+class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 {
-    private Connection $connection;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractStockStorage $stockStorage
+    ) {
+    }
 
-    public function __construct(Connection $connection)
+    public function getDecorated(): AbstractAvailableCombinationLoader
     {
-        $this->connection = $connection;
+        throw new DecorationPatternException(self::class);
     }
 
     /**
-     * @deprecated tag:v6.5.0
-     * Parameter $salesChannelId will be mandatory in future implementation
+     * @deprecated tag:v6.6.0 - Method will be removed. Use `loadCombinations` instead.
      */
-    public function load(string $productId, Context $context/*, string $salesChannelId*/): AvailableCombinationResult
+    public function load(string $productId, Context $context, string $salesChannelId): AvailableCombinationResult
     {
-        $salesChannelId = null;
-        if (\func_num_args() === 3) {
-            $salesChannelId = func_get_arg(2);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'loadCombinations')
+        );
 
-            if (\gettype($salesChannelId) !== 'string') {
-                throw new \InvalidArgumentException('Argument 3 $salesChannelId must be of type string.');
+        $combinations = $this->getCombinations($productId, $context, $salesChannelId);
+
+        $result = new AvailableCombinationResult();
+
+        foreach ($combinations as $combination) {
+            try {
+                $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                continue;
             }
+
+            $available = (bool) $combination['available'];
+            $result->addCombination($options, $available);
         }
 
-        if ($salesChannelId === null) {
-            Feature::throwException('FEATURE_NEXT_18592', 'Sales channel id in combination loader is required in next major');
+        return $result;
+    }
+
+    public function loadCombinations(string $productId, SalesChannelContext $salesChannelContext): AvailableCombinationResult
+    {
+        $combinations = $this->getCombinations(
+            $productId,
+            $salesChannelContext->getContext(),
+            $salesChannelContext->getSalesChannel()->getId()
+        );
+
+        $stocks = $this->stockStorage->load(
+            new StockLoadRequest(array_keys($combinations)),
+            $salesChannelContext
+        );
+
+        $result = new AvailableCombinationResult();
+        foreach ($combinations as $id => $combination) {
+            try {
+                $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                continue;
+            }
+
+            $available = (bool) $combination['available'];
+            $stockData = $stocks->getStockForProductId($id);
+
+            if ($stockData !== null) {
+                $available = $stockData->available;
+            }
+
+            $result->addCombination($options, $available);
         }
 
+        return $result;
+    }
+
+    /**
+     * @return array<string, array{options: string, available: int, productNumber: string}>
+     */
+    private function getCombinations(string $productId, Context $context, string $salesChannelId): array
+    {
         $query = $this->connection->createQueryBuilder();
         $query->from('product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
@@ -49,11 +110,9 @@ class AvailableCombinationLoader
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('active', true);
 
-        if ($salesChannelId !== null) {
-            $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
-            $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
-            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
-        }
+        $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
+        $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
+        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
 
         $query->select([
             'LOWER(HEX(product.id))',
@@ -62,22 +121,8 @@ class AvailableCombinationLoader
             'product.available',
         ]);
 
-        $combinations = $query->execute()->fetchAll();
-        $combinations = FetchModeHelper::groupUnique($combinations);
+        $combinations = $query->executeQuery()->fetchAllAssociative();
 
-        $result = new AvailableCombinationResult();
-
-        foreach ($combinations as $combination) {
-            $available = (bool) $combination['available'];
-
-            $options = json_decode($combination['options'], true);
-            if ($options === false) {
-                continue;
-            }
-
-            $result->addCombination($options, $available);
-        }
-
-        return $result;
+        return FetchModeHelper::groupUnique($combinations);
     }
 }

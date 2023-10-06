@@ -1,26 +1,39 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 {% parent() %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_multi %}
 <sw-switch-field
+    {% if VUE3 %}
+    v-model:value="multiSelectSwitch"
+    {% else %}
     v-model="multiSelectSwitch"
+    {% endif %}
     class="sw-custom-field-detail__switch"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
+    {% if VUE3 %}
+    @update:value="onChangeMultiSelectSwitch"
+    {% else %}
     @change="onChangeMultiSelectSwitch"
+    {% endif %}
 />
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_options %}
 <div
     v-for="(option, index) in currentCustomField.config.options"
     :key="index"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_label %}
     <span>
         {{ $tc('sw-settings-custom-field.customField.detail.labelOption', 0, { count: (index+1) }) }}
     </span>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_delete %}
     <sw-button
         class="sw-custom-field-type-select__delete-option-button"
@@ -31,25 +44,36 @@
     </sw-button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_container %}
     <sw-container
         class="sw-custom-field-type-select__option-container"
         columns="1fr 1fr"
         gap="20px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_type_select_options_container_technical_name %}
-        <sw-field
+        <sw-text-field
+            {% if VUE3 %}
+            v-model:value="option.value"
+            {% else %}
             v-model="option.value"
+            {% endif %}
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_type_select_options_container_labels %}
         <div>
             <sw-text-field
                 v-for="locale in locales"
                 :key="locale"
+                {% if VUE3 %}
+                v-model:value="option.label[locale]"
+                {% else %}
                 v-model="option.label[locale]"
+                {% endif %}
                 class="sw-custom-field-type-select__option-label"
                 :label="getLabel(locale)"
             />
@@ -60,6 +84,7 @@
 </div>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_add_option %}
 <sw-button
     size="small"

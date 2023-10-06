@@ -41,18 +41,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="api.request_criteria_builder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
@@ -103,7 +96,6 @@
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
@@ -114,16 +106,10 @@
         <!-- Converter -->
         <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
             <argument type="tagged" tag="shopware.api.converter"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="request_stack"/>
         </service>
 
         <!-- API Docs -->
@@ -143,28 +129,31 @@
             <argument>%kernel.shopware_version%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
-            <argument type="service" id="router"/>
-            <argument type="service" id="event_dispatcher"/>
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection">
+            <argument type="service" id="kernel.bundles"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator" decorates="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator.inner"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
@@ -174,7 +163,8 @@
             <argument type="service" id="assets.packages" />
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
             <argument type="service" id="shopware.increment.gateway.registry"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>
@@ -197,8 +187,10 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <tag name="container.service_subscriber" />
+            <tag name="controller.service_arguments" />
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface" />
             </call>
         </service>
 
@@ -235,11 +227,11 @@
 
         <!-- API -->
         <service class="League\OAuth2\Server\CryptKey" id="shopware.private_key">
-            <argument>file://%kernel.project_dir%/config/jwt/private.pem</argument>
-            <argument>shopware</argument>
+            <argument>%shopware.api.jwt_key.private_key_path%</argument>
+            <argument>%shopware.api.jwt_key.private_key_passphrase%</argument>
         </service>
         <service class="League\OAuth2\Server\CryptKey" id="shopware.public_key">
-            <argument>file://%kernel.project_dir%/config/jwt/public.pem</argument>
+            <argument>%shopware.api.jwt_key.public_key_path%</argument>
         </service>
 
         <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.api.authorization_server">
@@ -284,6 +276,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener">
@@ -294,6 +287,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="string">%shopware.api.access_token_ttl%</argument>
+            <argument type="string">%shopware.api.refresh_token_ttl%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber">
@@ -345,6 +340,11 @@
 
         <service id="Shopware\Core\Framework\Validation\HappyPathValidator" decorates="validator">
             <argument type="service" id="Shopware\Core\Framework\Validation\HappyPathValidator.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection" />
+            <argument type="service" id="twig"/>
         </service>
     </services>
 </container>

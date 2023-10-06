@@ -2,23 +2,29 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class VariantListingUpdater
 {
     /**
-     * @var Connection
+     * @internal
      */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @throws Exception
+     */
     public function update(array $ids, Context $context): void
     {
         $ids = array_filter($ids);
@@ -52,7 +58,7 @@ class VariantListingUpdater
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
 
-            if ($config['main_variant']) {
+            if ($config['main_variant'] || $config['display_parent']) {
                 $groups = [];
             }
 
@@ -101,11 +107,18 @@ class VariantListingUpdater
             ) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate($sql, $params);
+                $this->connection->executeStatement($sql, $params);
             });
         }
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @throws Exception
+     *
+     * @return array<int|string, array<string, mixed>>
+     */
     private function getListingConfiguration(array $ids, Context $context): array
     {
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
@@ -113,24 +126,24 @@ class VariantListingUpdater
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'product.id as id',
-            'product.configurator_group_config as config',
-            'product.main_variant_id',
+            'product.variant_listing_config as config',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
         ]);
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
         $query->setParameter('version', $versionBytes);
 
-        $configuration = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $configuration = $query->executeQuery()->fetchAllAssociative();
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
+            $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $groups = [];
-            foreach ($config['config'] as $group) {
+            $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
+            foreach ($configuratorGroupConfig as $group) {
                 if ($group['expressionForListings']) {
                     $groups[] = $group['id'];
                 }
@@ -138,8 +151,9 @@ class VariantListingUpdater
 
             $listingConfiguration[$config['id']] = [
                 'groups' => $groups,
-                'child_count' => $config['child_count'],
-                'main_variant' => $config['main_variant_id'],
+                'child_count' => $config['child_count'] ?? null,
+                'main_variant' => $config['config']['mainVariantId'] ?? null,
+                'display_parent' => $config['config']['displayParent'] ?? null,
             ];
         }
 

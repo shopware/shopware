@@ -6,6 +6,7 @@ const DocumentEvents = {
 };
 
 /**
+ * @package checkout
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService
@@ -17,46 +18,65 @@ class DocumentApiService extends ApiService {
         this.$listener = () => ({});
     }
 
-    createDocument(orderId,
+    createDocument(
+        orderId,
         documentTypeName,
-        documentConfig = {},
+        config = {},
         referencedDocumentId = null,
         additionalParams = {},
         additionalHeaders = {},
-        file = null) {
-        let route = `/_action/order/${orderId}/document/${documentTypeName}`;
+        file = null,
+    ) {
+        let route = `_action/order/document/${documentTypeName}/create`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         const params = {
-            config: documentConfig,
-            referenced_document_id: referencedDocumentId,
+            orderId,
+            config,
+            referencedDocumentId,
         };
 
-        if (file) {
+        if (file || config.documentMediaFileId) {
             params.static = true;
         }
 
-        let docCreated = this.httpClient
-            .post(route, params, {
+        let responseDoc;
+        return this.httpClient
+            .post(route, [params], {
                 additionalParams,
                 headers,
-            }).then((response) => {
-                if (file && response.data.documentId) {
+            })
+            .then((response) => {
+                responseDoc = response.data?.data;
+
+                if (file && file instanceof File && responseDoc && responseDoc[0]?.documentId) {
+                    const documentId = responseDoc[0]?.documentId;
                     const fileName = file.name.split('.').shift();
                     const fileExtension = file.name.split('.').pop();
                     // eslint-disable-next-line max-len
-                    route = `/_action/document/${response.data.documentId}/upload?fileName=${documentConfig.documentNumber}_${fileName}&extension=${fileExtension}`;
+                    route = `/_action/document/${documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
                     headers['Content-Type'] = file.type;
-                    docCreated = this.httpClient.post(route, file, {
+                    responseDoc = this.httpClient.post(route, file, {
                         additionalParams,
                         headers,
                     });
                 }
 
-                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+                const errors = response.data?.errors;
 
-                return docCreated;
-            }).catch((error) => {
+                if (errors && errors.hasOwnProperty(orderId)) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errors[orderId].pop()),
+                    );
+
+                    return;
+                }
+
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+                // eslint-disable-next-line consistent-return
+                return Promise.resolve(responseDoc);
+            })
+            .catch((error) => {
                 if (error.response?.data?.errors) {
                     this.$listener(
                         this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
@@ -76,7 +96,18 @@ class DocumentApiService extends ApiService {
                     responseType: 'blob',
                     headers: this.getBasicHeaders(),
                 },
-            );
+            )
+            .catch(async (error) => {
+                const errorObject = JSON.parse(await error.response.data.text());
+                if (errorObject.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(
+                            'create-document-fail',
+                            errorObject.errors.pop(),
+                        ),
+                    );
+                }
+            });
     }
 
     getDocument(documentId, documentDeepLink, context, download = false) {
@@ -99,4 +130,5 @@ class DocumentApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { DocumentApiService as default, DocumentEvents };

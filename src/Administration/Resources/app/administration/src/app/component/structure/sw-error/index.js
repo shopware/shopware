@@ -4,6 +4,9 @@ import template from './sw-error.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders a error page.
@@ -13,6 +16,7 @@ const { Component } = Shopware;
  * <sw-error :errorObject="{ message: 'Could not load the page' }">
  * </sw-error>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-error', {
     template,
 
@@ -81,6 +85,7 @@ Component.register('sw-error', {
     methods: {
         createdComponent() {
             if (!this.linkText) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.linkText = this.$tc('sw-error.general.textLink');
             }
         },

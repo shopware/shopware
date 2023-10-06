@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class TranslationsAssociationField extends OneToManyAssociationField
 {
-    public const PRIORITY = 90;
+    final public const PRIORITY = 90;
 
     public function __construct(
         string $referenceClass,
@@ -16,10 +17,6 @@ class TranslationsAssociationField extends OneToManyAssociationField
         string $propertyName = 'translations',
         string $localField = 'id'
     ) {
-        if (!is_subclass_of($referenceClass, EntityTranslationDefinition::class)) {
-            throw new \InvalidArgumentException('$referenceClass needs to be an `EntityTranslationDefinition`');
-        }
-
         parent::__construct($propertyName, $referenceClass, $referenceField, $localField);
         $this->addFlags(new CascadeDelete());
     }

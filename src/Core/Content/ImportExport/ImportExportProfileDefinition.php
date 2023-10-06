@@ -15,10 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class ImportExportProfileDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'import_export_profile';
+    final public const ENTITY_NAME = 'import_export_profile';
 
     public function getEntityName(): string
     {
@@ -40,17 +42,17 @@ class ImportExportProfileDefinition extends EntityDefinition
         $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new StringField('name', 'name')),
+            new StringField('name', 'name'),
             (new TranslatedField('label'))->addFlags(new Required()),
-            (new StringField('type', 'type')),
+            new StringField('type', 'type'),
             new BoolField('system_default', 'systemDefault'),
             (new StringField('source_entity', 'sourceEntity'))->addFlags(new Required()),
             (new StringField('file_type', 'fileType'))->addFlags(new Required()),
             (new StringField('delimiter', 'delimiter'))->addFlags(new Required()),
             (new StringField('enclosure', 'enclosure'))->addFlags(new Required()),
-            (new JsonField('mapping', 'mapping', [], [])),
-            (new JsonField('update_by', 'updateBy', [], [])),
-            (new JsonField('config', 'config', [], [])),
+            new JsonField('mapping', 'mapping', [], []),
+            new JsonField('update_by', 'updateBy', [], []),
+            new JsonField('config', 'config', [], []),
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);

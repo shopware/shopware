@@ -5,24 +5,27 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CountrySerializer extends EntitySerializer
+#[Package('core')]
+class CountrySerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $countryRepository;
-
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheCountries = [];
 
-    public function __construct(EntityRepositoryInterface $countryRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $countryRepository)
     {
-        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -50,6 +53,11 @@ class CountrySerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === CountryDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheCountries = [];
     }
 
     private function getCountryId(string $iso): ?string

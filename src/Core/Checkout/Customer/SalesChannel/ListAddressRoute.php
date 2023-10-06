@@ -2,41 +2,31 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Address\Listing\AddressListingCriteriaEvent as StorefrontAddressListingCriteriaEvent;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class ListAddressRoute extends AbstractListAddressRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
+     *
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
      */
-    private $addressRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    public function __construct(EntityRepositoryInterface $addressRepository, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->addressRepository = $addressRepository;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(
+        private readonly EntityRepository $addressRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractListAddressRoute
@@ -44,25 +34,7 @@ class ListAddressRoute extends AbstractListAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Entity("customer_address")
-     * @OA\Post(
-     *      path="/account/list-address",
-     *      summary="Fetch addresses of a customer",
-     *      description="Lists all addresses of the current customer and allows filtering them based on a criteria.",
-     *      operationId="listAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CustomerAddress"))
-     *     )
-     * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/account/list-address', name: 'store-api.account.address.list.get', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'customer_address'])]
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
         $criteria
@@ -71,9 +43,6 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('countryState')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
-        if (\class_exists(StorefrontAddressListingCriteriaEvent::class)) {
-            $this->eventDispatcher->dispatch(new StorefrontAddressListingCriteriaEvent($criteria, $context));
-        }
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));
 
         return new ListAddressRouteResponse($this->addressRepository->search($criteria, $context->getContext()));

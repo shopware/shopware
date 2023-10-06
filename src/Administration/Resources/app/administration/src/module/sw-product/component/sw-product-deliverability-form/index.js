@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-deliverability-form.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-deliverability-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -54,4 +59,4 @@ Component.register('sw-product-deliverability-form', {
             }
         },
     },
-});
+};

@@ -7,9 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
 {
-    public const SCHEMA = '
+    final public const SCHEMA = '
         CREATE TABLE IF NOT EXISTS `defaults_child_translation` (
             `defaults_child_id` BINARY(16) NOT NULL,
             `language_id` BINARY(16) NOT NULL,
@@ -23,14 +26,14 @@ class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
         return 'defaults_child_translation';
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return DefaultsChildDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.4.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return DefaultsChildDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

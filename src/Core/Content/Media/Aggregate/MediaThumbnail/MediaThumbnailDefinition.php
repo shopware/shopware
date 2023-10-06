@@ -17,10 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class MediaThumbnailDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_thumbnail';
+    final public const ENTITY_NAME = 'media_thumbnail';
 
     public function getEntityName(): string
     {
@@ -56,7 +58,8 @@ class MediaThumbnailDefinition extends EntityDefinition
 
             (new IntField('width', 'width'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('height', 'height'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime()),
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'updatedAt'])),
+            (new StringField('path', 'path'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

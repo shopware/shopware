@@ -1,13 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_sequence_selector %}
 <div class="sw-flow-sequence-selector">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_title %}
     <div class="sw-flow-sequence-selector__title">
         <slot name="title">
-            <h3>{{ title }}</h3>
+            <h4>{{ title }}</h4>
         </slot>
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_help_text %}
     <div class="sw-flow-sequence-selector__help-text">
         <slot name="helpText">
@@ -16,8 +19,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_selector_actions %}
     <div class="sw-flow-sequence-selector__actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_selector_if_condition %}
         <sw-button
             class="sw-flow-sequence-selector__add-condition"
@@ -25,10 +30,11 @@
             @click="addIfCondition"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_rule %}
             <sw-icon
-                size="12"
-                name="small-default-rule"
+                size="16"
+                name="regular-rule-s"
             />
             {% endblock %}
 
@@ -36,6 +42,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_selector_then_action %}
         <sw-button
             class="sw-flow-sequence-selector__add-action"
@@ -43,16 +50,20 @@
             @click="addThenAction"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_file %}
             <sw-icon
-                size="12"
-                name="multicolor-file-thumbnail-normal"
+                size="16"
+                name="regular-file-edit-s"
             />
             {% endblock %}
 
             {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
         </sw-button>
         {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_sequence_selector_extension_options %}{% endblock %}
     </div>
     {% endblock %}
 </div>

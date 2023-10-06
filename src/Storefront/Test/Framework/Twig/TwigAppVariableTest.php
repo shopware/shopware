@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Framework\Twig;
+namespace Shopware\Storefront\Test\Framework\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -9,6 +9,9 @@ use Shopware\Storefront\Framework\Twig\TwigAppVariable;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class TwigAppVariableTest extends TestCase
 {
     use IntegrationTestBehaviour;

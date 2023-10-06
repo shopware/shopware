@@ -1,0 +1,42 @@
+# requires /.gitlab/base.yml
+
+.security-base:
+  extends: .base-no-setup
+  variables:
+    WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
+
+PHP License check:
+  extends: .security-base
+  stage: lint
+  rules:
+    - changes:
+        - 'composer.json'
+  script:
+    - !reference [ .scripts, init, composer ]
+    - vendor/bin/composer-license-checker check -a $(sed -z 's/\n/ -a /g' .allowed-licenses)
+
+Storefront License check:
+  extends: .security-base
+  stage: lint
+  rules:
+    - changes:
+        - 'src/Storefront/Resources/app/storefront/package.json'
+  script:
+    - !reference [ .scripts, install-node, script ]
+    - !reference [ .scripts, init, npm, storefront ]
+    - export PROJECT_ROOT=${PWD}
+    - cd ${STOREFRONT_PATH}
+    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(sed -z 's/\n/;/g' ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages
+
+Administration License check:
+  extends: .security-base
+  stage: lint
+  rules:
+    - changes:
+        - 'src/Administration/Resources/app/administration/package.json'
+  script:
+    - !reference [ .scripts, install-node, script ]
+    - !reference [ .scripts, init, npm, admin ]
+    - export PROJECT_ROOT=${PWD}
+    - cd ${ADMIN_PATH}
+    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(sed -z 's/\n/;/g' ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages

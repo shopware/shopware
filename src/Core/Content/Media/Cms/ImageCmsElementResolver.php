@@ -13,9 +13,20 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
+    final public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly AbstractDefaultMediaResolver $mediaResolver)
+    {
+    }
+
     public function getType(): string
     {
         return 'image';
@@ -24,7 +35,13 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('media');
-        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+
+        if (
+            $mediaConfig === null
+            || $mediaConfig->isMapped()
+            || $mediaConfig->isDefault()
+            || $mediaConfig->getValue() === null
+        ) {
             return null;
         }
 
@@ -74,11 +91,18 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         FieldConfig $config,
         ResolverContext $resolverContext
     ): void {
+        if ($config->isDefault()) {
+            $media = $this->mediaResolver->getDefaultCmsMediaEntity($config->getStringValue());
+
+            if ($media) {
+                $image->setMedia($media);
+            }
+        }
+
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
-            if ($media !== null) {
+            if ($media instanceof MediaEntity) {
                 $image->setMediaId($media->getUniqueIdentifier());
                 $image->setMedia($media);
             }
@@ -92,9 +116,8 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getValue());
-            if (!$media) {
+            $media = $searchResult->get($config->getStringValue());
+            if (!$media instanceof MediaEntity) {
                 return;
             }
 

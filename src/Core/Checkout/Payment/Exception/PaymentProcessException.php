@@ -2,18 +2,23 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class PaymentProcessException extends ShopwareHttpException
+#[Package('checkout')]
+/**
+ * @decrecated tag:v6.6.0 - use PaymentException instead
+ */
+abstract class PaymentProcessException extends PaymentException
 {
-    private string $orderTransactionId;
-
-    public function __construct(string $orderTransactionId, string $message, array $parameters = [])
-    {
-        $this->orderTransactionId = $orderTransactionId;
-
-        parent::__construct($message, $parameters);
+    public function __construct(
+        private readonly string $orderTransactionId,
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
+        parent::__construct(Response::HTTP_BAD_REQUEST, $this->getErrorCode(), $message, $parameters, $e);
     }
 
     public function getStatusCode(): int
@@ -24,5 +29,10 @@ abstract class PaymentProcessException extends ShopwareHttpException
     public function getOrderTransactionId(): string
     {
         return $this->orderTransactionId;
+    }
+
+    public function getErrorCode(): string
+    {
+        return PaymentException::PAYMENT_PROCESS_ERROR;
     }
 }

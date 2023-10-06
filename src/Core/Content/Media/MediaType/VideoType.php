@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Media\MediaType;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('buyers-experience')]
 class VideoType extends MediaType
 {
     protected $name = 'VIDEO';

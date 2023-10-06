@@ -1,10 +1,17 @@
+/*
+ * @package inventory
+ */
+
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
-Component.register('sw-product-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -43,7 +50,9 @@ Component.register('sw-product-list', {
                 'manufacturer-filter',
                 'visibilities-filter',
                 'categories-filter',
+                'sales-filter',
                 'tags-filter',
+                'product-states-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
@@ -94,11 +103,11 @@ Component.register('sw-product-list', {
             const productCriteria = new Criteria(this.page, this.limit);
 
             productCriteria.setTerm(this.term);
-            productCriteria.addFilter(Criteria.equals('product.parentId', null));
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('media');
+            productCriteria.addAssociation('configuratorSettings.option');
 
             this.filterCriteria.forEach(filter => {
                 productCriteria.addFilter(filter);
@@ -115,8 +124,8 @@ Component.register('sw-product-list', {
             return !!this.productEntityVariantModal;
         },
 
-        listFilters() {
-            return this.filterFactory.create('product', {
+        listFilterOptions() {
+            return {
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),
@@ -154,6 +163,14 @@ Component.register('sw-product-list', {
                     placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
                 },
+                'sales-filter': {
+                    property: 'sales',
+                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    digits: 20,
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                },
                 'price-filter': {
                     property: 'price',
                     label: this.$tc('sw-product.filters.priceFilter.label'),
@@ -167,6 +184,22 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.tagsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
                 },
+                'product-states-filter': {
+                    property: 'states',
+                    label: this.$tc('sw-product.filters.productStatesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productStatesFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: [
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.physical'),
+                            value: 'is-physical',
+                        },
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.digital'),
+                            value: 'is-download',
+                        },
+                    ],
+                },
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
@@ -175,7 +208,11 @@ Component.register('sw-product-list', {
                     toFieldLabel: null,
                     showTimeframe: true,
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('product', this.listFilterOptions);
         },
 
         productBulkEditColumns() {
@@ -183,6 +220,22 @@ Component.register('sw-product-list', {
                 const { inlineEdit, ...restParams } = item;
                 return restParams;
             });
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
         },
     },
 
@@ -217,11 +270,9 @@ Component.register('sw-product-list', {
             criteria = await this.addQueryScores(this.term, criteria);
 
             // Clone product query to its variant
-            criteria.queries.forEach(query => {
-                const queryPayload = query.query;
-                const field = queryPayload.field.replace('product', 'children');
-                criteria.addQuery(Criteria[queryPayload.type](field, queryPayload.value), query.score);
-            });
+            const variantCriteria = cloneDeep(criteria);
+            criteria.addFilter(Criteria.equals('product.parentId', null));
+            variantCriteria.addFilter(Criteria.not('AND', [Criteria.equals('product.parentId', null)]));
 
             this.activeFilterNumber = criteria.filters.length - 1;
 
@@ -237,6 +288,19 @@ Component.register('sw-product-list', {
             }
 
             try {
+                if (this.term) {
+                    const variants = await this.productRepository.search(variantCriteria);
+                    if (variants.length > 0) {
+                        const parentIds = [];
+
+                        variants.forEach(variant => {
+                            parentIds.push(variant.parentId);
+                        });
+
+                        criteria.addQuery(Criteria.equalsAny('id', parentIds), searchRankingPoint.HIGH_SEARCH_RANKING);
+                    }
+                }
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
                     this.currencyRepository.search(this.currencyCriteria),
@@ -330,6 +394,11 @@ Component.register('sw-product-list', {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center',
+            }, {
+                property: 'sales',
+                label: this.$tc('sw-product.list.columnSales'),
+                allowResize: true,
+                align: 'right',
             },
             ...this.currenciesColumns,
             {
@@ -343,6 +412,16 @@ Component.register('sw-product-list', {
                 label: this.$tc('sw-product.list.columnAvailableStock'),
                 allowResize: true,
                 align: 'right',
+            }, {
+                property: 'createdAt',
+                label: this.$tc('sw-product.list.columnCreatedAt'),
+                allowResize: true,
+                visible: false,
+            }, {
+                property: 'updatedAt',
+                label: this.$tc('sw-product.list.columnUpdatedAt'),
+                allowResize: true,
+                visible: false,
             }];
         },
 
@@ -370,6 +449,10 @@ Component.register('sw-product-list', {
             return childCount !== null && childCount > 0;
         },
 
+        productIsDigital(productEntity) {
+            return productEntity.states && productEntity.states.includes('is-download');
+        },
+
         openVariantModal(item) {
             this.productEntityVariantModal = item;
         },
@@ -379,7 +462,19 @@ Component.register('sw-product-list', {
         },
 
         onBulkEditItems() {
-            this.$router.push({ name: 'sw.bulk.edit.product' });
+            let includesDigital = '0';
+            const digital = Object.values(this.selection).filter(product => product.states.includes('is-download'));
+            if (digital.length > 0) {
+                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+            }
+
+            this.$router.push({
+                name: 'sw.bulk.edit.product',
+                params: {
+                    parentId: 'null',
+                    includesDigital,
+                },
+            });
         },
 
         onBulkEditModalOpen() {
@@ -390,4 +485,4 @@ Component.register('sw-product-list', {
             this.showBulkEditModal = false;
         },
     },
-});
+};

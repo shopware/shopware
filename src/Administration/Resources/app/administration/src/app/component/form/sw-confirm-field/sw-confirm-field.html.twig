@@ -1,27 +1,41 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_confirm_field %}
 <div
     class="sw-confirm-field"
     :class="confirmFieldClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_confirm_field_input_field %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="draft"
+        {% else %}
         v-model="draft"
+        {% endif %}
         v-bind="$attrs"
         :required="required"
         :disabled="disabled"
+        :error="error"
         validation="required"
         @focus="onStartEditing"
         @blur="onBlurField"
         @keyup.enter="onSubmitFromKey"
         @keyup.esc="onCancelFromKey"
+        {% if VUE3 %}
+        @update:value="onInput"
+        {% else %}
+        @input="onInput"
+        {% endif %}
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_confirm_field_button_list %}
     <span
         v-show="isEditing"
         class="sw-confirm-field__button-list"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_confirm_field_cancel_button %}
         <sw-button
             :disabled="disabled"
@@ -32,15 +46,17 @@
             @click="onCancelSubmit"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_field_inline_cancel_submit_button_icon %}
             <sw-icon
                 small
-                name="small-default-x-line-small"
+                name="regular-times-xs"
             />
             {% endblock %}
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_confirm_field_confirm_button %}
         <sw-button
             class="sw-confirm-field__button sw-confirm-field__button--submit"
@@ -52,10 +68,11 @@
             @click="onSubmitValue"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_field_inline_submit_button_icon %}
             <sw-icon
                 small
-                name="small-default-checkmark-line-small"
+                name="regular-checkmark-xxs"
             />
             {% endblock %}
         </sw-button>

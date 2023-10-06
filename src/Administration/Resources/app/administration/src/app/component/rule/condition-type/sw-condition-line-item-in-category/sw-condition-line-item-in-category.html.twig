@@ -1,12 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-in-category sw-condition__condition-value">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_in_category_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_in_category_field_identifiers %}
     <sw-entity-multi-select
         v-if="!isEmpty"
@@ -15,21 +19,57 @@
         entity="category"
         :entity-collection="categories"
         description-position="bottom"
+        {% if VUE3 %}
+        @update:entity-collection="setCategoryIds"
+        {% else %}
         @change="setCategoryIds"
+        {% endif %}
     >
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_16800')"
-            #result-description-property="{ item }"
-        >
-            {% block sw_condition_line_item_in_category_field_description %}
-            <slot
-                name="result-description-property"
-                v-bind="{ item }"
+        <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_condition_line_item_in_category_field_result_item %}
+            <sw-select-result
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                :disabled="isSelectionDisabled(item)"
+                :description-position="descriptionPosition"
+                @item-select="addItem"
             >
-                {% block sw_condition_line_item_in_category_field_description_default %}
-                {{ getCategoryBreadcrumb(item) }}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_condition_line_item_in_category_field_result_item_content %}
+                <span class="sw-condition-line-item-in-category__result-item">
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm"
+                        :text="displayLabelProperty(item)"
+                        :search-term="searchTerm"
+                    />
+                    <template v-else>
+                        {{ displayLabelProperty(item) }}
+                    </template>
+
+                    <sw-help-text
+                        v-if="item.productAssignmentType === 'product_stream'"
+                        class="sw-condition-line-item-in-category__help-text"
+                        :text="$tc('global.sw-condition.condition.categoryWithProductStreamTooltip')"
+                    />
+                </span>
                 {% endblock %}
-            </slot>
+
+                <template #description>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_condition_line_item_in_category_field_description %}
+                    <slot
+                        name="result-description-property"
+                        v-bind="{ item }"
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_condition_line_item_in_category_field_description_default %}
+                        {{ getCategoryBreadcrumb(item) }}
+                        {% endblock %}
+                    </slot>
+                    {% endblock %}
+                </template>
+            </sw-select-result>
             {% endblock %}
         </template>
     </sw-entity-multi-select>

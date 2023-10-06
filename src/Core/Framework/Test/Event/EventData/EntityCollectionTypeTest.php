@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 
+/**
+ * @internal
+ */
 class EntityCollectionTypeTest extends TestCase
 {
     public function testToArray(): void

@@ -1,9 +1,12 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-modal-detail.html.twig';
 import './sw-sales-channel-modal-detail.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-sales-channel-modal-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -13,4 +16,4 @@ Component.register('sw-sales-channel-modal-detail', {
             default: null,
         },
     },
-});
+};

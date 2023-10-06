@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -10,20 +11,24 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the AccountOrderDetailPage is loaded
  *
  * @hook-use-case data_loading
+ *
+ * @since 6.4.8.0
+ *
+ * @final
  */
+#[Package('checkout')]
 class AccountOrderDetailPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-order-detail-page-loaded';
+    final public const HOOK_NAME = 'account-order-detail-page-loaded';
 
-    private AccountOrderDetailPage $page;
-
-    public function __construct(AccountOrderDetailPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountOrderDetailPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

@@ -1,6 +1,9 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import MemoryStorage from 'src/helper/storage/memory-storage.helper';
 
+/**
+ * @package storefront
+ */
 class StorageSingleton {
 
     constructor() {

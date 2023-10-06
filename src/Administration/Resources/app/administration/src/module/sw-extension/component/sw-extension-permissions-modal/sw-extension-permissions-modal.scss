@@ -2,14 +2,14 @@
 
 .sw-extension-permissions-modal {
     .sw-modal__body {
-        padding: 36px 0 0 0;
+        padding: 36px 0 0;
     }
 
     .sw-extension-permissions-modal__intro {
         text-align: center;
-        padding: 0 20%;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-bottom: 24px;
+        padding: 0 24px;
 
         img {
             margin-bottom: 28px;
@@ -41,13 +41,18 @@
             background: none;
             color: $color-shopware-brand-500;
             justify-self: end;
-            text-decoration: none;
+            text-decoration: underline;
             font-weight: $font-weight-regular;
             line-height: inherit;
             padding: 0;
 
             &:hover {
                 color: $color-shopware-brand-800;
+                background: none;
+
+                .sw-icon {
+                    color: $color-shopware-brand-800;
+                }
             }
 
             .sw-icon {

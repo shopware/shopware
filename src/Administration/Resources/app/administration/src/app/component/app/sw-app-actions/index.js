@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
@@ -21,6 +25,9 @@ const modalSizeMapping = {
 
 const IFRAME_KEY = 'app.action_button.iframe';
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-app-actions', {
     template,
 
@@ -87,7 +94,7 @@ Component.register('sw-app-actions', {
         },
 
         userConfigCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('key', IFRAME_KEY));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
@@ -106,7 +113,11 @@ Component.register('sw-app-actions', {
         $route: {
             immediate: true,
             handler() {
-                this.matchedRoutes = this.$router.currentRoute.matched;
+                if (this.feature.isActive('VUE3')) {
+                    this.matchedRoutes = this.$router.currentRoute.value.matched;
+                } else {
+                    this.matchedRoutes = this.$router.currentRoute.matched;
+                }
                 this.loadActions();
             },
         },

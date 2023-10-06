@@ -54,7 +54,6 @@ Extends the basic offcanvas component with additional cart styles.
             width: 100%;
             max-height: 100%;
             object-fit: contain;
-            font-family: 'object-fit: contain;'; // IE polyfill
         }
     }
 
@@ -107,6 +106,10 @@ Extends the basic offcanvas component with additional cart styles.
     margin: $spacer 0;
 }
 
+.offcanvas-cart-items {
+    border-bottom: 1px solid $border-color;
+}
+
 .offcanvas-summary-list {
     margin-bottom: 0;
 }
@@ -143,7 +146,7 @@ Extends the basic offcanvas component with additional cart styles.
     }
 }
 
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
     .cart-offcanvas {
         .cart-item-price {
             order: 4;

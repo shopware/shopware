@@ -3,30 +3,25 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                           add(ProductManufacturerEntity $entity)
- * @method void                           set(string $key, ProductManufacturerEntity $entity)
- * @method ProductManufacturerEntity[]    getIterator()
- * @method ProductManufacturerEntity[]    getElements()
- * @method ProductManufacturerEntity|null get(string $key)
- * @method ProductManufacturerEntity|null first()
- * @method ProductManufacturerEntity|null last()
+ * @extends EntityCollection<ProductManufacturerEntity>
  */
+#[Package('inventory')]
 class ProductManufacturerCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
-        return $this->fmap(function (ProductManufacturerEntity $productManufacturer) {
-            return $productManufacturer->getMediaId();
-        });
+        return $this->fmap(fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerEntity $productManufacturer) use ($id) {
-            return $productManufacturer->getMediaId() === $id;
-        });
+        return $this->filter(fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId() === $id);
     }
 
     public function getApiAlias(): string

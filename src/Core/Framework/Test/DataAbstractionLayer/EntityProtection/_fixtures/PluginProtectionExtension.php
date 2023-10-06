@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
+/**
+ * @internal
+ */
 class PluginProtectionExtension extends EntityExtension
 {
     /**

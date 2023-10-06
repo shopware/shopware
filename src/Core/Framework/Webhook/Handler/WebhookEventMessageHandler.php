@@ -6,34 +6,34 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class WebhookEventMessageHandler extends AbstractMessageHandler
+/**
+ * @internal
+ */
+#[AsMessageHandler]
+#[Package('core')]
+final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
 
-    private Client $client;
-
-    private EntityRepositoryInterface $webhookRepository;
-
-    private EntityRepositoryInterface $webhookEventLogRepository;
-
-    public function __construct(Client $client, EntityRepositoryInterface $webhookRepository, EntityRepositoryInterface $webhookEventLogRepository)
-    {
-        $this->client = $client;
-        $this->webhookRepository = $webhookRepository;
-        $this->webhookEventLogRepository = $webhookEventLogRepository;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Client $client,
+        private readonly EntityRepository $webhookRepository,
+        private readonly EntityRepository $webhookEventLogRepository
+    ) {
     }
 
-    /**
-     * @param WebhookEventMessage $message
-     */
-    public function handle($message): void
+    public function __invoke(WebhookEventMessage $message): void
     {
         $shopwareVersion = $message->getShopwareVersion();
 
@@ -44,7 +44,7 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         $payload['timestamp'] = $timestamp;
 
         /** @var string $jsonPayload */
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
 
         $headers = ['Content-Type' => 'application/json',
             'sw-version' => $shopwareVersion, ];
@@ -62,10 +62,9 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         ];
 
         if ($message->getSecret()) {
-            $requestContent[AuthMiddleware::APP_REQUEST_TYPE]
-                        = [
-                            AuthMiddleware::APP_SECRET => $message->getSecret(),
-                        ];
+            $requestContent[AuthMiddleware::APP_REQUEST_TYPE] = [
+                AuthMiddleware::APP_SECRET => $message->getSecret(),
+            ];
         }
 
         $context = Context::createDefaultContext();
@@ -96,12 +95,17 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
                 ],
             ], $context);
 
-            $this->webhookRepository->update([
-                [
-                    'id' => $message->getWebhookId(),
-                    'errorCount' => 0,
-                ],
-            ], $context);
+            try {
+                $this->webhookRepository->update([
+                    [
+                        'id' => $message->getWebhookId(),
+                        'errorCount' => 0,
+                    ],
+                ], $context);
+            } catch (WriteTypeIntendException $e) {
+                // may happen if app or webhook got deleted in the meantime,
+                // we don't need to update the erro-count in that case, so we can ignore the error
+            }
         } catch (\Throwable $e) {
             $payload = [
                 'id' => $message->getWebhookEventId(),
@@ -114,7 +118,7 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true),
+                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -123,12 +127,7 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new MessageFailedException($message, static::class, $e);
+            throw new \RuntimeException(\sprintf('Message %s failed with error: %s', static::class, $e->getMessage()), $e->getCode(), $e);
         }
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [WebhookEventMessage::class];
     }
 }

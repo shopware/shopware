@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -14,40 +14,20 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Decoratable()
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
+#[Package('storefront')]
 class NavigationPageLoader implements NavigationPageLoaderInterface
 {
     /**
-     * @var GenericPageLoaderInterface
+     * @internal
      */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractCategoryRoute
-     */
-    private $cmsPageRoute;
-
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlReplacer;
-
     public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCategoryRoute $cmsPageRoute,
-        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCategoryRoute $cmsPageRoute,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
     ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cmsPageRoute = $cmsPageRoute;
-        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage
@@ -65,11 +45,11 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             throw new CategoryNotFoundException($category->getId());
         }
 
-        if ($category->getCmsPage()) {
-            $this->loadMetaData($category, $page, $context->getSalesChannel());
+        $this->loadMetaData($category, $page, $context->getSalesChannel());
+        $page->setNavigationId($category->getId());
 
+        if ($category->getCmsPage()) {
             $page->setCmsPage($category->getCmsPage());
-            $page->setNavigationId($category->getId());
         }
 
         $this->eventDispatcher->dispatch(
@@ -81,7 +61,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
                 : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
 
-            $page->getMetaInformation()->assign(['canonical' => $canonical]);
+            $page->getMetaInformation()->setCanonical($canonical);
         }
 
         return $page;

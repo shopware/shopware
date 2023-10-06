@@ -1,10 +1,14 @@
 import template from './sw-landing-page-detail-base.html.twig';
 import './sw-landing-page-detail-base.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-landing-page-detail-base', {
+/**
+ * @package content
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -21,20 +25,6 @@ Component.register('sw-landing-page-detail-base', {
     },
 
     computed: {
-        landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
-        },
-
-        cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
-        },
-
-        ...mapPropertyErrors('landingPage', [
-            'name',
-            'url',
-            'salesChannels',
-        ]),
-
         ...mapState('swCategoryDetail', {
             customFieldSetsArray: state => {
                 if (!state.customFieldSets) {
@@ -44,5 +34,19 @@ Component.register('sw-landing-page-detail-base', {
                 return state.customFieldSets;
             },
         }),
+
+        ...mapPropertyErrors('landingPage', [
+            'name',
+            'url',
+            'salesChannels',
+        ]),
+
+        landingPage() {
+            return Shopware.State.get('swCategoryDetail').landingPage;
+        },
+
+        cmsPage() {
+            return Shopware.State.get('cmsPageState').currentPage;
+        },
     },
-});
+};

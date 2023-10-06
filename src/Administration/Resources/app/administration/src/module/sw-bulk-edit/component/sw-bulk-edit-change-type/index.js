@@ -1,10 +1,14 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-change-type.html.twig';
 import './sw-bulk-edit-change-type.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-bulk-edit-change-type', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
+
+    inject: ['feature'],
 
     model: {
         prop: 'value',
@@ -51,6 +55,13 @@ Component.register('sw-bulk-edit-change-type', {
             },
             set(newValue) {
                 this.isDisplayingValue = newValue !== 'clear';
+
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },
@@ -94,4 +105,4 @@ Component.register('sw-bulk-edit-change-type', {
             this.currentValue = value;
         },
     },
-});
+};

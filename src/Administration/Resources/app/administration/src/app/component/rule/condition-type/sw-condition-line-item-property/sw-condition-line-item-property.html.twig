@@ -1,12 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-property sw-condition__condition-value">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_properties_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_properties_field_identifiers %}
     <sw-entity-multi-select
         size="medium"
@@ -14,9 +18,13 @@
         :disabled="disabled"
         :entity-collection="options"
         :criteria="optionCriteria"
-        @change="setOptions"
         @select-collapsed="onSelectCollapsed"
         @search-term-change="setSearchTerm"
+        {% if VUE3 %}
+        @update:entity-collection="setOptions"
+        {% else %}
+        @change="setOptions"
+        {% endif %}
     >
 
         <template #selection-label-property="{ item }">
@@ -35,29 +43,23 @@
             >
                 <sw-highlight-text
                     v-if="highlightSearchTerm"
-                    :text="!feature.isActive('FEATURE_NEXT_16800')
-                        ? `${item.group.translated.name || item.group.name}: ${item.translated.name || item.name}`
-                        : item.translated.name || item.name"
+                    :text="item.translated.name || item.name"
                     :search-term="searchTerm"
                 />
                 <template v-else>
-                    <template v-if="!feature.isActive('FEATURE_NEXT_16800')">
-                        {{ item.group.translated.name || item.group.name }}:
-                    </template>
                     {{ item.translated.name || item.name }}
                 </template>
             </slot>
         </template>
 
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_16800')"
-            #result-description-property="{ item, searchTerm, highlightSearchTerm }"
-        >
+        <template #result-description-property="{ item, searchTerm, highlightSearchTerm }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_line_item_properties_field_description %}
             <slot
                 name="result-description-property"
                 v-bind="{ item, searchTerm, highlightSearchTerm }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_condition_line_item_properties_field_description_default %}
                 <sw-highlight-text
                     v-if="highlightSearchTerm"

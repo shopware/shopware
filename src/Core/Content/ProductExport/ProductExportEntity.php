@@ -5,18 +5,20 @@ namespace Shopware\Core\Content\ProductExport;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+#[Package('inventory')]
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;
-    public const ENCODING_UTF8 = 'UTF-8';
-    public const ENCODING_ISO88591 = 'ISO-8859-1';
+    final public const ENCODING_UTF8 = 'UTF-8';
+    final public const ENCODING_ISO88591 = 'ISO-8859-1';
 
-    public const FILE_FORMAT_CSV = 'csv';
-    public const FILE_FORMAT_XML = 'xml';
+    final public const FILE_FORMAT_CSV = 'csv';
+    final public const FILE_FORMAT_XML = 'xml';
 
     /**
      * @var string
@@ -127,6 +129,11 @@ class ProductExportEntity extends Entity
      * @var bool|null
      */
     protected $pausedSchedule;
+
+    /**
+     * @var bool
+     */
+    protected $isRunning;
 
     public function getProductStreamId(): string
     {
@@ -346,5 +353,15 @@ class ProductExportEntity extends Entity
     public function setPausedSchedule(?bool $pausedSchedule): void
     {
         $this->pausedSchedule = $pausedSchedule;
+    }
+
+    public function setIsRunning(bool $isRunning): void
+    {
+        $this->isRunning = $isRunning;
+    }
+
+    public function getIsRunning(): bool
+    {
+        return $this->isRunning;
     }
 }

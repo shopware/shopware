@@ -1,22 +1,26 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_column_boolean %}
 <div class="sw-data-grid-column-boolean">
     <sw-checkbox-field
         v-if="isInlineEdit"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         :disabled="disabled"
     />
 
     <template v-else>
         <sw-icon
             v-if="currentValue"
-            name="small-default-checkmark-line-medium"
+            name="regular-checkmark-xs"
             small
             class="is--active"
         />
         <sw-icon
             v-else
-            name="small-default-x-line-medium"
-            small
+            name="regular-times-s"
             class="is--inactive"
         />
     </template>

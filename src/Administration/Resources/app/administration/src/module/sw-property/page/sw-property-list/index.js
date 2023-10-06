@@ -1,10 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-list.html.twig';
 import './sw-property-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-property-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -85,6 +90,10 @@ Component.register('sw-property-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.propertyRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.propertyGroup = items;
@@ -121,4 +130,4 @@ Component.register('sw-property-list', {
             }];
         },
     },
-});
+};

@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -19,19 +21,21 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('checkout')]
 class OrderService
 {
-    public const CUSTOMER_COMMENT_KEY = 'customerComment';
-    public const AFFILIATE_CODE_KEY = 'affiliateCode';
-    public const CAMPAIGN_CODE_KEY = 'campaignCode';
+    final public const CUSTOMER_COMMENT_KEY = 'customerComment';
+    final public const AFFILIATE_CODE_KEY = 'affiliateCode';
+    final public const CAMPAIGN_CODE_KEY = 'campaignCode';
 
-    public const ALLOWED_TRANSACTION_STATES = [
+    final public const ALLOWED_TRANSACTION_STATES = [
         OrderTransactionStates::STATE_OPEN,
         OrderTransactionStates::STATE_CANCELLED,
         OrderTransactionStates::STATE_REMINDED,
@@ -40,32 +44,17 @@ class OrderService
         OrderTransactionStates::STATE_UNCONFIRMED,
     ];
 
-    private DataValidator $dataValidator;
-
-    private DataValidationFactoryInterface $orderValidationFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartService $cartService;
-
-    private EntityRepositoryInterface $paymentMethodRepository;
-
-    private StateMachineRegistry $stateMachineRegistry;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        DataValidator $dataValidator,
-        DataValidationFactoryInterface $orderValidationFactory,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        EntityRepositoryInterface $paymentMethodRepository,
-        StateMachineRegistry $stateMachineRegistry
+        private readonly DataValidator $dataValidator,
+        private readonly DataValidationFactoryInterface $orderValidationFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly StateMachineRegistry $stateMachineRegistry
     ) {
-        $this->dataValidator = $dataValidator;
-        $this->orderValidationFactory = $orderValidationFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
@@ -73,9 +62,9 @@ class OrderService
      */
     public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
-        $this->validateOrderData($data, $context);
-
         $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        $this->validateOrderData($data, $context, $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
 
         $this->validateCart($cart, $context->getContext());
 
@@ -106,7 +95,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -136,7 +125,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -166,7 +155,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -220,9 +209,12 @@ class OrderService
     /**
      * @throws ConstraintViolationException
      */
-    private function validateOrderData(ParameterBag $data, SalesChannelContext $context): void
-    {
-        $definition = $this->getOrderCreateValidationDefinition(new DataBag($data->all()), $context);
+    private function validateOrderData(
+        ParameterBag $data,
+        SalesChannelContext $context,
+        bool $hasVirtualGoods
+    ): void {
+        $definition = $this->getOrderCreateValidationDefinition(new DataBag($data->all()), $context, $hasVirtualGoods);
         $violations = $this->dataValidator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {
@@ -230,9 +222,16 @@ class OrderService
         }
     }
 
-    private function getOrderCreateValidationDefinition(DataBag $data, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getOrderCreateValidationDefinition(
+        DataBag $data,
+        SalesChannelContext $context,
+        bool $hasVirtualGoods
+    ): DataValidationDefinition {
         $validation = $this->orderValidationFactory->create($context);
+
+        if ($hasVirtualGoods) {
+            $validation->add('revocation', new NotBlank());
+        }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

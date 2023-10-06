@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\Event\FlowEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Log\Package;
 
-abstract class FlowAction implements EventSubscriberInterface
+#[Package('services-settings')]
+abstract class FlowAction
 {
+    /**
+     * @return array<int, string>
+     */
     abstract public function requirements(): array;
 
-    abstract public function handle(FlowEvent $event): void;
+    abstract public function handleFlow(StorableFlow $flow): void;
 
     abstract public static function getName(): string;
 }

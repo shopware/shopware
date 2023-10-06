@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',

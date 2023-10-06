@@ -3,30 +3,25 @@
 namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                               add(StateMachineTranslationEntity $entity)
- * @method void                               set(string $key, StateMachineTranslationEntity $entity)
- * @method StateMachineTranslationEntity[]    getIterator()
- * @method StateMachineTranslationEntity[]    getElements()
- * @method StateMachineTranslationEntity|null get(string $key)
- * @method StateMachineTranslationEntity|null first()
- * @method StateMachineTranslationEntity|null last()
+ * @extends EntityCollection<StateMachineTranslationEntity>
  */
+#[Package('core')]
 class StateMachineTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (StateMachineTranslationEntity $stateMachineTranslation) {
-            return $stateMachineTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (StateMachineTranslationEntity $stateMachineTranslation) => $stateMachineTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (StateMachineTranslationEntity $stateMachineTranslation) use ($id) {
-            return $stateMachineTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (StateMachineTranslationEntity $stateMachineTranslation) => $stateMachineTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -11,9 +12,16 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @phpstan-import-type SequenceData from Migration1648803451FixInvalidMigrationOfBusinessEventToFlow
+ */
+#[Package('core')]
 class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 {
     private const RECIPIENT_TYPE_DEFAULT = 'default';
@@ -22,16 +30,34 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
     public bool $internal = false;
 
+    /**
+     * @var array<string, string>
+     */
     private array $ruleIds = [];
 
+    /**
+     * @var list<array<string, string|int>>
+     */
     private array $ruleQueue = [];
 
+    /**
+     * @var list<array<string, string|int>>
+     */
     private array $ruleConditionQueue = [];
 
+    /**
+     * @var list<array<string, string|int|null>>
+     */
     private array $flowQueue = [];
 
+    /**
+     * @var list<SequenceData>
+     */
     private array $flowSequenceQueue = [];
 
+    /**
+     * @var list<array<string, string>>
+     */
     private array $salesChannelRuleQueue = [];
 
     public function getCreationTimestamp(): int
@@ -117,7 +143,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
             $flowSequenceParentId = $saleSChannelFlowSequenceId;
             if ($flowValue['rule_ids'] !== null) {
-                $ruleIds = explode(',', $flowValue['rule_ids']);
+                $ruleIds = explode(',', (string) $flowValue['rule_ids']);
                 // migrate multiple rules from event_action to the if conditions in the new flow
                 foreach (Uuid::fromHexToBytesList($ruleIds) as $ruleId) {
                     $flowSequenceId = Uuid::randomBytes();
@@ -206,6 +232,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         }
     }
 
+    /**
+     * @param array<string> $salesChannelIds
+     */
     private function createSalesChannelRule(Connection $connection, array $salesChannelIds, string $createdAt): string
     {
         $salesChannelName = $this->getSalesChannelName($connection, $salesChannelIds);
@@ -243,7 +272,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             'value' => json_encode([
                 'operator' => '=',
                 'salesChannelIds' => $salesChannelIds,
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'created_at' => $createdAt,
         ];
 
@@ -259,7 +288,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
     private function getRuleBySalesChannelIds(Connection $connection, string $salesChannelIds, string $createdAt): string
     {
-        list($salesChannelIds, $salesChannelIdString) = $this->createSortedSalesChannelIdsString($salesChannelIds);
+        [$salesChannelIds, $salesChannelIdString] = $this->createSortedSalesChannelIdsString($salesChannelIds);
 
         if (\array_key_exists($salesChannelIdString, $this->ruleIds)) {
             return $this->ruleIds[$salesChannelIdString];
@@ -272,7 +301,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'salesChannelIds' => $salesChannelIds,
                 'numberSalesChannel' => \count($salesChannelIds),
             ],
-            ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+            ['salesChannelIds' => ArrayParameterType::STRING]
         );
 
         if (!$ruleId) {
@@ -285,6 +314,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         return $ruleId;
     }
 
+    /**
+     * @return array{0: list<string>, 1: string}
+     */
     private function createSortedSalesChannelIdsString(string $salesChannelIds): array
     {
         $salesChannelIds = explode(',', $salesChannelIds);
@@ -294,6 +326,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         return [$salesChannelIds, $salesChannelIdString];
     }
 
+    /**
+     * @return SequenceData
+     */
     private function buildSequenceData(
         string $id,
         string $flowId,
@@ -317,6 +352,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         ];
     }
 
+    /**
+     * @param array<string> $salesChannelIds
+     */
     private function getSalesChannelName(Connection $connection, array $salesChannelIds): string
     {
         $salesChannelName = $connection->fetchFirstColumn(
@@ -328,7 +366,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds),
             ],
-            ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+            ['salesChannelIds' => ArrayParameterType::STRING]
         );
 
         $result = 'Match one of saleschannels';
@@ -418,7 +456,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
     private function getNewConfig(string $config): string
     {
-        $config = json_decode($config, true);
+        $config = json_decode($config, true, 512, \JSON_THROW_ON_ERROR);
 
         $type = self::RECIPIENT_TYPE_DEFAULT;
         $recipients = [];
@@ -431,7 +469,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
         $result = [];
         foreach ($config as $key => $value) {
-            $key = lcfirst(implode('', array_map('ucfirst', explode('_', $key))));
+            $key = lcfirst(implode('', array_map('ucfirst', explode('_', (string) $key))));
             $result[$key] = $value;
         }
 
@@ -440,6 +478,6 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             'type' => $type,
         ];
 
-        return (string) json_encode($result);
+        return (string) json_encode($result, \JSON_THROW_ON_ERROR);
     }
 }

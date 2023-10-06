@@ -6,10 +6,19 @@ const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
-Component.register('sw-flow-detail-flow', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'flowActionService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'flowActionService',
+        'ruleConditionDataProviderService',
+    ],
 
     props: {
         isLoading: {
@@ -18,6 +27,16 @@ Component.register('sw-flow-detail-flow', {
             default: false,
         },
         isNewFlow: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isUnknownTrigger: {
             type: Boolean,
             required: false,
             default: false,
@@ -43,8 +62,19 @@ Component.register('sw-flow-detail-flow', {
             return this.sequences.filter(sequence => !sequence.parentId);
         },
 
+        showActionWarning() {
+            if (!this.triggerActions.length || !this.sequences.length) {
+                return false;
+            }
+
+            return this.sequences.some(sequence => {
+                const { actionName, _isNew } = sequence;
+                return !_isNew && !this.hasAvailableAction(actionName);
+            });
+        },
+
         ...mapState('swFlowState', ['flow', 'triggerActions']),
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapGetters('swFlowState', ['sequences', 'availableActions', 'hasAvailableAction']),
     },
 
     watch: {
@@ -220,4 +250,4 @@ Component.register('sw-flow-detail-flow', {
             return Object.values(sequence)[0].displayGroup;
         },
     },
-});
+};

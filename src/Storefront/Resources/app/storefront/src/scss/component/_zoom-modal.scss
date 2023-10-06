@@ -16,7 +16,7 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
     overflow: hidden;
 
     .zoom-modal-actions,
-    .modal-close {
+    .btn-close {
         position: absolute;
         top: 0;
         opacity: 1;
@@ -28,7 +28,7 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
         left: 0;
     }
 
-    .modal-close {
+    .btn-close {
         right: 0;
     }
 

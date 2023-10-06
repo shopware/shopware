@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 
+/**
+ * @internal
+ */
 class HookableEntityWrittenEventTest extends TestCase
 {
     public function testGetter(): void

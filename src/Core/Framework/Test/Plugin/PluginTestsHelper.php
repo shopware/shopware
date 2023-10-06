@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
@@ -16,24 +16,24 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 trait PluginTestsHelper
 {
     protected function createPluginService(
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo,
+        string $pluginDir,
         string $projectDir,
+        EntityRepository $pluginRepo,
+        EntityRepository $languageRepo,
         PluginFinder $pluginFinder
     ): PluginService {
         return new PluginService(
-            __DIR__ . '/_fixture/plugins',
+            $pluginDir,
             $projectDir,
             $pluginRepo,
             $languageRepo,
-            new ChangelogService(new ChangelogParser()),
             $pluginFinder,
             new VersionSanitizer()
         );
     }
 
     protected function createPlugin(
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         Context $context,
         string $version = SwagTest::PLUGIN_VERSION,
         ?string $installedAt = null
@@ -54,16 +54,19 @@ trait PluginTestsHelper
         );
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
-    private function addTestPluginToKernel(string $pluginName, bool $active = false): void
+    private function addTestPluginToKernel(string $testPluginBaseDir, string $pluginName, bool $active = false): void
     {
-        $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
-        $class = '\\' . $pluginName . '\\' . $pluginName;
-
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
-        $this->getContainer()->get(KernelPluginCollection::class)
-            ->add(new $class($active, $testPluginBaseDir));
+        /** @var KernelPluginCollection $pluginCollection */
+        $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
+        /** @var class-string<Plugin> $class */
+        $class = '\\' . $pluginName . '\\' . $pluginName;
+        $plugin = new $class($active, $testPluginBaseDir);
+        $pluginCollection->add($plugin);
+
+        $this->getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);
     }
 }

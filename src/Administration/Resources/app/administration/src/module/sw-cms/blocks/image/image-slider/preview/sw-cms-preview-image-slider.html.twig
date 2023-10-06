@@ -1,15 +1,16 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_image_slider_preview %}
 <div class="sw-cms-preview-image-slider">
     <sw-icon
-        name="default-arrow-head-left"
+        name="regular-chevron-left"
         size="20"
     />
     <img
-        :src="'/administration/static/img/cms/preview_mountain_small.jpg' | asset"
+        :src="assetFilter('/administration/static/img/cms/preview_mountain_small.jpg')"
         alt=""
     >
     <sw-icon
-        name="default-arrow-head-right"
+        name="regular-chevron-right"
         size="20"
     />
 </div>

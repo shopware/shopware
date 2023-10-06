@@ -1,6 +1,8 @@
 const { Application } = Shopware;
 
 /**
+ * @package admin
+ *
  * @module core/service/shopware-updates-listener
  */
 
@@ -11,6 +13,7 @@ const { Application } = Shopware;
  * @param loginService
  * @param serviceContainer
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addShopwareUpdatesListener(loginService, serviceContainer) {
     /** @var {String} localStorage token */
     let applicationRoot = null;
@@ -37,12 +40,14 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
 
         const notification = {
             title: getApplicationRootReference().$t(
-                'global.notification-center.shopware-updates-listener.updatesAvailableTitle', {
+                'global.notification-center.shopware-updates-listener.updatesAvailableTitle',
+                {
                     version: response.version,
                 },
             ),
             message: getApplicationRootReference().$t(
-                'global.notification-center.shopware-updates-listener.updatesAvailableMessage', {
+                'global.notification-center.shopware-updates-listener.updatesAvailableMessage',
+                {
                     version: response.version,
                 },
             ),

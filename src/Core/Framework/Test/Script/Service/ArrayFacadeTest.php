@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Script\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 
+/**
+ * @internal
+ */
 class ArrayFacadeTest extends TestCase
 {
     public function testAssignment(): void
@@ -20,6 +23,7 @@ class ArrayFacadeTest extends TestCase
         $functions[] = false;
         $functions[] = 3.2;
 
+        static::assertCount(9, $functions);
         static::assertContains(1, $functions);
         static::assertContains(2, $functions);
         static::assertContains(3, $functions);

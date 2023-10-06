@@ -1,4 +1,4 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-cms-layout-modal {
     .sw-cms-layout-modal__header {
@@ -33,7 +33,7 @@
         }
 
         .sw-cms-layout-modal__header-title {
-            font-size: 18px;
+            font-size: $font-size-m;
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;

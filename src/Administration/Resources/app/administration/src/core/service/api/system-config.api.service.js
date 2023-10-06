@@ -1,10 +1,22 @@
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import ApiService from '../api.service';
 
-
+/**
+ * @package system-settings
+ */
 class SystemConfigApiService extends ApiService {
+    /**
+     * @private
+     *
+     * @type {ErrorResolverSystemConfig} errorResolver
+     */
+    errorResolver;
+
     constructor(httpClient, loginService, apiEndpoint = 'system-config') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'systemConfigApiService';
+
+        this.errorResolver = new ErrorResolverSystemConfig();
     }
 
     checkConfig(domain, additionalParams = {}, additionalHeaders = {}) {
@@ -34,8 +46,7 @@ class SystemConfigApiService extends ApiService {
             .get('_action/system-config', {
                 params: { domain, salesChannelId, ...additionalParams },
                 headers: this.getBasicHeaders(additionalHeaders),
-            })
-            .then((response) => {
+            }).then((response) => {
                 return ApiService.handleResponse(response);
             }).then((data) => {
                 // If config is empty we will receive an empty array.
@@ -46,12 +57,14 @@ class SystemConfigApiService extends ApiService {
 
     saveValues(values, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post('_action/system-config',
+            .post(
+                '_action/system-config',
                 values,
                 {
                     params: { salesChannelId, ...additionalParams },
                     headers: this.getBasicHeaders(additionalHeaders),
-                })
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -59,16 +72,24 @@ class SystemConfigApiService extends ApiService {
 
     batchSave(values, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post('_action/system-config/batch',
+            .post(
+                '_action/system-config/batch',
                 values,
                 {
                     params: { ...additionalParams },
                     headers: this.getBasicHeaders(additionalHeaders),
-                })
+                },
+            )
             .then((response) => {
+                this.errorResolver.cleanWriteErrors();
                 return ApiService.handleResponse(response);
+            })
+            .catch(errors => {
+                this.errorResolver.handleWriteErrors(errors?.response?.data?.errors);
+                throw errors;
             });
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SystemConfigApiService;

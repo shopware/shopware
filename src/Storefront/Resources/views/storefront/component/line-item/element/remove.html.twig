@@ -1,0 +1,40 @@
+{% block component_line_item_remove %}
+    {% if redirectTo is not defined %}
+        {% set redirectTo = 'frontend.checkout.cart.page' %}
+    {% endif %}
+
+    {% if formAction is not defined %}
+        {% set formAction = path('frontend.checkout.line-item.delete', { 'id': lineItem.id }) %}
+    {% endif %}
+
+    {% block component_line_item_remove_form %}
+        {% set loaderOptions = {
+            skipLoadingIndicator: true
+        } %}
+
+        <form action="{{ formAction }}"
+              method="post"
+              data-form-submit-loader="true"
+              data-form-submit-loader-options="{{ loaderOptions|json_encode }}"
+              class="{% if displayMode === 'offcanvas' %}js-offcanvas-cart-remove-product{% endif %}">
+
+            {% block component_line_item_remove_redirect %}
+                <input type="hidden"
+                       name="redirectTo"
+                       value="{{ redirectTo }}">
+                <input type="hidden"
+                       name="redirectParameters"
+                       value="{{ redirectParameters }}">
+            {% endblock %}
+
+            {% block component_line_item_remove_button %}
+                <button type="submit"
+                        title="{{ "checkout.removeLineItem"|trans|striptags }}"
+                        data-product-id="{{ lineItem.id }}"
+                        class="btn btn-light btn-sm line-item-remove-button">
+                    {% sw_icon 'x' style { 'size': 'sm' } %}
+                </button>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

@@ -7,17 +7,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -41,18 +40,17 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * @internal
+ */
+#[Package('checkout')]
 class RegisterControllerTest extends TestCase
 {
-    use MailTemplateTestBehaviour;
     use IntegrationTestBehaviour;
+    use MailTemplateTestBehaviour;
     use StorefrontControllerTestBehaviour;
-
-    /**
-     * @var AccountService
-     */
-    private $accountService;
 
     /**
      * @var SalesChannelContext
@@ -61,20 +59,22 @@ class RegisterControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->accountService = $this->getContainer()->get(AccountService::class);
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
         $this->salesChannelContext = $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL);
 
-        $this->getContainer()->get('session')->getFlashBag()->clear();
+        $session = $this->getSession();
+        if (method_exists($session, 'getFlashBag')) {
+            $session->getFlashBag()->clear();
+        }
     }
 
     public function testGuestRegisterWithRequirePasswordConfirmation(): void
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $config = $this->getContainer()->get(SystemConfigService::class);
@@ -110,7 +110,7 @@ class RegisterControllerTest extends TestCase
         $response = $registerController->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -125,7 +125,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->getContainer()->get(RegisterController::class)->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -135,7 +135,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -171,9 +171,9 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals('/account/register', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashbag */
-        $flashBag = $container->get('session')->getFlashBag();
-        $success = $flashBag->get('success');
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $success = $session->getFlashBag()->get('success');
 
         static::assertNotEmpty($success);
         static::assertEquals($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
@@ -189,7 +189,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -226,8 +226,9 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals('/account/register', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashbag */
-        $flashBag = $container->get('session')->getFlashBag();
+        $session = $request->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $flashBag = $session->getFlashBag();
         $success = $flashBag->get('success');
 
         static::assertNotEmpty($success);
@@ -246,7 +247,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -285,7 +286,7 @@ class RegisterControllerTest extends TestCase
         $queryData = new QueryDataBag();
         $queryData->set('redirectTo', 'frontend.checkout.confirm.page');
         $queryData->set('hash', $customer->first()->getHash());
-        $queryData->set('em', hash('sha1', $event->getCustomer()->getEmail()));
+        $queryData->set('em', hash('sha1', (string) $event->getCustomer()->getEmail()));
 
         /** @var RedirectResponse $response */
         $response = $registerController->confirmRegistration($this->salesChannelContext, $queryData);
@@ -340,6 +341,9 @@ class RegisterControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @param array<string|int, mixed> $customerData
+     */
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
     {
         return new MailRecipientStruct([
@@ -350,7 +354,7 @@ class RegisterControllerTest extends TestCase
     private function createRequest(): Request
     {
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
         $request->request->add(['errorRoute' => 'frontend.checkout.register.page']);
         $request->attributes->add(['_route' => 'frontend.checkout.register.page', SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
@@ -379,19 +383,9 @@ class RegisterControllerTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('FEATURE_NEXT_16236')) {
-            if (!$isGuest) {
-                $data['createCustomerAccount'] = true;
-                $data['password'] = '12345678';
-            }
-
-            return new RequestDataBag($data);
-        }
-
-        if ($isGuest) {
-            $data['guest'] = true;
-        } else {
-            $data['password'] = '12345678';
+        if (!$isGuest) {
+            $data['createCustomerAccount'] = true;
+            $data['password'] = TestDefaults::HASHED_PASSWORD;
         }
 
         return new RequestDataBag($data);
@@ -401,7 +395,10 @@ class RegisterControllerTest extends TestCase
     {
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            (new Criteria())->addFilter(
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                new EqualsFilter('domains.url', $_SERVER['APP_URL'])
+            ),
             Context::createDefaultContext()
         )->first();
 
@@ -426,7 +423,10 @@ class RegisterControllerTest extends TestCase
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            (new Criteria())->addFilter(
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                new EqualsFilter('domains.url', $_SERVER['APP_URL'])
+            ),
             Context::createDefaultContext()
         )->first();
 

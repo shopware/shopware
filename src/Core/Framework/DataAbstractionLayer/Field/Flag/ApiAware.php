@@ -5,19 +5,20 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class ApiAware extends Flag
 {
     private const BASE_URLS = [
         AdminApiSource::class => '/api/',
-        // ???
         SalesChannelApiSource::class => '/store-api/',
     ];
 
     /**
-     * @var array[string]string
+     * @var array<string, string>
      */
-    private $whitelist = [];
+    private array $whitelist = [];
 
     public function __construct(string ...$protectedSources)
     {

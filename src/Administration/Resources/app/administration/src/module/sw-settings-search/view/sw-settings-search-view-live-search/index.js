@@ -1,6 +1,10 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-view-live-search.html.twig';
 
-Shopware.Component.register('sw-settings-search-view-live-search', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -30,4 +34,10 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             default: false,
         },
     },
-});
+
+    computed: {
+        storefrontEsEnable() {
+            return Shopware.Context.app.storefrontEsEnable ?? false;
+        },
+    },
+};

@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class CustomFields extends XmlElement
 {
     /**
-     * @var CustomFields[]
+     * @var CustomFieldSet[]
      */
     protected $customFieldSets = [];
 
@@ -23,7 +26,7 @@ class CustomFields extends XmlElement
     }
 
     /**
-     * @return CustomFields[]
+     * @return CustomFieldSet[]
      */
     public function getCustomFieldSets(): array
     {

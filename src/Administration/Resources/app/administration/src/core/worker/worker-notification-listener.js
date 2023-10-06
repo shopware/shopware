@@ -1,6 +1,13 @@
+/**
+ * @package admin
+ */
+
 const { Application, WorkerNotification } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_BACKGROUND_INTERVAL = 30000;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_FOREGROUND_INTERVAL = 5000;
 
 class WorkerNotificationListener {
@@ -16,6 +23,10 @@ class WorkerNotificationListener {
     }
 
     start() {
+        if (!Shopware.Context.app.config.adminWorker.enableQueueStatsWorker) {
+            return;
+        }
+
         this._isRunning = true;
         this._middlewareHelper = WorkerNotification.initialize();
         this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);
@@ -42,14 +53,6 @@ class WorkerNotificationListener {
         this._isIntervalWatcherSetup = true;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - the message_queue_stats entity will be deprecated
-     * @return {Repository}
-     */
-    getMessageQueueStatsRepository() {
-        return Shopware.Service().get('repositoryFactory').create('message_queue_stats');
-    }
-
     _checkQueue() {
         this._isRequestRunning = true;
         const client = Shopware.Application.getContainer('init').httpClient;
@@ -67,7 +70,7 @@ class WorkerNotificationListener {
             this.runNotificationMiddleware(res.data);
 
             if (this._isRunning) {
-                this._interval = this._getApplicationRootReference().$store.state.notification.workerProcessPollInterval;
+                this._interval = Shopware.State.get('notification').workerProcessPollInterval;
                 this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);
             }
         });
@@ -100,13 +103,13 @@ class WorkerNotificationListener {
             $root: appRoot,
             notification: {
                 create: (notification) => {
-                    return appRoot.$store.dispatch(
+                    return Shopware.State.dispatch(
                         'notification/createNotification',
                         notification,
                     );
                 },
                 update: (notification) => {
-                    return appRoot.$store.dispatch(
+                    return Shopware.State.dispatch(
                         'notification/updateNotification',
                         notification,
                     );
@@ -127,4 +130,7 @@ class WorkerNotificationListener {
     }
 }
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default WorkerNotificationListener;

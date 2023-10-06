@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="entities">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="entity" type="entity" maxOccurs="unbounded" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="on-delete">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="set-null"/>
+            <xs:enumeration value="cascade"/>
+            <xs:enumeration value="restrict"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="entity">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="fields" maxOccurs="unbounded" type="field-list" minOccurs="1"/>
+        </xs:choice>
+
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
+        <!--<xs:attribute name="cms-aware" type="xs:boolean"/>-->
+        <xs:attribute name="custom-fields-aware" type="xs:boolean"/>
+        <xs:attribute name="label-property" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="field-list">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="int" type="field-int-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="float" type="field-float-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="string" type="field-string-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="text" type="field-text-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="bool" type="field-bool-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="many-to-many" type="field-many-to-many-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="many-to-one" type="field-many-to-one-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="one-to-many" type="field-one-to-many-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="one-to-one" type="field-one-to-one-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="json" type="field-json-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="email" type="field-email-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="price" type="field-price-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="date" type="field-date-type" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="field-int-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-float-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-string-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-text-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="allow-html" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-bool-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-json-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-email-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-price-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-date-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-many-to-many-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="reference" use="required" />
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
+    </xs:complexType>
+
+    <xs:complexType name="field-many-to-one-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="reference" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="field-one-to-many-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="reference" use="required" />
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="xs:boolean" name="reverse-required" default="false" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="field-one-to-one-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="reference" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
+    </xs:complexType>
+</xs:schema>

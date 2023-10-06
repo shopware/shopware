@@ -2,16 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class StateMachineStateFieldSerializer extends FkFieldSerializer
 {
     public function encode(
@@ -21,7 +26,7 @@ class StateMachineStateFieldSerializer extends FkFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!($field instanceof StateMachineStateField)) {
-            throw new InvalidSerializerFieldException(StateMachineStateField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(StateMachineStateField::class, $field);
         }
 
         // Always allow any status when creating a new entity. A state transition from one state into another makes no

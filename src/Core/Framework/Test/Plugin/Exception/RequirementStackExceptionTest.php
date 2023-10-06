@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementExcep
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 
+/**
+ * @internal
+ */
 class RequirementStackExceptionTest extends TestCase
 {
     public function testDoesNotConvertInnerExceptions(): void

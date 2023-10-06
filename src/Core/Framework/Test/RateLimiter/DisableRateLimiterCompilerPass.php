@@ -8,6 +8,9 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @internal
+ */
 class DisableRateLimiterCompilerPass implements CompilerPassInterface
 {
     private static bool $enabled = true;
@@ -29,7 +32,7 @@ class DisableRateLimiterCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        if (!$this::$enabled) {
+        if (!self::$enabled) {
             return;
         }
 

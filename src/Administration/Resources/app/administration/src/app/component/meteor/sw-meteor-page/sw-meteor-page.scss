@@ -1,5 +1,5 @@
-@import '~scss/variables';
-@import '~scss/mixins';
+@import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-meteor-page {
     display: block;
@@ -66,6 +66,7 @@
         padding: 12px 12px 0;
         z-index: $z-index-page-header;
         margin-bottom: 48px;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-meteor-page__smart-bar-navigation {
             margin-bottom: 12px;
@@ -85,7 +86,7 @@
         top: 100%;
         height: 4px;
         width: 100%;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 20%), transparent);
     }
 
     .sw-meteor-page__head-area-top-bar-content {
@@ -122,6 +123,7 @@
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
+        gap: 16px;
     }
 
     .sw-meteor-page__smart-bar-tabs {
@@ -168,7 +170,7 @@
         .sw-meteor-page__smart-bar-module-icon {
             grid-area: icon;
             align-self: start;
-            margin-right: 12px;
+            margin-right: 16px;
         }
 
         .sw-meteor-page__smart-bar-header {
@@ -179,12 +181,11 @@
             min-width: 100%;
 
             .sw-meteor-page__smart-bar-title {
-                @include truncate();
+                @include truncate;
 
                 color: #0c1f34;
-                // 1,5 x font-size
-                line-height: 42px;
-                font-size: 28px;
+                line-height: 1.2;
+                font-size: $font-size-xl;
                 margin-right: 8px;
                 margin-bottom: 0;
                 min-width: 20%;
@@ -213,6 +214,11 @@
 
         .sw-button {
             margin: 6px 4px;
+            border: 1px solid $color-gray-300;
+
+            &:first-child {
+                margin-left: 0;
+            }
         }
     }
 }

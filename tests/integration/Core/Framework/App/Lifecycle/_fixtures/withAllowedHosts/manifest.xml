@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>withAllowedHosts</name>
+        <label>Swag App Test with allowed hosts</label>
+        <label lang="de-DE">Swag App Test mit eingetragenen Endpunkten</label>
+        <description>test</description>
+        <description lang="de-DE">test</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <allowed-hosts>
+        <host>shopware.com</host>
+        <host>example.com</host>
+    </allowed-hosts>
+</manifest>

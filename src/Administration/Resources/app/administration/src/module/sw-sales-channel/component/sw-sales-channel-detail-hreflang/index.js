@@ -1,9 +1,13 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-detail-hreflang.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-sales-channel-detail-hreflang', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -22,10 +26,10 @@ Component.register('sw-sales-channel-detail-hreflang', {
 
     computed: {
         domainCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
 
             return criteria;
         },
     },
-});
+};

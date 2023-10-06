@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Controller;
 
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -12,18 +11,16 @@ use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,63 +33,27 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('services-settings')]
 class ImportExportActionController extends AbstractController
 {
-    private SupportedFeaturesService $supportedFeaturesService;
-
-    private ImportExportService $importExportService;
-
-    private DownloadService $downloadService;
-
-    private EntityRepositoryInterface $profileRepository;
-
-    private DataValidator $dataValidator;
-
-    private ImportExportLogDefinition $logDefinition;
-
-    private ApiVersionConverter $apiVersionConverter;
-
-    private ImportExportFactory $importExportFactory;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private MessageBusInterface $messageBus;
-
-    private AbstractMappingService $mappingService;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        SupportedFeaturesService $supportedFeaturesService,
-        ImportExportService $initiationService,
-        DownloadService $downloadService,
-        EntityRepositoryInterface $profileRepository,
-        DataValidator $dataValidator,
-        ImportExportLogDefinition $logDefinition,
-        ApiVersionConverter $apiVersionConverter,
-        ImportExportFactory $importExportFactory,
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        MessageBusInterface $messageBus,
-        AbstractMappingService $mappingService
+        private readonly SupportedFeaturesService $supportedFeaturesService,
+        private readonly ImportExportService $importExportService,
+        private readonly DownloadService $downloadService,
+        private readonly EntityRepository $profileRepository,
+        private readonly DataValidator $dataValidator,
+        private readonly ImportExportFactory $importExportFactory,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly MessageBusInterface $messageBus,
+        private readonly AbstractMappingService $mappingService
     ) {
-        $this->supportedFeaturesService = $supportedFeaturesService;
-        $this->importExportService = $initiationService;
-        $this->downloadService = $downloadService;
-        $this->profileRepository = $profileRepository;
-        $this->dataValidator = $dataValidator;
-        $this->logDefinition = $logDefinition;
-        $this->apiVersionConverter = $apiVersionConverter;
-        $this->importExportFactory = $importExportFactory;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->messageBus = $messageBus;
-        $this->mappingService = $mappingService;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/import-export/features", name="api.action.import_export.features", methods={"GET"})
-     */
+    #[Route(path: '/api/_action/import-export/features', name: 'api.action.import_export.features', methods: ['GET'])]
     public function features(): JsonResponse
     {
         return new JsonResponse([
@@ -102,10 +63,7 @@ class ImportExportActionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/import-export/prepare", name="api.action.import_export.initiate", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/prepare', name: 'api.action.import_export.initiate', methods: ['POST'])]
     public function initiate(Request $request, Context $context): JsonResponse
     {
         $profileId = (string) $request->request->get('profileId');
@@ -139,13 +97,10 @@ class ImportExportActionController extends AbstractController
             );
         }
 
-        return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log)]);
+        return new JsonResponse(['log' => $log->jsonSerialize()]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/import-export/process", name="api.action.import_export.process", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/process', name: 'api.action.import_export.process', methods: ['POST'])]
     public function process(Request $request, Context $context): Response
     {
         $logId = strtolower((string) $request->request->get('logId'));
@@ -153,15 +108,14 @@ class ImportExportActionController extends AbstractController
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
-        $this->messageBus->dispatch(new ImportExportMessage($context, $logEntity->getId(), $logEntity->getActivity()));
+        $message = new ImportExportMessage($context, $logEntity->getId(), $logEntity->getActivity());
+
+        $this->messageBus->dispatch($message);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.3.1")
-     * @Route("/api/_action/import-export/file/prepare-download/{fileId}", name="api.action.import_export.file.prepare-download", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/file/prepare-download/{fileId}', name: 'api.action.import_export.file.prepare-download', methods: ['POST'])]
     public function prepareDownload(string $fileId, Context $context): Response
     {
         $token = $this->downloadService->regenerateToken($context, $fileId);
@@ -169,13 +123,10 @@ class ImportExportActionController extends AbstractController
         return new JsonResponse(['accessToken' => $token]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/import-export/file/download", name="api.action.import_export.file.download", defaults={"auth_required"=false}, methods={"GET"})
-     */
+    #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
     public function download(Request $request, Context $context): Response
     {
-        /** @var string[] $params */
+        /** @var array<string> $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));
@@ -185,16 +136,13 @@ class ImportExportActionController extends AbstractController
         return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/import-export/cancel", name="api.action.import_export.cancel", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/cancel', name: 'api.action.import_export.cancel', methods: ['POST'])]
     public function cancel(Request $request, Context $context): Response
     {
         $logId = $request->request->get('logId');
 
         if (!\is_string($logId)) {
-            throw new InvalidRequestParameterException('logId');
+            throw RoutingException::invalidRequestParameter('logId');
         }
 
         $this->importExportService->cancel($context, $logId);
@@ -203,14 +151,12 @@ class ImportExportActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Route("/api/_action/import-export/prepare-template-file-download", name="api.action.import_export.template_file.prepare_download", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/prepare-template-file-download', name: 'api.action.import_export.template_file.prepare_download', methods: ['POST'])]
     public function prepareTemplateFileDownload(Request $request, Context $context): Response
     {
         $profileId = $request->query->get('profileId');
         if (!\is_string($profileId)) {
-            throw new InvalidRequestParameterException('profileId');
+            throw RoutingException::invalidRequestParameter('profileId');
         }
         $profileId = strtolower($profileId);
 
@@ -223,9 +169,7 @@ class ImportExportActionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/api/_action/import-export/mapping-from-template", name="api.action.import_export.template_file.mapping", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/import-export/mapping-from-template', name: 'api.action.import_export.template_file.mapping', methods: ['POST'])]
     public function mappingFromTemplate(Request $request, Context $context): JsonResponse
     {
         /** @var UploadedFile|null $file */
@@ -235,11 +179,11 @@ class ImportExportActionController extends AbstractController
         $enclosure = (string) $request->request->get('enclosure', '"');
 
         if ($file === null || !$file->isValid()) {
-            throw new InvalidRequestParameterException('file');
+            throw RoutingException::invalidRequestParameter('file');
         }
 
         if (!\is_string($sourceEntity)) {
-            throw new InvalidRequestParameterException('sourceEntity');
+            throw RoutingException::invalidRequestParameter('sourceEntity');
         }
 
         $mapping = $this->mappingService->getMappingFromTemplate($context, $file, $sourceEntity, $delimiter, $enclosure);
@@ -279,9 +223,7 @@ class ImportExportActionController extends AbstractController
         $mappings = $profile->getMapping() ?? [];
 
         $mappedKeys = array_column($mappings, 'key');
-        $propertyPaths = array_map(function (string $key): array {
-            return explode('.', $key);
-        }, $mappedKeys);
+        $propertyPaths = array_map(fn (string $key): array => explode('.', $key), $mappedKeys);
 
         foreach ($propertyPaths as $properties) {
             $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);
@@ -292,13 +234,19 @@ class ImportExportActionController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string> $properties
+     * @param array<string> $missingPrivileges
+     *
+     * @return array<string>
+     */
     private function getMissingPrivilges(
         array $properties,
         EntityDefinition $definition,
         Context $context,
         array $missingPrivileges
     ): array {
-        $property = array_shift($properties);
+        $property = (string) array_shift($properties);
 
         $property = $definition->getField($property);
 

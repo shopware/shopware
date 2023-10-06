@@ -1,9 +1,16 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
-const { Component, EntityDefinition } = Shopware;
+const { EntityDefinition } = Shopware;
 
-Component.extend('sw-product-stream-filter', 'sw-condition-base', {
+/**
+ * @private
+ */
+export default {
     template,
 
     inject: [
@@ -128,6 +135,14 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 return false;
             }
 
+            if (this.condition.type === 'not' &&
+                this.conditionDataProviderService.isNegatedType(type)
+            ) {
+                this.unwrapNot(this.condition, type, parameters);
+                this.wrapInNot(this.condition, type, parameters);
+                return false;
+            }
+
             this.actualCondition.type = type;
 
             return true;
@@ -207,4 +222,4 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return Object.keys(this.productCustomFields).includes(strippedFieldName);
         },
     },
-});
+};

@@ -5,8 +5,10 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
+#[Package('checkout')]
 class AccountEditOrderPage extends Page
 {
     /**

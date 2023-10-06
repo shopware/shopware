@@ -1,7 +1,9 @@
-import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import template from './sw-iframe-renderer.html.twig';
+import type { Extension } from '../../../state/extensions.store';
 
 /**
+ * @package admin
+ *
  * @private
  * @description This component renders iFrame views for extensions
  * @status ready
@@ -11,6 +13,8 @@ import template from './sw-iframe-renderer.html.twig';
  */
 Shopware.Component.register('sw-iframe-renderer', {
     template,
+
+    inject: ['extensionSdkService'],
 
     props: {
         src: {
@@ -25,20 +29,56 @@ Shopware.Component.register('sw-iframe-renderer', {
 
     data(): {
         heightHandler: null | (() => void),
+        urlHandler: null | (() => void),
         locationHeight: null | number,
+        signedIframeSrc: null | string,
         } {
         return {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             heightHandler: null,
+            urlHandler: null,
             locationHeight: null,
+            signedIframeSrc: null,
         };
     },
 
     created() {
         this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
-                this.locationHeight = height ?? null;
+                this.locationHeight = Number(height) ?? null;
             }
+        });
+
+        this.urlHandler = Shopware.ExtensionAPI.handle('locationUpdateUrl', async ({
+            hash,
+            pathname,
+            searchParams,
+            locationId,
+        }) => {
+            if (locationId !== this.locationId) {
+                return;
+            }
+
+            const filteredSearchParams = JSON.stringify(searchParams.filter(([key]) => {
+                return ![
+                    'location-id',
+                    'privileges',
+                    'shop-id',
+                    'shop-url',
+                    'timestamp',
+                    'sw-version',
+                    'sw-context-language',
+                    'sw-user-language',
+                    'shopware-shop-signature',
+                ].includes(key);
+            }));
+
+            await this.$router.replace({
+                query: {
+                    [this.locationIdHashQueryKey]: hash,
+                    [this.locationIdPathnameQueryKey]: pathname,
+                    [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
+                },
+            });
         });
     },
 
@@ -46,15 +86,39 @@ Shopware.Component.register('sw-iframe-renderer', {
         if (this.heightHandler) {
             this.heightHandler();
         }
+
+        if (this.urlHandler) {
+            this.urlHandler();
+        }
     },
 
     computed: {
-        extension(): extension | undefined {
+        locationIdHashQueryKey(): string {
+            return `locationId_${this.locationId}_hash`;
+        },
+
+        locationIdPathnameQueryKey(): string {
+            return `locationId_${this.locationId}_pathname`;
+        },
+
+        locationIdSearchParamsQueryKey(): string {
+            return `locationId_${this.locationId}_searchParams`;
+        },
+
+        componentName(): string|undefined {
+            return Shopware.State.get('sdkLocation').locations[this.locationId];
+        },
+
+        extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
 
             return Object.values(extensions).find((ext) => {
                 return ext.baseUrl === this.src;
             });
+        },
+
+        extensionIsApp(): boolean {
+            return this.extension?.type === 'app';
         },
 
         iFrameSrc(): string {
@@ -74,6 +138,51 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
 
             return '100%';
+        },
+    },
+
+    watch: {
+        extension: {
+            immediate: true,
+            handler(extension) {
+                if (!extension || !this.extensionIsApp) {
+                    return;
+                }
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                this.extensionSdkService.signIframeSrc(extension.name, this.iFrameSrc).then((response) => {
+                    const uri = (response as { uri?: string})?.uri;
+
+                    if (!uri) {
+                        return;
+                    }
+
+                    // add information from query with hash, pathname and queries
+                    const urlObject = new URL(uri);
+                    const hash = this.$route.query[this.locationIdHashQueryKey];
+                    const pathname = this.$route.query[this.locationIdPathnameQueryKey];
+                    const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
+
+                    if (hash) {
+                        urlObject.hash = hash as string;
+                    }
+
+                    if (pathname) {
+                        urlObject.pathname = pathname as string;
+                    }
+
+                    if (searchParams) {
+                        const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
+
+                        parsedSearchParams.forEach(([key, value]) => {
+                            urlObject.searchParams.append(key, value);
+                        });
+                    }
+
+                    this.signedIframeSrc = urlObject.toString();
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                }).catch(() => {});
+            },
         },
     },
 });

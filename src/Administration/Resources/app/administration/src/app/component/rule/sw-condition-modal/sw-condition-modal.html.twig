@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_modal %}
 <sw-modal
     class="sw-condition-modal"
@@ -5,6 +6,7 @@
     :title="$tc('sw-settings-rule.conditionModal.modalTitle')"
     @modal-close="closeModal"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_modal_tree %}
     <sw-condition-tree
         v-bind="{ initialConditions, scopes, allowedTypes, conditionRepository, conditionDataProviderService }"
@@ -16,14 +18,10 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_modal_footer %}
     <template #modal-footer>
-        {# @deprecated tag:v6.5.0 - block will be removed. Use "sw_condition_modal_footer_cancel" instead #}
-        {% block sw_condition_modal_footer_delete %}{% endblock %}
-
-        {# @deprecated tag:v6.5.0 - block will be removed. Use "sw_condition_modal_footer_save" instead #}
-        {% block sw_condition_modal_footer_close %}{% endblock %}
-
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -33,6 +31,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_modal_footer_save %}
         <sw-button
             variant="primary"

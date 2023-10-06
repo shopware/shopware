@@ -3,30 +3,27 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class ShippingStreetRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $streetName;
+    final public const RULE_NAME = 'customerShippingStreet';
 
     /**
-     * @var string
+     * @internal
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $streetName = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $streetName = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->streetName = $streetName;
     }
 
     public function match(RuleScope $scope): bool
@@ -36,44 +33,35 @@ class ShippingStreetRule extends Rule
         }
 
         if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return strcasecmp($this->streetName, $location->getStreet()) === 0;
-
-            case self::OPERATOR_NEQ:
-                return strcasecmp($this->streetName, $location->getStreet()) !== 0;
-
-            case self::OPERATOR_EMPTY:
-                return empty(trim($location->getStreet()));
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if (!\is_string($this->streetName) && $this->operator !== self::OPERATOR_EMPTY) {
+            throw new UnsupportedValueException(\gettype($this->streetName), self::class);
         }
+
+        return RuleComparison::string($location->getStreet(), $this->streetName ?? '', $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::stringOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['streetName'] = [new NotBlank(), new Type('string')];
+        $constraints['streetName'] = RuleConstraints::string();
 
         return $constraints;
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerShippingStreet';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
+            ->stringField('streetName');
     }
 }

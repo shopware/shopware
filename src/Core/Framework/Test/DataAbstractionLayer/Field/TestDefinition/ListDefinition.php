@@ -11,9 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class ListDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_nullable';
+    final public const ENTITY_NAME = '_test_nullable';
 
     public function getEntityName(): string
     {
@@ -29,7 +32,7 @@ class ListDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
-            (new ListField('data', 'data', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
+            (new ListField('data', 'data', StringField::class))->addFlags(new ApiAware()),
         ]);
     }
 }

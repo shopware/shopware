@@ -8,26 +8,54 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class TestHook extends Hook
 {
-    private string $name;
-
+    /**
+     * @var array<string>
+     */
     private static array $serviceIds;
 
-    public function __construct(string $name, Context $context, array $data = [], array $serviceIds = [])
-    {
+    /**
+     * @var array<string>
+     */
+    private static array $deprecatedServices;
+
+    /**
+     * @param array<string> $serviceIds
+     * @param array<string> $deprecatedServices
+     * @param array<string, mixed> $data
+     */
+    public function __construct(
+        private readonly string $name,
+        Context $context,
+        array $data = [],
+        array $serviceIds = [],
+        array $deprecatedServices = []
+    ) {
         parent::__construct($context);
-        $this->name = $name;
         self::$serviceIds = $serviceIds;
+        self::$deprecatedServices = $deprecatedServices;
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 
+    /**
+     * @return array<string>
+     */
     public static function getServiceIds(): array
     {
         return self::$serviceIds;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getDeprecatedServices(): array
+    {
+        return self::$deprecatedServices;
     }
 
     public function getName(): string

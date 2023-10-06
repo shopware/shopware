@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_display_options %}
 <div class="sw-media-display-options">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_display_options_presentation %}
     <sw-select-field
         v-if="!hidePresentation"
@@ -8,9 +10,14 @@
         aside
         :label="$tc('sw-media.presentation.labelPresentation')"
         :value="presentation"
+        {% if VUE3 %}
+        @update:value="onPresentationChanged"
+        {% else %}
         @change="onPresentationChanged"
+        {% endif %}
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_display_options_presentations_options %}
         <option
             v-for="previewType in previewOptions"
@@ -25,6 +32,7 @@
     </sw-select-field>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_display_options_sorting %}
     <sw-select-field
         name="sortType"
@@ -32,9 +40,14 @@
         aside
         :label="$tc('sw-media.sorting.labelSort')"
         :value="sortingConCat"
+        {% if VUE3 %}
+        @update:value="onSortingChanged"
+        {% else %}
         @change="onSortingChanged"
+        {% endif %}
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_display_options_sorting_options %}
         <option
             v-for="sortOption in sortOptions"

@@ -2,6 +2,16 @@
     margin-bottom: $spacer-lg;
     border: 1px solid $border-color;
     position: relative;
+
+    .order-item-detail {
+        border-top: 0 none;
+    }
+
+    .order-detail-content {
+        border-top: 1px solid $border-color;
+        padding: 0;
+        box-shadow: none;
+    }
 }
 
 .order-table-header {
@@ -274,7 +284,7 @@
     }
 }
 
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
     .order-table-header-order-table-header {
         display: none;
     }

@@ -68,9 +68,9 @@
                     <div class="order-detail-content-footer">
                         {% block page_account_order_item_detail_table_labels_summary %}
                             <div class="order-item-detail-footer">
-                                <div class="row no-gutters">
+                                <div class="row g-0">
                                     <div class="col-12 col-md-7 col-xl-6">
-                                        <dl class="row no-gutters order-item-detail-labels">
+                                        <dl class="row g-0 order-item-detail-labels">
                                             {% block page_account_order_item_detail_date %}
                                                 {% block page_account_order_item_detail_date_label %}
                                                     <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans|sw_sanitize }}</dt>
@@ -99,9 +99,7 @@
 
                                                     {% block page_account_order_item_detail_payment_method_value %}
                                                         <dd class="col-6 col-md-7 order-item-detail-labels-value">
-                                                            {% for transaction in order.transactions %}
-                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
-                                                            {% endfor %}
+                                                            {{ order.transactions|last.paymentMethod.translated.name }}
                                                         </dd>
                                                     {% endblock %}
                                                 {% endif %}
@@ -115,9 +113,7 @@
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
                                                         <dd class="col-6 col-md-7 order-item-detail-labels-value">
-                                                            {% for delivery in order.deliveries %}
-                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
-                                                            {% endfor %}
+                                                            {{ order.deliveries|first.shippingMethod.translated.name }}
                                                         </dd>
                                                     {% endblock %}
                                                 {% endif %}
@@ -132,6 +128,8 @@
                                                     {% block page_account_order_item_detail_tracking_code_label_value %}
                                                         {% apply spaceless %}
                                                             <dd class="col-6 col-md-7">
+                                                                {% set totalOutput = 0 %}
+
                                                                 {% for delivery in order.deliveries %}
                                                                     {% set trackingCodes = delivery.trackingCodes %}
                                                                     {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
@@ -147,10 +145,10 @@
                                                                             {% endset %}
                                                                         {% endif %}
 
-                                                                        {% if not loop.first and loop.index > 0 %}<span>, </span>{% endif %}{{ output }}
-                                                                    {% endfor %}
+                                                                        {% set totalOutput = totalOutput + 1 %}
 
-                                                                    {% if not loop.first and loop.index > 0 %}<span>, </span>{% endif %}
+                                                                        {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
+                                                                    {% endfor %}
                                                                 {% endfor %}
                                                             </dd>
                                                         {% endapply %}
@@ -162,15 +160,17 @@
 
                                     <div class="col-12 col-md-5 col-xl-6">
                                         {% block page_account_order_item_detail_summary %}
-                                            <dl class="row no-gutters order-item-detail-summary">
+                                            <dl class="row g-0 order-item-detail-summary">
                                                 {% block page_account_order_item_detail_shipping_costs %}
-                                                    {% block page_account_order_item_detail_shipping_costs_label %}
-                                                        <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans|sw_sanitize }}</dt>
-                                                    {% endblock %}
+                                                    {% if order.deliveries|length > 0 %}
+                                                        {% block page_account_order_item_detail_shipping_costs_label %}
+                                                            <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans|sw_sanitize }}</dt>
+                                                        {% endblock %}
 
-                                                    {% block page_account_order_item_detail_shipping_costs_value %}
-                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|currency(order.currency.isoCode) }}</dd>
-                                                    {% endblock %}
+                                                        {% block page_account_order_item_detail_shipping_costs_value %}
+                                                            <dd class="col-6 col-md-4">{{ order.shippingTotal|currency(order.currency.isoCode) }}</dd>
+                                                        {% endblock %}
+                                                    {% endif %}
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_amount %}
@@ -198,6 +198,14 @@
                                         {% endblock %}
                                     </div>
                                 </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block page_account_order_item_detail_table_footnote %}
+                            <div class="order-item-detail-footnote">
+                                {{ "footer.%s"|format(order.taxStatus == "gross" ? "includeVatText" : "excludeVatText")|trans({
+                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
                             </div>
                         {% endblock %}
                     </div>

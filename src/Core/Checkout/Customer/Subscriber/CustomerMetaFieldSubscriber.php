@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -9,17 +10,22 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('checkout')]
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -65,6 +71,9 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         $this->updateCustomer($orderIds, true);
     }
 
+    /**
+     * @param array<string> $orderIds
+     */
     private function updateCustomer(array $orderIds, bool $isDelete = false): void
     {
         if (empty($orderIds)) {
@@ -72,16 +81,31 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $customerIds = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(customer_id)) FROM `order_customer` WHERE order_id IN (:ids) AND order_version_id = :version',
+            'SELECT DISTINCT LOWER(HEX(customer_id)) FROM `order_customer` WHERE order_id IN (:ids) AND order_version_id = :version AND customer_id IS NOT NULL',
             ['ids' => Uuid::fromHexToBytesList($orderIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         if (empty($customerIds)) {
             return;
         }
 
-        $whereOrder = $isDelete ? 'AND `order`.id NOT IN (:exceptOrderIds)' : '';
+        $parameters = [
+            'customerIds' => Uuid::fromHexToBytesList($customerIds),
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'state' => OrderStates::STATE_COMPLETED,
+        ];
+        $types = [
+            'customerIds' => ArrayParameterType::STRING,
+        ];
+
+        $whereOrder = '';
+        if ($isDelete) {
+            $whereOrder = 'AND `order`.id NOT IN (:exceptOrderIds)';
+            $parameters['exceptOrderIds'] = Uuid::fromHexToBytesList($orderIds);
+            $types['exceptOrderIds'] = ArrayParameterType::STRING;
+        }
+
         $select = '
             SELECT `order_customer`.customer_id as id,
                    COUNT(`order`.id) as order_count,
@@ -104,15 +128,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             GROUP BY `order_customer`.customer_id
         ';
 
-        $data = $this->connection->fetchAllAssociative($select, [
-            'customerIds' => Uuid::fromHexToBytesList($customerIds),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'state' => OrderStates::STATE_COMPLETED,
-            'exceptOrderIds' => Uuid::fromHexToBytesList($orderIds),
-        ], [
-            'customerIds' => Connection::PARAM_STR_ARRAY,
-            'exceptOrderIds' => Connection::PARAM_STR_ARRAY,
-        ]);
+        $data = $this->connection->fetchAllAssociative($select, $parameters, $types);
 
         if (empty($data)) {
             foreach ($customerIds as $customerId) {

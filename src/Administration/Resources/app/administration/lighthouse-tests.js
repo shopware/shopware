@@ -1,15 +1,17 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable no-console */
 const fse = require('fs-extra');
 const path = require('path');
-const puppeteer = require('puppeteer');
-const lighthouse = require('lighthouse');
 const axios = require('axios');
 const _get = require('lodash/get');
-
 
 const APP_URL = process.env.APP_URL;
 const PROJECT_ROOT = process.env.PROJECT_ROOT;
 const DD_API_KEY = process.env.DD_API_KEY;
+
 
 if (!APP_URL) {
     throw new Error('The environment variable "APP_URL" have to be defined.');
@@ -23,33 +25,7 @@ if (!DD_API_KEY) {
     // eslint-disable-next-line no-console
     console.warn('' +
         'WARNING: The environment variable "DD_API_KEY" have to defined. ' +
-        'Otherwise it can\' send metrics to datadog.');
-}
-
-/**
- *
- * @param browser Browser
- * @returns {Promise<void>}
- */
-async function login(browser) {
-    console.log('LOGIN');
-    const page = await browser.newPage();
-
-    await page.setViewport({ width: 1280, height: 768 });
-    await page.goto(`${APP_URL}/admin`);
-
-    const usernameInput = await page.$('#sw-field--username');
-    const passwordInput = await page.$('#sw-field--password');
-    const loginButton = await page.$('button.sw-login__login-action');
-
-    await usernameInput.type('admin');
-    await passwordInput.type('shopware');
-    await loginButton.click();
-
-    await page.waitForNavigation();
-    await page.waitForSelector('.sw-dashboard-index__welcome-message');
-
-    await page.close();
+        'Otherwise it can\'t send metrics to datadog.');
 }
 
 async function iterateAsync(arr, handler) {
@@ -93,7 +69,7 @@ async function sendMetrics(metrics) {
         time_to_interactive: 'audits["interactive"].numericValue',
         total_blocking_time: 'audits["total-blocking-time"].numericValue',
         cumulative_layout_shift: 'audits["cumulative-layout-shift"].numericValue',
-        server_response_time: 'audits["server-response-time"].numericValue'
+        server_response_time: 'audits["server-response-time"].numericValue',
     };
     const timeStamp = getTimeStamp();
 
@@ -103,14 +79,14 @@ async function sendMetrics(metrics) {
                 host: 'lighthouse',
                 type: 'gauge',
                 metric: `lighthouse.${metricName}.${metric.testName}`,
-                points: [[timeStamp, _get(metric.result.lhr, scorePath)]],
+                points: [[timeStamp, _get(metric.result, scorePath)]],
             };
         }));
         acc.push({
             host: 'lighthouse',
             type: 'gauge',
             metric: `lighthouse.total_bundle_size.${metric.testName}`,
-            points: [[timeStamp, getScriptsSize(metric.result.lhr)]],
+            points: [[timeStamp, getScriptsSize(metric.result)]],
         });
 
         return acc;
@@ -132,89 +108,46 @@ async function sendMetrics(metrics) {
 }
 
 async function main() {
-    // create folder for artifacts
-    fse.mkdirpSync(path.join(PROJECT_ROOT, '/build/artifacts/lighthouse-results/'));
-
-    const PORT = 8041;
-
-    const browser = await puppeteer.launch({
-        args: [
-            `--remote-debugging-port=${PORT}`,
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-        ],
-        // For debugging:
-        // headless: false,
-        slowMo: 50,
-    });
-
-    // Login into the admin so that we don't get redirected to login page
-    await login(browser);
-
-    // Test cases for lighthouse
-    const testCases = {
-        dashboard: async () => `${APP_URL}/admin#/sw/dashboard/index`,
-        productListing: async () => `${APP_URL}/admin#/sw/product/index`,
-        productDetail: async () => {
-            const page = await browser.newPage();
-
-            await page.goto(`${APP_URL}/admin#/sw/product/index`);
-            await page.waitForNavigation();
-            await page.waitForFunction(() => !document.querySelector('.sw-loader'));
-            await page.waitForFunction(() => !document.querySelector('.sw-skeleton'));
-
-            await page.waitForSelector('.sw-data-grid__row--0');
-            await page.click('.sw-data-grid__row--0 a');
-
-            const url = page.url();
-            await page.close();
-
-            return url;
-        },
-    };
-
-    // Execute lighthouse tests
     const lighthouseTests = [];
 
-    await iterateAsync(Object.entries(testCases), async ([testName, getTestUrl]) => {
-        console.log('MEASURE ', testName);
-        const url = await getTestUrl();
-        const result = await lighthouse(url, {
-            port: PORT,
-            disableStorageReset: true,
-            output: 'html',
-            formFactor: 'desktop',
-            screenEmulation: {
-                mobile: false,
-                width: 1360,
-                height: 768,
-            },
-        });
+    const urlMapFile = await fse.readFile(
+        path.join(
+            PROJECT_ROOT,
+            '/build/artifacts/lighthouse-admin-config/urlmap.json',
+        ),
+        'utf-8',
+    );
+    const URL_MAP = JSON.parse(urlMapFile);
 
-        lighthouseTests.push({
-            testName: testName,
-            result: result,
-        });
-    });
+    const files = await fse.readdir('./.lighthouseci');
 
-    // Save the result in files
-    lighthouseTests.forEach(({ testName, result }) => {
-        fse.outputFileSync(
-            path.join(PROJECT_ROOT, `/build/artifacts/lighthouse-results/${testName}.html`),
-            result.report,
-        );
+    await iterateAsync(files, async (file) => {
+        if (path.extname(file) === '.json' && file.startsWith('lhr-')) {
+            console.log(file);
 
-        // Output the result
-        console.log('-----');
-        console.log(`Report is written for "${testName}"`);
-        console.log('Performance score was', result.lhr.categories.performance.score * 100);
+            const jsonFile = await fse.readFile(path.join('./.lighthouseci', file), 'utf-8');
+            const json = JSON.parse(jsonFile);
+
+            const urlLabel = Object.keys(URL_MAP).find(key => URL_MAP[key] === json.requestedUrl)?.replace('_', '-');
+
+            console.log('urlLabel:', urlLabel);
+
+            const testNamePresent = Object.keys(lighthouseTests).find(key => lighthouseTests[key].testName === urlLabel);
+
+            if (testNamePresent) {
+                console.log(testNamePresent);
+                return;
+            }
+
+            lighthouseTests.push({
+                testName: urlLabel,
+                result: json,
+            });
+        }
     });
 
     // Send results to dataDog
     await sendMetrics(lighthouseTests);
-
-    // Close browser when all tests are finished
-    await browser.close();
 }
 
 main();

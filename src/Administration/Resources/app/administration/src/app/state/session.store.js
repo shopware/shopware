@@ -1,6 +1,11 @@
+/**
+ * @package admin
+ */
+
 const { Application } = Shopware;
 const debug = Shopware.Utils.debug;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     state: {
         currentUser: null,

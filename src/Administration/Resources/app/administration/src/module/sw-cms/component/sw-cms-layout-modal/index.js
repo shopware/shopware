@@ -1,13 +1,22 @@
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-cms-layout-modal', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'acl',
+        'cmsPageTypeService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -42,12 +51,13 @@ Component.register('sw-cms-layout-modal', {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             limit: 10,
-            selected: null,
             selectedPageObject: null,
             isLoading: false,
             term: null,
             total: null,
             pages: [],
+            defaultCategoryId: '',
+            defaultProductId: '',
         };
     },
 
@@ -92,15 +102,6 @@ Component.register('sw-cms-layout-modal', {
             }];
         },
 
-        pageTypes() {
-            return {
-                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
-                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
-            };
-        },
-
         gridPreSelection() {
             if (!this.selectedPageObject?.id) {
                 return {};
@@ -108,19 +109,32 @@ Component.register('sw-cms-layout-modal', {
 
             return { [this.selectedPageObject.id]: this.selectedPageObject };
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
         preSelection: {
             handler: function handler(newSelection) {
                 this.selectedPageObject = newSelection;
-                this.selected = newSelection?.id;
             },
             immediate: true,
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
+            }
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -128,43 +142,33 @@ Component.register('sw-cms-layout-modal', {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;
-                return this.pages;
             }).catch(() => {
                 this.isLoading = false;
             });
         },
 
         selectLayout() {
-            this.$emit('modal-layout-select', this.selected, this.selectedPageObject);
+            this.$emit('modal-layout-select', this.selectedPageObject?.id, this.selectedPageObject);
             this.closeModal();
         },
 
-        selectInGrid(collum) {
-            const columnEntries = Object.entries(collum);
+        selectInGrid(column) {
+            const columnEntries = Object.values(column);
             if (columnEntries.length === 0) {
-                [this.selected, this.selectedPageObject] = [null, null];
+                this.selectedPageObject = null;
                 return;
             }
 
-            // replace with page.id
-            [this.selected, this.selectedPageObject] = columnEntries[0];
+            this.selectedPageObject = columnEntries[0];
         },
 
-        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
-        selectItem(layoutId, page) {
-            this.selected = layoutId; // replace with page.id
+        selectItem(page) {
             this.selectedPageObject = page;
         },
 
         onSearch(value) {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                if (!value.length || value.length <= 0) {
-                    this.term = null;
-                }
-            } else if (!value.length || value.length <= 0) {
+            if (!value.length || value.length <= 0) {
                 this.term = null;
-            } else {
-                this.term = value;
             }
 
             this.page = 1;
@@ -185,17 +189,24 @@ Component.register('sw-cms-layout-modal', {
             ];
         },
 
-        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
-        onSelection(layoutId, page) {
-            this.selected = layoutId; // replace with page.id
-            this.selectedPageObject = page;
-        },
-
         closeModal() {
-            this.$emit('modal-close');
-            this.selected = null;
             this.selectedPageObject = null;
             this.term = null;
+            this.$emit('modal-close');
+        },
+
+        getPageType(page) {
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
+            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+            return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
+        },
+
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+            this.defaultProductId = response['core.cms.default_product_cms_page'];
         },
     },
-});
+};

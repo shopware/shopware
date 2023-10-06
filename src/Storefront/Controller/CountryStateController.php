@@ -2,49 +2,46 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
+use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-class CountryStateController
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('buyers-experience')]
+class CountryStateController extends StorefrontController
 {
-    private SalesChannelRepositoryInterface $countryRepository;
-
-    public function __construct(SalesChannelRepositoryInterface $countryRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly CountryStateDataPageletLoader $countryStateDataPageletLoader)
     {
-        $this->countryRepository = $countryRepository;
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * This route should only be used by storefront to update address forms. It is not a replacement for sales-channel-api routes
-     *
-     * @Route("country/country-state-data", name="frontend.country.country.data", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={ "POST" })
-     */
+    #[Route(path: 'country/country-state-data', name: 'frontend.country.country.data', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['POST'])]
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
         $countryId = (string) $request->request->get('countryId');
-        $criteria = new Criteria([$countryId]);
-        $criteria->addAssociation('states');
 
-        /** @var CountryEntity|null $country */
-        $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($countryId);
+        if (!$countryId) {
+            throw RoutingException::missingRequestParameter('countryId');
+        }
 
-        $country->getStates()->sortByPositionAndName();
+        $countryStateDataPagelet = $this->countryStateDataPageletLoader->load($countryId, $request, $context);
+
+        $this->hook(new CountryStateDataPageletLoadedHook($countryStateDataPagelet, $context));
 
         return new JsonResponse([
-            'stateRequired' => $country->getForceStateInRegistration(),
-            'states' => $country->getStates(),
+            'states' => $countryStateDataPagelet->getStates(),
         ]);
     }
 }

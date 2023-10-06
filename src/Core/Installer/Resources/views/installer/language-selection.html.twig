@@ -1,0 +1,48 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.language-selection_header"|trans }}</h2>
+    </div>
+
+    <form action="{{ url('installer.language-selection') }}" method="get">
+        <div class="card__body is--align-center">
+
+            <div class="welcome-illustration">
+                <img src="{{ asset('bundles/installer/assets/images/welcome.svg', 'asset') }}" alt="">
+            </div>
+
+            <div class="welcome-container">
+                <h1 class="welcome-title">{{ "shopware.installer.language-selection_welcome_title"|trans }}</h1>
+
+                <p class="welcome-intro-message">{{ "shopware.installer.language-selection_welcome_message"|trans|raw }}</p>
+
+                <label for="language">
+                    {{ "shopware.installer.language-selection_select_language"|trans }}
+                    <a class="help-badge"
+                       href="#"
+                       data-tooltip="{{ "shopware.installer.language-selection_info_message"|trans }}">
+                        <i class="icon-help"></i>
+                    </a>
+                </label>
+
+                <div class="select-wrapper language">
+                    <img class="language-flag"
+                         src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.png', 'asset') }}"
+                         alt="{{ app.request.locale }}">
+                    <select id="language" name="language" class="language-selection" onchange="this.form.submit();">
+                        {% for language in supportedLanguages %}
+                            <option value="{{ language }}" {% if app.request.locale == language %}selected{% endif %}>
+                                {{ ("shopware.installer.select_language_" ~ language) | trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card__footer flex-container">
+            <a href="{{ url('installer.requirements') }}" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.forward"|trans }}</a>
+        </div>
+    </form>
+{% endblock %}

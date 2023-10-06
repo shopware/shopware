@@ -1,13 +1,49 @@
-<router-link
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_internal_link %}
+<component
+    :is="elementType"
+    v-if="!disabled"
     :to="routerLink"
     :target="target"
     class="sw-internal-link"
     :class="componentClasses"
+    @click="$emit('click')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_internal_link__slot %}
     <slot></slot>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_internal_link__icon %}
     <sw-icon
+        v-if="!hideIcon"
         :name="icon"
         small
     />
-</router-link>
+    {% endblock %}
+
+</component>
+
+<span
+    v-else
+    class="sw-internal-link sw-internal-link--disabled"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_internal_link__slot %}
+    <slot></slot>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_internal_link__icon %}
+    <sw-icon
+        v-if="!hideIcon"
+        :name="icon"
+        small
+    />
+    {% endblock %}
+
+</span>
+{% endblock %}

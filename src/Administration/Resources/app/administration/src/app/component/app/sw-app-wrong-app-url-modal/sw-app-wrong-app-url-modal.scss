@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-app-wrong-app-url-modal {
+    .sw-app-wrong-app-url-modal__content-description {
+        text-align: center;
+    }
+
+    .sw-app-wrong-app-url-modal__content-image {
+        margin-bottom: 20px;
+    }
+
+    .sw-app-wrong-app-url-modal__content-link-button {
+        margin: 20px;
+    }
+
+    .sw-app-wrong-app-url_modal__content-description-technical-details {
+        font-size: $font-size-xs;
+    }
+}

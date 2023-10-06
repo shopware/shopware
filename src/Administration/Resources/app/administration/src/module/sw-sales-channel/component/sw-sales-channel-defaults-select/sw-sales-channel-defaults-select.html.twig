@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_defaults_select %}
 <sw-container
     class="sw-sales-channel-defaults-select"
@@ -13,8 +14,24 @@
             :help-text="helpText"
             :entity-collection="propertyCollection"
             :criteria="criteria"
+            {% if VUE3 %}
+            @update:entity-collection="updateCollection"
+            {% else %}
             @change="updateCollection"
-        />
+            {% endif %}
+        >
+            <template
+                v-if="shouldShowActiveState"
+                #result-label-preview="{ item }"
+            >
+                <sw-icon
+                    class="sw-sales-channel-defaults-select__active-icon"
+                    size="6"
+                    :color="getActiveIconColor(item)"
+                    name="solid-circle"
+                />
+            </template>
+        </sw-entity-multi-select>
 
         <sw-entity-single-select
             :label-property="labelProperty"
@@ -30,7 +47,11 @@
             :criteria="criteria"
             :selection-disabling-method="isDisabledItem"
             :disabled-selection-tooltip="{ message: disabledTooltipMessage }"
+            {% if VUE3 %}
+            @update:value="updateDefault"
+            {% else %}
             @change="updateDefault"
+            {% endif %}
         />
     </template>
 </sw-container>

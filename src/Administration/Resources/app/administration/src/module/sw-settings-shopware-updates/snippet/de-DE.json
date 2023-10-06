@@ -1,85 +1,85 @@
 {
   "sw-settings-shopware-updates": {
     "general": {
-      "menuTitle": "Shopware-Update",
-      "title": "Shopware-Update ({version})",
-      "emptyTitle": "Shopware-Update",
+      "menuTitle": "Shopware-Aktualisierungen",
+      "title": "Shopware-Aktualisierung ({version})",
+      "emptyTitle": "Shopware-Aktualisierungen",
       "emptyState": "Du bist auf dem aktuellsten Stand.",
-      "checkForUpdates": "Nach Updates suchen",
-      "currentVersion": "aktuelle Version:"
+      "checkForUpdates": "Nach Aktualisierungen suchen",
+      "currentVersion": "Aktuelle Version:"
     },
     "cards": {
       "info": "Was ist neu?",
       "requirements": "Systemvoraussetzungen",
-      "extensions": "Erweiterungskompatiblität",
-      "updating": "Aktualisierung"
+      "extensions": "Erweiterungskompatibilität",
+      "updating": "Aktualisiere ..."
     },
     "notifications": {
-      "updateStarted": "Update gestartet.",
-      "updateStopped": "Update gestoppt.",
+      "updateStarted": "Aktualisierung gestartet.",
+      "updateStopped": "Aktualisierung gestoppt.",
       "downloadFailed": "Download fehlgeschlagen.",
       "unpackFailed": "Entpacken fehlgeschlagen.",
-      "deactivationFailed": "Deaktivieren der Plugins fehlgeschlagen",
+      "deactivationFailed": "Deaktivieren der Erweiterungen fehlgeschlagen",
       "alreadyUpToDate": "Du bist bereits auf dem aktuellsten Stand."
     },
     "infos": {
-      "backupCheckboxLabel": "Ich habe bereits ein Backup angelegt und möchte das Update nun durchführen.",
-      "startUpdate": "Update starten",
-      "requirementsNotMet": "Nicht alle Systemanforderungen für dieses Update sind erfüllt.",
+      "backupCheckboxLabel": "Ich habe eine Datensicherung angelegt und möchte die Aktualisierung nun durchführen.",
+      "startUpdate": "Aktualisierung starten",
+      "requirementsNotMet": "Nicht alle Systemanforderungen sind erfüllt.",
       "progress": {
-        "download": "Update-Datei wird heruntergeladen.",
-        "deactivate": "Plugins werden deaktiviert.",
-        "unpack": "Update-Datei wird entpackt."
+        "download": "Aktualisierung-Datei wird heruntergeladen ...",
+        "deactivate": "Erweiterungen werden deaktiviert ...",
+        "unpack": "Aktualisierung-Datei wird entpackt ..."
       }
     },
     "requirements": {
       "columns": {
-        "status": "Status",
-        "message": "Voraussetzung"
+        "message": "Voraussetzung",
+        "status": "Status"
       },
       "message": {
         "phpVersion": "Erforderliche PHP-Version: {minVersion}. Installierte PHP-Version: {currentVersion}.",
         "mysqlVersion": "Erforderliche MySQL-Version: {minVersion}. Installierte MySQL-Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind nicht beschreibbar:<br>{failedDirectories}",
-        "validShopwareLicense": "Gültige Shopware-Subscription gefunden. Das Update kann nun durchgeführt werden.",
-        "invalidShopwareLicense": "Für Deine Shopware-Version konnte keine aktive Subscription ermittelt werden.<br>Das automatische Update kann somit nicht durchgeführt werden.<br>Eine gültige Shopware-Subscription kannst Du aber jederzeit über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
+        "validShopwareLicense": "Gültige Shopware-Subscription gefunden. Die Aktualisierung kann nun durchgeführt werden.",
+        "invalidShopwareLicense": "Für Deine Shopware-Version konnte keine aktive Subscription ermittelt werden.<br>Die automatische Aktualisierungen kann somit nicht durchgeführt werden.<br>Eine gültige Shopware-Subscription kannst Du aber jederzeit über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
       },
       "ready": "Bereit",
       "notReady": "Nicht bereit"
     },
     "plugins": {
       "columns": {
-        "name": "Plugin",
-        "available": "Kompatiblität"
+        "name": "Erweiterung",
+        "available": "Kompatibilität"
       },
       "actions": {
         "openMyExtensions": "Zu meinen Erweiterungen",
-        "deactivateAll": "Alle Plugins deaktivieren.",
-        "deactivateIncompatible": "Alle inkompatiblen Plugins deaktivieren.",
-        "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem ein Update durchführen, ohne die entsprechenden Plugins vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einem inkompatiblen Update geben kann.",
+        "deactivateAll": "Alle Erweiterungen deaktivieren.",
+        "deactivateIncompatible": "Inkompatible Erweiterungen deaktivieren.",
+        "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem eine Aktualisierung durchführen, ohne die entsprechenden Erweiterungen vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einer inkompatiblen Aktualisierung geben kann.",
         "recommended": "(Empfohlen)"
       },
-      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktiere den Plugin-Hersteller.",
-      "pluginWillBeDeactivatedHint": "(Wird im Updateprozess deaktiviert)"
+      "pluginNotInStore": "Diese Erweiterung ist im Store nicht verfügbar. Bitte kontaktiere den Erweiterungs-Hersteller.",
+      "pluginWillBeDeactivatedHint": "(Wird im Aktualisierungsprozess deaktiviert)"
     },
     "updateModal": {
       "actions": {
         "cancel": "Abbrechen",
         "install": "Installieren",
-        "goToUpdate": "Jetzt zum Update"
+        "goToUpdate": "Jetzt aktualisieren"
       },
-      "messageIncompatible": "Einige der überprüften Plugins sind nicht mit der neuen Version kompatibel. Wenn Du mit dem Update fortfährst, könnte es zu Fehlern kommen, die Dein System nachhaltig schädigen könnten. Wir können für Dich inkompatible Plugins für den Update-Prozess deaktivieren, um die Funktion Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Plugins zu aktivieren, nachdem Du sie entsprechend aktualisiert hast.",
-      "messageNotInStore": "Es sind Plugins vorhanden, die nicht auf Kompatibilität geprüft werden konnten. Kontaktiere die Plugin-Hersteller für weitere Informationen und stelle sicher, dass Du ein Backup erstellt hast, bevor Du fortfährst.",
-      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du ein aktuelles Backup erstellt hast.",
+      "messageIncompatible": "Einige der überprüften Erweiterungen sind nicht mit der neuen Version kompatibel. Wenn Du mit der Aktualisierung fortfährst, könnte es zu Fehlern kommen, die Dein System nachhaltig schädigen könnten. Wir können inkompatible Erweiterungen für den Aktualisierungs-Prozess deaktivieren, um die Funktion Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Erweiterungen zu re-aktivieren, nachdem Du sie entsprechend aktualisiert hast.",
+      "messageNotInStore": "Es sind Erweiterungen vorhanden, die nicht auf Kompatibilität geprüft werden konnten. Kontaktiere die Erweiterungs-Hersteller für weitere Informationen und stelle sicher, dass Du ein Datensicherung erstellt hast, bevor Du fortfährst.",
+      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du eine aktuelle Datensicherung erstellt hast.",
       "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
-      "backupLabel": "Ja, ich habe ein Backup erstellt."
+      "backupLabel": "Ja, ich habe meine Daten gesichert."
     }
   },
   "sw-privileges": {
     "additional_permissions": {
       "system": {
-        "core_update": "Update starten",
+        "core_update": "Aktualisierung durchführen",
         "plugin_maintain": "Erweiterungen verwalten",
         "plugin_upload": "Erweiterungen hochladen"
       }

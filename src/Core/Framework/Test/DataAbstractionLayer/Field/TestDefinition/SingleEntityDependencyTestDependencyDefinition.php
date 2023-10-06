@@ -11,9 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class SingleEntityDependencyTestDependencyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_zipcode';
+    final public const ENTITY_NAME = '_test_zipcode';
 
     public function getEntityName(): string
     {

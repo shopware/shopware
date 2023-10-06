@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
- */
+#[Package('checkout')]
 class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
 {
     /**
@@ -15,10 +15,14 @@ class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<NewsletterRecipientCollection> $newsletterRecipients
+     */
     public function __construct(EntitySearchResult $newsletterRecipients)
     {
-        if ($newsletterRecipients->first()) {
-            $accNlRecipientResult = new AccountNewsletterRecipientResult($newsletterRecipients->first()->getStatus());
+        $firstNewsletterRecipient = $newsletterRecipients->getEntities()->first();
+        if ($firstNewsletterRecipient) {
+            $accNlRecipientResult = new AccountNewsletterRecipientResult($firstNewsletterRecipient->getStatus());
             parent::__construct($accNlRecipientResult);
 
             return;

@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                          add(DocumentBaseConfigEntity $entity)
- * @method void                          set(string $key, DocumentBaseConfigEntity $entity)
- * @method DocumentBaseConfigEntity[]    getIterator()
- * @method DocumentBaseConfigEntity[]    getElements()
- * @method DocumentBaseConfigEntity|null get(string $key)
- * @method DocumentBaseConfigEntity|null first()
- * @method DocumentBaseConfigEntity|null last()
+ * @extends EntityCollection<DocumentBaseConfigEntity>
  */
+#[Package('checkout')]
 class DocumentBaseConfigCollection extends EntityCollection
 {
     public function getApiAlias(): string

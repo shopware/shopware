@@ -1,14 +1,18 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
+const { Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-shipping-price-matrix', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -25,24 +29,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             type: Boolean,
             required: false,
             default: false,
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restrictedShippingMethodRules: {
-            type: Array,
-            required: false,
-            default() {
-                return [];
-            },
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restrictedShippingPriceRules: {
-            type: Array,
-            required: false,
-            default() {
-                return [];
-            },
         },
     },
 
@@ -118,9 +104,11 @@ Component.register('sw-settings-shipping-price-matrix', {
 
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
-            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm',
+            return this.$tc(
+                'sw-settings-shipping.priceMatrix.textDeleteConfirm',
                 Number(!!this.priceGroup.rule),
-                { name: name });
+                { name: name },
+            );
         },
 
         ruleColumns() {
@@ -184,7 +172,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         ruleFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -193,13 +181,14 @@ Component.register('sw-settings-shipping-price-matrix', {
                 ],
             ));
 
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
 
         shippingRuleFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -207,6 +196,8 @@ Component.register('sw-settings-shipping-price-matrix', {
                     Criteria.equals('rule.moduleTypes', null),
                 ],
             ));
+
+            criteria.addAssociation('conditions');
 
             return criteria;
         },
@@ -280,26 +271,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        countDecimalPlaces(value) {
-            const split = value.toString().split('.');
-
-            return split[1] ? split[1].length : 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        increaseWithDecimalPlaces(value) {
-            let decimalPlaces = this.countDecimalPlaces(value);
-            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
-
-            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
-            return Number((value + increase).toFixed(decimalPlaces));
         },
 
         onSaveMainRule(ruleId) {
@@ -471,50 +442,5 @@ Component.register('sw-settings-shipping-price-matrix', {
 
             this.onAddNewShippingPrice();
         },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        tooltipConfig(item, isSelected, restrictedRules, usedRules, restrictionSnippet, usedSnippet) {
-            const restrictedByConditions = this[restrictedRules].includes(item.id);
-            const showDelay = 300;
-
-            if (restrictedByConditions) {
-                return {
-                    showDelay,
-                    message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
-                        relation: restrictionSnippet,
-                    }),
-                };
-            }
-
-            return {
-                showDelay,
-                message: usedSnippet,
-                disabled: !this[usedRules].includes(item.id) && !isSelected,
-            };
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        shippingMethodRuleTooltipConfig(item, isSelected) {
-            return this.tooltipConfig(
-                item,
-                isSelected,
-                'restrictedShippingMethodRules',
-                'usedRules',
-                this.$tc('sw-restricted-rules.restrictedAssignment.shippingMethodPrices'),
-                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
-            );
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        shippingPriceRuleTooltipConfig(item, isSelected) {
-            return this.tooltipConfig(
-                item,
-                isSelected,
-                'restrictedShippingPriceRules',
-                'usedRules',
-                this.$tc('sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations'),
-                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
-            );
-        },
     },
-});
+};

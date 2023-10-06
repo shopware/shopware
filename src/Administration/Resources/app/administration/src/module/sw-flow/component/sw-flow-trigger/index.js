@@ -4,10 +4,14 @@ import './sw-flow-trigger.scss';
 const { Component, State } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
 const utils = Shopware.Utils;
-const { capitalizeString } = Shopware.Utils.string;
+const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
-Component.register('sw-flow-trigger', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'businessEventService'],
@@ -29,10 +33,16 @@ Component.register('sw-flow-trigger', {
             type: String,
             required: true,
         },
+        isUnknownTrigger: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
+            /** @deprecated tag:v6.6.0 - events will be removed, use state triggerEvents instead. */
             events: [],
             isExpanded: false,
             isLoading: false,
@@ -66,10 +76,22 @@ Component.register('sw-flow-trigger', {
         },
 
         eventTree() {
-            return this.getEventTree(this.events);
+            return this.getEventTree(this.triggerEvents);
         },
 
-        ...mapState('swFlowState', ['flow']),
+        isTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
+        triggerNamePlaceholder() {
+            if (!this.isUnknownTrigger) {
+                return this.$tc('sw-flow.detail.trigger.placeholder');
+            }
+
+            return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
+        },
+
+        ...mapState('swFlowState', ['flow', 'triggerEvents']),
         ...mapGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
@@ -94,8 +116,10 @@ Component.register('sw-flow-trigger', {
 
             const keyWords = value.split(/[\W_]+/ig);
 
-            this.searchResult = this.events.filter(event => {
-                return keyWords.every(key => event.name.includes(key.toLowerCase()));
+            this.searchResult = this.triggerEvents.filter(event => {
+                const eventName = this.getEventName(event.name).toLowerCase();
+
+                return keyWords.every(key => eventName.includes(key.toLowerCase()));
             });
 
             // set first item as focus
@@ -144,7 +168,12 @@ Component.register('sw-flow-trigger', {
             document.addEventListener('click', this.handleClickEvent);
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
-            this.getBusinessEvents();
+            this.isLoading = true;
+            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
+            State.dispatch('swFlowState/setRestrictedRules', this.eventName);
+
+            this.isLoading = false;
         },
 
         beforeDestroyComponent() {
@@ -513,6 +542,7 @@ Component.register('sw-flow-trigger', {
                 const { id } = item.data;
 
                 State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
+                State.dispatch('swFlowState/setRestrictedRules', id);
                 this.$emit('option-select', id);
             } else {
                 this.showConfirmModal = this.flow.eventName !== item.id;
@@ -522,6 +552,7 @@ Component.register('sw-flow-trigger', {
 
         onConfirm() {
             State.commit('swFlowState/setTriggerEvent', this.triggerSelect);
+            State.dispatch('swFlowState/setRestrictedRules', this.triggerSelect.name);
             this.$emit('option-select', this.triggerSelect.name);
         },
 
@@ -530,7 +561,9 @@ Component.register('sw-flow-trigger', {
             this.triggerSelect = {};
         },
 
-
+        /*
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         getBusinessEvents() {
             this.isLoading = true;
 
@@ -538,6 +571,7 @@ Component.register('sw-flow-trigger', {
                 .then(events => {
                     this.events = events;
                     State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
+                    State.dispatch('swFlowState/setRestrictedRules', this.eventName);
                 }).finally(() => {
                     this.isLoading = false;
                 });
@@ -546,16 +580,15 @@ Component.register('sw-flow-trigger', {
         getLastEventName({ parentId = null, id }) {
             const [eventName] = parentId ? id.split('.').reverse() : [id];
 
-            // Replace '_' or '-' to blank space.
-            return eventName.replace(/_|-/g, ' ');
+            return this.getEventNameTranslated(eventName);
         },
 
         getDataByEvent(event) {
-            return this.events.find(item => item.name === event);
+            return this.triggerEvents.find(item => item.name === event);
         },
 
         hasOnlyStopFlow(event) {
-            const eventAware = this.events.find(item => item.name === event).aware || [];
+            const eventAware = this.triggerEvents.find(item => item.name === event).aware || [];
             return eventAware.length === 0;
         },
 
@@ -647,6 +680,7 @@ Component.register('sw-flow-trigger', {
             if (this.isSequenceEmpty) {
                 this.$emit('option-select', item.name);
                 State.commit('swFlowState/setTriggerEvent', item);
+                State.dispatch('swFlowState/setRestrictedRules', item.name);
             } else {
                 this.showConfirmModal = true;
                 this.triggerSelect = item;
@@ -654,16 +688,34 @@ Component.register('sw-flow-trigger', {
         },
 
         getEventName(eventName) {
+            if (this.isUnknownTrigger) {
+                return '';
+            }
+
             if (!eventName) {
                 return eventName;
             }
 
-            // Replace '.' to ' / ',  '_' or '-' to blank space.
-            return eventName.replace(/\./g, ' / ').replace(/_|-/g, ' ');
+            const keyWords = eventName.split('.');
+
+            return keyWords.map(key => {
+                return this.getEventNameTranslated(key);
+            }).join(' / ');
         },
 
         isSearchResultInFocus(item) {
             return item.name === this.searchResultFocusItem.name;
         },
+
+        getEventNameTranslated(eventName) {
+            const eventNameCamelCase = camelCase(eventName);
+            const translatedEventName = [
+                `sw-flow-app.triggers-app.${eventNameCamelCase}`,
+                `sw-flow-custom-event.event-tree.${eventNameCamelCase}`,
+                `sw-flow.triggers.${eventNameCamelCase}`,
+            ].find(key => this.$te(key));
+
+            return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
+        },
     },
-});
+};

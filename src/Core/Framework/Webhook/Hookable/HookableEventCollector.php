@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -21,9 +24,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class HookableEventCollector
 {
-    public const HOOKABLE_ENTITIES = [
+    final public const HOOKABLE_ENTITIES = [
         ProductDefinition::ENTITY_NAME,
         ProductPriceDefinition::ENTITY_NAME,
         CategoryDefinition::ENTITY_NAME,
@@ -32,32 +36,22 @@ class HookableEventCollector
         CustomerDefinition::ENTITY_NAME,
         CustomerAddressDefinition::ENTITY_NAME,
         OrderDefinition::ENTITY_NAME,
+        OrderAddressDefinition::ENTITY_NAME,
         DocumentDefinition::ENTITY_NAME,
+        MediaDefinition::ENTITY_NAME,
     ];
 
     private const PRIVILEGES = 'privileges';
 
     /**
-     * @var BusinessEventCollector
-     */
-    private $businessEventCollector;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @var string[][][]
      */
-    private $hookableEventNamesWithPrivileges = [];
+    private array $hookableEventNamesWithPrivileges = [];
 
     public function __construct(
-        BusinessEventCollector $businessEventCollector,
-        DefinitionInstanceRegistry $definitionRegistry
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
-        $this->businessEventCollector = $businessEventCollector;
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function getHookableEventNamesWithPrivileges(Context $context): array
@@ -111,9 +105,7 @@ class HookableEventCollector
     private function getHookableEventNames(): array
     {
         return array_reduce(array_values(
-            array_map(static function ($hookableEvent) {
-                return [$hookableEvent => [self::PRIVILEGES => []]];
-            }, Hookable::HOOKABLE_EVENTS)
+            array_map(static fn ($hookableEvent) => [$hookableEvent => [self::PRIVILEGES => []]], Hookable::HOOKABLE_EVENTS)
         ), 'array_merge', []);
     }
 

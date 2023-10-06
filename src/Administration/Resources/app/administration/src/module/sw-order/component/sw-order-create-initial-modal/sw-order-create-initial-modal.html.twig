@@ -1,11 +1,14 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_modal %}
 <sw-modal
     class="sw-order-create-initial-modal"
     :closable="false"
     :title="$tc('sw-order.initialModal.titleNewOrder')"
+    variant="large"
     @modal-close="onCloseModal"
 >
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_tabs %}
         <sw-tabs
             class="sw-order-create-initial-modal__tabs"
@@ -13,6 +16,7 @@
             position-identifier="sw-order-create-initial-modal"
         >
             <template #default="{ active }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_customer %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-customer"
@@ -23,6 +27,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_products %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-product"
@@ -34,17 +39,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_order_create_modal_tabs_custom_item %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-custom-item"
-                    name="custom-item"
-                    :active-tab="active"
-                    :disabled="!customer"
-                >
-                    {{ $tc('sw-order.initialModal.tabCustomItem') }}
-                </sw-tabs-item>
-                {% endblock %}
-
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_options %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-options"
@@ -56,67 +51,46 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_order_create_modal_tabs_credit %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-credit"
-                    name="credit"
-                    :active-tab="active"
-                    :disabled="!customer"
-                >
-                    {{ $tc('sw-order.initialModal.tabCredit') }}
-                </sw-tabs-item>
-                {% endblock %}
-
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_extension %}{% endblock %}
             </template>
 
             <template #content="{ active }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_content %}
                 <div class="sw-order-create-initial-modal__content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_customer %}
                     <sw-order-customer-grid
                         v-show="active === 'customer'"
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_products %}
-                    <sw-order-product-grid
+                    <sw-order-line-items-grid-sales-channel
                         v-show="active === 'products'"
+                        :is-loading="isProductGridLoading"
                         :sales-channel-id="salesChannelId"
-                        :tax-status="taxStatus"
+                        :cart="cart"
                         :currency="currency"
-                        @selection-change="onProductChange"
+                        :is-customer-active="isCustomerActive"
+                        @on-save-item="onSaveItem"
+                        @on-remove-items="onRemoveItems"
                     />
                     {% endblock %}
 
-                    {% block sw_order_create_modal_tabs_content_custom_item %}
-                    <sw-order-custom-item
-                        v-if="active === 'custom-item'"
-                        :disabled="!customer"
-                        :tax-status="taxStatus"
-                        :currency="currency"
-                        :custom-item="customItem"
-                    />
-                    {% endblock %}
-
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_options %}
                     <sw-order-create-options
                         v-if="active === 'options'"
                         :disabled="!customer"
+                        :disabled-auto-promotion="disabledAutoPromotion"
                         :promotion-codes="promotionCodes"
-                        :disabled-auto-promotions="disabledAutoPromotions"
+                        :context="context"
                         @promotions-change="updatePromotion"
-                        @auto-promotions-toggle="updateAutoPromotionsToggle"
-                    />
-                    {% endblock %}
-
-                    {% block sw_order_create_modal_tabs_content_credit %}
-                    <sw-order-credit-item
-                        v-if="active === 'credit'"
-                        :disabled="!customer"
-                        :tax-status="taxStatus"
-                        :currency="currency"
-                        :credit="creditItem"
+                        @auto-promotion-toggle="updateAutoPromotionToggle"
+                        @shipping-cost-change="updateShippingCost"
                     />
                     {% endblock %}
                 </div>
@@ -127,8 +101,10 @@
     </template>
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_cancel %}
         <sw-button
+            class="sw-order-create-initial-modal__button-cancel"
             size="small"
             @click="onCloseModal"
         >
@@ -136,8 +112,10 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_preview_order %}
         <sw-button
+            class="sw-order-create-initial-modal__button-preview"
             size="small"
             variant="primary"
             :disabled="!customer"

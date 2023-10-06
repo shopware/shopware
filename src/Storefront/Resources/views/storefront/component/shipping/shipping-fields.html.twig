@@ -11,7 +11,7 @@
             {% endfor %}
 
             {% block component_shipping_method_collapse %}
-                {% if page.shippingMethods | length > visibleShippingMethodsLimit and visibleShippingMethodsLimit is not same as(null) %}
+                {% if page.shippingMethods|length > visibleShippingMethodsLimit and visibleShippingMethodsLimit is not same as(null) %}
                     <div class="collapse">
                         {% for shipping in page.shippingMethods[visibleShippingMethodsLimit:] %}
                             {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}

@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 
-class ChangeCustomerStatusAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class ChangeCustomerStatusAction extends FlowAction implements DelayableAction
 {
-    private EntityRepositoryInterface $customerRepository;
-
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly EntityRepository $customerRepository)
     {
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string
@@ -20,37 +27,43 @@ class ChangeCustomerStatusAction extends FlowAction
         return 'action.change.customer.status';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [CustomerAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $config = $event->getConfig();
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
+            return;
+        }
+
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $customerID): void
+    {
         if (!\array_key_exists('active', $config)) {
             return;
         }
 
         $active = $config['active'];
-        $baseEvent = $event->getEvent();
 
-        if (!$baseEvent instanceof CustomerAware || !\is_bool($active)) {
+        if (!\is_bool($active)) {
             return;
         }
 
         $this->customerRepository->update([
             [
-                'id' => $baseEvent->getCustomerId(),
+                'id' => $customerID,
                 'active' => $active,
             ],
-        ], $baseEvent->getContext());
+        ], $context);
     }
 }

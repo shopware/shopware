@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                    add(SystemConfigEntity $entity)
- * @method void                    set(string $key, SystemConfigEntity $entity)
- * @method SystemConfigEntity[]    getIterator()
- * @method SystemConfigEntity[]    getElements()
- * @method SystemConfigEntity|null get(string $key)
- * @method SystemConfigEntity|null first()
- * @method SystemConfigEntity|null last()
+ * @extends EntityCollection<SystemConfigEntity>
  */
+#[Package('core')]
 class SystemConfigCollection extends EntityCollection
 {
     public function fieldNameInCollection(string $fieldName): bool

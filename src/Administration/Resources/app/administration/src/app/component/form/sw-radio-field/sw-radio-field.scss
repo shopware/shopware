@@ -1,4 +1,5 @@
-@import '~scss/variables';
+@import "~scss/variables";
+
 $sw-field--radio-color-border: $color-gray-300;
 
 .sw-field--radio {
@@ -13,14 +14,28 @@ $sw-field--radio-color-border: $color-gray-300;
         grid-column-gap: 8px;
         margin-bottom: 12px;
 
+        &.is--disabled {
+            background-color: $color-gray-50;
+        }
+
         label {
             font-weight: normal;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             color: $color-darkgray-200;
 
             .sw-help-text {
                 margin-left: 5px;
             }
+        }
+
+        &:hover,
+        &:hover > * {
+            cursor: pointer;
+        }
+
+        &.is--disabled:hover,
+        &.is--disabled:hover > * {
+            cursor: not-allowed;
         }
     }
 
@@ -81,46 +96,65 @@ $sw-field--radio-color-border: $color-gray-300;
     }
 
     &.has--error {
-        .sw-field__radio-state {
-            border-color: $color-crimson-500;
-        }
-
         input[type="radio"]:checked ~ .sw-field__radio-state {
             border: 5px solid $color-crimson-500;
+        }
+
+        input[type="radio"]:checked ~ .sw-field__label {
+            color: $color-crimson-500;
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__radio-input {
+            input[type="radio"] {
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .sw-field__radio-option-label {
+        &.error--selection {
+            color: $color-crimson-500;
         }
     }
 
     .sw-field__radio-option-description {
         margin-top: 8px;
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: normal;
         line-height: 22px;
     }
 
     .sw-field__radio-description {
         color: $color-gray-500;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         line-height: 22px;
         padding-top: 8px;
     }
 
     &.sw-field--radio-block {
         .sw-field__label {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
             font-weight: bold;
             line-height: 22px;
             margin-bottom: 20px;
         }
 
         .sw-field__radio-option {
+            transition: border-color ease-in 100ms;
             border: 1px solid $color-gray-200;
             border-radius: $border-radius-default;
             padding: 12px 19px;
+
+            &:not(.is--disabled):hover {
+                border-color: $color-shopware-brand-500;
+            }
         }
 
         .sw-field__radio-option label {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
             font-weight: $font-weight-semi-bold;
             line-height: 22px;
             padding-left: 12px;
@@ -130,7 +164,7 @@ $sw-field--radio-color-border: $color-gray-300;
             margin-top: 5px;
         }
 
-        .sw-field__radio-option.sw-field__radio-option-checked {
+        .sw-field__radio-option.sw-field__radio-option-checked:not(.is--disabled) {
             background: rgba($color-shopware-brand-500, 0.05);
             border: 1px solid $color-shopware-brand-500;
         }

@@ -1,8 +1,9 @@
 import template from './sw-settings-basic-information.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-basic-information', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -46,5 +47,20 @@ Component.register('sw-settings-basic-information', {
         onLoadingChanged(loading) {
             this.isLoading = loading;
         },
+
+        abortOnLanguageChange() {
+            // We don't know if there are changes. So show the warning everytime.
+            return true;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            this.$refs.systemConfig.createdComponent();
+        },
     },
-});
+};

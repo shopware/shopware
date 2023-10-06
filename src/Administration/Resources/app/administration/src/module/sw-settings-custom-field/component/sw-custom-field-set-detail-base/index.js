@@ -1,8 +1,10 @@
-import template from './sw-custom-field-detail-base.html.twig';
+/**
+ * @package services-settings
+ */
+import template from './sw-custom-field-set-detail-base.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-custom-field-set-detail-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['customFieldDataProviderService', 'acl'],
@@ -14,6 +16,11 @@ Component.register('sw-custom-field-set-detail-base', {
             default() {
                 return {};
             },
+        },
+        technicalNameError: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -109,5 +116,9 @@ Component.register('sw-custom-field-set-detail-base', {
                 });
             });
         },
+
+        onTechnicalNameChange() {
+            this.$emit('reset-errors');
+        },
     },
-});
+};

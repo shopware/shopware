@@ -3,18 +3,20 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class ExtensionStruct extends Struct
 {
-    public const EXTENSION_TYPE_APP = 'app';
-    public const EXTENSION_TYPE_PLUGIN = 'plugin';
-    public const SOURCE_LOCAL = 'local';
-    public const SOURCE_STORE = 'store';
+    final public const EXTENSION_TYPE_APP = 'app';
+    final public const EXTENSION_TYPE_PLUGIN = 'plugin';
+    final public const SOURCE_LOCAL = 'local';
+    final public const SOURCE_STORE = 'store';
 
     protected ?int $id = null;
 
@@ -65,7 +67,7 @@ class ExtensionStruct extends Struct
      *
      * @see AppEntity::$privacy
      */
-    protected ?string $privacyPolicyLink;
+    protected ?string $privacyPolicyLink = null;
 
     /**
      * languages property from store
@@ -121,6 +123,9 @@ class ExtensionStruct extends Struct
 
     protected ?\DateTimeInterface $updatedAt = null;
 
+    /**
+     * @var array<string>
+     */
     protected array $notices = [];
 
     /**
@@ -133,8 +138,38 @@ class ExtensionStruct extends Struct
      */
     protected string $updateSource = self::SOURCE_LOCAL;
 
+    protected bool $allowDisable = true;
+
+    /**
+     * @var array<string>
+     */
+    protected array $domains = [];
+
+    protected string $lastUpdateDate;
+
+    protected string $producerWebsite;
+
+    protected string $storeUrl;
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @throws \InvalidArgumentException
+     */
     public static function fromArray(array $data): ExtensionStruct
     {
+        if (!isset($data['name'])) {
+            throw new \InvalidArgumentException('Entry "name" in payload missing');
+        }
+
+        if (!isset($data['label'])) {
+            throw new \InvalidArgumentException('Entry "label" in payload missing');
+        }
+
+        if (!isset($data['type'])) {
+            throw new \InvalidArgumentException('Entry "type" in payload missing');
+        }
+
         return (new self())->assign($data);
     }
 
@@ -259,7 +294,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return array<string>|null
      */
     public function getLanguages(): ?array
     {
@@ -364,6 +399,9 @@ class ExtensionStruct extends Struct
         $this->permissions = $permissions;
     }
 
+    /**
+     * @return array<string, PermissionCollection>
+     */
     public function getCategorizedPermissions(): array
     {
         if ($this->permissions === null) {
@@ -451,11 +489,17 @@ class ExtensionStruct extends Struct
         $this->installedAt = $installedAt;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getNotices(): array
     {
         return $this->notices;
     }
 
+    /**
+     * @param array<string> $notices
+     */
     public function setNotices(array $notices): void
     {
         $this->notices = $notices;
@@ -499,5 +543,61 @@ class ExtensionStruct extends Struct
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function isAllowDisable(): bool
+    {
+        return $this->allowDisable;
+    }
+
+    public function setAllowDisable(bool $allowDisable): void
+    {
+        $this->allowDisable = $allowDisable;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getDomains(): array
+    {
+        return $this->domains;
+    }
+
+    /**
+     * @param array<string> $domains
+     */
+    public function setDomains(array $domains): void
+    {
+        $this->domains = $domains;
+    }
+
+    public function getLastUpdateDate(): string
+    {
+        return $this->lastUpdateDate;
+    }
+
+    public function setLastUpdateDate(string $lastUpdateDate): void
+    {
+        $this->lastUpdateDate = $lastUpdateDate;
+    }
+
+    public function getProducerWebsite(): string
+    {
+        return $this->producerWebsite;
+    }
+
+    public function setProducerWebsite(string $producerWebsite): void
+    {
+        $this->producerWebsite = $producerWebsite;
+    }
+
+    public function getStoreUrl(): string
+    {
+        return $this->storeUrl;
+    }
+
+    public function setStoreUrl(string $storeUrl): void
+    {
+        $this->storeUrl = $storeUrl;
     }
 }

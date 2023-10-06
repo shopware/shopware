@@ -1,8 +1,11 @@
-import '../sw-category/page/sw-category-detail';
+/**
+ * @package content
+ */
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-landing-page', {
     type: 'core',
     name: 'landing_page',
@@ -10,7 +13,7 @@ Module.register('sw-landing-page', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'default-symbol-products',
+    icon: 'regular-products',
     favicon: 'icon-module-products.png',
     entity: 'landing_page',
 

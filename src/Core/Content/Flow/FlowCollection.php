@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void            add(FlowEntity $entity)
- * @method void            set(string $key, FlowEntity $entity)
- * @method FlowEntity[]    getIterator()
- * @method FlowEntity[]    getElements()
- * @method FlowEntity|null get(string $key)
- * @method FlowEntity|null first()
- * @method FlowEntity|null last()
+ * @extends EntityCollection<FlowEntity>
  */
+#[Package('services-settings')]
 class FlowCollection extends EntityCollection
 {
     public function getApiAlias(): string

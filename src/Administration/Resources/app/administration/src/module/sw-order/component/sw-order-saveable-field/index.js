@@ -1,9 +1,12 @@
 import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-order-saveable-field', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -40,6 +43,39 @@ Component.register('sw-order-saveable-field', {
         };
     },
 
+    computed: {
+        component() {
+            switch (this.type) {
+                case 'checkbox':
+                    return 'sw-checkbox-field';
+                case 'colorpicker':
+                    return 'sw-colorpicker';
+                case 'compactColorpicker':
+                    return 'sw-compact-colorpicker';
+                case 'date':
+                    return 'sw-datepicker';
+                case 'email':
+                    return 'sw-email-field';
+                case 'number':
+                    return 'sw-number-field';
+                case 'password':
+                    return 'sw-password-field';
+                case 'radio':
+                    return 'sw-radio-field';
+                case 'select':
+                    return 'sw-select-field';
+                case 'switch':
+                    return 'sw-switch-field';
+                case 'textarea':
+                    return 'sw-textarea-field';
+                case 'url':
+                    return 'sw-url-field';
+                default:
+                    return 'sw-text-field';
+            }
+        },
+    },
+
     methods: {
         onClick() {
             if (this.editable) {
@@ -56,4 +92,4 @@ Component.register('sw-order-saveable-field', {
             this.isEditing = false;
         },
     },
-});
+};

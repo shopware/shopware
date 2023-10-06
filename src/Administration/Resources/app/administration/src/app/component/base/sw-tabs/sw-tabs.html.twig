@@ -1,15 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tabs %}
 <div
     class="sw-tabs"
     :class="tabClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_content %}
     <div
         ref="swTabContent"
         class="sw-tabs__content"
         :style="tabContentStyle"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_content_slot %}
         <slot :active="active"></slot>
         {% endblock %}
@@ -26,6 +29,7 @@
             {{ tabExtension.label }}
         </sw-tabs-item>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_slider %}
         <span
             class="sw-tabs__slider"
@@ -36,6 +40,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_arrow_left %}
     <button
         v-if="isScrollable"
@@ -43,13 +48,11 @@
         :class="arrowClassesLeft"
         @click="scrollTo('left')"
     >
-        <sw-icon
-            name="small-arrow-medium-left"
-            small
-        />
+        <sw-icon name="regular-chevron-left-xs" />
     </button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_arrow_right %}
     <button
         v-if="isScrollable"
@@ -57,14 +60,12 @@
         :class="arrowClassesRight"
         @click="scrollTo('right')"
     >
-        <sw-icon
-            name="small-arrow-medium-right"
-            small
-        />
+        <sw-icon name="regular-chevron-right-xs" />
     </button>
     {% endblock %}
 
     <div class="sw-tabs__custom-content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tabs_custom_content %}
         <slot
             name="content"

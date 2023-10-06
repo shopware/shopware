@@ -4,6 +4,9 @@ import './sw-internal-link.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Link to another route inside the administration
  * @status ready
@@ -14,13 +17,15 @@ const { Component } = Shopware;
  *   Go to products
  * </sw-internal-link>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-internal-link', {
     template,
 
     props: {
         routerLink: {
             type: Object,
-            required: true,
+            required: false,
+            default: undefined,
         },
 
         target: {
@@ -32,7 +37,7 @@ Component.register('sw-internal-link', {
         icon: {
             type: String,
             required: false,
-            default: 'default-arrow-simple-right',
+            default: 'regular-long-arrow-right',
         },
 
         inline: {
@@ -40,9 +45,25 @@ Component.register('sw-internal-link', {
             required: false,
             default: false,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideIcon: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
+        elementType() {
+            return this.routerLink ? 'router-link' : 'a';
+        },
+
         componentClasses() {
             return {
                 'sw-internal-link--inline': this.inline,

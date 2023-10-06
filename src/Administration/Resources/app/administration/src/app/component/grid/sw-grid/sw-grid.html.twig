@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_grid %}
 <div
     class="sw-grid"
     :class="gridClasses"
 >
     <slot name="content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_grid_slot_content %}
         <div
             class="sw-grid__content"
@@ -14,37 +16,51 @@
                 v-if="header"
                 name="header"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_grid_slot_header %}
                 <div
                     class="sw-grid__header"
                     :style="[columnFlex, { paddingRight: `${scrollbarOffset}px` }]"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell_selectable %}
                     <div
                         v-if="selectable"
                         class="sw-grid-column"
                     >
                         <div class="sw-grid__cell-content">
-                            <sw-field
+                            <sw-checkbox-field
+                                {% if VUE3 %}
+                                v-model:value="allSelectedChecked"
+                                {% else %}
                                 v-model="allSelectedChecked"
-                                type="checkbox"
+                                {% endif %}
+                                {% if VUE3 %}
+                                @update:value="selectAll"
+                                {% else %}
                                 @change="selectAll"
+                                {% endif %}
                             />
                         </div>
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         v-for="(column, columnIndex) in columns"
                         :key="columnIndex"
                         :class="[{ 'sw-grid-column': true, 'is--sortable': column.sortable, 'is--sorted': sort === column.dataIndex }, `sw-grid-column--${column.align}`]"
+                        role="gridcell"
+                        tabindex="0"
                         @click="onGridCellClick($event, column)"
+                        @keydown.enter="onGridCellClick($event, column)"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_slot_header_cell_content %}
                         <div class="sw-grid__cell-content">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_icon_label %}
                             <span
                                 v-if="column.iconLabel"
@@ -57,6 +73,7 @@
                             </span>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_label %}
                             <span
                                 v-else-if="column.label"
@@ -64,6 +81,7 @@
                             >{{ column.label }}</span>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_sortable %}
                             <span
                                 v-if="column.sortable && sort === column.dataIndex"
@@ -71,12 +89,12 @@
                             >
                                 <sw-icon
                                     v-if="sortDir === 'ASC'"
-                                    name="small-arrow-small-down"
+                                    name="regular-chevron-down-xxs"
                                     size="16px"
                                 />
                                 <sw-icon
                                     v-else
-                                    name="small-arrow-small-up"
+                                    name="regular-chevron-up-xxs"
                                     size="16px"
                                 />
                             </span>
@@ -90,6 +108,7 @@
             </slot>
 
             <slot name="body">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_grid_slot_body %}
                 <div
                     ref="swGridBody"
@@ -100,6 +119,7 @@
                         v-for="(item, index) in items"
                         name="items"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
                             :key="item.id"
@@ -112,16 +132,20 @@
                             @inline-edit-start="onInlineEditStart"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_body_item_selectable %}
                             <div
                                 v-if="selectable"
                                 class="sw-grid-column"
                             >
                                 <div class="sw-grid__cell-content">
-                                    <sw-field
-                                        type="checkbox"
+                                    <sw-checkbox-field
                                         :value="isSelected(item.id)"
+                                        {% if VUE3 %}
+                                        @update:value="selectItem($event, item)"
+                                        {% else %}
                                         @change="selectItem($event, item)"
+                                        {% endif %}
                                     />
                                 </div>
                             </div>
@@ -131,17 +155,20 @@
                                 name="columns"
                                 :item="item"
                             >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_grid_slot_columns %}{% endblock %}
                             </slot>
                         </sw-grid-row>
                         {% endblock %}
                     </slot>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_empty_columns %}
                     <slot
                         v-if="!items.length"
                         name="empty"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_slot_empty_columns_content %}{% endblock %}
                     </slot>
                     {% endblock %}
@@ -149,12 +176,14 @@
                 {% endblock %}
             </slot>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_grid_pagination %}
             <div
                 v-if="hasPaginationSlot && items.length"
                 class="sw-grid__pagination"
             >
                 <slot name="pagination">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_pagination %}{% endblock %}
                 </slot>
             </div>

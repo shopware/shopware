@@ -3,6 +3,9 @@ import template from './sw-text-field.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @protected
  * @description Simple text field.
  * @status ready
@@ -13,6 +16,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-text-field', {
     template,
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -70,7 +75,7 @@ Component.register('sw-text-field', {
         },
 
         additionalListeners() {
-            const additionalListeners = Object.assign({}, this.$listeners);
+            const additionalListeners = { ...this.$listeners };
 
             delete additionalListeners.input;
             delete additionalListeners.change;
@@ -87,14 +92,30 @@ Component.register('sw-text-field', {
 
     methods: {
         onChange(event) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', event.target.value || '');
+
+                return;
+            }
+
             this.$emit('change', event.target.value || '');
         },
 
         onInput(event) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', event.target.value);
+                return;
+            }
+
             this.$emit('input', event.target.value);
         },
 
         restoreInheritance() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', null);
+                return;
+            }
+
             this.$emit('input', null);
         },
 

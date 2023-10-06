@@ -6,6 +6,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
+ * @package business-ops
  * @description Condition for the LineItemPropertyRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -51,7 +52,7 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item
         },
 
         optionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.identifiers);
             criteria.addAssociation('group');
 

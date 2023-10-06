@@ -6,24 +6,24 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ProductSearchKeywordTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -42,8 +42,10 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
-        static::assertContains('Search Keyword', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
+        static::assertContains('Search Keyword', $customSearchKeywords);
     }
 
     public function testEditProductWithSearchKeyword(): void
@@ -57,7 +59,9 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
 
         $update = [
             'id' => $id,
@@ -71,10 +75,15 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
-        static::assertContains('Search Keyword Update', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
+        static::assertContains('Search Keyword Update', $customSearchKeywords);
     }
 
+    /**
+     * @param array<string> $searchKeyword
+     */
     private function createProduct(string $id, array $searchKeyword): void
     {
         $data = [

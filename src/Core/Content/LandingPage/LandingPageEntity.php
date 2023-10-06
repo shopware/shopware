@@ -8,13 +8,15 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+#[Package('buyers-experience')]
 class LandingPageEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var bool
@@ -35,6 +37,11 @@ class LandingPageEntity extends Entity
      * @var string|null
      */
     protected $cmsPageId;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsPageVersionId;
 
     /**
      * @var CmsPageEntity|null
@@ -209,5 +216,15 @@ class LandingPageEntity extends Entity
     public function setSeoUrls(SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
+    }
+
+    public function getCmsPageVersionId(): ?string
+    {
+        return $this->cmsPageVersionId;
+    }
+
+    public function setCmsPageVersionId(?string $cmsPageVersionId): void
+    {
+        $this->cmsPageVersionId = $cmsPageVersionId;
     }
 }

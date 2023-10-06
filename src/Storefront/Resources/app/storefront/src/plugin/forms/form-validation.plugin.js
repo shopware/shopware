@@ -23,6 +23,7 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
+ * @package content
  */
 export default class FormValidation extends Plugin {
 
@@ -52,6 +53,8 @@ export default class FormValidation extends Plugin {
          * Use an already visible text as a hint for the length-validation
          */
         lengthTextAttr: 'data-form-validation-length-text',
+
+        requiredAttr: 'data-form-validation-required',
     };
 
     init() {
@@ -102,6 +105,9 @@ export default class FormValidation extends Plugin {
 
         // length validation
         this._registerValidationListener(this.options.lengthAttr, this._onValidateLength.bind(this), ['change']);
+
+        // required validation
+        this._registerValidationListener(this.options.requiredAttr, this._onValidateRequired.bind(this), ['change']);
     }
 
     /**
@@ -139,10 +145,6 @@ export default class FormValidation extends Plugin {
 
         this.el.classList.add(this.options.styleCls);
 
-        /**
-         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
-         */
-        this.$emitter.publish('onFormSubmit', { validity });
         this.$emitter.publish('beforeSubmit', { validity });
     }
 
@@ -231,6 +233,26 @@ export default class FormValidation extends Plugin {
         }
 
         this.$emitter.publish('onValidateLength');
+    }
+
+    /**
+     * validate if the field value is blank
+     * within the data attribute.
+     *
+     * @param event
+     *
+     * @private
+     */
+    _onValidateRequired(event) {
+        const field = event.target;
+
+        if (field.value.trim() === '') {
+            this._setFieldToInvalid(field, this.options.requiredAttr);
+        } else {
+            this._setFieldToValid(field, this.options.requiredAttr);
+        }
+
+        this.$emitter.publish('onValidateRequired');
     }
 
     /**

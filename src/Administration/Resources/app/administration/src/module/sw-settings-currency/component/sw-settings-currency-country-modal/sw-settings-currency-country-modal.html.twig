@@ -1,12 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_currency_country_modal %}
 <sw-modal
     class="sw-settings-currency-country-modal"
     :title="$tc('sw-settings-currency.currency-country-modal.titleNewCurrencyCountry')"
     @modal-close="onCancel"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_country_select %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="currencyCountryRounding.countryId"
+        {% else %}
         v-model="currencyCountryRounding.countryId"
+        {% endif %}
         required
         show-clearable-button
         class="sw-settings-currency-country-modal__select-country"
@@ -16,8 +22,7 @@
         :error="currencyCountryRoundingCountryIdError"
     >
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 v-tooltip="{
                     showDelay: 300,
                     showOnDisabledElements: true,
@@ -42,11 +47,12 @@
                         {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                     </template>
                 </slot>
-            </li>
+            </sw-select-result>
         </template>
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_price_rounding %}
     <sw-settings-price-rounding
         :item-rounding="currencyCountryRounding.itemRounding"
@@ -54,8 +60,10 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_footer %}
-    <template slot="modal-footer">
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_country_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -65,6 +73,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_country_modal_footer_save %}
         <sw-button
             variant="primary"

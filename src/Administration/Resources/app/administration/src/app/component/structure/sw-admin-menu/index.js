@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-admin-menu', {
@@ -16,6 +18,7 @@ Component.register('sw-admin-menu', {
         'userService',
         'appModulesService',
         'feature',
+        'customEntityDefinitionService',
     ],
 
     mixins: [
@@ -96,7 +99,27 @@ Component.register('sw-admin-menu', {
         },
 
         adminModuleNavigation() {
-            return Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminModuleNavigationEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+
+            // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
+            return adminModuleNavigationEntries.filter((entry) => {
+                const levelOneParent = adminModuleNavigationEntries.find(e => entry.parent && e.id === entry.parent);
+                // eslint-disable-next-line max-len
+                const levelTwoParent = adminModuleNavigationEntries.find(e => levelOneParent?.parent && e.id === levelOneParent?.parent);
+                // eslint-disable-next-line max-len
+                const levelThreeParent = adminModuleNavigationEntries.find(e => levelTwoParent?.parent && e.id === levelTwoParent?.parent);
+
+                if (levelThreeParent) {
+                    Shopware.Utils.debug.error(new Error(
+                        `The navigation entry "${entry.id}" is nested on level 4 or higher.\
+The admin menu only supports up to three levels of nesting.`,
+                    ));
+
+                    return false;
+                }
+
+                return true;
+            });
         },
 
         appModuleNavigation() {
@@ -108,6 +131,7 @@ Component.register('sw-admin-menu', {
                 ...this.adminModuleNavigation,
                 ...this.appModuleNavigation,
                 ...this.extensionModuleNavigation,
+                ...this.customEntityDefinitionService.getMenuEntries(),
             ];
         },
 
@@ -120,11 +144,11 @@ Component.register('sw-admin-menu', {
         },
 
         sidebarCollapseIcon() {
-            return this.isExpanded ? 'default-arrow-circle-left' : 'default-arrow-circle-right';
+            return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
         },
 
         userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'small-arrow-medium-down' : 'small-arrow-medium-up';
+            return this.isUserActionsActive ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs';
         },
 
         scrollbarOffsetStyle() {
@@ -231,7 +255,7 @@ Component.register('sw-admin-menu', {
 
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
-                return Shopware.State.dispatch('shopwareApps/setAppModules', modules);
+                return Shopware.State.commit('shopwareApps/setApps', modules);
             });
         },
 
@@ -469,6 +493,7 @@ Component.register('sw-admin-menu', {
             this.possiblyActivate(entry, target, parentEntries);
         },
 
+        /* istanbul ignore next - is covered by E2E test */
         onSubMenuItemEnter(entry, event) {
             const target = event.target;
             const parent = target.closest('.is--entry-expanded');
@@ -483,14 +508,14 @@ Component.register('sw-admin-menu', {
                 [target],
             );
 
-            if (this.getChildren(entry).length) {
+            if (!this.getChildren(entry).length) {
                 this.flyoutEntries = [];
                 return;
             }
 
             target.classList.add('is--flyout-enabled');
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -528,7 +553,7 @@ Component.register('sw-admin-menu', {
                 const yj = polygon[j][1];
 
                 const intersect = ((yi > y) !== (yj > y)) &&
-                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    (x < (((xj - xi) * (y - yi)) / (yj - yi)) + xi);
                 if (intersect) inside = !inside;
             }
 
@@ -555,7 +580,7 @@ Component.register('sw-admin-menu', {
             }
 
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             // Remove previous flyout enabled

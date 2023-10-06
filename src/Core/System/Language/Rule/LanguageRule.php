@@ -2,29 +2,31 @@
 
 namespace Shopware\Core\System\Language\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Shopware\Core\System\Language\LanguageDefinition;
 
+#[Package('business-ops')]
 class LanguageRule extends Rule
 {
+    final public const RULE_NAME = 'language';
+
     /**
-     * @var string[]|null
+     * @internal
+     *
+     * @param list<string>|null $languageIds
      */
-    protected ?array $languageIds;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $languageIds = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->languageIds = $languageIds;
     }
 
     /**
@@ -32,40 +34,25 @@ class LanguageRule extends Rule
      */
     public function match(RuleScope $scope): bool
     {
-        $languageId = $scope->getContext()->getLanguageId();
-
         if ($this->languageIds === null) {
             throw new UnsupportedValueException(\gettype($this->languageIds), self::class);
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($languageId, $this->languageIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($languageId, $this->languageIds, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$scope->getContext()->getLanguageId()], $this->languageIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ]),
-            ],
-            'languageIds' => [
-                new NotBlank(),
-                new ArrayOfUuid(),
-            ],
+            'operator' => RuleConstraints::uuidOperators(false),
+            'languageIds' => RuleConstraints::uuids(),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'language';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('languageIds', LanguageDefinition::ENTITY_NAME, true);
     }
 }

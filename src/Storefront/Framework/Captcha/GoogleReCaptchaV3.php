@@ -4,26 +4,28 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'googleReCaptchaV3';
-    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v3';
+    final public const CAPTCHA_NAME = 'googleReCaptchaV3';
+    final public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v3';
     private const GOOGLE_CAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
     private const DEFAULT_THRESHOLD_SCORE = 0.5;
 
-    private ClientInterface $client;
-
-    public function __construct(ClientInterface $client)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ClientInterface $client)
     {
-        $this->client = $client;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request): bool
+    public function isValid(Request $request, array $captchaConfig): bool
     {
         if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
@@ -33,7 +35,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
 
         $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
 
-        if (!\is_string($secretKey) || $secretKey === '') {
+        if (!\is_string($secretKey)) {
             return false;
         }
 
@@ -52,7 +54,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             $thresholdScore = !empty($captchaConfig['config']['thresholdScore']) ? (float) $captchaConfig['config']['thresholdScore'] : self::DEFAULT_THRESHOLD_SCORE;
 
             return $response && (bool) $response['success'] && (float) $response['score'] >= $thresholdScore;
-        } catch (ClientExceptionInterface $exception) {
+        } catch (ClientExceptionInterface) {
             return false;
         }
     }

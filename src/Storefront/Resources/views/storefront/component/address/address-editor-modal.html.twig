@@ -62,18 +62,16 @@
                                                 </div>
                                             {% endblock %}
 
-                                            {% if feature('FEATURE_NEXT_15707') %}
-                                                {% block component_address_address_editor_modal_accordion_overview_shipping_card_warning %}
-                                                    {% set ableToShipToDefaultShippingAddress = context.customer.defaultShippingAddress.country.shippingAvailable %}
+                                            {% block component_address_address_editor_modal_accordion_overview_shipping_card_warning %}
+                                                {% set ableToShipToDefaultShippingAddress = context.customer.defaultShippingAddress.country.shippingAvailable %}
 
-                                                    {% if not ableToShipToDefaultShippingAddress %}
-                                                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                            type: 'warning',
-                                                            content: 'address.countryNoShippingAlert'|trans|sw_sanitize
-                                                        } %}
-                                                    {% endif %}
-                                                {% endblock %}
-                                            {% endif %}
+                                                {% if not ableToShipToDefaultShippingAddress %}
+                                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                                        type: 'warning',
+                                                        content: 'address.countryNoShippingAlert'|trans|sw_sanitize
+                                                    } %}
+                                                {% endif %}
+                                            {% endblock %}
 
                                             {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
                                                 {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
@@ -96,8 +94,8 @@
                         {% block component_address_address_editor_modal_accordion_action_edit %}
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
-                                     data-toggle="collapse"
-                                     data-target="#{{ typePrefix }}address-create-edit">
+                                     data-bs-toggle="collapse"
+                                     data-bs-target="#{{ typePrefix }}address-create-edit">
                                     {{ "account.addressEditBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
@@ -107,8 +105,8 @@
                             {% if AvailableAddressCount > 0 %}
                                 <div class="col-12 col-md-4">
                                     <div class="btn btn-outline-primary btn-block address-editor-select"
-                                         data-toggle="collapse"
-                                         data-target="#{{ typePrefix }}address-list">
+                                         data-bs-toggle="collapse"
+                                         data-bs-target="#{{ typePrefix }}address-list">
                                         {{ "account.selectAddress"|trans|sw_sanitize }}
                                     </div>
                                 </div>
@@ -118,8 +116,8 @@
                         {% block component_address_address_editor_modal_accordion_action_create %}
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
-                                     data-toggle="collapse"
-                                     data-target="#{{ typePrefix }}address-create-new">
+                                     data-bs-toggle="collapse"
+                                     data-bs-target="#{{ typePrefix }}address-create-new">
                                     {{ "account.addressCreateBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
@@ -151,17 +149,21 @@
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': address,
                                 'addresses': page.addresses,
-                                'typePrefix': typePrefix
+                                'typePrefix': typePrefix,
+                                'postedData': postedData,
                             } %}
                         {% endblock %}
 
-                        {% block component_address_address_editor_modal_accordion_create_include %}
-                            {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                'address': page.address,
-                                'addresses': page.addresses,
-                                'typePrefix': typePrefix
-                            } %}
-                        {% endblock %}
+                        {% if not page.address %}
+                            {% block component_address_address_editor_modal_accordion_create_include %}
+                                {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
+                                    'address': page.address,
+                                    'addresses': page.addresses,
+                                    'typePrefix': typePrefix,
+                                    'postedData': postedData,
+                                } %}
+                            {% endblock %}
+                        {% endif %}
 
                     {% endblock %}
                 </div>

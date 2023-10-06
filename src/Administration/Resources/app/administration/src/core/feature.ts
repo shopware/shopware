@@ -1,10 +1,13 @@
 /**
+ * @package admin
+ *
  * @module core/feature-config
  */
 
 /**
  * A static registry containing a list of all registered flags and the associated activation state
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class Feature {
     static flags: { [featureName: string]: boolean } = {};
 

@@ -5,7 +5,7 @@ import ViewportDetection from 'src/helper/viewport-detection.helper';
 export default class CrossSellingPlugin extends Plugin {
 
     static options = {
-        tabSelector: 'a[data-toggle="tab"]',
+        tabSelector: 'a[data-bs-toggle="tab"]',
         productSliderSelector: '[data-product-slider="true"]',
     };
 
@@ -14,7 +14,10 @@ export default class CrossSellingPlugin extends Plugin {
     }
 
     _registerEvents() {
-        $(this.options.tabSelector).on('shown.bs.tab', this._rebuildCrossSellingSlider.bind(this));
+        const crossSellingTabs = DomAccess.querySelectorAll(this.el, this.options.tabSelector);
+        crossSellingTabs.forEach((tab) => {
+            tab.addEventListener('shown.bs.tab', this._rebuildCrossSellingSlider.bind(this));
+        });
     }
 
     _rebuildCrossSellingSlider(event) {

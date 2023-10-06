@@ -1,4 +1,4 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-extension-my-extensions-account {
     .sw-meteor-card__content {
@@ -26,7 +26,7 @@
     .sw-extension-my-extensions-account__wrapper-content {
         padding: 64px 32px;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: $content-width) {
             padding: 32px 16px;
         }
 

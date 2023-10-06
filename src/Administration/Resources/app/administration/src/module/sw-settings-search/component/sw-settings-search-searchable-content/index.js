@@ -1,10 +1,14 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
 
-const { Component, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-search-searchable-content', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -161,7 +165,7 @@ Component.register('sw-settings-search-searchable-content', {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesName'),
+                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -188,7 +192,7 @@ Component.register('sw-settings-search-searchable-content', {
         },
 
         productSearchFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('searchConfigId', this.searchConfigId));
             criteria.addSorting(Criteria.sort('field', 'ESC'));
@@ -226,7 +230,7 @@ Component.register('sw-settings-search-searchable-content', {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'right',
+                align: 'center',
                 sortable: true,
             }, {
                 property: 'tokenize',
@@ -235,6 +239,10 @@ Component.register('sw-settings-search-searchable-content', {
                 align: 'center',
                 sortable: true,
             }];
+        },
+
+        storefrontEsEnable() {
+            return Context.app.storefrontEsEnable ?? false;
         },
     },
 
@@ -374,4 +382,4 @@ Component.register('sw-settings-search-searchable-content', {
                 });
         },
     },
-});
+};

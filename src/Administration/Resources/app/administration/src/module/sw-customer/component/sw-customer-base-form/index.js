@@ -2,12 +2,21 @@ import template from './sw-customer-base-form.html.twig';
 import './sw-customer-base-form.scss';
 import errorConfig from '../../error-config.json';
 
-const { Component, Defaults } = Shopware;
+import CUSTOMER from '../../constant/sw-customer.constant';
+
+/**
+ * @package checkout
+ */
+
+const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-customer-base-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
+
+    emits: ['sales-channel-change'],
 
     props: {
         customer: {
@@ -20,13 +29,25 @@ Component.register('sw-customer-base-form', {
         ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
 
         salutationCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('or', [
                 Criteria.equals('id', Defaults.defaultSalutationId),
             ]));
 
             return criteria;
+        },
+
+        accountTypeOptions() {
+            return [{
+                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
+            }, {
+                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
+            }];
+        },
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 
@@ -43,4 +64,4 @@ Component.register('sw-customer-base-form', {
             this.$emit('sales-channel-change', salesChannelId);
         },
     },
-});
+};

@@ -1,49 +1,81 @@
-<?php
+<?php declare(strict_types=1);
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\HttpKernel;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
+use Shopware\Core\Installer\InstallerKernel;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 
-if (PHP_VERSION_ID < 70403) {
-    header('Content-type: text/html; charset=utf-8', true, 503);
+$_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
-    echo '<h2>Error</h2>';
-    echo 'Your server is running PHP version ' . PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.3';
-    exit(1);
+require_once __DIR__ . '/../vendor/autoload_runtime.php';
+
+if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist') && !file_exists(__DIR__ . '/../.env.local.php')) {
+    $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
-$classLoader = require __DIR__.'/../vendor/autoload.php';
+$_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
 
-$projectRoot = dirname(__DIR__);
-if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
-    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
-}
+return function (array $context) {
+    $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
-$appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'dev';
-$debug = !($appEnv === 'e2e') && (bool)($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? ('prod' !== $appEnv));
+    if (!file_exists(dirname(__DIR__) . '/install.lock')) {
+        $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
+        $baseURL = rtrim($baseURL, '/');
 
-if ($debug) {
-    umask(0000);
+        if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
+            header('Location: ' . $baseURL . '/installer');
+            exit;
+        }
+    }
 
-    Debug::enable();
-}
+    if (is_file(dirname(__DIR__) . '/files/update/update.json') || is_dir(dirname(__DIR__) . '/update-assets')) {
+        header('Content-type: text/html; charset=utf-8', true, 503);
+        header('Status: 503 Service Temporarily Unavailable');
+        header('Retry-After: 1200');
+        if (file_exists(__DIR__ . '/maintenance.html')) {
+            readfile(__DIR__ . '/maintenance.html');
+        } else {
+            readfile(__DIR__ . '/recovery/update/maintenance.html');
+        }
 
-$trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false;
-if ($trustedProxies) {
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
-}
+        exit;
+    }
 
-$trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false;
-if ($trustedHosts) {
-    Request::setTrustedHosts(explode(',', $trustedHosts));
-}
+    $appEnv = $context['APP_ENV'] ?? 'dev';
+    $debug = (bool) ($context['APP_DEBUG'] ?? ($appEnv !== 'prod'));
 
-$request = Request::createFromGlobals();
+    if (!file_exists(dirname(__DIR__) . '/install.lock')) {
+        return new InstallerKernel($appEnv, $debug);
+    }
 
-$kernel = new HttpKernel($appEnv, $debug, $classLoader);
-$result = $kernel->handle($request);
+    $shopwareHttpKernel = new HttpKernel($appEnv, $debug, $classLoader);
 
-$result->getResponse()->send();
+    if (EnvironmentHelper::getVariable('COMPOSER_PLUGIN_LOADER', false)) {
+        $shopwareHttpKernel->setPluginLoader(
+            new ComposerPluginLoader($classLoader, null)
+        );
+    }
 
-$kernel->terminate($result->getRequest(), $result->getResponse());
+    return new class($shopwareHttpKernel) implements HttpKernelInterface, TerminableInterface {
+        private HttpKernel $httpKernel;
+
+        public function __construct(HttpKernel $httpKernel)
+        {
+            $this->httpKernel = $httpKernel;
+        }
+
+        public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
+        {
+            return $this->httpKernel->handle($request, $type, $catch)->getResponse();
+        }
+
+        public function terminate(Request $request, Response $response): void
+        {
+            $this->httpKernel->terminate($request, $response);
+        }
+    };
+};

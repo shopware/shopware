@@ -6,9 +6,7 @@ use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
-use Shopware\Core\Framework\Plugin\Util\ZipUtils;
-use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -17,108 +15,103 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('core')]
 class PluginManagementService
 {
-    private string $projectDir;
-
-    private PluginZipDetector $pluginZipDetector;
-
-    private PluginExtractor $pluginExtractor;
-
-    private PluginService $pluginService;
-
-    private Filesystem $filesystem;
-
-    private CacheClearer $cacheClearer;
-
-    private Client $client;
+    final public const PLUGIN = 'plugin';
+    final public const APP = 'app';
 
     public function __construct(
-        string $projectDir,
-        PluginZipDetector $pluginZipDetector,
-        PluginExtractor $pluginExtractor,
-        PluginService $pluginService,
-        Filesystem $filesystem,
-        CacheClearer $cacheClearer,
-        Client $client
+        private readonly string $projectDir,
+        private readonly PluginZipDetector $pluginZipDetector,
+        private readonly PluginExtractor $pluginExtractor,
+        private readonly PluginService $pluginService,
+        private readonly Filesystem $filesystem,
+        private readonly CacheClearer $cacheClearer,
+        private readonly Client $client
     ) {
-        $this->projectDir = $projectDir;
-        $this->pluginZipDetector = $pluginZipDetector;
-        $this->pluginExtractor = $pluginExtractor;
-        $this->pluginService = $pluginService;
-        $this->filesystem = $filesystem;
-        $this->cacheClearer = $cacheClearer;
-        $this->client = $client;
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
-        $archive = ZipUtils::openZip($file);
-
         if ($storeType) {
-            $this->pluginExtractor->extract($archive, $delete, $storeType);
-
-            if ($storeType === 'plugin') {
+            $this->pluginExtractor->extract($file, $delete, $storeType);
+            if ($storeType === self::PLUGIN) {
                 $this->cacheClearer->clearContainerCache();
             }
 
             return $storeType;
         }
 
-        if ($this->pluginZipDetector->isPlugin($archive)) {
-            $this->pluginExtractor->extract($archive, $delete, 'plugin');
-            $this->cacheClearer->clearContainerCache();
+        $type = $this->pluginZipDetector->detect($file);
 
-            return 'plugin';
-        } elseif ($this->pluginZipDetector->isApp($archive)) {
-            $this->pluginExtractor->extract($archive, $delete, 'app');
+        match ($type) {
+            self::PLUGIN => $this->extractPlugin($file, $delete),
+            self::APP => $this->extractApp($file, $delete),
+        };
 
-            return 'app';
-        }
-
-        throw new NoPluginFoundInZipException($file);
+        return $type;
     }
 
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
-        $tempDirectory = \dirname(realpath($tempFileName));
+        $tempRealPath = realpath($tempFileName);
+        \assert(\is_string($tempRealPath));
+        $tempDirectory = \dirname($tempRealPath);
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
         $type = $this->extractPluginZip($tempFile->getPathname());
 
-        if ($type === 'plugin') {
+        if ($type === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
         }
     }
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
 
         try {
             $response = $this->client->request('GET', $location->getLocation(), ['sink' => $tempFileName]);
+        } catch (\Exception) {
+            throw PluginException::storeNotAvailable();
+        }
 
-            if ($response->getStatusCode() !== Response::HTTP_OK) {
-                throw new \RuntimeException();
-            }
-        } catch (\Exception $e) {
-            throw new StoreNotAvailableException();
+        if ($response->getStatusCode() !== Response::HTTP_OK) {
+            throw PluginException::storeNotAvailable();
         }
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
 
-        if ($location->getType() === 'plugin') {
+        if ($location->getType() === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
         }
     }
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
+        if ($plugin->getManagedByComposer()) {
+            throw PluginException::cannotDeleteManaged($plugin->getName());
+        }
+
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
+    private function extractPlugin(string $fileName, bool $delete): void
+    {
+        $this->pluginExtractor->extract($fileName, $delete, self::PLUGIN);
+        $this->cacheClearer->clearContainerCache();
+    }
+
+    private function extractApp(string $fileName, bool $delete): void
+    {
+        $this->pluginExtractor->extract($fileName, $delete, self::APP);
     }
 }

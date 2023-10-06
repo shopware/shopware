@@ -5,6 +5,9 @@ const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Container for the content of a page, including the search bar, page header, actions and the actual content.
@@ -12,26 +15,26 @@ const { dom } = Shopware.Utils;
  * @example-type static
  * @component-example
  * <sw-page style="height: 550px; border: 1px solid #D8DDE6;">
- *     <template slot="search-bar">
+ *     <template #search-bar>
  *         <sw-search-bar>
  *         </sw-search-bar>
  *     </template>
- *     <template slot="smart-bar-header">
+ *     <template #smart-bar-header>
  *         <h2>Lorem ipsum page</h2>
  *     </template>
- *     <template slot="smart-bar-actions">
+ *     <template #smart-bar-actions>
  *         <sw-button variant="primary">
  *             Action
  *         </sw-button>
  *     </template>
- *     <template slot="side-content">
+ *     <template #side-content>
  *         <sw-card-view>
  *             <sw-card>
  *                 Lorem ipsum dolor sit amet, consetetur sadipscing elitr
  *             </sw-card>
  *         </sw-card-view>
  *     </template>
- *     <template slot="content">
+ *     <template #content>
  *         <sw-card-view>
  *             <sw-card title="Card1" large></sw-card>
  *             <sw-card title="Card2" large></sw-card>
@@ -39,21 +42,36 @@ const { dom } = Shopware.Utils;
  *     </template>
  * </sw-page>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-page', {
     template,
 
     props: {
+        /**
+         * Toggles smart bar
+         */
         showSmartBar: {
             type: Boolean,
             // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+        /**
+         * Toggles search bar
+         */
         showSearchBar: {
             type: Boolean,
             // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+        /**
+         * Overrides the module color as the bottom-border-color of the page's smart bar
+         */
+        headerBorderColor: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -70,7 +88,15 @@ Component.register('sw-page', {
 
     computed: {
         pageColor() {
-            return (this.module !== null) ? this.module.color : '#d8dde6';
+            if (this.headerBorderColor) {
+                return this.headerBorderColor;
+            }
+
+            if (this.module?.color) {
+                return this.module.color;
+            }
+
+            return '#d8dde6';
         },
 
         hasSideContentSlot() {
@@ -127,6 +153,14 @@ Component.register('sw-page', {
 
         additionalEventListeners() {
             return this.$listeners;
+        },
+
+        smartBarContentStyle() {
+            const rowNumber = this.showSearchBar ? 2 : 1;
+
+            return {
+                'grid-row': rowNumber,
+            };
         },
     },
 

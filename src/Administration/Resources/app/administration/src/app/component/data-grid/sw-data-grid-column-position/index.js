@@ -4,6 +4,9 @@ import './sw-data-grid-column-position.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description The sw-data-grid-column-position is a sw-data-grid element to be slotted

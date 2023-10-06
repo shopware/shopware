@@ -7,7 +7,6 @@
     <services>
         <service id="Shopware\Core\Content\LandingPage\LandingPageDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" priority="1000" />
         </service>
 
         <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition">
@@ -41,7 +40,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.landing_page_route%</argument>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute" public="true">

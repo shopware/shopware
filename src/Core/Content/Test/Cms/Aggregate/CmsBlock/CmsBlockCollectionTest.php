@@ -9,6 +9,9 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class CmsBlockCollectionTest extends TestCase
 {
     public function testGetAllSlotsFromBlocks(): void

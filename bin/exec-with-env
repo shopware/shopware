@@ -4,6 +4,7 @@
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Process\Process;
 
 if (\PHP_VERSION_ID < 70400) {
     echo 'Your cli is running PHP version ' . \PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.0' . \PHP_EOL;
@@ -37,9 +38,35 @@ array_shift($args);
 
 $cmd = array_shift($args);
 $cmd = escapeshellcmd($cmd);
-
 $args = array_map('escapeshellarg', $args);
 
-system($cmd . ' ' . implode(' ', $args), $returnCode);
+$command = $cmd . ' ' . implode(' ', $args);
+$process = Symfony\Component\Process\Process::fromShellCommandline($command);
+$process->setTimeout(null);
 
-exit($returnCode);
+$isTty = (function () {
+    $fd = defined('STDOUT') ? \STDOUT : fopen('php://stdout', 'wb');
+
+    if (function_exists('stream_isatty')) {
+        return stream_isatty($fd);
+    }
+
+    if (function_exists('posix_isatty') && posix_isatty($fd)) {
+        return true;
+    }
+
+    $stat = @fstat($fd);
+
+    return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
+})();
+
+$process->setTty($isTty);
+$process->run(function ($type, $buffer): void {
+    if ($type === Process::ERR) {
+        fwrite(\STDERR, "$buffer");
+    } else {
+        echo $buffer;
+    }
+});
+
+exit($process->getExitCode());

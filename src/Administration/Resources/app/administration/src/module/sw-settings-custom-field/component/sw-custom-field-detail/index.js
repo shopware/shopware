@@ -1,12 +1,17 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
-Component.register('sw-custom-field-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
+    inject: ['repositoryFactory', 'customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -28,6 +33,7 @@ Component.register('sw-custom-field-detail', {
         return {
             fieldTypes: {},
             required: false,
+            disableCartExpose: true,
         };
     },
 
@@ -58,6 +64,16 @@ Component.register('sw-custom-field-detail', {
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
+        },
+        isProductCustomField() {
+            if (!this.set.relations) {
+                return false;
+            }
+
+            return this.set.relations.filter(relation => relation.entityName === 'product').length !== 0;
+        },
+        ruleConditionRepository() {
+            return this.repositoryFactory.create('rule_condition');
         },
     },
 
@@ -102,6 +118,25 @@ Component.register('sw-custom-field-detail', {
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
                 this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
             }
+
+            if (!this.currentCustomField.allowCartExpose) {
+                this.disableCartExpose = false;
+
+                return;
+            }
+
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.multi(
+                'AND',
+                [
+                    Criteria.equals('type', 'cartLineItemCustomField'),
+                    Criteria.equals('value.renderedField.name', this.currentCustomField.name),
+                ],
+            ));
+
+            this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
+                this.disableCartExpose = searchResult.length > 0;
+            });
         },
 
         onCancel() {
@@ -164,9 +199,21 @@ Component.register('sw-custom-field-detail', {
             }
 
             this.currentCustomField.config = {
-                ...this.fieldTypes[customFieldType].config,
                 ...this.currentCustomField.config,
+                ...this.fieldTypes[customFieldType].config,
+            };
+        },
+
+        getCartExposeTooltipConfig() {
+            if (!this.disableCartExpose) {
+                return { message: '', disabled: true };
+            }
+
+            return {
+                disabled: false,
+                width: 260,
+                message: this.$t('sw-settings-custom-field.customField.detail.tooltipCartExposeDisabled'),
             };
         },
     },
-});
+};

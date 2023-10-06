@@ -1,5 +1,9 @@
 {
   "sw-customer": {
+    "error": {
+      "COMPANY_IS_REQUIRED": "The field company is required for commercial customers.",
+      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match."
+    },
     "notification": {
       "requiredFields": "Please fill in all required fields."
     },
@@ -53,6 +57,7 @@
       "columnGroup": "Customer group",
       "columnGroupRequested": "Request",
       "columnNameGuestLabel": "Guest account",
+      "labelCreatedByAdmin": "Created by admin",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",
@@ -64,6 +69,7 @@
       "columnAffiliateCode": "Affiliate code",
       "columnCampaignCode": "Campaign code",
       "columnBoundSalesChannel": "Sales Channel",
+      "columnActive": "Active",
       "emptyBoundSalesChannel": "All",
       "contextMenuView": "View",
       "contextMenuDelete": "Delete",
@@ -114,12 +120,14 @@
       "labelBirthday": "Date of birth",
       "labelLastLogin": "Last login",
       "labelLanguage": "Language",
-      "labelOrders": "Order value",
+      "labelOrders": "Number of orders",
       "labelTurnover": "Turnover",
       "labelDefaultPayment": "Default payment method",
       "labelActive": "Account status",
       "labelAffiliateCode": "Affiliate code",
       "labelCampaignCode": "Campaign code",
+      "labelCompany": "Company",
+      "labelVatId": "VAT Reg.No.",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information",
@@ -177,7 +185,8 @@
       "columnContextOpenOrder": "Open order",
       "emptyTitle": "No orders yet",
       "emptySearchTitle": "No search result",
-      "emptySubline": "Manage your customers' orders here"
+      "emptySubline": "Manage your customers' orders here",
+      "buttonCreateOrder": "Add order"
     },
     "addressForm": {
       "labelCompany": "Company",
@@ -221,7 +230,7 @@
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of eight characters."
+      "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {
       "salutation": {
@@ -268,6 +277,12 @@
       },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to find results."
+    },
+    "customerType": {
+      "labelAccountType": "Customer type",
+      "placeholderAccountType": "Select customer type...",
+      "labelPrivate": "Private",
+      "labelBusiness": "Commercial"
     }
   },
   "sw-privileges": {

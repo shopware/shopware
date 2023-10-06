@@ -1,10 +1,14 @@
 import template from './sw-cms-el-config-buy-box.html.twig';
 import './sw-cms-el-config-buy-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-cms-el-config-buy-box', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -26,14 +30,14 @@ Component.register('sw-cms-el-config-buy-box', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         selectedProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('deliveryTime');
 
             return criteria;
@@ -70,4 +74,4 @@ Component.register('sw-cms-el-config-buy-box', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

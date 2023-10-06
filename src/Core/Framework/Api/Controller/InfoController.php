@@ -2,28 +2,21 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use OpenApi\Annotations as OA;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
+use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\PackageInterface;
@@ -34,97 +27,51 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class InfoController extends AbstractController
 {
-    private DefinitionService $definitionService;
-
-    private ParameterBagInterface $params;
-
-    private Packages $packages;
-
-    private Kernel $kernel;
-
-    private bool $enableUrlFeature;
-
-    private array $cspTemplates;
-
-    private BusinessEventCollector $eventCollector;
-
-    private ?FlowActionCollector $flowActionCollector;
-
-    private IncrementGatewayRegistry $incrementGatewayRegistry;
-
-    private EntityRepositoryInterface $appRepository;
-
+    /**
+     * @param array{administration?: string} $cspTemplates
+     *
+     * @internal
+     */
     public function __construct(
-        DefinitionService $definitionService,
-        ParameterBagInterface $params,
-        Kernel $kernel,
-        Packages $packages,
-        BusinessEventCollector $eventCollector,
-        IncrementGatewayRegistry $incrementGatewayRegistry,
-        EntityRepositoryInterface $appRepository,
-        ?FlowActionCollector $flowActionCollector = null,
-        bool $enableUrlFeature = true,
-        array $cspTemplates = []
+        private readonly DefinitionService $definitionService,
+        private readonly ParameterBagInterface $params,
+        private readonly Kernel $kernel,
+        private readonly Packages $packages,
+        private readonly BusinessEventCollector $eventCollector,
+        private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
+        private readonly Connection $connection,
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly ?FlowActionCollector $flowActionCollector = null,
+        private readonly bool $enableUrlFeature = true,
+        private readonly array $cspTemplates = []
     ) {
-        $this->definitionService = $definitionService;
-        $this->params = $params;
-        $this->packages = $packages;
-        $this->kernel = $kernel;
-        $this->enableUrlFeature = $enableUrlFeature;
-        $this->flowActionCollector = $flowActionCollector;
-        $this->cspTemplates = $cspTemplates;
-        $this->eventCollector = $eventCollector;
-        $this->incrementGatewayRegistry = $incrementGatewayRegistry;
-        $this->appRepository = $appRepository;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @OA\Get(
-     *     path="/_info/openapi3.json",
-     *     summary="Get OpenAPI Specification",
-     *     description="Get information about the API in OpenAPI format.",
-     *     operationId="api-info",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Parameter(
-     *         name="type",
-     *         description="Type of the api",
-     *         @OA\Schema(type="string", enum={"jsonapi", "json"}),
-     *         in="query"
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns information about the API."
-     *     )
-     * )
-     * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
-     *
-     * @throws \Exception
-     */
+    #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $type = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
+
+        $apiType = $this->definitionService->toApiType($type);
+        if ($apiType === null) {
+            throw ApiException::invalidApiType($type);
+        }
+
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
-     *
-     * @throws \Exception
-     */
+    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-        } catch (IncrementGatewayNotFoundException $exception) {
+        } catch (IncrementGatewayNotFoundException) {
             // In case message_queue pool is disabled
             return new JsonResponse([]);
         }
@@ -132,18 +79,13 @@ class InfoController extends AbstractController
         // Fetch unlimited message_queue_stats
         $entries = $gateway->list('message_queue_stats', -1);
 
-        return new JsonResponse(array_map(function (array $entry) {
-            return [
-                'name' => $entry['key'],
-                'size' => (int) $entry['count'],
-            ];
-        }, array_values($entries)));
+        return new JsonResponse(array_map(fn (array $entry) => [
+            'name' => $entry['key'],
+            'size' => (int) $entry['count'],
+        ], array_values($entries)));
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.open-api-schema', methods: ['GET'])]
     public function openApiSchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
@@ -151,10 +93,7 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/entity-schema.json', name: 'api.info.entity-schema', methods: ['GET'])]
     public function entitySchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
@@ -162,37 +101,19 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @OA\Get(
-     *     path="/_info/events.json",
-     *     summary="Get Business events",
-     *     description="Get a list of about the business events.",
-     *     operationId="business-events",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a list of about the business events.",
-     *         @OA\JsonContent(ref="#/components/schemas/businessEventsResponse")
-     *     )
-     * )
-     * @Route("/api/_info/events.json", name="api.info.business-events", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
     public function businessEvents(Context $context): JsonResponse
     {
         $events = $this->eventCollector->collect($context);
 
-        return $this->json($events);
+        return new JsonResponse($events);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJson);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
         $response = $this->render(
             '@Framework/swagger.html.twig',
             [
@@ -213,67 +134,31 @@ class InfoController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @OA\Get(
-     *     path="/_info/config",
-     *     summary="Get API information",
-     *     description="Get information about the API",
-     *     operationId="config",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns information about the API.",
-     *         @OA\JsonContent(ref="#/components/schemas/infoConfigResponse")
-     *     )
-     * )
-     * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
-     *
-     * @deprecated tag:v6.5.0 $context param will be required
-     */
-    public function config(?Context $context = null): JsonResponse
+    #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
+    public function config(Context $context, Request $request): JsonResponse
     {
-        if (!$context) {
-            $context = Context::createDefaultContext();
-        }
-
         return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
+                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
-            'bundles' => $this->getBundles($context),
+            'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
+                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
+                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
+                'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
             ],
         ]);
     }
 
-    /**
-     * @Since("6.3.5.0")
-     * @OA\Get(
-     *     path="/_info/version",
-     *     summary="Get the Shopware version",
-     *     description="Get the version of the Shopware instance",
-     *     operationId="infoShopwareVersion",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns the version of the Shopware instance.",
-     *         @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="version",
-     *                  description="The Shopware version.",
-     *                  type="string"
-     *              )
-     *          )
-     *     )
-     * )
-     * @Route("/api/_info/version", name="api.info.shopware.version", methods={"GET"})
-     * @Route("/api/v1/_info/version", name="api.info.shopware.version_old_version", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]
+    #[Route(path: '/api/v1/_info/version', name: 'api.info.shopware.version_old_version', methods: ['GET'])]
     public function infoShopwareVersion(): JsonResponse
     {
         return new JsonResponse([
@@ -281,22 +166,7 @@ class InfoController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.4.5.0")
-     * @OA\Get(
-     *     path="/_info/flow-actions.json",
-     *     summary="Get actions for flow builder",
-     *     description="Get a list of action for flow builder.",
-     *     operationId="flow-actions",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a list of action for flow builder.",
-     *         @OA\JsonContent(ref="#/components/schemas/flowBulderActionsResponse")
-     *     )
-     * )
-     * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
-     */
+    #[Route(path: '/api/_info/flow-actions.json', name: 'api.info.actions', methods: ['GET'])]
     public function flowActions(Context $context): JsonResponse
     {
         if (!$this->flowActionCollector) {
@@ -305,10 +175,13 @@ class InfoController extends AbstractController
 
         $events = $this->flowActionCollector->collect($context);
 
-        return $this->json($events);
+        return new JsonResponse($events);
     }
 
-    private function getBundles(Context $context): array
+    /**
+     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string, string[]>}>
+     */
+    private function getBundles(): array
     {
         $assets = [];
         $package = $this->packages->getPackage('asset');
@@ -320,7 +193,7 @@ class InfoController extends AbstractController
 
             $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
             if ($bundleDirectoryName === null) {
-                throw new \RuntimeException(sprintf('Unable to generate bundle directory for bundle "%s"', $bundle->getName()));
+                throw ApiException::unableGenerateBundle($bundle->getName());
             }
 
             $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
@@ -338,7 +211,7 @@ class InfoController extends AbstractController
             $baseUrl = $this->getBaseUrl($bundle, $package, $bundleDirectoryName);
 
             if (empty($styles) && empty($scripts)) {
-                if (!Feature::isActive('FEATURE_NEXT_17950') || $baseUrl === null) {
+                if ($baseUrl === null) {
                     continue;
                 }
             }
@@ -346,64 +219,50 @@ class InfoController extends AbstractController
             $assets[$bundle->getName()] = [
                 'css' => $styles,
                 'js' => $scripts,
+                'baseUrl' => $baseUrl,
+                'type' => 'plugin',
             ];
-
-            if (Feature::isActive('FEATURE_NEXT_17950')) {
-                $assets[$bundle->getName()]['baseUrl'] = $baseUrl;
-                $assets[$bundle->getName()]['type'] = 'plugin';
-            }
         }
 
-        if (!Feature::isActive('FEATURE_NEXT_17950')) {
-            return $assets;
-        }
-
-        foreach ($this->getActiveApps($context) as $app) {
-            $assets[$app->getName()] = [
+        foreach ($this->getActiveApps() as $app) {
+            $assets[$app['name']] = [
+                'active' => (bool) $app['active'],
+                'integrationId' => $app['integrationId'],
                 'type' => 'app',
-                'baseUrl' => $app->getBaseAppUrl(),
-                'permissions' => $this->fetchAppPermissions($app),
-                'version' => $app->getVersion(),
+                'baseUrl' => $app['baseUrl'],
+                'permissions' => $app['privileges'],
+                'version' => $app['version'],
+                'name' => $app['name'],
             ];
         }
 
         return $assets;
     }
 
-    private function fetchAppPermissions(AppEntity $app): array
-    {
-        $privileges = [];
-        $aclRole = $app->getAclRole();
-        if ($aclRole === null) {
-            return $privileges;
-        }
-
-        foreach ($aclRole->getPrivileges() as $privilege) {
-            [ $entity, $key ] = \explode(':', $privilege);
-            $privileges[$key][] = $entity;
-        }
-
-        return $privileges;
-    }
-
+    /**
+     * @return list<string>
+     */
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
+        $path = 'administration/css/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.css';
         $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
+        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
             return [];
         }
 
         return [$path];
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
+        $path = 'administration/js/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.js';
         $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
+        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
             return [];
         }
 
@@ -432,23 +291,40 @@ class InfoController extends AbstractController
         return $package->getUrl($url);
     }
 
-    private function getActiveApps(Context $context): AppCollection
+    /**
+     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string, list<string>>}>
+     */
+    private function getActiveApps(): array
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('aclRole');
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('active', true),
-                    new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('baseAppUrl', null)]),
-                ]
-            )
-        );
+        /** @var list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $apps */
+        $apps = $this->connection->fetchAllAssociative('SELECT
+    app.name,
+    app.active,
+    LOWER(HEX(app.integration_id)) as integrationId,
+    app.base_app_url as baseUrl,
+    app.version,
+    ar.privileges as privileges
+FROM app
+LEFT JOIN acl_role ar on app.acl_role_id = ar.id
+WHERE app.active = 1 AND app.base_app_url is not null');
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+        return array_map(static function (array $item) {
+            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
-        return $apps;
+            $item['privileges'] = [];
+
+            foreach ($privileges as $privilege) {
+                if (substr_count($privilege, ':') !== 1) {
+                    $item['privileges']['additional'][] = $privilege;
+
+                    continue;
+                }
+
+                [$entity, $key] = \explode(':', $privilege);
+                $item['privileges'][$key][] = $entity;
+            }
+
+            return $item;
+        }, $apps);
     }
 }

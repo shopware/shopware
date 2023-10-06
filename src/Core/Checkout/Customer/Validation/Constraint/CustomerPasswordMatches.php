@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
+#[Package('checkout')]
 class CustomerPasswordMatches extends Constraint
 {
-    public const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';
+    final public const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';
 
     /**
      * @var string
@@ -27,6 +29,9 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct($options = null)
     {
         $options = array_merge(

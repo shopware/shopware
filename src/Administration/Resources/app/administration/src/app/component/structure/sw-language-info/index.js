@@ -6,6 +6,9 @@ const { mapState } = Shopware.Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders information text about the current language
@@ -13,9 +16,10 @@ const { warn } = Shopware.Utils.debug;
  * @example-type code-only
  * @component-example
  * <sw-language-info
- *  :entityDescription="Produkt 1">
+ *     :entityDescription="Produkt 1">
  * </sw-language-info>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-language-info', {
     template,
 

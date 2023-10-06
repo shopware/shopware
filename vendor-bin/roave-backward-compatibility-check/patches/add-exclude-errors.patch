@@ -1,30 +1,25 @@
-diff --git a/src/CompareClasses.php b/src/CompareClasses.php
-index 2b3c594..8edbfb8 100644
---- a/src/CompareClasses.php
-+++ b/src/CompareClasses.php
-@@ -25,6 +25,8 @@ final class CompareClasses implements CompareApi
-
-     private TraitBased $traitBasedComparisons;
-
+--- /dev/null
++++ ../src/CompareClasses.php
+@@ -16,11 +16,15 @@
+ 
+ final class CompareClasses implements CompareApi
+ {
 +    private array $excludePatterns;
 +
      public function __construct(
-         ClassBased $classBasedComparisons,
-         InterfaceBased $interfaceBasedComparisons,
-@@ -33,6 +35,9 @@ final class CompareClasses implements CompareApi
-         $this->classBasedComparisons     = $classBasedComparisons;
-         $this->interfaceBasedComparisons = $interfaceBasedComparisons;
-         $this->traitBasedComparisons     = $traitBasedComparisons;
-+
+         private ClassBased $classBasedComparisons,
+         private InterfaceBased $interfaceBasedComparisons,
+         private TraitBased $traitBasedComparisons,
+     ) {
 +        $excludes = require __DIR__ . '/../../../../../../.bc-exclude.php';
 +        $this->excludePatterns = $excludes['errors'];
      }
-
+ 
      public function __invoke(
-@@ -52,11 +57,24 @@ final class CompareClasses implements CompareApi
-             )
+@@ -40,11 +44,24 @@
+             },
          );
-
+ 
 -        return Changes::fromIterator($this->makeSymbolsIterator(
 +        $filteredSymbolIterator = function (iterable $symbols): iterable {
 +            /** @var Change $symbol */
@@ -42,23 +37,23 @@ index 2b3c594..8edbfb8 100644
 +        return Changes::fromIterator($filteredSymbolIterator($this->makeSymbolsIterator(
              $definedApiClassNames,
              $pastSourcesWithDependencies,
-             $newSourcesWithDependencies
+             $newSourcesWithDependencies,
 -        ));
 +        )));
      }
-
+ 
      /**
-@@ -70,7 +88,12 @@ final class CompareClasses implements CompareApi
-         ClassReflector $newSourcesWithDependencies
+@@ -58,7 +75,12 @@
+         Reflector $newSourcesWithDependencies,
      ): iterable {
          foreach ($definedApiClassNames as $apiClassName) {
--            $oldSymbol = $pastSourcesWithDependencies->reflect($apiClassName);
+-            $oldSymbol = $pastSourcesWithDependencies->reflectClass($apiClassName);
 +            try {
-+                $oldSymbol = $pastSourcesWithDependencies->reflect($apiClassName);
++                $oldSymbol = $pastSourcesWithDependencies->reflectClass($apiClassName);
 +            } catch(IdentifierNotFound $e) {
 +                yield Change::skippedDueToFailure($e);
 +                continue;
 +            }
-
+ 
              yield from $this->examineSymbol($oldSymbol, $newSourcesWithDependencies);
          }

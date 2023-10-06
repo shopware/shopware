@@ -3,44 +3,38 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                add(PaymentMethodTranslationEntity $entity)
- * @method void                                set(string $key, PaymentMethodTranslationEntity $entity)
- * @method PaymentMethodTranslationEntity[]    getIterator()
- * @method PaymentMethodTranslationEntity[]    getElements()
- * @method PaymentMethodTranslationEntity|null get(string $key)
- * @method PaymentMethodTranslationEntity|null first()
- * @method PaymentMethodTranslationEntity|null last()
+ * @extends EntityCollection<PaymentMethodTranslationEntity>
  */
+#[Package('checkout')]
 class PaymentMethodTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getPaymentMethodIds(): array
     {
-        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
-            return $paymentMethodTranslation->getPaymentMethodId();
-        });
+        return $this->fmap(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getPaymentMethodId());
     }
 
     public function filterByPaymentMethodId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
-            return $paymentMethodTranslation->getPaymentMethodId() === $id;
-        });
+        return $this->filter(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getPaymentMethodId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
-            return $paymentMethodTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
-            return $paymentMethodTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

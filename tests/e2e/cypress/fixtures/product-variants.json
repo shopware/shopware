@@ -20,6 +20,11 @@
       }
     }
   ],
+  "variantListingConfig": {
+    "displayParent": true,
+    "mainVariantId": null,
+    "configuratorGroupConfig": null
+  },
   "purchasePrices": [
     {
       "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
@@ -31,8 +36,6 @@
   "children": [
     {
       "parentId": "c26e748eb7b311eb85290242ac130003",
-      "prices": [],
-      "name": "Variant product name",
       "productNumber": "5010.17002",
       "active": true,
       "taxId": "91b5324352dc4ee58ec320df5dcf2bf4",
@@ -42,10 +45,10 @@
           "id": "15532b3fd3ea4c1dbef6e9e9816e0715"
         }
       ]
-    }, {
+    },
+    {
       "parentId": "c26e748eb7b311eb85290242ac130003",
-      "prices": [],
-      "name": "Variant product name",
+      "name": "Green variant product name",
       "productNumber": "5010.17004",
       "active": true,
       "taxId": "91b5324352dc4ee58ec320df5dcf2bf4",
@@ -53,6 +56,20 @@
       "options": [
         {
           "id": "98432def39fc4624b33213a56b8c944f"
+        }
+      ],
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "net": 84.6,
+          "linked": false,
+          "gross": 100,
+          "listPrice": {
+            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+            "net": 8.4,
+            "linked": false,
+            "gross": 10
+          }
         }
       ]
     }

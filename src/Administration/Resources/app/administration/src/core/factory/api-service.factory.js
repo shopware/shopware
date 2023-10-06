@@ -1,8 +1,13 @@
 /**
+ * @package admin
+ *
  * @module core/factory/api-service
  */
 import { warn } from 'src/core/service/utils/debug.utils';
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     getRegistry,
     register,

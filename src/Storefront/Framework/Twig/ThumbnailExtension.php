@@ -4,19 +4,18 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\TokenParser\ThumbnailTokenParser;
 use Twig\Extension\AbstractExtension;
 
+#[Package('storefront')]
 class ThumbnailExtension extends AbstractExtension
 {
     /**
-     * @var TemplateFinder
+     * @internal
      */
-    private $finder;
-
-    public function __construct(TemplateFinder $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
-        $this->finder = $finder;
     }
 
     public function getTokenParsers(): array

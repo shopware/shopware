@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @RouteScope(scopes={"default"})
- */
+#[Package('core')]
 class FallbackController extends AbstractController
 {
     public function rootFallback(): Response

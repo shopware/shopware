@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
@@ -18,14 +19,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductDetailCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var AbstractProductDetailCmsElementResolver
-     */
-    private $dummyResolver;
+    private MockObject&AbstractProductDetailCmsElementResolver $dummyResolver;
 
     protected function setUp(): void
     {

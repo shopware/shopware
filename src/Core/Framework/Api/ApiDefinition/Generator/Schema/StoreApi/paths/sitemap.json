@@ -1,0 +1,36 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/sitemap": {
+            "get": {
+                "tags": [
+                    "Sitemap & Routes"
+                ],
+                "summary": "Fetch sitemaps",
+                "description": "Fetches a list of compressed sitemap files, which are often used by search engines.",
+                "operationId": "readSitemap",
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of available sitemaps.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Sitemap"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

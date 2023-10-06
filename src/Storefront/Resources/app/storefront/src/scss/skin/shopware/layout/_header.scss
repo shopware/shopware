@@ -11,6 +11,8 @@ The header contains the shop logo, the search form and various actions like the 
     border-left: 0;
 
     &:hover {
+        border-color: $input-border-color;
+
         .icon {
             color: $primary;
         }
@@ -33,7 +35,7 @@ The header contains the shop logo, the search form and various actions like the 
 
     &:focus {
         &,
-        ~ .input-group-append .header-search-btn {
+        ~ .header-search-btn {
             border-color: $primary;
         }
     }
@@ -44,6 +46,7 @@ The header contains the shop logo, the search form and various actions like the 
     &:active,
     &:hover {
         background: none;
+        border: 0 none;
     }
 
     &:hover {

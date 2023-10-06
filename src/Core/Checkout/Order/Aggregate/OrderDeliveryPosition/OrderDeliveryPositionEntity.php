@@ -8,11 +8,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class OrderDeliveryPositionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -53,6 +55,16 @@ class OrderDeliveryPositionEntity extends Entity
      * @var OrderDeliveryEntity|null
      */
     protected $orderDelivery;
+
+    /**
+     * @var string
+     */
+    protected $orderDeliveryVersionId;
+
+    /**
+     * @var string
+     */
+    protected $orderLineItemVersionId;
 
     public function getOrderDeliveryId(): string
     {
@@ -132,5 +144,25 @@ class OrderDeliveryPositionEntity extends Entity
     public function setOrderDelivery(OrderDeliveryEntity $orderDelivery): void
     {
         $this->orderDelivery = $orderDelivery;
+    }
+
+    public function getOrderDeliveryVersionId(): string
+    {
+        return $this->orderDeliveryVersionId;
+    }
+
+    public function setOrderDeliveryVersionId(string $orderDeliveryVersionId): void
+    {
+        $this->orderDeliveryVersionId = $orderDeliveryVersionId;
+    }
+
+    public function getOrderLineItemVersionId(): string
+    {
+        return $this->orderLineItemVersionId;
+    }
+
+    public function setOrderLineItemVersionId(string $orderLineItemVersionId): void
+    {
+        $this->orderLineItemVersionId = $orderLineItemVersionId;
     }
 }

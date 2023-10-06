@@ -3,15 +3,18 @@ const { Criteria } = Shopware.Data;
 
 
 /**
+ * @package admin
+ *
  * @module core/service/customer-group-registration-listener
  */
 
 /**
- *
+ * @package checkout
  * @memberOf module:core/service/customer-group-registration-listener
  * @method addCustomerGroupRegistrationListener
  * @param loginService
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addCustomerGroupRegistrationListener(loginService) {
     let applicationRoot = null;
 
@@ -23,7 +26,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
         }
 
         const customerRepository = Service('repositoryFactory').create('customer');
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addAssociation('requestedGroup');
         criteria.addFilter(Criteria.not('AND', [Criteria.equals('requestedGroupId', null)]));
 

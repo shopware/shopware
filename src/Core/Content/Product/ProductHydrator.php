@@ -6,10 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('inventory')]
 class ProductHydrator extends EntityHydrator
 {
+    /**
+     * @param array<string, string> $row
+     *
+     * @throws \Exception
+     */
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
         if (isset($row[$root . '.id'])) {
@@ -75,11 +82,11 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.displayGroup'])) {
             $entity->displayGroup = $row[$root . '.displayGroup'];
         }
-        if (\array_key_exists($root . '.configuratorGroupConfig', $row)) {
-            $entity->configuratorGroupConfig = $definition->decode('configuratorGroupConfig', self::value($row, $root, 'configuratorGroupConfig'));
+        if (isset($row[$root . '.states'])) {
+            $entity->states = $definition->decode('states', self::value($row, $root, 'states'));
         }
-        if (isset($row[$root . '.mainVariantId'])) {
-            $entity->mainVariantId = Uuid::fromBytesToHex($row[$root . '.mainVariantId']);
+        if (isset($row[$root . '.variantListingConfig'])) {
+            $entity->variantListingConfig = $definition->decode('variantListingConfig', self::value($row, $root, 'variantListingConfig'));
         }
         if (\array_key_exists($root . '.variantRestrictions', $row)) {
             $entity->variantRestrictions = $definition->decode('variantRestrictions', self::value($row, $root, 'variantRestrictions'));

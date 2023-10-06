@@ -4,12 +4,13 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -18,14 +19,17 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @internal
+ */
 class GenerateMediaTypesCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
@@ -34,31 +38,24 @@ class GenerateMediaTypesCommandTest extends TestCase
      */
     private $generateMediaTypesCommand;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private Context $context;
 
     /**
-     * @var Context
+     * @var array<string>
      */
-    private $context;
-
-    /**
-     * @var array
-     */
-    private $initialMediaIds;
+    private array $initialMediaIds;
 
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $this->generateMediaTypesCommand = $this->getContainer()->get(GenerateMediaTypesCommand::class);
 
         $this->context = Context::createDefaultContext();
 
-        $this->initialMediaIds = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
+        /** @var array<string> $ids */
+        $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $this->initialMediaIds = $ids;
     }
 
     public function testExecuteHappyPath(): void
@@ -72,7 +69,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        foreach ($mediaResult as $updatedMedia) {
             static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
         }
     }
@@ -106,14 +103,16 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        foreach ($mediaResult as $updatedMedia) {
             static::assertNull($updatedMedia->getMediaType());
         }
     }
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Provided batch size is invalid.');
+
         $this->createValidMediaFiles();
 
         $input = new StringInput('-b "test"');
@@ -144,26 +143,29 @@ class GenerateMediaTypesCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        $this->getPublicFilesystem()->putStream(
+        $filePath = $mediaPng->getPath();
+
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream(
+        $filePath = $mediaJpg->getPath();
+
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        $this->getPublicFilesystem()->putStream(
+        $filePath = $mediaPdf->getPath();
+
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
     }
 
-    private function getNewMediaEntities()
+    private function getNewMediaEntities(): MediaCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
@@ -178,6 +180,9 @@ class GenerateMediaTypesCommandTest extends TestCase
             ]
         ));
 
-        return $this->mediaRepository->search($criteria, $this->context);
+        $entities = $this->mediaRepository->search($criteria, $this->context)->getEntities();
+        static::assertInstanceOf(MediaCollection::class, $entities);
+
+        return $entities;
     }
 }

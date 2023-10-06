@@ -2,23 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Log\Package;
 
-class CustomerNotLoggedInException extends ShopwareHttpException
+#[Package('checkout')]
+class CustomerNotLoggedInException extends CartException
 {
-    public function __construct()
-    {
-        parent::__construct('Customer is not logged in.');
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_FORBIDDEN;
-    }
 }

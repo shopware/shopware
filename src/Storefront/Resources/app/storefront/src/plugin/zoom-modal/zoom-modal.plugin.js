@@ -188,18 +188,21 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _showModal(modal) {
-        // execute all needed scripts for the slider
-        const $modal = $(modal);
+        const bootstrapModal = new bootstrap.Modal(modal, {
+            keyboard: false,
+        });
 
-        $modal.off('shown.bs.modal');
-        $modal.on('shown.bs.modal', () => {
+        const listener = () => {
             this._initSlider(modal);
             this._registerImageZoom();
 
             this.$emitter.publish('modalShow', { modal });
-        });
+        };
 
-        $modal.modal('show');
+        modal.removeEventListener('shown.bs.modal', listener);
+        modal.addEventListener('shown.bs.modal', listener);
+
+        bootstrapModal.show();
     }
 
     /**

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_select %}
 <sw-select-base
     class="sw-multi-select"
@@ -7,9 +8,12 @@
     @select-collapsed="onSelectCollapsed"
     v-on="$listeners"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_base %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
@@ -21,9 +25,12 @@
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_selection_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_selection_list_label %}
             <template #label-property="{ item, index, labelProperty, valueProperty }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_multi_select_base_selection_list_label_inner %}
                 <slot
                     name="selection-label-property"
@@ -40,8 +47,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_base_results %}
     <template #results-list>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_base_results_slot %}
         <sw-select-result-list
             ref="swSelectResultList"
@@ -52,26 +61,29 @@
             @paginate="$emit('paginate')"
             @item-select="addItem"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_results_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_results_list_before %}
             <template #before-item-list>
                 <slot name="before-item-list"></slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
                     v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(item)"
                         :class="'sw-select-option--' + item.value"
                         v-bind="{ item, index }"
                         @item-select="addItem"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_multi_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
@@ -87,11 +99,12 @@
                             </template>
                         </slot>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>
@@ -106,6 +119,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-select-base>
 {% endblock %}

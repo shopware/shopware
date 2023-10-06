@@ -1,14 +1,22 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_set_entity_custom_field_modal %}
 <sw-modal
     class="sw-flow-set-entity-custom-field-modal"
     :title="$tc('sw-flow.modals.setEntityCustomField.title')"
+    :closable="false"
     @modal-close="onClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_entity_custom_field_modal_content %}
     <div class="sw-flow-set-entity-custom-field-modal__content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="entity"
+            {% else %}
             v-model="entity"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__entity-field"
             required
             show-clearable-button
@@ -16,22 +24,36 @@
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
             :error="entityError"
             :options="entityOptions"
+            {% if VUE3 %}
+            @update:value="onEntityChange()"
+            {% else %}
             @change="onEntityChange()"
+            {% endif %}
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_category %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customFieldSetId"
+            {% else %}
             v-model="customFieldSetId"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__custom-field-set"
             entity="custom_field_set"
             required
+            :label-property="labelProperty"
             :disabled="!entity"
             :criteria="customFieldSetCriteria"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
             :error="customFieldSetError"
+            {% if VUE3 %}
+            @update:value="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+            {% else %}
             @change="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+            {% endif %}
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}
@@ -43,18 +65,28 @@
         </sw-entity-single-select>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_name %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customFieldId"
+            {% else %}
             v-model="customFieldId"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__custom-field"
             entity="custom_field"
             required
+            :label-property="labelProperty"
             :label="$tc('sw-flow.modals.setEntityCustomField.customField')"
             :disabled="!customFieldSetId"
             :criteria="customFieldCriteria"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
             :error="customFieldError"
+            {% if VUE3 %}
+            @update:value="(id, customField) => onCustomFieldChange(id, customField)"
+            {% else %}
             @change="(id, customField) => onCustomFieldChange(id, customField)"
+            {% endif %}
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}
@@ -66,6 +98,23 @@
         </sw-entity-single-select>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
+        <sw-single-select
+            v-if="customFieldId"
+            {% if VUE3 %}
+            v-model:value="fieldOptionSelected"
+            {% else %}
+            v-model="fieldOptionSelected"
+            {% endif %}
+            class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
+            :options="fieldOptions"
+            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
+            :highlight-search-term="false"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_value %}
         <sw-form-field-renderer
             v-if="showFieldValue"
@@ -81,20 +130,17 @@
         </sw-form-field-renderer>
         {% endblock %}
 
-        {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
-        <sw-select-field
-            v-if="customFieldId"
-            v-model="fieldOptionSelected"
-            class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
-            :options="fieldOptions"
-            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
-        />
-        {% endblock %}
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_set_entity_custom_field_modal_custom %}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_entity_custom_field_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-set-entity-custom-field-modal__cancel-button"
@@ -104,6 +150,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_footer_save_button %}
         <sw-button
             class="sw-flow-set-entity-custom-field-modal__save-button"

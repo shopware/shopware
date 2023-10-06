@@ -3,19 +3,15 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -34,42 +30,22 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
-    private EntityRepositoryInterface $customerRepository;
-
-    private EntityRepositoryInterface $customerRecoveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DataValidator $validator;
-
-    private SystemConfigService $systemConfigService;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SystemConfigService $systemConfigService,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->systemConfigService = $systemConfigService;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractResetPasswordRoute
@@ -77,46 +53,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/recovery-password-confirm",
-     *      summary="Reset a password with recovery credentials",
-     *      description="This operation is Step 2 of the password reset flow. It is required to conduct Step 1 ""Send a password recovery mail"" in order to obtain the required credentials for this step.
-
-Resets a customer's password using credentials from a password recovery mail as a validation.",
-     *      operationId="recoveryPassword",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "hash",
-     *                  "newPassword",
-     *                  "newPasswordConfirm"
-     *              },
-     *              @OA\Property(
-     *                  property="hash",
-     *                  description="Parameter from the link in the confirmation mail sent in Step 1",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPassword",
-     *                  description="New password for the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPasswordConfirm",
-     *                  description="Confirmation of the new password",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @Route(path="/store-api/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/recovery-password-confirm', name: 'store-api.account.recovery.password', methods: ['POST'])]
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {
         $this->validateResetPassword($data, $context);
@@ -124,7 +61,7 @@ Resets a customer's password using credentials from a password recovery mail as 
         $hash = $data->get('hash');
 
         if (!$this->checkHash($hash, $context->getContext())) {
-            throw new CustomerRecoveryHashExpiredException($hash);
+            throw CustomerException::customerRecoveryHashExpired($hash);
         }
 
         $customerHashCriteria = new Criteria();
@@ -133,19 +70,19 @@ Resets a customer's password using credentials from a password recovery mail as 
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->first();
 
-        if (!$customerRecovery) {
-            throw new CustomerNotFoundByHashException($hash);
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         $customer = $customerRecovery->getCustomer();
 
         if (!$customer) {
-            throw new CustomerNotFoundByHashException($hash);
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         // reset login and pw-reset limit when password was changed
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $cacheKey = strtolower($customer->getEmail()) . '-' . $request->getClientIp();
+            $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
@@ -189,6 +126,8 @@ Resets a customer's password using credentials from a password recovery mail as 
     }
 
     /**
+     * @param array<string|int, string> $data
+     *
      * @throws ConstraintViolationException
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
@@ -199,13 +138,12 @@ Resets a customer's password using credentials from a password recovery mail as 
             return;
         }
 
-        /** @var array $fieldValidations */
+        /** @var array<ConstraintInterface> $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
@@ -223,7 +161,7 @@ Resets a customer's password using credentials from a password recovery mail as 
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

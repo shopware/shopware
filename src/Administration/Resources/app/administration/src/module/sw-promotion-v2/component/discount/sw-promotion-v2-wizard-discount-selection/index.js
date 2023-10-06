@@ -1,8 +1,10 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-wizard-discount-selection.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -33,4 +35,4 @@ Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', 
             this.$emit('change-selection', value);
         },
     },
-});
+};

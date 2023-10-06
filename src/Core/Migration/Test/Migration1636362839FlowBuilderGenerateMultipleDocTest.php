@@ -7,12 +7,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636362839FlowBuilderGenerateMultipleDoc;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -21,7 +26,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 
     private Migration1636362839FlowBuilderGenerateMultipleDoc $migration;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private TestDataCollection $ids;
 
@@ -30,7 +35,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->flowRepository = $this->getContainer()->get('flow.repository');
         $this->migration = new Migration1636362839FlowBuilderGenerateMultipleDoc();
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     public function testMigration(): void
@@ -45,8 +50,8 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
             ]
         );
 
-        $newConfig = json_decode($actionGenerateDocs['config'], true);
-        static::assertIsArray($newConfig);
+        static::assertIsArray($actionGenerateDocs);
+        $newConfig = json_decode((string) $actionGenerateDocs['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotNull($newConfig['documentTypes']);
     }
 
@@ -54,7 +59,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
     {
         $sequenceId = Uuid::randomHex();
 
-        $this->flowRepository->create(array_merge([[
+        $this->flowRepository->create([...[[
             'name' => 'Create Order',
             'eventName' => TestFlowBusinessEvent::EVENT_NAME,
             'priority' => 10,
@@ -90,6 +95,6 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
                 ],
             ]),
         ],
-        ]), Context::createDefaultContext());
+        ]], Context::createDefaultContext());
     }
 }

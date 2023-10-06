@@ -1,10 +1,17 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-product-stream-list', {
+/**
+ * @private
+ */
+export default {
     template,
 
     inject: [
@@ -37,6 +44,10 @@ Component.register('sw-product-stream-list', {
     computed: {
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -84,6 +95,10 @@ Component.register('sw-product-stream-list', {
                 this.total = 0;
 
                 return false;
+            }
+
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
             }
 
             return this.productStreamRepository.search(criteria).then((items) => {
@@ -193,4 +208,4 @@ Component.register('sw-product-stream-list', {
             });
         },
     },
-});
+};

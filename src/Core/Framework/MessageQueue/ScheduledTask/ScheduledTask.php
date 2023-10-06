@@ -2,10 +2,18 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
-abstract class ScheduledTask
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
+#[Package('core')]
+abstract class ScheduledTask implements AsyncMessageInterface
 {
     protected ?string $taskId = null;
 
+    /**
+     * @internal
+     */
     final public function __construct()
     {
         // needs to be empty
@@ -27,4 +35,9 @@ abstract class ScheduledTask
      * @return int the default interval this task should run in seconds
      */
     abstract public static function getDefaultInterval(): int;
+
+    public static function shouldRun(ParameterBagInterface $bag): bool
+    {
+        return true;
+    }
 }

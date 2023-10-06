@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser as KernelBrowserAlias;
 
 /**
+ * @internal
+ *
  * @group store-api
  */
 class LandingPageRouteTest extends TestCase
@@ -19,19 +21,13 @@ class LandingPageRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowserAlias
-     */
-    private $browser;
+    private KernelBrowserAlias $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -78,7 +74,7 @@ class LandingPageRouteTest extends TestCase
             '/store-api/landing-page/' . $this->ids->get('landing-page')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($this->ids->get('landing-page'), $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -120,7 +116,7 @@ class LandingPageRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -144,7 +140,7 @@ class LandingPageRouteTest extends TestCase
 
     private function assertError(string $landingPageId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = new LandingPageNotFoundException($landingPageId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),
@@ -191,6 +187,6 @@ class LandingPageRouteTest extends TestCase
         $data = array_merge($data, $override);
 
         $this->getContainer()->get('landing_page.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

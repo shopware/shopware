@@ -1,11 +1,27 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-preview-buy-box', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-config-buy-box', () => import('./config'));
+/**
+ * @private
+ * @package buyers-experience
+ */
+Shopware.Component.register('sw-cms-el-buy-box', () => import('./component'));
 
 const Criteria = Shopware.Data.Criteria;
-const criteria = new Criteria();
+const criteria = new Criteria(1, 25);
 criteria.addAssociation('deliveryTime');
 
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'buy-box',
     label: 'sw-cms.elements.buyBox.label',
@@ -41,42 +57,5 @@ Shopware.Service('cmsService').registerCmsElement({
             ],
         },
     },
-    collect: function collect(elem) {
-        const context = {
-            ...Shopware.Context.api,
-            inheritance: true,
-        };
-
-        const criteriaList = {};
-
-        Object.keys(elem.config).forEach((configKey) => {
-            if (elem.config[configKey].source === 'mapped') {
-                return;
-            }
-
-            const config = elem.config[configKey];
-            const configEntity = config.entity;
-            const configValue = config.value;
-
-            if (!configEntity || !configValue) {
-                return;
-            }
-
-
-            const entityKey = configEntity.name;
-            const entityData = {
-                value: [configValue],
-                key: configKey,
-                searchCriteria: configEntity.criteria ? configEntity.criteria : new Criteria(),
-                ...configEntity,
-            };
-
-            entityData.searchCriteria.setIds(entityData.value);
-            entityData.context = context;
-
-            criteriaList[`entity-${entityKey}`] = entityData;
-        });
-
-        return criteriaList;
-    },
+    collect: Shopware.Service('cmsService').getCollectFunction(),
 });

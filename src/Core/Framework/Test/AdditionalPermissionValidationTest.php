@@ -5,14 +5,18 @@ namespace Shopware\Core\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
+ * @internal
+ *
  * @group slow
  */
+#[Package('core')]
 class AdditionalPermissionValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,7 +44,7 @@ class AdditionalPermissionValidationTest extends TestCase
      */
     private array $rootDirs;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rootDirs = array_filter(array_map(static function (string $class): ?string {
             if (!\class_exists($class)) {
@@ -137,7 +141,7 @@ class AdditionalPermissionValidationTest extends TestCase
                     $results = Yaml::parse($jsArray);
 
                     $additionalPermission = array_merge($additionalPermission, $results);
-                } catch (\Exception $exception) {
+                } catch (\Exception) {
                 }
             }
         }

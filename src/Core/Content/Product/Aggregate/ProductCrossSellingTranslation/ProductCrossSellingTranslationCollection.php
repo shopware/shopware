@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                      add(ProductCrossSellingTranslationEntity $entity)
- * @method void                                      set(string $key, ProductCrossSellingTranslationEntity $entity)
- * @method ProductCrossSellingTranslationEntity[]    getIterator()
- * @method ProductCrossSellingTranslationEntity[]    getElements()
- * @method ProductCrossSellingTranslationEntity|null get(string $key)
- * @method ProductCrossSellingTranslationEntity|null first()
- * @method ProductCrossSellingTranslationEntity|null last()
+ * @extends EntityCollection<ProductCrossSellingTranslationEntity>
  */
+#[Package('inventory')]
 class ProductCrossSellingTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

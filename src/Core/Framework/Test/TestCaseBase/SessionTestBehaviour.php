@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Use if your test modifies the session
@@ -10,22 +13,23 @@ use Symfony\Component\HttpFoundation\Session\Session;
 trait SessionTestBehaviour
 {
     /**
-     * @before
+     * @after
      */
-    public function clearSessionBefore(): void
+    public function clearSession(): void
     {
-        $this->clearSessionAfter();
+        $session = $this->getSession();
+        $session->clear();
+
+        if ($session instanceof FlashBagAwareSessionInterface) {
+            $session->getFlashBag()->clear();
+        }
     }
 
-    /**
-     * @after
-     * @before
-     */
-    public function clearSessionAfter(): void
+    public function getSession(): SessionInterface
     {
-        /** @var Session $session */
-        $session = $this->getContainer()->get('session');
-        $session->clear();
-        $session->getFlashBag();
+        /** @var SessionFactoryInterface $factory */
+        $factory = $this->getContainer()->get('session.factory');
+
+        return $factory->createSession();
     }
 }

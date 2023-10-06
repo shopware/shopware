@@ -39,7 +39,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.sitemap_route%</argument>
-            <argument type="service" id="logger" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
@@ -70,6 +69,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -98,12 +98,18 @@
         <service id="Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessageHandler">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="event_dispatcher"/>
 
             <tag name="messenger.message_handler"/>
         </service>

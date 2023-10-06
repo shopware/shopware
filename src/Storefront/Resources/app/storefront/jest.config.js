@@ -1,5 +1,10 @@
-// For a detailed explanation regarding each configuration property, visit:
-// https://jestjs.io/docs/en/configuration.html
+/**
+ * For a detailed explanation regarding each configuration property, visit:
+ * https://jestjs.io/docs/en/configuration.html
+ *
+ * @package storefront
+ */
+
 const path = require('path');
 const { join } = require('path');
 
@@ -10,16 +15,22 @@ const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts/jest');
 module.exports = {
 
     // The directory where Jest should store its cached dependency information
-    // cacheDirectory: "/private/var/folders/00/scx5qv4s0fzdh47cvtj6xrj80000gn/T/jest_dx",
+    cacheDirectory: '<rootDir>.jestcache',
 
     // Automatically clear mock calls and instances between every test
     clearMocks: true,
+
+    // Change default test environment from node to jsdom because we are testing a web application.
+    // @see https://jestjs.io/docs/configuration#testenvironment-string
+    testEnvironment: 'jsdom',
 
     globalTeardown: '<rootDir>test/globalTeardown.js',
 
     // The directory where Jest should output its coverage files
     collectCoverage: true,
+
     coverageDirectory: artifactsPath,
+
     coverageReporters: [
         'lcov',
         'text',
@@ -75,11 +86,11 @@ module.exports = {
     ],
 
     transform: {
-        '^.+\\.js$': 'babel-jest',
+        '^.+\\.(t|j)s$': 'babel-jest',
         '^.+\\.html$': 'html-loader-jest',
     },
 
-    setupFiles: [
+    setupFilesAfterEnv: [
         '<rootDir>/jest.init.js',
     ],
 };

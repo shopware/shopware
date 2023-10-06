@@ -2,62 +2,36 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
+#[Package('services-settings')]
 class TimeRangeRule extends Rule
 {
+    final public const RULE_NAME = 'timeRange';
+
     private const TIME_REGEX = '/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/';
 
-    /**
-     * @var string '15:59' as an example
-     */
-    protected $fromTime;
+    protected string $fromTime;
 
-    /**
-     * @var string '15:59' as an example
-     */
-    protected $toTime;
+    protected string $toTime;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    private $now;
+    private bool $validationTurnover = false;
 
-    /**
-     * @var bool
-     */
-    private $validationTurnover = false;
+    private \DateTimeInterface $to;
 
-    /**
-     * @var \DateTime
-     */
-    private $to;
-
-    /**
-     * @var \DateTime
-     */
-    private $from;
-
-    public function __construct(?\DateTimeInterface $now = null)
-    {
-        parent::__construct();
-        $this->now = $now ?? new \DateTimeImmutable();
-    }
-
-    public function getName(): string
-    {
-        return 'timeRange';
-    }
+    private \DateTimeInterface $from;
 
     public function match(RuleScope $scope): bool
     {
-        $this->from = $this->extractTime($this->fromTime);
-        $this->to = $this->extractTime($this->toTime);
+        $now = $scope->getCurrentTime();
+        $this->from = $this->extractTime($this->fromTime, $now);
+        $this->to = $this->extractTime($this->toTime, $now);
 
         $this->switchValidationIfToIsSmallerThanFrom();
 
-        return $this->returnResultWithSightOnValidationTurnover();
+        return $this->returnResultWithSightOnValidationTurnover($now);
     }
 
     public function getConstraints(): array
@@ -68,11 +42,11 @@ class TimeRangeRule extends Rule
         ];
     }
 
-    private function extractTime(string $time): \DateTime
+    private function extractTime(string $time, \DateTimeImmutable $now): \DateTimeInterface
     {
         [$hour, $minute] = explode(':', $time);
 
-        return (new \DateTime())->setTime((int) $hour, (int) $minute);
+        return $now->setTime((int) $hour, (int) $minute);
     }
 
     private function switchValidationIfToIsSmallerThanFrom(): void
@@ -85,9 +59,9 @@ class TimeRangeRule extends Rule
         }
     }
 
-    private function returnResultWithSightOnValidationTurnover(): bool
+    private function returnResultWithSightOnValidationTurnover(\DateTimeImmutable $now): bool
     {
-        $result = $this->to >= $this->now && $this->from <= $this->now;
+        $result = $this->to >= $now && $this->from <= $now;
 
         if ($this->validationTurnover) {
             return !$result;

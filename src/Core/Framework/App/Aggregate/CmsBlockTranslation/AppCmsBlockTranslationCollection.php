@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @method void                                  add(AppCmsBlockTranslationEntity $entity)
- * @method void                                  set(string $key, AppCmsBlockTranslationEntity $entity)
- * @method \Generator<CmsBlockTranslationEntity> getIterator()
- * @method array<CmsBlockTranslationEntity>      getElements()
- * @method AppCmsBlockTranslationEntity|null     get(string $key)
- * @method AppCmsBlockTranslationEntity|null     first()
- * @method AppCmsBlockTranslationEntity|null     last()
+ * @extends EntityCollection<AppCmsBlockTranslationEntity>
  */
+#[Package('content')]
 class AppCmsBlockTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

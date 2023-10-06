@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_select_filter %}
 <sw-base-filter
     :title="filter.label"
@@ -5,8 +6,10 @@
     :active="active"
     @filter-reset="resetFilter"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_filter_content %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_filter_content_entity_select %}
     <sw-entity-multi-select
         v-if="isEntityMultiSelect"
@@ -15,8 +18,14 @@
         :criteria="filter.criteria"
         :entity-name="filter.schema.entity"
         :entity-collection="values"
+        :display-variants="filter.displayVariants"
+        {% if VUE3 %}
+        @update:entity-collection="changeValue"
+        {% else %}
         @change="changeValue"
+        {% endif %}
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_filter_content_slot_selection_label_property %}
         <template #selection-label-property="{ item, index }">
             <slot
@@ -26,6 +35,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_filter_content_slot_result_item %}
         <template #result-item="{ item, index }">
             <slot
@@ -37,6 +47,7 @@
     </sw-entity-multi-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_select_filter_content_option_select %}
     <sw-multi-select
         v-if="filter.options"
@@ -45,7 +56,11 @@
         :placeholder="filter.placeholder"
         :options="filter.options"
         :value="values"
+        {% if VUE3 %}
+        @update:value="changeValue"
+        {% else %}
         @change="changeValue"
+        {% endif %}
     />
     {% endblock %}
     {% endblock %}

@@ -13,7 +13,9 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string
@@ -51,10 +53,9 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
     private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, ElementDataCollection $result, FieldConfig $config, ResolverContext $resolverContext): void
     {
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
-            if ($media !== null) {
+            if ($media instanceof MediaEntity) {
                 $image->setMediaId($media->getUniqueIdentifier());
                 $image->setMedia($media);
             }
@@ -68,9 +69,8 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getValue());
-            if (!$media) {
+            $media = $searchResult->get($config->getStringValue());
+            if (!$media instanceof MediaEntity) {
                 return;
             }
 

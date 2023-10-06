@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_index %}
 <sw-page class="sw-media-index">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="media"
             :initial-search="term"
@@ -11,40 +13,47 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_smart_bar %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_bread_crumb_navigation %}
-    <template slot="smart-bar-back">
+    <template #smart-bar-back>
         <div class="sw-media-index__navigation">
 
             <template v-if="parentFolder">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_icon %}
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
-                    <sw-icon
+                    <img
+                        :src="assetFilter('/administration/static/img/media/folder--back--breadcrumb.svg')"
                         class="sw-media-index__navigation-breadcrumb"
-                        name="multicolor-folder-breadcrumbs-back-to-root"
-                        large
-                        multicolor
-                    />
+                        alt="Folder back breadcrumb"
+                    >
                 </router-link>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_parent%}
-                                <router-link class="sw-media-index__navigation-label"
-                                             :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
-                                    {{ parentFolder.name }}
-                                </router-link>
-                            {% endblock %}
+                <router-link
+                    class="sw-media-index__navigation-label"
+                    :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }"
+                >
+                    {{ parentFolder.name }}
+                </router-link>
+                {% endblock %}
             </template>
         </div>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_smart_bar_header %}
     <template
         v-if="currentFolder"
-        slot="smart-bar-header"
+        #smart-bar-header
     >
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_smart_bar_heading %}
             {{ currentFolder.name }}
             {% endblock %}
@@ -52,7 +61,8 @@
     </template>
     {% endblock %}
 
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_index_smart_bar_media_upload %}
         <sw-media-upload-v2
             v-tooltip="{
@@ -70,15 +80,18 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch @on-change="reloadList" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_page_content %}
-    <template slot="content">
+    <template #content>
         <div class="sw-media-index__page-content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_listing_grid %}
             <sw-upload-listener
                 :upload-tag="uploadTag"
@@ -89,7 +102,11 @@
             />
             <sw-media-library
                 ref="mediaLibrary"
+                {% if VUE3 %}
+                v-model:selection="selectedItems"
+                {% else %}
                 v-model="selectedItems"
+                {% endif %}
                 class="sw-media-index__media-library"
                 :folder-id="routeFolderId"
                 :pending-uploads="uploads"
@@ -99,6 +116,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_sidebar %}
             <sw-media-sidebar
                 :items="selectedItems"
@@ -113,6 +131,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_list_grid_loader %}
             <sw-loader v-if="isLoading" />
             {% endblock %}

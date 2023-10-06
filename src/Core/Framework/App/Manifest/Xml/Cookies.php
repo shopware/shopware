@@ -2,17 +2,20 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Cookies extends XmlElement
 {
-    public const NAME_TAG = 'snippet-name';
-    public const DESCRIPTION_TAG = 'snippet-description';
-    public const COOKIE_TAG = 'cookie';
-    public const VALUE_TAG = 'value';
-    public const EXPIRATION_TAG = 'expiration';
-    public const ENTRIES_TAG = 'entries';
+    final public const NAME_TAG = 'snippet-name';
+    final public const DESCRIPTION_TAG = 'snippet-description';
+    final public const COOKIE_TAG = 'cookie';
+    final public const VALUE_TAG = 'value';
+    final public const EXPIRATION_TAG = 'expiration';
+    final public const ENTRIES_TAG = 'entries';
 
     /**
      * @var Cookies[]

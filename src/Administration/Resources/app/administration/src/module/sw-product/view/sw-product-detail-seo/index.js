@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-seo.html.twig';
 
 const { Component } = Shopware;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
-Component.register('sw-product-detail-seo', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['feature', 'acl'],
@@ -72,4 +77,4 @@ Component.register('sw-product-detail-seo', {
             this.currentSalesChannelId = currentSalesChannelId;
         },
     },
-});
+};

@@ -1,4 +1,4 @@
-const { Application, Entity } = Shopware;
+const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Application.addServiceProvider('cmsService', () => {
@@ -11,6 +11,9 @@ Application.addServiceProvider('cmsService', () => {
         getCmsBlockRegistry,
         getEntityMappingTypes,
         getPropertyByMappingPath,
+        getCollectFunction,
+        isBlockAllowedInPageType,
+        isElementAllowedInPageType,
     };
 });
 
@@ -27,20 +30,23 @@ function registerCmsElement(config) {
         config.collect = function collect(elem) {
             const criteriaList = {};
 
+            let entityCount = 0;
             Object.keys(elem.config).forEach((configKey) => {
-                if (elem.config[configKey].source === 'mapped') {
+                if (['mapped', 'default'].includes(elem.config[configKey].source)) {
                     return;
                 }
 
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = entity.name;
+                    const entityKey = `entity-${entity.name}-${entityCount}`;
+                    entityCount += 1;
+
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
 
-                    criteriaList[`entity-${entityKey}`] = entityData;
+                    criteriaList[entityKey] = entityData;
                 }
             });
 
@@ -54,6 +60,7 @@ function registerCmsElement(config) {
                 return;
             }
 
+            let entityCount = 0;
             Object.keys(elem.config).forEach((configKey) => {
                 const entity = elem.config[configKey].entity;
 
@@ -61,19 +68,21 @@ function registerCmsElement(config) {
                     return;
                 }
 
-                const entityKey = entity.name;
-                if (!data[`entity-${entityKey}`]) {
+                const entityKey = `entity-${entity.name}-${entityCount}`;
+                if (!data[entityKey]) {
                     return;
                 }
+
+                entityCount += 1;
 
                 if (Array.isArray(elem.config[configKey].value)) {
                     elem.data[configKey] = [];
 
                     elem.config[configKey].value.forEach((value) => {
-                        elem.data[configKey].push(data[`entity-${entityKey}`].get(value));
+                        elem.data[configKey].push(data[entityKey].get(value));
                     });
                 } else {
-                    elem.data[configKey] = data[`entity-${entityKey}`].get(elem.config[configKey].value);
+                    elem.data[configKey] = data[entityKey].get(elem.config[configKey].value);
                 }
             });
         };
@@ -114,7 +123,7 @@ function getEntityData(element, configKey) {
         };
     }
 
-    entityData.searchCriteria = entity.criteria ? entity.criteria : new Criteria();
+    entityData.searchCriteria = entity.criteria ? entity.criteria : new Criteria(1, 25);
 
     return entityData;
 }
@@ -145,7 +154,7 @@ function getCmsBlockRegistry() {
 }
 
 function getEntityMappingTypes(entityName = null) {
-    const schema = Entity.getDefinition(entityName);
+    const schema = Shopware.EntityDefinition.has(entityName) ? Shopware.EntityDefinition.get(entityName) : undefined;
 
     if (entityName === null || typeof schema === 'undefined') {
         return {};
@@ -160,34 +169,24 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blocklist = ['parent', 'cmsPage'];
-    const formatBlocklist = ['uuid'];
+    const blocklist = ['parent', 'cmsPage', 'translations', 'createdAt', 'updatedAt'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
-        if (blocklist.includes(property) || propSchema.readOnly === true) {
+        if (
+            blocklist.includes(property) ||
+            (Array.isArray(propSchema?.flags?.write_protected) && propSchema.type !== 'association')
+        ) {
             return;
         }
 
-        if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
-            return;
-        }
-
-        if (propSchema.type === 'object') {
+        if (propSchema.type === 'association' && ['many_to_one', 'one_to_one'].includes(propSchema.relation)) {
             if (propSchema.entity) {
-                if (!mappings.entity) {
-                    mappings.entity = {};
-                }
-
-                if (!mappings.entity[propSchema.entity]) {
-                    mappings.entity[propSchema.entity] = [];
-                }
-
-                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+                addToMappingEntity(mappings, propSchema, pathPrefix, property);
 
                 if (deep === true) {
-                    const schema = Entity.getDefinition(propSchema.entity);
+                    const schema = Shopware.EntityDefinition.get(propSchema.entity);
 
                     if (schema) {
                         handlePropertyMappings(schema.properties, mappings, `${pathPrefix}.${property}`, false);
@@ -201,26 +200,48 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
                     false,
                 );
             }
-        } else if (propSchema.type === 'array') {
+        } else if (propSchema.type === 'association' && ['one_to_many', 'many_to_many'].includes(propSchema.relation)) {
             if (propSchema.entity) {
-                if (!mappings.entity) {
-                    mappings.entity = {};
-                }
-
-                if (!mappings.entity[propSchema.entity]) {
-                    mappings.entity[propSchema.entity] = [];
-                }
-
-                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+                addToMappingEntity(mappings, propSchema, pathPrefix, property);
             }
         } else {
-            if (!mappings[propSchema.type]) {
-                mappings[propSchema.type] = [];
+            let schemaType = propSchema.type;
+
+            if (['uuid', 'text', 'date'].includes(schemaType)) {
+                schemaType = 'string';
+            } else if (['float'].includes(schemaType)) {
+                schemaType = 'number';
+            } else if (['int'].includes(schemaType)) {
+                schemaType = 'integer';
             }
 
-            mappings[propSchema.type].push(`${pathPrefix}.${property}`);
+            if (['blob', 'json_object', 'json_list'].includes(schemaType)) {
+                return;
+            }
+
+            if (!mappings[schemaType]) {
+                mappings[schemaType] = [];
+            }
+
+            mappings[schemaType].push(`${pathPrefix}.${property}`);
         }
     });
+}
+
+function addToMappingEntity(mappings, propSchema, pathPrefix, property) {
+    if (!mappings.entity) {
+        mappings.entity = {};
+    }
+
+    if (!mappings.entity[propSchema.entity]) {
+        mappings.entity[propSchema.entity] = [];
+    }
+
+    if (propSchema.flags?.extension) {
+        mappings.entity[propSchema.entity].push(`${pathPrefix}.extensions.${property}`);
+    } else {
+        mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+    }
 }
 
 function getPropertyByMappingPath(entity, propertyPath) {
@@ -237,4 +258,64 @@ function getPropertyByMappingPath(entity, propertyPath) {
 
         return (obj.translated?.[key]) || obj[key];
     }, entity);
+}
+
+function getCollectFunction() {
+    return function collect(elem) {
+        const context = {
+            ...Shopware.Context.api,
+            inheritance: true,
+        };
+
+        const criteriaList = {};
+
+        let entityCount = 0;
+        Object.keys(elem.config).forEach((configKey) => {
+            if (['mapped', 'default'].includes(elem.config[configKey].source)) {
+                return;
+            }
+
+            const entity = elem.config[configKey].entity;
+
+            if (entity && elem.config[configKey].value) {
+                const entityKey = `${entity.name}-${entityCount}`;
+                entityCount += 1;
+
+                const entityData = {
+                    value: [elem.config[configKey].value].flat(),
+                    key: configKey,
+                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(1, 25),
+                    ...entity,
+                };
+
+                entityData.searchCriteria.setIds(entityData.value);
+                entityData.context = context;
+
+                criteriaList[`entity-${entityKey}`] = entityData;
+            }
+        });
+
+        return criteriaList;
+    };
+}
+
+function isBlockAllowedInPageType(blockName, pageType) {
+    const allowedPageTypes = blockRegistry[blockName]?.allowedPageTypes;
+
+    if (!Array.isArray(allowedPageTypes)) {
+        return true;
+    }
+
+    return allowedPageTypes.includes(pageType);
+}
+
+
+function isElementAllowedInPageType(elementName, pageType) {
+    const allowedPageTypes = elementRegistry[elementName]?.allowedPageTypes;
+
+    if (!Array.isArray(allowedPageTypes)) {
+        return true;
+    }
+
+    return allowedPageTypes.includes(pageType);
 }

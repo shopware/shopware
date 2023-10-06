@@ -8,33 +8,26 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class AccessToken implements AccessTokenEntityInterface
 {
+    use AccessTokenTrait;
     use EntityTrait;
     use RefreshTokenTrait;
-    use AccessTokenTrait;
 
     /**
-     * @var ClientEntityInterface
+     * @internal
+     *
+     * @param string $userIdentifier
+     * @param ScopeEntityInterface[] $scopes
      */
-    private $client;
-
-    /**
-     * @var string
-     */
-    private $userIdentifier;
-
-    /**
-     * @var ScopeEntityInterface[]
-     */
-    private $scopes;
-
-    public function __construct(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
-    {
-        $this->client = $clientEntity;
-        $this->scopes = $scopes;
-        $this->userIdentifier = $userIdentifier;
+    public function __construct(
+        private ClientEntityInterface $client,
+        private array $scopes,
+        private $userIdentifier = null
+    ) {
     }
 
     public function getClient(): ClientEntityInterface
@@ -42,10 +35,7 @@ class AccessToken implements AccessTokenEntityInterface
         return $this->client;
     }
 
-    /**
-     * @return string|int
-     */
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string|int|null
     {
         return $this->userIdentifier;
     }

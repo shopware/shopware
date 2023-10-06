@@ -22,8 +22,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         padding: 12px 16px;
         border: none;
         background: $color-white;
-        font-size: $font-size-small;
-        font-family: $font-family-default;
+        font-size: $font-size-xs;
         line-height: 22px;
         transition: $sw-field-transition;
         color: $color-darkgray-200;
@@ -57,7 +56,23 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
 
     &.has--error {
         .sw-block-field__block {
+            background: $color-crimson-50;
             border-color: $color-crimson-500;
+
+            input,
+            textarea,
+            select {
+                background: $color-crimson-50;
+            }
+        }
+
+        .sw-field__addition {
+            border-left: 1px solid $color-crimson-500;
+
+            &.is--prefix {
+                border-left: unset;
+                border-right: 1px solid $color-crimson-500;
+            }
         }
     }
 

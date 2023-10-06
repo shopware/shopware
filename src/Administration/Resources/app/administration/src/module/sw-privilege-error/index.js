@@ -1,5 +1,7 @@
-import './page/sw-privilege-error';
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-privilege-error', () => import('./page/sw-privilege-error'));
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-privilege-error', {
     type: 'core',
     name: 'privilege',

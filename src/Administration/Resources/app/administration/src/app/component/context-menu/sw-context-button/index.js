@@ -4,6 +4,9 @@ import './sw-context-button.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type dynamic
@@ -59,7 +62,7 @@ Component.register('sw-context-button', {
         icon: {
             type: String,
             required: false,
-            default: 'small-more',
+            default: 'solid-ellipsis-h-s',
         },
 
         disabled: {
@@ -93,7 +96,7 @@ Component.register('sw-context-button', {
         zIndex: {
             type: Number,
             required: false,
-            default: 9000,
+            default: 1100,
         },
     },
 
@@ -146,6 +149,7 @@ Component.register('sw-context-button', {
         },
 
         openMenu() {
+            this.$emit('on-open-change', true);
             this.showMenu = true;
             document.addEventListener('click', this.handleClickEvent);
         },
@@ -186,6 +190,7 @@ Component.register('sw-context-button', {
         },
 
         closeMenu() {
+            this.$emit('on-open-change', false);
             this.showMenu = false;
             document.removeEventListener('click', this.handleClickEvent);
         },

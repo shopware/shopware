@@ -3,27 +3,22 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
+#[Package('core')]
 class MaxResult extends AggregationResult
 {
-    /**
-     * @var string|float|int|null
-     */
-    protected $max;
-
-    /**
-     * @param string|float|int|null $max
-     */
-    public function __construct(string $name, $max)
-    {
+    public function __construct(
+        string $name,
+        protected string|float|int|null $max
+    ) {
         parent::__construct($name);
-        $this->max = $max;
     }
 
-    /**
-     * @return float|int|string|null
-     */
-    public function getMax()
+    public function getMax(): string|float|int|null
     {
         return $this->max;
     }

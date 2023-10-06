@@ -3,19 +3,18 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The StatesFacade allows access to the current cart states and functions.
  *
  * @script-service cart_manipulation
  */
+#[Package('checkout')]
 class StatesFacade
 {
-    private Cart $cart;
-
-    public function __construct(Cart $cart)
+    public function __construct(private Cart $cart)
     {
-        $this->cart = $cart;
     }
 
     /**
@@ -54,7 +53,7 @@ class StatesFacade
     /**
      * `get()` returns all states that are present on the cart.
      *
-     * @return array An array containing all current states of the cart.
+     * @return array<string> An array containing all current states of the cart.
      */
     public function get(): array
     {

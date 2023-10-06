@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_price_field %}
 <div
     class="sw-price-field"
@@ -10,11 +11,15 @@
 
     <div class="price-field-grid">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_price_field_gross %}
         {# TODO: check selectors #}
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="priceForCurrency.gross"
+            {% else %}
             v-model="priceForCurrency.gross"
-            type="number"
+            {% endif %}
             class="sw-price-field__gross"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
@@ -28,8 +33,13 @@
             :disabled="isDisabled"
             :name="grossFieldName"
             v-bind="$attrs"
+            {% if VUE3 %}
+            @update:value="onPriceGrossChange"
+            {% else %}
             @change="onPriceGrossChange"
+            {% endif %}
             @keyup="keymonitor"
+            @input-change="onPriceGrossInputChange"
         >
             <template
                 v-if="!disableSuffix"
@@ -37,9 +47,10 @@
             >
                 {{ currency.symbol }}
             </template>
-        </sw-field>
+        </sw-number-field>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_price_field_lock_button %}
         <button
             class="sw-price-field__lock"
@@ -52,23 +63,27 @@
             <sw-icon
                 v-if="priceForCurrency.linked"
                 key="price-field-locked-indicator"
-                name="default-lock-closed"
+                name="regular-lock"
                 size="16"
             />
             <sw-icon
                 v-else
                 key="price-field-locked-indicator"
-                name="default-lock-open"
+                name="regular-lock-open"
                 size="16"
             />
         </button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_price_field_net %}
         {# TODO: check selectors #}
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="priceForCurrency.net"
+            {% else %}
             v-model="priceForCurrency.net"
-            type="number"
+            {% endif %}
             class="sw-price-field__net"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
@@ -82,8 +97,13 @@
             :disabled="isInherited || disabled"
             :name="netFieldName"
             v-bind="$attrs"
+            {% if VUE3 %}
+            @update:value="onPriceNetChange"
+            {% else %}
             @change="onPriceNetChange"
+            {% endif %}
             @keyup="keymonitor"
+            @input-change="onPriceNetInputChange"
         >
             <template
                 v-if="!disableSuffix"
@@ -91,7 +111,7 @@
             >
                 {{ currency.symbol }}
             </template>
-        </sw-field>
+        </sw-number-field>
         {% endblock %}
     </div>
 
@@ -100,14 +120,16 @@
         justify="end"
         class="sw-price-form__links"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link"
+            role="link"
+            tabindex="0"
             @click.prevent="showModal = true"
+            @keydown.enter.prevent="showModal = true"
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
             <sw-icon
-                name="default-arrow-simple-right"
+                name="regular-long-arrow-right"
                 small
             />
         </a>

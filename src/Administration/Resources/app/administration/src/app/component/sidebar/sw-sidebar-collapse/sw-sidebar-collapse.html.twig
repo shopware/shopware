@@ -1,15 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header_slot %}
-<template
-    slot="header"
+<div
     class="sw-sidebar-collapse__header"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_collapse_title %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
     <h4
         class="sw-sidebar-collapse__title"
+        aria-level="4"
         @click="collapseItem"
     >
         <slot
@@ -17,49 +20,52 @@
             :expanded="expanded"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sidebar_collapse_panel_header_slot %}{% endblock %}
 
         </slot>
     </h4>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_collapse_buttons %}
     <div class="sw-sidebar-collapse__actions">
         <slot name="actions"></slot>
     </div>
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-sidebar-collapse__indicator"
+        role="button"
+        tabindex="0"
         @click="collapseItem"
+        @keydown.enter="collapseItem"
     >
         <sw-icon
-            name="small-arrow-small-right"
-            class="sw-sidebar-collapse__button"
+            :name="`regular-chevron-${expandChevronDirection}-xxs`"
+            class="sw-sidebar-collapse__expand-button"
             :class="expandButtonClass"
         />
         <sw-icon
-            name="small-arrow-small-down"
-            class="sw-sidebar-collapse__button"
+            name="regular-chevron-down-xxs"
+            class="sw-sidebar-collapse__collapse-button"
             :class="collapseButtonClass"
         />
     </div>
     {% endblock %}
 
-</template>
+</div>
 {% endblock %}
 
 {% endblock %}
 
-{% block sw_collapse_panel_content_slot %}
-
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_collapse_panel_content_template %}
-<template slot="content">
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #content>
     <slot name="content">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_collapse_panel_content_slot %}{% endblock %}
 
     </slot>
 </template>
-    {% endblock %}
-
 {% endblock %}

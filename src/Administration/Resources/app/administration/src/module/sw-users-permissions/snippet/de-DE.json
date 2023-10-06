@@ -118,7 +118,7 @@
         "readAccess": "Lesen",
         "contextMenuEdit": "Bearbeiten",
         "contextMenuDelete": "Löschen",
-        "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
+        "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
         "addAccessKey": "Zugangsschlüssel erstellen",
         "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
         "noAccessKeysSubline": "Erstelle hier Zugangsschlüssel",
@@ -126,9 +126,9 @@
         "labelPermissions": "Berechtigungen",
         "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die keine Administrator-Rechte haben.",
         "passwordConfirmation": {
-          "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+          "titleConfirmPasswordModal": "Passwort bestätigen",
           "labelConfirmPassword": "Passwort",
-          "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
+          "placeholderConfirmPassword": "Aktuelles Passwort eingeben ...",
           "labelButtonCancel": "Abbrechen",
           "labelButtonConfirm": "Bestätigen",
           "notificationPasswordErrorTitle": "Fehler",
@@ -222,12 +222,13 @@
         "api_action_container-cache_delete": "Container-Cache löschen",
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
-        "system:clear:cache": "Cache leeren"
+        "system:clear:cache": "Cache leeren",
+        "api_proxy_switch-customer": "Im Namen eines Kunden handeln"
       },
       "app": {
         "label": "Apps",
         "all": "Alle",
-        "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, müssen Sie zuerst die Option Alle deaktivieren."
+        "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst die Option 'Alle' deaktivieren."
       }
     }
   }

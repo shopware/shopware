@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [
@@ -21,7 +24,9 @@ interface Hookable
     public function getName(): string;
 
     /**
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint
+     * @param AppEntity|null $app - @deprecated tag:v6.6.0 parameter $app will be required in v6.6.0.0
+     *
+     * @return array<mixed>
      */
     public function getWebhookPayload(): array;
 

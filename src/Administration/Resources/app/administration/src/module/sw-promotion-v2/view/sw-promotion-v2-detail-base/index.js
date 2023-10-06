@@ -1,9 +1,13 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-detail-base.html.twig';
 
-const { Component } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-promotion-v2-detail-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -13,7 +17,7 @@ Component.register('sw-promotion-v2-detail-base', {
     ],
 
     mixins: [
-        'placeholder',
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -28,11 +32,7 @@ Component.register('sw-promotion-v2-detail-base', {
         isLoading: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default() {
-                return false;
-            },
+            default: false,
         },
 
         isCreateMode: {
@@ -88,6 +88,8 @@ Component.register('sw-promotion-v2-detail-base', {
                 return;
             }
 
+            this.loadCustomFieldSets();
+
             if (this.promotion.useCodes && this.promotion.useIndividualCodes) {
                 this.setNewCodeType(this.CODE_TYPES.INDIVIDUAL);
                 this.initialSort();
@@ -96,7 +98,6 @@ Component.register('sw-promotion-v2-detail-base', {
             }
 
             this.setNewCodeType(this.promotion.useCodes ? this.CODE_TYPES.FIXED : this.CODE_TYPES.NONE);
-            this.loadCustomFieldSets();
         },
 
         initialSort() {
@@ -163,4 +164,4 @@ Component.register('sw-promotion-v2-detail-base', {
             this.isGenerateSuccessful = false;
         },
     },
-});
+};

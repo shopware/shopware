@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_notifications %}
 <transition name="sw-notifications-slide-fade">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_notifications_element %}
     <div
         v-if="notifications.length"
@@ -8,9 +10,11 @@
         :style="notificationsStyle"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notifications_transition_group %}
         <transition-group name="sw-notifications-slide-fade">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_notifications_item %}
             <sw-alert
                 v-for="(notification, index) in notifications"
@@ -24,17 +28,18 @@
                 @close="onClose(notification)"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notifications_item_content %}
-                <div
-                    slot="default"
-                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
-                ></div>
+                <div v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notifications_item_actions_slot %}
                 <template #actions>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_notifications_item_actions %}
                     <template v-for="action in notification.actions">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_notifications_item_action_item %}
                         <sw-button
                             :key="action.label"

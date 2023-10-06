@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class CmsSlotTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

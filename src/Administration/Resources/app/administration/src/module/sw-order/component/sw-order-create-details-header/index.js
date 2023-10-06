@@ -1,9 +1,13 @@
 import template from './sw-order-create-details-header.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
+
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-create-details-header', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -47,12 +51,17 @@ Component.register('sw-order-create-details-header', {
                 if (this.customer) this.customer.id = customerId;
             },
         },
+
         customerCriteria() {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('defaultBillingAddress.country');
 
             return criteria;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 
@@ -74,4 +83,4 @@ Component.register('sw-order-create-details-header', {
             this.showNewCustomerModal = false;
         },
     },
-});
+};

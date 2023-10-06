@@ -2,28 +2,16 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 class MatrixElement
 {
-    /**
-     * @var int
-     */
-    protected $points;
-
-    /**
-     * @var int
-     */
-    protected $count;
-
-    /**
-     * @var float
-     */
-    protected $percent;
-
-    public function __construct(int $points, int $count, float $percent = 0.0)
-    {
-        $this->points = $points;
-        $this->count = $count;
-        $this->percent = $percent;
+    public function __construct(
+        protected int $points,
+        protected int $count,
+        protected float $percent = 0.0
+    ) {
     }
 
     public function getPoints(): int

@@ -14,12 +14,20 @@ export default class RuleBuilderPageObject {
         };
     }
 
+    changeTranslation(language, position) {
+        cy.get('.sw-language-switch').click();
+        cy.get('.sw-field__select-load-placeholder').should('not.exist');
+        cy.get('.sw-select-result').should('be.visible');
+        cy.contains(`.sw-select-option--${position}`, language).click();
+        cy.get('.sw-field__select-load-placeholder').should('not.exist');
+    }
+
     createBasicSelectCondition({ selector, type, operator, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
             cy.get(selector).within(() => {
-                cy.get('.sw-select').last().as('value-select');
+                cy.get('.sw-select__selection').last().as('value-select');
                 cy.get('@value-select').click();
                 selectResultList().should('be.visible').contains(value).click();
             });
@@ -56,7 +64,7 @@ export default class RuleBuilderPageObject {
     selectTypeAndOperator(selector, type, operator) {
         if (isNonEmptyString(type)) {
             cy.get(selector).within(() => {
-                cy.get('.sw-condition-type-select .sw-select').click();
+                cy.get('.sw-condition-type-select .sw-select__selection').click();
 
                 selectResultList().scrollIntoView();
                 selectResultList()
@@ -69,7 +77,7 @@ export default class RuleBuilderPageObject {
 
         if (isNonEmptyString(operator)) {
             cy.get(selector).within(() => {
-                cy.get('.sw-condition-operator-select .sw-select').click();
+                cy.get('.sw-condition-operator-select .sw-select__selection').click();
                 selectResultList().should('be.visible');
                 selectResultList().contains(operator).click();
             });

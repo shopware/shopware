@@ -1,7 +1,17 @@
 import Iterator from 'src/helper/iterator.helper';
 
 const SELECTOR_CLASS = 'loader';
+const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
 
+export const INDICATOR_POSITION = {
+    BEFORE: 'before',
+    AFTER: 'after',
+    INNER: 'inner',
+};
+
+/**
+ * @package storefront
+ */
 export default class LoadingIndicatorUtil {
 
     /**
@@ -9,7 +19,7 @@ export default class LoadingIndicatorUtil {
      * @param {Element|string} parent
      * @param position
      */
-    constructor(parent, position = 'before') {
+    constructor(parent, position = INDICATOR_POSITION.BEFORE) {
         this.parent = (parent instanceof Element) ? parent : document.body.querySelector(parent);
         this.position = position;
     }
@@ -19,6 +29,13 @@ export default class LoadingIndicatorUtil {
      */
     create() {
         if (this.exists()) return;
+
+        if (this.position === INDICATOR_POSITION.INNER) {
+            this.parent.innerHTML = LoadingIndicatorUtil.getTemplate();
+
+            return;
+        }
+
         this.parent.insertAdjacentHTML(this._getPosition(), LoadingIndicatorUtil.getTemplate());
     }
 
@@ -46,7 +63,7 @@ export default class LoadingIndicatorUtil {
      * @private
      */
     _getPosition() {
-        return (this.position === 'before') ? 'afterbegin' : 'beforeend';
+        return (this.position === INDICATOR_POSITION.BEFORE) ? 'afterbegin' : 'beforeend';
     }
 
     /**
@@ -55,7 +72,7 @@ export default class LoadingIndicatorUtil {
      */
     static getTemplate() {
         return `<div class="${SELECTOR_CLASS}" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="${VISUALLY_HIDDEN_CLASS}">Loading...</span>
                 </div>`;
     }
 

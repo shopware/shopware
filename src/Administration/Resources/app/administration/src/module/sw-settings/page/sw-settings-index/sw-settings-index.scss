@@ -1,7 +1,9 @@
+@import "~scss/variables";
+
 .sw-settings-index {
     .sw-settings__tabs {
         display: grid;
-        grid-template-columns: minmax(126px, 1fr) minmax(0, 800px) 1fr;
+        grid-template-columns: minmax(126px, 1fr) minmax(0, $content-width) 1fr;
     }
 
     .sw-settings__content-grid {

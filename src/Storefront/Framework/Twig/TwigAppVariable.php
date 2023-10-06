@@ -2,10 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,24 +14,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * To allow custom server parameters,
  */
+#[Package('core')]
 class TwigAppVariable extends AppVariable
 {
     private ?Request $request = null;
 
-    private AppVariable $appVariable;
-
-    private array $allowList;
-
-    public function __construct(AppVariable $appVariable, array $allowList = [])
-    {
-        $this->allowList = $allowList;
-        $this->appVariable = $appVariable;
+    /**
+     * @internal
+     *
+     * @param list<string> $allowList
+     */
+    public function __construct(
+        private readonly AppVariable $appVariable,
+        private readonly array $allowList = []
+    ) {
     }
 
-    /**
-     * @return Request|null
-     */
-    public function getRequest()
+    public function getRequest(): ?Request
     {
         if ($this->request !== null) {
             return $this->request;
@@ -77,50 +77,37 @@ class TwigAppVariable extends AppVariable
         $this->appVariable->setDebug($debug);
     }
 
-    /**
-     * @return TokenInterface|null
-     */
-    public function getToken()
+    public function getToken(): ?TokenInterface
     {
         return $this->appVariable->getToken();
     }
 
-    /**
-     * @return UserInterface|null
-     */
-    public function getUser()
+    public function getUser(): ?UserInterface
     {
         return $this->appVariable->getUser();
     }
 
-    /**
-     * @return Session|null
-     */
-    public function getSession()
+    public function getSession(): ?SessionInterface
     {
         return $this->appVariable->getSession();
     }
 
-    /**
-     * @return string
-     */
-    public function getEnvironment()
+    public function getEnvironment(): string
     {
         return $this->appVariable->getEnvironment();
     }
 
-    /**
-     * @return bool
-     */
-    public function getDebug()
+    public function getDebug(): bool
     {
         return $this->appVariable->getDebug();
     }
 
     /**
-     * @return array
+     * @param string|list<string>|null $types
+     *
+     * @return array<mixed>
      */
-    public function getFlashes($types = null)
+    public function getFlashes(string|array|null $types = null): array
     {
         return $this->appVariable->getFlashes($types);
     }

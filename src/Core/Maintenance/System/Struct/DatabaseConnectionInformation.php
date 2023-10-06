@@ -3,18 +3,20 @@
 namespace Shopware\Core\Maintenance\System\Struct;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 
+#[Package('core')]
 class DatabaseConnectionInformation extends Struct
 {
     protected string $hostname = '';
 
     protected int $port = 3306;
 
-    protected ?string $username;
+    protected ?string $username = null;
 
-    protected ?string $password;
+    protected ?string $password = null;
 
     protected string $databaseName = '';
 
@@ -28,7 +30,7 @@ class DatabaseConnectionInformation extends Struct
 
     public static function fromEnv(): self
     {
-        $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
+        $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));
         if ($dsn === '') {
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' not defined.');
         }
@@ -38,7 +40,15 @@ class DatabaseConnectionInformation extends Struct
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
         }
 
-        $path = $params['path'] ?? '/';
+        foreach ($params as $param => $value) {
+            if (!\is_string($value)) {
+                continue;
+            }
+
+            $params[$param] = rawurldecode($value);
+        }
+
+        $path = (string) ($params['path'] ?? '/');
         $dbName = substr($path, 1);
         if (!isset($params['scheme']) || !isset($params['host']) || trim($dbName) === '') {
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
@@ -57,6 +67,9 @@ class DatabaseConnectionInformation extends Struct
         ]);
     }
 
+    /**
+     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
         $parameters = [
@@ -89,8 +102,8 @@ class DatabaseConnectionInformation extends Struct
     public function asDsn(bool $withoutDatabaseName = false): string
     {
         $dsn = sprintf(
-            'mysql://%s%s:%s',
-            $this->username && $this->password ? ($this->username . ':' . rawurlencode($this->password) . '@') : '',
+            'mysql://%s%s:%d',
+            $this->username ? ($this->username . ($this->password ? ':' . rawurlencode($this->password) : '') . '@') : '',
             $this->hostname,
             $this->port
         );
@@ -150,5 +163,19 @@ class DatabaseConnectionInformation extends Struct
     public function getSslDontVerifyServerCert(): ?bool
     {
         return $this->sslDontVerifyServerCert;
+    }
+
+    public function hasAdvancedSetting(): bool
+    {
+        return $this->port !== 3306 || $this->sslCaPath || $this->sslCertPath || $this->sslCertKeyPath || $this->sslDontVerifyServerCert !== null;
+    }
+
+    public function validate(): void
+    {
+        if ($this->hostname !== '' && $this->databaseName !== '' && $this->username !== null && $this->username !== '') {
+            return;
+        }
+
+        throw new DatabaseSetupException('Provided database connection information is not valid.');
     }
 }

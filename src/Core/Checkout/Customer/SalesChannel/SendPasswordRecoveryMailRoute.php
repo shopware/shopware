@@ -3,22 +3,19 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -40,42 +37,22 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
-    private EntityRepositoryInterface $customerRepository;
-
-    private EntityRepositoryInterface $customerRecoveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DataValidator $validator;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
-    private SystemConfigService $systemConfigService;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SystemConfigService $systemConfigService,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->systemConfigService = $systemConfigService;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractSendPasswordRecoveryMailRoute
@@ -83,43 +60,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/recovery-password",
-     *      summary="Send a password recovery mail",
-     *      description="This operation is Step 1 of the password reset flow. Make sure to implement Step 2 ""Reset password with recovery credentials"" in order to allow for the complete flow in your application
-
-Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
-     *      operationId="sendRecoveryMail",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-                        "email",
-     *                  "storefrontUrl"
-     *              },
-     *              @OA\Property(
-     *                  property="email",
-     *                  description="E-Mail address to identify the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="storefrontUrl",
-     *                  description="URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings.",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="If email corresponds to an existing customer, a mail will be sent out to that customer containing a link assembled using the following schema:
-
-Returns a success indicating a successful initialisation of the reset flow.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @Route(path="/store-api/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/recovery-password', name: 'store-api.account.recovery.send.mail', methods: ['POST'])]
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
@@ -133,11 +74,12 @@ Returns a success indicating a successful initialisation of the reset flow.",
 
         $customerIdCriteria = new Criteria();
         $customerIdCriteria->addFilter(new EqualsFilter('customerId', $customerId));
-        $customerIdCriteria->addAssociation('customer');
+        $customerIdCriteria->addAssociation('customer.salutation');
 
         $repoContext = $context->getContext();
 
-        if ($existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first()) {
+        $existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
+        if ($existingRecovery instanceof CustomerRecoveryEntity) {
             $this->deleteRecoveryForCustomer($existingRecovery, $repoContext);
         }
 
@@ -149,6 +91,7 @@ Returns a success indicating a successful initialisation of the reset flow.",
         $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
+        \assert($customerRecovery instanceof CustomerRecoveryEntity);
 
         $hash = $customerRecovery->getHash();
 
@@ -182,11 +125,17 @@ Returns a success indicating a successful initialisation of the reset flow.",
         $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
     }
 
+    /**
+     * @return string[]
+     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return rtrim($domainEntity->getUrl(), '/');
-        }, $context->getSalesChannel()->getDomains()->getElements());
+        $domains = $context->getSalesChannel()->getDomains();
+        if (!$domains) {
+            return [];
+        }
+
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $domains->getElements());
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
@@ -196,6 +145,8 @@ Returns a success indicating a successful initialisation of the reset flow.",
     }
 
     /**
+     * @param array<string|int, string> $data
+     *
      * @throws ConstraintViolationException
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
@@ -206,13 +157,12 @@ Returns a success indicating a successful initialisation of the reset flow.",
             return;
         }
 
-        /** @var array $fieldValidations */
+        /** @var ConstraintInterface[] $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
@@ -230,7 +180,7 @@ Returns a success indicating a successful initialisation of the reset flow.",
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));
@@ -253,10 +203,13 @@ Returns a success indicating a successful initialisation of the reset flow.",
         $result = $this->customerRepository->search($criteria, $context->getContext());
 
         if ($result->count() !== 1) {
-            throw new CustomerNotFoundException($email);
+            throw CustomerException::customerNotFound($email);
         }
 
-        return $result->first();
+        $customer = $result->first();
+        \assert($customer instanceof CustomerEntity);
+
+        return $customer;
     }
 
     private function deleteRecoveryForCustomer(CustomerRecoveryEntity $existingRecovery, Context $context): void

@@ -1,9 +1,11 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-import-export-edit-profile-import-settings.html.twig';
 import './sw-import-export-edit-profile-import-settings.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-import-export-edit-profile-import-settings', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -25,4 +27,4 @@ Component.register('sw-import-export-edit-profile-import-settings', {
             }
         },
     },
-});
+};

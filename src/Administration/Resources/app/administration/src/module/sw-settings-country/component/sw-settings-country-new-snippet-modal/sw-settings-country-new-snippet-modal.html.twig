@@ -1,0 +1,149 @@
+<sw-modal
+    class="sw-settings-country-new-snippet-modal"
+    :title="$tc('sw-settings-country.detail.newSnippetModalTitle')"
+    @modal-close="onCloseModal"
+>
+    <sw-contextual-field
+        class="sw-settings-country-new-snippet-modal__search-field"
+        required
+        :disabled="disabled"
+        :error="null"
+    >
+        <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input
+                ref="searchInput"
+                v-model="searchTerm"
+                type="text"
+                class="sw-settings-country-new-snippet-modal__input-field"
+                :placeholder="$tc('sw-settings-country.detail.placeholderSearchSnippet')"
+                :disabled="disabled"
+                @input="debouncedSearch"
+            >
+
+            <sw-loader
+                v-if="isLoading"
+                class="sw-settings-country-new-snippet-modal__loader"
+                size="16px"
+            />
+
+            <sw-icon
+                class="sw-settings-country-new-snippet-modal__search-icon"
+                name="regular-search-s"
+                small
+            />
+        </template>
+    </sw-contextual-field>
+
+    <sw-tree
+        :sortable="false"
+        :items="searchResults"
+        :searchable="false"
+        :disable-context-menu="true"
+        bind-items-to-folder
+        :active-tree-item-id="activeFocusId"
+        initially-expanded-root
+        route-params-active-element-id="snippet"
+    >
+
+        <template #headline>
+            <span></span>
+        </template>
+
+        <template #search>
+            <span></span>
+        </template>
+
+        <template
+            #items="{
+                treeItems,
+                sortable,
+                disableContextMenu,
+                onChangeRoute,
+                newElementId,
+                checkItem,
+                checkedItemIds,
+                selectedItemsPathIds,
+            }"
+        >
+            <sw-tree-item
+                v-for="item in treeItems"
+                :key="item.id"
+                should-focus
+                :item="item"
+                :active="item.active"
+                :sortable="sortable"
+                :on-change-route="onChangeRoute"
+                :active-parent-ids="selectedItemsPathIds"
+                :active-item-ids="checkedItemIds"
+                @check-item="checkItem"
+            >
+
+                <template #actions="{ item }">
+
+                    <sw-button
+                        v-if="item.childCount === 0"
+                        @click="addElement(item.data)"
+                    >
+                        {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}
+                    </sw-button>
+                </template>
+            </sw-tree-item>
+        </template>
+    </sw-tree>
+
+    <sw-select-base
+        class="sw-multi-snippet-select"
+        :is-loading="isLoading"
+        :error="null"
+        v-bind="$attrs"
+        v-on="$listeners"
+    >
+        <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+            <ul
+                ref="selectionList"
+                class="sw-select-selection-list"
+            >
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <li
+                    v-for="(snippet, index) in selection"
+                    :key="index"
+                    class="sw-select-selection-list__item-holder"
+                    :class="'sw-select-selection-list__item-holder--' + index"
+                    :data-id="snippet"
+                >
+                    <slot
+                        name="selected-option"
+                        v-bind="{ snippet, defaultLabel: snippet, disabled }"
+                    >
+                        <sw-label
+                            :dismissable="true"
+                            :size="size"
+                            @dismiss="onClickDismiss(index)"
+                        >
+                            <span class="sw-select-selection-list__item">
+                                <slot
+                                    name="label-property"
+                                    v-bind="{ item: snippet, index }"
+                                >
+                                    {{ getLabelProperty(snippet) }}
+                                </slot>
+                            </span>
+                        </sw-label>
+                    </slot>
+                </li>
+
+                <li>
+                    <slot name="input">
+                        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                        <input
+                            class="sw-select-selection-list__input"
+                            type="text"
+                            :disabled="disabled"
+                        >
+                    </slot>
+                </li>
+            </ul>
+        </template>
+    </sw-select-base>
+</sw-modal>

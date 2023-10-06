@@ -2,21 +2,23 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class ResponseExceptionListener implements EventSubscriberInterface
 {
     /**
-     * @var bool
+     * @internal
      */
-    private $debug;
-
-    public function __construct($debug = false)
+    public function __construct(private readonly bool $debug = false)
     {
-        $this->debug = $debug;
     }
 
     public static function getSubscribedEvents(): array
@@ -28,19 +30,14 @@ class ResponseExceptionListener implements EventSubscriberInterface
         ];
     }
 
-    public function onKernelException(ExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event): void
     {
-        if (
-            $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)
-            && !$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)
-        ) {
-            return $event;
+        if ($event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
         }
 
         $exception = $event->getThrowable();
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
-
-        return $event;
     }
 }

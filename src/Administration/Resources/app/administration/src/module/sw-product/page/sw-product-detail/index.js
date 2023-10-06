@@ -1,15 +1,21 @@
+/*
+ * @package inventory
+ */
+
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
-const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
+const { cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
-Component.register('sw-product-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -19,6 +25,7 @@ Component.register('sw-product-detail', {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
+        'entityValidationService',
     ],
 
     mixins: [
@@ -42,6 +49,12 @@ Component.register('sw-product-detail', {
             required: false,
             default: null,
         },
+        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        creationStates: {
+            type: Array,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -49,6 +62,7 @@ Component.register('sw-product-detail', {
             productNumberPreview: '',
             isSaveSuccessful: false,
             cloning: false,
+            defaultSalesChannelVisibility: 30,
         };
     },
 
@@ -75,6 +89,7 @@ Component.register('sw-product-detail', {
             'defaultFeatureSet',
             'showModeSetting',
             'advanceModeEnabled',
+            'productStates',
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -121,6 +136,14 @@ Component.register('sw-product-detail', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        productVisibilityRepository() {
+            return this.repositoryFactory.create('product_visibility');
+        },
+
         mediaRepository() {
             if (this.product && this.product.media) {
                 return this.repositoryFactory.create(
@@ -144,7 +167,7 @@ Component.register('sw-product-detail', {
         },
 
         userModeSettingsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
 
@@ -152,7 +175,7 @@ Component.register('sw-product-detail', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.getAssociation('media')
                 .addSorting(Criteria.sort('position', 'ASC'));
@@ -191,7 +214,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet');
+                .addAssociation('featureSet')
+                .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer')
                 .addAssociation('media');
@@ -200,11 +224,10 @@ Component.register('sw-product-detail', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
             criteria
-                .getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
@@ -342,7 +365,7 @@ Component.register('sw-product-detail', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         Shopware.State.unregisterModule('swProductDetail');
     },
 
@@ -352,6 +375,18 @@ Component.register('sw-product-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-detail__product',
+                path: 'product',
+                scope: this,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-detail__cmsPage',
+                path: 'currentPage',
+                scope: this,
+            });
+
             Shopware.State.dispatch('cmsPageState/resetCmsPageState');
 
             // when create
@@ -365,12 +400,6 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
-            /**
-             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
-             * the function that called it was deleted.
-             */
-            this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
-
             this.$root.$on('media-remove', (mediaId) => {
                 this.removeMediaItem(mediaId);
             });
@@ -382,12 +411,6 @@ Component.register('sw-product-detail', {
         },
 
         destroyedComponent() {
-            /**
-             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
-             * the function that called it was deleted.
-             */
-            this.$root.$off('sidebar-toggle-open');
-
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
         },
@@ -519,6 +542,9 @@ Component.register('sw-product-detail', {
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
+            // set product "type"
+            Shopware.State.commit('swProductDetail/setCreationStates', this.creationStates);
+
             // create empty product
             Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
@@ -529,6 +555,11 @@ Component.register('sw-product-detail', {
 
             this.product.metaTitle = '';
             this.product.additionalText = '';
+            this.product.variantListingConfig = {};
+
+            if (this.creationStates) {
+                this.adjustProductAccordingToType();
+            }
 
             return Promise.all([
                 this.loadCurrencies(),
@@ -546,10 +577,36 @@ Component.register('sw-product-detail', {
 
                 this.product.purchasePrices = this.getDefaultPurchasePrices();
 
-                // Set default tax rate on creation
+                // Set default tax rate / sales channels on creation
                 if (this.product.isNew) {
                     this.getDefaultTaxRate().then((result) => {
                         this.product.taxId = result;
+                    });
+
+                    this.getDefaultSalesChannels().then((result) => {
+                        if (type.isEmpty(result)) {
+                            return;
+                        }
+
+                        this.product.active = result.defaultActive;
+
+                        if (!result.defaultSalesChannelIds || result.defaultSalesChannelIds.length <= 0) {
+                            return;
+                        }
+
+                        this.fetchSalesChannelByIds(result.defaultSalesChannelIds).then(salesChannels => {
+                            if (!salesChannels.length) {
+                                return;
+                            }
+
+                            salesChannels.forEach((salesChannel) => {
+                                const visibilities = this.createProductVisibilityEntity(
+                                    result.defaultVisibilities,
+                                    salesChannel,
+                                );
+                                this.product.visibilities.push(visibilities);
+                            });
+                        });
                     });
                 }
 
@@ -561,21 +618,22 @@ Component.register('sw-product-detail', {
             });
         },
 
+        adjustProductAccordingToType() {
+            if (this.creationStates.includes('is-download')) {
+                this.product.maxPurchase = 1;
+            }
+        },
+
         loadProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(
+            return this.productRepository.get(
                 this.productId || this.product.id,
                 Shopware.Context.api,
                 this.productCriteria,
             ).then((product) => {
                 if (!product.purchasePrices?.length > 0 && !product.parentId) {
                     product.purchasePrices = this.getDefaultPurchasePrices();
-                }
-                if (product.media) {
-                    product.media.forEach((medium, index) => {
-                        medium.position = index;
-                    });
                 }
 
                 Shopware.State.commit('swProductDetail/setProduct', product);
@@ -658,6 +716,43 @@ Component.register('sw-product-detail', {
             });
         },
 
+        getDefaultSalesChannels() {
+            return this.systemConfigApiService
+                .getValues('core.defaultSalesChannel')
+                .then(response => {
+                    if (type.isEmpty(response)) {
+                        return {};
+                    }
+
+                    return {
+                        defaultSalesChannelIds: response?.['core.defaultSalesChannel.salesChannel'],
+                        defaultVisibilities: response?.['core.defaultSalesChannel.visibility'],
+                        defaultActive: !!response?.['core.defaultSalesChannel.active'],
+                    };
+                });
+        },
+
+        fetchSalesChannelByIds(ids) {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equalsAny('id', ids));
+
+            return this.salesChannelRepository.search(criteria);
+        },
+
+        createProductVisibilityEntity(visibility, salesChannel) {
+            const visibilities = this.productVisibilityRepository.create(Context.api);
+
+            Object.assign(visibilities, {
+                visibility: visibility[salesChannel.id] || this.defaultSalesChannelVisibility,
+                productId: this.product.id,
+                salesChannelId: salesChannel.id,
+                salesChannel: salesChannel,
+            });
+
+            return visibilities;
+        },
+
         abortOnLanguageChange() {
             return this.productRepository.hasChanges(this.product);
         },
@@ -669,19 +764,6 @@ Component.register('sw-product-detail', {
         onChangeLanguage(languageId) {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             this.initState();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "openMediaSidebar" will be removed because
-         * the function that called it was deleted.
-         */
-        openMediaSidebar() {
-            // Check if we have a reference to the component before calling a method
-            if (!hasOwnProperty(this.$refs, 'mediaSidebarItem')
-                || !this.$refs.mediaSidebarItem) {
-                return;
-            }
-            this.$refs.mediaSidebarItem.openContent();
         },
 
         saveFinish() {
@@ -698,10 +780,12 @@ Component.register('sw-product-detail', {
                     message: this.$tc('sw-product.detail.errorMinMaxPurchase'),
                 });
 
-                return new Promise((res) => res());
+                return new Promise((resolve) => {
+                    resolve();
+                });
             }
 
-            this.validateProductListPrices();
+            this.validateProductPrices();
 
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
@@ -712,7 +796,6 @@ Component.register('sw-product-detail', {
                 }
             }
 
-
             this.isSaveSuccessful = false;
 
             const pageOverrides = this.getCmsPageOverrides();
@@ -721,38 +804,67 @@ Component.register('sw-product-detail', {
                 this.product.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (!this.entityValidationService.validate(this.product, this.customValidate)) {
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError = this.$tc(
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                );
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return Promise.resolve();
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
         },
 
-        validateProductListPrices() {
-            this.product.prices.forEach(advancedPrice => {
-                this.validateListPrices(advancedPrice.price);
-            });
-            this.validateListPrices(this.product.price);
+        customValidate(errors, product) {
+            if (this.productStates.includes('is-download')) {
+                // custom download product validation
+                if (product.downloads === undefined || product.downloads.length < 1) {
+                    errors.push(EntityValidationService.createRequiredError('/0/downloads'));
+                }
+            }
+
+            return errors;
         },
 
-        validateListPrices(prices) {
+        validateProductPrices() {
+            this.product.prices.forEach(advancedPrice => {
+                this.validatePrices('listPrice', advancedPrice.price);
+            });
+            this.validatePrices('listPrice', this.product.price);
+
+            this.product.prices.forEach(advancedPrice => {
+                this.validatePrices('regulationPrice', advancedPrice.price);
+            });
+            this.validatePrices('regulationPrice', this.product.price);
+        },
+
+        validatePrices(priceLabel, prices) {
             if (!prices) {
                 return;
             }
 
             prices.forEach(price => {
-                if (!price.listPrice) {
+                if (!price[priceLabel]) {
                     return;
                 }
 
-                if (!price.listPrice.gross && !price.listPrice.net) {
-                    price.listPrice = null;
+                if (!price[priceLabel].gross && !price[priceLabel].net) {
+                    price[priceLabel] = null;
                     return;
                 }
 
-                if (!price.listPrice.gross) {
-                    price.listPrice.gross = 0;
+                if (!price[priceLabel].gross) {
+                    price[priceLabel].gross = 0;
                     return;
                 }
 
-                if (!price.listPrice.net) {
-                    price.listPrice.net = 0;
+                if (!price[priceLabel].net) {
+                    price[priceLabel].net = 0;
                 }
             });
         },
@@ -804,7 +916,8 @@ Component.register('sw-product-detail', {
                         if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$t(
-                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+                                {
                                     productNo: response.response.data.errors[0].meta.parameters.number,
                                 },
                             );
@@ -868,69 +981,6 @@ Component.register('sw-product-detail', {
             });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - The method "onAddItemToProduct" will be removed because
-         * its relevant view was removed
-         */
-        onAddItemToProduct(mediaItem) {
-            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
-                this.createNotificationInfo({
-                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated'),
-                });
-                return false;
-            }
-
-            this.addMedia(mediaItem).then((mediaId) => {
-                this.$root.$emit('media-added', mediaId);
-                return true;
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-product.mediaForm.errorHeadline'),
-                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated'),
-                });
-
-                return false;
-            });
-            return true;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "addMedia" will be removed because
-         * the function that called it was deleted.
-         */
-        addMedia(mediaItem) {
-            Shopware.State.commit('swProductDetail/setLoading', ['media', true]);
-
-            // return error if media exists
-            if (this.product.media.has(mediaItem.id)) {
-                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
-                // eslint-disable-next-line prefer-promise-reject-errors
-                return Promise.reject('A media item with this id exists');
-            }
-
-            const newMedia = this.mediaRepository.create();
-            newMedia.mediaId = mediaItem.id;
-            newMedia.media = {
-                url: mediaItem.url,
-                id: mediaItem.id,
-            };
-
-            return new Promise((resolve) => {
-                // if no other media exists
-                if (this.product.media.length === 0) {
-                    // set media item as cover
-                    newMedia.position = 0;
-                    this.product.coverId = newMedia.id;
-                }
-                this.product.media.add(newMedia);
-
-                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
-
-                resolve(newMedia.mediaId);
-                return true;
-            });
-        },
-
         removeMediaItem(state, mediaId) {
             const media = this.product.media.find((mediaItem) => mediaItem.mediaId === mediaId);
 
@@ -952,16 +1002,6 @@ Component.register('sw-product-detail', {
             if (media) {
                 this.product.coverId = media.id;
             }
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "_checkIfMediaIsAlreadyUsed" will be removed because
-         * the function that called it was deleted.
-         */
-        _checkIfMediaIsAlreadyUsed(mediaId) {
-            return this.product.media.some((productMedia) => {
-                return productMedia.mediaId === mediaId;
-            });
         },
 
         getInheritTitle() {
@@ -1067,4 +1107,4 @@ Component.register('sw-product-detail', {
             });
         },
     },
-});
+};

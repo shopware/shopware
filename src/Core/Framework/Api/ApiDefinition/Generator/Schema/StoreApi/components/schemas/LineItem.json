@@ -1,0 +1,45 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "LineItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "referencedId": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "good": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "removable": {
+                        "type": "boolean"
+                    },
+                    "stackable": {
+                        "type": "boolean"
+                    },
+                    "modified": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    }
+}

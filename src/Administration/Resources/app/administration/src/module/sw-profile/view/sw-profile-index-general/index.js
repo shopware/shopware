@@ -1,8 +1,12 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-profile-index-general.html.twig';
 
-const { Component } = Shopware;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-profile-index-general', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -55,6 +59,10 @@ Component.register('sw-profile-index-general', {
     },
 
     computed: {
+        ...mapPropertyErrors('user', [
+            'password',
+        ]),
+
         computedNewPassword: {
             get() {
                 return this.newPassword;
@@ -91,4 +99,4 @@ Component.register('sw-profile-index-general', {
             this.$emit('media-open');
         },
     },
-});
+};

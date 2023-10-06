@@ -16,6 +16,34 @@ $sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     .sw-alert {
         width: 100%;
+
+        &--info {
+            .sw-alert__title,
+            .sw-alert__message {
+                color: $color-darkgray-200;
+            }
+        }
+
+        &--success {
+            .sw-alert__title,
+            .sw-alert__message {
+                color: $color-darkgray-200;
+            }
+        }
+
+        &--error {
+            .sw-alert__title,
+            .sw-alert__message {
+                color: $color-darkgray-200;
+            }
+        }
+
+        &--warning {
+            .sw-alert__title,
+            .sw-alert__message {
+                color: $color-darkgray-200;
+            }
+        }
     }
 }
 

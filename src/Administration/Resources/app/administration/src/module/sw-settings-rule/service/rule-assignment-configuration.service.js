@@ -6,7 +6,8 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
- *
+ * @private
+ * @package services-settings
  * @memberOf module:core/service/rule-assignment-configuration
  * @constructor
  * @method createRuleAssignmentConfigService
@@ -16,20 +17,20 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
     const configuration = {
         product: {
             id: 'product',
+            associationName: 'productPrices',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'product',
             label: 'sw-settings-rule.detail.associations.products',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('prices.rule.id', ruleId));
                 criteria.addAssociation('options.group');
 
                 return criteria;
             },
             api: () => {
-                const api = Object.assign({}, Context.api);
+                const api = { ...Context.api };
                 api.inheritance = true;
 
                 return api;
@@ -48,13 +49,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         shipping_method_availability_rule: {
             id: 'shipping_method_availability_rule',
+            associationName: 'shippingMethods',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'shipping_method',
             label: 'sw-settings-rule.detail.associations.shippingMethodAvailabilityRule',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('availabilityRuleId', ruleId));
 
                 return criteria;
@@ -76,7 +77,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 column: 'availabilityRuleId',
                 searchColumn: 'name',
                 criteria: () => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.addFilter(Criteria.not(
                         'AND',
                         [Criteria.equals('availabilityRuleId', ruleId)],
@@ -118,13 +119,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         shipping_method_prices: {
             id: 'shipping_method_prices',
+            associationName: 'shippingMethodPrices',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'shipping_method',
             label: 'sw-settings-rule.detail.associations.shippingMethodPrices',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(
                     Criteria.multi(
                         'OR',
@@ -149,15 +150,76 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 },
             ],
         },
+        tax_provider: {
+            id: 'tax_provider',
+            notAssignedDataTotal: 0,
+            allowAdd: true,
+            entityName: 'tax_provider',
+            label: 'sw-settings-rule.detail.associations.taxProviders',
+            criteria: () => {
+                const criteria = new Criteria(1, associationLimit);
+                criteria.addFilter(Criteria.equals('availabilityRuleId', ruleId));
+
+                return criteria;
+            },
+            detailRoute: 'sw.settings.tax.tax_provider.detail',
+            gridColumns: [
+                {
+                    property: 'name',
+                    label: 'Name',
+                    rawData: true,
+                    sortable: true,
+                    routerLink: 'sw.settings.tax.tax_provider.detail',
+                },
+                {
+                    property: 'active',
+                    label: 'Active',
+                    rawData: true,
+                    sortable: true,
+                    allowEdit: false,
+                },
+            ],
+            addContext: {
+                type: 'one-to-many',
+                entity: 'tax_provider',
+                column: 'availabilityRuleId',
+                searchColumn: 'name',
+                criteria: () => {
+                    const criteria = new Criteria(1, 25);
+                    criteria.addFilter(Criteria.not(
+                        'AND',
+                        [Criteria.equals('availabilityRuleId', ruleId)],
+                    ));
+
+                    return criteria;
+                },
+                gridColumns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        rawData: true,
+                        sortable: true,
+                        allowEdit: false,
+                    },
+                    {
+                        property: 'active',
+                        label: 'Active',
+                        rawData: true,
+                        sortable: true,
+                        allowEdit: false,
+                    },
+                ],
+            },
+        },
         payment_method: {
             id: 'payment_method',
+            associationName: 'paymentMethods',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'payment_method',
             label: 'sw-settings-rule.detail.associations.paymentMethods',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('availabilityRuleId', ruleId));
 
                 return criteria;
@@ -184,7 +246,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 column: 'availabilityRuleId',
                 searchColumn: 'name',
                 criteria: () => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.addFilter(Criteria.not(
                         'AND',
                         [Criteria.equals('availabilityRuleId', ruleId)],
@@ -226,13 +288,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_order_rule: {
             id: 'promotion_order_rule',
+            associationName: 'orderPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
             label: 'sw-settings-rule.detail.associations.promotionOrderRules',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('orderRules.id', ruleId));
                 criteria.addAssociation('orderRules');
 
@@ -260,7 +322,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 association: 'orderRules',
                 criteria: () => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', ruleId)]));
 
                     return criteria;
@@ -299,13 +361,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_customer_rule: {
             id: 'promotion_customer_rule',
+            associationName: 'personaPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
             label: 'sw-settings-rule.detail.associations.promotionCustomerRules',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('personaRules.id', ruleId));
                 criteria.addAssociation('personaRules');
 
@@ -333,7 +395,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 association: 'personaRules',
                 criteria: () => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', ruleId)]));
 
                     return criteria;
@@ -372,13 +434,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_cart_rule: {
             id: 'promotion_cart_rule',
+            associationName: 'cartPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
             label: 'sw-settings-rule.detail.associations.promotionCartRules',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('cartRules.id', ruleId));
                 criteria.addAssociation('cartRules');
 
@@ -406,7 +468,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 association: 'cartRules',
                 criteria: () => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', ruleId)]));
 
                     return criteria;
@@ -445,13 +507,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_discount_rule: {
             id: 'promotion_discount_rule',
+            associationName: 'promotionDiscounts',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'promotion',
             label: 'sw-settings-rule.detail.associations.promotionDiscountRules',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('discounts.discountRules.id', ruleId));
 
                 return criteria;
@@ -469,13 +531,13 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_group_rule: {
             id: 'promotion_group_rule',
+            associationName: 'promotionSetGroups',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'promotion',
             label: 'sw-settings-rule.detail.associations.promotionGroupRules',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
+                const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('setgroups.setGroupRules.id', ruleId));
 
                 return criteria;
@@ -491,82 +553,37 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 },
             ],
         },
-        event_action: {
-            id: 'event_action',
+        flow: {
+            id: 'flow',
             notAssignedDataTotal: 0,
-            allowAdd: true,
-            entityName: 'event_action',
-            label: 'sw-settings-rule.detail.associations.eventActions',
+            allowAdd: false,
+            entityName: 'flow',
+            label: 'sw-settings-rule.detail.associations.flows',
             criteria: () => {
-                const criteria = new Criteria();
-                criteria.setLimit(associationLimit);
-                criteria.addFilter(Criteria.equals('rules.id', ruleId));
-                criteria.addAssociation('rules');
+                const criteria = new Criteria(1, associationLimit);
+                criteria.addFilter(Criteria.equals('sequences.rule.id', ruleId));
 
                 return criteria;
             },
-            detailRoute: 'sw.event.action.detail',
+            detailRoute: 'sw.flow.detail',
             gridColumns: [
                 {
-                    property: 'eventName',
-                    label: 'Business Event',
+                    property: 'name',
+                    label: 'Flow',
                     rawData: true,
                     sortable: true,
                     width: '50%',
-                    routerLink: 'sw.event.action.detail',
+                    routerLink: 'sw.flow.detail',
                 },
                 {
-                    property: 'title',
-                    label: 'Business Event title',
+                    property: 'eventName',
+                    label: 'Trigger',
                     rawData: true,
                     sortable: true,
                     width: '50%',
-                    routerLink: 'sw.event.action.detail',
+                    routerLink: false,
                 },
             ],
-            deleteContext: {
-                type: 'many-to-many',
-                entity: 'event_action',
-                column: 'rules',
-            },
-            addContext: {
-                type: 'many-to-many',
-                entity: 'event_action_rule',
-                column: 'eventActionId',
-                searchColumn: 'eventName',
-                association: 'rules',
-                criteria: () => {
-                    const criteria = new Criteria();
-                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('rules.id', ruleId)]));
-                    criteria.addFilter(Criteria.equals('actionName', 'action.mail.send'));
-                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('config.mail_template_id', null)]));
-
-                    return criteria;
-                },
-                gridColumns: [
-                    {
-                        property: 'eventName',
-                        label: 'Event',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                    {
-                        property: 'title',
-                        label: 'Title',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                    {
-                        property: 'active',
-                        label: 'Active',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                ],
-            },
         },
     };
 

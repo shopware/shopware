@@ -2,12 +2,17 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
-const { Component, EntityDefinition, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { EntityDefinition, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
-Component.register('sw-order-address-selection', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -40,6 +45,12 @@ Component.register('sw-order-address-selection', {
             required: false,
             default: false,
         },
+
+        type: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -47,8 +58,7 @@ Component.register('sw-order-address-selection', {
             customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
-            billingAddressId: null,
-            orderAddressId: cloneDeep(this.addressId),
+            orderAddressId: cloneDeep(this.address?.id),
         };
     },
 
@@ -78,7 +88,7 @@ Component.register('sw-order-address-selection', {
         },
 
         customerCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('addresses');
 
             return criteria;
@@ -89,7 +99,7 @@ Component.register('sw-order-address-selection', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 
@@ -115,10 +125,14 @@ Component.register('sw-order-address-selection', {
 
         modalTitle() {
             return this.$tc(
-                `sw-order.addressSelection.${this.currentAddress._isNew
+                `sw-order.addressSelection.${this.currentAddress?._isNew
                     ? 'modalTitleEditAddress'
                     : 'modalTitleSelectAddress'}`,
             );
+        },
+
+        selectedAddressId() {
+            return this.address?.customerAddressId ?? this.addressId;
         },
     },
 
@@ -230,7 +244,11 @@ Component.register('sw-order-address-selection', {
         },
 
         onAddressChange(customerAddressId) {
-            this.$emit('change-address', { orderAddressId: this.addressId, customerAddressId });
+            this.$emit('change-address', {
+                orderAddressId: this.addressId,
+                customerAddressId,
+                type: this.type,
+            });
         },
 
         getCustomer() {
@@ -255,4 +273,4 @@ Component.register('sw-order-address-selection', {
                 });
         },
     },
-});
+};

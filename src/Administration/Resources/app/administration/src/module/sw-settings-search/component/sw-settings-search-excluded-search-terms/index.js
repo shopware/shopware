@@ -1,9 +1,13 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-excluded-search-terms.html.twig';
 import './sw-settings-search-excluded-search-terms.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-settings-search-excluded-search-terms', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -57,6 +61,10 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 inlineEdit: 'string',
                 sortable: false,
             }];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -275,4 +283,4 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 });
         },
     },
-});
+};

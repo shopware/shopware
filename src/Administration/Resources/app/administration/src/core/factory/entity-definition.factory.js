@@ -1,5 +1,12 @@
+/**
+ * @package admin
+ */
+
 import EntityDefinition, { getScalarTypes, getJsonTypes } from 'src/core/data/entity-definition.data';
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     getScalarTypes,
     getJsonTypes,
@@ -44,7 +51,7 @@ function get(entityName) {
 }
 
 /**
- * takes a plain schema object and converts it to an shopware Entitydefinition
+ * takes a plain schema object and converts it to a shopware EntityDefinition
  * @param entityName
  * @param schema
  */

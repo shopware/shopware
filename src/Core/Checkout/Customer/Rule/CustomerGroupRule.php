@@ -3,30 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class CustomerGroupRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $customerGroupIds;
+    final public const RULE_NAME = 'customerCustomerGroup';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $customerGroupIds
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $customerGroupIds = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->customerGroupIds = $customerGroupIds;
     }
 
     public function match(RuleScope $scope): bool
@@ -35,32 +34,21 @@ class CustomerGroupRule extends Rule
             return false;
         }
 
-        $id = $scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId();
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-
-                return $id !== null && \in_array($id, $this->customerGroupIds, true);
-
-            case self::OPERATOR_NEQ:
-
-                return $id !== null && !\in_array($id, $this->customerGroupIds, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId()], $this->customerGroupIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'customerGroupIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
+            'customerGroupIds' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerCustomerGroup';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('customerGroupIds', CustomerGroupDefinition::ENTITY_NAME, true);
     }
 }

@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                     add(CustomerGroupEntity $entity)
- * @method void                     set(string $key, CustomerGroupEntity $entity)
- * @method CustomerGroupEntity[]    getIterator()
- * @method CustomerGroupEntity[]    getElements()
- * @method CustomerGroupEntity|null get(string $key)
- * @method CustomerGroupEntity|null first()
- * @method CustomerGroupEntity|null last()
+ * @extends EntityCollection<CustomerGroupEntity>
  */
+#[Package('checkout')]
 class CustomerGroupCollection extends EntityCollection
 {
     public function getApiAlias(): string

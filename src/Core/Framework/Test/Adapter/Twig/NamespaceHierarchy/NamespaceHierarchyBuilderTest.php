@@ -5,16 +5,19 @@ namespace Shopware\Core\Framework\Test\Adapter\Twig\NamespaceHierarchy;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class NamespaceHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testItAddsAppTemplateNamespaces(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -27,7 +30,6 @@ class NamespaceHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -42,9 +44,9 @@ class NamespaceHierarchyBuilderTest extends TestCase
                 'version' => '0.0.1',
                 'label' => 'test',
                 'accessToken' => 'test',
+                'templateLoadPriority' => 2,
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -64,17 +66,18 @@ class NamespaceHierarchyBuilderTest extends TestCase
         $hierarchyBuilder = $this->getContainer()->get(NamespaceHierarchyBuilder::class);
 
         $coreHierarchy = [
+            'Profiling',
             'Elasticsearch',
-            'Storefront',
             'Administration',
             'Framework',
+            'Storefront',
         ];
         // Remove not installed core bundles from hierarchy
         $coreHierarchy = array_intersect($coreHierarchy, array_keys($this->getContainer()->getParameter('kernel.bundles')));
 
-        static::assertEquals([
-            'SwagThemeTest',
+        static::assertSame([
             ...$coreHierarchy,
+            'SwagThemeTest',
         ], array_keys($hierarchyBuilder->buildHierarchy()));
     }
 }

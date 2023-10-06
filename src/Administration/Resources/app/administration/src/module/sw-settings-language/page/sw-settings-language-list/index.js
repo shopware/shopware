@@ -1,13 +1,21 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-language-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -37,6 +45,7 @@ Component.register('sw-settings-language-list', {
         listingCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('locale');
+            criteria.addAssociation('translationCode');
 
             if (this.sortBy) {
                 criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
@@ -68,7 +77,7 @@ Component.register('sw-settings-language-list', {
                 dataIndex: 'locale.id',
                 label: 'sw-settings-language.list.columnLocaleName',
             }, {
-                property: 'locale.code',
+                property: 'translationCode.code',
                 label: 'sw-settings-language.list.columnIsoCode',
             }, {
                 property: 'parent',
@@ -133,10 +142,6 @@ Component.register('sw-settings-language-list', {
             return this.parentLanguages.get(item.parentId).name;
         },
 
-        onChangeLanguage() {
-            this.getList();
-        },
-
         isDefault(languageId) {
             return Shopware.Context.api.systemLanguageId
                 ? Shopware.Context.api.systemLanguageId.includes(languageId)
@@ -158,4 +163,4 @@ Component.register('sw-settings-language-list', {
             };
         },
     },
-});
+};

@@ -2,40 +2,37 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class LineItemOfManufacturerRule extends Rule
 {
+    final public const RULE_NAME = 'cartLineItemOfManufacturer';
+
     /**
-     * @var string[]
+     * @internal
+     *
+     * @param list<string> $manufacturerIds
      */
-    protected array $manufacturerIds;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $manufacturerIds = []
+    ) {
         parent::__construct();
-
-        $this->manufacturerIds = $manufacturerIds;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemOfManufacturer';
     }
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -47,7 +44,7 @@ class LineItemOfManufacturerRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }
@@ -59,45 +56,38 @@ class LineItemOfManufacturerRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([
-                    self::OPERATOR_EQ,
-                    self::OPERATOR_NEQ,
-                    self::OPERATOR_EMPTY,
-                ]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['manufacturerIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['manufacturerIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('manufacturerIds', ProductManufacturerDefinition::ENTITY_NAME, true);
+    }
+
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfManufacturers(LineItem $lineItem): bool
     {
         $manufacturerId = (string) $lineItem->getPayloadValue('manufacturerId');
+        $manufacturerArray = ($manufacturerId === '') ? [] : [$manufacturerId];
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($manufacturerId, $this->manufacturerIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($manufacturerId, $this->manufacturerIds, true);
-
-            case self::OPERATOR_EMPTY:
-                return empty($manufacturerId);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if ($this->operator === self::OPERATOR_NEQ) {
+            return !\in_array($manufacturerId, $this->manufacturerIds, true);
         }
+
+        return RuleComparison::uuids($manufacturerArray, $this->manufacturerIds, $this->operator);
     }
 }

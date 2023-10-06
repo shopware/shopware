@@ -1,3 +1,4 @@
+/* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
 
 .sw-mail-template-detail {
@@ -17,7 +18,7 @@
             max-height: 100%;
         }
 
-        .icon--small-default-circle-small {
+        .icon--regular-circle-xxs {
             display: none;
         }
 
@@ -25,11 +26,11 @@
             display: none;
         }
 
-        .icon--multicolor-folder-tree {
+        .icon--regular-folder {
             display: none;
         }
 
-        .icon--multicolor-folder-tree-open {
+        .icon--regular-folder-open {
             display: none;
         }
 

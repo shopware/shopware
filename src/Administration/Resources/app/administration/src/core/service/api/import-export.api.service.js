@@ -4,6 +4,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "import-export"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class ImportExportApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'import-export') {
@@ -83,4 +84,5 @@ class ImportExportApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ImportExportApiService;

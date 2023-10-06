@@ -1,9 +1,13 @@
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
-const { Component, Filter, Context } = Shopware;
+const { Filter, Context } = Shopware;
 
-Component.register('sw-media-sidebar', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inject: ['repositoryFactory'],
     props: {
@@ -86,6 +90,10 @@ Component.register('sw-media-sidebar', {
         firstEntity() {
             return this.items[0];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -116,4 +124,4 @@ Component.register('sw-media-sidebar', {
             this.$emit('media-sidebar-folder-renamed');
         },
     },
-});
+};

@@ -1,6 +1,951 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.18.1
+## Twig filter whitelist for `map`, `filter`, `reduce` and `sort` 
+
+The whitelist can be extended using a yaml configuration:
+
+```yaml
+shopware:
+    twig:
+        allowed_php_functions: [ "is_bool" ]
+```
+
+# 6.4.18.0
+## Define country address formatting structure
+From the next major v6.5.0.0, address of a country are no longer fixed, but you can modify it by drag-drop address elements in admin Settings > Countries > detail page > Address tab
+The address elements are stored as a structured json in `country_translation.address_format`, the default structure can be found in `\Shopware\Core\System\Country\CountryDefinition::DEFAULT_ADDRESS_FORMAT`
+## Extension can add custom element to use in address formatting structure
+* Plugins can define their own custom snippets by placed twig files in `<pluginRoot>/src/Resources/views/snippets`, you can refer to the default Core address snippets in `src/Core/Framework/Resources/views/snippets/address`
+* Use the respective mutations instead
+## Deprecated manifest-1.0.xsd
+
+With the upcoming major release we are going to release a new XML-schema for Shopware Apps. In the new schema we remove two deprecations from the existing schema.
+
+1. attribute `parent` for element `module` will be required.
+
+   Please make sure that every of your admin modules has this attribute set like described in [our documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-modules)
+2. attribute `openNewTab` for element `action-button` will be removed.
+
+    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ActionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
+3. Deprecation of `manifest-1.0.xsd`
+
+    Update the `xsi:noNamespaceSchemaLocation` attribute of your `manifest` root element. to `https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd`
+### MessageQueue Deprecations
+
+For v6.5.0.0 we will remove our wrapper around the symfony messenger component and remove the enqueue integration as well. Therefore, we deprecated several classes for the retry and encryption handling, without replacement, as we  will use the symfony standards for that.
+
+Additionally, we deprecated the `Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler`, you should directly implement the `\Symfony\Component\Messenger\Handler\MessageSubscriberInterface` instead.
+
+Before:
+```php
+class MyMessageHandler extends AbstractMessageHandler
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function handle(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
+After:
+```php
+class MyMessageHandler implements MessageSubscriberInterface
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function __invoke(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
+# 6.4.17.0
+* Themes' snippets are now only applied to Storefront sales channels when they or their child themes are assigned to that sales channel
+## Disabling caching of store-api-routes
+The Cache for Store-API-Routes can now be disabled by implementing the `Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent` and calling `disableCache()` method on the event.
+## Limit remote URL file upload max file size
+By default, there is no limit on how large a file is allowed to be when using the URL upload feature. The new parameter
+`shopware.media.url_upload_max_size` can be used to limit the maximum file size. The values can be written in bytes or 
+in a human-readable format like: 1mb, 512kb, 2gb. The default is 0 (unlimited).
+
+# 6.4.16.0
+## Added possibility to extend snippets in the Administration via App. 
+* Snippets can be imported via AdminExtensionSDK
+* Snippets will be validated to not override existing snippets
+* Snippets will be sanitized to avoid script injection
+
+# 6.4.15.2
+## Changed icon.html.twig
+
+We changed the base pathes to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
+If you have overwritten the block `utilities_icon` please change it as follows:
+
+Before:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
+After:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
+# 6.4.15.0
+## Demodata generator registration in DI
+
+Demodata generators now accepts the following new attributes:
+* `option-name`: Option name for the command, optional if command has no option.
+* `option-default`: Default value for the number of items to generate (Default: 0).
+* `option-description`: Description for the command line option, not required.
+
+```xml
+<service id="Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator">
+    <argument type="service" id="property_group.repository" />
+    
+    <tag name="shopware.demodata_generator" option-name="properties" option-default="10" option-description="Property group count (option count rand(30-300))"/>
+</service>
+```
+## Dump env vars
+You can now dump the env vars to a optimized `env.local.php` file by running `bin/console system:setup --dump-env` or `bin/console dotenv:dump --env {APP_ENV}` command.
+For more information on the `env.local.php` file, see the [symfony docs](https://symfony.com/doc/current/configuration.html#configuring-environment-variables-in-production).
+
+# 6.4.14.0
+## Deprecate old document generation endpoint, introduce new bulk order's documents generator endpoint
+
+* Endpoint and payload:
+```
+POST /api/_action/order/document/{documentType}/create
+[
+    {
+        "fileType": "pdf",
+        "orderId": "012cd563cf8e4f0384eed93b5201cc98",
+        "static": true,
+        "config": {
+            "documentComment": "Some comment",
+            "documentNumber": "1002",
+            "documentDate": "2021-12-13T00:00:00.000Z"
+        }
+    }, 
+    {        
+        "fileType": "pdf",
+        "orderId": "012cd563cf8e4f0384eed93b5201cc99",
+        "static": true,
+        "config": {
+            "documentComment": "Another comment",
+            "documentNumber": "1003",
+            "documentDate": "2021-12-13T00:00:00.000Z"
+        }
+    }
+]
+```
+
+## New bulk order's documents downloading endpoint
+
+This endpoint is used for merging multiple documents at one pdf file and download the merged pdf file
+
+* Endpoint and payload:
+```
+POST /api/_action/order/document/download
+{
+    "documentIds": [
+        "012cd563cf8e4f0384eed93b5201cc98",
+        "075fb241b769444bb72431f797fd5776",
+    ],
+}
+```
+
+## New Store-Api route to download document
+
+* Use `/store-api/document/download/{documentId}/{deepLinkCode}` route to download generated document of the given id
+
+## Deprecation of DocumentPageLoader
+
+* The `\Shopware\Storefront\Page\Account\Document\DocumentPageLoader` and its page, page loaded event was deprecated and will be removed in v6.5.0.0 due to unused, please use the newly added `\Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute` instead to download generated document. 
+
+## Deprecation of Document generators, introduce Document renderer services
+
+* All the document generators in `Shopware\Core\Checkout\Document\DocumentGenerator` (tagged as `document.generator`) will be deprecated and will be removed in v6.5.0.0, please adjust your changes if you're touching these services, you might want to decorate `Shopware\Core\Checkout\Document\Renderer\*` (tagged as `document.renderer`) instead
+* If you need to manipulate the fetched orders in renderer services, you can listen to according events which extends from `Shopware\Core\Checkout\Document\Event\DocumentOrderEvent`
+## Replacing old icons
+## Update `requestStateData` method in `form-country-state-select.plugin.js`
+The method `requestStateData` will require the third parameter `stateRequired` to be set from the calling instance.
+It will no longer be provided by the endpoint of `frontend.country.country-data`.
+The value can be taken from the selected country option in `data-state-required`
+
+# 6.4.13.0
+## Added new plugin config field
+
+Now you can declare a config field in your plugin `config.xml` to be available as scss variable.
+The new tag is `<css>` and takes the name of the scss variable as its value.
+
+```xml
+<input-field>
+    <name>myPluginBackgroundcolor</name>
+    <label>Backgroundcolor</label>
+    <label lang="de-DE">Hintergrundfarbe</label>
+    <css>my-plugin-background-color</css>
+    <defaultValue>#eee</defaultValue>
+</input-field>
+
+```
+## Add support for Bootstrap v5 OffCanvas
+
+Bootstrap has released a new OffCanvas component in version 5. To stick more towards the Bootstrap framework in the Storefront,
+we have decided to migrate our custom OffCanvas solution to the Bootstrap v5 OffCanvas component.
+
+Find out more about the Bootstrap OffCanvas here: https://getbootstrap.com/docs/5.1/components/offcanvas/
+
+In general, the changes are mostly done internally, so that interacting with the OffCanvas via JavaScript can remain the same.
+However, when the major flag `V6_5_0_0` is activated, the OffCanvas module will open a Bootstrap OffCanvas with slightly different elements/classes.
+
+Let's take a look at an example, which opens an OffCanvas using our OffCanvas module `src/plugin/offcanvas/offcanvas.plugin`:
+```js
+import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+
+// No need for changes in general usage!
+OffCanvas.open(
+    'My content', // Content to render inside the OffCanvas
+    () => {},     // Callback function to run after opening the OffCanvas
+    'right',      // Position
+    true,         // Can be closed via the backdrop
+    100,          // Delay
+    true,         // Full-width OffCanvas
+    'my-class'    // Additional CSS classes for the OffCanvas element
+);
+```
+The above example, will work as expected, but it will yield different HTML in the DOM:
+
+**Opened OffCanvas with current implementation**
+```html
+<div class="offcanvas is-right is-open">
+    My content
+</div>
+<div class="modal-backdrop modal-backdrop-open"></div>
+```
+
+**Opened OffCanvas with Bootstrap v5 (V6_5_0_0=true)**
+```html
+<!-- `right` is now called `end` in Bootstrap v5. This will be converted automatically. -->
+<!-- `show` is now used instead of `is-open` to indicate the active state. -->
+<div class="offcanvas offcanvas-end show" style="visibility: visible;" aria-modal="true" role="dialog">
+    My content
+</div>
+
+<!-- Bootstrap v5 uses a dedicated backdrop for the OffCanvas. -->
+<div class="offcanvas-backdrop fade show"></div>
+```
+
+Furthermore, Bootstrap v5 needs slightly different HTML inside the OffCanvas itself. This needs to be considered,
+if you inject your HTML manually via JavaScript:
+
+```js
+import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import Feature from 'src/helper/feature.helper';
+
+let offCanvasContent;
+
+// OffCanvas now needs additional `offcanvas-header`
+// Content class `offcanvas-content-container` is now `offcanvas-body`
+if (Feature.isActive('v6.5.0.0')) {
+    offCanvasContent = `
+    <div class="offcanvas-header p-0">
+        <button class="btn btn-light offcanvas-close js-offcanvas-close btn-block sticky-top">
+            Close
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        Content
+    </div>
+    `;
+} else {
+    offCanvasContent = `
+    <button class="btn btn-light offcanvas-close js-offcanvas-close btn-block sticky-top">
+        Close
+    </button>
+    <div class="offcanvas-content-container">
+        Content
+    </div>
+    `;
+}
+
+// No need for changes in general usage!
+OffCanvas.open(
+    offCanvasContent // Use altered HTML, if Bootstrap v5 is used
+);
+```
+
+If you use `src/plugin/offcanvas/ajax-offcanvas.plugin` with a response which is based on `Resources/views/storefront/utilities/offcanvas.html.twig`, 
+you don't need to change anything. The markup inside the OffCanvas twig file is adjusted automatically to Bootstrap v5 markup.
+## Removed repository decorators
+The following repository decorator classes will be removed with the next major:
+* `MediaRepositoryDecorator`
+* `MediaThumbnailRepositoryDecorator`
+* `MediaFolderRepositoryDecorator`
+* `PaymentMethodRepositoryDecorator`
+
+If you use one of the repository and type hint against this specific classes, you have to change you type hints to `EntityRepository`:
+
+### Before
+```php
+private MediaRepositoryDecorator $mediaRepository;
+```
+
+### After
+```php
+private EntityRepositoryInterface $mediaRepository;
+```
+
+## Thumbnail repository flat ids delete
+The `media_thumbnail.repository` had an own implementation of the `EntityRepository`(`MediaThumbnailRepositoryDecorator`) which breaks the nested primary key pattern for the `delete` call and allows providing flat id arrays. If you use the repository in this way, you have to change the usage as follow:
+
+### Before
+```php
+$repository->delete([$id1, $id2], $context);
+```
+
+### After
+```php
+$repository->delete([
+    ['id' => $id1], 
+    ['id' => $id2]
+], $context);
+```
+
+## `@internal` entity repositories
+We marked the `EntityRepositoryInterface` & `SalesChannelRepositoryInterface` classes as `@deprecated` and will be removed and the `EntityRepository` & `SalesChannelRepository` as final, to be able to release future optimizations more easily. Therefor if you implement an own repository class for your entities, you have to remove this. To modify the repository calls you can use one of the following events:
+* `BeforeDeleteEvent`: Allows an access point for before and after deleting the entity
+* `EntitySearchedEvent`: Allows access points to the criteria for search and search-ids
+* `PreWriteValidationEvent`/`PostWriteValidationEvent`: Allows access points before and after the entity written
+* `SalesChannelProcessCriteriaEvent`: Allows access to the criteria before the entity is search within a sales channel scope
+
+Additionally, you have to change your type hints from `EntityRepositoryInterface` to `EntityRepository` or `SalesChannelRepository`:
+
+# 6.4.12.0
+## Refactoring of storefront line item twig templates
+
+With the next major release we want to unify the twig templates, which are used to display line items in the storefront.
+Right now, there are multiple different templates for different areas in which line items are displayed:
+* Cart, confirm and finish page
+* OffCanvas Cart
+* Account order details
+
+Those different templates will be removed in favor of a new line item base template, which can be adjusted via configuration variables.
+Furthermore, each known line item type will have its own sub-template to avoid too many if/else conditions within the line item base template.
+This will also future-proof the line item base template for possible new line item types. 
+There will be no more separate `-children` templates for nested line items. Nested line items will also be covered by the new base template.
+
+* New line item template: `Resources/views/storefront/component/line-item/line-item.html.twig`
+    * Config variables:
+        * `displayMode` (string) - Toggle the appearance of the line item
+            * `default` - Full line item appearance including mobile and desktop styling
+            * `offcanvas` - Appearance will always stay mobile, regardless of the viewport size. Provides additional classes for OffCanvas JS-plugins
+            * `order` - Appearance for display inside the account order list
+        * `showTaxPrice` (boolean) - Show the tax price instead of the unit price of the line item.
+        * `showQuantitySelect` (boolean) - Show a select dropdown to change the quantity. When false it only displays the current quantity as text.
+        * `redirectTo` (string) - The redirect route, which should be used after performing actions like "remove" or "change quantity".
+    * types:
+        * `product` - Display a product line item including preview image, additional information and link to product.
+        * `discount` - Display a discount line item and skip all unneeded information like "variants".
+        * `container` - Display a container line item, which can include nested line items.
+        * `generic` - Display a line item with an unknown type, try to render as much information as possible.
+## Apps can now require additional ACL privileges
+
+In addition to requiring CRUD-permission on entity basis, apps can now also require additional ACL privileges.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+    ...
+    </meta>
+    <permissions>
+        <create>product</create>
+        <update>product</update>
+        <permission>user_change_me</permission>
+    </permissions>
+</manifest>
+```
+## Apps can now associate custom field sets to more entities
+
+Apps can now add custom field sets to the following additional entities:
+* landing_page
+* promotion
+* product_stream
+* property_group
+* product_review
+* event_action
+* country
+* currency
+* customer_group
+* delivery_time
+* document_base_config
+* language
+* number_range
+* payment_method
+* rule
+* salutation
+* shipping_method
+* tax
+## Only configured custom fields will be indexed in Elasticsearch
+
+With Shopware 6.5 only configured customFields in the YAML file will be indexed, to reduce issues with type errors.
+The config can be created in the `config/packages/elasticsearch.yml` with the following config
+
+```yaml
+elasticsearch:
+  product:
+    custom_fields_mapping:
+      some_date_field: datetime
+```
+
+See [\Shopware\Core\System\CustomField\CustomFieldTypes](https://github.com/shopware/platform/blob/0ca57ddee85e9ab00d1a15a44ddc8ff16c3bc37b/src/Core/System/CustomField/CustomFieldTypes.php#L7-L19) for the complete list of possible options
+
+# 6.4.11.0
+## Introduce BeforeDeleteEvent
+The event is dispatched before delete commands are executed, so you can add success callbacks into the event when the delete command is successfully executed. Or you add error callbacks to the event when the execution meets some errors.
+
+**Reference: Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent**
+
+**Examples:**
+
+```php
+class YourBeforeDeleteEvent implements EventSubscriberInterface
+    public static function getSubscribedEvents()
+    {
+        return [
+            BeforeDeleteEvent::class => 'beforeDelete',
+        ];
+    }
+
+    public function beforeDelete(BeforeDeleteEvent $event): void
+    {
+        $context = $event->getContext();
+        
+        // Delete ids of the given entity
+        // At the given point, the ids are not deleted yet
+        $ids = $event->getIds(CustomerDefinition::ENTITY_NAME);
+
+        $event->addSuccess(function (): void {
+            // Implement the hook when the entities got deleted successfully
+            // At the given point, the $ids are deleted
+        });
+
+        $event->addError(function (): void {
+            // At the given point, the $ids are not deleted due to failure
+            // Implement the hook when the entities got deleted unsuccessfully
+        });
+    }
+}
+```
+## Modal Refactoring
+
+Previously you had to use the following snippet:
+```js
+import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
+new AjaxModalExtension(false);
+```
+to activate modals on elements that match the selector `[data-toggle="modal"][data-url]`.
+This is error-prone when used multiple times throughout a single page lifetime as it will open up modals for every execution of this rigid helper.
+In the future you can use the new storefront plugin `AjaxModalPlugin` which has more configuration and entrypoints for developers to react to or adjust behaviour.
+The plugin is registered to the same selector to ensure non-breaking upgrading by default.
+## Removal of deprecated route specific annotations
+
+The following annotations has been removed `@Captcha`, `@LoginRequired`, `@Acl`, `@ContextTokenRequired` and `@RouteScope` and replaced with Route defaults. See below examples of the migration
+
+### @Captcha
+
+```php
+/**
+ * @Captcha
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_captcha"=true})
+ */
+```
+
+### @LoginRequired
+
+```php
+/**
+ * @LoginRequired
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_loginRequired"=true})
+ */
+```
+
+### @Acl
+
+```php
+/**
+ * @Acl({"my_plugin_do_something"})
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_acl"={"my_plugin_do_something"}})
+ */
+```
+
+
+### @ContextTokenRequired
+
+```php
+/**
+ * @ContextTokenRequired
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_contextTokenRequired"=true})
+ */
+```
+
+### @RouteScope
+
+```php
+/**
+ * @RouteScope(scopes={"api"})
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_routeScope"={"api"}})
+ */
+```
+## New Twig filter sw_icon_cache
+From now on, all icons implemented via `sw_icon` is wrapped with `sw_icon_cache`. 
+This causes all icons only be defined once per html page and multiple occurences be referenced by id.
+### Example
+First implementation of the `star` icon:
+```html
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="24" height="24" viewBox="0 0 24 24">
+    <defs>
+        <path id="icons-solid-star" 
+              d="M6.7998 23.3169c-1.0108.4454-2.1912-.0129-2.6367-1.0237a2 2 0 0 1-.1596-1.008l.5724-5.6537L.7896 11.394c-.736-.8237-.6648-2.088.1588-2.824a2 2 0 0 1 .9093-.4633l5.554-1.2027 2.86-4.9104c.556-.9545 1.7804-1.2776 2.7349-.7217a2 2 0 0 1 .7216.7217l2.86 4.9104 5.554 1.2027c1.0796.2338 1.7652 1.2984 1.5314 2.378a2 2 0 0 1-.4633.9093l-3.7863 4.2375.5724 5.6538c.1113 1.0989-.6894 2.08-1.7883 2.1912a2 2 0 0 1-1.008-.1596L12 21.0254l-5.2002 2.2915z">
+        </path>
+    </defs>
+    <use xlink:href="#icons-solid-star"></use>
+</svg>
+```
+Following implementations of the `star` icon:
+```html
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="24" height="24" viewBox="0 0 24 24">
+    <use xlink:href="#icons-solid-star"></use>
+</svg>
+```
+This behaviour can be disabled by setting the system config `core.storefrontSettings.iconCache` to `false`.
+The Setting can be found in the administration under `Settings`-> `System`->`Storefront`->`Activate icon cache`
+From 6.5.0.0 on this will be enabled by default.
+
+You can enable and disable this behaviour on a template basis by calling the new twig function `sw_icon_cache_enable`
+and `sw_icon_cache_disable`.
+
+## New Command theme:prepare-icons
+The new command `theme:prepare-icons` prepares svg icons for usage in the storefront with compatibility with the icon cache.
+The command requires a path for the icons to prepare and a package name for the icons and will save all updated icons to a subdirectory `prepared`.
+Optional you can also set the following options:
+* --cleanup (true|false) - This will remove all unnecessary attributes from the icons.
+* --fillcolor (color) - This will add this colorcode to the `fill` attribute.
+* --fillrule (svg fill rule) - This will add the fill rule to the `fill-rule` attribute
+```
+/bin/console theme:prepare-icons /app/platform/src/Storefront/Resources/app/storefront/dist/assets/icon/default/ default -c true -r evenodd -f #12ef21
+```
+## Better profiling integration
+Shopware now supports better profiling for multiple integrations.
+To activate profiling and a specific integration, add the corresponding integration name to the `shopware.profiler.integrations` parameter in your shopware.yaml file.
+## Translation overwrite priority specified for write payloads
+
+We specified the following rules for overwrites of translation values in write-payloads inside the DAL.
+1. Translations indexed by `iso-code` take precedence over values indexed by `language-id`
+2. Translations specified on the `translations`-association take precedence over values specified directly on the translated field.
+
+For a more information on those rules refer to the [according ADR](../../adr/2022-03-29-specify-priority-of-translations-in-dal-write-payloads.md).
+
+Let's take a look on some example payloads, to see what those rules mean.
+**Note:** For all examples we assume that `en-GB` is the system language.
+
+### Example 1
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            'en-GB' => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because values in `translations` take precedence over those directly on the translated fields.
+### Example 2
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because of the same reasons as above.
+### Example 3
+Payload:
+```php
+[
+    'name' => [
+        Defaults::SYSTEM_LANGUAGE => 'id translation',
+        'en-GB' => 'iso-code translation',
+    ],
+]
+```
+Result: `iso-code translation`, because `iso-code` take precedence over `language-id`.
+### Example 4
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'id translation',
+            'en-GB' => 'iso-code translation',
+         ],
+    ],
+]
+```
+Result: `iso-code translation`, because `iso-code` take precedence over `language-id`.
+### Example 5
+Payload:
+```php
+[
+    'name' => [
+       Defaults::SYSTEM_LANGUAGE => 'default', 
+    ],
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because values in `translations` take precedence over those directly on the translated fields.
+### Example 6
+Payload:
+```php
+[
+    'name' => [
+       'en-GB' => 'default', 
+    ],
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `default`, because `iso-code` take precedence over `language-id`, and that rule has a higher priority then the second "association rule".
+## Webhooks contain unique event identifier
+All webhooks now contain a unique identifier that allows your app to identify the event.
+The identifier can be found in the JSON-payload under the `source.eventId` key.
+
+```json
+{
+    "source": {
+        "url": "http:\/\/localhost:8000",
+        "appVersion": "0.0.1",
+        "shopId": "dgrH7nLU6tlE",
+        "eventId": "7b04ebe416db4ebc93de4d791325e1d9"
+    }
+}
+
+```
+This identifier is unique for each original event, it will not change if the same request is sent multiple times due to retries, 
+because your app maybe did not return a successful HTTP-status on the first try.
+## Redis store for number range increments
+You can now generate the number range increments using redis instead of the Database.
+In your `shopware.yaml` specify that you want to use the redis storage and the url that should be used to connect to the redis server to activate this feature:
+```yaml
+shopware:
+  number_range:
+    increment_storage: "Redis"
+    redis_url: "redis://redis-host:port/dbIndex"
+```
+
+To migrate the increment data that is currently stored in the Database you can run the following CLI-command:
+```shell
+bin/console number-range:migrate SQL Redis
+```
+This command will migrate the current state in the `SQL` storage to the `Redis` storage.
+**Note:** When running this command under load it may lead to the same number range increment being generated twice.
+## Apps can now require additional ACL privileges
+
+In addition to requiring CRUD-permission on entity basis, apps can now also require additional ACL privileges.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+    ...
+    </meta>
+    <permissions>
+        <create>product</create>
+        <update>product</update>
+        <permission>user_change_me</permission>
+    </permissions>
+</manifest>
+```
+
+# 6.4.9.0
+## Bootstrap v5 preview
+
+We want to update the Storefront to Bootstrap v5 in the next major release of Shopware.
+Because Bootstrap v5 introduces breaking changes when updating from Bootstrap v4, we have implemented the update behind a feature flag.
+This gives you the possibility to test Bootstrap v5 with your apps or themes before the next major release. The current Bootstrap v4 implementation is still the default.
+With the next major release Bootstrap v5 will be the default.
+
+**The Bootstrap v5 preview should not be used in production environments because it is still under development!**
+
+## What happens when updating to Bootstrap v5?
+
+* Dropped jQuery dependency (It can be added manually if needed, see "Still need jQuery?")
+* Dropped Internet Explorer 10 and 11
+* Dropped Microsoft Edge < 16 (Legacy Edge)
+* Dropped Firefox < 60
+* Dropped Safari < 12
+* Dropped iOS Safari < 12
+* Dropped Chrome < 60
+
+You can find a full migration guide on the official Bootstrap website: [Migrating to v5](https://getbootstrap.com/docs/5.1/migration)
+
+## Activate Bootstrap v5
+
+* Activate the next major feature flag `V6_5_0_0` in your .env or .psh.override.yaml
+* Re-build the storefront using `psh.phar storefront:build`
+* During the build process webpack will show a warning that Bootstrap v5 is being used
+* If the Bootstrap v5 resources are not build, please try running `bin/console feature:dump` and try again
+
+## How to consider Bootstrap v5
+
+Because of the breaking changes inside Bootstrap v5 you will find several places with backward-compatibility code in the Shopware platform.
+This code is being used to already provide the Bootstrap v5 implementation while keeping the Bootstrap v4 implementation for backward-compatibility.
+Depending, if you are an app/theme developer or a platform contributor you need to adapt the backward-compatibility for your use case.
+
+* **For platform contributors**: Use feature flag conditions.<br>
+  Please use feature flag conditions with flag `V6_5_0_0` to migrate to Bootstrap v5 functionality while keeping the Bootstrap v4 implementations for backward-compatibility.
+* **For app/plugin/theme developers**: Migrate your code directly to Bootstrap v5.<br>
+  Please migrate your code directly to Bootstrap v5 e.g. by preparing a separate git branch. The feature flag `V6_5_0_0` should only be used to activate Bootstrap v5 during development.
+  Please do not use the feature flag conditions in your app/plugin or theme.
+
+You can find some code examples below which will illustrate this. There are always three examples for the same code snippet:
+
+1. Bootstrap v4 (Current implementation) - How it looks right now
+2. Bootstrap v5 with backward-compatibility (for platform contributors)
+3. Bootstrap v5 next major - How it will look after the release of v6.5.0.0 (for app/plugin/theme developers)
+
+**Please beware that this is only needed for areas which are effected by braking changes from Bootstrap v5. See: [Migrating to v5](https://getbootstrap.com/docs/5.1/migration)**
+
+### HTML/Twig
+
+#### 1. Bootstrap v4 (Current implementation):
+```html
+<button class="collapsed btn"
+        data-toggle="collapse"
+        data-target="#target-selector">
+    Collapse button
+</button>
+
+<a href="#" class="btn btn-block">Default button</a>
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+**Attention:** There are a good amount of attributes and classes which have been renamed inside Bootstrap v5.
+To avoid having too many `{% if %}` conditions in the template we have created global twig variables for attribute renaming.
+
+```html
+{# Use global twig variable `dataBsToggleAttr` to toggle between `data-toggle` and `data-bs-toggle`: #}
+<button class="collapsed btn"
+        {{ dataBsToggleAttr }}="collapse"
+        {{ dataBsTargetAttr }}="#target-selector">
+    Collapse button
+</button>
+
+{# For larger markup changes use regular feature conditions: #}
+
+{# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+{% if feature('v6.5.0.0') %}
+    <div class="d-grid">
+        <a href="#" class="btn">Default button</a>
+    </div>
+{% else %}
+    <a href="#" class="btn btn-block">Default button</a>
+{% endif %}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```html
+<button class="collapsed btn"
+        data-bs-toggle="collapse"
+        data-bs-target="#target-selector">
+    Collapse button
+</button>
+
+<div class="d-grid">
+    <a href="#" class="btn">Default button</a>
+</div>
+```
+
+### SCSS
+
+#### 1. Bootstrap v4 (Current implementation):
+```scss
+.page-link {
+    line-height: $custom-select-line-height;
+}
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+Attention:
+```scss
+.page-link {
+    // @deprecated tag:v6.5.0 - Bootstrap v5 renames variable $custom-select-line-height to $form-select-line-height
+    @if feature('V6_5_0_0') {
+        line-height: $form-select-line-height;
+    } @else {
+        line-height: $custom-select-line-height;
+    }
+}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```scss
+.page-link {
+    line-height: $form-select-line-height;
+}
+```
+
+### JavaScript
+
+#### 1. Bootstrap v4 (Current implementation):
+```js
+$(collapse).collapse('toggle');
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+```js
+// Use feature.helper to check for feature flags.
+import Feature from 'src/helper/feature.helper';
+
+/** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
+if (Feature.isActive('V6_5_0_0')) {
+    new bootstrap.Collapse(collapse, {
+        toggle: true,
+    });
+} else {
+    $(collapse).collapse('toggle');
+}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```js
+new bootstrap.Collapse(collapse, {
+    toggle: true,
+});
+```
+
+## Known issues
+
+Since Bootstrap v5 is still behind the next major feature flag `V6_5_0_0` it is possible that issues occur.
+The following list contains issues that we are aware of. We want to address this issues before the next major version.
+
+* **Styling**<br>
+  There might be smaller styling issues here and there. Mostly spacing or slightly wrong colors.
+* **Bootstrap v5 OffCanvas**<br>
+  Bootstrap v5 ships its own OffCanvas component. Shopware is still using its custom OffCanvas at the moment.
+  It is planned to migrate the Shopware OffCanvas to the Bootstrap OffCanvas.
+* **Modifying SCSS $theme-colors**<br>
+  Currently it is not possible to add or remove custom colors to $theme-colors like it is described in the [Bootstrap documentation](https://getbootstrap.com/docs/5.1/customize/sass/#add-to-map).
+## Allow generating multiple document types at backend
+* Changed `Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction` to be able to create single document and multiple documents
+
+## Allow selecting multiple document types at generating document action in the flow builder.
+* We are able to select multiple document types in a generated document action in the flow builder.
+* The flow builder is to be able to show the action with the configuration data as a single document or multiple documents.
+* the configuration schema payload in the flow builder for this action will change:
+
+Before:
+```json
+"config": {
+  "documentType": "credit_note",
+  "documentRangerType": "document_credit_note"
+},
+```
+
+After:
+```json
+"config": {
+  "documentTypes": [
+    {
+      "documentType": "credit_note",
+      "documentRangerType": "document_credit_note"
+    },
+    {
+      "documentType": "delivery_note",
+      "documentRangerType": "document_delivery_note"
+    }
+  ]
+},
+```
+
+# 6.4.8.2
+## Proxy route to switch customer requires ACL privilege
+If you want to use the route `api.proxy.switch-customer` you **MUST** have the privilege `api_proxy_switch-customer`.
+
+
 # 6.4.8.0
 ## Adding search matcher configuration
 When you want to your module appear on the search bar, you can define the  `searchMatcher` in the module’s metadata, otherwise, a default `searchMatcher `will be used as it will check your module’s metadata label if it’s matched with the search term, The search function should return an array of results that will appear on the search bar.

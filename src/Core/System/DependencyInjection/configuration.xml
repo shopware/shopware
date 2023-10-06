@@ -5,6 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"></argument>
+
+            <tag name="shopware.system_config.validation" />
+        </service>
+
         <service id="Shopware\Core\System\SystemConfig\SystemConfigDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -18,6 +25,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
@@ -25,18 +33,25 @@
         <service id="Shopware\Core\System\SystemConfig\Api\SystemConfigController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator" />
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true">
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.tagging.each_config%</argument>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore">
+            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\SystemConfigLoader">
@@ -47,7 +62,11 @@
         <service id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-2000">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader.inner"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory" public="true">

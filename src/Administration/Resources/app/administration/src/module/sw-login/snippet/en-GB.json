@@ -52,5 +52,10 @@
       },
       "submit": "Send recovery link"
     }
+  },
+  "global": {
+    "sw-admin-menu": {
+      "textShopwareAdmin": "Shopware Administration"
+    }
   }
 }

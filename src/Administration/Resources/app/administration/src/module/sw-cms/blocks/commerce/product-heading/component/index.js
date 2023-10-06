@@ -1,9 +1,13 @@
 import template from './sw-cms-block-product-heading.html.twig';
 import './sw-cms-block-product-heading.scss';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
-Component.register('sw-cms-block-product-heading', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
 
     computed: {
@@ -19,4 +23,4 @@ Component.register('sw-cms-block-product-heading', {
             return null;
         },
     },
-});
+};

@@ -1,9 +1,12 @@
 import template from './sw-settings-payment-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -23,13 +26,10 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
             this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
-        },
-
         onSave() {
-            this.$super('onSave');
+            this.$super('onSave').then(() => {
+                this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
+            });
         },
     },
-});
+};

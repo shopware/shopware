@@ -1,9 +1,8 @@
-/**
- * @jest-environment jsdom
- */
-
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
+/**
+ * @package content
+ */
 describe('Form auto submit plugin', () => {
     let spyNativeFormSubmit = jest.fn();
     let spyOnSubmit = jest.fn();
@@ -14,6 +13,7 @@ describe('Form auto submit plugin', () => {
         <form id="newsletterForm" action="/newsletter/configure" method="post">
             <input type="email" name="email" class="form-email" value="test@example.com">
             <input type="text" name="firstName" class="form-name" value="John">
+            <input type="hidden" name="redirectParameters[important]" value="doNotOverwrite">
             <input type="checkbox" name="unsubscribe" class="form-unsubscribe" value="1">
         </form>
     `;
@@ -24,23 +24,6 @@ describe('Form auto submit plugin', () => {
     }
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
-
-        window.router = [];
-
-        window.csrf = {
-            enabled: false
-        };
-
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
 
         document.body.innerHTML = template;
@@ -56,6 +39,7 @@ describe('Form auto submit plugin', () => {
         spyNativeFormSubmit.mockClear();
         spyOnSubmit.mockClear();
         spyOnChange.mockClear();
+        spyUpdateParams.mockClear();
     });
 
     it('should instantiate plugin', () => {
@@ -140,8 +124,14 @@ describe('Form auto submit plugin', () => {
         expect(() => createPlugin({ useAjax: true })).toThrow(expectedError);
     });
 
-    it('should update redirect parameters on form change', () => {
+    it('should update redirect parameters on form change not existing in form', () => {
         createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
+
+        Object.defineProperty(window, 'location', {
+            value: {
+                search: '?important=0&test=1',
+            },
+        });
 
         const emailField = document.querySelector('.form-email');
 
@@ -149,6 +139,14 @@ describe('Form auto submit plugin', () => {
 
         expect(spyOnChange).toHaveBeenCalled();
         expect(spyUpdateParams).toHaveBeenCalled();
+
+        const hiddenImportantField = document.querySelectorAll('[name="redirectParameters[important]"]');
+        expect(hiddenImportantField).toHaveLength(1);
+        expect(hiddenImportantField[0].value).toBe('doNotOverwrite');
+
+        const hiddenTestField = document.querySelectorAll('[name="redirectParameters[test]"]');
+        expect(hiddenTestField).toHaveLength(1);
+        expect(hiddenTestField[0].value).toBe('1');
     });
 
     test('should generate correct input for redirect parameter', () => {

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 
+/**
+ * @internal
+ */
 class WebhookCacheClearerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
@@ -14,6 +17,19 @@ class WebhookCacheClearerTest extends TestCase
             'webhook.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ], WebhookCacheClearer::getSubscribedEvents());
+    }
+
+    public function testReset(): void
+    {
+        $dispatcherMock = $this->createMock(WebhookDispatcher::class);
+        $dispatcherMock->expects(static::once())
+            ->method('clearInternalWebhookCache');
+
+        $dispatcherMock->expects(static::once())
+            ->method('clearInternalPrivilegesCache');
+
+        $cacheClearer = new WebhookCacheClearer($dispatcherMock);
+        $cacheClearer->reset();
     }
 
     public function testClearWebhookCache(): void

@@ -2,17 +2,22 @@
 import MD5 from 'md5-es';
 
 /**
+ * @package admin
+ *
  * @module core/service/utils/format
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     currency,
     date,
+    dateWithUserTimezone,
     md5,
     fileSize,
     toISODate,
 };
 
-interface CurrencyOptions extends Intl.NumberFormatOptions {
+/* @private */
+export interface CurrencyOptions extends Intl.NumberFormatOptions {
     language?: string
 }
 
@@ -26,7 +31,13 @@ interface CurrencyOptions extends Intl.NumberFormatOptions {
  * @param {Object} additionalOptions
  * @returns {string} Formatted string
  */
-export function currency(val: number, sign: string, decimalPlaces: number, additionalOptions: CurrencyOptions = {}): string {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function currency(
+    val: number,
+    sign: string,
+    decimalPlaces: number,
+    additionalOptions: CurrencyOptions = {},
+): string {
     const decimalOpts = decimalPlaces !== undefined ? {
         minimumFractionDigits: decimalPlaces,
         maximumFractionDigits: decimalPlaces,
@@ -46,6 +57,10 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
     return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
 }
 
+interface DateFilterOptions extends Intl.DateTimeFormatOptions {
+    skipTimezoneConversion?: boolean
+}
+
 /**
  * Formats a Date object to a localized string
  *
@@ -53,7 +68,8 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
  * @param {Object} options
  * @returns {string}
  */
-export function date(val: string, options = {}): string {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function date(val: string, options: DateFilterOptions = {}): string {
     // should return an empty string when no date is given
     if (!val) {
         return '';
@@ -69,12 +85,12 @@ export function date(val: string, options = {}): string {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale() as string;
+    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone as string) ?? 'UTC';
+    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone) ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
-        timeZone: userTimeZone,
+        timeZone: options.skipTimezoneConversion ? undefined : userTimeZone,
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -87,11 +103,37 @@ export function date(val: string, options = {}): string {
 }
 
 /**
+ * Formats a Date object to the currently selected timezone.
+ *
+ * @param {Date} dateObj
+ * @returns {Date}
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
+
+    // Language and options are set in order to re-create the date object
+    const localizedDate = dateObj.toLocaleDateString('en-GB', {
+        timeZone: userTimeZone,
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+    });
+
+    return new Date(localizedDate);
+}
+
+/**
  * Generates a md5 hash of the given value.
  *
  * @param {String} value
  * @return {String}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function md5(value: string): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     return MD5.hash(value) as string;
@@ -100,6 +142,7 @@ export function md5(value: string): string {
 /**
  * Formats a number of bytes to a string with a unit
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function fileSize(bytes: number, locale = 'de-DE'): string {
     const denominator = 1024;
     const units = ['B', 'KB', 'MB', 'GB'];
@@ -121,6 +164,7 @@ export function fileSize(bytes: number, locale = 'de-DE'): string {
     return `${result.toFixed(2).toLocaleString(locale)}${units[i]}`;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function toISODate(dateObj: Date, useTime = true): string {
     const isoDate = dateObj.toISOString();
 

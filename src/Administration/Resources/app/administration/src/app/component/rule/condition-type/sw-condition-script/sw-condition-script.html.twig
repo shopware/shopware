@@ -1,0 +1,27 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_condition_value_content %}
+<div
+    class="sw-condition-script sw-condition__condition-value"
+    :class="conditionClasses"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_script_fields %}
+    <sw-arrow-field
+        v-for="(field, index) in config"
+        :key="index"
+        :disabled="disabled"
+    >
+        <sw-form-field-renderer
+            v-bind="getBind(field)"
+            :disabled="disabled"
+            :value="values[field.name]"
+            size="medium"
+            show-clearable-button
+            @input="updateFieldValue(field.name, $event)"
+            @change="updateFieldValue(field.name, $event)"
+        />
+    </sw-arrow-field>
+    {% endblock %}
+</div>
+{% endblock %}
+

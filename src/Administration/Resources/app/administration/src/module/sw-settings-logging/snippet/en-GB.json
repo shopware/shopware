@@ -18,7 +18,8 @@
       "levelError": "Error",
       "levelCritical": "Critical",
       "levelAlert": "Alert",
-      "levelEmergency": "Emergency"
+      "levelEmergency": "Emergency",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "entryInfo": {
       "title": "Log information",

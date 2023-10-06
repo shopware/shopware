@@ -1,11 +1,16 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-basic-form', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -110,7 +115,7 @@ Component.register('sw-product-basic-form', {
         },
 
         numberRangeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
             criteria.addFilter(Criteria.equals('global', true));
@@ -148,4 +153,4 @@ Component.register('sw-product-basic-form', {
             });
         },
     },
-});
+};

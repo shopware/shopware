@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                           add(NewsletterRecipientEntity $entity)
- * @method void                           set(string $key, NewsletterRecipientEntity $entity)
- * @method NewsletterRecipientEntity[]    getIterator()
- * @method NewsletterRecipientEntity[]    getElements()
- * @method NewsletterRecipientEntity|null get(string $key)
- * @method NewsletterRecipientEntity|null first()
- * @method NewsletterRecipientEntity|null last()
+ * @extends EntityCollection<NewsletterRecipientEntity>
  */
+#[Package('buyers-experience')]
 class NewsletterRecipientCollection extends EntityCollection
 {
     public function getApiAlias(): string

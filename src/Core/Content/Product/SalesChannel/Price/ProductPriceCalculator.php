@@ -10,28 +10,28 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 
+#[Package('inventory')]
 class ProductPriceCalculator extends AbstractProductPriceCalculator
 {
-    private EntityRepositoryInterface $unitRepository;
-
-    private QuantityPriceCalculator $calculator;
-
     private ?UnitCollection $units = null;
 
-    public function __construct(EntityRepositoryInterface $unitRepository, QuantityPriceCalculator $calculator)
-    {
-        $this->unitRepository = $unitRepository;
-        $this->calculator = $calculator;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EntityRepository $unitRepository,
+        private readonly QuantityPriceCalculator $calculator
+    ) {
     }
 
     public function getDecorated(): AbstractProductPriceCalculator
@@ -39,16 +39,24 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param Entity[] $products
+     */
     public function calculate(iterable $products, SalesChannelContext $context): void
     {
         $units = $this->getUnits($context);
 
-        /** @var SalesChannelProductEntity $product */
+        /** @var Entity $product */
         foreach ($products as $product) {
             $this->calculatePrice($product, $context, $units);
             $this->calculateAdvancePrices($product, $context, $units);
             $this->calculateCheapestPrice($product, $context, $units);
         }
+    }
+
+    public function reset(): void
+    {
+        $this->units = null;
     }
 
     private function calculatePrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void
@@ -73,6 +81,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     private function calculateAdvancePrices(Entity $product, SalesChannelContext $context, UnitCollection $units): void
     {
         $prices = $product->get('prices');
+
+        $product->assign(['calculatedPrices' => new CalculatedPriceCollection()]);
         if ($prices === null) {
             return;
         }
@@ -83,8 +93,6 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         $prices = $this->filterRulePrices($prices, $context);
         if ($prices === null) {
-            $product->assign(['calculatedPrices' => new CalculatedPriceCollection()]);
-
             return;
         }
         $prices->sortByQuantity();
@@ -143,6 +151,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $calculated = CalculatedCheapestPrice::createFrom(
             $this->calculator->calculate($definition, $context)
         );
+        $calculated->setVariantId($cheapest->getVariantId());
 
         $calculated->setHasRange($cheapest->hasRange());
 
@@ -166,6 +175,9 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         );
         $definition->setListPrice(
             $this->getListPrice($prices, $context)
+        );
+        $definition->setRegulationPrice(
+            $this->getRegulationPrice($prices, $context)
         );
 
         return $definition;
@@ -194,12 +206,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $price->getNet();
     }
 
-    private function getListPrice(?PriceCollection $prices, SalesChannelContext $context): ?float
+    private function getListPrice(PriceCollection $prices, SalesChannelContext $context): ?float
     {
-        if (!$prices) {
-            return null;
-        }
-
         $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
         if ($price === null || $price->getListPrice() === null) {
             return null;
@@ -214,18 +222,36 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $value;
     }
 
+    private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context): ?float
+    {
+        $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
+        if ($price === null || $price->getRegulationPrice() === null) {
+            return null;
+        }
+
+        $taxPrice = $this->getPriceForTaxState($price, $context);
+        $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
+        if ($taxPrice === 0.0 || $taxPrice === $value) {
+            return null;
+        }
+
+        if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
+            $value *= $context->getContext()->getCurrencyFactor();
+        }
+
+        return $value;
+    }
+
     private function buildReferencePriceDefinition(ReferencePriceDto $definition, UnitCollection $units): ?ReferencePriceDefinition
     {
-        if ($definition->getPurchase() === null || $definition->getPurchase() <= 0) {
-            return null;
-        }
-        if ($definition->getUnitId() === null) {
-            return null;
-        }
-        if ($definition->getReference() === null || $definition->getReference() <= 0) {
-            return null;
-        }
-        if ($definition->getPurchase() === $definition->getReference()) {
+        if (
+            $definition->getPurchase() === null
+            || $definition->getPurchase() <= 0
+            || $definition->getUnitId() === null
+            || $definition->getReference() === null
+            || $definition->getReference() <= 0
+            || $definition->getPurchase() === $definition->getReference()
+        ) {
             return null;
         }
 
@@ -260,9 +286,12 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return $this->units;
         }
 
+        $criteria = new Criteria();
+        $criteria->setTitle('product-price-calculator::units');
+
         /** @var UnitCollection $units */
         $units = $this->unitRepository
-            ->search(new Criteria(), $context->getContext())
+            ->search($criteria, $context->getContext())
             ->getEntities();
 
         return $this->units = $units;

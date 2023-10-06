@@ -6,9 +6,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductFeatureSetTranslationEntityTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -29,7 +34,7 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
         $definition = $this->getContainer()->get(ProductFeatureSetTranslationDefinition::class);
 
         static::assertTrue(method_exists($definition, $method));
-        static::assertEquals($returnValue, $definition->$method());
+        static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
     }
 
     /**
@@ -72,10 +77,10 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
 
     public function testRepositoryIsWorking(): void
     {
-        static::assertInstanceOf(EntityRepositoryInterface::class, $this->getContainer()->get('product_feature_set_translation.repository'));
+        static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('product_feature_set_translation.repository'));
     }
 
-    public function definitionMethodProvider(): array
+    public static function definitionMethodProvider(): array
     {
         return [
             [

@@ -1,17 +1,23 @@
-import './page/sw-settings-language-list';
-import './page/sw-settings-language-detail';
-
+/**
+ * @package buyers-experience
+ */
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-language-list', () => import('./page/sw-settings-language-list'));
+Shopware.Component.register('sw-settings-language-detail', () => import('./page/sw-settings-language-detail'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-language', {
     type: 'core',
     name: 'settings-language',
     title: 'sw-settings-language.general.mainMenuItemGeneral',
     description: 'Language section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'language',
 
@@ -48,7 +54,7 @@ Module.register('sw-settings-language', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.language.index',
-        icon: 'default-location-flag',
+        icon: 'regular-flag',
         privilege: 'language.viewer',
     },
 });

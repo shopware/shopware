@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-class AppNotFoundException extends \Exception
+#[Package('core')]
+class AppNotFoundException extends AppException
 {
-    public function __construct(string $appId)
-    {
-        parent::__construct(sprintf('App for ID: "%s" could not be found.', $appId));
-    }
 }

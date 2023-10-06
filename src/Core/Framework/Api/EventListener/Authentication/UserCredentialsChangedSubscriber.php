@@ -7,26 +7,24 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var RefreshTokenRepository
+     * @internal
      */
-    private $refreshTokenRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(RefreshTokenRepository $refreshTokenRepository, Connection $connection)
-    {
-        $this->refreshTokenRepository = $refreshTokenRepository;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly RefreshTokenRepository $refreshTokenRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -58,6 +56,9 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function userCredentialsChanged(array $payload): bool
     {
         return isset($payload['password']);

@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal use entity repository to write data
  */
+#[Package('core')]
 interface EntityWriterInterface
 {
     public function sync(array $operations, WriteContext $context): WriteResult;

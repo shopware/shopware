@@ -10,10 +10,11 @@ use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\VersionParser;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -24,23 +25,20 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+#[Package('core')]
 class RequirementsValidator
 {
-    private EntityRepositoryInterface $pluginRepo;
-
-    private string $projectDir;
-
     private Composer $pluginComposer;
 
-    /**
-     * @var Composer
-     */
-    private $shopwareProjectComposer;
+    private Composer $shopwareProjectComposer;
 
-    public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
-    {
-        $this->pluginRepo = $pluginRepo;
-        $this->projectDir = $projectDir;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EntityRepository $pluginRepo,
+        private readonly string $projectDir
+    ) {
     }
 
     /**
@@ -48,6 +46,13 @@ class RequirementsValidator
      */
     public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
     {
+        if ($plugin->getManagedByComposer()) {
+            // Composer does the requirements checking if the plugin is managed by composer
+            // no need to do it manually
+
+            return;
+        }
+
         $this->shopwareProjectComposer = $this->getComposer($this->projectDir);
         $exceptionStack = new RequirementExceptionStack();
 
@@ -88,10 +93,13 @@ class RequirementsValidator
      */
     private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool
     {
-        foreach (array_keys($this->getPluginDependencies($plugin)['require']) as $requirement) {
-            if ($requirement === $dependency->getComposerName()) {
-                return true;
-            }
+        $composerName = $dependency->getComposerName();
+        if (!\is_string($composerName)) {
+            return false;
+        }
+
+        if (\array_key_exists($composerName, $this->getPluginDependencies($plugin)['require'])) {
+            return true;
         }
 
         return false;
@@ -253,9 +261,7 @@ class RequirementsValidator
     private function getComposerPackagesFromPlugins(): array
     {
         $packages = $this->shopwareProjectComposer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $pluginPackages = array_filter($packages, static function (PackageInterface $package) {
-            return $package->getType() === PluginFinder::COMPOSER_TYPE;
-        });
+        $pluginPackages = array_filter($packages, static fn (PackageInterface $package) => $package->getType() === PluginFinder::COMPOSER_TYPE);
 
         $pluginPackagesWithNameAsKey = [];
         foreach ($pluginPackages as $pluginPackage) {

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Driver\Result;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -11,27 +11,22 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MigrationCollectionRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MigrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var MigrationCollection
-     */
-    private $validMigrationCollection;
+    private MigrationCollection $validMigrationCollection;
 
-    /**
-     * @var MigrationCollection
-     */
-    private $exceptionMigrationCollection;
+    private MigrationCollection $exceptionMigrationCollection;
 
     protected function setUp(): void
     {
@@ -49,7 +44,7 @@ class MigrationCollectionRuntimeTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM `migration`
               WHERE `class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\''
@@ -209,7 +204,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         $executedMigrations = $this->validMigrationCollection->migrateInPlace(1);
 
         $migrations = $this->getMigrations();
-        static::assertSame(["Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1"], $executedMigrations);
+        static::assertSame([Migration1::class], $executedMigrations);
         static::assertNotNull($migrations[0]['update']);
         static::assertNull($migrations[0]['update_destructive']);
         static::assertNull($migrations[1]['update']);
@@ -222,8 +217,8 @@ class MigrationCollectionRuntimeTest extends TestCase
 
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $migrations = $this->getMigrations();
@@ -239,16 +234,16 @@ class MigrationCollectionRuntimeTest extends TestCase
 
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $this->validMigrationCollection->migrateDestructiveInPlace();
 
         try {
             $this->exceptionMigrationCollection->migrateDestructiveInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $migrations = $this->getMigrations();
@@ -260,7 +255,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         static::assertSame('update', $migrations[3]['message']);
     }
 
-    public function testIgnoreingInvalidMigrations(): void
+    public function testIgnoringInvalidMigrations(): void
     {
         $logger = $this->createMock(Logger::class);
 
@@ -273,8 +268,8 @@ class MigrationCollectionRuntimeTest extends TestCase
         $queryBuilder->method('where')->willReturn($queryBuilder);
         $queryBuilder->method('andWhere')->willReturn($queryBuilder);
 
-        $statement = $this->createMock(Statement::class);
-        $statement->method('fetchAll')->willReturn(['WrongClass']);
+        $statement = $this->createMock(Result::class);
+        $statement->method('fetchFirstColumn')->willReturn(['WrongClass']);
 
         $queryBuilder->method('execute')->willReturn($statement);
 
@@ -298,7 +293,7 @@ class MigrationCollectionRuntimeTest extends TestCase
             ->where('`class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\'')
             ->orderBy('creation_timestamp', 'ASC')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 }

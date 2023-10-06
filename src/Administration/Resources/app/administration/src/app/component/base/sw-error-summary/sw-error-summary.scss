@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-error-summary {
+    max-width: $content-width;
+    margin-bottom: 34px;
+
+    @media screen and (max-width: 1360px) {
+        max-width: 770px;
+    }
+
+    &__quantity {
+        font-weight: bold;
+    }
+}

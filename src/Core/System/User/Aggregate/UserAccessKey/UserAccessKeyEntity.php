@@ -5,12 +5,14 @@ namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
+#[Package('system-settings')]
 class UserAccessKeyEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -26,13 +28,6 @@ class UserAccessKeyEntity extends Entity
      * @var string
      */
     protected $secretAccessKey;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     *
-     * @var bool
-     */
-    protected $writeAccess;
 
     /**
      * @var \DateTimeInterface|null
@@ -72,22 +67,6 @@ class UserAccessKeyEntity extends Entity
     public function setSecretAccessKey(string $secretAccessKey): void
     {
         $this->secretAccessKey = $secretAccessKey;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     */
-    public function getWriteAccess(): bool
-    {
-        return $this->writeAccess;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     */
-    public function setWriteAccess(bool $writeAccess): void
-    {
-        $this->writeAccess = $writeAccess;
     }
 
     public function getLastUsageAt(): ?\DateTimeInterface

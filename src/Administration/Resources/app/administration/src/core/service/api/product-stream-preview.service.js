@@ -1,5 +1,9 @@
 import ApiService from '../api.service';
 
+/**
+ * @private
+ * @package business-ops
+ */
 export default class ProductStreamPreviewService extends ApiService {
     constructor(httpClient, loginService) {
         super(httpClient, loginService, null, 'application/json');

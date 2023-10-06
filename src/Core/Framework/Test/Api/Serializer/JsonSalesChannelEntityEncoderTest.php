@@ -22,13 +22,16 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Exten
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class JsonSalesChannelEntityEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
     use AssertValuesTrait;
+    use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
-    public function emptyInputProvider(): array
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -51,7 +54,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
-    public function complexStructsProvider(): array
+    public static function complexStructsProvider(): array
     {
         return [
             [MediaDefinition::class, new TestBasicStruct()],

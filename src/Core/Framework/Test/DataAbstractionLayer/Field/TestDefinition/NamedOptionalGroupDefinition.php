@@ -11,9 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class NamedOptionalGroupDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'named_optional_group';
+    final public const ENTITY_NAME = 'named_optional_group';
 
     public function getEntityName(): string
     {
@@ -27,6 +30,10 @@ class NamedOptionalGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()), new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id')]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id'),
+        ]);
     }
 }

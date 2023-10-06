@@ -4,9 +4,16 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1558505525Logging extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +23,7 @@ class Migration1558505525Logging extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `log_entry` (
               `id` BINARY(16) NOT NULL,
               `message` VARCHAR(255) NOT NULL,

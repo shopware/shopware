@@ -16,10 +16,30 @@
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "taxCardTitle": "Steuern",
+      "taxProvider": {
+        "cardTitle": "Steueranbieter",
+        "changePriorityButton": "Priorität ändern",
+        "editDetailsLink": "Bearbeiten",
+        "labelActive": "Aktiv",
+        "messageEmptyTitle":  "Kein Steueranbieter gefunden",
+        "statusChangedSuccess": {
+          "active": "Steueranbieter \"{name}\" ist jetzt aktiv.",
+          "inactive": "Steueranbieter \"{name}\" ist jetzt inaktiv."
+        },
+        "sorting-modal": {
+          "modalTitle": "Priorität der Steuerservice-Anbieter ändern",
+          "subTitle": "Verwenden Sie Drag & Drop, um zu sortieren. Der oberste Eintrag hat die höchste Priorität.",
+          "saveSuccessful": "Die Prioritäten der Steueranbieter wurden gespeichert.",
+          "errorMessage": "Ein Fehler ist beim Speichern aufgetreten."
+        }
+      }
     },
     "detail": {
       "textHeadline": "Neuer Steuersatz",
+      "taxProviderInfoTitle": "Steuerservice-Anbieter (Tax Provider) können diese Steuersätze überschreiben",
+      "taxProviderInfoText": "Tax Provider haben eine höhere Priorität als fixe Steuersätze. Ein hier festgelegter Steuersatz könnte daher überschrieben werden.",
       "titleCard": "Einstellungen",
       "labelName": "Name",
       "labelDefaultTaxRate": "Steuersatz",
@@ -48,7 +68,18 @@
       "emptyStateDescription": "Füge Steuerraten für verschiedene Länder hinzu.",
       "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
       "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
-      "placeholderStates": "Staaten hinzufügen"
+      "placeholderStates": "Staaten hinzufügen",
+      "labelActiveFrom": "Aktiv ab"
+    },
+    "taxProviderDetail": {
+      "textHeadline": "Steueranbieter",
+      "infoTitle": "Endgültige Steuerberechnung nur im Checkout",
+      "infoText": "Dies kann sich auf die Regeln Ihres Warenkorbs auswirken. Prüfen Sie Versandmethoden, Verfügbarkeitsregeln und ähnliches.",
+      "cardTitleSettings": "Einstellungen",
+      "cardTitleAvailability": "Verfügbarkeit",
+      "labelPriority": "Priorität",
+      "labelActive": "Aktiv",
+      "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ..."
     }
   },
   "sw-privileges": {

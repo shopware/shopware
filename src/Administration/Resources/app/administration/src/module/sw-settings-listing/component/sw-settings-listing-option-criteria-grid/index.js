@@ -4,7 +4,8 @@ import './sw-settings-listing-option-criteria-grid.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -26,6 +27,12 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             customFields: [],
             selectedCriteria: null,
             customFieldSetIDs: null,
+            notSortableCustomFields: [
+                'price',
+                'json',
+                'text',
+                'html',
+            ],
         };
     },
 
@@ -43,7 +50,15 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not(
+                'and',
+                [
+                    Criteria.equalsAny('type', this.notSortableCustomFields),
+
+                ],
+            ));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
@@ -61,7 +76,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldsRelationsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('entityName', 'product'));
 
@@ -80,19 +95,6 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 }
 
                 return a.priority < b.priority ? 1 : -1;
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Can be removed completely. The computed prop was used
-         * to provide the options prop of an sw-single-select which has been replaced with sw-entity-single-select.
-         */
-        unusedCustomFields() {
-            return this.customFields.filter(customField => {
-                return !this.productSortingEntity.fields.some(field => {
-                    return field.field === customField.name ||
-                        field.field === `customFields.${customField.name}`;
-                });
             });
         },
 
@@ -186,6 +188,10 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                     value: 'desc',
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -380,7 +386,15 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldCriteriaSingleSelect(customField) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not(
+                'and',
+                [
+                    Criteria.equalsAny('type', this.notSortableCustomFields),
+
+                ],
+            ));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
@@ -422,4 +436,4 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             }).map(item => item.name) || {};
         },
     },
-});
+};

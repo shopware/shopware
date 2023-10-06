@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
 
+/**
+ * @internal
+ */
 class EntityTemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,27 +31,15 @@ class EntityTemplateLoaderTest extends TestCase
         {% endblock %}
     ';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
+    private EntityRepository $templateRepository;
 
-    /**
-     * @var EntityTemplateLoader
-     */
-    private $templateLoader;
+    private EntityTemplateLoader $templateLoader;
 
-    /**
-     * @var string
-     */
-    private $template1Id;
+    private string $template1Id;
 
-    /**
-     * @var string
-     */
-    private $template2Id;
+    private string $template2Id;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
@@ -56,15 +47,10 @@ class EntityTemplateLoaderTest extends TestCase
         $this->template2Id = Uuid::randomHex();
     }
 
-    public function tearDown(): void
-    {
-        $this->templateLoader->clearInternalCache();
-    }
-
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals(
-            ['app_template.written' => 'clearInternalCache'],
+            ['app_template.written' => 'reset'],
             EntityTemplateLoader::getSubscribedEvents()
         );
     }
@@ -169,7 +155,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())
-            ->method('fetchAll')
+            ->method('fetchAllAssociative')
             ->willReturn([]);
 
         $templateLoader = new EntityTemplateLoader($connection, 'prod');
@@ -195,7 +181,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => true,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],
@@ -218,7 +203,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => false,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],

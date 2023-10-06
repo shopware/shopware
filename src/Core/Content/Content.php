@@ -2,11 +2,18 @@
 
 namespace Shopware\Core\Content;
 
+use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Content extends Bundle
 {
     /**
@@ -19,6 +26,7 @@ class Content extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('category.xml');
         $loader->load('media.xml');
+        $loader->load('media_path.xml');
         $loader->load('product.xml');
         $loader->load('newsletter_recipient.xml');
         $loader->load('rule.xml');
@@ -37,5 +45,7 @@ class Content extends Bundle
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
         }
+
+        $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

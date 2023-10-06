@@ -4,16 +4,12 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSection;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                  add(CmsSectionEntity $entity)
- * @method void                  set(string $key, CmsSectionEntity $entity)
- * @method CmsSectionEntity[]    getIterator()
- * @method CmsSectionEntity[]    getElements()
- * @method CmsSectionEntity|null get(string $key)
- * @method CmsSectionEntity|null first()
- * @method CmsSectionEntity|null last()
+ * @extends EntityCollection<CmsSectionEntity>
  */
+#[Package('buyers-experience')]
 class CmsSectionCollection extends EntityCollection
 {
     public function getBlocks(): CmsBlockCollection

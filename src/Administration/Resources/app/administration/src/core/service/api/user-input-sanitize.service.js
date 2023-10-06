@@ -1,5 +1,6 @@
 import ApiService from '../api.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppUrlChangeService extends ApiService {
     constructor(httpClient, loginService) {
         super(httpClient, loginService, null, 'application/json');
@@ -17,7 +18,8 @@ export default class AppUrlChangeService extends ApiService {
             {
                 html,
                 field: field ?? null,
-            }, {
+            },
+            {
                 headers: this.getBasicHeaders(),
             },
         ).then(response => ApiService.handleResponse(response));

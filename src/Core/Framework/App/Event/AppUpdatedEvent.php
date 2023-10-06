@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @final
  */
+#[Package('core')]
 class AppUpdatedEvent extends ManifestChangedEvent
 {
-    public const NAME = 'app.updated';
+    final public const NAME = 'app.updated';
 
     public function getName(): string
     {

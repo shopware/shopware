@@ -3,16 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                               add(PromotionIndividualCodeEntity $entity)
- * @method void                               set(string $key, PromotionIndividualCodeEntity $entity)
- * @method PromotionIndividualCodeEntity[]    getIterator()
- * @method PromotionIndividualCodeEntity[]    getElements()
- * @method PromotionIndividualCodeEntity|null get(string $key)
- * @method PromotionIndividualCodeEntity|null first()
- * @method PromotionIndividualCodeEntity|null last()
+ * @extends EntityCollection<PromotionIndividualCodeEntity>
  */
+#[Package('buyers-experience')]
 class PromotionIndividualCodeCollection extends EntityCollection
 {
     public function getApiAlias(): string
@@ -21,7 +17,7 @@ class PromotionIndividualCodeCollection extends EntityCollection
     }
 
     /**
-     * @returns string[]
+     * @returns array<string>
      */
     public function getCodeArray(): array
     {

@@ -4,13 +4,14 @@ namespace Shopware\Core\Content\Test\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -25,14 +26,17 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ProductLineItemCommandValidatorTest extends TestCase
 {
-    use TaxAddToSalesChannelTestBehaviour;
-    use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -46,13 +50,10 @@ class ProductLineItemCommandValidatorTest extends TestCase
      */
     private $contextFactory;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $lineItemRepository;
 
@@ -95,6 +96,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
     }
@@ -120,6 +122,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         $this->lineItemRepository->update([
@@ -157,6 +160,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         static::expectException(WriteException::class);
@@ -189,6 +193,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         $this->lineItemRepository->update([
@@ -198,13 +203,15 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
     private function orderProduct(string $id, int $quantity, SalesChannelContext $context): string
     {
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $cart = $this->cartService->add($cart, $factory->create($id, ['quantity' => $quantity]), $context);
+        $cart = $this->cartService->add($cart, $factory->create(['id' => $id, 'referencedId' => $id, 'quantity' => $quantity], $context), $context);
 
-        static::assertSame($quantity, $cart->get($id)->getQuantity());
+        $item = $cart->get($id);
+        static::assertInstanceOf(LineItem::class, $item);
+        static::assertSame($quantity, $item->getQuantity());
 
         return $this->cartService->order($cart, $context, new RequestDataBag());
     }
@@ -222,7 +229,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -250,6 +257,9 @@ class ProductLineItemCommandValidatorTest extends TestCase
         return $customerId;
     }
 
+    /**
+     * @param array<string|int, mixed|null> $config
+     */
     private function createProduct(array $config = []): string
     {
         $id = Uuid::randomHex();

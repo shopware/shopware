@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * Defines the weight for a search query on the entity for this field
  */
+#[Package('core')]
 class SearchRanking extends Flag
 {
-    public const ASSOCIATION_SEARCH_RANKING = 0.25;
-    public const MIDDLE_SEARCH_RANKING = 250;
-    public const LOW_SEARCH_RANKING = 80;
-    public const HIGH_SEARCH_RANKING = 500;
+    final public const ASSOCIATION_SEARCH_RANKING = 0.25;
+    final public const MIDDLE_SEARCH_RANKING = 250;
+    final public const LOW_SEARCH_RANKING = 80;
+    final public const HIGH_SEARCH_RANKING = 500;
 
     /**
      * @var float
@@ -22,8 +25,10 @@ class SearchRanking extends Flag
      */
     protected $tokenize;
 
-    public function __construct(float $ranking, bool $tokenize = true)
-    {
+    public function __construct(
+        float $ranking,
+        bool $tokenize = true
+    ) {
         $this->ranking = $ranking;
         $this->tokenize = $tokenize;
     }

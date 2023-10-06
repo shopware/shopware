@@ -1,33 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_modal %}
 <sw-modal
     class="sw-sales-channel-modal"
+    :title="$tc(modalTitle)"
     @modal-close="onCloseModal"
 >
-
-    {% block sw_sales_channel_modal_header %}
-    <template slot="modal-header">
-        {% block sw_sales_channel_modal_header_title %}
-        <h4 class="sw-sales-channel-modal__title">
-            {{ modalTitle }}
-        </h4>
-        {% endblock %}
-
-        {% block sw_sales_channel_modal_header_close %}
-        <button
-            class="sw-modal__close"
-            :title="$tc('global.sw-modal.labelClose')"
-            :aria-label="$tc('global.sw-modal.labelClose')"
-            @click.prevent="onCloseModal"
-        >
-            <sw-icon
-                name="small-default-x-line-medium"
-                small
-            />
-        </button>
-        {% endblock %}
-    </template>
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_grid %}
     <sw-sales-channel-modal-grid
         v-if="!detailType"
@@ -39,6 +17,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_detail %}
     <sw-sales-channel-modal-detail
         v-else
@@ -46,8 +25,9 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_footer %}
-    <template slot="modal-footer">
+    <template #modal-footer>
         <a
             href="#"
             class="sw-sales-channel-modal__footer_left"
@@ -56,7 +36,9 @@
             {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
         </a>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_detail_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_back %}
         <sw-button
             v-if="detailType"
@@ -67,6 +49,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_add_channel %}
         <sw-button
             v-if="detailType"
@@ -87,7 +70,9 @@
         {% endblock %}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_cancel %}
         <sw-button
             v-if="!detailType"

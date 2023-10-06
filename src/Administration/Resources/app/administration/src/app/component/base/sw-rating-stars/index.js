@@ -1,9 +1,14 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-rating-stars.html.twig';
 import './sw-rating-stars.scss';
 
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @description Renders rating stars
  * @status ready
  * @example-type static
@@ -57,7 +62,7 @@ Component.register('sw-rating-stars', {
 
         partialStarCutStyle() {
             const negatedPartialValue = 1 - (this.value % 1);
-            const percentage = Math.round(negatedPartialValue * this.displayFractions) * 100 / this.displayFractions;
+            const percentage = (Math.round(negatedPartialValue * this.displayFractions) * 100) / this.displayFractions;
 
             // Adjusting styles to make the changes more visible
             let stylePercentage = percentage;

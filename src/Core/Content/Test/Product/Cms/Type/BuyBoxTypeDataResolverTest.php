@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -18,13 +19,11 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -32,14 +31,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class BuyBoxTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var BuyBoxCmsElementResolver
-     */
-    private $buyBoxResolver;
+    private BuyBoxCmsElementResolver $buyBoxResolver;
 
     protected function setUp(): void
     {
@@ -50,9 +49,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             new PropertyGroupCollection()
         );
 
-        $deprecatedEntityDefinition = new DeprecatedEntityDefinition();
-        $deprecatedEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $repositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $repositoryMock = $this->createMock(EntityRepository::class);
 
         $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader, $repositoryMock);
     }
@@ -218,9 +215,77 @@ class BuyBoxTypeDataResolverTest extends TestCase
         static::assertSame(3, $buyBoxStruct->getTotalReviews());
     }
 
-    private function createProduct(string $productId): void
+    /**
+     * @dataProvider reviewCountDataProvider
+     */
+    public function testReviewCountLoadedWithVariants(int $variantCount, int $reviewsPerProduct, int $expectedReviews): void
     {
-        $data = [
+        $productId = Uuid::randomHex();
+        $variantIds = [];
+        $salesChannelContext = $this->createSalesChannelContext();
+
+        $this->createProduct($productId);
+        $this->createReviews($productId, $reviewsPerProduct);
+        for ($i = 0; $i < $variantCount; ++$i) {
+            $variantIds[$i] = Uuid::randomHex();
+            $this->createProduct($variantIds[$i], ['parentId' => $productId]);
+            $this->createReviews($variantIds[$i], $reviewsPerProduct);
+        }
+        $investigatedProductId = $variantIds[0] ?? $productId;
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, $investigatedProductId));
+        $fieldConfig->add(new FieldConfig('alignment', FieldConfig::SOURCE_STATIC, null));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('buy-box');
+        $slot->setFieldConfig($fieldConfig);
+
+        $variantProduct = new SalesChannelProductEntity();
+        $variantProduct->setId($investigatedProductId);
+        if (isset($variantIds[0])) {
+            $variantProduct->setParentId($productId);
+        }
+        $variantProduct->setOptionIds([Uuid::randomHex()]);
+
+        $resolverContext = new EntityResolverContext(
+            $salesChannelContext,
+            new Request(),
+            $this->createMock(SalesChannelProductDefinition::class),
+            $variantProduct
+        );
+
+        $result = new ElementDataCollection();
+
+        $buyBoxResolver = $this->getContainer()->get(BuyBoxCmsElementResolver::class);
+        $buyBoxResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var BuyBoxStruct|null $buyBoxStruct */
+        $buyBoxStruct = $slot->getData();
+
+        static::assertSame($expectedReviews, $buyBoxStruct->getTotalReviews());
+    }
+
+    public static function reviewCountDataProvider(): iterable
+    {
+        // variant count, reviews per variant, expected review count
+        yield 'No variants, No reviews' => [0, 0, 0];
+        yield 'No variants, 3 reviews' => [0, 3, 3];
+        yield 'No variants, 10 reviews' => [0, 10, 10];
+
+        yield 'One variant, No reviews' => [1, 0, 0];
+        yield 'One variant, 3 reviews each' => [1, 3, 6];
+        yield 'One variant, 10 reviews each' => [1, 10, 20];
+
+        yield '5 variants, No reviews' => [5, 0, 0];
+        yield '5 variants, 3 reviews each' => [5, 3, 18];
+        yield '5 variants, 10 reviews each' => [5, 10, 60];
+    }
+
+    private function createProduct(string $productId, array $additionalData = []): void
+    {
+        $data = array_merge([
             'id' => $productId,
             'name' => 'test',
             'productNumber' => Uuid::randomHex(),
@@ -247,16 +312,16 @@ class BuyBoxTypeDataResolverTest extends TestCase
                     'name' => 'test',
                 ],
             ],
-        ];
+        ], $additionalData);
 
         $this->getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
     }
 
-    private function createReviews(string $productId): void
+    private function createReviews(string $productId, int $reviewCount = 3): void
     {
         $reviews = [];
-        for ($i = 1; $i <= 3; ++$i) {
+        for ($i = 1; $i <= $reviewCount; ++$i) {
             $reviews[] = [
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,

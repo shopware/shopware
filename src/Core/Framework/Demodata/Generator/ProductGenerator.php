@@ -5,38 +5,44 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductGenerator implements DemodataGeneratorInterface
 {
-    private Connection $connection;
-
     private SymfonyStyle $io;
 
     private Generator $faker;
 
-    private DefinitionInstanceRegistry $registry;
-
-    private InheritanceUpdater $updater;
-
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry, InheritanceUpdater $updater)
-    {
-        $this->connection = $connection;
-        $this->registry = $registry;
-        $this->updater = $updater;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly InheritanceUpdater $updater,
+        private readonly StatesUpdater $statesUpdater
+    ) {
     }
 
     public function getDefinition(): string
@@ -44,6 +50,9 @@ class ProductGenerator implements DemodataGeneratorInterface
         return ProductDefinition::class;
     }
 
+    /**
+     * @param mixed[] $options
+     */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $this->faker = $context->getFaker();
@@ -67,12 +76,15 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->io->progressStart($count);
 
         $mediaIds = $this->getMediaIds();
+        $downloadMediaIds = $this->getMediaIds('product_download');
 
         $ruleIds = $this->getIds('rule');
 
-        $categories = $this->getIds('category');
-
         $manufacturers = $this->getIds('product_manufacturer');
+
+        $tags = $this->getIds('tag');
+
+        $instantDeliveryId = $this->getInstantDeliveryId();
 
         $combinations = [];
         for ($i = 0; $i <= 20; ++$i) {
@@ -87,7 +99,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($taxes, $categories, $manufacturers);
+            $product = $this->createSimpleProduct($taxes, $manufacturers, $tags);
 
             $product['prices'] = $this->faker->randomElement($prices);
 
@@ -96,16 +108,16 @@ class ProductGenerator implements DemodataGeneratorInterface
             if ($mediaIds) {
                 $product['cover'] = ['mediaId' => Random::getRandomArrayElement($mediaIds)];
 
-                $product['media'] = array_map(function (string $id): array {
-                    return ['mediaId' => $id];
-                }, $this->faker->randomElements($mediaIds, random_int(2, 5)));
+                $product['media'] = array_map(fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
             }
 
             $product['properties'] = $this->buildProperties($properties);
 
             if ($i % 40 === 0) {
                 $combination = $this->faker->randomElement($combinations);
-                $product = array_merge($product, $this->buildVariants($combination, $prices, $taxes));
+                $product = [...$product, ...$this->buildVariants($combination, $prices, $taxes)];
+            } elseif ($i % 20 === 0) {
+                $product = [...$product, ...$this->buildDownloads($downloadMediaIds, $instantDeliveryId)];
             }
 
             $payload[] = $product;
@@ -124,6 +136,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->io->progressFinish();
     }
 
+    /**
+     * @param array<string, list<string>> $properties
+     *
+     * @return array<array<string, mixed>>
+     */
     private function buildCombinations(array $properties): array
     {
         $properties = $this->faker->randomElements($properties, random_int(min(\count($properties), 1), min(\count($properties), 4)));
@@ -131,7 +148,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         $mapped = [];
         // reduce permutation count
         foreach ($properties as $index => $values) {
-            $mapped[$index] = $this->faker->randomElements($values, random_int(min(\count($values), 2), min(\count($values), 4)));
+            $permutations = is_countable($values) ? \count($values) : 0;
+            if ($permutations > 4) {
+                $permutations = random_int(2, 4);
+            }
+            $mapped[$index] = $this->faker->randomElements($values, $permutations);
         }
         $properties = $mapped;
 
@@ -149,7 +170,13 @@ class ProductGenerator implements DemodataGeneratorInterface
         return $result;
     }
 
-    private function buildVariants(array $combinations, array $prices, EntitySearchResult $taxes): array
+    /**
+     * @param list<array<string, mixed>> $combinations
+     * @param list<list<array<string, mixed>>> $prices
+     *
+     * @return array<string, mixed>
+     */
+    private function buildVariants(array $combinations, array $prices, TaxCollection $taxes): array
     {
         $configurator = [];
 
@@ -157,31 +184,59 @@ class ProductGenerator implements DemodataGeneratorInterface
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
             $tax = $taxes->get(array_rand($taxes->getIds()));
+            if (!$tax instanceof TaxEntity) {
+                continue;
+            }
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
+            $id = Uuid::randomHex();
             $variants[] = [
-                'id' => Uuid::randomHex(),
-                'productNumber' => Uuid::randomHex(),
+                'id' => $id,
+                'productNumber' => $id,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
                 'prices' => $this->faker->randomElement($prices),
-                'options' => array_map(function ($id) {
-                    return ['id' => $id];
-                }, $options),
+                'options' => array_map(fn ($id) => ['id' => $id], $options),
             ];
 
-            $configurator = array_merge($configurator, array_values($options));
+            $configurator = [...$configurator, ...array_values($options)];
         }
 
         return [
             'children' => $variants,
-            'configuratorSettings' => array_map(function (string $id) {
-                return ['optionId' => $id];
-            }, array_filter(array_unique($configurator))),
+            'configuratorSettings' => array_map(fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
         ];
     }
 
+    /**
+     * @param string[][]|string[] $downloadMediaIds
+     *
+     * @return array<string, mixed>
+     */
+    private function buildDownloads(array $downloadMediaIds, ?string $instantDeliveryId): array
+    {
+        $mediaIds = $this->faker->randomElements($downloadMediaIds, random_int(1, 3), false);
+
+        $downloads = [];
+        foreach ($mediaIds as $position => $mediaId) {
+            $downloads[] = [
+                'id' => Uuid::randomHex(),
+                'mediaId' => $mediaId,
+                'position' => $position,
+            ];
+        }
+
+        return [
+            'downloads' => $downloads,
+            'maxPurchase' => 1,
+            'deliveryTimeId' => $instantDeliveryId,
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $payload
+     */
     private function write(array $payload, Context $context): void
     {
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -193,27 +248,38 @@ class ProductGenerator implements DemodataGeneratorInterface
             if (!isset($product['children'])) {
                 continue;
             }
-            $all = array_merge($all, array_column($product['children'], 'id'));
+            $all = [...$all, ...array_column($product['children'], 'id')];
         }
 
         $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+        $this->statesUpdater->update($all, $context);
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
-    private function getTaxes(Context $context): EntitySearchResult
+    private function getTaxes(Context $context): TaxCollection
     {
-        return $this->registry->getRepository('tax')->search(new Criteria(), $context);
+        /** @var EntityRepository<TaxCollection> $taxRepository */
+        $taxRepository = $this->registry->getRepository('tax');
+
+        return $taxRepository->search(new Criteria(), $context)->getEntities();
     }
 
+    /**
+     * @param list<string> $manufacturer
+     * @param list<string> $tags
+     *
+     * @return array<string, mixed>
+     */
     private function createSimpleProduct(
-        EntitySearchResult $taxes,
-        array $categories,
-        array $manufacturer
+        TaxCollection $taxes,
+        array $manufacturer,
+        array $tags
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
         $tax = $taxes->get(array_rand($taxes->getIds()));
+        \assert($tax instanceof TaxEntity);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
@@ -221,26 +287,30 @@ class ProductGenerator implements DemodataGeneratorInterface
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
-            'name' => $this->faker->productName,
+            'name' => $this->faker->format('productName'),
             'description' => $this->faker->text(),
             'taxId' => $tax->getId(),
             'manufacturerId' => $this->faker->randomElement($manufacturer),
             'active' => true,
             'height' => $this->faker->numberBetween(1, 1000),
             'width' => $this->faker->numberBetween(1, 1000),
-            'categories' => [
-                ['id' => $this->faker->randomElement($categories)],
-            ],
+            'categories' => $this->getCategoryIds(),
+            'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
         ];
     }
 
+    /**
+     * @param list<string> $rules
+     *
+     * @return list<array<string, mixed>>
+     */
     private function createPrices(array $rules): array
     {
         $prices = [];
         $rules = \array_slice(
             $rules,
-            random_int(0, \count($rules) - 3),
+            random_int(0, \max(\count($rules) - 3, 1)),
             random_int(1, 3)
         );
 
@@ -250,7 +320,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             $values[] = [
                 $value,
-                round($value / 100 * (random_int(50, 90)), 2),
+                round($value / 100 * random_int(50, 90), 2),
             ];
         }
 
@@ -274,56 +344,119 @@ class ProductGenerator implements DemodataGeneratorInterface
         return $prices;
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return array<array{id: string}>
+     */
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    fn ($id) => ['id' => $id],
+                    $chosenTags
+                );
+            }
+        }
+
+        return $tagAssignments;
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
     private function getProperties(): array
     {
-        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id, LOWER(HEX(property_group_id)) as property_group_id FROM property_group_option LIMIT 5000');
+        $options = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, LOWER(HEX(property_group_id)) as property_group_id FROM property_group_option LIMIT 5000');
 
         $grouped = [];
         foreach ($options as $option) {
-            $grouped[$option['property_group_id']][] = $option['id'];
+            $grouped[(string) $option['property_group_id']][] = (string) $option['id'];
         }
 
         return $grouped;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function buildVisibilities(): array
     {
-        $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
+        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
 
-        return array_map(function ($id) {
-            return ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
-        }, $ids);
+        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
     }
 
-    private function getMediaIds(): array
+    /**
+     * @return list<string>
+     */
+    private function getMediaIds(string $entity = 'product'): array
     {
         $repository = $this->registry->getRepository('media');
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('mediaFolder.defaultFolder.entity', 'product'));
+        $criteria->addFilter(new EqualsFilter('mediaFolder.defaultFolder.entity', $entity));
         $criteria->setLimit(500);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        /** @var list<string> $ids */
+        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
-
-        return array_column($ids, 'id');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
+    private function getCategoryIds(): array
+    {
+        /** @var list<array{id: string}> $result */
+        $result = $this->connection->fetchAllAssociative('
+            SELECT LOWER(HEX(category.id)) as id
+            FROM category
+             LEFT JOIN product_category pc
+               ON pc.category_id = category.id
+            WHERE category.child_count = 0
+            GROUP BY category.id
+            ORDER BY COUNT(pc.product_id) ASC
+            LIMIT ' . $this->faker->numberBetween(1, 3));
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, list<string>> $properties
+     *
+     * @return array<array{id: string}>
+     */
     private function buildProperties(array $properties): array
     {
         $productProperties = [];
         foreach ($properties as $options) {
-            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, 3));
+            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, min(\count($options), 3)));
         }
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));
 
-        return array_map(function ($config) {
-            return ['id' => $config];
-        }, $productProperties);
+        return array_map(fn ($config) => ['id' => (string) $config], $productProperties);
+    }
+
+    private function getInstantDeliveryId(): ?string
+    {
+        $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
+
+        return \is_string($id) ? $id : null;
     }
 }

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 class StoreLoader {
     /**
      * Allows to load all records of the provided store. The records are loaded inside a queue to prevent server overloads
@@ -23,6 +27,8 @@ class StoreLoader {
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Default parameters will be last
+     *
      * @param {EntityStore} entityStore
      * @param {Object} params
      * @param {Integer} page
@@ -31,6 +37,7 @@ class StoreLoader {
      * @param {function} promise
      * @return {Promise}
      */
+    // eslint-disable-next-line default-param-last
     loadQueue(entityStore, params, page, keepAssociations = false, languageId = '', promise) {
         params.page = page;
 
@@ -47,4 +54,5 @@ class StoreLoader {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default StoreLoader;

@@ -7,9 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+#[Package('core')]
 class DefinitionInstanceRegistry
 {
     /**
@@ -18,29 +19,32 @@ class DefinitionInstanceRegistry
     protected $container;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $repositoryMap;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $definitions;
 
     /**
-     * @var array
+     * @var array<class-string<Entity>, EntityDefinition>
      */
     protected $entityClassMapping;
 
     /**
-     * @psalm-suppress ContainerDependency
+     * @internal
      *
-     * @param array $definitionMap array of $entityName => $definitionServiceId,
+     * @param array<string, string> $definitionMap array of $entityName => $definitionServiceId,
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
-     * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
+     * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
      */
-    public function __construct(ContainerInterface $container, array $definitionMap, array $repositoryMap)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        array $definitionMap,
+        array $repositoryMap
+    ) {
         $this->container = $container;
         $this->definitions = $definitionMap;
         $this->repositoryMap = $repositoryMap;
@@ -49,11 +53,11 @@ class DefinitionInstanceRegistry
     /**
      * @throws EntityRepositoryNotFoundException
      */
-    public function getRepository(string $entityName): EntityRepositoryInterface
+    public function getRepository(string $entityName): EntityRepository
     {
         $entityRepositoryClass = $this->getEntityRepositoryClassByEntityName($entityName);
 
-        /** @var EntityRepositoryInterface $entityRepository */
+        /** @var EntityRepository $entityRepository */
         $entityRepository = $this->container->get($entityRepositoryClass);
 
         return $entityRepository;
@@ -61,10 +65,26 @@ class DefinitionInstanceRegistry
 
     public function get(string $class): EntityDefinition
     {
-        /** @var EntityDefinition $entityDefinition */
-        $entityDefinition = $this->container->get($class);
+        if ($this->container->has($class)) {
+            $definition = $this->container->get($class);
 
-        return $entityDefinition;
+            /** @var EntityDefinition $definition */
+            return $definition;
+        }
+
+        throw new DefinitionNotFoundException($class);
+    }
+
+    /**
+     * Shorthand to get the definition instance by class and use provided key as entity name as fallback
+     */
+    public function getByClassOrEntityName(string $key): EntityDefinition
+    {
+        try {
+            return $this->get($key);
+        } catch (DefinitionNotFoundException) {
+            return $this->getByEntityName($key);
+        }
     }
 
     public function has(string $name): bool
@@ -79,21 +99,19 @@ class DefinitionInstanceRegistry
     {
         $definitionClass = $this->getDefinitionClassByEntityName($entityName);
 
-        try {
+        if ($this->container->has($definitionClass)) {
             return $this->get($definitionClass);
-        } catch (ServiceNotFoundException $e) {
-            throw new DefinitionNotFoundException($entityName);
         }
+
+        throw new DefinitionNotFoundException($entityName);
     }
 
     /**
-     * @return EntityDefinition[]
+     * @return array<string, EntityDefinition>
      */
     public function getDefinitions(): array
     {
-        return array_map(function (string $name): EntityDefinition {
-            return $this->get($name);
-        }, $this->definitions);
+        return array_map(fn (string $name): EntityDefinition => $this->get($name), $this->definitions);
     }
 
     public function getSerializer(string $serializerClass): FieldSerializerInterface
@@ -127,7 +145,7 @@ class DefinitionInstanceRegistry
     {
         $map = $this->loadClassMapping();
 
-        $source = \get_class($entity);
+        $source = $entity::class;
 
         return $map[$source] ?? null;
     }
@@ -135,7 +153,7 @@ class DefinitionInstanceRegistry
     public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
         if (!$serviceId) {
-            $serviceId = \get_class($definition);
+            $serviceId = $definition::class;
         }
 
         if (!$this->container->has($serviceId)) {
@@ -148,9 +166,14 @@ class DefinitionInstanceRegistry
 
         $this->definitions[$definition->getEntityName()] = $serviceId;
 
+        $this->repositoryMap[$definition->getEntityName()] = $definition->getEntityName() . '.repository';
+
         $definition->compile($this);
     }
 
+    /**
+     * @return array<class-string<Entity>, EntityDefinition>
+     */
     private function loadClassMapping(): array
     {
         if ($this->entityClassMapping !== null) {
@@ -160,6 +183,7 @@ class DefinitionInstanceRegistry
         $this->entityClassMapping = [];
 
         foreach ($this->definitions as $element) {
+            /** @var EntityDefinition $definition */
             $definition = $this->container->get($element);
 
             if (!$definition) {
@@ -170,7 +194,7 @@ class DefinitionInstanceRegistry
                 $class = $definition->getEntityClass();
 
                 $this->entityClassMapping[$class] = $definition;
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
             }
         }
 

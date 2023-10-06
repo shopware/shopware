@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('buyers-experience')]
 class Applier
 {
-    public const APPLIER_ALL = 'ALL';
+    final public const APPLIER_ALL = 'ALL';
 
-    public const UNLIMITED = -1;
+    final public const UNLIMITED = -1;
 
     /**
      * Returns a list of index offsets for

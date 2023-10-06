@@ -7,16 +7,17 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
+#[Package('buyers-experience')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
-    private HtmlSanitizer $sanitizer;
-
-    public function __construct(HtmlSanitizer $sanitizer)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly HtmlSanitizer $sanitizer)
     {
-        $this->sanitizer = $sanitizer;
     }
 
     public function getType(): string
@@ -54,11 +55,7 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($content !== null) {
-            if (Feature::isActive('FEATURE_NEXT_15172')) {
-                $text->setContent($this->sanitizer->sanitize($content));
-            } else {
-                $text->setContent($content);
-            }
+            $text->setContent($this->sanitizer->sanitize($content));
         }
     }
 }

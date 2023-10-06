@@ -1,0 +1,21 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/index-products": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Send product indexing message",
+                "description": "Dispachtes an product indexing message to the message bus, with the provided ids",
+                "operationId": "productIndexing",
+                "responses": {
+                    "204": {
+                        "description": "Returns an empty response indicating that the message dispatched."
+                    }
+                }
+            }
+        }
+    }
+}

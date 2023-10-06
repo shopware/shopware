@@ -6,6 +6,9 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders a language switcher.
@@ -14,6 +17,7 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-language-switch></sw-language-switch>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-language-switch', {
     template,
 
@@ -67,7 +71,7 @@ Component.register('sw-language-switch', {
 
     computed: {
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 

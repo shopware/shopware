@@ -1,8 +1,17 @@
 import template from './sw-cms-el-preview-image.html.twig';
 import './sw-cms-el-preview-image.scss';
 
-const { Component } = Shopware;
 
-Component.register('sw-cms-el-preview-image', {
+/**
+ * @private
+ * @package buyers-experience
+ */
+export default {
     template,
-});
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+};

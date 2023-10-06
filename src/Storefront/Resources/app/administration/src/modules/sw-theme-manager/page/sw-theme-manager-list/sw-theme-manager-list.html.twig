@@ -2,7 +2,7 @@
     <sw-page class="sw-theme-list">
 
         {% block sw_theme_manager_list_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
                                :initialSearchType="$tc('sw-theme-manager.general.mainMenuItemGeneral')"
                                @search="onSearch">
@@ -11,398 +11,413 @@
         {% endblock %}
 
         {% block sw_theme_manager_list_toolbar %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 <h2> {{ $tc('sw-theme-manager.general.mainMenuItemGeneral') }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_theme_list_card_view %}
-            <sw-card-view slot="content">
+            <template #content>
+                <sw-card-view>
 
-                {% block sw_themes_list_listing %}
-                    <div class="sw-theme-list__content">
+                    {% block sw_themes_list_listing %}
+                        <div class="sw-theme-list__content">
 
-                        {% block sw_theme_list_listing_actions %}
-                            <div class="sw-theme-list__actions">
+                            {% block sw_theme_list_listing_actions %}
+                                <div class="sw-theme-list__actions">
 
-                                {% block sw_theme_list_listing_title %}
-                                    <h3>{{ $tc('sw-theme-manager.general.mainMenuHeader') }}</h3>
-                                {% endblock %}
+                                    {% block sw_theme_list_listing_title %}
+                                        <h3>{{ $tc('sw-theme-manager.general.mainMenuHeader') }}</h3>
+                                    {% endblock %}
 
-                                {% block sw_theme_list_listing_actions_sorting %}
-                                    <div class="sw-theme-list__actions-sorting">
-                                        <sw-field type="select"
-                                                  name="sortType"
-                                                  :label="$tc('sw-theme-manager.sorting.labelSort')"
-                                                  :value="sortingConCat"
-                                                  @change="onSortingChanged"
-                                                  aside>
+                                    {% block sw_theme_list_listing_actions_sorting %}
+                                        <div class="sw-theme-list__actions-sorting">
+                                            <sw-select-field
+                                                name="sortType"
+                                                :label="$tc('sw-theme-manager.sorting.labelSort')"
+                                                :value="sortingConCat"
+                                                {% if VUE3 %}
+                                                @update:value="onSortingChanged"
+                                                {% else %}
+                                                @change="onSortingChanged"
+                                                {% endif %}
+                                                aside
+                                            >
 
-                                            {% block sw_theme_list_listing_actions_sorting_options %}
-                                            <option v-for="sortOption in sortOptions"
-                                                    :value="sortOption.value">
-                                                {{ sortOption.name }}
-                                            </option>
-                                            {% endblock %}
-                                        </sw-field>
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_theme_list_listing_actions_mode %}
-                                    <div class="sw-theme-list__actions-mode" @click="onListModeChange">
-                                        <sw-icon name="default-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
-                                        <sw-icon name="default-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_theme_list_listing_list %}
-                            <div class="sw-theme-list__list">
-
-                                {% block sw_theme_list_listing_list_card %}
-                                    <sw-card class="sw-theme-list__list-card" v-if="listMode === 'list'">
-                                        <template slot="grid">
-
-                                            {% block sw_theme_list_listing_list_data_grid %}
-                                                <sw-data-grid
-                                                    class="sw-theme-list__list-data-grid"
-                                                    identifier="sw-theme-list"
-                                                    :isLoading="isLoading"
-                                                    :dataSource="themes"
-                                                    :columns="columnConfig"
-                                                    :skeletonItemAmount="limit"
-                                                    :sortBy="sortBy"
-                                                    :sortDirection="sortDirection"
-                                                    :allowInlineEdit="false"
-                                                    :allowColumnEdit="false"
-                                                    :showSettings="false"
-                                                    :showSelection="false"
-                                                    @column-sort="onSortColumn">
-
-                                                    {% block sw_theme_list_listing_list_data_grid_column_name %}
-                                                        <template #column-name="{ item }">
-                                                            <sw-icon
-                                                                name="default-lock-closed"
-                                                                class="sw-theme-list__icon-lock"
-                                                                v-if="!item.parentThemeId"
-                                                                v-tooltip="lockToolTip"
-                                                                size="14">
-                                                            </sw-icon>
-                                                            <router-link :to="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
-                                                                {{ item.name }}
-                                                            </router-link>
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_theme_list_listing_list_data_grid_column_assignment %}
-                                                        <template #column-assignment="{ item }">
-                                                            {{ item.salesChannels.length }}
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_theme_list_listing_list_data_grid_column_created %}
-                                                        <template #column-createdAt="{ item }">
-                                                            {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_theme_list_listing_list_data_grid_actions %}
-                                                        <template #actions="{ item }">
-                                                            {% block sw_theme_list_listing_list_data_grid_actions_edit %}
-                                                                <sw-context-menu-item
-                                                                    class="sw-theme-list-item__option-edit"
-                                                                    :routerLink="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.edit') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_data_grid_actions_rename %}
-                                                                <sw-context-menu-item
-                                                                    @click="onRenameTheme(item)"
-                                                                    class="sw-theme-list-item__option-rename"
-                                                                    :disabled="!acl.can('theme.editor')">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.rename') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_data_grid_actions_delete %}
-                                                                <sw-context-menu-item
-                                                                    variant="danger"
-                                                                    class="sw-theme-list-item__option-delete"
-                                                                    :disabled="item.salesChannels.length > 0 || !acl.can('theme.deleter')"
-                                                                    v-tooltip="deleteDisabledToolTip(item)"
-                                                                    @click="onDeleteTheme(item)"
-                                                                    v-if="item.parentThemeId">
-
-                                                                    {{ $tc('sw-theme-manager.themeListItem.delete') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_data_grid_actions_create %}
-                                                                <sw-context-menu-item
-                                                                    v-if="!item.parentThemeId"
-                                                                    class="sw-theme-list-item__option-duplicate"
-                                                                    @click="onDuplicateTheme(item)"
-                                                                    :disabled="!acl.can('theme.creator')">
-                                                                    {{ $tc('sw-theme-manager.actions.duplicate') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_theme_list_listing_list_data_grid_pagination %}
-                                                        <template #pagination>
-                                                            <sw-pagination
-                                                                :page="page"
-                                                                :limit="limit"
-                                                                :total="total"
-                                                                :steps="[5, 10, 25, 50]"
-                                                                @page-change="onPageChange">
-                                                            </sw-pagination>
-                                                        </template>
-                                                    {% endblock %}
-                                                </sw-data-grid>
-                                            {% endblock %}
-                                        </template>
-                                    </sw-card>
-                                {% endblock %}
-
-                                {% block sw_theme_list_listing_list_grid %}
-                                    <div class="sw-theme-list__list-grid" v-if="listMode === 'grid'">
-
-                                        {% block sw_theme_list_listing_list_grid_content %}
-                                            <div class="sw-theme-list__list-grid-content">
-                                                {% block sw_theme_list_listing_list_item %}
-                                                    <template v-if="!isLoading">
-                                                        <sw-theme-list-item
-                                                        v-for="theme in themes"
-                                                        :theme="theme"
-                                                        :key="theme.id"
-                                                        @preview-image-change="onPreviewChange"
-                                                        @item-click="onListItemClick">
-
-                                                        <sw-context-button slot="contextMenu"
-                                                                           :zIndex="1100"
-                                                                           class="sw-theme-list-item__options">
-
-                                                            {% block sw_theme_list_listing_list_item_option_add_preview %}
-                                                                <sw-context-menu-item
-                                                                    class="sw-theme-list-item__option-preview"
-                                                                    @click="onPreviewChange(theme)"
-                                                                    :disabled="!acl.can('theme.editor')">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.addPreviewImage') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_item_option_remove_preview %}
-                                                                <sw-context-menu-item
-                                                                    class="sw-theme-list-item__option-preview sw-theme-list-item__option-preview-remove"
-                                                                    v-if="theme.previewMediaId"
-                                                                    variant="danger"
-                                                                    @click="onPreviewImageRemove(theme)"
-                                                                    :disabled="!acl.can('theme.editor')">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.removePreviewImage') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_item_option_rename %}
-                                                                <sw-context-menu-item
-                                                                    @click="onRenameTheme(theme)"
-                                                                    class="sw-theme-list-item__option-rename"
-                                                                    :disabled="!acl.can('theme.editor')">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.rename') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_item_option_create %}
-                                                                <sw-context-menu-item
-                                                                    v-if="!theme.parentThemeId"
-                                                                    class="sw-theme-list-item__option-duplicate"
-                                                                    @click="onDuplicateTheme(theme)"
-                                                                    :disabled="!acl.can('theme.creator')">
-                                                                    {{ $tc('sw-theme-manager.actions.duplicate') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-
-                                                            {% block sw_theme_list_listing_list_item_option_delete %}
-                                                                <sw-context-menu-item
-                                                                    v-if="theme.parentThemeId"
-                                                                    class="sw-theme-list-item__option-delete"
-                                                                    variant="danger"
-                                                                    :disabled="theme.salesChannels.length > 0 || !acl.can('theme.deleter')"
-                                                                    v-tooltip="deleteDisabledToolTip(theme)"
-                                                                    @click="onDeleteTheme(theme)">
-                                                                    {{ $tc('sw-theme-manager.themeListItem.delete') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-                                                        </sw-context-button>
-                                                    </sw-theme-list-item>
-                                                    </template>
-
-                                                    <template v-else>
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                        <sw-skeleton variant="gallery" />
-                                                    </template>
+                                                {% block sw_theme_list_listing_actions_sorting_options %}
+                                                <option v-for="sortOption in sortOptions"
+                                                        :value="sortOption.value">
+                                                    {{ sortOption.name }}
+                                                </option>
                                                 {% endblock %}
-                                            </div>
-                                        {% endblock %}
+                                            </sw-select-field>
+                                        </div>
+                                    {% endblock %}
 
-                                        {% block sw_theme_list_listing_pagination %}
-                                        <sw-pagination class="sw-theme-list__list-pagination"
-                                                       v-if="!isLoading"
-                                                       :page="page"
-                                                       :limit="limit"
-                                                       :total="total"
-                                                       :steps="[9]"
-                                                       @page-change="onPageChange">
-                                        </sw-pagination>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+                                    {% block sw_theme_list_listing_actions_mode %}
+                                        <div class="sw-theme-list__actions-mode" @click="onListModeChange">
+                                            <sw-icon name="regular-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
+                                            <sw-icon name="regular-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
 
-                {# @deprecated tag:v6.5.0 - Will be removed #}
-                {% block sw_theme_list_listing_list_loader %}{% endblock %}
+                            {% block sw_theme_list_listing_list %}
+                                <div class="sw-theme-list__list">
 
-                {% block sw_theme_list_media_modal %}
-                    <sw-media-modal-v2
-                        variant="regular"
-                        v-if="showMediaModal"
-                        :caption="$tc('sw-theme-manager.general.captionMediaUpload')"
-                        entityContext="theme"
-                        :allowMultiSelect="false"
-                        @media-modal-selection-change="onPreviewImageChange"
-                        @modal-close="onModalClose">
-                    </sw-media-modal-v2>
-                {% endblock %}
+                                    {% block sw_theme_list_listing_list_card %}
+                                        <sw-card class="sw-theme-list__list-card" v-if="listMode === 'list'">
+                                            <template #grid>
 
-                {% block sw_theme_list_delete_modal %}
-                    <sw-modal v-if="showDeleteModal"
-                              @modal-close="onCloseDeleteModal"
-                              :title="$tc('global.default.warning')"
-                              variant="small">
+                                                {% block sw_theme_list_listing_list_data_grid %}
+                                                    <sw-data-grid
+                                                        class="sw-theme-list__list-data-grid"
+                                                        identifier="sw-theme-list"
+                                                        :isLoading="isLoading"
+                                                        :dataSource="themes"
+                                                        :columns="columnConfig"
+                                                        :skeletonItemAmount="limit"
+                                                        :sortBy="sortBy"
+                                                        :sortDirection="sortDirection"
+                                                        :allowInlineEdit="false"
+                                                        :allowColumnEdit="false"
+                                                        :showSettings="false"
+                                                        :showSelection="false"
+                                                        @column-sort="onSortColumn">
 
-                        {% block sw_theme_list_delete_modal_info %}
-                            <div class="sw_theme_manager__confirm-delete-text">
-                                {{ $tc('sw-theme-manager.modal.textDeleteInfo', 0,
-                                { themeName: modalTheme.name }) }}
-                            </div>
-                        {% endblock %}
+                                                        {% block sw_theme_list_listing_list_data_grid_column_name %}
+                                                            <template #column-name="{ item }">
+                                                                <sw-icon
+                                                                    name="regular-lock"
+                                                                    class="sw-theme-list__icon-lock"
+                                                                    v-if="!item.parentThemeId"
+                                                                    v-tooltip="lockToolTip"
+                                                                    size="14">
+                                                                </sw-icon>
+                                                                <router-link :to="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
+                                                                    {{ item.name }}
+                                                                </router-link>
+                                                            </template>
+                                                        {% endblock %}
 
-                        {% block sw_theme_list_delete_modal_footer %}
-                            <template slot="modal-footer">
-                                {% block sw_theme_list_delete_modal_cancel %}
-                                    <sw-button @click="onCloseDeleteModal"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonCancel') }}
-                                    </sw-button>
-                                {% endblock %}
+                                                        {% block sw_theme_list_listing_list_data_grid_column_assignment %}
+                                                            <template #column-assignment="{ item }">
+                                                                {{ item.salesChannels.length }}
+                                                            </template>
+                                                        {% endblock %}
 
-                                {% block sw_theme_list_delete_modal_confirm %}
-                                    <sw-button @click="onConfirmThemeDelete"
-                                               variant="danger"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonDelete') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </sw-modal>
-                {% endblock %}
+                                                        {% block sw_theme_list_listing_list_data_grid_column_created %}
+                                                            <template #column-createdAt="{ item }">
+                                                                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                                                            </template>
+                                                        {% endblock %}
 
-                {% block sw_theme_list_duplicate_modal %}
-                    <sw-modal v-if="showDuplicateModal"
-                              class="sw_theme_manager__duplicate-modal"
-                              @modal-close="onCloseDuplicateModal"
-                              :title="$tc('sw-theme-manager.modal.modalTitleDuplicate')"
-                              variant="small">
+                                                        {% block sw_theme_list_listing_list_data_grid_actions %}
+                                                            <template #actions="{ item }">
+                                                                {% block sw_theme_list_listing_list_data_grid_actions_edit %}
+                                                                    <sw-context-menu-item
+                                                                        class="sw-theme-list-item__option-edit"
+                                                                        :routerLink="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
+                                                                        {{ $tc('sw-theme-manager.themeListItem.edit') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
 
-                        {% block sw_theme_list_duplicate__modal_name_input %}
-                            <div class="sw_theme_manager__duplicate-info">
-                                {{ $tc('sw-theme-manager.modal.textDuplicateInfo') }}
-                            </div>
+                                                                {% block sw_theme_list_listing_list_data_grid_actions_rename %}
+                                                                    <sw-context-menu-item
+                                                                        @click="onRenameTheme(item)"
+                                                                        class="sw-theme-list-item__option-rename"
+                                                                        :disabled="!acl.can('theme.editor')">
+                                                                        {{ $tc('sw-theme-manager.themeListItem.rename') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
 
-                            <sw-field v-model="newThemeName"
-                                      :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
-                                      :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
-                                      tpye="text">
-                            </sw-field>
-                        {% endblock %}
+                                                                {% block sw_theme_list_listing_list_data_grid_actions_delete %}
+                                                                    <sw-context-menu-item
+                                                                        variant="danger"
+                                                                        class="sw-theme-list-item__option-delete"
+                                                                        :disabled="item.salesChannels.length > 0 || !acl.can('theme.deleter')"
+                                                                        v-tooltip="deleteDisabledToolTip(item)"
+                                                                        @click="onDeleteTheme(item)"
+                                                                        v-if="item.parentThemeId">
 
-                        {% block sw_theme_list_duplicate_modal_footer %}
-                            <template slot="modal-footer">
-                                {% block sw_theme_list_duplicate_modal_cancel %}
-                                    <sw-button @click="onCloseDuplicateModal"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonCancel') }}
-                                    </sw-button>
-                                {% endblock %}
+                                                                        {{ $tc('sw-theme-manager.themeListItem.delete') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
 
-                                {% block sw_theme_list_duplicate_modal_confirm %}
-                                    <sw-button @click="onConfirmThemeDuplicate"
-                                               variant="primary"
-                                               :disabled="newThemeName.length < 3"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonDuplicateTheme') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </sw-modal>
-                {% endblock %}
+                                                                {% block sw_theme_list_listing_list_data_grid_actions_create %}
+                                                                    <sw-context-menu-item
+                                                                        v-if="!item.parentThemeId"
+                                                                        class="sw-theme-list-item__option-duplicate"
+                                                                        @click="onDuplicateTheme(item)"
+                                                                        :disabled="!acl.can('theme.creator')">
+                                                                        {{ $tc('sw-theme-manager.actions.duplicate') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
+                                                            </template>
+                                                        {% endblock %}
 
-                {% block sw_theme_list_rename_modal %}
-                    <sw-modal v-if="showRenameModal"
-                              class="sw_theme_manager__rename-modal"
-                              @modal-close="onCloseRenameModal"
-                              :title="$tc('sw-theme-manager.modal.modalTitleRename')"
-                              variant="small">
+                                                        {% block sw_theme_list_listing_list_data_grid_pagination %}
+                                                            <template #pagination>
+                                                                <sw-pagination
+                                                                    :page="page"
+                                                                    :limit="limit"
+                                                                    :total="total"
+                                                                    :steps="[5, 10, 25, 50]"
+                                                                    @page-change="onPageChange">
+                                                                </sw-pagination>
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-data-grid>
+                                                {% endblock %}
+                                            </template>
+                                        </sw-card>
+                                    {% endblock %}
 
-                        {% block sw_theme_list_rename__modal_name_input %}
-                            <div class="sw_theme_manager__rename-info">
-                                {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
-                            </div>
+                                    {% block sw_theme_list_listing_list_grid %}
+                                        <div class="sw-theme-list__list-grid" v-if="listMode === 'grid'">
 
-                            <sw-field v-model="newThemeName"
-                                      :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
-                                      :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
-                                      tpye="text">
-                            </sw-field>
-                        {% endblock %}
+                                            {% block sw_theme_list_listing_list_grid_content %}
+                                                <div class="sw-theme-list__list-grid-content">
+                                                    {% block sw_theme_list_listing_list_item %}
+                                                        <template v-if="!isLoading">
+                                                            <sw-theme-list-item
+                                                            v-for="theme in themes"
+                                                            :theme="theme"
+                                                            :key="theme.id"
+                                                            @preview-image-change="onPreviewChange"
+                                                            @item-click="onListItemClick">
 
-                        {% block sw_theme_list_rename_modal_footer %}
-                            <template slot="modal-footer">
-                                {% block sw_theme_list_rename_modal_cancel %}
-                                    <sw-button @click="onCloseRenameModal"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonCancel') }}
-                                    </sw-button>
-                                {% endblock %}
+                                                            <template #contextMenu>
+                                                                <sw-context-button :zIndex="1100"
+                                                                                   class="sw-theme-list-item__options">
 
-                                {% block sw_theme_list_rename_modal_confirm %}
-                                    <sw-button @click="onConfirmThemeRename"
-                                               variant="primary"
-                                               :disabled="newThemeName.length < 3"
-                                               size="small">
-                                        {{ $tc('sw-theme-manager.modal.buttonRenameTheme') }}
-                                    </sw-button>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-                    </sw-modal>
-                {% endblock %}
-            </sw-card-view>
+                                                                    {% block sw_theme_list_listing_list_item_option_add_preview %}
+                                                                        <sw-context-menu-item
+                                                                            class="sw-theme-list-item__option-preview"
+                                                                            @click="onPreviewChange(theme)"
+                                                                            :disabled="!acl.can('theme.editor')">
+                                                                            {{ $tc('sw-theme-manager.themeListItem.addPreviewImage') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_theme_list_listing_list_item_option_remove_preview %}
+                                                                        <sw-context-menu-item
+                                                                            class="sw-theme-list-item__option-preview sw-theme-list-item__option-preview-remove"
+                                                                            v-if="theme.previewMediaId"
+                                                                            variant="danger"
+                                                                            @click="onPreviewImageRemove(theme)"
+                                                                            :disabled="!acl.can('theme.editor')">
+                                                                            {{ $tc('sw-theme-manager.themeListItem.removePreviewImage') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_theme_list_listing_list_item_option_rename %}
+                                                                        <sw-context-menu-item
+                                                                            @click="onRenameTheme(theme)"
+                                                                            class="sw-theme-list-item__option-rename"
+                                                                            :disabled="!acl.can('theme.editor')">
+                                                                            {{ $tc('sw-theme-manager.themeListItem.rename') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_theme_list_listing_list_item_option_create %}
+                                                                        <sw-context-menu-item
+                                                                            v-if="!theme.parentThemeId"
+                                                                            class="sw-theme-list-item__option-duplicate"
+                                                                            @click="onDuplicateTheme(theme)"
+                                                                            :disabled="!acl.can('theme.creator')">
+                                                                            {{ $tc('sw-theme-manager.actions.duplicate') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_theme_list_listing_list_item_option_delete %}
+                                                                        <sw-context-menu-item
+                                                                            v-if="theme.parentThemeId"
+                                                                            class="sw-theme-list-item__option-delete"
+                                                                            variant="danger"
+                                                                            :disabled="theme.salesChannels.length > 0 || !acl.can('theme.deleter')"
+                                                                            v-tooltip="deleteDisabledToolTip(theme)"
+                                                                            @click="onDeleteTheme(theme)">
+                                                                            {{ $tc('sw-theme-manager.themeListItem.delete') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+                                                                </sw-context-button>
+                                                            </template>
+                                                        </sw-theme-list-item>
+                                                        </template>
+
+                                                        <template v-else>
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                            <sw-skeleton variant="gallery" />
+                                                        </template>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block sw_theme_list_listing_pagination %}
+                                            <sw-pagination class="sw-theme-list__list-pagination"
+                                                           v-if="!isLoading"
+                                                           :page="page"
+                                                           :limit="limit"
+                                                           :total="total"
+                                                           :steps="[9]"
+                                                           @page-change="onPageChange">
+                                            </sw-pagination>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_theme_list_media_modal %}
+                        <sw-media-modal-v2
+                            variant="regular"
+                            v-if="showMediaModal"
+                            :caption="$tc('sw-theme-manager.general.captionMediaUpload')"
+                            entityContext="theme"
+                            :allowMultiSelect="false"
+                            @media-modal-selection-change="onPreviewImageChange"
+                            @modal-close="onModalClose">
+                        </sw-media-modal-v2>
+                    {% endblock %}
+
+                    {% block sw_theme_list_delete_modal %}
+                        <sw-modal v-if="showDeleteModal"
+                                  @modal-close="onCloseDeleteModal"
+                                  :title="$tc('global.default.warning')"
+                                  variant="small">
+
+                            {% block sw_theme_list_delete_modal_info %}
+                                <div class="sw_theme_manager__confirm-delete-text">
+                                    {{ $tc('sw-theme-manager.modal.textDeleteInfo', 0,
+                                    { themeName: modalTheme.name }) }}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_theme_list_delete_modal_footer %}
+                                <template #modal-footer>
+                                    {% block sw_theme_list_delete_modal_cancel %}
+                                        <sw-button @click="onCloseDeleteModal"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_theme_list_delete_modal_confirm %}
+                                        <sw-button @click="onConfirmThemeDelete"
+                                                   variant="danger"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonDelete') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-modal>
+                    {% endblock %}
+
+                    {% block sw_theme_list_duplicate_modal %}
+                        <sw-modal v-if="showDuplicateModal"
+                                  class="sw_theme_manager__duplicate-modal"
+                                  @modal-close="onCloseDuplicateModal"
+                                  :title="$tc('sw-theme-manager.modal.modalTitleDuplicate')"
+                                  variant="small">
+
+                            {% block sw_theme_list_duplicate__modal_name_input %}
+                                <div class="sw_theme_manager__duplicate-info">
+                                    {{ $tc('sw-theme-manager.modal.textDuplicateInfo') }}
+                                </div>
+
+                                <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="newThemeName"
+                                    {% else %}
+                                    v-model="newThemeName"
+                                    {% endif %}
+                                    name="sw-field--duplicate-theme-name"
+                                    :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
+                                    :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
+                                />
+                            {% endblock %}
+
+                            {% block sw_theme_list_duplicate_modal_footer %}
+                                <template #modal-footer>
+                                    {% block sw_theme_list_duplicate_modal_cancel %}
+                                        <sw-button @click="onCloseDuplicateModal"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_theme_list_duplicate_modal_confirm %}
+                                        <sw-button @click="onConfirmThemeDuplicate"
+                                                   variant="primary"
+                                                   :disabled="newThemeName.length < 3"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonDuplicateTheme') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-modal>
+                    {% endblock %}
+
+                    {% block sw_theme_list_rename_modal %}
+                        <sw-modal v-if="showRenameModal"
+                                  class="sw_theme_manager__rename-modal"
+                                  @modal-close="onCloseRenameModal"
+                                  :title="$tc('sw-theme-manager.modal.modalTitleRename')"
+                                  variant="small">
+
+                            {% block sw_theme_list_rename__modal_name_input %}
+                                <div class="sw_theme_manager__rename-info">
+                                    {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
+                                </div>
+
+                                <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="newThemeName"
+                                    {% else %}
+                                    v-model="newThemeName"
+                                    {% endif %}
+                                    name="sw-field--rename-theme-name"
+                                    :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
+                                    :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
+                                />
+                            {% endblock %}
+
+                            {% block sw_theme_list_rename_modal_footer %}
+                                <template #modal-footer>
+                                    {% block sw_theme_list_rename_modal_cancel %}
+                                        <sw-button @click="onCloseRenameModal"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_theme_list_rename_modal_confirm %}
+                                        <sw-button @click="onConfirmThemeRename"
+                                                   variant="primary"
+                                                   :disabled="newThemeName.length < 3"
+                                                   size="small">
+                                            {{ $tc('sw-theme-manager.modal.buttonRenameTheme') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-modal>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

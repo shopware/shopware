@@ -8,20 +8,21 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -30,36 +31,32 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
-    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
-    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
-    public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
-    public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
+    final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    final public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
+    final public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    final public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
+    final public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private IdsCollection $ids;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $calculator;
+    private QuantityPriceCalculator $calculator;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new IdsCollection();
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->calculator = $this->getContainer()->get(QuantityPriceCalculator::class);
     }
@@ -71,6 +68,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
 
         $info = $lineItem->getDeliveryInformation();
@@ -78,6 +76,21 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(101, $info->getHeight());
         static::assertEquals(102, $info->getWidth());
         static::assertEquals(103, $info->getLength());
+    }
+
+    public function testDeliveryInformationWithEmptyWeight(): void
+    {
+        $this->createProduct(['weight' => null]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
+
+        $info = $lineItem->getDeliveryInformation();
+
+        static::assertNull($info->getWeight());
     }
 
     public function testNotCompletedLogic(): void
@@ -88,14 +101,16 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
 
         $lineItem = $cart->get($this->ids->get('product'));
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertSame('test', $lineItem->getLabel());
 
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
         $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertSame('update', $lineItem->getLabel());
     }
 
@@ -113,12 +128,14 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertInstanceOf(QuantityPriceDefinition::class, $lineItem->getPriceDefinition());
 
         /** @var QuantityPriceDefinition $priceDefinition */
         $priceDefinition = $lineItem->getPriceDefinition();
         static::assertNull($priceDefinition->getReferencePriceDefinition());
 
+        static::assertInstanceOf(CalculatedPrice::class, $lineItem->getPrice());
         static::assertNull($lineItem->getPrice()->getReferencePrice());
     }
 
@@ -135,7 +152,7 @@ class ProductCartProcessorTest extends TestCase
             ->visibility()
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -148,7 +165,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
 
         $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($ids->get('test'));
+            ->create(['id' => $ids->get('test'), 'referencedId' => $ids->get('test')], $context);
 
         $cart = $this->getContainer()->get(CartService::class)
             ->add($cart, [$lineItem], $context);
@@ -156,13 +173,19 @@ class ProductCartProcessorTest extends TestCase
         static::assertCount(1, $cart->getLineItems());
 
         $lineItem = $cart->getLineItems()->first();
+        static::assertNotNull($lineItem);
         static::assertEquals('product', $lineItem->getType());
         static::assertEquals($ids->get('test'), $lineItem->getReferencedId());
 
-        static::assertEquals($price, $lineItem->getPrice()->getTotalPrice());
+        /** @var CalculatedPrice $calcPrice */
+        $calcPrice = $lineItem->getPrice();
+        static::assertEquals($price, $calcPrice->getTotalPrice());
     }
 
-    public function advancedPricingProvider()
+    /**
+     * @return \Traversable<string, array{0: bool, 1: int}>
+     */
+    public static function advancedPricingProvider(): \Traversable
     {
         yield 'Test not matching rule' => [false, 100];
 
@@ -178,7 +201,7 @@ class ProductCartProcessorTest extends TestCase
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -186,6 +209,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertSame('test', $actualProduct->getLabel());
     }
 
@@ -202,7 +226,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -210,7 +234,8 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
-        static::assertSame($product->getLabel(), $actualProduct->getLabel());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertSame('My special product', $actualProduct->getLabel());
     }
 
     public function testOverwriteLabelWithPermissionNoLabel(): void
@@ -226,7 +251,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel(null);
 
@@ -234,6 +259,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertSame('test', $actualProduct->getLabel());
     }
 
@@ -249,7 +275,8 @@ class ProductCartProcessorTest extends TestCase
         $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
-        $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $cartService->add($cart, $product, $context);
 
         $productCartProcessor = $this->getContainer()->get(ProductCartProcessor::class);
@@ -260,12 +287,15 @@ class ProductCartProcessorTest extends TestCase
             new CartBehavior()
         );
 
-        $payload = $cart->get($product->getId())->getPayload();
-        $purchasePrices = json_decode($payload['purchasePrices']);
-        static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
-        static::assertSame(7.5, $purchasePrices->gross);
-        static::assertSame(5, $purchasePrices->net);
-        static::assertFalse($purchasePrices->linked);
+        $lineItem = $cart->get($product->getId());
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        $payload = $lineItem->getPayload();
+        $purchasePrices = json_decode((string) $payload['purchasePrices'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);
+        static::assertSame(7.5, $purchasePrices['gross']);
+        static::assertSame(5, $purchasePrices['net']);
+        static::assertFalse($purchasePrices['linked']);
     }
 
     public function testPayloadContainsFeatures(): void
@@ -275,11 +305,17 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertArrayHasKey('features', $lineItem->getPayload());
     }
 
     /**
      * @dataProvider productFeatureProdiver
+     *
+     * @param array{type: string} $testedFeature
+     * @param array<string, mixed> $productData
+     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
+     *
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -290,13 +326,14 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct(array_merge([
+        $this->createProduct([...[
             'featureSet' => $this->createFeatureSet([$testedFeature]),
-        ], $productData));
+        ], ...$productData]);
 
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         $features = $lineItem->getPayload()['features'];
         $feature = array_pop($features);
 
@@ -311,7 +348,14 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($expectedFeature, $feature);
     }
 
-    public function productFeatureProdiver(): array
+    /**
+     * @return array{
+     *     0: array{type: string},
+     *     1: array<string, mixed>,
+     *     2: array{type: string, value: mixed, label: string}
+     *     }[]
+     */
+    public static function productFeatureProdiver(): array
     {
         return [
             [
@@ -529,7 +573,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -537,6 +581,11 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -544,9 +593,10 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productDeliverabilityProvider
+     *
      * @group slow
      */
-    public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, bool $isCheckMessage): void
+    public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [
             'maxPurchase' => $maxPurchase,
@@ -564,10 +614,12 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $config = [
+            'id' => $this->ids->get('product'),
+            'referencedId' => $this->ids->get('product'),
             'quantity' => $quantity,
         ];
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'), $config);
+            ->create($config, $context);
 
         $product->setLabel('My special product');
 
@@ -575,28 +627,34 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertEquals($quantityExpected, $actualProduct->getQuantity());
-        if ($isCheckMessage) {
-            static::assertEquals(self::PURCHASE_STEP_QUANTITY_ERROR_KEY, $service->getCart($token, $context)->getErrors()->first()->getMessageKey());
+        if ($errorKey !== null) {
+            $error = $service->getCart($token, $context)->getErrors()->first();
+            static::assertNotNull($error);
+            static::assertEquals($errorKey, $error->getMessageKey());
         }
     }
 
-    public function productDeliverabilityProvider()
+    /**
+     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
+     */
+    public static function productDeliverabilityProvider(): array
     {
         return [
-            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, true],
-            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, true],
-            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, true],
-            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, true],
-            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, true],
-            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, true],
-            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, true],
-            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, true],
-            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, false],
-            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, false],
-            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, true],
-            'fixed quantity should be return 10 with error message' => [10, 3, 13, 11, 10, true],
-            'fixed quantity should be return 10, without error message' => [10, 2, 20, 2, 10, false],
+            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY],
+            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 10 with purchase step error message' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 10, with min order quantity error message' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY],
         ];
     }
 
@@ -617,13 +675,10 @@ class ProductCartProcessorTest extends TestCase
         $definition = new QuantityPriceDefinition(10, new TaxRuleCollection(), 1);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setPriceDefinition($definition);
         $product->setLabel('My test product');
         $product->setQuantity(5);
-        $product->setExtensions([
-            ProductCartProcessor::CUSTOM_PRICE => true,
-        ]);
 
         $cart = $this->cartService->getCart($token, $context);
         $this->cartService->add($cart, $product, $context);
@@ -631,6 +686,10 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -651,7 +710,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setLabel('My test product');
 
         $cart = $this->cartService->getCart($token, $context);
@@ -659,6 +718,10 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -681,7 +744,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setLabel('My test product');
 
         $cart = $this->cartService->getCart($token, $context);
@@ -689,15 +752,46 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertInstanceOf(DeliveryInformation::class, $actualProduct->getDeliveryInformation());
         static::assertFalse($actualProduct->getDeliveryInformation()->getFreeDelivery());
+    }
+
+    public function testInactiveProductCartRemoval(): void
+    {
+        $context = $this->getContext();
+        $this->createProduct();
+        $this->getProductCart();
+
+        $update = ['id' => $this->ids->get('product'), 'active' => false];
+        $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
+
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertNull($lineItem);
+    }
+
+    public function testDeletedProductCartRemoval(): void
+    {
+        $context = $this->getContext();
+        $this->createProduct();
+        $this->getProductCart();
+
+        $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
+
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertNull($lineItem);
     }
 
     private function getProductCart(): Cart
     {
-        $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
-
         $context = $this->getContext();
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -714,8 +808,15 @@ class ProductCartProcessorTest extends TestCase
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
+    /**
+     * @param array<string, mixed>|null $additionalData
+     */
     private function createProduct(?array $additionalData = []): void
     {
+        if ($additionalData === null) {
+            $additionalData = [];
+        }
+
         $data = [
             'id' => $this->ids->create('product'),
             'name' => 'test',
@@ -750,8 +851,15 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string, mixed>|null $additionalData
+     */
     private function createCustomField(?array $additionalData = []): void
     {
+        if ($additionalData === null) {
+            $additionalData = [];
+        }
+
         $data = array_merge([
             'id' => self::CUSTOM_FIELD_ID,
             'name' => 'lorem_ipsum',
@@ -772,6 +880,11 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * @param array{type: string}[]|null $features
+     *
+     * @return array<string, mixed>
+     */
     private function createFeatureSet(?array $features = []): array
     {
         return [

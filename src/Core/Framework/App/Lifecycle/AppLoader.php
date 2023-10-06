@@ -2,31 +2,31 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
+use Composer\InstalledVersions;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
+#[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
-    private string $appDir;
+    final public const COMPOSER_TYPE = 'shopware-app';
 
-    private ConfigReader $configReader;
-
-    private string $projectDir;
-
-    public function __construct(string $appDir, string $projectDir, ConfigReader $configReader)
-    {
-        $this->appDir = $appDir;
-        $this->configReader = $configReader;
-        $this->projectDir = $projectDir;
+    public function __construct(
+        private readonly string $appDir,
+        private readonly string $projectDir,
+        ConfigReader $configReader
+    ) {
+        parent::__construct($configReader);
     }
 
     public function getDecorated(): AbstractAppLoader
@@ -39,54 +39,7 @@ class AppLoader extends AbstractAppLoader
      */
     public function load(): array
     {
-        if (!file_exists($this->appDir)) {
-            return [];
-        }
-
-        $finder = new Finder();
-        $finder->in($this->appDir)
-            ->depth('<= 1') // only use manifest files in app root folders
-            ->name('manifest.xml');
-
-        $manifests = [];
-        foreach ($finder->files() as $xml) {
-            try {
-                $manifest = Manifest::createFromXmlFile($xml->getPathname());
-
-                $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (XmlParsingException $e) {
-                //nth, if app is already registered it will be deleted
-            }
-        }
-
-        return $manifests;
-    }
-
-    public function getIcon(Manifest $app): ?string
-    {
-        if (!$app->getMetadata()->getIcon()) {
-            return null;
-        }
-
-        $iconPath = sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon());
-        $icon = @file_get_contents($iconPath);
-
-        if (!$icon) {
-            return null;
-        }
-
-        return $icon;
-    }
-
-    public function getConfiguration(AppEntity $app): ?array
-    {
-        $configPath = sprintf('%s/%s/Resources/config/config.xml', $this->projectDir, $app->getPath());
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return $this->configReader->read($configPath);
+        return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
     }
 
     public function deleteApp(string $technicalName): void
@@ -99,22 +52,95 @@ class AppLoader extends AbstractAppLoader
 
         $manifest = $apps[$technicalName];
 
+        if ($manifest->isManagedByComposer()) {
+            throw AppException::cannotDeleteManaged($technicalName);
+        }
+
         (new Filesystem())->remove($manifest->getPath());
     }
 
-    public function getCmsExtensions(AppEntity $app): ?CmsManifest
+    public function loadFile(string $appPath, string $filePath): ?string
     {
-        $configPath = sprintf('%s/%s/Resources/cms.xml', $this->projectDir, $app->getPath());
+        $path = Path::join($appPath, $filePath);
 
-        if (!file_exists($configPath)) {
+        if ($path[0] !== \DIRECTORY_SEPARATOR) {
+            $path = Path::join($this->projectDir, $path);
+        }
+
+        $content = @file_get_contents($path);
+
+        if (!$content) {
             return null;
         }
 
-        return CmsManifest::createFromXmlFile($configPath);
+        return $content;
     }
 
-    public function getAssetPathForAppPath(string $appPath): string
+    public function locatePath(string $appPath, string $filePath): ?string
     {
-        return sprintf('%s/%s/Resources/public', $this->projectDir, $appPath);
+        $path = Path::join($appPath, $filePath);
+
+        if ($path[0] !== \DIRECTORY_SEPARATOR) {
+            $path = Path::join($this->projectDir, $path);
+        }
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        return $path;
+    }
+
+    /**
+     * @return array<string, Manifest>
+     */
+    private function loadFromAppDir(): array
+    {
+        if (!file_exists($this->appDir)) {
+            return [];
+        }
+
+        $finder = new Finder();
+        $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in-app root folders
+            ->name('manifest.xml');
+
+        $manifests = [];
+        foreach ($finder->files() as $xml) {
+            try {
+                $manifest = Manifest::createFromXmlFile($xml->getPathname());
+
+                $manifests[$manifest->getMetadata()->getName()] = $manifest;
+            } catch (XmlParsingException) {
+                // nth, if app is already registered it will be deleted
+            }
+        }
+
+        return $manifests;
+    }
+
+    /**
+     * @return array<string, Manifest>
+     */
+    private function loadFromComposer(): array
+    {
+        $manifests = [];
+
+        foreach (InstalledVersions::getInstalledPackagesByType(self::COMPOSER_TYPE) as $packageName) {
+            $path = InstalledVersions::getInstallPath($packageName);
+
+            if ($path !== null) {
+                try {
+                    $manifest = Manifest::createFromXmlFile($path . '/manifest.xml');
+                    $manifest->setManagedByComposer(true);
+
+                    $manifests[$manifest->getMetadata()->getName()] = $manifest;
+                } catch (XmlParsingException) {
+                    // nth, if app is already registered it will be deleted
+                }
+            }
+        }
+
+        return $manifests;
     }
 }

@@ -1,0 +1,43 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "businessEventsResponse": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the event"
+                        },
+                        "class": {
+                            "type": "string",
+                            "description": "Class name of the event"
+                        },
+                        "data": {
+                            "type": "object",
+                            "description": "Available data of event"
+                        },
+                        "aware": {
+                            "type": "array",
+                            "description": "Flow builder will base on awareness to show actions",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "extensions": {
+                            "type": "array",
+                            "description": "Extensions data of event",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

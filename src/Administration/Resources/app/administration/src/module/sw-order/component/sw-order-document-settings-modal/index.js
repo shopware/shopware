@@ -1,11 +1,18 @@
 import template from './sw-order-document-settings-modal.html.twig';
+import './sw-order-document-settings-modal.scss';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
 
-Component.register('sw-order-document-settings-modal', {
+const { Mixin, Utils } = Shopware;
+const { isEmpty } = Utils.types;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['numberRangeService'],
+    inject: ['numberRangeService', 'feature', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -33,7 +40,7 @@ Component.register('sw-order-document-settings-modal', {
     data() {
         return {
             showModal: false,
-            selectedDocumentFile: false,
+            selectedDocumentFile: null,
             uploadDocument: false,
             documentConfig: {
                 custom: {},
@@ -44,8 +51,9 @@ Component.register('sw-order-document-settings-modal', {
             documentNumberPreview: false,
             features: {
                 uploadFileSizeLimit: 52428800,
-                fileTypes: ['application/pdf'],
+                fileAcceptTypes: 'application/pdf',
             },
+            showMediaModal: false,
         };
     },
 
@@ -53,6 +61,19 @@ Component.register('sw-order-document-settings-modal', {
         documentPreconditionsFulfilled() {
             // can be overwritten in extending component
             return true;
+        },
+
+        modalTitle() {
+            if (this.currentDocumentType) {
+                const documentTypeName = this.currentDocumentType?.translated?.name || this.currentDocumentType?.name;
+                return `${this.$tc('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
+            }
+
+            return this.$tc('sw-order.documentModal.modalTitle');
+        },
+
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
     },
 
@@ -121,5 +142,44 @@ Component.register('sw-order-document-settings-modal', {
         onCancel() {
             this.$emit('page-leave');
         },
+
+        openMediaModal() {
+            this.showMediaModal = true;
+        },
+
+        closeMediaModal() {
+            this.showMediaModal = false;
+        },
+
+        async onAddMediaFromLibrary(media) {
+            if (isEmpty(media)) {
+                return;
+            }
+
+            this.validateFile(media[0]);
+        },
+
+        successfulUploadFromUrl(res) {
+            this.mediaRepository.get(res.targetId).then(response => {
+                this.validateFile(response);
+            });
+        },
+
+        validateFile(response) {
+            if (this.$refs.fileInput.checkFileSize(response) && this.$refs.fileInput.checkFileType(response)) {
+                this.selectedDocumentFile = response;
+                this.documentConfig.documentMediaFileId = response.id;
+            }
+        },
+
+        removeCustomDocument() {
+            this.documentConfig.documentMediaFileId = null;
+            this.selectedDocumentFile = null;
+            this.sourceDocument = null;
+        },
+
+        onAddDocument(data) {
+            this.selectedDocumentFile = data[0];
+        },
     },
-});
+};

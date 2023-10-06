@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -17,6 +18,9 @@ use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @internal
+ */
 class TwigSwExtendsTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -25,13 +29,13 @@ class TwigSwExtendsTest extends TestCase
 
     private CacheInterface $cache;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $filesystem = $this->getContainer()->get(Filesystem::class);
         $filesystem->remove($this->cacheDir);
@@ -182,11 +186,15 @@ class TwigSwExtendsTest extends TestCase
         );
     }
 
+    /**
+     * @param BundleFixture[] $bundles
+     *
+     * @return array{0: Environment, 1: TemplateFinder}
+     */
     private function createFinder(array $bundles): array
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
-        /** @var BundleFixture $bundle */
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
@@ -200,6 +208,11 @@ class TwigSwExtendsTest extends TestCase
             ->method('getBundles')
             ->willReturn($bundles);
 
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->expects(static::any())
+            ->method('getScopes')
+            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
@@ -209,10 +222,11 @@ class TwigSwExtendsTest extends TestCase
                     $kernel,
                     $this->getContainer()->get(Connection::class)
                 ),
-            ])
+            ]),
+            $scopeDetector,
         );
 
-        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         return [$twig, $templateFinder];

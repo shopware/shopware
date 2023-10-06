@@ -1,12 +1,21 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Component, Context } = Shopware;
+const { Context, Filter } = Shopware;
 
-Component.register('sw-media-index', {
+/**
+ * @package buyers-experience
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+        'acl',
+        'feature',
+    ],
 
     props: {
         routeFolderId: {
@@ -26,7 +35,7 @@ Component.register('sw-media-index', {
             isLoading: false,
             selectedItems: [],
             uploads: [],
-            term: this.$route.query ? this.$route.query.term : '',
+            term: this.$route.query?.term ?? '',
             uploadTag: 'upload-tag-sw-media-index',
             parentFolder: null,
             currentFolder: null,
@@ -52,10 +61,22 @@ Component.register('sw-media-index', {
             root.id = null;
             return root;
         },
+
+        assetFilter() {
+            return Filter.getByName('asset');
+        },
     },
 
     watch: {
         routeFolderId() {
+            if (this.feature.isActive('VUE3')) {
+                this.term = '';
+                this.updateFolder();
+
+                return;
+            }
+
+            this.term = null;
             this.updateFolder();
         },
     },
@@ -70,6 +91,13 @@ Component.register('sw-media-index', {
 
     methods: {
         createdComponent() {
+            // Vue router sets the folder id to an empty string if the page is reloaded
+            if (this.feature.isActive('VUE3') && this.routeFolderId === '') {
+                this.updateRoute(null);
+
+                return;
+            }
+
             this.updateFolder();
         },
 
@@ -161,7 +189,7 @@ Component.register('sw-media-index', {
         },
 
         updateRoute(newFolderId) {
-            this.term = this.$route.query ? this.$route.query.term : '';
+            this.term = this.$route.query?.term ?? '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {
@@ -170,4 +198,4 @@ Component.register('sw-media-index', {
             });
         },
     },
-});
+};

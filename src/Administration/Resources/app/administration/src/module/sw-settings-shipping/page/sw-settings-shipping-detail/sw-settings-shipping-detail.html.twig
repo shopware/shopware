@@ -1,15 +1,19 @@
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_shipping_detail %}
 <sw-page class="sw-settings-shipping-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>{{ placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -20,9 +24,14 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-shipping-method-detail__save-action"
             :is-loading="isProcessLoading"
@@ -36,6 +45,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -47,6 +57,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_content %}
     <template #content>
         <sw-card-view>
@@ -56,6 +67,7 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_content_language_info %}
                 <sw-language-info
                     :is-new-entity="isNewShippingMethod"
@@ -63,6 +75,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_base %}
                 <sw-card
                     position-identifier="sw-settings-shipping-detail-base"
@@ -70,13 +83,17 @@
                     :is-loading="isLoading"
                 >
                     <sw-container
-                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        columns="5fr 2fr 1fr"
                         gap="0px 30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.name"
+                            {% else %}
                             v-model="shippingMethod.name"
-                            type="text"
+                            {% endif %}
                             required
                             :disabled="!acl.can('shipping.editor')"
                             :error="shippingMethodNameError"
@@ -84,10 +101,28 @@
                             :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
                         />
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_shipping_detail_base_content_field_position %}
+                        <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.position"
+                            {% else %}
+                            v-model="shippingMethod.position"
+                            {% endif %}
+                            class="sw-settings-shipping-detail__field-position"
+                            :disabled="!acl.can('shipping.editor')"
+                            :label="$tc('sw-settings-shipping.detail.labelPosition')"
+                            :placeholder="$tc('sw-settings-shipping.detail.placeholderPosition')"
+                        />
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_active %}
-                        <sw-field
+                        <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.active"
+                            {% else %}
                             v-model="shippingMethod.active"
-                            type="switch"
+                            {% endif %}
                             bordered
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"
@@ -98,9 +133,14 @@
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_description %}
                         <sw-textarea-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.description"
+                            {% else %}
                             v-model="shippingMethod.description"
+                            {% endif %}
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor')"
@@ -109,6 +149,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_media_upload %}
                         <sw-upload-listener
                             :upload-tag="uploadTag"
@@ -132,9 +173,14 @@
                         {% endblock %}
                     </sw-container>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
                     <sw-entity-single-select
+                        {% if VUE3 %}
+                        v-model:value="shippingMethod.deliveryTimeId"
+                        {% else %}
                         v-model="shippingMethod.deliveryTimeId"
+                        {% endif %}
                         class="sw-settings-shipping-detail__delivery-time"
                         entity="delivery_time"
                         :disabled="!acl.can('shipping.editor')"
@@ -147,10 +193,14 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
-                    <sw-field
+                    <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="shippingMethod.trackingUrl"
+                        {% else %}
                         v-model="shippingMethod.trackingUrl"
-                        type="text"
+                        {% endif %}
                         :disabled="!acl.can('shipping.editor')"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
@@ -158,6 +208,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_tags_field %}
                     <sw-entity-tag-select
                         v-if="!isLoading"
@@ -169,12 +220,14 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_top_ruleshippingPriceStore %}
                 <sw-card
                     position-identifier="sw-settings-shipping-detail-condition-container"
                     class="sw-settings-shipping-detail__condition_container"
                     :title="$tc('sw-settings-shipping.detail.topRule')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_top_rule_select %}
                     <sw-select-rule-create
                         :rule-id="shippingMethod.availabilityRuleId"
@@ -182,15 +235,16 @@
                         :disabled="!acl.can('shipping.editor')"
                         required
                         :error="shippingMethodAvailabilityRuleIdError"
-                        :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'shippingMethods' : ''"
                         :label="$tc('sw-settings-shipping.detail.topRule')"
                         class="sw-settings-shipping-detail__top-rule"
+                        rule-aware-group-key="shippingMethods"
                         @save-rule="onSaveRule"
                     />
                     {% endblock %}
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_tax_cost %}
                 <sw-settings-shipping-tax-cost
                     v-if="!isLoading"
@@ -198,6 +252,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_price_matrices %}
                 <sw-settings-shipping-price-matrices
                     v-if="!isLoading"
@@ -206,6 +261,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"
@@ -225,14 +281,15 @@
     </template>
     {% endblock %}
 
-    <template slot="sidebar">
+    <template #sidebar>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_sidebar %}
         <sw-sidebar :propagate-width="true">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_setting_shipping_detail_sidebar_media_item %}
             <sw-sidebar-media-item ref="mediaSidebarItem">
                 <template
-                    slot="context-menu-items"
-                    slot-scope="media"
+                    #context-menu-items="media"
                 >
                     <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                         {{ $tc('sw-settings-shipping.sidebar.labelUseAsLogo') }}

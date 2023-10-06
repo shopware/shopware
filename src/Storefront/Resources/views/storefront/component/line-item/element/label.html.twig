@@ -1,0 +1,31 @@
+{% block component_line_item_label %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
+    {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string. Remove this if block. #}
+    {% if productLink and not lineItemLink %}
+        {% set lineItemLink = seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) %}
+
+        {% if controllerAction is same as('confirmPage') %}
+            {% set lineItemModalLink = path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) %}
+        {% endif %}
+    {% endif %}
+
+    {% if lineItemLink %}
+        <a href="{{ lineItemLink }}"
+           class="line-item-label"
+           title="{{ label }}"
+            {% if lineItemModalLink %}
+                data-ajax-modal="modal"
+                data-modal-class="quickview-modal"
+                data-url="{{ lineItemModalLink }}"
+            {% endif %}
+        >
+            {{ label|u.truncate(60, '...', false)|raw }}
+        </a>
+    {% else %}
+        <div class="line-item-label">
+            {{ label|u.truncate(60, '...', false)|raw }}
+        </div>
+    {% endif %}
+{% endblock %}

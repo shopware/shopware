@@ -3,17 +3,21 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class MediaFolderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,24 +29,21 @@ class MediaFolderServiceTest extends TestCase
     private $mediaFolderService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderConfigRepo;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -57,9 +58,11 @@ class MediaFolderServiceTest extends TestCase
 
     public function testDissolveForNonExistingFolder(): void
     {
-        $this->expectException(MediaFolderNotFoundException::class);
+        $folderId = Uuid::randomHex();
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::mediaFolderIdNotFound($folderId)->getMessage());
 
-        $this->mediaFolderService->dissolve(Uuid::randomHex(), $this->context);
+        $this->mediaFolderService->dissolve($folderId, $this->context);
     }
 
     public function testDissolveWithNoChildFolders(): void
@@ -67,15 +70,21 @@ class MediaFolderServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
 
-        $configId = $this->mediaFolderRepo
-            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
-            ->get($media->getMediaFolderId())
-            ->getConfigurationId();
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolder = $this->mediaFolderRepo
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId);
+        static::assertInstanceOf(MediaFolderEntity::class, $mediaFolder);
+
+        $configId = $mediaFolder->getConfigurationId();
+
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasNoFolder($media);
+        static::assertIsString($configId);
         $this->assertConfigIsDeleted($configId);
     }
 
@@ -101,7 +110,9 @@ class MediaFolderServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasNoFolder($media);
@@ -139,7 +150,9 @@ class MediaFolderServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasParentFolder($media, $parentId);
@@ -206,7 +219,9 @@ class MediaFolderServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasParentFolder($media, $parentId);
@@ -218,14 +233,22 @@ class MediaFolderServiceTest extends TestCase
         $folders = $this->mediaFolderRepo
             ->search($criteria, $this->context)
             ->getEntities();
+        static::assertInstanceOf(MediaFolderCollection::class, $folders);
 
-        $this->assertConfig($folders->get($child1Id), false, true, true, 80);
-        $this->assertConfig($folders->get($child2Id), false, true, true, 80);
+        $foldersChild1 = $folders->get($child1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild1);
 
-        static::assertNotEquals($configId === $folders->get($child1Id)->getConfigurationId(), $configId === $folders->get($child2Id)->getConfigurationId());
+        $foldersChild2 = $folders->get($child2Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild2);
 
-        static::assertNotNull($folders->get($child3Id));
-        static::assertEquals($childConfigId, $folders->get($child3Id)->getConfigurationId());
+        $foldersChild3 = $folders->get($child3Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild3);
+
+        $this->assertConfig($foldersChild1, false, true, true, 80);
+        $this->assertConfig($foldersChild2, false, true, true, 80);
+
+        static::assertNotEquals($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
+        static::assertEquals($childConfigId, $foldersChild3->getConfigurationId());
     }
 
     public function testDissolveWithMultipleLayerOfChildren(): void
@@ -306,7 +329,9 @@ class MediaFolderServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasParentFolder($media, $parentId);
@@ -314,14 +339,33 @@ class MediaFolderServiceTest extends TestCase
         $folders = $this->mediaFolderRepo
             ->search(new Criteria(), $this->context)
             ->getEntities();
+        static::assertInstanceOf(MediaFolderCollection::class, $folders);
 
-        static::assertNotEquals($configId === $folders->get($child1Id)->getConfigurationId(), $configId === $folders->get($child2Id)->getConfigurationId());
+        $foldersChild1 = $folders->get($child1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild1);
 
-        $this->assertConfigIsSame($folders->get($child1Id), $folders->get($child1_1Id));
-        $this->assertConfigIsSame($folders->get($child1Id), $folders->get($child1_1_1Id));
+        $foldersChild2 = $folders->get($child2Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild2);
 
-        $this->assertConfigIsSame($folders->get($child2Id), $folders->get($child2_1Id));
-        $this->assertConfigIsSame($folders->get($child2Id), $folders->get($child2_1_1Id));
+        static::assertNotEquals($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
+
+        $foldersChild1_1Id = $folders->get($child1_1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild1_1Id);
+
+        $foldersChild1_1_1Id = $folders->get($child1_1_1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild1_1_1Id);
+
+        $foldersChild2_1Id = $folders->get($child2_1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild2_1Id);
+
+        $foldersChild2_1_1Id = $folders->get($child2_1_1Id);
+        static::assertInstanceOf(MediaFolderEntity::class, $foldersChild2_1_1Id);
+
+        $this->assertConfigIsSame($foldersChild1, $foldersChild1_1Id);
+        $this->assertConfigIsSame($foldersChild1, $foldersChild1_1_1Id);
+
+        $this->assertConfigIsSame($foldersChild2, $foldersChild2_1Id);
+        $this->assertConfigIsSame($foldersChild2, $foldersChild2_1_1Id);
     }
 
     public function testDissolveWithInheritedConfigAndChildren(): void
@@ -370,7 +414,9 @@ class MediaFolderServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasParentFolder($media, $parentId);
@@ -389,30 +435,38 @@ class MediaFolderServiceTest extends TestCase
         $folder = $this->mediaFolderRepo
             ->search(new Criteria([$folderId]), $this->context)
             ->get($folderId);
+        static::assertInstanceOf(MediaFolderEntity::class, $folder);
+
         static::assertNull($folder->getParentId());
     }
 
     private function assertMediaFolderIsDeleted(MediaEntity $media): void
     {
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
         $folder = $this->mediaFolderRepo
-            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
-            ->get($media->getMediaFolderId());
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId);
         static::assertNull($folder);
     }
 
     private function assertMediaHasNoFolder(MediaEntity $media): void
     {
         $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+
+        static::assertInstanceOf(MediaEntity::class, $media);
         static::assertNull($media->getMediaFolderId());
     }
 
     private function assertMediaHasParentFolder(MediaEntity $media, string $parentId): void
     {
         $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+
+        static::assertInstanceOf(MediaEntity::class, $media);
         static::assertEquals($parentId, $media->getMediaFolderId());
     }
 
-    private function assertConfigIsDeleted($configId): void
+    private function assertConfigIsDeleted(string $configId): void
     {
         $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNull($config);
@@ -431,11 +485,10 @@ class MediaFolderServiceTest extends TestCase
         bool $keepAspectRatio,
         int $thumbnailQuality
     ): void {
-        static::assertNotNull($folder);
         static::assertEquals($useParentConfiguration, $folder->getUseParentConfiguration());
-        static::assertEquals($createThumbnails, $folder->getConfiguration()->getCreateThumbnails());
-        static::assertEquals($keepAspectRatio, $folder->getConfiguration()->getKeepAspectRatio());
-        static::assertEquals($thumbnailQuality, $folder->getConfiguration()->getThumbnailQuality());
+        static::assertEquals($createThumbnails, $folder->getConfiguration()?->getCreateThumbnails());
+        static::assertEquals($keepAspectRatio, $folder->getConfiguration()?->getKeepAspectRatio());
+        static::assertEquals($thumbnailQuality, $folder->getConfiguration()?->getThumbnailQuality());
     }
 
     private function assertConfigIsSame(MediaFolderEntity $folder, MediaFolderEntity $childFolder): void

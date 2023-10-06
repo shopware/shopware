@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_slider %}
 <div
     class="sw-cms-el-image-slider"
     :class="outsideNavArrows"
     :style="verticalAlignStyle"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_slider_img %}
     <div
         class="sw-cms-el-image-slider__image-box"
@@ -19,8 +21,10 @@
     {% endblock %}
 
     <template v-if="element.data !== null">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_slider_nav %}
         <div class="sw-cms-el-image-slider__navigation">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_nav_dots %}
             <div
                 v-if="element.config.navigationDots.value !== null"
@@ -29,13 +33,15 @@
             >
                 <div class="sw-cms-el-image-slider__navigation-buttons">
                     <template v-if="sliderItems && sliderItems.length > 0">
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <div
                             v-for="(sliderItem, index) in sliderItems"
                             :key="index"
                             :class="activeButtonClass(sliderItem.media.url)"
                             class="sw-cms-el-image-slider__navigation-button"
+                            role="button"
+                            tabindex="0"
                             @click="setSliderItem(sliderItem.media, index)"
+                            @keydown.enter="setSliderItem(sliderItem.media, index)"
                         ></div>
                     </template>
                     <template v-else>
@@ -47,6 +53,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_nav_arrows %}
             <div
                 v-if="element.config.navigationArrows.value !== null"
@@ -55,13 +62,13 @@
             >
                 <sw-icon
                     class="sw-cms-el-image-slider__navigation-button"
-                    name="default-arrow-head-left"
+                    name="regular-chevron-left"
                     size="24"
                     @click="setSliderArrowItem(-1)"
                 />
                 <sw-icon
                     class="sw-cms-el-image-slider__navigation-button"
-                    name="default-arrow-head-right"
+                    name="regular-chevron-right"
                     size="24"
                     @click="setSliderArrowItem()"
                 />
@@ -72,17 +79,18 @@
     </template>
 
     <template v-else>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_slider_nav_default %}
         <div class="sw-cms-el-image-slider__navigation">
             <div class="sw-cms-el-image-slider__navigation-arrows is--nav-outside">
                 <sw-icon
                     class="sw-cms-el-image-slider__navigation-button"
-                    name="default-arrow-head-left"
+                    name="regular-chevron-left"
                     size="24"
                 />
                 <sw-icon
                     class="sw-cms-el-image-slider__navigation-button"
-                    name="default-arrow-head-right"
+                    name="regular-chevron-right"
                     size="24"
                 />
             </div>

@@ -2,22 +2,29 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use http\Exception\RuntimeException;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
-use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ *
+ * @phpstan-import-type Api from DefinitionService
+ * @phpstan-import-type OpenApiSpec from DefinitionService
+ */
+#[Package('core')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'openapi-3';
+    final public const FORMAT = 'openapi-3';
     private const OPERATION_KEYS = [
         'get',
         'post',
@@ -26,43 +33,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         'delete',
     ];
 
-    /**
-     * @var OpenApiSchemaBuilder
-     */
-    private $openApiBuilder;
+    private readonly string $schemaPath;
 
     /**
-     * @var OpenApiDefinitionSchemaBuilder
+     * @param array{Framework: array{path: string}} $bundles
+     *
+     * @internal
      */
-    private $definitionSchemaBuilder;
-
-    /**
-     * @var OpenApiLoader
-     */
-    private $openApiLoader;
-
-    /**
-     * @var string
-     */
-    private $schemaPath;
-
-    /**
-     * @var OpenApi3Generator
-     */
-    private $openApi3Generator;
-
     public function __construct(
-        OpenApiSchemaBuilder $openApiBuilder,
-        OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        OpenApiLoader $openApiLoader,
+        private readonly OpenApiSchemaBuilder $openApiBuilder,
+        private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        OpenApi3Generator $openApi3Generator
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
-        $this->openApiBuilder = $openApiBuilder;
-        $this->definitionSchemaBuilder = $definitionSchemaBuilder;
-        $this->openApiLoader = $openApiLoader;
-        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi/';
-        $this->openApi3Generator = $openApi3Generator;
+        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
     }
 
     public function supports(string $format, string $api): bool
@@ -70,18 +54,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function generate(array $definitions, string $api, string $apiType): array
+    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
-        $openApi = $this->openApiLoader->load($api);
+        $openApi = new OpenApi([]);
         $this->openApiBuilder->enrich($openApi, $api);
+
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (!$this->shouldDefinitionBeIncluded($definition)) {
                 continue;
             }
@@ -96,26 +82,35 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->addGeneralInformation($openApi);
         $this->addContentTypeParameter($openApi);
 
-        $data = json_decode($openApi->toJson(), true);
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $data['paths'] ??= [];
 
-        $finder = (new Finder())->in($this->schemaPath)->name('*.json');
+        $schemaPaths = [$this->schemaPath];
 
-        foreach ($finder as $item) {
-            $name = str_replace('.json', '', $item->getFilename());
-
-            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['components']['schemas'][$name] = $readData;
+        if (!empty($bundleName)) {
+            $schemaPaths = $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName);
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         }
 
-        return $data;
+        $loader = new OpenApiFileLoader($schemaPaths);
+
+        /** @var OpenApiSpec $finalSpecs */
+        $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+
+        return $finalSpecs;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     *
+     * @return never
      */
     public function getSchema(array $definitions): array
     {
-        return $this->openApi3Generator->getSchema($definitions);
+        throw new RuntimeException();
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
@@ -182,10 +177,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             ]),
         ];
 
+        if (!is_iterable($openApi->paths)) {
+            return;
+        }
+
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
-                $operation = $path->$key;
+                $operation = $path->$key; /* @phpstan-ignore-line */
 
                 if (!$operation instanceof Operation) {
                     continue;

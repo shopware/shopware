@@ -4,38 +4,31 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
     /**
-     * @var Context
+     * @internal
+     *
+     * @param string[] $ids
+     * @param string[] $skip
      */
-    private $context;
+    public function __construct(
+        private readonly array $ids,
+        private readonly Context $context,
+        private readonly array $skip = []
+    ) {
+    }
 
     /**
-     * @var array
+     * @param string[] $ids
+     * @param string[] $skip
      */
-    private $ids;
-
-    /**
-     * @var array
-     */
-    private $childrenIds;
-
-    /**
-     * @var array
-     */
-    private $parentIds;
-
-    private array $skip;
-
-    public function __construct(array $ids, array $childrenIds, array $parentIds, Context $context, array $skip = [])
+    public static function create(array $ids, Context $context, array $skip): self
     {
-        $this->context = $context;
-        $this->ids = $ids;
-        $this->childrenIds = $childrenIds;
-        $this->parentIds = $parentIds;
-        $this->skip = $skip;
+        return new self($ids, $context, $skip);
     }
 
     public function getContext(): Context
@@ -43,21 +36,17 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
         return $this->context;
     }
 
+    /**
+     * @return string[]
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
-    public function getChildrenIds(): array
-    {
-        return $this->childrenIds;
-    }
-
-    public function getParentIds(): array
-    {
-        return $this->parentIds;
-    }
-
+    /**
+     * @return string[]
+     */
     public function getSkip(): array
     {
         return $this->skip;

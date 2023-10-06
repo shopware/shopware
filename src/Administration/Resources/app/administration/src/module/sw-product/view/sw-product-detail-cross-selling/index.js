@@ -1,11 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-product-detail-cross-selling', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -50,6 +54,10 @@ Component.register('sw-product-detail-cross-selling', {
 
             return this.$tc('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -71,7 +79,7 @@ Component.register('sw-product-detail-cross-selling', {
                 crossSelling.assignedProducts.source,
             );
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('crossSellingId', crossSelling.id))
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('product');
@@ -102,4 +110,4 @@ Component.register('sw-product-detail-cross-selling', {
             this.product.crossSellings.push(this.crossSelling);
         },
     },
-});
+};

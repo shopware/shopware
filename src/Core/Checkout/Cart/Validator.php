@@ -3,18 +3,19 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class Validator
 {
     /**
-     * @var CartValidatorInterface[]
+     * @internal
+     *
+     * @param CartValidatorInterface[] $validators
      */
-    private $validators;
-
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(Cart $cart, SalesChannelContext $context): array

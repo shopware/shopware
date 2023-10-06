@@ -80,5 +80,10 @@ export default {
             "id": "f1d2554b0ce847cd82f3ac9bd1c0dfac",
             "optionId": "f1d2554b0ce847cd82f3ac9bd1c0dfbc"
         }
-    ]
+    ],
+    "variantListingConfig": {
+        "displayParent": true,
+        "mainVariantId": null,
+        "configuratorGroupConfig": null
+    },
 }

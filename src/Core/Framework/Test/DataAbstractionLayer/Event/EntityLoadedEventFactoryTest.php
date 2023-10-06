@@ -6,7 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,17 +17,20 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class EntityLoadedEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private IdsCollection $ids;
 
     private EntityLoadedEventFactory $entityLoadedEventFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);
@@ -41,7 +45,7 @@ class EntityLoadedEventFactoryTest extends TestCase
             ->manufacturer('m1')
             ->prices('r1', 5);
 
-        $this->productRepository->create([$builder->build()], $this->ids->getContext());
+        $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addAssociations([
@@ -51,15 +55,13 @@ class EntityLoadedEventFactoryTest extends TestCase
         ]);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $this->ids->getContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
         $product->addExtension('test', new LanguageCollection([
             (new LanguageEntity())->assign(['id' => $this->ids->create('l1'), '_entityName' => 'language']),
         ]));
-        $events = $this->entityLoadedEventFactory->create([$product], $this->ids->getContext());
+        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
-            return $event->getName();
-        });
+        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertEquals([
@@ -76,11 +78,9 @@ class EntityLoadedEventFactoryTest extends TestCase
     {
         $tax = (new TaxEntity())->assign(['_entityName' => 'tax']);
 
-        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], $this->ids->getContext());
+        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
-            return $event->getName();
-        });
+        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertEquals([

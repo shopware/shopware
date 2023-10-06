@@ -6,40 +6,33 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class CustomerIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
-    public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
+    final public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
 
-    private IteratorFactory $iteratorFactory;
+    private const PRIMARY_KEYS_WITH_PROPERTY_CHANGE = ['email', 'firstName', 'lastName'];
 
-    private EntityRepositoryInterface $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
-        EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->customerNewsletterSalesChannelsUpdater = $customerNewsletterSalesChannelsUpdater;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -48,11 +41,9 @@ class CustomerIndexer extends EntityIndexer
     }
 
     /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     * @param array<string, string>|null $offset
      */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
@@ -73,7 +64,13 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+        $indexing = new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+
+        if ($getIdsWithProfileChange = $event->getPrimaryKeysWithPropertyChange(CustomerDefinition::ENTITY_NAME, self::PRIMARY_KEYS_WITH_PROPERTY_CHANGE)) {
+            $indexing->setIds($getIdsWithProfileChange);
+        }
+
+        return $indexing;
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -81,11 +78,15 @@ class CustomerIndexer extends EntityIndexer
         $ids = $message->getData();
         $ids = array_unique(array_filter($ids));
 
-        if (empty($ids)) {
+        if (empty($ids) || !$message instanceof CustomerIndexingMessage) {
             return;
         }
 
         $context = $message->getContext();
+
+        if (!empty($message->getIds())) {
+            $this->customerNewsletterSalesChannelsUpdater->updateCustomersRecipient($message->getIds());
+        }
 
         if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
             $this->manyToManyIdFieldUpdater->update(CustomerDefinition::ENTITY_NAME, $ids, $context);
@@ -104,5 +105,15 @@ class CustomerIndexer extends EntityIndexer
             self::MANY_TO_MANY_ID_FIELD_UPDATER,
             self::NEWSLETTER_SALES_CHANNELS_UPDATER,
         ];
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 }

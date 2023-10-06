@@ -4,20 +4,24 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
+#[Package('core')]
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
-    private SearchKeywordUpdater $decorated;
-
-    private ElasticsearchHelper $helper;
-
-    public function __construct(SearchKeywordUpdater $decorated, ElasticsearchHelper $helper)
-    {
-        $this->decorated = $decorated;
-        $this->helper = $helper;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly SearchKeywordUpdater $decorated,
+        private readonly ElasticsearchHelper $helper
+    ) {
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if ($this->helper->allowIndexing()) {
@@ -25,5 +29,10 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
         }
 
         $this->decorated->update($ids, $context);
+    }
+
+    public function reset(): void
+    {
+        $this->decorated->reset();
     }
 }

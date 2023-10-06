@@ -6,10 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('inventory')]
 class ProductExportHydrator extends EntityHydrator
 {
+    /**
+     * @param array<string> $row
+     *
+     * @throws \Exception
+     */
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
         if (isset($row[$root . '.id'])) {
@@ -47,6 +54,9 @@ class ProductExportHydrator extends EntityHydrator
         }
         if (isset($row[$root . '.generateByCronjob'])) {
             $entity->generateByCronjob = (bool) $row[$root . '.generateByCronjob'];
+        }
+        if (isset($row[$root . '.isRunning'])) {
+            $entity->isRunning = (bool) $row[$root . '.isRunning'];
         }
         if (isset($row[$root . '.generatedAt'])) {
             $entity->generatedAt = new \DateTimeImmutable($row[$root . '.generatedAt']);

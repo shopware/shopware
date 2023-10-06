@@ -2,63 +2,46 @@
 
 namespace Shopware\Core\Framework\Test\CustomField;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class CustomFieldEntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private int $basicSize = 15;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var int
-     */
-    private $basicSize = 15;
-
-    /**
-     * @var string
-     */
-    private $basicColor = 'blue';
+    private string $basicColor = 'blue';
 
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product.repository');
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
+    /**
+     * NEXT-16212 - This test sometimes triggers a "SQLSTATE[HY000]: General error: 2006 MySQL server has gone away" error
+     *
+     * @group quarantined
+     */
     public function testUpdateCustomFields(): void
     {
-        static::markTestSkipped('NEXT-16212 - This test sometimes triggers a "SQLSTATE[HY000]: General error: 2006 MySQL server has gone away" error');
-
         $newSize = 22;
         $productId = Uuid::randomHex();
 
@@ -68,8 +51,11 @@ class CustomFieldEntityRepositoryTest extends TestCase
 
         $product = $this->getProduct($productId);
 
-        static::assertEquals($this->basicSize, $product->getCustomFields()['swag_backpack_size']);
-        static::assertEquals($this->basicColor, $product->getCustomFields()['swag_backpack_color']);
+        $customFields = $product->getCustomFields();
+        static::assertIsArray($customFields);
+
+        static::assertEquals($this->basicSize, $customFields['swag_backpack_size']);
+        static::assertEquals($this->basicColor, $customFields['swag_backpack_color']);
 
         $this->repository->update(
             [
@@ -79,9 +65,11 @@ class CustomFieldEntityRepositoryTest extends TestCase
         );
 
         $product = $this->getProduct($productId);
+        $customFields = $product->getCustomFields();
+        static::assertIsArray($customFields);
 
-        static::assertEquals($newSize, $product->getCustomFields()['swag_backpack_size']);
-        static::assertEquals($this->basicColor, $product->getCustomFields()['swag_backpack_color']);
+        static::assertEquals($newSize, $customFields['swag_backpack_size']);
+        static::assertEquals($this->basicColor, $customFields['swag_backpack_color']);
     }
 
     public function testNewCustomField(): void
@@ -98,10 +86,12 @@ class CustomFieldEntityRepositoryTest extends TestCase
         ]], Context::createDefaultContext());
 
         $product = $this->getProduct($productId);
+        $customFields = $product->getCustomFields();
+        static::assertIsArray($customFields);
 
-        static::assertEquals('canvas', $product->getCustomFields()['swag_backpack_material']);
-        static::assertEquals($this->basicSize, $product->getCustomFields()['swag_backpack_size']);
-        static::assertEquals($this->basicColor, $product->getCustomFields()['swag_backpack_color']);
+        static::assertEquals('canvas', $customFields['swag_backpack_material']);
+        static::assertEquals($this->basicSize, $customFields['swag_backpack_size']);
+        static::assertEquals($this->basicColor, $customFields['swag_backpack_color']);
     }
 
     private function createProduct(string $productId): void

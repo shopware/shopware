@@ -7,18 +7,20 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandle;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
+#[Package('sales-channel')]
 class SitemapHandleTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var SitemapHandle
-     */
-    private $handle;
+    private ?SitemapHandle $handle = null;
 
     public function testWriteWithoutFinish(): void
     {
@@ -54,7 +56,6 @@ class SitemapHandleTest extends TestCase
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects(static::once())->method('write');
-        $fileSystem->method('listContents')->willReturn([]);
 
         $this->handle = new SitemapHandle(
             $fileSystem,
@@ -83,7 +84,6 @@ class SitemapHandleTest extends TestCase
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects(static::atLeast(3))->method('write');
-        $fileSystem->method('listContents')->willReturn([]);
 
         $this->handle = new SitemapHandle(
             $fileSystem,

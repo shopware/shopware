@@ -7,6 +7,7 @@ use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Kernel;
 
 /**
+ * @internal
  * Helper class to debug data problems in the test suite
  */
 class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
@@ -17,9 +18,9 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     ];
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $lastDataPoint = [];
+    private array $lastDataPoint = [];
 
     public function executeBeforeTest(string $test): void
     {
@@ -44,23 +45,31 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
         $this->lastDataPoint = $stateResult;
     }
 
+    /**
+     * @return array<string, int>
+     */
     private function getCurrentDbState(): array
     {
         $connection = Kernel::getConnection();
 
-        $rawTables = $connection->query('SHOW TABLES')->fetchAll();
+        $rawTables = $connection->fetchAllAssociative('SHOW TABLES');
         $stateResult = [];
 
         foreach ($rawTables as $nested) {
             $tableName = end($nested);
-            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
+            $count = $connection->fetchOne('SELECT COUNT(*) FROM ' . $tableName);
 
-            $stateResult[$tableName] = $count;
+            $stateResult[(string) $tableName] = (int) $count;
         }
 
         return $stateResult;
     }
 
+    /**
+     * @param array<mixed> $state
+     *
+     * @return array<mixed>
+     */
     private function createDiff(array $state): array
     {
         $diff = [];

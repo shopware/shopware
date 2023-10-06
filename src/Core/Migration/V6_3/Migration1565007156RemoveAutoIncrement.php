@@ -3,8 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class Migration1565007156RemoveAutoIncrement extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +26,7 @@ class Migration1565007156RemoveAutoIncrement extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE product DROP COLUMN auto_increment');
-        $connection->executeUpdate('ALTER TABLE category DROP COLUMN auto_increment');
+        $connection->executeStatement('ALTER TABLE product DROP COLUMN auto_increment');
+        $connection->executeStatement('ALTER TABLE category DROP COLUMN auto_increment');
     }
 }

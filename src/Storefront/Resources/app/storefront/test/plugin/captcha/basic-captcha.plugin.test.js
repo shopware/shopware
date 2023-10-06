@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 
 describe('BasicCaptchaPlugin tests', () => {
@@ -19,23 +15,6 @@ describe('BasicCaptchaPlugin tests', () => {
             '<input id="-precheck">' +
             '</div>';
         mockElement.appendChild(mockDiv);
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
 
         // mock basic captcha plugins
         basicCaptchaPlugin = new BasicCaptchaPlugin(mockElement);
@@ -81,5 +60,15 @@ describe('BasicCaptchaPlugin tests', () => {
         basicCaptchaPlugin.onFormSubmit('kyln');
 
         expect(basicCaptchaPlugin._form.submit).toHaveBeenCalled();
+    });
+
+    test('onFormSubmit should not get called when the form invalid', () => {
+        basicCaptchaPlugin._form.submit = jest.fn();
+
+        basicCaptchaPlugin._form.checkValidity = () => { return false };
+
+        basicCaptchaPlugin.onFormSubmit('kyln');
+
+        expect(basicCaptchaPlugin._form.submit).not.toHaveBeenCalled();
     });
 });

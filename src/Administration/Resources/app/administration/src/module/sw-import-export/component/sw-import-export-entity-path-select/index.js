@@ -1,13 +1,16 @@
+/**
+ * @package services-settings
+ */
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get, flow } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-import-export-entity-path-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -125,6 +128,12 @@ Component.register('sw-import-export-entity-path-select', {
                 return this.value || '';
             },
             set(newValue) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },
@@ -741,4 +750,4 @@ Component.register('sw-import-export-entity-path-select', {
             return customFields;
         },
     },
-});
+};

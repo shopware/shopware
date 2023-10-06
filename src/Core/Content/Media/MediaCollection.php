@@ -3,30 +3,25 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void             add(MediaEntity $entity)
- * @method void             set(string $key, MediaEntity $entity)
- * @method MediaEntity[]    getIterator()
- * @method MediaEntity[]    getElements()
- * @method MediaEntity|null get(string $key)
- * @method MediaEntity|null first()
- * @method MediaEntity|null last()
+ * @extends EntityCollection<MediaEntity>
  */
+#[Package('buyers-experience')]
 class MediaCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getUserIds(): array
     {
-        return $this->fmap(function (MediaEntity $media) {
-            return $media->getUserId();
-        });
+        return $this->fmap(fn (MediaEntity $media) => $media->getUserId());
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(function (MediaEntity $media) use ($id) {
-            return $media->getUserId() === $id;
-        });
+        return $this->filter(fn (MediaEntity $media) => $media->getUserId() === $id);
     }
 
     public function getApiAlias(): string

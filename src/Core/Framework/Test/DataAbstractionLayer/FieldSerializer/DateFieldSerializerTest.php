@@ -19,11 +19,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class DateFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private DateFieldSerializer $serializer;
 
@@ -50,7 +53,7 @@ class DateFieldSerializerTest extends TestCase
         );
     }
 
-    public function serializerProvider(): array
+    public static function serializerProvider(): array
     {
         return [
             [

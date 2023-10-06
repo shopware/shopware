@@ -5,29 +5,24 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
+#[Package('core')]
 class EntityExistsValidator extends ConstraintValidator
 {
     /**
-     * @var DefinitionInstanceRegistry
+     * @internal
      */
-    private $definitionRegistry;
-
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $entitySearcher;
-
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry, EntitySearcherInterface $entitySearcher)
-    {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->entitySearcher = $entitySearcher;
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly EntitySearcherInterface $entitySearcher
+    ) {
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof EntityExists) {
             throw new UnexpectedTypeException($constraint, EntityExists::class);

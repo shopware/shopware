@@ -5,28 +5,29 @@ namespace Shopware\Core\Checkout\Promotion\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class PromotionLineItemRule extends Rule
 {
+    final public const RULE_NAME = 'promotionLineItem';
+
     /**
-     * @var string[]|null
+     * @internal
+     *
+     * @param list<string>|null $identifiers
      */
-    protected ?array $identifiers;
-
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $identifiers = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->identifiers = $identifiers;
     }
 
     public function match(RuleScope $scope): bool
@@ -40,17 +41,13 @@ class PromotionLineItemRule extends Rule
         }
 
         $promotionLineItems = $scope->getCart()->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE);
-        $hasPromotionLineItems = \count($promotionLineItems) === 0;
+        $hasNoPromotionLineItems = \count($promotionLineItems) === 0;
 
-        if ($this->operator === self::OPERATOR_EQ && $hasPromotionLineItems) {
-            return false;
+        if ($hasNoPromotionLineItems) {
+            return $this->operator === self::OPERATOR_NEQ;
         }
 
-        if ($this->operator === self::OPERATOR_NEQ && $hasPromotionLineItems) {
-            return true;
-        }
-
-        foreach ($scope->getCart()->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE) as $lineItem) {
+        foreach ($promotionLineItems as $lineItem) {
             if ($lineItem->getPayloadValue('promotionId') === null) {
                 continue;
             }
@@ -64,7 +61,7 @@ class PromotionLineItemRule extends Rule
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getIdentifiers(): ?array
     {
@@ -74,32 +71,26 @@ class PromotionLineItemRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'identifiers' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'promotionLineItem';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('identifiers', PromotionDefinition::ENTITY_NAME, true);
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if ($this->identifiers === null) {
-            return false;
+        if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+            return $this->operator === self::OPERATOR_NEQ;
         }
 
         $promotionId = $lineItem->getPayloadValue('promotionId');
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($promotionId, $this->identifiers, true);
 
-            case self::OPERATOR_NEQ:
-                return !\in_array($promotionId, $this->identifiers, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$promotionId], $this->identifiers, $this->operator);
     }
 }

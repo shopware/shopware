@@ -3,23 +3,27 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepositoryInterface $customerRepository;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        EntityRepositoryInterface $customerRepository
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerRepository
     ) {
-        $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string
@@ -27,35 +31,52 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
         return 'action.add.customer.affiliate.and.campaign.code';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [CustomerAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $config = $event->getConfig();
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
+            return;
+        }
 
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getAffiliateAndCampaignCodeFromCustomerId(string $customerId): array
+    {
+        $data = $this->connection->fetchAssociative(
+            'SELECT affiliate_code, campaign_code FROM customer WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes($customerId),
+            ]
+        );
+
+        if (!$data) {
+            return [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $customerId): void
+    {
         if (!\array_key_exists('affiliateCode', $config) || !\array_key_exists('campaignCode', $config)) {
             return;
         }
 
-        $baseEvent = $event->getEvent();
-
-        if (!$baseEvent instanceof CustomerAware) {
-            return;
-        }
-
-        $customerId = $baseEvent->getCustomerId();
         $customerData = $this->getAffiliateAndCampaignCodeFromCustomerId($customerId);
-
         if (empty($customerData)) {
             return;
         }
@@ -85,21 +106,6 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
 
         $data['id'] = $customerId;
 
-        $this->customerRepository->update([$data], $baseEvent->getContext());
-    }
-
-    private function getAffiliateAndCampaignCodeFromCustomerId(string $customerId): array
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['affiliate_code', 'campaign_code']);
-        $query->from('customer');
-        $query->where('id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($customerId));
-
-        if (!$data = $query->execute()->fetchAssociative()) {
-            return [];
-        }
-
-        return $data;
+        $this->customerRepository->update([$data], $context);
     }
 }

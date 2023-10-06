@@ -1,12 +1,11 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import Storage from 'src/helper/storage/storage.helper';
 import template from './form-preserver.plugin.template.html';
 
+/**
+ * @package content
+ */
 describe('Form Preserver tests', () => {
     let formPreserverPlugin = undefined;
     const testValuesNormal = {
@@ -21,22 +20,12 @@ describe('Form Preserver tests', () => {
         urltest: 'https://www.shopware.com/',
         weektest: '2018-W52',
         cars: 'saab',
-        textareatest: 'a\nlonger\ntext'
+        textareatest: 'a\nlonger\ntext',
+        nestedtest: 'text from nested input field'
     };
 
     beforeEach(() => {
         document.body.innerHTML = template;
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
 
         document.$emitter = {
             unsubscribe: () => {},
@@ -58,7 +47,7 @@ describe('Form Preserver tests', () => {
     });
 
     test('form preserver finds all form elements', () => {
-        expect(formPreserverPlugin.formElements.length).toBe(28);
+        expect(formPreserverPlugin.formElements.length).toBe(29);
     });
 
     test('register event is only called for valid elements', () => {
@@ -68,7 +57,7 @@ describe('Form Preserver tests', () => {
 
         formPreserverPlugin._prepareElements();
 
-        expect(formPreserverPlugin._registerFormElementEvent).toHaveBeenCalledTimes(28 - 10);
+        expect(formPreserverPlugin._registerFormElementEvent).toHaveBeenCalledTimes(29 - 10);
 
         formPreserverPlugin._registerFormElementEvent.mockClear();
     });

@@ -1,11 +1,15 @@
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 
-const { Component, Mixin, Data: { Criteria }, Context } = Shopware;
+const { Mixin, Data: { Criteria }, Context } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-Component.register('sw-settings-shipping-price-matrices', {
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -25,15 +29,6 @@ Component.register('sw-settings-shipping-price-matrices', {
             required: false,
             default: false,
         },
-    },
-
-    data() {
-        return {
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedShippingMethodRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedShippingPriceRules: [],
-        };
     },
 
     computed: {
@@ -70,27 +65,7 @@ Component.register('sw-settings-shipping-price-matrices', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        createdComponent() {
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.getRestrictedRules();
-            }
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        getRestrictedRules() {
-            this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices')
-                .then(result => { this.restrictedShippingMethodRules = result; });
-
-            this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPriceCalculations')
-                .then(result => { this.restrictedShippingPriceRules = result; });
-        },
-
         onAddNewPriceGroup() {
             const newShippingPrice = this.shippingPriceRepository.create(Context.api);
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
@@ -145,4 +120,4 @@ Component.register('sw-settings-shipping-price-matrices', {
             this.shippingMethod.prices.push(...newPrices);
         },
     },
-});
+};

@@ -19,9 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class RootDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root';
+    final public const ENTITY_NAME = 'root';
 
     public function getEntityName(): string
     {
@@ -35,12 +38,21 @@ class RootDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), (new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class))->addFlags(new ApiAware(), new RestrictDelete()), (new OneToOneAssociationField('subCascade', 'id', 'root_id', SubCascadeDefinition::class))->addFlags(new ApiAware(), new CascadeDelete())]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            (new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class))->addFlags(new ApiAware(), new RestrictDelete()),
+            (new OneToOneAssociationField('subCascade', 'id', 'root_id', SubCascadeDefinition::class))->addFlags(new ApiAware(), new CascadeDelete()),
+        ]);
     }
 }
+/**
+ * @internal
+ */
 class SubDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub';
+    final public const ENTITY_NAME = 'root_sub';
 
     public function getEntityName(): string
     {
@@ -52,14 +64,31 @@ class SubDefinition extends EntityDefinition
         return '6.3.3.0';
     }
 
+//    protected function getParentDefinitionClass(): ?string
+//    {
+//        return RootDefinition::class;
+//    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), new IntField('stock', 'stock'), new FkField('root_id', 'rootId', RootDefinition::class, 'id'), (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()), new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false), new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id')]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            new IntField('stock', 'stock'),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
+            (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
+            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id'),
+        ]);
     }
 }
+/**
+ * @internal
+ */
 class SubCascadeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub_cascade';
+    final public const ENTITY_NAME = 'root_sub_cascade';
 
     public function getEntityName(): string
     {
@@ -71,14 +100,30 @@ class SubCascadeDefinition extends EntityDefinition
         return '6.3.3.0';
     }
 
+//    protected function getParentDefinitionClass(): ?string
+//    {
+//        return RootDefinition::class;
+//    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), new IntField('stock', 'stock'), new FkField('root_id', 'rootId', RootDefinition::class, 'id'), (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()), new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false)]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            new IntField('stock', 'stock'),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
+            (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
+        ]);
     }
 }
+/**
+ * @internal
+ */
 class SubManyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub_many';
+    final public const ENTITY_NAME = 'root_sub_many';
 
     public function getEntityName(): string
     {
@@ -92,6 +137,13 @@ class SubManyDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new ApiAware(), new Required()), (new ReferenceVersionField(SubDefinition::class))->addFlags(new ApiAware(), new Required()), new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false)]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(SubDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false),
+        ]);
     }
 }

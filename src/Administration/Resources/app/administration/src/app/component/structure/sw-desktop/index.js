@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-desktop', {
@@ -67,6 +69,11 @@ Component.register('sw-desktop', {
         },
 
         updateShowUrlChangedModal() {
+            if (!Shopware.State.get('context').app.config.settings.appsRequireAppUrl) {
+                this.urlDiff = null;
+                return;
+            }
+
             this.appUrlChangeService.getUrlDiff().then((diff) => {
                 this.urlDiff = diff;
             });

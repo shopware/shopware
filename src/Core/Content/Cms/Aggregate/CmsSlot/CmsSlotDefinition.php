@@ -21,10 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class CmsSlotDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_slot';
+    final public const ENTITY_NAME = 'cms_slot';
 
     public function getEntityName(): string
     {
@@ -69,6 +71,8 @@ class CmsSlotDefinition extends EntityDefinition
             (new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new ApiAware()),
         ]);
+
+        $collection->add((new JsonField('fieldConfig', 'fieldConfig'))->addFlags(new Runtime(), new ApiAware()));
 
         $collection->add((new ReferenceVersionField(CmsBlockDefinition::class))->addFlags(new Required(), new ApiAware()));
 

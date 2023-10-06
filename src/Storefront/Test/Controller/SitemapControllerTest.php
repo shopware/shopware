@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;
 
+/**
+ * @internal
+ */
 class SitemapControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

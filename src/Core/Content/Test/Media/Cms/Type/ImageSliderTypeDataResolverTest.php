@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
+use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -25,18 +27,21 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ImageSliderTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ImageSliderTypeDataResolver
-     */
-    private $imageSliderResolver;
+    private ImageSliderTypeDataResolver $imageSliderResolver;
+
+    private FilesystemOperator $publicFilesystem;
 
     protected function setUp(): void
     {
-        $this->imageSliderResolver = new ImageSliderTypeDataResolver();
+        $this->publicFilesystem = $this->getPublicFilesystem();
+        $this->imageSliderResolver = new ImageSliderTypeDataResolver(new DefaultMediaResolver($this->publicFilesystem));
     }
 
     public function testType(): void
@@ -77,6 +82,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $slot->setFieldConfig($fieldConfig);
 
         $criteriaCollection = $this->imageSliderResolver->collect($slot, $resolverContext);
+        static::assertNotNull($criteriaCollection);
         static::assertCount(1, $criteriaCollection);
 
         $expectedCriteria = new Criteria(['media123', 'media456']);
@@ -91,6 +97,23 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->imageSliderResolver->collect($slot, $resolverContext);
+
+        static::assertNull($collection);
+    }
+
+    public function testCollectWithDefaultConfig(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_DEFAULT, 'my_default_media.png'));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -135,12 +158,17 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $slot->setFieldConfig($fieldConfig);
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
-        /** @var ImageSliderStruct $imageSliderStruct */
-        $imageSliderStruct = $slot->getData();
 
-        for ($i = 0; $i < 5; ++$i) {
-            static::assertEquals($imageSliderStruct->getSliderItems()[$i]->getMedia()->getId(), 'media' . $i);
-        }
+        $imageSliderStruct = $slot->getData();
+        static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
+
+        $sliderItems = $imageSliderStruct->getSliderItems();
+        static::assertIsArray($sliderItems);
+
+        $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
+        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+
+        static::assertEquals($expectedSliderIds, $imageSliderIds);
     }
 
     public function testEnrichWithStaticConfig(): void
@@ -181,7 +209,111 @@ class ImageSliderTypeDataResolverTest extends TestCase
         static::assertNotEmpty($imageSliderItems);
 
         $firstSliderItem = $imageSliderItems[0];
-        static::assertSame($media->getId(), $firstSliderItem->getMedia()->getId());
+        static::assertSame($media->getId(), $firstSliderItem->getMedia()?->getId());
+    }
+
+    public function testEnrichWithMappedConfigAndHasProductCoverAtFirstPosition(): void
+    {
+        $productMediaCollection = $this->getProductMediaCollection();
+        $resolverContext = $this->getResolverContext($productMediaCollection, 'media2');
+        $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
+
+        $imageSliderStruct = $slot->getData();
+        static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
+
+        $sliderItems = $imageSliderStruct->getSliderItems();
+        static::assertIsArray($sliderItems);
+
+        // Cover image appears at first position
+        $expectedSliderIds = ['media2', 'media0', 'media1', 'media3', 'media4'];
+        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+
+        static::assertEquals($expectedSliderIds, $imageSliderIds);
+    }
+
+    public function testEnrichWithDefaultConfig(): void
+    {
+        $productMediaCollection = $this->getProductMediaCollection();
+        $resolverContext = $this->getResolverContext($productMediaCollection);
+
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/animated.gif', '');
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
+
+        $medias = [
+            ['fileName' => 'core/assets/default/cms/animated.gif'],
+            ['fileName' => 'core/assets/default/cms/shopware.jpg'],
+        ];
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_DEFAULT, $medias));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
+
+        $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
+        $imageSliderStruct = $slot->getData();
+
+        static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
+
+        $imageSliderItems = $imageSliderStruct->getSliderItems() ?? [];
+        static::assertCount(2, $imageSliderItems);
+
+        $firstSliderItem = $imageSliderItems[0];
+        $firstSliderItemMedia = $firstSliderItem->getMedia();
+        static::assertInstanceOf(MediaEntity::class, $firstSliderItemMedia);
+        static::assertEquals('animated', $firstSliderItemMedia->getFileName());
+        static::assertEquals('image/gif', $firstSliderItemMedia->getMimeType());
+        static::assertEquals('gif', $firstSliderItemMedia->getFileExtension());
+
+        $secondSliderItem = $imageSliderItems[1];
+        $secondSliderItemMedia = $secondSliderItem->getMedia();
+        static::assertInstanceOf(MediaEntity::class, $secondSliderItemMedia);
+        static::assertEquals('shopware', $secondSliderItemMedia->getFileName());
+        static::assertEquals('image/jpeg', $secondSliderItemMedia->getMimeType());
+        static::assertEquals('jpg', $secondSliderItemMedia->getFileExtension());
+    }
+
+    public function testEnrichWithCoverIdButWithoutCoverMedia(): void
+    {
+        $productMediaCollection = $this->getProductMediaCollection();
+        $resolverContext = $this->getResolverContext($productMediaCollection, 'nonexistent-media');
+        $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
+
+        $imageSliderStruct = $slot->getData();
+        static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
+
+        $sliderItems = $imageSliderStruct->getSliderItems();
+        static::assertIsArray($sliderItems);
+
+        // Cover image appears at first position
+        $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
+        $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
+
+        static::assertEquals($expectedSliderIds, $imageSliderIds);
     }
 
     protected function getProductMediaCollection(): ProductMediaCollection
@@ -204,7 +336,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         return new ProductMediaCollection($productMedia);
     }
 
-    protected function getResolverContext(ProductMediaCollection $productMediaCollection): EntityResolverContext
+    protected function getResolverContext(ProductMediaCollection $productMediaCollection, ?string $coverId = null): EntityResolverContext
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer_01');
@@ -213,6 +345,16 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $product->setId('product_01');
         $product->setManufacturer($manufacturer);
         $product->setMedia($productMediaCollection);
+
+        if ($coverId) {
+            $product->setCoverId($coverId);
+        }
+
+        if (\is_string($coverId) && $productMediaCollection->has($coverId)) {
+            $cover = new ProductMediaEntity();
+            $cover->setId($coverId);
+            $product->setCover($cover);
+        }
 
         return new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),

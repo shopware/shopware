@@ -1,11 +1,19 @@
-import './page/sw-newsletter-recipient-list/index';
-import './page/sw-newsletter-recipient-detail/index';
-import './component/sw-newsletter-recipient-filter-switch';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
+/**
+ * @package buyers-experience
+ */
+
 const { Module } = Shopware;
 
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-newsletter-recipient-list', () => import('./page/sw-newsletter-recipient-list/index'));
+Shopware.Component.register('sw-newsletter-recipient-detail', () => import('./page/sw-newsletter-recipient-detail/index'));
+Shopware.Component.register('sw-newsletter-recipient-filter-switch', () => import('./component/sw-newsletter-recipient-filter-switch'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-newsletter-recipient', {
     type: 'core',
     name: 'newsletter-recipient',
@@ -14,8 +22,8 @@ Module.register('sw-newsletter-recipient', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'default-object-marketing',
-    favicon: 'default-object-marketing',
+    icon: 'regular-megaphone',
+    favicon: 'regular-megaphone',
     entity: 'newsletter_recipient',
     entityDisplayProperty: 'email',
 
@@ -41,7 +49,7 @@ Module.register('sw-newsletter-recipient', {
 
     navigation: [{
         id: 'sw-newsletter-recipient',
-        icon: 'default-object-marketing',
+        icon: 'regular-megaphone',
         color: '#FFD700',
         path: 'sw.newsletter.recipient.index',
         privilege: 'newsletter_recipient.viewer',

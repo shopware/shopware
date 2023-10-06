@@ -1,4 +1,9 @@
-# 2020-11-20 - Add the login required annotation
+---
+title: Add the login required annotation
+date: 2020-11-20
+area: core
+tags: [annotation, login, customer, api, store-api]
+--- 
 
 ## Context
 Some routes for the `sales-channel-api` and the `store-api/storefront` depend on `SalesChannelContext` to identify whether the Customer is logged or not.

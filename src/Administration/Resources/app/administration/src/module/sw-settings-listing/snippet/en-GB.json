@@ -75,7 +75,8 @@
       },
       "notification": {
         "saveSuccess": "Sorting option \"{sortingOptionName}\" saved.",
-        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved."
+        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved.",
+        "saveErrorAlreadyExists": "The sorting option \"{sortingOptionName}\" already exists."
       },
       "criteria": {
         "title": "Sorting criteria",

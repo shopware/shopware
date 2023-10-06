@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_listing %}
 <div class="sw-cms-el-product-listing">
 
@@ -5,14 +6,14 @@
         <sw-cms-el-product-box
             v-for="index in demoProductCount"
             :key="index"
-            :element="demoProductElement"
+            :element="getProduct(index)"
         />
     </div>
 
     <div class="sw-cms-el-product-listing__pagination">
         <div class="sw-cms-el-product-listing__pagination-entry">
             <sw-icon
-                name="small-arrow-small-left"
+                name="regular-chevron-left-xxs"
                 size="20px"
             />
         </div>
@@ -29,7 +30,7 @@
 
         <div class="sw-cms-el-product-listing__pagination-entry">
             <sw-icon
-                name="small-arrow-small-right"
+                name="regular-chevron-right-xxs"
                 size="20px"
             />
         </div>

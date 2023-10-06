@@ -3,14 +3,17 @@
 namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var array
+     * @var LineItem[]
      */
     protected $items;
 
@@ -24,8 +27,14 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(Cart $cart, array $items, SalesChannelContext $salesChannelContext)
-    {
+    /**
+     * @param LineItem[] $items
+     */
+    public function __construct(
+        Cart $cart,
+        array $items,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->cart = $cart;
         $this->items = $items;
         $this->salesChannelContext = $salesChannelContext;
@@ -36,6 +45,9 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
         return $this->cart;
     }
 
+    /**
+     * @return LineItem[]
+     */
     public function getItems(): array
     {
         return $this->items;

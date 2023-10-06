@@ -1,9 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_image_text_gallery_preview %}
 <div class="sw-cms-preview-image-text-gallery">
     <div class="sw-cms-preview-image-text-gallery__left">
         <div class="sw-cms-preview-image-text-gallery__image">
             <img
-                :src="'/administration/static/img/cms/preview_camera_small.jpg' | asset"
+                :src="assetFilter('/administration/static/img/cms/preview_camera_small.jpg')"
                 alt=""
             >
         </div>
@@ -16,7 +17,7 @@
     <div class="sw-cms-preview-image-text-gallery__center">
         <div class="sw-cms-preview-image-text-gallery__image">
             <img
-                :src="'/administration/static/img/cms/preview_plant_small.jpg' | asset"
+                :src="assetFilter('/administration/static/img/cms/preview_plant_small.jpg')"
                 alt=""
             >
         </div>
@@ -29,7 +30,7 @@
     <div class="sw-cms-preview-image-text-gallery__right">
         <div class="sw-cms-preview-image-text-gallery__image">
             <img
-                :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset"
+                :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
                 alt=""
             >
         </div>

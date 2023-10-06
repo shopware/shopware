@@ -16,7 +16,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% block document_headline %}
     <h1 class="headline">
         {% trans with {'%creditNoteNumber%': config.custom.creditNoteNumber, '%invoiceNumber%': config.custom.invoiceNumber}  %}document.creditNoteHeadline{% endtrans %}
-        ({{ counter.page }}/{{ pages }})
     </h1>
 {% endblock %}
 

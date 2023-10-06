@@ -6,7 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,19 +19,20 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ThemeChangeCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private ThemeService $themeService;
-
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private MockObject $pluginRegistry;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->themeRepository = $this->getContainer()->get('theme.repository');
@@ -69,8 +70,7 @@ class ThemeChangeCommandTest extends TestCase
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects(static::exactly(\count($salesChannels)))
-            ->method('assignTheme')
-            ->withConsecutive(...$arguments);
+            ->method('assignTheme');
 
         $themeChangeCommand = new ThemeChangeCommand(
             $themeService,
@@ -202,17 +202,17 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    private function getPluginRegistryMock(): MockObject
+    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
-            'expectedConfig',
+            'any' => 'expectedConfig',
         ]);
         $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
-            'unexpectedConfig',
+            'any' => 'unexpectedConfig',
         ]);
         $storePluginConfiguration2->setBasePath('');
 
@@ -228,6 +228,9 @@ class ThemeChangeCommandTest extends TestCase
         return $mock;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getSalesChannelData(): array
     {
         return [
@@ -256,6 +259,9 @@ class ThemeChangeCommandTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getThemeData(): array
     {
         return [

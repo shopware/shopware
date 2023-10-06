@@ -74,13 +74,33 @@
       "messageDeactivationFailedThemeAssignment": "Unable to deactivate or uninstall theme \"{themeName}\". Please remove the following theme assignments: {assignments}.",
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
-      "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer."
+      "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer.",
+      "appIsNotCompatible": "Extension \"{name}\" is not compatible with this Shopware version",
+      "appLicenseCouldNotBeVerified": {
+        "title": "The licence of this extension could not be verified",
+        "message": "Ensure that your licence domain is set correctly and that you are logged in with your Shopware Account to which this extension is licensed.",
+        "actionSetLicenseDomain": "Set licence domain",
+        "actionLogin": "Login"
+      },
+      "storeSessionExpired": {
+        "title": "Shopware Account session expired",
+        "message": "Please log in to access your licensed extensions.",
+        "actionLabel": "Login"
+      }
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",
       "store": "Store",
       "purchased": "My extensions",
       "support": "Support"
+    },
+    "sw-extension-app-module-error-page": {
+      "error": {
+        "heading": "Whoops! You’ve moved too fast and lost orientation.",
+        "phrase": "The page you were looking for is beyond our reach. Maybe the page has moved, no longer exists or you just like our 404-page. We’ll probably never know.",
+        "info": "Don’t worry! We’ve dispatched a rescue space-cat to guide you back to safety.",
+        "lblBackButton": "Back"
+      }
     }
   },
   "sw-extension-store": {
@@ -95,7 +115,7 @@
       "label": "Now available",
       "activationDescriptionTitleFirst": "Explore and buy extensions easily -",
       "activationDescriptionTitleSecond": "right from within your own Shopware shop.",
-      "activationDescriptionTitleDescription": "Activate the Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills.",
+      "activationDescriptionTitleDescription": "Activate the Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your shop seemlessly - without any programming skills.",
       "activate": "Activate"
     },
     "title": "Store",
@@ -177,7 +197,7 @@
           "labelButtonBack": "Back to details"
         },
         "alertCanNotBuy": {
-          "text": "You need to be logged in to the Store to do this"
+          "text": "You need to be logged in to the Shopware Store to do this"
         }
       },
       "sw-extension-adding-failed": {
@@ -207,8 +227,8 @@
           "labelRating": "No ratings | {numberOfRatings} rating | {numberOfRatings} ratings"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "By {author} on {lastChangeDate}",
-          "labelExtensionVersion": "Extension version {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Ratings and reviews",
@@ -219,7 +239,7 @@
         "sw-extension-review-creation-inputs": {
           "title": "Rate extension",
           "labelHeadline": "Headline",
-          "placeholderHeadline": "Enter a short headline...",
+          "placeholderHeadline": "Enter a brief headline...",
           "labelRating": "Rating",
           "labelText": "Review (optional)"
         },
@@ -230,50 +250,54 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
-        "purchasedLabel": "Purchased on ",
-        "installedLabel": "Installed on ",
-        "openExtensionLabel": "Open app",
-        "installExtensionLabel": "Install app",
+        "purchasedLabel": "Purchased:",
+        "installedLabel": "Installed:",
+        "openExtensionLabel": "Open",
+        "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
+        "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
         "contextMenu": {
           "getHelpLabel": "Get help",
           "seeDetailsLabel": "See details",
-          "config": "Configuration",
+          "config": "Configure",
           "privacyAndSafetyLabel": "Data privacy & safety",
           "removeLabel": "Remove",
           "cancelAndRemoveLabel": "Cancel and remove",
           "uninstallLabel": "Uninstall",
           "updateLabel": "Update to {version}",
-          "rateLabel": "Rate",
+          "rateLabel": "Rate extension",
           "policyExtensions": "Privacy policy extensions",
-          "permissions": "Permissions",
+          "permissions": "See permissions",
           "openExtension": "Open extension"
         }
       },
       "sw-extension-card-bought": {
-        "rentWillExpireAt": "Rent expires at {date}",
-        "rentExpiredAt": "Rent expired at {date}",
-        "testPhaseWillExpireAt": "Test phase expires at {date}",
-        "testPhaseExpiredAt": "Test phase expired at {date}"
+        "rentWillExpireAt": "Rent expires on {date}",
+        "rentExpiredAt": "Rent has expired on {date}",
+        "testPhaseWillExpireAt": "Test phase expires on {date}",
+        "testPhaseExpiredAt": "Test phase has expired on {date}"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
-        "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating the extension <b>will not</b> cancel the subscription and fees will continue to be collected!",
-        "descriptionCancel": "If you want to cancel the subscription, you can remove it via \"{removeLabel}\" in the context menu.",
-        "alertDeactivate": "Do you still want to deactivate the extension?",
+        "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating this extension <b>will not</b> cancel your subscription and fees will continue to be collected.",
+        "descriptionCancel": "If you want to cancel your subscription, you can remove it by clicking \"{removeLabel}\" in the context menu.",
+        "alertDeactivate": "Do you still want to deactivate this extension?",
         "deactivateLabel": "Deactivate"
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} permissions",
+        "titleNewPermissions": "New {extensionLabel} permissions",
         "description": "{extensionLabel} will get access to the components below. Click the link next to the component to show the entity details.",
-        "domainHint": "Some data will also be shared to with other domains. Click the link next to domains for more details.",
+        "descriptionNewPermissions": "{extensionLabel} requests permission changes with this update. Make sure you agree to all changes before continuing with the update.",
+        "domainHint": "Some data will also be shared with other domains. Click the link next to domains for more details.",
         "textEntities": "Show permissions",
         "domains": "Domains",
-        "showDomains": "Show Domains"
+        "showDomains": "Show domains",
+        "acceptAndUpdate": "Accept and update"
       },
       "sw-extension-domains-modal": {
         "modalTitle": "{extensionLabel} - Domains",
-        "description": "Some data will be shared / transferred to the domains listed below.",
+        "description": "Some data will be shared with / transferred to the domains listed below.",
         "listTitle": "Domain"
       },
       "sw-extension-privacy-policy-extensions-modal": {
@@ -288,7 +312,7 @@
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
-          "noActivePlugins": "No active extensions found.",
+          "noActivePlugins": "No active apps found.",
           "titleEmptyState": "No apps installed yet",
           "textEmptyState": "If you install apps, they will be listed here."
         },
@@ -322,7 +346,7 @@
       },
       "sw-extension-config": {
         "messageSaveSuccess": "Configuration saved.",
-        "imageDescription": "Icon of extension \"{extensionName}\"",
+        "imageDescription": "\"{extensionName}\" icon",
         "labelBy": "by"
       }
     }
@@ -468,8 +492,8 @@
         "acl_role": "ACL role",
         "acl_user_role": "ACL user role",
         "dead_message": "Dead message",
-        "event_action": "Event action",
         "message_queue_stats": "Message queue stats",
+        "notification": "Notification",
         "plugin": "Plugin",
         "scheduled_task": "Scheduled tasks"
       }
@@ -605,6 +629,9 @@
         "theme_media": "Media",
         "theme_sales_channel": "Sales Channel"
       }
+    },
+    "additional_privileges": {
+      "title": "Additional permissions"
     }
   },
   "sw-privileges": {

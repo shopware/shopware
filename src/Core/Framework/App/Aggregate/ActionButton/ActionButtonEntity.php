@@ -6,10 +6,12 @@ use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTr
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class ActionButtonEntity extends Entity
 {
     use EntityIdTrait;
@@ -38,15 +40,6 @@ class ActionButtonEntity extends Entity
      * @var string
      */
     protected $url;
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     *
-     * @var bool
-     */
-    protected $openNewTab = false;
 
     /**
      * @var string
@@ -86,16 +79,6 @@ class ActionButtonEntity extends Entity
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    public function isOpenNewTab(): bool
-    {
-        return $this->openNewTab;
     }
 
     public function getAppId(): string
@@ -141,16 +124,6 @@ class ActionButtonEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    public function setOpenNewTab(bool $openNewTab): void
-    {
-        $this->openNewTab = $openNewTab;
     }
 
     public function getTranslations(): ?ActionButtonTranslationCollection

@@ -1,9 +1,13 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-import-export-activity-result-modal.html.twig';
 import './sw-import-export-activity-result-modal.scss';
 
 const { format } = Shopware.Utils;
 
-Shopware.Component.register('sw-import-export-activity-result-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['importExport'],
@@ -43,6 +47,10 @@ Shopware.Component.register('sw-import-export-activity-result-modal', {
         logTypeText() {
             return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {
@@ -60,4 +68,4 @@ Shopware.Component.register('sw-import-export-activity-result-modal', {
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
         },
     },
-});
+};

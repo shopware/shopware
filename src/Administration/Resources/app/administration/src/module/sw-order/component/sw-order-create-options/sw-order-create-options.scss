@@ -3,20 +3,24 @@
 .sw-order-create-options {
     height: 594px;
 
-    &__test-order.sw-field--switch {
-        margin: 0;
-        width: fit-content;
+    &__headline {
+        margin-bottom: 5px;
     }
 
     &__disable-auto-promotion.sw-field--switch {
-        margin: 0 0 24px;
+        margin: 0 0 -12px;
     }
-}
 
-.sw-select-result-list-popover-wrapper {
-    .sw-select-result__item-list {
-        border-bottom: 1px solid $color-gray-300;
-        padding-bottom: 5px;
-        margin-bottom: 5px;
+    .sw-container {
+        margin-bottom: 12px;
+    }
+
+    .sw-field {
+        margin-bottom: 28px;
+    }
+
+    &__currency-select {
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 }

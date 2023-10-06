@@ -7,11 +7,14 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
 class IdleFeatureFlagTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public const EXCLUDED_DIRS = [
+    final public const EXCLUDED_DIRS = [
         'Docs',
         'Core/Framework/Test/FeatureFlag',
         'Administration/Resources/app/administration/node_modules',
@@ -20,12 +23,14 @@ class IdleFeatureFlagTest extends TestCase
         'Storefront/Resources/app/storefront/test/e2e/node_modules',
     ];
 
-    public const EXCLUDE_BY_CONTENT = [
-        'NEXT-1234',
-        'NEXT-12345',
-        'NEXT-10286',
+    final public const EXCLUDE_BY_FLAG = [
+        'FEATURE_NEXT_1',
+        'FEATURE_NEXT_2',
         'FEATURE_NEXT_101',
         'FEATURE_NEXT_102',
+        'FEATURE_NEXT_123',
+        'FEATURE_NEXT_1234',
+        'FEATURE_NEXT_1235',
     ];
 
     private static $featureAllValue;
@@ -50,19 +55,15 @@ class IdleFeatureFlagTest extends TestCase
 
     public function testNoIdleFeatureFlagsArePresent(): void
     {
-        if (!file_exists($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform')) {
-            static::markTestSkipped('Test skipped because platform is not in vendor directory.');
-        }
-
-        //init FeatureConfig
+        // init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll());
+        $platformDir = \dirname(__DIR__, 4);
 
         // Find the right files to check
         $finder = new Finder();
         $finder->files()
-            ->in($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform/src')
-            ->exclude(self::EXCLUDED_DIRS)
-            ->notContains(self::EXCLUDE_BY_CONTENT);
+            ->in($platformDir)
+            ->exclude(self::EXCLUDED_DIRS);
 
         foreach ($finder as $file) {
             $contents = $file->getContents();
@@ -72,6 +73,10 @@ class IdleFeatureFlagTest extends TestCase
 
             if (!empty($availableFlag)) {
                 foreach ($availableFlag as $flag) {
+                    if (\in_array($flag, self::EXCLUDE_BY_FLAG, true)) {
+                        continue;
+                    }
+
                     static::assertContains(
                         $flag,
                         $registeredFlags,

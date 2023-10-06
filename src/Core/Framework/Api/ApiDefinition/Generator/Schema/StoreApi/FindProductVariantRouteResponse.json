@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "properties": {
+    "object": {
+      "$ref": "#/components/schemas/FoundCombination"
+    }
+  }
+}

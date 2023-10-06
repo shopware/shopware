@@ -1,7 +1,9 @@
 import template from './sw-first-run-wizard.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
-});
+};

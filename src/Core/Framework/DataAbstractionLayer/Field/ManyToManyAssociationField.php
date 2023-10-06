@@ -3,85 +3,50 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class ManyToManyAssociationField extends AssociationField
 {
-    /**
-     * @var string
-     */
-    private $mappingDefinitionClass;
+    private ?EntityDefinition $mappingDefinition = null;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $mappingDefinition;
-
-    /**
-     * @var string
-     */
-    private $mappingLocalColumn;
-
-    /**
-     * @var string
-     */
-    private $mappingReferenceColumn;
-
-    /**
-     * @var string
-     */
-    private $sourceColumn;
-
-    /**
-     * @var string
-     */
-    private $toManyDefinitionClass;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $toManyDefinition;
+    private ?EntityDefinition $toManyDefinition = null;
 
     public function __construct(
         string $propertyName,
-        string $referenceDefinition,
+        private string $toManyDefinitionClass,
         string $mappingDefinition,
-        string $mappingLocalColumn,
-        string $mappingReferenceColumn,
-        string $sourceColumn = 'id',
+        private readonly string $mappingLocalColumn,
+        private readonly string $mappingReferenceColumn,
+        private readonly string $sourceColumn = 'id',
         string $referenceField = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->toManyDefinitionClass = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->mappingDefinitionClass = $mappingDefinition;
-        $this->mappingLocalColumn = $mappingLocalColumn;
-        $this->mappingReferenceColumn = $mappingReferenceColumn;
-        $this->sourceColumn = $sourceColumn;
         $this->referenceField = $referenceField;
-    }
-
-    public function compile(DefinitionInstanceRegistry $registry): void
-    {
-        if ($this->mappingDefinition !== null) {
-            return;
-        }
-
-        parent::compile($registry);
-
-        $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
-        $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
     }
 
     public function getToManyReferenceDefinition(): EntityDefinition
     {
+        if ($this->toManyDefinition === null) {
+            $this->compileLazy();
+        }
+
+        \assert($this->toManyDefinition !== null);
+
         return $this->toManyDefinition;
     }
 
     public function getMappingDefinition(): EntityDefinition
     {
+        if ($this->mappingDefinition === null) {
+            $this->compileLazy();
+        }
+
+        \assert($this->mappingDefinition !== null);
+
         return $this->mappingDefinition;
     }
 
@@ -108,5 +73,16 @@ class ManyToManyAssociationField extends AssociationField
     protected function getResolverClass(): ?string
     {
         return ManyToManyAssociationFieldResolver::class;
+    }
+
+    protected function compileLazy(): void
+    {
+        parent::compileLazy();
+
+        $this->mappingDefinition = $this->getReferenceDefinition();
+
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
+        $this->toManyDefinition = $this->registry->getByClassOrEntityName($this->toManyDefinitionClass);
+        $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
     }
 }

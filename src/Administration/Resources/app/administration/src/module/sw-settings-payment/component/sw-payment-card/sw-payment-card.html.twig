@@ -1,0 +1,55 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_payment_card %}
+<sw-card
+    position-identifier="sw-payment-card"
+    class="sw-payment-card"
+    :title="paymentMethod.translated.distinguishableName"
+>
+    <div class="sw-payment-card_content">
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_payment_card_preview %}
+        <img
+            v-if="previewUrl"
+            class="sw-payment-card__preview"
+            :src="previewUrl"
+            :alt="paymentMethod.media.translated.alt"
+        >
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_payment_card_description %}
+        <div class="sw-payment-card__description">
+            <span v-html="paymentMethod.translated.description"></span>
+        </div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_payment_card_link %}
+        <sw-internal-link
+            :router-link="{ name: 'sw.settings.payment.detail', params: { id: paymentMethod.id }}"
+            :disabled="!acl.can('payment.editor')"
+            hide-icon
+        >
+            {{ $tc('sw-settings-payment.overview.editDetails') }}
+        </sw-internal-link>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_payment_card_toggle %}
+        <sw-switch-field
+            v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
+            :value="paymentMethod.active"
+            :disabled="!acl.can('payment.editor')"
+            :label="$tc('sw-settings-payment.overview.activeToggle')"
+            {% if VUE3 %}
+            @update:value="setPaymentMethodActive(!paymentMethod.active)"
+            {% else %}
+            @change="setPaymentMethodActive(!paymentMethod.active)"
+            {% endif %}
+        />
+        {% endblock %}
+
+    </div>
+</sw-card>
+{% endblock %}

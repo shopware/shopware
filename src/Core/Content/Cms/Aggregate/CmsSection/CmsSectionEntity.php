@@ -8,11 +8,13 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class CmsSectionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -83,6 +85,16 @@ class CmsSectionEntity extends Entity
      * @var bool
      */
     protected $locked;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsPageVersionId;
+
+    /**
+     * @var array<string, bool>|null
+     */
+    protected $visibility;
 
     public function getType(): string
     {
@@ -222,5 +234,31 @@ class CmsSectionEntity extends Entity
     public function setLocked(bool $locked): void
     {
         $this->locked = $locked;
+    }
+
+    public function getCmsPageVersionId(): ?string
+    {
+        return $this->cmsPageVersionId;
+    }
+
+    public function setCmsPageVersionId(?string $cmsPageVersionId): void
+    {
+        $this->cmsPageVersionId = $cmsPageVersionId;
+    }
+
+    /**
+     * @return array<string, bool>|null
+     */
+    public function getVisibility(): ?array
+    {
+        return $this->visibility;
+    }
+
+    /**
+     * @param array<string, bool>|null $visibility
+     */
+    public function setVisibility(?array $visibility): void
+    {
+        $this->visibility = $visibility;
     }
 }

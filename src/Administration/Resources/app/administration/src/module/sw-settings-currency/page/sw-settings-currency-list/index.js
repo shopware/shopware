@@ -1,9 +1,13 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-currency-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-currency-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -122,4 +126,4 @@ Component.register('sw-settings-currency-list', {
             }];
         },
     },
-});
+};

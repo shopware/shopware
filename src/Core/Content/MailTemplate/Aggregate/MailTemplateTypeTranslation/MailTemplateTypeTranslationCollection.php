@@ -3,44 +3,38 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                                   add(MailTemplateTypeTranslationEntity $entity)
- * @method void                                   set(string $key, MailTemplateTypeTranslationEntity $entity)
- * @method MailTemplateTypeTranslationEntity[]    getIterator()
- * @method MailTemplateTypeTranslationEntity[]    getElements()
- * @method MailTemplateTypeTranslationEntity|null get(string $key)
- * @method MailTemplateTypeTranslationEntity|null first()
- * @method MailTemplateTypeTranslationEntity|null last()
+ * @extends EntityCollection<MailTemplateTypeTranslationEntity>
  */
+#[Package('sales-channel')]
 class MailTemplateTypeTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getMailTemplateIds(): array
     {
-        return $this->fmap(function (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) {
-            return $mailTemplateTypeTranslation->getMailTemplateTypeId();
-        });
+        return $this->fmap(fn (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) => $mailTemplateTypeTranslation->getMailTemplateTypeId());
     }
 
     public function filterByMailTemplateId(string $id): self
     {
-        return $this->filter(function (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) use ($id) {
-            return $mailTemplateTypeTranslation->getMailTemplateTypeId() === $id;
-        });
+        return $this->filter(fn (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) => $mailTemplateTypeTranslation->getMailTemplateTypeId() === $id);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) {
-            return $mailTemplateTypeTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) => $mailTemplateTypeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) use ($id) {
-            return $mailTemplateTypeTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (MailTemplateTypeTranslationEntity $mailTemplateTypeTranslation) => $mailTemplateTypeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

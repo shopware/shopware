@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('storefront')]
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
@@ -12,10 +15,6 @@ class CookieProvider implements CookieProviderInterface
             [
                 'snippet_name' => 'cookie.groupRequiredSession',
                 'cookie' => 'session-',
-            ],
-            [
-                'snippet_name' => 'cookie.groupRequiredCsrf',
-                'cookie' => 'csrf[',
             ],
             [
                 'snippet_name' => 'cookie.groupRequiredTimezone',
@@ -57,6 +56,12 @@ class CookieProvider implements CookieProviderInterface
                 'cookie' => 'wishlist-enabled',
                 'value' => '1',
             ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
+                'cookie' => 'youtube-video',
+                'expiration' => '30',
+                'value' => '1',
+            ],
         ],
     ];
 
@@ -85,6 +90,8 @@ class CookieProvider implements CookieProviderInterface
      *          ]
      *      ]
      * ]
+     *
+     * @return array<string|int, mixed>
      */
     public function getCookieGroups(): array
     {

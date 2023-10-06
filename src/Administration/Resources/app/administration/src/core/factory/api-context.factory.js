@@ -1,4 +1,7 @@
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @module core/factory/context
  * @param {Object} context
  * @type factory

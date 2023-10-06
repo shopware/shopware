@@ -15,6 +15,20 @@
       "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
       "messageEmptyTitle": "No products selected for bulk edit",
       "messageEmptySubline": "Please go back and select some products",
+      "alertInheritance": {
+        "message": "These variants have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+      },
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected products.<br><br>Not available for all selected products:",
+        "stock": "Stock",
+        "isCloseout": "On clearance sale",
+        "restockTime": "Restock time",
+        "maxPurchase": "Max. order quantity",
+        "purchaseSteps": "Purchase steps",
+        "minPurchase": "Min. order quantity",
+        "shippingFree": "Free shipping"
+      },
       "generalInformation": {
         "cardTitle": "General information",
         "description": {
@@ -39,17 +53,28 @@
           "changeLabel": "Change: Tax rate",
           "placeholderTax": "Select tax rate..."
         },
+        "isPriceInherited": {
+          "changeLabel": "Change: Price inheritance"
+        },
         "price": {
+          "label": "Price",
           "changeLabel": "Change: Price",
           "placeholderPrice": "Enter price..."
         },
         "purchasePrices": {
+          "label": "Purchase price",
           "changeLabel": "Change: Purchase price",
           "placeholderPurchasePrices": "Enter purchase price..."
         },
         "listPrice": {
+          "label": "List price",
           "changeLabel": "Change: List price",
           "placeholderListPrice": "Enter list price..."
+        },
+        "regulationPrice": {
+          "label": "Cheapest price (last 30 days)",
+          "changeLabel": "Change: Cheapest price (last 30 days)",
+          "placeholderRegulationPrice": "Enter Cheapest price..."
         }
       },
       "advancedPrices": {
@@ -191,6 +216,9 @@
         "changeLabel": "Change: {name}"
       }
     },
+    "variant": {
+      "textTitle": "Bulk edit: {variantTotal} variant | Bulk edit: {variantTotal} variants"
+    },
     "modal": {
       "confirm": {
         "title": "Bulk edit - Apply?",
@@ -230,7 +258,10 @@
       },
       "success": {
         "title": "Bulk edit - Success",
-        "description": "Bulk edit finished."
+        "description": "Bulk edit finished.",
+        "instruction": "The bulk edit has been finished successfully.",
+        "buttonDownload": "Download",
+        "messageNoDocumentsFound": "No documents found"
       },
       "error": {
         "title": "Bulk edit - Error",
@@ -246,6 +277,11 @@
       "textTitle": "Bulk edit: {orderTotal} order | Bulk edit: {orderTotal} orders",
       "messageEmptyTitle": "No orders selected",
       "messageEmptySubline": "Go back and select orders.",
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected orders.<br><br>Not available for all selected orders:",
+        "orderDeliveries": "Delivery status"
+      },
       "status": {
         "cardTitle": "Status",
         "payment": {
@@ -253,8 +289,8 @@
           "placeholder": "Select payment status..."
         },
         "shipping": {
-          "label": "Change: Shipping status",
-          "placeholder": "Select shipping status..."
+          "label": "Change: Delivery status",
+          "placeholder": "Select Delivery status..."
         },
         "order": {
           "label": "Change: Order status",
@@ -266,7 +302,7 @@
         },
         "documents": {
           "label": "Send: Documents",
-          "helpText": "Available only if \"Send: Status emails\" is checked.",
+          "helpText": "Existing documents can be sent as attachments with the status mails. The most recent document is always used. If documents are generated via this bulk edit, they are used.",
           "options": {
             "newest": "Newest",
             "all": "All"
@@ -282,12 +318,13 @@
       },
       "documents": {
         "cardTitle": "Documents",
+        "warning": "The bulk edit now uses an improved document creation. However, one or more extensions on your system may produce different results with the new document creation.\nTherefore, please check if your documents show differences with and without using the bulk edit.",
         "generateInvoice": {
           "label": "Generate: Invoice",
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
           "labelTextarea": "Comment",
-          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+          "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",
@@ -303,6 +340,10 @@
           "label": "Generate: Credit note",
           "helpText": "Credit notes generally employ the latest corresponding invoice number for reference.",
           "changeSubLabel": "This document is generated only if a credit position exists in the order."
+        },
+        "downloadDocuments": {
+          "label": "Download: Documents",
+          "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
         }
       },
       "customFields": {

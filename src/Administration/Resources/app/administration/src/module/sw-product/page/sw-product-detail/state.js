@@ -1,3 +1,8 @@
+/*
+ * @package inventory
+ */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
 
@@ -39,6 +44,8 @@ export default {
                 'essential_characteristics',
                 'custom_fields',
             ],
+            /* Product "types" provided by the split button for creating a new product through a router parameter */
+            creationStates: [],
         };
     },
 
@@ -114,7 +121,7 @@ export default {
                 return true;
             }
 
-            return state.advancedModeSetting.value.advancedMode.enabled;
+            return state.advancedModeSetting.value?.advancedMode.enabled;
         },
 
         showProductCard(state, getters) {
@@ -134,13 +141,34 @@ export default {
         },
 
         advanceModeEnabled(state) {
-            return state.advancedModeSetting.value.advancedMode.enabled;
+            return state.advancedModeSetting.value?.advancedMode.enabled;
+        },
+
+        productStates(state) {
+            if (state.product.isNew() && state.creationStates) {
+                return state.creationStates;
+            }
+
+            if (state.product.states) {
+                return state.product.states;
+            }
+
+            return [];
         },
     },
 
     mutations: {
         setApiContext(state, apiContext) {
             state.apiContext = apiContext;
+        },
+
+        setCustomFields(state, fieldSet) {
+            state.customFieldSets = state.customFieldSets.map(set => {
+                if (set.id === fieldSet.id) {
+                    return fieldSet;
+                }
+                return set;
+            });
         },
 
         setLocalMode(state, value) {
@@ -214,6 +242,10 @@ export default {
 
         setModeSettings(state, newModeSettings) {
             state.modeSettings = newModeSettings;
+        },
+
+        setCreationStates(state, states) {
+            state.creationStates = states;
         },
     },
 };

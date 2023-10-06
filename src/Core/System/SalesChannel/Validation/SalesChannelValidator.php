@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Validation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
@@ -17,6 +19,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class SalesChannelValidator implements EventSubscriberInterface
 {
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
@@ -31,12 +37,11 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const DELETE_VALIDATION_CODE = 'SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID';
 
-    private Connection $connection;
-
-    public function __construct(
-        Connection $connection
-    ) {
-        $this->connection = $connection;
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -73,6 +78,8 @@ class SalesChannelValidator implements EventSubscriberInterface
      *     'deletions' => ['gb'],
      *     'state' => ['en', 'gb']
      * ]
+     *
+     * @return array<string, array<string, list<string>>>
      */
     private function extractMapping(PreWriteValidationEvent $event): array
     {
@@ -92,6 +99,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         return $mapping;
     }
 
+    /**
+     * @param array<string, array<string, list<string>>> $mapping
+     */
     private function handleSalesChannelMapping(array &$mapping, WriteCommand $command): void
     {
         if (!isset($command->getPayload()['language_id'])) {
@@ -123,6 +133,9 @@ class SalesChannelValidator implements EventSubscriberInterface
             || $typeId === Defaults::SALES_CHANNEL_TYPE_API;
     }
 
+    /**
+     * @param array<string, list<string>> $mapping
+     */
     private function handleSalesChannelLanguageMapping(array &$mapping, WriteCommand $command): void
     {
         $language = Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
@@ -140,6 +153,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, array<string, list<string>>> $mapping
+     */
     private function validateLanguages(array $mapping, PreWriteValidationEvent $event): void
     {
         $inserts = [];
@@ -175,12 +191,18 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeUpdateViolationExceptions($updates, $event);
     }
 
+    /**
+     * @param array<string, mixed> $channel
+     */
     private function validInsertCase(array $channel): bool
     {
         return empty($channel['new_default'])
             || \in_array($channel['new_default'], $channel['inserts'], true);
     }
 
+    /**
+     * @param array<string, mixed> $channel
+     */
     private function validUpdateCase(array $channel): bool
     {
         $updateId = $channel['updates'];
@@ -190,16 +212,27 @@ class SalesChannelValidator implements EventSubscriberInterface
             || isset($channel['inserts']) && \in_array($updateId, $channel['inserts'], true);
     }
 
+    /**
+     * @param array<string, mixed> $channel
+     */
     private function validDeleteCase(array $channel): bool
     {
         return !\in_array($channel['current_default'], $channel['deletions'], true);
     }
 
+    /**
+     * @param array<string, list<string>> $channel
+     *
+     * @return list<string>
+     */
     private function getDuplicates(array $channel): array
     {
-        return array_intersect($channel['state'], $channel['inserts']);
+        return array_values(array_intersect($channel['state'], $channel['inserts']));
     }
 
+    /**
+     * @param array<string, mixed> $inserts
+     */
     private function writeInsertViolationExceptions(array $inserts, PreWriteValidationEvent $event): void
     {
         if (!$inserts) {
@@ -225,6 +258,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeViolationException($violations, $event);
     }
 
+    /**
+     * @param array<string, list<string>> $duplicates
+     */
     private function writeDuplicateViolationExceptions(array $duplicates, PreWriteValidationEvent $event): void
     {
         if (!$duplicates) {
@@ -254,6 +290,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeViolationException($violations, $event);
     }
 
+    /**
+     * @param array<string, mixed> $deletions
+     */
     private function writeDeleteViolationExceptions(array $deletions, PreWriteValidationEvent $event): void
     {
         if (!$deletions) {
@@ -279,6 +318,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeViolationException($violations, $event);
     }
 
+    /**
+     * @param array<string, mixed> $updates
+     */
     private function writeUpdateViolationExceptions(array $updates, PreWriteValidationEvent $event): void
     {
         if (!$updates) {
@@ -304,9 +346,15 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeViolationException($violations, $event);
     }
 
+    /**
+     * @param array<string> $salesChannelIds
+     *
+     * @return array<string, string>
+     */
     private function fetchCurrentLanguageStates(array $salesChannelIds): array
     {
-        return $this->connection->fetchAllAssociative(
+        /** @var array<string, mixed> $result */
+        $result = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(sales_channel.id)) AS sales_channel_id,
             LOWER(HEX(sales_channel.language_id)) AS current_default,
             LOWER(HEX(mapping.language_id)) AS language_id
@@ -315,14 +363,22 @@ class SalesChannelValidator implements EventSubscriberInterface
                 ON mapping.sales_channel_id = sales_channel.id
                 WHERE sales_channel.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
+
+        return $result;
     }
 
+    /**
+     * @param array<string, mixed> $mapping
+     * @param array<string, mixed> $states
+     *
+     * @return array<string, mixed>
+     */
     private function mergeCurrentStatesWithMapping(array $mapping, array $states): array
     {
         foreach ($states as $record) {
-            $id = $record['sales_channel_id'];
+            $id = (string) $record['sales_channel_id'];
             $mapping[$id]['current_default'] = $record['current_default'];
             $mapping[$id]['state'][] = $record['language_id'];
         }

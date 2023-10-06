@@ -4,6 +4,9 @@ import template from './sw-inherit-wrapper.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Wrapper for inherited data with toggle
  * @status ready
@@ -33,8 +36,11 @@ const { Component } = Shopware;
  *
  * </sw-inherit-wrapper>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inherit-wrapper', {
     template,
+
+    inject: ['feature'],
 
     props: {
         // FIXME: add type property
@@ -107,6 +113,12 @@ Component.register('sw-inherit-wrapper', {
             required: false,
             default: null,
         },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -122,6 +134,11 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
+                if (this.feature.isActive('VUE3') && this.isInherited && newValue !== this.inheritedValue) {
+                    this.removeInheritance(newValue);
+                    return;
+                }
+
                 if (this.isInherited) {
                     this.removeInheritance(newValue);
                     return;
@@ -159,6 +176,12 @@ Component.register('sw-inherit-wrapper', {
 
             return this.value === null || this.value === undefined;
         },
+
+        labelClasses() {
+            return {
+                'has--error': !!this.error,
+            };
+        },
     },
 
     methods: {
@@ -167,6 +190,13 @@ Component.register('sw-inherit-wrapper', {
         },
 
         updateValue(value, inheritanceEventName) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', value);
+                this.$emit(`inheritance-${inheritanceEventName}`);
+
+                return;
+            }
+
             this.$emit('input', value);
             this.$emit(`inheritance-${inheritanceEventName}`);
         },
@@ -200,6 +230,11 @@ Component.register('sw-inherit-wrapper', {
                 return;
             }
 
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', null);
+                return;
+            }
+
             this.$emit('input', null);
         },
 
@@ -230,6 +265,11 @@ Component.register('sw-inherit-wrapper', {
 
             if (!newValue) {
                 this.forceInheritanceRemove = true;
+            }
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', newValue);
+                return;
             }
 
             this.$emit('input', newValue);

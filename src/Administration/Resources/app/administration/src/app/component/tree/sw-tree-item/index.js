@@ -4,10 +4,14 @@ import './sw-tree-item.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-tree-item', {
     template,
+
+    inject: ['feature'],
 
     props: {
         item: {
@@ -94,31 +98,19 @@ Component.register('sw-tree-item', {
         markInactive: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: () => {
-                return false;
-            },
+            default: false,
         },
 
         shouldFocus: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: () => {
-                return false;
-            },
+            default: false,
         },
 
         shouldShowActiveState: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: () => {
-                return false;
-            },
+            default: false,
         },
 
         activeFocusId: {
@@ -220,6 +212,7 @@ Component.register('sw-tree-item', {
                 return this.item.checked;
             },
             set(isChecked) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = isChecked;
             },
         },
@@ -232,7 +225,7 @@ Component.register('sw-tree-item', {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -388,6 +381,10 @@ Component.register('sw-tree-item', {
         },
 
         getItems(args, schema) {
+            if (this.feature.isActive('VUE3')) {
+                return this.$parent.$parent.getItems(args, schema);
+            }
+
             return this.$parent.getItems(args, schema);
         },
 
@@ -397,10 +394,23 @@ Component.register('sw-tree-item', {
             }
 
             this.dragEl = dragElement;
+
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.startDrag(this);
+
+                return;
+            }
+
             this.$parent.startDrag(this);
         },
 
         dragEnd() {
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.endDrag();
+
+                return;
+            }
+
             this.$parent.endDrag();
         },
 
@@ -409,21 +419,38 @@ Component.register('sw-tree-item', {
                 return;
             }
 
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.moveDrag(dragData, dropData);
+
+                return;
+            }
+
             this.$parent.moveDrag(dragData, dropData);
         },
 
-        // Bubbles this method to the root tree from any item depth
         startDrag(draggedComponent) {
+            if (this.feature.isActive('VUE3')) {
+                return this.$parent.$parent.startDrag(draggedComponent);
+            }
+
             return this.$parent.startDrag(draggedComponent);
         },
 
-        // Bubbles this method to the root tree from any item depth
         endDrag() {
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.endDrag();
+
+                return;
+            }
+
             this.$parent.endDrag();
         },
 
-        // Bubbles this method to the root tree from any item depth
         moveDrag(draggedComponent, droppedComponent) {
+            if (this.feature.isActive('VUE3')) {
+                return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
+            }
+
             return this.$parent.moveDrag(draggedComponent, droppedComponent);
         },
 
@@ -436,9 +463,11 @@ Component.register('sw-tree-item', {
         toggleItemCheck(event, item) {
             if (this.checkedGhost && !item.checked) {
                 this.checked = true;
+                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = true;
             } else {
                 this.checked = event;
+                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = event;
             }
 
@@ -472,7 +501,9 @@ Component.register('sw-tree-item', {
         },
 
         onFinishNameingElement(draft, event) {
-            this.parentScope.onFinishNameingElement(draft, event);
+            this.$nextTick(() => {
+                this.parentScope.onFinishNameingElement(draft, event);
+            });
         },
 
         onBlurTreeItemInput(item) {

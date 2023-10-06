@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "snippet"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class SnippetApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'snippet') {
@@ -64,4 +65,5 @@ class SnippetApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SnippetApiService;

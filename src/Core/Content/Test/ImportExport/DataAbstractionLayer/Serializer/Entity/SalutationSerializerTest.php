@@ -9,28 +9,30 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class SalutationSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salutationRepository;
 
-    /**
-     * @var SalutationSerializer
-     */
-    private $serializer;
+    private SalutationSerializer $serializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salutationRepository = $this->getContainer()->get('salutation.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);

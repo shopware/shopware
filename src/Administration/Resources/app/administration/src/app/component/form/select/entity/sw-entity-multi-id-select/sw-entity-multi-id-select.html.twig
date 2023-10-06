@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_multi_id_select %}
 <sw-entity-multi-select
     :entity-collection="collection"
@@ -6,9 +7,14 @@
     :disabled="disabled"
     v-bind="$attrs"
     v-on="getListeners"
+    {% if VUE3 %}
+    @update:entity-collection="updateIds"
+    {% else %}
     @change="updateIds"
+    {% endif %}
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_id_select_label_property %}
     <template #selection-label-property="{ item, index, labelProperty, valueProperty }">
         <slot
@@ -18,12 +24,14 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_id_select_results_list_before %}
     <template #before-item-list>
         <slot name="before-item-list"></slot>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_id_select_results_list_result_label %}
     <template #result-label-property="{ item, index, labelProperty, valueProperty, searchTerm, getKey, highlightSearchTerm }">
         <slot
@@ -33,6 +41,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_id_select_results_list_result_description %}
     <template #result-description-property="{ item, searchTerm, highlightSearchTerm }">
         <slot
@@ -42,6 +51,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_id_select_results_list_after %}
     <template #after-item-list>
         <slot name="after-item-list"></slot>
@@ -50,6 +60,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-entity-multi-select>
 {% endblock %}

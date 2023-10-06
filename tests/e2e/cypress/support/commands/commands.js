@@ -9,24 +9,34 @@ const { v4: uuid } = require('uuid');
  * @param {String} title - Title of the screenshot
  * @param {String} [selectorToCheck = null] - Unique selector to make sure the module is ready for being snapshot
  * @param {Object} [width = null] - Screen width used for snapshot
+ * @param {Object} [percyCSS = null] - Add custom styling to snapshot
  * @function
  */
-Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null) => {
-    if (!Cypress.env('usePercy')) {
-        return;
-    }
-
-    if (selectorToCheck) {
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-loader__element').should('not.exist');
-        cy.get(selectorToCheck).should('be.visible');
-    }
-
-    if (!width) {
-        cy.percySnapshot(title);
-        return;
-    }
-    cy.percySnapshot(title, width);
+Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null, percyCSS = null) => {
+    // if (!Cypress.env('usePercy')) {
+    //     return;
+    // }
+    //
+    // if (selectorToCheck) {
+    //     cy.get('.sw-skeleton').should('not.exist');
+    //     cy.get('.sw-loader').should('not.exist');
+    //     cy.get('.sw-loader__element').should('not.exist');
+    //     cy.get(selectorToCheck).should('be.visible');
+    // }
+    //
+    // let options = {};
+    // if (width) {
+    //     Object.assign(options, width);
+    // }
+    //
+    // if (percyCSS) {
+    //     Object.assign(options, percyCSS);
+    // }
+    //
+    // // Wait 1 second for the network to idle. This will reduce flackyness with missing icons etc.
+    // cy.waitForNetworkIdle(1000);
+    //
+    // cy.percySnapshot(title, options);
 });
 
 /**
@@ -184,25 +194,28 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
 Cypress.Commands.add('setSalesChannel', (salesChannel) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-        method: 'POST'
+        method: 'POST',
     }).as('saveData');
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
 
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    // Wait for some time because .sw-select-selection-list needs some time to update
+    cy.wait(500);
     cy.get('.sw-select-selection-list').then(($body) => {
         if ($body.text().includes(salesChannel)) {
             cy.get('.sw-settings-listing__save-action').click();
         } else {
             cy.get('.sw-select-selection-list__input').should('be.visible').type(salesChannel);
             cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).should('be.visible').click({ force:true });
+            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).should('be.visible').click();
             cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
             cy.get('.sw-settings-listing__save-action').should('be.visible').click();
         }
     });
+    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
     cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     cy.contains('.sw-select-selection-list', salesChannel).should('be.visible');
@@ -249,7 +262,7 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
         method: 'POST'
     }).as('set-payment');
 
-    cy.contains(paymentMethod).should('be.visible').click();
+    cy.get(".sw-payment-card").contains(paymentMethod).get("a").contains("Details bewerken").click();
     cy.get('.sw-settings-payment-detail__condition_container').scrollIntoView();
     cy.get('.sw-settings-payment-detail__field-availability-rule').typeSingleSelectAndCheck(
         'Always valid (Default)',
@@ -295,6 +308,7 @@ Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.contains('.sw-sales-channel-detail__select-countries', country).should('be.visible');
     cy.contains('.sw-sales-channel-detail__assign-countries', country).should('be.visible');
@@ -337,6 +351,7 @@ Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
     cy.contains('.sw-select-result', paymentMethod).should('be.visible').click({ force:true });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-payment-methods', paymentMethod).should('be.visible');
@@ -384,6 +399,7 @@ Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => 
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-shipping-methods', shippingMethod).should('be.visible');
@@ -427,6 +443,7 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
     });
     cy.get('.sw-sales-channel-detail__save-action').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-currencies', currency).should('be.visible');
@@ -470,6 +487,7 @@ Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
@@ -496,13 +514,358 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
             .and('match', /Max%20Mustermann.png/);
     }
     cy.get('body').then(($body) => {
-        if ($body.find('.sw-alert').length) {
+        if ($body.find('.sw-notification__alert').length) {
             // Hide notifications for visual testing
             cy.changeElementStyling(
-                '.sw-alert',
+                '.sw-notification__alert',
                 'display: none'
             );
         }
     })
     cy.log('Admin successfully prepared for percy usage!')
+});
+
+/**
+ * Creates a product with multiple reviews
+ * @memberOf Cypress.Chainable#
+ * @name createMultipleReviewsFixture
+ * @param {array} additionalReviews - Array with reviews which will be created additionally
+ * @param {Boolean} overwriteReviews - Set to true to only use the reviews passed by `additionalReviews`
+ * @function
+ */
+Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], overwriteReviews= false) => {
+    // Use a fixed `productId` to assign reviews to product
+    const productId = '83450210115646e7acd1ac896452a5f3';
+    let product = null;
+    let salesChannelId = null;
+
+    const fixtureReviews = [
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Best product ever",
+        },
+        {
+            content: "Lorem ipsum Exercitationem qui placeat labore similique.",
+            points: 2,
+            title: "Meh.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 3,
+            title: "It could be worse.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 1,
+            title: "Not the yellow from the egg.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "My life has changed!",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 4,
+            title: "Pretty good overall",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Best ever",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "This is not a bought review at all. 5 stars!!!",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "This is really nice",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 1,
+            title: "I want my money back",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 3,
+            title: "Average...",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Profit!",
+        },
+        ...additionalReviews
+    ];
+
+    const productReviews = overwriteReviews ? additionalReviews : fixtureReviews;
+
+    return cy.createProductFixture({ id: productId }).then(() => {
+        return cy.fixture('product');
+    }).then((result) => {
+        product = result;
+    }).then(() => {
+        // Sales channel id is needed in order to display the reviews
+        return cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            }
+        });
+    }).then((response) => {
+        salesChannelId = response.id;
+
+        return cy.authenticate();
+    }).then((result) => {
+        // Create reviews with sync API
+        return cy.request({
+            headers: {
+                Accept: 'application/vnd.api+json',
+                Authorization: `Bearer ${result.access}`,
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            url: '/api/_action/sync',
+            qs: {
+                response: true
+            },
+            body: {
+                'write-product_review': {
+                    entity: 'product_review',
+                    action: 'upsert',
+                    payload: productReviews.map((review) => {
+                        return {
+                            ...review,
+                            ...{
+                                productId: productId,
+                                salesChannelId: salesChannelId,
+                                status: true
+                            }
+                        };
+                    })
+                }
+            }
+        });
+    }).then((reviews) => {
+        // Return created product and reviews for further processing
+        return { product, reviews };
+    });
+});
+
+/**
+ * Changes text of an element. Useful for visual testing. Be aware you'll influence the test using this.
+ * @memberOf Cypress.Chainable#
+ * @name changeElementText
+ * @function
+ * @param {String} selector - API endpoint for the request
+ * @param {String} text - API endpoint for the request
+ */
+Cypress.Commands.add('changeElementText', (selector, text) => {
+    cy.get(selector)
+        .invoke('text', text)
+        .should('contain', text);
+});
+
+/**
+ * checks iframe content for sdk test
+ * @memberOf Cypress.Chainable#
+ * @name getSDKiFrame
+ * @param {strong} iframe - String of custom url to select iframe
+ * @function
+ */
+Cypress.Commands.add('getSDKiFrame', (locationId) => {
+    cy.get(`iframe[src*="location-id=${locationId}"]`)
+        .its('0.contentDocument.body')
+        .should('not.be.empty')
+        .then(cy.wrap);
+});
+
+
+Cypress.Commands.overwrite(
+    'clickMainMenuItem',
+    (orig, { targetPath, mainMenuId, subMenuId = null }) => {
+        const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-admin-menu')
+            .should('be.visible')
+            .then(() => {
+                if (subMenuId) {
+                    cy.get(finalMenuItem).click();
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .router-link-active`).should('be.visible');
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
+                        .then($el => Cypress.dom.isDetached($el));
+                    cy.log(`Element ${subMenuId} is detached.`);
+                    cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
+                        .then($el => Cypress.dom.isAttached($el));
+                    cy.log(`Element ${subMenuId} is now attached to the DOM.`);
+
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .should('be.visible');
+
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .click();
+                } else {
+                    cy.get(finalMenuItem).should('be.visible').click();
+                }
+            });
+        cy.url().should('include', targetPath);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+    },
+);
+
+
+// create session caching id based on credentials and scope
+Cypress.Commands.add('authenticate', ({ username, password, scopes, id } = {} ) => {
+    const user = username || Cypress.env('username') || Cypress.env('user') || 'admin';
+    cy.session(
+        ['bearerAuth', user, password, scopes, id],
+        () => {
+            cy.request(
+                'POST',
+                '/api/oauth/token',
+                {
+                    grant_type: Cypress.env('grant') ? Cypress.env('grant') : 'password',
+                    client_id: Cypress.env('client_id') ? Cypress.env('client_id') : 'administration',
+                    scope: scopes || (Cypress.env('scope') ? Cypress.env('scope') : 'write'),
+                    username: user,
+                    password: password || Cypress.env('password') || Cypress.env('pass') || 'shopware'
+                }
+            ).then((responseData) => {
+                let result = responseData.body;
+                result.access = result.access_token;
+                result.refresh = result.refresh_token;
+                result.expiry = Math.round(+new Date() / 1000) + result.expires_in;
+
+                cy.log('request /api/oauth/token')
+                cy.log('cookieValue:', result);
+
+                cy.setCookie(
+                    'lastActivity',
+                    `${Math.round(+new Date() / 1000)}`,
+                    {
+                        path: Cypress.env('admin'),
+                        sameSite: "strict"
+                    }
+                );
+
+                return cy.setCookie(
+                    'bearerAuth',
+                    JSON.stringify(result),
+                    {
+                        path: Cypress.env('admin'),
+                        sameSite: "strict"
+                    }
+                );
+            });
+        },
+        {
+            validate: () => {
+                return cy.getCookie('bearerAuth').then((cookie) => {
+                    const cookieValue = JSON.parse(decodeURIComponent(cookie && cookie.value));
+
+                    cy.log('cookieValue:', decodeURIComponent(cookie && cookie.value));
+
+                    return cy.request({
+                        method: 'GET',
+                        url: '/api/_info/version',
+                        failOnStatusCode: true,
+                        headers: {
+                            Authorization: `Bearer ${cookieValue && cookieValue.access}`
+                        },
+                    }).then(() => true);
+                });
+            },
+        }
+    );
+
+    return cy.getBearerAuth();
+});
+
+
+// changed to use authenticate with the cypress session feature
+Cypress.Commands.add('loginAsUserWithPermissions', {
+    prevSubject: false,
+}, (permissions, username = 'maxmuster', password = 'Passw0rd!') => {
+    cy.log('Login as user with permissions');
+
+    const id = uuid().replace(/-/g, '');
+
+    return cy.url().then((currentUrl) => {
+        return cy.authenticate({ scopes: 'write user-verified' }).then((result) => {
+            cy.openInitialPage('/admin');
+
+            return cy.window().then(($w) => {
+                const roleID = 'ef68f039468d4788a9ee87db9b3b94de';
+                const localeId = $w.Shopware.State.get('session').currentUser.localeId;
+                let headers = {
+                    Accept: 'application/vnd.api+json',
+                    Authorization: `Bearer ${result.access}`,
+                    'Content-Type': 'application/json',
+                };
+
+                cy.request({
+                    url: '/api/acl-role',
+                    method: 'POST',
+                    headers: headers,
+                    body: {
+                        id: roleID,
+                        name: 'e2eRole',
+                        privileges: (() => {
+                            const privilegesService = $w.Shopware.Service('privileges');
+
+                            const adminPrivileges = permissions.map(({ key, role }) => `${key}.${role}`);
+                            return privilegesService.getPrivilegesForAdminPrivilegeKeys(adminPrivileges);
+                        })(),
+                    },
+                })
+
+                // save user
+                cy.request({
+                    url: '/api/user',
+                    method: 'POST',
+                    headers: headers,
+                    body: {
+                        aclRoles: [{ id: roleID }],
+                        admin: false,
+                        email: 'max@muster.com',
+                        firstName: 'Max',
+                        id: id,
+                        lastName: 'Muster',
+                        localeId: localeId,
+                        password,
+                        username,
+                    },
+                })
+                // We need to wait so that last_updated_password_at isn't the same as the token issue timestamp.
+                // Otherwise, the token is considered to be revoked for security reasons, because the password was changed
+                // after the token was issued.
+                cy.wait(2000);
+
+                return cy.authenticate({ username, password, id }).then(() => {
+                    return cy.openInitialPage(currentUrl);
+                });
+            });
+        });
+    });
+});
+
+// removed the wait on ma and just wait for the skeleton to disappear
+Cypress.Commands.add('openInitialPage', (url) => {
+    cy.log('All preparation done!');
+
+    cy.visit(url);
+    cy.get('.sw-desktop').should('be.visible');
+
+    cy.get('.sw-skeleton').should('not.exist');
+    cy.get('.sw-loader').should('not.exist');
 });

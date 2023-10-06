@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -11,16 +12,11 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 /**
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionListingLoader
 {
-    /**
-     * @var StoreClient
-     */
-    private $client;
-
-    public function __construct(StoreClient $client)
+    public function __construct(private readonly StoreClient $client)
     {
-        $this->client = $client;
     }
 
     public function load(ExtensionCollection $localCollection, Context $context): ExtensionCollection
@@ -35,7 +31,7 @@ class ExtensionListingLoader
     {
         try {
             $storeExtensions = $this->client->listMyExtensions($localCollection, $context);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return;
         }
 
@@ -75,9 +71,7 @@ class ExtensionListingLoader
 
     private function sortCollection(ExtensionCollection $collection): ExtensionCollection
     {
-        $collection->sort(function (ExtensionStruct $a, ExtensionStruct $b) {
-            return strcmp($a->getLabel(), $b->getLabel());
-        });
+        $collection->sort(fn (ExtensionStruct $a, ExtensionStruct $b) => strcmp($a->getLabel(), $b->getLabel()));
 
         $sortedCollection = new ExtensionCollection();
 
@@ -107,7 +101,7 @@ class ExtensionListingLoader
     {
         try {
             $updates = $this->client->getExtensionUpdateList($localCollection, $context);
-        } catch (StoreApiException | ClientException $e) {
+        } catch (StoreApiException|ClientException) {
             return;
         }
 

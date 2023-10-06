@@ -1,14 +1,34 @@
-@import '~scss/variables';
+@use "sass:meta";
+@use "variables";
+
+:root {
+    /**
+    *  Generate css variables for all scss variables automatically
+    */
+    @each $name, $value in meta.module-variables("variables") {
+        --#{$name}: #{meta.inspect($value)};
+    }
+}
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    color-scheme: light;
+    font-family: $font-family-default;
+}
+
+@supports (font-variation-settings: normal) {
+    *,
+    body {
+        font-family: $font-family-variables;
+        font-feature-settings: $font-family-default-feature-settings;
+    }
 }
 
 body {
     font-family: $font-family-default;
-    font-size: $font-size-default;
+    font-size: $font-size-s;
     color: $color-menu-start;
     background: $color-gray-50;
     -webkit-font-smoothing: antialiased;
@@ -28,9 +48,13 @@ body,
     z-index: $z-index-drag-select-box;
 }
 
+a,
 .link {
     display: inline-block;
     color: $color-shopware-brand-500;
+    font-size: $font-size-xs;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /* style inline external links */
@@ -38,7 +62,7 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .sw-button) {
     display: inline-block;
     position: relative;
     color: $color-shopware-brand-500;
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
     text-decoration: underline;
     cursor: pointer;
     word-break: break-word;
@@ -57,12 +81,5 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .sw-button) {
         mask-repeat: no-repeat;
         mask-size: 0.715em 0.715em;
         background-color: $color-shopware-brand-500;
-    }
-}
-
-/* Hide some areas in Percy screenshot test which are different every time (Time, etc.) */
-@media only percy {
-    .hide-in-percy {
-        visibility: hidden;
     }
 }

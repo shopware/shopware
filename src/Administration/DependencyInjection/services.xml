@@ -14,6 +14,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Hmac\QuerySigner"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -23,7 +24,7 @@
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <argument>%kernel.supported_api_versions%</argument>
             <argument type="service" id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
@@ -34,6 +35,8 @@
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -75,6 +78,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Administration\Controller\AdminTagController"
+                 public="true">
+            <argument type="service" id="Shopware\Core\System\Tag\Service\FilterTagIdsService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Administration\Controller\NotificationController" public="true">
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
@@ -88,6 +100,11 @@
             <argument type="service" id="notification.repository"/>
         </service>
 
+        <service id="Shopware\Administration\Notification\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Administration\Service\AdminSearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
@@ -97,8 +114,19 @@
             <tag name="shopware.route_scope"/>
         </service>
 
+        <service id="Shopware\Administration\Snippet\AppAdministrationSnippetDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister">
+            <argument type="service" id="app_administration_snippet.repository"/>
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+        </service>
+
         <service id="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="kernel" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">
@@ -107,11 +135,6 @@
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
-
-        <service id="Shopware\Administration\Service\AdminOrderCartService">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-        </service>
 
         <service id="Shopware\Administration\Notification\NotificationDefinition">
             <tag name="shopware.entity.definition"/>
@@ -123,6 +146,11 @@
 
         <service id="Shopware\Administration\Notification\Extension\UserExtension">
             <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber">
+            <argument type="service" id="user_config.repository" />
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

@@ -6,22 +6,25 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ApiAwareFlagTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testReadWithoutPermissionForAdminSourceWithJsonApiType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('media.repository');
 
         $data = [
@@ -34,7 +37,7 @@ class ApiAwareFlagTest extends TestCase
 
         $this->getBrowser()->request('GET', $url);
 
-        $data = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $data = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $data, print_r($data, true));
 
         $data = $data['data'];
@@ -47,7 +50,7 @@ class ApiAwareFlagTest extends TestCase
     public function testReadWithoutPermissionForAdminSourceWithJsonType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('media.repository');
 
         $data = [
@@ -62,7 +65,7 @@ class ApiAwareFlagTest extends TestCase
         $browser->setServerParameter('HTTP_ACCEPT', 'application/json');
         $browser->request('GET', $url);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $data, print_r($data, true));
 
         $data = $data['data'];
@@ -75,7 +78,7 @@ class ApiAwareFlagTest extends TestCase
     public function testReadWithoutPermissionForSalesChannelSourceWithJsonType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('product.repository');
 
         // when we create a salesChannelBrowser we also create a new SalesChannel,
@@ -111,7 +114,7 @@ class ApiAwareFlagTest extends TestCase
         $url = '/store-api/product?associations[cover][]';
 
         $browser->request('GET', $url);
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('elements', $data, print_r($data, true));
 
         foreach ($data['elements'] as $product) {

@@ -3,13 +3,15 @@
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('buyers-experience')]
 class SeoResolverData
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $entityMap = [];
+    private array $entityMap = [];
 
     public function add(string $entityName, Entity $entity): void
     {
@@ -20,11 +22,17 @@ class SeoResolverData
         $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = $entity;
     }
 
+    /**
+     * @return array<string|int>
+     */
     public function getEntities(): array
     {
         return array_keys($this->entityMap);
     }
 
+    /**
+     * @return array<string|int>
+     */
     public function getIds(string $entityName): array
     {
         return array_keys($this->entityMap[$entityName]);

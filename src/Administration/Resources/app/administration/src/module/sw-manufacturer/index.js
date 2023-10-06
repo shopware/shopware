@@ -1,10 +1,18 @@
-import './page/sw-manufacturer-list';
-import './page/sw-manufacturer-detail';
+/*
+ * @package inventory
+ */
+
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-manufacturer-list', () => import('./page/sw-manufacturer-list'));
+Shopware.Component.register('sw-manufacturer-detail', () => import('./page/sw-manufacturer-detail'));
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-manufacturer', {
     type: 'core',
     name: 'manufacturer',
@@ -13,7 +21,7 @@ Module.register('sw-manufacturer', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'default-symbol-products',
+    icon: 'regular-products',
     favicon: 'icon-module-products.png',
     entity: 'product_manufacturer',
 

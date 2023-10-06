@@ -2,10 +2,13 @@ import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
 /**
+ * @package services-settings
  * @private
  */
-Shopware.Component.register('sw-extension-rating-stars', {
+export default {
     template,
+
+    inject: ['feature'],
 
     model: {
         prop: 'rating',
@@ -101,6 +104,12 @@ Shopware.Component.register('sw-extension-rating-stars', {
 
             // subtract because rtl direction is used
             this.ratingValue = this.maxRating - rating;
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:rating', this.ratingValue);
+
+                return;
+            }
+
             this.$emit('rating-changed', this.ratingValue);
         },
 
@@ -110,4 +119,4 @@ Shopware.Component.register('sw-extension-rating-stars', {
                 && (this.maxRating - Math.ceil(this.ratingValue)) === key;
         },
     },
-});
+};

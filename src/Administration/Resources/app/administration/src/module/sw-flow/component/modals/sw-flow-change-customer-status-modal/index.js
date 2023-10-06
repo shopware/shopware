@@ -3,7 +3,11 @@ import template from './sw-flow-change-customer-status-modal.html.twig';
 const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
-Component.register('sw-flow-change-customer-status-modal', {
+/**
+ * @private
+ * @package services-settings
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -39,7 +43,11 @@ Component.register('sw-flow-change-customer-status-modal', {
 
     methods: {
         createdComponent() {
-            this.active = this.sequence?.config?.active || true;
+            if (this.sequence?.config) {
+                this.active = this.sequence?.config.active;
+                return;
+            }
+            this.active = true;
         },
 
         onClose() {
@@ -52,4 +60,4 @@ Component.register('sw-flow-change-customer-status-modal', {
             this.$emit('process-finish', this.sequence);
         },
     },
-});
+};

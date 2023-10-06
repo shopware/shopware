@@ -1,9 +1,14 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package checkout
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-customer-group-list', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -70,6 +75,10 @@ Component.register('sw-settings-customer-group-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             this.customerGroupRepository.search(criteria)
                 .then((searchResult) => {
                     this.total = searchResult.total;
@@ -93,7 +102,7 @@ Component.register('sw-settings-customer-group-list', {
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, this.limit);
 
             criteria.addFilter(
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups),
@@ -157,4 +166,4 @@ Component.register('sw-settings-customer-group-list', {
             this.$refs.listing.deleteId = customerGroup.id;
         },
     },
-});
+};

@@ -1,8 +1,11 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-seo-main-category.html.twig';
 
-const { Component } = Shopware;
-
-Component.register('sw-seo-main-category', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -121,4 +124,4 @@ Component.register('sw-seo-main-category', {
             this.mainCategoryForSalesChannel = mainCategory;
         },
     },
-});
+};

@@ -1,9 +1,13 @@
 import template from './sw-settings-document-list.html.twig';
 import './sw-settings-document-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
-Component.register('sw-settings-document-list', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['acl'],
@@ -40,7 +44,7 @@ Component.register('sw-settings-document-list', {
             };
         },
         listingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -56,4 +60,12 @@ Component.register('sw-settings-document-list', {
             return criteria;
         },
     },
-});
+
+    methods: {
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            this.getList();
+        },
+    },
+};

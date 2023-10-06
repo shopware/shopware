@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait AssignArrayTrait
 {
     /**
+     * @param array<mixed> $options
+     *
      * @return $this
      */
     public function assign(array $options)
@@ -17,8 +22,8 @@ trait AssignArrayTrait
             }
 
             try {
-                $this->$key = $value;
-            } catch (\Error | \Exception $error) {
+                $this->$key = $value; /* @phpstan-ignore-line */
+            } catch (\Error|\Exception $error) {
                 // nth
             }
         }

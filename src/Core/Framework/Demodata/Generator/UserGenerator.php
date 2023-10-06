@@ -10,23 +10,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class UserGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private UserDefinition $userDefinition;
-
-    private EntityRepository $languageRepository;
-
-    public function __construct(EntityWriterInterface $writer, UserDefinition $userDefinition, EntityRepository $languageRepository)
-    {
-        $this->writer = $writer;
-        $this->userDefinition = $userDefinition;
-        $this->languageRepository = $languageRepository;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EntityWriterInterface $writer,
+        private readonly UserDefinition $userDefinition,
+        private readonly EntityRepository $languageRepository
+    ) {
     }
 
     public function getDefinition(): string
@@ -43,8 +45,8 @@ class UserGenerator implements DemodataGeneratorInterface
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $id = Uuid::randomHex();
-            $firstName = $context->getFaker()->firstName;
-            $lastName = $context->getFaker()->lastName;
+            $firstName = $context->getFaker()->firstName();
+            $lastName = $context->getFaker()->format('lastName');
             $title = $this->getRandomTitle();
 
             $user = [
@@ -52,8 +54,8 @@ class UserGenerator implements DemodataGeneratorInterface
                 'title' => $title,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'username' => $context->getFaker()->userName,
-                'email' => $id . $context->getFaker()->safeEmail,
+                'username' => $context->getFaker()->format('userName'),
+                'email' => $id . $context->getFaker()->format('safeEmail'),
                 'password' => 'shopware',
                 'localeId' => $this->getLocaleId($context->getContext()),
             ];

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationDefinition;
+use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,16 +14,27 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
+ * @internal
+ *
  * @group skip-paratest
  */
 class ApiAwareTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testApiAware(): void
     {
-        $kernel = KernelLifecycleManager::createKernel(null, true, hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json'));
+        $cacheId = hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json');
+        if (!\is_string($cacheId)) {
+            static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be hashed');
+        }
+
+        $kernel = KernelLifecycleManager::createKernel(
+            null,
+            true,
+            $cacheId
+        );
         $kernel->boot();
         $registry = $kernel->getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -44,13 +56,15 @@ class ApiAwareTest extends TestCase
             }
         }
 
-//        file_put_contents(__DIR__ . '/fixtures/api-aware-fields.json', json_encode($mapping, JSON_PRETTY_PRINT));
+        //        file_put_contents(__DIR__ . '/fixtures/api-aware-fields.json', json_encode($mapping, JSON_PRETTY_PRINT));
 
         // To update the mapping you can simply comment the following line and run the test once. The mapping will then be updated.
         // The line to update the mapping must of course be commented out again afterwards.
         $expected = file_get_contents(__DIR__ . '/fixtures/api-aware-fields.json');
-
-        $expected = json_decode($expected, true);
+        if (!\is_string($expected)) {
+            static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
+        }
+        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
         if ($this->getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
@@ -91,6 +105,19 @@ class ApiAwareTest extends TestCase
                 [
                     'notification.createdAt',
                     'notification.updatedAt',
+                ]
+            );
+        }
+
+        if ($this->getContainer()->has(AppAdministrationSnippetDefinition::class)) {
+            $expected = array_merge(
+                $expected,
+                [
+                    'app_administration_snippet.value',
+                    'app_administration_snippet.appId',
+                    'app_administration_snippet.localeId',
+                    'app_administration_snippet.createdAt',
+                    'app_administration_snippet.updatedAt',
                 ]
             );
         }

@@ -2,34 +2,30 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemDimensionWidthRule extends Rule
 {
-    protected ?float $amount;
+    final public const RULE_NAME = 'cartLineItemDimensionWidth';
 
-    protected string $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
-    {
+    /**
+     * @internal
+     */
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $amount = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemDimensionWidth';
     }
 
     public function match(RuleScope $scope): bool
@@ -42,7 +38,7 @@ class LineItemDimensionWidthRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchWidthDimension($lineItem)) {
                 return true;
             }
@@ -54,33 +50,27 @@ class LineItemDimensionWidthRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['amount'] = [new NotBlank(), new Type('numeric')];
+        $constraints['amount'] = RuleConstraints::float();
 
         return $constraints;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
+    }
+
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      * @throws UnsupportedOperatorException
      */
     private function matchWidthDimension(LineItem $lineItem): bool
@@ -88,41 +78,9 @@ class LineItemDimensionWidthRule extends Rule
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $width = $deliveryInformation->getWidth();
-
-        if ($width === null) {
-            return $this->operator === self::OPERATOR_EMPTY;
-        }
-
-        $this->amount = (float) $this->amount;
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($width, $this->amount);
-
-            case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($width, $this->amount);
-
-            case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($width, $this->amount);
-
-            case self::OPERATOR_LT:
-                return FloatComparator::lessThan($width, $this->amount);
-
-            case self::OPERATOR_EQ:
-                return FloatComparator::equals($width, $this->amount);
-
-            case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($width, $this->amount);
-
-            case self::OPERATOR_EMPTY:
-                return false;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($deliveryInformation->getWidth(), $this->amount, $this->operator);
     }
 }

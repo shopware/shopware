@@ -1,12 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_store %}
 <div class="sw-first-run-wizard-store">
     <template v-if="loadStatus">
-        <sw-icon
-            class="sw-first-run-wizard-store__loading-icon"
-            name="default-web-loading-circle"
-            size="48px"
-            small
-        />
+        <sw-loader />
 
         <p class="message">
             {{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}
@@ -22,23 +18,18 @@
             variant="success"
         >
             <sw-icon
-                name="default-basic-checkmark-circle"
+                name="regular-check-circle"
                 size="30px"
             />
         </sw-label>
 
         <h2>
-            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+            {{ $tc('sw-first-run-wizard.store.alreadyActivated') }}
         </h2>
     </template>
 
     <template v-else-if="isActivating">
-        <sw-icon
-            class="sw-first-run-wizard-store__loading-icon"
-            name="default-web-loading-circle"
-            size="48px"
-            small
-        />
+        <sw-loader />
 
         <p class="message">
             {{ $tc('sw-first-run-wizard.store.enablingStore') }}
@@ -54,7 +45,7 @@
             variant="danger"
         >
             <sw-icon
-                name="default-basic-x-circle"
+                name="regular-times-circle"
                 size="30px"
             />
         </sw-label>
@@ -69,7 +60,7 @@
 
     <template v-else>
         <img
-            :src="'/administration/static/img/extension-store/store_illustration.svg' | asset"
+            :src="assetFilter('/administration/static/img/extension-store/store_illustration.svg')"
             alt=""
         >
 

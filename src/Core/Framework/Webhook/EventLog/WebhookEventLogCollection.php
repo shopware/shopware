@@ -3,16 +3,12 @@
 namespace Shopware\Core\Framework\Webhook\EventLog;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                       add(WebhookEventLogEntity $entity)
- * @method void                       set(string $key, WebhookEventLogEntity $entity)
- * @method WebhookEventLogEntity[]    getIterator()
- * @method WebhookEventLogEntity[]    getElements()
- * @method WebhookEventLogEntity|null get(string $key)
- * @method WebhookEventLogEntity|null first()
- * @method WebhookEventLogEntity|null last()
+ * @extends EntityCollection<WebhookEventLogEntity>
  */
+#[Package('core')]
 class WebhookEventLogCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

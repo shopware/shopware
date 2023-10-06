@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistE
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class CustomerWishlistProductEntity extends Entity
 {
     use EntityIdTrait;
@@ -20,6 +22,11 @@ class CustomerWishlistProductEntity extends Entity
      * @var string
      */
     protected $productId;
+
+    /**
+     * @var string
+     */
+    protected $productVersionId;
 
     /**
      * @var CustomerWishlistEntity|null
@@ -69,5 +76,15 @@ class CustomerWishlistProductEntity extends Entity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

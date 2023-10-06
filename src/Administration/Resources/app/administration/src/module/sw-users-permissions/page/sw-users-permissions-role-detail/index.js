@@ -1,8 +1,12 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-users-permissions-role-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-users-permissions-role-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -11,6 +15,7 @@ Component.register('sw-users-permissions-role-detail', {
         'userService',
         'loginService',
         'acl',
+        'appAclService',
     ],
 
     mixins: [
@@ -81,6 +86,16 @@ Component.register('sw-users-permissions-role-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-role-detail__detailedPrivileges',
+                path: 'detailedPrivileges',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-role-detail__role',
+                path: 'role',
+                scope: this,
+            });
             if (!this.roleId) {
                 this.createNewRole();
                 return;
@@ -104,21 +119,23 @@ Component.register('sw-users-permissions-role-detail', {
         getRole() {
             this.isLoading = true;
 
-            this.roleRepository.get(this.roleId)
-                .then((role) => {
-                    this.role = role;
+            this.appAclService.addAppPermissions().then(() => {
+                this.roleRepository.get(this.roleId)
+                    .then((role) => {
+                        this.role = role;
 
-                    const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
-                    const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
+                        const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
+                        const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
 
-                    this.detailedPrivileges = this.role.privileges.filter(privilege => {
-                        return !allGeneralPrivileges.includes(privilege);
+                        this.detailedPrivileges = this.role.privileges.filter(privilege => {
+                            return !allGeneralPrivileges.includes(privilege);
+                        });
+                        this.role.privileges = filteredPrivileges;
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
                     });
-                    this.role.privileges = filteredPrivileges;
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            });
         },
 
         onSave() {
@@ -184,4 +201,4 @@ Component.register('sw-users-permissions-role-detail', {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
     },
-});
+};

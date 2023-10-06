@@ -2,30 +2,29 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemIsNewRule extends Rule
 {
-    protected bool $isNew;
+    final public const RULE_NAME = 'cartLineItemIsNew';
 
-    public function __construct(bool $isNew = false)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $isNew = false)
     {
         parent::__construct();
-
-        $this->isNew = $isNew;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemIsNew';
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -37,7 +36,7 @@ class LineItemIsNewRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }
@@ -49,12 +48,18 @@ class LineItemIsNewRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNew' => [new Type('bool')],
+            'isNew' => RuleConstraints::bool(),
         ];
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->booleanField('isNew');
+    }
+
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchLineItemIsNew(LineItem $lineItem): bool
     {

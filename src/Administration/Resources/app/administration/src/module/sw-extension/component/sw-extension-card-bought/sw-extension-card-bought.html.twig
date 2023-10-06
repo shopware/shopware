@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_activation_switch %}
 {% parent %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bought_extension_card_deactivation_modal %}
 <sw-extension-deactivation-modal
     v-if="showDeactivationModal"
@@ -13,11 +15,14 @@
 {% endblock %}
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_info_content %}
 {% parent %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_calculated_price %}
 <section v-if="priceInfo && extension.storeLicense.variant === 'rent'">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bought_extension_card_info_price %}
     <span class="sw-extension-card-bought__info-price">
         {{ priceInfo }}
@@ -26,26 +31,21 @@
 </section>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_subscription_expired_info %}
 <section v-if="subscriptionExpiredText">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_subscription_expired_info_text %}
     <span
         class="sw-extension-card-bought__info-subscription-expiry"
         :class="subscriptionExpiredTextClasses"
     >
         <sw-icon
-            v-if="isExpiredTestPhase"
-            name="default-badge-alert"
+            v-if="isExpiredTestPhase || isExpiredRent"
+            name="solid-exclamation-circle"
             size="14"
             small
         />
-        <sw-icon
-            v-else-if="isExpiredRent"
-            name="default-badge-warning"
-            size="14"
-            small
-        />
-
         {{ subscriptionExpiredText }}
     </span>
     {% endblock %}
@@ -53,8 +53,10 @@
 {% endblock %}
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_context_menu_actions %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bought_extension_card_context_menu_open_detail %}
 <sw-context-menu-item
     v-if="detailLink"
@@ -65,6 +67,7 @@
 </sw-context-menu-item>
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bought_extension_card_context_menu_rate %}
 <sw-context-menu-item
     v-if="isInstalled && extension.storeLicense"
@@ -78,9 +81,11 @@
 {% parent %}
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_card_base_modals %}
 {% parent %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bought_extension_card_rating_modal %}
 <sw-extension-rating-modal
     v-if="showRatingModal"
@@ -89,6 +94,7 @@
 />
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bought_extension_card_installation_failed_modal %}
 <sw-modal
     v-if="showExtensionInstallationFailedModal"
@@ -97,6 +103,7 @@
     class="sw-extension-card-bought__installation-failed-modal"
     @modal-close="closeInstallationFailedNotification"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bought_extension_card_installation_failed_modal_extension %}
     <sw-extension-adding-failed
         :extension-name="extension.name"

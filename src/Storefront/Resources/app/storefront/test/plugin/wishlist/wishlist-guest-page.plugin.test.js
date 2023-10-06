@@ -1,12 +1,11 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
+/**
+ * @package checkout
+ */
 describe('GuestWishlistPagePlugin tests', () => {
     let guestWishlistPagePlugin = undefined;
     let spyInitializePlugins = jest.fn();
@@ -14,30 +13,12 @@ describe('GuestWishlistPagePlugin tests', () => {
     beforeEach(() => {
         // create mocks
         window.wishlistEnabled = true;
-        window.csrf = {
-            enabled: false
-        };
-        window.router = [];
-
 
         const mockElement = document.createElement('div');
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new WishlistLocalStoragePlugin(mockElement);
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            getPluginInstances: () => {
-                return new Map();
-            }
-        };
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new WishlistLocalStoragePlugin(mockElement);
+        }
 
         const wishlistBasket = document.createElement('div');
         wishlistBasket.setAttribute('id', 'wishlist-basket');
@@ -107,6 +88,8 @@ describe('GuestWishlistPagePlugin tests', () => {
         });
 
         expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts()).length).toBe(3);
+
+        window.useDefaultCookieConsent = true;
 
         CookieStorageHelper.removeItem('wishlist-enabled');
 

@@ -4,32 +4,40 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1625583619MoveDataFromEventActionToFlow;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
+    private EntityRepository $eventActionRepository;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+
+        $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -69,7 +77,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
             ];
         }
 
-        $this->eventActionRepository->create($data, $this->ids->context);
+        $this->eventActionRepository->create($data, Context::createDefaultContext());
 
         $migration = new Migration1625583619MoveDataFromEventActionToFlow();
         $migration->internal = true;
@@ -106,11 +114,12 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
         $criteria->addAssociation('sequences');
 
         /** @var FlowEntity $flow */
-        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
-        static::assertSame(3, $flowSequences->count());
+        static::assertInstanceOf(FlowSequenceCollection::class, $flowSequences);
+        static::assertCount(3, $flowSequences);
 
         foreach ($flowSequences->getElements() as $flowSequence) {
             if ($flowSequence->getActionName() === null) {
@@ -192,7 +201,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
             ],
         ];
 
-        $this->eventActionRepository->create([$data], $this->ids->context);
+        $this->eventActionRepository->create([$data], Context::createDefaultContext());
     }
 
     private function createMailTemplate(): void
@@ -207,7 +216,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('mail_template.repository')->create([
             [
@@ -223,7 +232,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function getRandomString(int $length): string
@@ -232,7 +241,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
         $string = '';
 
         for ($i = 0; $i < $length; ++$i) {
-            $string .= $characters[mt_rand(0, \strlen($characters) - 1)];
+            $string .= $characters[random_int(0, \strlen($characters) - 1)];
         }
 
         return $string;

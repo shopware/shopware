@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_domains %}
 <sw-card
     :title="$tc('sw-sales-channel.detail.titleDomains')"
@@ -5,8 +6,10 @@
     position-identifier="sw-sales-channel-detail-domains"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_meta %}
     <div class="sw-sales-channel-detail-domains__meta">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_headline %}
         <h4 class="sw-sales-channel-detail-domains__headline sw-sales-channel-detail-base__headline">
             <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">
@@ -15,6 +18,7 @@
         </h4>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_add_button %}
         <sw-button
             size="small"
@@ -29,6 +33,7 @@
     {% endblock %}
 
     <template #grid>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_grid %}
         <sw-data-grid
             ref="gridDomains"
@@ -41,46 +46,49 @@
             :sort-direction="sortDirection"
             @column-sort="sortColumns"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_columns_template %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_url %}
             <template
-                slot="column-url"
-                slot-scope="{ item}"
+                #column-url="{ item }"
             >
                 {{ item.url|unicodeUri }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_language_id %}
             <template
-                slot="column-languageId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-languageId="{ item, isInlineEdit}"
             >
                 {{ item.language.name }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_currency_id %}
             <template
-                slot="column-currencyId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-currencyId="{ item, isInlineEdit}"
             >
                 {{ item.currency.translated.name }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template
-                slot="column-snippetSetId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-snippetSetId="{ item, isInlineEdit}"
             >
                 {{ item.snippetSet.name }}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_actions %}
             <template #actions="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_domains_column_action_domain_edit %}
                 <sw-context-menu-item
                     :disabled="disableEdit"
@@ -90,6 +98,7 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_domains_column_action_domain_delete %}
                 <sw-context-menu-item
                     :disabled="disableEdit"
@@ -106,6 +115,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_create_modal %}
     <sw-modal
         v-if="currentDomain"
@@ -113,26 +123,41 @@
         @modal-close="onCloseCreateDomainModal"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_create_modal_content %}
         <sw-container
             columns="repeat(auto-fit, minmax(250px, 1fr))"
             gap="0px 30px"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_url %}
             <sw-url-field
+                {% if VUE3 %}
+                v-model:value="currentDomain.url"
+                {% else %}
                 v-model="currentDomain.url"
+                {% endif %}
                 type="text"
                 omit-url-hash
                 omit-url-search
-                label="Url"
+                :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
+                {% if VUE3 %}
+                @update:value="onInput"
+                {% else %}
                 @input="onInput"
+                {% endif %}
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_language %}
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="currentDomain.languageId"
+                {% else %}
                 v-model="currentDomain.languageId"
+                {% endif %}
                 class="sw-sales-channel-detail-domains__domain-language-select"
                 :options="salesChannel.languages"
                 label-property="name"
@@ -140,7 +165,11 @@
                 required
                 :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
                 show-clearable-button
+                {% if VUE3 %}
+                @update:value="onLanguageSelect"
+                {% else %}
                 @change="onLanguageSelect"
+                {% endif %}
             />
             {% endblock %}
         </sw-container>
@@ -149,9 +178,14 @@
             columns="repeat(auto-fit, minmax(250px, 1fr))"
             gap="0px 30px"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_currency %}
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="currentDomain.currencyId"
+                {% else %}
                 v-model="currentDomain.currencyId"
+                {% endif %}
                 class="sw-sales-channel-detail-domains__domain-currency-select"
                 :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
                 required
@@ -159,13 +193,22 @@
                 :options="salesChannel.currencies"
                 label-property="name"
                 value-property="id"
+                {% if VUE3 %}
+                @update:value="onCurrencySelect"
+                {% else %}
                 @change="onCurrencySelect"
+                {% endif %}
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="currentDomain.snippetSetId"
+                {% else %}
                 v-model="currentDomain.snippetSetId"
+                {% endif %}
                 entity="snippet_set"
                 :criteria="snippetSetCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
@@ -176,9 +219,14 @@
             {% endblock %}
         </sw-container>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="currentDomain.hreflangUseOnlyLocale"
+            {% else %}
             v-model="currentDomain.hreflangUseOnlyLocale"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.hreflang.domainSettings.label')"
             identification="hreflang"
             :options="hreflangLocalisationOptions"
@@ -186,7 +234,8 @@
         {% endblock %}
         {% endblock %}
 
-        <template slot="modal-footer">
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
             <sw-button
                 size="small"
@@ -196,6 +245,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_create_action_create %}
             <sw-button
                 size="small"
@@ -210,6 +260,7 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_delete_modal %}
     <sw-modal
         v-if="deleteDomain"
@@ -218,12 +269,15 @@
         @modal-close="onCloseDeleteDomainModal"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: $options.filters.unicodeUri(deleteDomain.url) }) }}
+        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: unicodeUriFilter(deleteDomain.url) }) }}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
             <sw-button
                 size="small"
@@ -233,6 +287,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
             <sw-button
                 size="small"

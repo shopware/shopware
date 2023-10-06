@@ -1,18 +1,25 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_save_modal_confirm %}
 <div class="sw-bulk-edit-save-modal-confirm">
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $tc('sw-bulk-edit.modal.confirm.description', itemTotal, {itemCount: itemTotal}) }}
     </p>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}
     <div
         v-if="triggeredFlows.length > 0"
         class="sw-bulk-edit-save-modal-confirm__trigger-flows"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
-        <sw-field
+        <sw-switch-field
+            v-if="!bulkEditData?.statusMails?.isChanged"
+            {% if VUE3 %}
+            v-model:value="isFlowTriggered"
+            {% else %}
             v-model="isFlowTriggered"
-            type="switch"
+            {% endif %}
             name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
             :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"
@@ -20,6 +27,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_alert %}
         <sw-alert
             v-show="isFlowTriggered"

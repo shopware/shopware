@@ -3,23 +3,17 @@
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void              add(SeoUrlEntity $entity)
- * @method void              set(string $key, SeoUrlEntity $entity)
- * @method SeoUrlEntity[]    getIterator()
- * @method SeoUrlEntity[]    getElements()
- * @method SeoUrlEntity|null get(string $key)
- * @method SeoUrlEntity|null first()
- * @method SeoUrlEntity|null last()
+ * @extends EntityCollection<SeoUrlEntity>
  */
+#[Package('buyers-experience')]
 class SeoUrlCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): SeoUrlCollection
     {
-        return $this->filter(static function (SeoUrlEntity $seoUrl) use ($id) {
-            return $seoUrl->getSalesChannelId() === $id;
-        });
+        return $this->filter(static fn (SeoUrlEntity $seoUrl) => $seoUrl->getSalesChannelId() === $id);
     }
 
     public function getApiAlias(): string

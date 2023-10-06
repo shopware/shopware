@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_language_detail %}
 <sw-page class="sw-settings-language-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_header %}
     <template #smart-bar-header>
         <h2
@@ -18,8 +20,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -29,9 +33,14 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-language-detail__save-action"
             :is-loading="isLoading"
@@ -45,21 +54,14 @@
     </template>
     {% endblock %}
 
-    {% block sw_settings_language_detail_language_switch %}
-    <template #language-switch>
-        <sw-language-switch
-            :disabled="!languageId"
-            @on-change="onChangeLanguage"
-        />
-    </template>
-    {% endblock %}
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_content %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="language.name"
@@ -67,6 +69,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_content_card %}
                 <sw-card
                     :title="$tc('sw-settings-language.detail.titleCard')"
@@ -77,22 +80,124 @@
                         gap="0px 30px"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="language.name"
+                            {% else %}
                             v-model="language.name"
-                            type="text"
+                            {% endif %}
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
+                            :error="languageNameError"
                             validation="required"
                             required
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_language_detail_content_field_localeId %}
+                        <sw-entity-single-select
+                            id="locales"
+                            {% if VUE3 %}
+                            v-model:value="language.localeId"
+                            {% else %}
+                            v-model="language.localeId"
+                            {% endif %}
+                            required
+                            show-clearable-button
+                            class="sw-settings-language-detail__select-locale"
+                            :disabled="!acl.can('language.editor')"
+                            :label="$tc('sw-settings-language.detail.labelLocale')"
+                            entity="locale"
+                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                            :error="languageLocaleIdError"
+                        >
+                            <template #selection-label-property="{ item, getKey }">
+                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                            </template>
+
+                            <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                                </template>
+                            </template>
+                        </sw-entity-single-select>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_language_detail_content_field_iso_code %}
+                        <sw-inherit-wrapper
+                            {% if VUE3 %}
+                            v-model:value="language.translationCodeId"
+                            {% else %}
+                            v-model="language.translationCodeId"
+                            {% endif %}
+                            :inherited-value="parentTranslationCodeId"
+                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
+                            :required="isIsoCodeRequired"
+                            :error="translationCodeError"
+                        >
+                            <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error }">
+                                <sw-entity-single-select
+                                    id="iso-codes"
+                                    :value="currentValue"
+                                    class="sw-settings-language-detail__select-iso-code"
+                                    :disabled="isInherited || !acl.can('language.editor')"
+                                    label-property="code"
+                                    show-clearable-button
+                                    :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                    :error="error"
+                                    entity="locale"
+                                    {% if VUE3 %}
+                                    @update:value="updateCurrentValue"
+                                    {% else %}
+                                    @change="updateCurrentValue"
+                                    {% endif %}
+                                >
+                                    <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <sw-select-result
+                                            v-tooltip="{
+                                                showDelay: 300,
+                                                message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                                disabled: !isLocaleAlreadyUsed(item)
+                                            }"
+                                            :disabled="isLocaleAlreadyUsed(item)"
+                                            :selected="isSelected(item)"
+                                            v-bind="{ item, index }"
+                                            @item-select="setValue"
+                                        >
+                                            <sw-highlight-text
+                                                v-if="highlightSearchTerm"
+                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                :search-term="searchTerm"
+                                            />
+                                            <template v-else>
+                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </template>
+                                        </sw-select-result>
+                                    </template>
+                                </sw-entity-single-select>
+                            </template>
+                        </sw-inherit-wrapper>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_parentId %}
                         <sw-entity-single-select
                             id="inherit"
+                            {% if VUE3 %}
+                            v-model:value="language.parentId"
+                            {% else %}
                             v-model="language.parentId"
+                            {% endif %}
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
                             :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
@@ -101,11 +206,14 @@
                             :help-text="inheritanceTooltipText"
                             entity="language"
                             show-clearable-button
+                            {% if VUE3 %}
+                            @update:value="onInputLanguage"
+                            {% else %}
                             @change="onInputLanguage"
+                            {% endif %}
                         >
                             <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-language.detail.textLanguageHasParent'),
@@ -124,80 +232,12 @@
                                     <template v-else>
                                         {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                     </template>
-                                </li>
-                            </template>
-                        </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_settings_language_detail_content_field_iso_code %}
-                        <sw-entity-single-select
-                            id="iso-codes"
-                            v-model="language.translationCodeId"
-                            class="sw-settings-language-detail__select-iso-code"
-                            :disabled="!acl.can('language.editor')"
-                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
-                            :required="isIsoCodeRequired"
-                            label-property="code"
-                            show-clearable-button
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                            :help-text="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
-                            entity="locale"
-                        >
-                            <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <li
-                                    is="sw-select-result"
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
-                                        disabled: !isLocaleAlreadyUsed(item)
-                                    }"
-                                    :disabled="isLocaleAlreadyUsed(item)"
-                                    :selected="isSelected(item)"
-                                    v-bind="{ item, index }"
-                                    @item-select="setValue"
-                                >
-                                    <sw-highlight-text
-                                        v-if="highlightSearchTerm"
-                                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                        :search-term="searchTerm"
-                                    />
-                                    <template v-else>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
-                                </li>
-                            </template>
-                        </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_settings_language_detail_content_field_localeId %}
-                        <sw-entity-single-select
-                            id="locales"
-                            v-model="language.localeId"
-                            required
-                            show-clearable-button
-                            class="sw-settings-language-detail__select-locale"
-                            :disabled="!acl.can('language.editor')"
-                            :label="$tc('sw-settings-language.detail.labelLocale')"
-                            entity="locale"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                        >
-                            <template #selection-label-property="{ item, getKey }">
-                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                            </template>
-
-                            <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                                </template>
+                                </sw-select-result>
                             </template>
                         </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_language_detail_content_alert_change_parent %}
                     <sw-alert
                         v-if="showAlertForChangeParentLanguage"
@@ -211,6 +251,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

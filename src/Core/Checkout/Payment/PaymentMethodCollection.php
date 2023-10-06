@@ -3,17 +3,13 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @method void                     add(PaymentMethodEntity $entity)
- * @method void                     set(string $key, PaymentMethodEntity $entity)
- * @method PaymentMethodEntity[]    getIterator()
- * @method PaymentMethodEntity[]    getElements()
- * @method PaymentMethodEntity|null get(string $key)
- * @method PaymentMethodEntity|null first()
- * @method PaymentMethodEntity|null last()
+ * @extends EntityCollection<PaymentMethodEntity>
  */
+#[Package('checkout')]
 class PaymentMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): PaymentMethodCollection
@@ -29,18 +25,17 @@ class PaymentMethodCollection extends EntityCollection
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPluginIds(): array
     {
-        return $this->fmap(function (PaymentMethodEntity $paymentMethod) {
-            return $paymentMethod->getPluginId();
-        });
+        return $this->fmap(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId());
     }
 
     public function filterByPluginId(string $id): self
     {
-        return $this->filter(function (PaymentMethodEntity $paymentMethod) use ($id) {
-            return $paymentMethod->getPluginId() === $id;
-        });
+        return $this->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId() === $id);
     }
 
     /**

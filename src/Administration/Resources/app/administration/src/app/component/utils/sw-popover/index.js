@@ -4,6 +4,7 @@ import './sw-popover.scss';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a popover
  * @status ready
@@ -11,6 +12,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-popover></sw-popover>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-popover', {
     template,
 

@@ -52,17 +52,44 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
         width: calc(100% - 16px);
     }
 
-    .sw-category-tree-field__results {
+    .sw-category-tree-field__results_base {
         position: absolute;
-        overflow-y: scroll;
-        top: calc(100% + 4px);
         left: 0;
+        top: 0;
         width: 100%;
-        height: 550px;
-        z-index: 20;
-        border: 1px solid $color-gray-100;
-        box-shadow: 0 3px 6px 0 $color-gray-300;
-        background-color: $color-white;
+        height: 100%;
+    }
+
+    // Vue.js transitions
+    .sw-category-tree-field__fade-down-enter-active,
+    .sw-category-tree-field__fade-down-leave-active {
+        transition: $sw-category-tree-field-transition-results;
+        transform: translateY(0);
+    }
+
+    .sw-category-tree-field__fade-down-enter,
+    .sw-category-tree-field__fade-down-leave-to {
+        transform: translateY(-8px);
+        opacity: 0;
+    }
+
+    &.is--disabled {
+        .sw-block-field__block {
+            background-color: $color-gray-100;
+        }
+    }
+}
+
+.sw-category-tree-field__results_popover {
+    overflow-y: hidden;
+    height: 350px;
+    z-index: 20;
+    border: 1px solid $color-gray-100;
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 10%);
+    background-color: $color-white;
+
+    &.sw-popover__wrapper.--placement-bottom-outside {
+        transform: translate(0, calc(-100% - 90px));
     }
 
     .sw-tree {
@@ -71,6 +98,11 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
 
     .sw-tree .sw-tree__content {
         height: 100%;
+        min-height: auto;
+    }
+
+    .sw-category-tree-field__results .sw-tree .sw-tree__content {
+        min-height: 200px;
     }
 
     .sw-tree-item .sw-field--checkbox {
@@ -86,7 +118,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
             list-style: none;
             display: flex;
             align-items: center;
-            padding: 0 12px 4px 12px;
+            padding: 0 12px 4px;
             min-height: 40px;
             border-radius: $border-radius-default;
         }
@@ -125,7 +157,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
         }
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             z-index: 10;
             top: 0;
@@ -133,18 +165,5 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
             bottom: 0;
             left: 0;
         }
-    }
-
-    // Vue.js transitions
-    .sw-category-tree-field__fade-down-enter-active,
-    .sw-category-tree-field__fade-down-leave-active {
-        transition: $sw-category-tree-field-transition-results;
-        transform: translateY(0);
-    }
-
-    .sw-category-tree-field__fade-down-enter,
-    .sw-category-tree-field__fade-down-leave-to {
-        transform: translateY(-8px);
-        opacity: 0;
     }
 }

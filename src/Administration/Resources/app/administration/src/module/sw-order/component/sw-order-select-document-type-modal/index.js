@@ -1,13 +1,20 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
-const { Component } = Shopware;
+/**
+ * @package checkout
+ */
+
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-order-select-document-type-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     model: {
         prop: 'value',
@@ -66,7 +73,6 @@ Component.register('sw-order-select-document-type-modal', {
         documentCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
             criteria.addFilter(Criteria.equals('documentType.technicalName', 'invoice'));
 
             return criteria;
@@ -89,7 +95,7 @@ Component.register('sw-order-select-document-type-modal', {
                     this.documentTypes = response.map((documentType) => {
                         const option = {
                             value: documentType.id,
-                            name: documentType.name,
+                            name: documentType.translated.name,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 
@@ -135,7 +141,13 @@ Component.register('sw-order-select-document-type-modal', {
         },
 
         onRadioFieldChange() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.documentTypeCollection.get(this.documentType));
+
+                return;
+            }
+
             this.$emit('change', this.documentTypeCollection.get(this.documentType));
         },
     },
-});
+};

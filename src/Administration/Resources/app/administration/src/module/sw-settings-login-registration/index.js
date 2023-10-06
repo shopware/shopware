@@ -1,7 +1,12 @@
-import './page/sw-settings-login-registration';
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-login-registration', () => import('./page/sw-settings-login-registration'));
 
 const { Module } = Shopware;
 
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-login-registration', {
     type: 'core',
     name: 'settings-login-registration',
@@ -10,7 +15,7 @@ Module.register('sw-settings-login-registration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -27,7 +32,7 @@ Module.register('sw-settings-login-registration', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.login.registration.index',
-        icon: 'default-action-log-in',
+        icon: 'regular-sign-in',
         privilege: 'system.system_config',
     },
 });

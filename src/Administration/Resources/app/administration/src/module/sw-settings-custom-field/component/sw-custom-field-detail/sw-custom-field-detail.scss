@@ -11,4 +11,9 @@
         grid-column: span 2;
         margin-bottom: 24px;
     }
+
+    .sw-custom-field-detail__allow-customer-write,
+    .sw-custom-field-detail__allow-cart-expose {
+        margin: 0;
+    }
 }

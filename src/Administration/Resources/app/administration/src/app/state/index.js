@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
@@ -17,7 +21,10 @@ import extensionSdkModules from './extension-sdk-module.store';
 import extensionMainModules from './main-module.store';
 import modals from './modals.store';
 import actionButtons from './action-button.store';
+import ruleConditionsConfig from './rule-conditions-config.store';
+import sdkLocation from './sdk-location.store';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     notification,
     session,
@@ -38,4 +45,6 @@ export default {
     modals,
     extensionMainModules,
     actionButtons,
+    ruleConditionsConfig,
+    sdkLocation,
 };

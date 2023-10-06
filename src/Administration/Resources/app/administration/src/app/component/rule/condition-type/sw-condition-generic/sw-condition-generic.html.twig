@@ -1,0 +1,49 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_condition_value_content %}
+<div
+    class="sw-condition-generic"
+    :class="conditionValueClasses"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_generic_field_operator %}
+    <sw-condition-operator-select
+        v-if="operators"
+        v-bind="{ operators, condition }"
+        :plural="matchesAll"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_generic_fields %}
+    <template v-if="operator !== 'empty'">
+        <div
+            v-for="(field, index) in config.fields"
+            :key="index"
+            class="sw-condition-generic__input-wrapper"
+        >
+            <sw-form-field-renderer
+                v-bind="getBind(field)"
+                :disabled="disabled"
+                :value="getVisibleValue(field.name)"
+                size="medium"
+                show-clearable-button
+                :hide-hint="field.type === 'datetime'"
+                @input="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+                @change="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+            />
+
+            <sw-condition-unit-menu
+                v-if="field.config.unit"
+                :type="field.config.unit"
+                :value="values[field.name]"
+                :visible-value="getVisibleValue(field.name)"
+                class="sw-condition-generic__unit-menu"
+                @change-unit="handleUnitChange"
+                @set-default-unit="setDefaultUnit"
+            />
+        </div>
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}

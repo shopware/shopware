@@ -1,9 +1,14 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-products-assignment-single-products', {
     template,
 
@@ -42,10 +47,8 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
             }
@@ -72,6 +75,10 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
                     allowResize: true,
                 },
             ];
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
     },
 
@@ -101,9 +108,8 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         onChangeSearchTerm(searchTerm) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.searchTerm = searchTerm;
-            }
+            this.searchTerm = searchTerm;
+
             if (searchTerm) {
                 this.page = 1;
             }

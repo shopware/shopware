@@ -2,24 +2,17 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class DocumentIdStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $deepLinkCode;
-
-    public function __construct(string $id, string $deepLinkCode)
-    {
-        $this->id = $id;
-        $this->deepLinkCode = $deepLinkCode;
+    public function __construct(
+        protected string $id,
+        protected string $deepLinkCode,
+        protected ?string $mediaId = null
+    ) {
     }
 
     public function getDeepLinkCode(): string
@@ -40,6 +33,11 @@ class DocumentIdStruct extends Struct
     public function setId(string $id): void
     {
         $this->id = $id;
+    }
+
+    public function getMediaId(): ?string
+    {
+        return $this->mediaId;
     }
 
     public function getApiAlias(): string

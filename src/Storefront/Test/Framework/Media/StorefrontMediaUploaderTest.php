@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Test\Framework\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
@@ -16,11 +17,15 @@ use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public const FIXTURE_DIR = __DIR__ . '/fixtures';
+    final public const FIXTURE_DIR = __DIR__ . '/fixtures';
 
     public function testUploadDocument(): void
     {
@@ -46,9 +51,9 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailFilenameContainsPhp(): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage(
-            (new IllegalFileNameException('contains.php.pdf', 'contains PHP related file extension'))->getMessage()
+            MediaException::illegalFileName('contains.php.pdf', 'contains PHP related file extension')->getMessage()
         );
 
         $file = $this->getUploadFixture('contains.php.pdf');
@@ -102,14 +107,10 @@ class StorefrontMediaUploaderTest extends TestCase
 
     private function removeMedia(string $ids): void
     {
-        if (!\is_array($ids)) {
-            $ids = [$ids];
-        }
+        $ids = [$ids];
 
         $this->getContainer()->get('media.repository')->delete(
-            array_map(static function (string $id) {
-                return ['id' => $id];
-            }, $ids),
+            array_map(static fn (string $id) => ['id' => $id], $ids),
             Context::createDefaultContext()
         );
     }

@@ -1,7 +1,17 @@
 {% block component_account_register_personal_vat_id_field %}
-    {% if formViolations.getViolations("/vatIds") is not empty %}
+    {% set vatIdValue = activeRoute == 'frontend.account.profile.page' or (activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) %}
+    {% set violationLabel = null %}
+    {% set violationPath = null %}
+
+    {% for violation in formViolations.getViolations("/vatIds") %}
         {% set violationPath = "/vatIds" %}
-    {% endif %}
+        {% set violationLabel = "address.companyVatLabel"|trans|sw_sanitize %}
+        {% if violation.code === 'VIOLATION::IS_BLANK_ERROR' %}
+            {% set vatIdValue = null %}
+        {% elseif formViolations.getInputData()['vatIds'][0] is defined %}
+            {% set vatIdValue = formViolations.getInputData()['vatIds'][0] %}
+        {% endif %}
+    {% endfor %}
 
     {% block component_address_form_company_vatId_label %}
         <label class="form-label"
@@ -16,7 +26,7 @@
                id="vatIds"
                placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                name="vatIds[]"
-               value="{{ activeRoute == 'frontend.account.profile.page' or (feature('FEATURE_NEXT_15957') and activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) }}">
+               value="{{ vatIdValue }}">
     {% endblock %}
 
     {% block component_address_form_company_vatId_input_error %}

@@ -2,30 +2,32 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 {
-    private AbstractProductListingRoute $decorated;
+    public const STATE = 'listing-route-context';
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    public function __construct(AbstractProductListingRoute $decorated, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->decorated = $decorated;
-        $this->eventDispatcher = $eventDispatcher;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly AbstractProductListingRoute $decorated,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CompositeListingProcessor $processor
+    ) {
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -33,45 +35,35 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("product")
-     * @OA\Post(
-     *      path="/product-listing/{categoryId}",
-     *      summary="Fetch a product listing by category",
-     *      description="Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
-     *      operationId="readProductListing",
-     *      tags={"Store API","Product"},
-     *      @OA\RequestBody(
-     *          @OA\JsonContent(
-     *                  type="object",
-     *                  allOf={
-     *                      @OA\Schema(ref="#/components/schemas/ProductListingCriteria"),
-     *                      @OA\Schema(ref="#/components/schemas/ProductListingFlags")
-     *                  }
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="categoryId",
-     *          description="Identifier of a category.",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a product listing containing all products and additional fields to display a listing.",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
-     *     )
-     * )
-     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
-     */
+    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
+        $criteria->addState(self::STATE);
+
+        $this->processor->prepare($request, $criteria, $context);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $context->getContext()->addState(ProductListingFeaturesSubscriber::HANDLED_STATE);
+        }
+
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $context)
         );
 
-        return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+        $response = $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+
+        $response->getResult()->addCurrentFilter('navigationId', $categoryId);
+
+        $this->processor->process($request, $response->getResult(), $context);
+
+        $this->eventDispatcher->dispatch(
+            new ProductListingResultEvent($request, $response->getResult(), $context)
+        );
+
+        $response->getResult()->getAvailableSortings()->removeByKey(
+            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT
+        );
+
+        return $response;
     }
 }

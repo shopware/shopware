@@ -2,30 +2,25 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @RouteScope(scopes={"store-api"})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @internal
      */
-    private $customerGroupRepository;
-
-    public function __construct(EntityRepositoryInterface $customerGroupRepository)
+    public function __construct(private readonly EntityRepository $customerGroupRepository)
     {
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public function getDecorated(): AbstractCustomerGroupRegistrationSettingsRoute
@@ -33,28 +28,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.1.0")
-     * @OA\Get(
-     *      path="/customer-group-registration/config/{customerGroupId}",
-     *      summary="Fetch registration settings for customer group",
-     *      operationId="getCustomerGroupRegistrationInfo",
-     *      tags={"Store API", "Login & Registration"},
-     *      @OA\Parameter(
-     *        name="customerGroupId",
-     *        in="path",
-     *        description="Customer group id",
-     *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns the customer group including registration settings.",
-     *          @OA\JsonContent(ref="#/components/schemas/CustomerGroup")
-     *     )
-     * )
-     * @Route(path="/store-api/customer-group-registration/config/{customerGroupId}", name="store-api.customer-group-registration.config", methods={"GET"})
-     */
+    #[Route(path: '/store-api/customer-group-registration/config/{customerGroupId}', name: 'store-api.customer-group-registration.config', methods: ['GET'])]
     public function load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
     {
         $criteria = new Criteria([$customerGroupId]);
@@ -62,11 +36,13 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannel()->getId()));
 
         $result = $this->customerGroupRepository->search($criteria, $context->getContext());
-
         if ($result->getTotal() === 0) {
-            throw new CustomerGroupRegistrationConfigurationNotFound($customerGroupId);
+            throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        return new CustomerGroupRegistrationSettingsRouteResponse($result->first());
+        $customerGroup = $result->first();
+        \assert($customerGroup instanceof CustomerGroupEntity);
+
+        return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);
     }
 }

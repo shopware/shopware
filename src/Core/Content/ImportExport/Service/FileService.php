@@ -2,32 +2,31 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('services-settings')]
 class FileService extends AbstractFileService
 {
-    private FilesystemInterface $filesystem;
+    private readonly CsvFileWriter $writer;
 
-    private EntityRepositoryInterface $fileRepository;
-
-    private CsvFileWriter $writer;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        FilesystemInterface $filesystem,
-        EntityRepositoryInterface $fileRepository
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $fileRepository
     ) {
-        $this->filesystem = $filesystem;
-        $this->fileRepository = $fileRepository;
         $this->writer = new CsvFileWriter($filesystem);
     }
 
@@ -38,12 +37,11 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws \League\Flysystem\FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
         $id = Uuid::randomHex();
-        $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);
+        $path ??= $activity . '/' . ImportExportFileEntity::buildPath($id);
         if (!empty($sourcePath)) {
             if (!is_readable($sourcePath)) {
                 throw new FileNotReadableException($sourcePath);
@@ -52,16 +50,16 @@ class FileService extends AbstractFileService
             if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }
-            $this->filesystem->putStream($path, $sourceStream);
+            $this->filesystem->writeStream($path, $sourceStream);
         } else {
-            $this->filesystem->put($path, '');
+            $this->filesystem->write($path, '');
         }
 
         $fileData = [
             'id' => $id,
             'originalName' => $originalFileName,
             'path' => $path,
-            'size' => $this->filesystem->getSize($path),
+            'size' => $this->filesystem->fileSize($path),
             'expireDate' => $expireDate,
             'accessToken' => null,
         ];
@@ -95,7 +93,10 @@ class FileService extends AbstractFileService
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
         $timestamp = date('Ymd-His');
 
-        return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
+        $label = $profile->getTranslation('label');
+        \assert(\is_string($label));
+
+        return sprintf('%s_%s.%s', $label, $timestamp, $extension);
     }
 
     public function updateFile(Context $context, string $fileId, array $data): void

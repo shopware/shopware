@@ -2,30 +2,24 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- */
+#[Package('core')]
 class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 {
-    public const NAME = 'app.deleted';
+    final public const NAME = 'app.deleted';
 
-    private string $appId;
-
-    private Context $context;
-
-    private bool $keepUserData;
-
-    public function __construct(string $appId, Context $context, bool $keepUserData = false)
-    {
-        $this->appId = $appId;
-        $this->context = $context;
-        $this->keepUserData = $keepUserData;
+    public function __construct(
+        private readonly string $appId,
+        private readonly Context $context,
+        private readonly bool $keepUserData = false
+    ) {
     }
 
     public function getAppId(): string
@@ -48,7 +42,7 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
         return self::NAME;
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [];
     }

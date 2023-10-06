@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('inventory')]
 class LanguageOfProductReviewDeleteException extends ShopwareHttpException
 {
-    public function __construct(string $language, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $language,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The language "{{ language }}" cannot be deleted because product reviews with this language exist.',
             ['language' => $language],

@@ -10,11 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
+#[Package('buyers-experience')]
 class LandingPageTagDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'landing_page_tag';
+    final public const ENTITY_NAME = 'landing_page_tag';
 
     public function getEntityName(): string
     {

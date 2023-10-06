@@ -5,6 +5,9 @@ const { Component, Mixin } = Shopware;
 const { get } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Renders a multi select field for data of any kind. This component uses the sw-field base
@@ -19,6 +22,8 @@ Component.register('sw-multi-tag-select', {
     template,
 
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -64,6 +69,12 @@ Component.register('sw-multi-tag-select', {
             required: false,
             default: searchTerm => searchTerm.length > 0,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -87,27 +98,30 @@ Component.register('sw-multi-tag-select', {
         },
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         mountedComponent() {
-            this.$refs.selectionList.getFocusEl().addEventListener('keydown', this.onKeyDown);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         beforeDestroyComponent() {
-            this.$refs.selectionList.getFocusEl().removeEventListener('keydown', this.onKeyDown);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         onKeyDown({ key }) {
             if (key.toUpperCase() === 'ENTER') {
                 this.addItem();
             }
+        },
+
+        onSelectionListKeyDownEnter() {
+            this.addItem();
         },
 
         addItem() {
@@ -117,15 +131,34 @@ Component.register('sw-multi-tag-select', {
                 return;
             }
 
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', [...this.value, this.searchTerm]);
+                this.searchTerm = '';
+
+                return;
+            }
+
             this.$emit('change', [...this.value, this.searchTerm]);
             this.searchTerm = '';
         },
 
         remove({ value }) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.value.filter(entry => entry !== value));
+
+                return;
+            }
+
             this.$emit('change', this.value.filter(entry => entry !== value));
         },
 
         removeLastItem() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.value.slice(0, -1));
+
+                return;
+            }
+
             this.$emit('change', this.value.slice(0, -1));
         },
 

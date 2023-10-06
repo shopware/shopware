@@ -11,13 +11,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+#[Package('core')]
 abstract class EntityTranslationDefinition extends EntityDefinition
 {
     public function getParentDefinition(): EntityDefinition
     {
-        return parent::getParentDefinition();
+        $parentDefinition = parent::getParentDefinition();
+        if ($parentDefinition === null) {
+            throw new \RuntimeException('Translation entity definitions always need a parent definition');
+        }
+
+        return $parentDefinition;
     }
 
     public function isVersionAware(): bool
@@ -45,9 +52,6 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         throw new \RuntimeException('`getParentDefinitionClass` not implemented');
     }
 
-    /**
-     * @return Field[]
-     */
     protected function getBaseFields(): array
     {
         $translatedDefinition = $this->getParentDefinition();
@@ -58,10 +62,10 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $propertyBaseName = lcfirst(implode('', $propertyBaseName));
 
         $baseFields = [
-            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getClass(), 'id', false),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
+            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getEntityName(), 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::ENTITY_NAME, 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getEntityName(), 'id', false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::ENTITY_NAME, 'id', false),
         ];
 
         if ($this->isVersionAware()) {

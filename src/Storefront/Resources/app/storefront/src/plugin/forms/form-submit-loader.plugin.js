@@ -1,26 +1,46 @@
 import DomAccess from 'src/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import Plugin from 'src/plugin-system/plugin.class';
+import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicator.util';
 
 /**
  * this plugin shows a loading indicator on the
  * form submit button when the form is submitted
+ *
+ * @package content
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
+
+    /**
+     * @type {{formWrapperSelector: string, indicatorPosition: string, skipLoadingIndicator: boolean}}
+     */
     static options = {
         formWrapperSelector: 'body',
+
+        /**
+         * Possible values: before|after|inner
+         */
+        indicatorPosition: INDICATOR_POSITION.BEFORE,
+
+        /**
+         * If true, the loading indicator will not show
+         */
+        skipLoadingIndicator: false,
     };
 
     init() {
-        if (!this._getForm() || !this._getSubmitButton()) {
+        if (!this._getForm() || !this._getSubmitButtons()) {
             return;
         }
+
+        // check if validation plugin is active for this form
+        this._validationPluginActive = !!window.PluginManager.getPluginInstanceFromElement(this._form, 'FormValidation');
 
         this._registerEvents();
     }
 
     /**
-     * tries to get the closest form
+     * Tries to get the closest form
      *
      * @returns {HTMLElement|boolean}
      * @private
@@ -37,35 +57,27 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     }
 
     /**
-     * tries to get the submit button fo the form
+     * Tries to get the submit buttons for the form, returns false if
+     * no button has been found, true otherwise
      *
-     * @returns {HTMLElement|boolean}
+     * @returns {boolean}
      * @private
      */
-    _getSubmitButton() {
-        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]', false);
+    _getSubmitButtons() {
+        this._submitButtons = Array.from(DomAccess.querySelectorAll(this._form, 'button[type=submit]', false));
 
-        if (!this._submitButton) {
-            return this._getSubmitButtonWithId();
+        const formId = this._form.id;
+        if (formId) {
+            this._submitButtons = this._submitButtons.concat(Array.from(
+                DomAccess.querySelectorAll(
+                    this._form.closest(this.options.formWrapperSelector),
+                    `:not(form) > button[type=submit][form="${formId}"]`,
+                    false
+                )
+            ));
         }
 
-        return true;
-    }
-
-    /**
-     * tries to get the submit button
-     * with the form id
-     *
-     * @returns {HTMLElement|boolean}
-     * @private
-     */
-    _getSubmitButtonWithId() {
-        const id = this._form.id;
-        if (!id) return false;
-
-        this._submitButton = DomAccess.querySelector(this._form.closest(this.options.formWrapperSelector), `button[type=submit][form=${id}]`, false);
-
-        return this._submitButton;
+        return Boolean(this._submitButtons.length);
     }
 
     /**
@@ -83,15 +95,25 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _onFormSubmit() {
-        // show loading indicator in submit button
-        const loader = new ButtonLoadingIndicator(this._submitButton);
+        // Abort when form.validation.plugin is active and form is not valid.
+        // The validation plugin handles the submit itself in this case
+        if (this._validationPluginActive) {
+            if (this.el.checkValidity() === false) {
+                return;
+            }
+        }
+        // show loading indicator in submit buttons
+        this._submitButtons.forEach((submitButton) => {
+            if (this.options.skipLoadingIndicator) {
+                submitButton.disabled = true
 
-        loader.create();
+                return;
+            }
 
-        /**
-         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
-         */
-        this.$emitter.publish('onFormSubmit');
+            const loader = new ButtonLoadingIndicator(submitButton, this.options.indicatorPosition);
+            loader.create();
+        });
+
         this.$emitter.publish('beforeSubmit');
     }
 }

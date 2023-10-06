@@ -29,6 +29,13 @@
             <label>Time in minutes for a customer to finalize a transaction</label>
             <label lang="de-DE">Zeit in Minuten, die ein Kunde Zeit hat eine Transaktion abzuschließen</label>
         </input-field>
+
+        <input-field type="int">
+            <name>lineItemAddLimit</name>
+            <defaultValue>0</defaultValue>
+            <label>Maximum addable products to cart per minute through API</label>
+            <label lang="de-DE">Maximal hinzufügbare Produkte pro Minute in den Warenkorb durch die API</label>
+        </input-field>
     </card>
 
     <card>

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_avatar %}
 <span
     ref="swAvatar"
@@ -7,6 +8,7 @@
     role="img"
 >
     <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_avatar_slot_imageUrl %}
         <span
             v-if="showInitials"
@@ -15,9 +17,10 @@
             {{ avatarInitials }}
         </span>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_avatar_slot_placeholder %}
         <span v-if="showPlaceholder">
-            <sw-icon name="default-avatar-single" />
+            <sw-icon name="regular-user" />
         </span>
         {% endblock %}
     </slot>

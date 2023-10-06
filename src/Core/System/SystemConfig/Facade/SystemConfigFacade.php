@@ -4,6 +4,8 @@ namespace Shopware\Core\System\SystemConfig\Facade;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -12,26 +14,22 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @script-service miscellaneous
  */
+#[Package('system-settings')]
 class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';
 
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
-    private ?string $appId;
-
-    private ?string $salesChannelId;
-
     private array $appData = [];
 
-    public function __construct(SystemConfigService $systemConfigService, Connection $connection, ?string $appId, ?string $salesChannelId)
-    {
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
-        $this->appId = $appId;
-        $this->salesChannelId = $salesChannelId;
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection,
+        private readonly ?ScriptAppInformation $scriptAppInformation,
+        private readonly ?string $salesChannelId
+    ) {
     }
 
     /**
@@ -51,8 +49,8 @@ class SystemConfigFacade
             $salesChannelId = $this->salesChannelId;
         }
 
-        if ($this->appId) {
-            $privileges = $this->fetchAppData($this->appId)['privileges'];
+        if ($this->scriptAppInformation) {
+            $privileges = $this->fetchAppPrivileges($this->scriptAppInformation->getAppId());
 
             if (!\in_array(self::PRIVILEGE, $privileges, true)) {
                 throw new MissingPrivilegeException([self::PRIVILEGE]);
@@ -75,7 +73,7 @@ class SystemConfigFacade
      */
     public function app(string $key, ?string $salesChannelId = null)
     {
-        if (!$this->appId) {
+        if (!$this->scriptAppInformation) {
             throw new \BadMethodCallException('`config.app()` can only be called from app scripts.');
         }
 
@@ -83,32 +81,28 @@ class SystemConfigFacade
             $salesChannelId = $this->salesChannelId;
         }
 
-        $appName = $this->fetchAppData($this->appId)['name'];
-        $key = $appName . '.config.' . $key;
+        $key = $this->scriptAppInformation->getAppName() . '.config.' . $key;
 
         return $this->systemConfigService->get($key, $salesChannelId);
     }
 
-    private function fetchAppData(string $appId): array
+    private function fetchAppPrivileges(string $appId): array
     {
         if (\array_key_exists($appId, $this->appData)) {
             return $this->appData[$appId];
         }
 
-        $data = $this->connection->fetchAssociative('
-            SELECT `acl_role`.`privileges` AS `privileges`, `app`.`name` AS `name`
+        $privileges = $this->connection->fetchOne('
+            SELECT `acl_role`.`privileges` AS `privileges`
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
             WHERE `app`.`id` = :appId
         ', ['appId' => Uuid::fromHexToBytes($appId)]);
 
-        if (!$data) {
+        if (!$privileges) {
             throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return $this->appData[$appId] = [
-            'privileges' => json_decode($data['privileges'] ?? '[]', true),
-            'name' => $data['name'],
-        ];
+        return $this->appData[$appId] = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

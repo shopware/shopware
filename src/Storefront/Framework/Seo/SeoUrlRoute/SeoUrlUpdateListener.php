@@ -13,36 +13,29 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('sales-channel')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
-    public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
-    public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
-    public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
+    final public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
+    final public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
+    final public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
 
     /**
-     * @var SeoUrlUpdater
+     * @internal
      */
-    private $seoUrlUpdater;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $indexerRegistry;
-
-    public function __construct(SeoUrlUpdater $seoUrlUpdater, Connection $connection, EntityIndexerRegistry $indexerRegistry)
-    {
-        $this->seoUrlUpdater = $seoUrlUpdater;
-        $this->connection = $connection;
-        $this->indexerRegistry = $indexerRegistry;
+    public function __construct(
+        private readonly SeoUrlUpdater $seoUrlUpdater,
+        private readonly Connection $connection,
+        private readonly EntityIndexerRegistry $indexerRegistry
+    ) {
     }
 
     public function detectSalesChannelEntryPoints(EntityWrittenContainerEvent $event): void
@@ -61,7 +54,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProductEvents::PRODUCT_INDEXER_EVENT => 'updateProductUrls',
@@ -77,7 +70,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge($event->getIds(), $this->getCategoryChildren($event->getIds()));
+        $ids = array_merge(array_values($event->getIds()), $this->getCategoryChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
     }
@@ -88,9 +81,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
-
-        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $ids);
+        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
     }
 
     public function updateLandingPageUrls(LandingPageIndexerEvent $event): void
@@ -99,20 +90,14 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
+        $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
     }
 
-    private function getProductChildren(array $ids): array
-    {
-        $childrenIds = $this->connection->fetchAll(
-            'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        return array_column($childrenIds, 'id');
-    }
-
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
     private function getCategoryChildren(array $ids): array
     {
         if (empty($ids)) {
@@ -121,7 +106,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query = $this->connection->createQueryBuilder();
 
-        $query->select('category.id, category.type');
+        $query->select('category.id');
         $query->from('category');
 
         foreach ($ids as $id) {
@@ -132,12 +117,15 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query->setParameter('type', CategoryDefinition::TYPE_LINK);
 
-        $children = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $children = $query->executeQuery()->fetchFirstColumn();
 
         if (!$children) {
             return [];
         }
 
-        return Uuid::fromBytesToHexList($children);
+        /** @var list<string> $ids */
+        $ids = Uuid::fromBytesToHexList($children);
+
+        return $ids;
     }
 }

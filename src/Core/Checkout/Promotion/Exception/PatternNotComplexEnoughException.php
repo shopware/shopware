@@ -2,27 +2,34 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-class PatternNotComplexEnoughException extends ShopwareHttpException
+#[Package('buyers-experience')]
+class PatternNotComplexEnoughException extends PromotionException
 {
-    public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX';
+    /**
+     * @deprecated tag:v6.6.0 - will be removed, use PromotionException::PATTERN_NOT_COMPLEX_ENOUGH instead
+     */
+    final public const ERROR_CODE = self::PATTERN_NOT_COMPLEX_ENOUGH;
 
-    public function __construct()
-    {
+    /**
+     * @deprecated tag:v6.6.0 - will be removed, use PromotionException::patternNotComplexEnough instead
+     */
+    public function __construct(
+        protected int $statusCode = Response::HTTP_BAD_REQUEST,
+        protected string $errorCode = self::PATTERN_NOT_COMPLEX_ENOUGH,
+        string $message = 'The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.',
+        array $parameters = [],
+        ?\Throwable $previous = null
+    ) {
         parent::__construct(
-            'The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.'
+            $statusCode,
+            $errorCode,
+            $message,
+            $parameters,
+            $previous
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return self::ERROR_CODE;
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
     }
 }

@@ -3,11 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 and this migration table will be dropped after next major release.
+ * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1625583596CreateActionEventFlowMigrateTable extends MigrationStep
 {
     public function getCreationTimestamp(): int

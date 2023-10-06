@@ -2,17 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedHook;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,30 +18,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class AccountPaymentController extends StorefrontController
 {
-    private AccountPaymentMethodPageLoader $paymentMethodPageLoader;
-
-    private AbstractChangePaymentMethodRoute $changePaymentMethodRoute;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        AccountPaymentMethodPageLoader $paymentMethodPageLoader,
-        AbstractChangePaymentMethodRoute $changePaymentMethodRoute
+        private readonly AccountPaymentMethodPageLoader $paymentMethodPageLoader,
+        private readonly AbstractChangePaymentMethodRoute $changePaymentMethodRoute
     ) {
-        $this->paymentMethodPageLoader = $paymentMethodPageLoader;
-        $this->changePaymentMethodRoute = $changePaymentMethodRoute;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
-     * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
-     */
+    #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->paymentMethodPageLoader->load($request, $context);
@@ -54,11 +45,7 @@ class AccountPaymentController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/payment/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
-     */
+    #[Route(path: '/account/payment', name: 'frontend.account.payment.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
     public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -70,7 +57,7 @@ class AccountPaymentController extends StorefrontController
                 $context,
                 $customer
             );
-        } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
+        } catch (UnknownPaymentMethodException|InvalidUuidException|PaymentException $exception) {
             $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
 
             return $this->forwardToRoute('frontend.account.payment.page', ['success' => false]);

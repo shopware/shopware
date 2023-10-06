@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Template;
 
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class TemplateLoader extends AbstractTemplateLoader
 {
     private const TEMPLATE_DIR = '/Resources/views';
@@ -17,16 +20,20 @@ class TemplateLoader extends AbstractTemplateLoader
         'documents',
     ];
 
-    private const ALLOWED_FILE_EXTENSIONS = '*.html.twig';
+    private const ALLOWED_FILE_EXTENSIONS = '*.twig';
+
+    public function __construct(private readonly AbstractAppLoader $appLoader)
+    {
+    }
 
     /**
      * {@inheritdoc}
      */
     public function getTemplatePathsForApp(Manifest $app): array
     {
-        $viewDirectory = $app->getPath() . self::TEMPLATE_DIR;
+        $viewDirectory = $this->appLoader->locatePath($app->getPath(), self::TEMPLATE_DIR);
 
-        if (!is_dir($viewDirectory)) {
+        if ($viewDirectory === null) {
             return [];
         }
 
@@ -37,10 +44,7 @@ class TemplateLoader extends AbstractTemplateLoader
             ->path(self::ALLOWED_TEMPLATE_DIRS)
             ->ignoreUnreadableDirs();
 
-        return array_values(array_map(static function (\SplFileInfo $file) use ($viewDirectory): string {
-            // remove viewDirectory + any leading slashes from pathname
-            return ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/');
-        }, iterator_to_array($finder)));
+        return array_values(array_map(static fn (\SplFileInfo $file): string => ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/'), iterator_to_array($finder)));
     }
 
     /**
@@ -48,9 +52,9 @@ class TemplateLoader extends AbstractTemplateLoader
      */
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        $content = @file_get_contents($app->getPath() . self::TEMPLATE_DIR . '/' . $path);
+        $content = $this->appLoader->loadFile($app->getPath(), self::TEMPLATE_DIR . '/' . $path);
 
-        if ($content === false) {
+        if ($content === null) {
             throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . self::TEMPLATE_DIR . '/' . $path));
         }
 

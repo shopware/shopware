@@ -5,44 +5,34 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
 /**
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
-    public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
-
-    private ExtensionLoader $extensionLoader;
-
-    private EntityRepositoryInterface $appRepository;
-
-    private EntityRepositoryInterface $pluginRepository;
-
-    private ExtensionListingLoader $extensionListingLoader;
+    final public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
 
     public function __construct(
-        ExtensionLoader $extensionLoader,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $pluginRepository,
-        ExtensionListingLoader $extensionListingLoader
+        private readonly ExtensionLoader $extensionLoader,
+        private readonly EntityRepository $appRepository,
+        private readonly EntityRepository $pluginRepository,
+        private readonly ExtensionListingLoader $extensionListingLoader
     ) {
-        $this->extensionLoader = $extensionLoader;
-        $this->appRepository = $appRepository;
-        $this->pluginRepository = $pluginRepository;
-        $this->extensionListingLoader = $extensionListingLoader;
     }
 
     public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection
     {
-        $criteria = $searchCriteria ? $searchCriteria : new Criteria();
+        $criteria = $searchCriteria ?: new Criteria();
         $criteria->addAssociation('translations');
 
         /** @var AppCollection $installedApps */
@@ -66,8 +56,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($app === null) {
-            throw ExtensionNotFoundException::fromTechnicalName($technicalName);
+        if (!$app instanceof AppEntity) {
+            throw StoreException::extensionNotFoundFromTechnicalName($technicalName);
         }
 
         return $app;
@@ -78,8 +68,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = new Criteria([$id]);
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($app === null) {
-            throw ExtensionNotFoundException::fromId($id);
+        if (!$app instanceof AppEntity) {
+            throw StoreException::extensionNotFoundFromId($id);
         }
 
         return $app;

@@ -1,9 +1,11 @@
 import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard-shopware-domain', {
+/**
+ * @package services-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['firstRunWizardService'],
@@ -48,11 +50,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             this.updateButtons();
             this.setTitle();
 
-            const language = Shopware.State.get('session').currentLocale;
-
-            this.firstRunWizardService.getLicenseDomains({
-                language,
-            }).then((response) => {
+            this.firstRunWizardService.getLicenseDomains().then((response) => {
                 const { items } = response;
 
                 if (!items || items.length < 1) {
@@ -117,4 +115,4 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             });
         },
     },
-});
+};

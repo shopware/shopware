@@ -1,11 +1,13 @@
 /**
+ * @package admin
+ *
  * @module app/service/shortcut
  */
 
 const { Application } = Shopware;
 
 /**
- *
+ * @deprecated tag:v6.6.0 - Will be private
  * @memberOf module:core/service/shortcut
  * @constructor
  * @method createShortcutService
@@ -13,6 +15,7 @@ const { Application } = Shopware;
  * @param {Number} [keystrokeDelay=1000]
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createShortcutService(shortcutFactory, keystrokeDelay = 1000) {
     let state = {
         buffer: [],

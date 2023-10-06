@@ -4,19 +4,21 @@ namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
+use Shopware\Core\System\Salutation\SalutationEntity;
+use Symfony\Component\HttpFoundation\Request;
 
-class FormCmsElementResolver extends Element\AbstractCmsElementResolver
+#[Package('buyers-experience')]
+class FormCmsElementResolver extends AbstractCmsElementResolver
 {
-    private EntityRepositoryInterface $salutationRepository;
-
-    public function __construct(EntityRepositoryInterface $salutationRepository)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly AbstractSalutationRoute $salutationRoute)
     {
-        $this->salutationRepository = $salutationRepository;
     }
 
     public function getType(): string
@@ -33,8 +35,10 @@ class FormCmsElementResolver extends Element\AbstractCmsElementResolver
     {
         $context = $resolverContext->getSalesChannelContext();
 
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search(new Criteria(), $context->getContext())->getEntities();
+        $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
+
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+
         $slot->setData($salutations);
     }
 }

@@ -1,9 +1,15 @@
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ * @package admin
+ */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /**
  * Gateway for the API end point "update"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class UpdateService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'update') {
@@ -31,22 +37,29 @@ class UpdateService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
     pluginCompatibility() {
+        return {};
+    }
+
+    extensionCompatibility() {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/plugin-compatibility`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/extension-compatibility`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 
-    downloadUpdate(offset) {
+    downloadRecovery() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/download-latest-update?offset=${offset}`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/download-recovery`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -64,25 +77,14 @@ class UpdateService extends ApiService {
             });
     }
 
-    unpackUpdate(offset) {
-        const headers = this.getBasicHeaders();
-
-        return this.httpClient
-            .get(
-                `/_action/${this.getApiBasePath()}/unpack?offset=${offset}`,
-                { headers },
-            ).then((response) => {
-                return ApiService.handleResponse(response);
-            });
-    }
-
     getBasicParams(additionalParams = {}) {
         const basicParams = {
             language: localStorage.getItem('sw-admin-locale'),
         };
 
-        return Object.assign({}, basicParams, additionalParams);
+        return { ...basicParams, ...additionalParams };
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default UpdateService;

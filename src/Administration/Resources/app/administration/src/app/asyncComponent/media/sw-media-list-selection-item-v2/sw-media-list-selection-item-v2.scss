@@ -1,0 +1,80 @@
+@import "~scss/variables";
+
+$sw-media-list-selection-item-v2-color-white: $color-white;
+$sw-media-list-selection-item-v2-color-hover: $color-black;
+$sw-media-list-selection-item-v2-color-border: $color-gray-300;
+$sw-media-list-selection-item-v2-border-radius: $border-radius-default;
+$sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%);
+
+.sw-media-list-selection-item-v2 {
+    position: relative;
+    border-radius: $sw-media-list-selection-item-v2-border-radius;
+    border: 2px solid $sw-media-list-selection-item-v2-placeholder-color;
+
+    &.is--placeholder {
+        border: 2px dashed $sw-media-list-selection-item-v2-placeholder-color;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: transparent;
+        }
+    }
+
+    .sw-media-list-selection-item-v2__image {
+        width: 100%;
+        height: 100%;
+
+        .sw-media-preview-v2__item {
+            border-radius: $sw-media-list-selection-item-v2-border-radius;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            max-height: 100%;
+            max-width: 100%;
+        }
+
+        &::after {
+            content: "";
+            display: block;
+            padding-bottom: 100%;
+        }
+    }
+
+    &:hover {
+        background-color: $sw-media-list-selection-item-v2-color-hover;
+
+        .sw-media-list-selection-item-v2__image {
+            opacity: 0.7;
+        }
+
+        .sw-context-button__button {
+            visibility: visible;
+            border: none;
+        }
+    }
+
+    .sw-media-list-selection-item-v2__context-button {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+    }
+
+    .sw-context-button__button {
+        visibility: hidden;
+
+        .sw-icon {
+            color: $sw-media-list-selection-item-v2-color-white;
+            height: 100%;
+        }
+    }
+
+    .sw-media-list-selection-item-v2__placeholder-icon {
+        color: $sw-media-list-selection-item-v2-placeholder-color;
+    }
+
+    &.is--drag-element {
+        position: absolute;
+    }
+}

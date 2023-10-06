@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_modal %}
 <div class="sw-import-export-edit-profile-modal">
     <sw-modal
@@ -8,6 +9,7 @@
         @modal-close="$emit('profile-close')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_alert %}
         <sw-alert
             v-if="profile.systemDefault"
@@ -17,6 +19,7 @@
         </sw-alert>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_tabs %}
         <sw-tabs
             position-identifier="sw-import-export-edit-profile-modal"
@@ -26,6 +29,7 @@
 
             <template #default="{ active }">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_tabs_general %}
                 <sw-tabs-item
                     :title="$tc('sw-import-export.profile.generalTab')"
@@ -36,6 +40,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
                 <sw-tabs-item
                     :title="$tc('sw-import-export.profile.mappingsTab')"
@@ -46,8 +51,17 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {# @deprecated tag:v6.5.0 - block will removed #}
-                {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}{% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_import_export_edit_profile_modal_tabs_field_advanced %}
+                <sw-tabs-item
+                    v-if="profile.type !== 'export' && profile.config.updateEntities !== false"
+                    :title="$tc('sw-import-export.profile.advancedTab')"
+                    :active-tab="active"
+                    name="advanced"
+                >
+                    {{ $tc('sw-import-export.profile.advancedTab') }}
+                </sw-tabs-item>
+                {% endblock %}
             </template>
 
             <template #content="{ active }">
@@ -55,48 +69,24 @@
                     <sw-import-export-edit-profile-general :profile="profile" />
 
                     <sw-import-export-edit-profile-field-indicators :profile="profile" />
-
-                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_name` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
-                    {% block sw_import_export_edit_profile_modal_tabs_name_field %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_type` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
-                    {% block sw_import_export_edit_profile_modal_tabs_type_field %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_type_result` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
-                    {% block sw_import_export_edit_profile_modal_tabs_type_field_inner %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_object_type_select` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
-                    {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_object_type_select_result` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
-                    {% block sw_import_export_edit_profile_modal_tabs_object_type_field_inner %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will removed use "sw_import_export_edit_profile_modal_tabs_mappings" instead #}
-                    {% block sw_import_export_edit_profile_modal_tabs_mapping %}{% endblock %}
-
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_tabs_general_import_settings %}
                     <sw-import-export-edit-profile-import-settings :profile="profile" />
-
-                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_headline %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_create_switch %}{% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_update_switch %}{% endblock %}
                     {% endblock %}
                 </template>
 
                 <template v-if="active === 'mappings'">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_tabs_mappings %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
                     <p class="sw-import-export-edit-profile-modal__text">
                         {{ $tc('sw-import-export.profile.mappingDescription') }}
                     </p>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_modal_tabs_mappings_mapping %}
                     <sw-import-export-edit-profile-modal-mapping
                         :profile="profile"
@@ -107,43 +97,38 @@
                     {% endblock %}
                 </template>
 
+                <template v-if="active === 'advanced' && profile.type !== 'export' && profile.config.updateEntities !== false">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.advancedDescription') }}
+                    </p>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_identifiers %}
+                    <sw-import-export-edit-profile-modal-identifiers
+                        :profile="profile"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
                 <template v-if="active === 'fieldIndicators'">
                     <p class="sw-import-export-edit-profile-modal__text">
                         {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
                     </p>
-
-                    <sw-container columns="repeat(1fr, 1fr)">
-                        {% block sw_import_export_edit_profile_modal_tabs_seperator_field %}
-                        <sw-single-select
-                            v-model="profile.delimiter"
-                            required
-                            show-clearable-button
-                            :label="$tc('sw-import-export.profile.separatorFieldLabel')"
-                            :error="profileDelimiterError"
-                            :disabled="profile.systemDefault"
-                            :options="supportedDelimiter"
-                        />
-                        {% endblock %}
-
-                        {% block sw_import_export_edit_profile_modal_tabs_enclosure_field %}
-                        <sw-single-select
-                            v-model="profile.enclosure"
-                            required
-                            show-clearable-button
-                            :label="$tc('sw-import-export.profile.enclosureFieldLabel')"
-                            :error="profileEnclosureError"
-                            :disabled="profile.systemDefault"
-                            :options="supportedEnclosures"
-                        />
-                        {% endblock %}
-                    </sw-container>
                 </template>
             </template>
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 size="small"
                 @click="$emit('profile-close')"
@@ -177,6 +162,7 @@
         {% endblock %}
     </sw-modal>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_violation_modal %}
     <sw-modal
         v-if="showValidationError"
@@ -185,12 +171,15 @@
         @modal-close="resetViolations"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_violation_modal_message %}
         <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_violation_modal_required_fields %}
         <ul>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_violation_modal_required_field %}
             <li
                 v-for="requiredField in missingRequiredFields"
@@ -202,8 +191,9 @@
         </ul>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_violation_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 size="small"
                 @click="resetViolations"

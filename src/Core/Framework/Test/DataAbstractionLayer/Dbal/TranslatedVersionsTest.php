@@ -21,11 +21,17 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class TranslatedVersionsTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private $languages = [
+    /**
+     * @var string[]
+     */
+    private array $languages = [
         'en-GB', 'de-DE',
     ];
 
@@ -248,7 +254,7 @@ class TranslatedVersionsTest extends TestCase
         }
     }
 
-    private function assertProductName($name, string $id, Context $context): void
+    private function assertProductName(string $name, string $id, Context $context): void
     {
         $context->setConsiderInheritance(true);
 
@@ -261,7 +267,7 @@ class TranslatedVersionsTest extends TestCase
         static::assertSame($name, $product->getTranslated()['name'], sprintf(
             'Expected %s with language chain %s but got %s, version context: %s',
             $name,
-            print_r($context->getLanguageIdChain(), true),
+            (string) print_r($context->getLanguageIdChain(), true),
             $product->getName(),
             $context->getVersionId() === Defaults::LIVE_VERSION ? 'NO' : 'YES'
         ));
@@ -272,7 +278,7 @@ class TranslatedVersionsTest extends TestCase
     private function createParentChildProduct(bool $addChildTranslations = true): IdsCollection
     {
         $context = Context::createDefaultContext();
-        $ids = new IdsCollection($context);
+        $ids = new IdsCollection();
 
         $parentProduct = (new ProductBuilder($ids, 'parent'))
             ->price(100)

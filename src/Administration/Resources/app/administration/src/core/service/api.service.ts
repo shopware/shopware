@@ -1,7 +1,12 @@
-import parseJsonApi from 'src/core/service/jsonapi-parser.service';
-import { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginService } from './login.service';
+/**
+ * @package admin
+ */
 
+import parseJsonApi from 'src/core/service/jsonapi-parser.service';
+import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { LoginService } from './login.service';
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type BasicHeaders = {
     Accept: string,
     Authorization: string,
@@ -63,31 +68,25 @@ class ApiService {
             'Content-Type': 'application/json',
         };
 
-        return Object.assign({}, basicHeaders, additionalHeaders);
+        return { ...basicHeaders, ...additionalHeaders };
     }
 
     /**
      * Basic response handling.
      * Converts the JSON api data when the specific content type is set.
      */
-    static handleResponse(response: AxiosResponse<unknown>): unknown {
+    static handleResponse<T>(response: AxiosResponse<T>): AxiosResponse<T>|T|unknown {
         if (response.data === null || response.data === undefined) {
             return response;
         }
 
-        let data = response.data;
-        const headers = response.headers as unknown;
+        const headers = response.headers as {'content-type'? : string}|null|undefined;
 
-        if (typeof headers !== 'object' || headers === null || !headers.hasOwnProperty('content-type')) {
-            return data;
+        if (typeof headers === 'object' && headers !== null && headers['content-type'] === 'application/vnd.api+json') {
+            return ApiService.parseJsonApiData(response.data);
         }
 
-        // @ts-expect-error
-        if (headers['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
-            data = ApiService.parseJsonApiData(data);
-        }
-
-        return data;
+        return response.data;
     }
 
     /**
@@ -152,4 +151,5 @@ class ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ApiService;

@@ -3,26 +3,25 @@
 namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @method void                      add(WebhookEntity $entity)
- * @method void                      set(string $key, WebhookEntity $entity)
- * @method \Generator<WebhookEntity> getIterator()
- * @method array<WebhookEntity>      getElements()
- * @method WebhookEntity|null        get(string $key)
- * @method WebhookEntity|null        first()
- * @method WebhookEntity|null        last()
+ * @extends EntityCollection<WebhookEntity>
  */
+#[Package('core')]
 class WebhookCollection extends EntityCollection
 {
+    /**
+     * @return WebhookCollection<WebhookEntity>
+     */
     public function filterForEvent(string $name)
     {
         return $this->filterByProperty('eventName', $name);
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAclRoleIdsAsBinary(): array
     {

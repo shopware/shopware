@@ -18,11 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
+#[Package('system-settings')]
 class IntegrationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'integration';
+    final public const ENTITY_NAME = 'integration';
 
     public function getEntityName(): string
     {
@@ -41,7 +44,11 @@ class IntegrationDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['admin' => false];
+        return [
+            'admin' => false,
+            /** @deprecated tag:v6.6.0 - field will be removed */
+            'writeAccess' => false,
+        ];
     }
 
     public function since(): ?string
@@ -56,21 +63,18 @@ class IntegrationDefinition extends EntityDefinition
             (new StringField('label', 'label'))->addFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
-            new BoolField('write_access', 'writeAccess'),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new BoolField('admin', 'admin'),
             new CustomFields(),
             new DateTimeField('deleted_at', 'deletedAt'),
 
             (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))->addFlags(new RestrictDelete()),
+            new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id'),
         ]);
 
-        $collection->add(
-            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
-        );
-        $collection->add(
-            new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
-        );
+        if (!Feature::isActive('v6.6.0.0')) {
+            $collection->add((new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v6.5.0.0', 'v6.6.0.0')));
+        }
 
         return $collection;
     }

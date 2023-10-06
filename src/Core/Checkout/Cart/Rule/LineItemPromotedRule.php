@@ -3,24 +3,23 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Type;
 
+#[Package('services-settings')]
 class LineItemPromotedRule extends Rule
 {
-    protected bool $isPromoted;
+    final public const RULE_NAME = 'cartLineItemPromoted';
 
-    public function __construct(bool $isPromoted = false)
+    /**
+     * @internal
+     */
+    public function __construct(protected bool $isPromoted = false)
     {
         parent::__construct();
-
-        $this->isPromoted = $isPromoted;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemPromoted';
     }
 
     public function match(RuleScope $scope): bool
@@ -33,7 +32,7 @@ class LineItemPromotedRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->isItemMatching($lineItem)) {
                 return true;
             }
@@ -45,8 +44,14 @@ class LineItemPromotedRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isPromoted' => [new Type('bool')],
+            'isPromoted' => RuleConstraints::bool(),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->booleanField('isPromoted');
     }
 
     private function isItemMatching(LineItem $lineItem): bool

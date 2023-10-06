@@ -1,0 +1,395 @@
+shopware.installer:
+    header_title: Installation
+    menuitem_language-selection: Start
+    menuitem_requirements: Systemvoraussetzungen
+    menuitem_database-configuration: Datenbank-Konfiguration
+    menuitem_database-import: Installation
+    menuitem_edition: Shopware-Lizenz
+    menuitem_configuration: Konfiguration
+    menuitem_finish: Fertig
+    menuitem_license: AGB
+    license_incorrect: 'Der eingegebene Lizenzschlüssel ist ungültig.'
+    license_does_not_match: 'Der eingegebene Lizenzschlüssel passt zu keiner kommerziellen Shopware-Version'
+    license_domain_error: 'Der eingegebene Lizenzschlüssel ist nicht gültig für die Domain: '
+    version_text: 'Version:'
+    back: Zurück
+    forward: Weiter
+    start: Starten
+    start_installation: 'Installation starten'
+    select_language_de: Deutsch
+    select_language_en: Englisch (Vereinigtes Königreich)
+    select_language_us: Englisch (USA)
+    select_language_nl: Niederländisch
+    select_language_it: Italienisch
+    select_language_fr: Französisch
+    select_language_es: Spanisch
+    select_language_pt: Portugiesisch
+    select_language_pl: Polnisch
+    select_language_cs: Tschechisch
+    select_language_sv: Schwedisch
+    select_language_da: Dänisch
+    select_language_nb: Norwegisch
+    select_country_jam: Jamaika
+    select_country_mmr: Myanmar
+    select_country_pan: Panama
+    select_country_aus: Australien
+    select_country_jpn: Japan
+    select_country_dnk: Dänemark
+    select_country_rou: Rumänien
+    select_country_bra: Brasilien
+    select_country_fin: Finnland
+    select_country_isr: Israel
+    select_country_bel: Belgien
+    select_country_usa: 'USA'
+    select_country_lie: Liechtenstein
+    select_country_pol: Polen
+    select_country_nam: Namibia
+    select_country_aut: Österreich
+    select_country_gbr: 'Vereinigtes Königreich'
+    select_country_cze: Tschechien
+    select_country_are: 'Vereinigte Arabische Emirate'
+    select_country_isl: Island
+    select_country_can: Kanada
+    select_country_grc: Griechenland
+    select_country_irl: Irland
+    select_country_che: Schweiz
+    select_country_fra: Frankreich
+    select_country_swe: Schweden
+    select_country_svk: Slowakei
+    select_country_deu: Deutschland
+    select_country_lux: Luxemburg
+    select_country_ita: Italien
+    select_country_hun: Ungarn
+    select_country_nor: Norwegen
+    select_country_nld: Niederlande
+    select_country_prt: Portugal
+    select_country_tur: Türkei
+    select_country_esp: Spanien
+    select_country_bgr: Bulgarien
+    select_country_est: Estland
+    select_country_hrv: Kroatien
+    select_country_lva: Lettland
+    select_country_ltu: Litauen
+    select_country_mlt: Malta
+    select_country_svn: Slowenien
+    select_country_cyp: Zypern
+    select_country_afg: Afghanistan
+    select_country_ala: Åland
+    select_country_alb: Albanien
+    select_country_dza: Algerien
+    select_country_asm: Amerikanisch-Samoa
+    select_country_and: Andorra
+    select_country_ago: Angola
+    select_country_aia: Anguilla
+    select_country_ata: Antarktika
+    select_country_atg: 'Antigua und Barbuda'
+    select_country_arg: Argentinien
+    select_country_arm: Armenien
+    select_country_abw: Aruba
+    select_country_aze: Aserbaidschan
+    select_country_bhs: Bahamas
+    select_country_bhr: Bahrain
+    select_country_bgd: Bangladesch
+    select_country_brb: Barbados
+    select_country_blr: Weißrussland
+    select_country_blz: Belize
+    select_country_ben: Benin
+    select_country_bmu: Bermuda
+    select_country_btn: Bhutan
+    select_country_bol: Bolivien
+    select_country_bes: 'Bonaire, Sint Eustatius und Saba'
+    select_country_bih: 'Bosnien und Herzegowina'
+    select_country_bwa: Botswana
+    select_country_bvt: Bouvetinsel
+    select_country_iot: 'Britisches Territorium im Indischen Ozean'
+    select_country_umi: 'Kleinere Inselbesitzungen der Vereinigten Staaten'
+    select_country_vgb: 'Britische Jungferninseln'
+    select_country_vir: 'Amerikanische Jungferninseln'
+    select_country_brn: Brunei
+    select_country_bfa: 'Burkina Faso'
+    select_country_bdi: Burundi
+    select_country_khm: Kambodscha
+    select_country_cmr: Kamerun
+    select_country_cpv: 'Kap Verde'
+    select_country_cym: Kaimaninseln
+    select_country_caf: 'Zentralafrikanische Republik'
+    select_country_tcd: Tschad
+    select_country_chl: Chile
+    select_country_chn: China
+    select_country_cxr: Weihnachtsinsel
+    select_country_cck: Kokosinseln
+    select_country_col: Kolumbien
+    select_country_com: 'Union der Komoren'
+    select_country_cog: Kongo
+    select_country_cod: 'Kongo (Dem. Rep.)'
+    select_country_cok: Cookinseln
+    select_country_cri: 'Costa Rica'
+    select_country_cub: Kuba
+    select_country_cuw: Curaçao
+    select_country_dji: Dschibuti
+    select_country_dma: Dominica
+    select_country_dom: 'Dominikanische Republik'
+    select_country_ecu: Ecuador
+    select_country_egy: Ägypten
+    select_country_slv: 'El Salvador'
+    select_country_gnq: Äquatorial-Guinea
+    select_country_eri: Eritrea
+    select_country_eth: Äthiopien
+    select_country_flk: Falklandinseln
+    select_country_fro: Färöer-Inseln
+    select_country_fji: Fidschi
+    select_country_guf: 'Französisch Guyana'
+    select_country_pyf: Französisch-Polynesien
+    select_country_atf: 'Französische Süd- und Antarktisgebiete'
+    select_country_gab: Gabun
+    select_country_gmb: Gambia
+    select_country_geo: Georgien
+    select_country_gha: Ghana
+    select_country_gib: Gibraltar
+    select_country_grl: Grönland
+    select_country_grd: Grenada
+    select_country_glp: Guadeloupe
+    select_country_gum: Guam
+    select_country_gtm: Guatemala
+    select_country_ggy: Guernsey
+    select_country_gin: Guinea
+    select_country_gnb: Guinea-Bissau
+    select_country_guy: Guyana
+    select_country_hti: Haiti
+    select_country_hmd: 'Heard und die McDonaldinseln'
+    select_country_vat: 'Staat Vatikanstadt'
+    select_country_hnd: Honduras
+    select_country_hkg: 'Hong Kong'
+    select_country_ind: Indien
+    select_country_idn: Indonesien
+    select_country_civ: Elfenbeinküste
+    select_country_irn: Iran
+    select_country_irq: Irak
+    select_country_imn: 'Insel Man'
+    select_country_jey: Jersey
+    select_country_jor: Jordanien
+    select_country_kaz: Kasachstan
+    select_country_ken: Kenia
+    select_country_kir: Kiribati
+    select_country_kwt: Kuwait
+    select_country_kgz: Kirgistan
+    select_country_lao: Laos
+    select_country_lbn: Libanon
+    select_country_lso: Lesotho
+    select_country_lbr: Liberia
+    select_country_lby: Libyen
+    select_country_mac: Macao
+    select_country_mkd: Mazedonien
+    select_country_mdg: Madagaskar
+    select_country_mwi: Malawi
+    select_country_mys: Malaysia
+    select_country_mdv: Maledieven
+    select_country_mli: Mali
+    select_country_mhl: Marshallinseln
+    select_country_mtq: Martinique
+    select_country_mrt: Mauretanien
+    select_country_mus: Mauritius
+    select_country_myt: Mayotte
+    select_country_mex: Mexiko
+    select_country_fsm: Mikronesien
+    select_country_mda: Moldawie
+    select_country_mco: Monaco
+    select_country_mng: Mongolei
+    select_country_mne: Montenegro
+    select_country_msr: Montserrat
+    select_country_mar: Marokko
+    select_country_moz: Mosambik
+    select_country_mnr: Myanmar
+    select_country_nru: Nauru
+    select_country_npl: Nèpal
+    select_country_ncl: Neukaledonien
+    select_country_nzl: Neuseeland
+    select_country_nic: Nicaragua
+    select_country_ner: Niger
+    select_country_nga: Nigeria
+    select_country_niu: Niue
+    select_country_nfk: Norfolkinseln
+    select_country_prk: Nordkorea
+    select_country_mnp: 'Nördliche Marianen'
+    select_country_omn: Oman
+    select_country_pak: Pakistan
+    select_country_plw: Palau
+    select_country_pse: Palästina
+    select_country_png: Papua-Neuguinea
+    select_country_pry: Paraguay
+    select_country_per: Peru
+    select_country_phl: Philippinen
+    select_country_pcn: Pitcairn
+    select_country_pri: 'Puerto Rico'
+    select_country_qat: Katar
+    select_country_kos: Kosovo
+    select_country_reu: Réunion
+    select_country_rus: Russland
+    select_country_rwa: Ruanda
+    select_country_blm: Saint-Barthélemy
+    select_country_shn: 'Sankt Helena'
+    select_country_kna: 'St. Kitts und Nevis'
+    select_country_lca: 'Sain Lucia'
+    select_country_maf: 'Saint Martin'
+    select_country_spm: 'Saint-Pierre und Miquelon'
+    select_country_vct: 'Saint Vincent und die Grenadinen'
+    select_country_wsm: Samoa
+    select_country_smr: 'San Marino'
+    select_country_stp: 'São Tomé und Príncipe'
+    select_country_sau: Saudi-Arabien
+    select_country_sen: Senegal
+    select_country_srb: Serbien
+    select_country_syc: Seychellen
+    select_country_sle: 'Sierra Leone'
+    select_country_sgp: Singapur
+    select_country_sxm: 'Saint Maarten (niederl. Teil)'
+    select_country_slb: Salomonen
+    select_country_som: Somalia
+    select_country_zaf: 'Republik Südafrika'
+    select_country_sgs: 'Südgeorgien und die Südlichen Sandwichinseln'
+    select_country_kor: Südkorea
+    select_country_ssd: Südsudan
+    select_country_lka: 'Sri Lanka'
+    select_country_sdn: Sudan
+    select_country_sur: Suriname
+    select_country_sjm: 'Svalbard und Jan Mayen'
+    select_country_swz: Swasiland
+    select_country_syr: Syrien
+    select_country_twn: Taiwan
+    select_country_tjk: Tadschikistan
+    select_country_tza: Tansania
+    select_country_tha: Thailand
+    select_country_tls: Timor-Leste
+    select_country_tgo: Togo
+    select_country_tkl: Tokelau
+    select_country_ton: Tonga
+    select_country_tto: 'Trinidad und Tobago'
+    select_country_tun: Tunesien
+    select_country_tkm: Turkmenistan
+    select_country_tca: 'Turks- und Caicosinseln'
+    select_country_tuv: Tuvalu
+    select_country_uga: Uganda
+    select_country_ukr: Ukraine
+    select_country_ury: Uruguay
+    select_country_uzb: Usbekistan
+    select_country_vut: Vanuatu
+    select_country_ven: Venezuela
+    select_country_vnm: Vietnam
+    select_country_wlf: 'Wallis und Futuna'
+    select_country_esh: Westsahara
+    select_country_yem: Jemen
+    select_country_zmb: Sambia
+    select_country_zwe: Simbabwe
+    language-selection_welcome_title: 'Willkommen in Shopware 6'
+    language-selection_select_language: 'Sprache des Installations-Assistenten'
+    language-selection_header: 'Deine Shopware-Installation'
+    language-selection_info_message: 'Diese Auswahl bezieht sich nur auf die Sprache des Installations-Assistenten. Die Systemstandard-Sprache Deines Shops kannst Du später noch definieren.'
+    language-selection_welcome_message: 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware-Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.'
+    requirements_header: Systemvoraussetzungen
+    requirements_header_files: 'Dateien und Verzeichnisse'
+    requirements_header_system: System
+    requirements_files_info: 'Die nachfolgenden Dateien und Verzeichnisse müssen vorhanden und dürfen nicht schreibgeschützt sein.'
+    requirements_table_files_col_check: Datei/Verzeichnis
+    requirements_table_files_col_status: Status
+    requirements_error: 'Es sind nicht alle Voraussetzungen für eine erfolgreiche Installation erfüllt.'
+    requirements_error_title: 'Dein System ist noch nicht bereit für Shopware 6'
+    requirements_success: 'Alle Voraussetzungen für eine erfolgreiche Installation sind erfüllt.'
+    requirements_success_title: 'Dein System ist bereit für Shopware 6'
+    requirements_php_info: 'Dein Server sollte die folgenden Systemvoraussetzungen erfüllen, um Shopware im ganzen Ausmaß nutzen zu können.'
+    requirements_php_max_compatible_version: 'Diese Version von Shopware unterstützt PHP bis Version %s. Eine vollständige Funktionalität kann mit neueren PHP-Versionen nicht garantiert werden.'
+    requirements_system_col_check: Voraussetzung
+    requirements_system_col_required: Erforderlich
+    requirements_system_col_found: 'Dein System'
+    requirements_system_col_status: Status
+    requirements_show_all: '(alles anzeigen)'
+    requirements_hide_all: '(alles ausblenden)'
+    requirements_status_error: Fehler
+    requirements_status_warning: Warnung
+    requirements_status_ready: Bereit
+    license_agreement_header: 'Allgemeine Geschäftsbedingungen („AGB“)'
+    license_agreement_info: 'Hier findest Du unsere Allgemeinen Geschäftsbedingungen. Um die Installation von Shopware 6 fortzusetzen, musst Du die AGB zunächst lesen und dann akzeptieren. Die Community Edition von Shopware 6 ist nach den Bedingungen der MIT-Lizenz freigegeben.'
+    license_agreement_error: 'Bitte stimme unseren AGB zu!'
+    license_agreement_checkbox: 'Ich stimme den AGB zu!'
+    database-configuration_header: 'Datenbank konfigurieren'
+    database-configuration_field_host: 'Server:'
+    database-configuration_advanced_settings: 'Erweiterte Einstellungen'
+    database-configuration_field_port: 'Port:'
+    database-configuration_field_user: 'Benutzer:'
+    database-configuration_field_password: 'Passwort:'
+    database-configuration_field_database: 'Datenbank-Name:'
+    database-configuration_field_new_database: 'Neue Datenbank:'
+    database-configuration_info: 'Um Shopware auf Deinem System zu installieren, brauchst Du die Zugangsdaten zu Deiner Datenbank. Wenn Du Dir nicht sicher bist, was Du hier eintragen musst, kontaktiere bitte Deinen Administrator/Hoster.'
+    database-configuration-create_new_database: 'Neue Datenbank anlegen'
+    database-configuration_non_empty_database: 'Die ausgewählte Datenbank enthält bereits Daten. Bitte wähle eine leere Datenbank aus oder erstelle eine neue.'
+    database-configuration_error_required_fields: 'Bitte fülle alle Felder aus.'
+    database-configuration_field_ssl_ca_path: 'Dateipfad zur SSL-Zertifizierungsstelle'
+    database-configuration_field_ssl_cert_path: 'Dateipfad zum SSL-Zertifikat'
+    database-configuration_field_ssl_cert_key_path: 'Dateipfad zum SSL-Zertifikatsschlüssel'
+    database-configuration_field_ssl_dont_verify_cert: 'Server-Zertifikat nicht überprüfen'
+    database-import_header: Installation
+    database-import_skip_import: Überspringen
+    database-import_progress: 'Fortschritt: '
+    database-import-hint: '<strong>Hinweis:</strong> Falls in der konfigurierten Datenbank bereits Shopware-Tabellen bestehen, werden diese durch die Installation/das Update entfernt!'
+    database-import_info_text: 'Shopware 6 wird auf der von Dir ausgewählten Datenbank installiert. Dieser Vorgang kann einige Minuten dauern, abhängig von Deinem System.'
+    database_import_success: 'Shopware 6 wurde erfolgreich installiert!'
+    database_import_install_label: 'Datenbank-Installation:'
+    database_import_install_step_text: Schritt
+    database_import_install_from_text: von
+    migration_counter_text_migrations: 'Datenbank-Update wird durchgeführt'
+    migration_counter_text_snippets: 'Textbausteine werden aktualisiert'
+    migration_update_success: 'Datenbank erfolgreich importiert!'
+    edition_header: 'Hast Du bereits eine Shopware-Lizenz?'
+    edition_info: 'Shopware gibt es in einer kostenlosen <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> sowie in kostenpflichtigen <a href="https://de.shopware.com/versionen/" target="_blank">Professional und Enterprise Editionen</a>.'
+    edition_ce: 'Nein, ich möchte die kostenfreie <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a> verwenden.'
+    edition_cm: 'Ja, ich habe eine kostenpflichtige Shopware-Lizenz (<a href="https://de.shopware.com/versionen/" target="_blank">Professional oder Enterprise</a>).'
+    edition_license: 'Trage hier Deinen Lizenzschlüssel ein. Diesen findest Du in Deinem Shopware-Account unter "Lizenzen" → "Produktlizenzen" → "Details / Download":'
+    edition_license_error: 'Für die Installation einer kostenpflichtigen Shopware-Version ist eine gültige Lizenz erforderlich.'
+    configuration_header: Konfiguration
+    configuration_sconfig_text: 'Fast geschafft. Jetzt musst Du nur noch einige grundlegende Einstellungen für Deinen Shop festlegen, dann ist die Installation abgeschlossen.'
+    configuration_sconfig_name: Shopname
+    configuration_sconfig_name_info: 'Bitte gib den Namen Deines Shops ein'
+    configuration_sconfig_mail: 'Shop-E-Mail-Adresse:'
+    configuration_sconfig_mail_info: 'Bitte gib die E-Mail-Adresse für ausgehende E-Mails ein'
+    configuration_sconfig_domain: 'Shop-Domain:'
+    configuration_sconfig_language: 'System-Standardsprache:'
+    configuration_sconfig_currency: 'Standardwährung:'
+    configuration_sconfig_country: 'Standardland:'
+    configuration_sconfig_currency_info: 'Diese Währung wird standardmäßig für Produktpreise genutzt.'
+    configuration_admin_currency_eur: Euro
+    configuration_admin_currency_usd: 'Dollar (US)'
+    configuration_admin_currency_gbp: 'Britisches Pfund (GB)'
+    configuration_admin_currency_pln: 'Polnische Zloty'
+    configuration_admin_currency_chf: 'Schweizer Franken'
+    configuration_admin_currency_sek: 'Schwedische Krone'
+    configuration_admin_currency_dkk: 'Dänische Krone'
+    configuration_admin_currency_nok: 'Norwegische Krone'
+    configuration_admin_currency_czk: 'Tschechische Krone'
+    configuration_admin_username: 'Admin-Login-Name:'
+    configuration_admin_mail: 'Admin-E-Mail-Adresse:'
+    configuration_admin_firstName: 'Admin-Vorname:'
+    configuration_admin_lastName: 'Admin-Nachname:'
+    configuration_defaults_warning: 'Die System-Standardsprache und System-Standardwährung können nachträglich nicht geändert werden.'
+    configuration_admin_currency_headline: 'Verfügbare Währungen'
+    configuration_admin_currency_text: 'Füge mehrere Währungen zu Deinem Shopware-Shop hinzu. Du kannst weitere Sprachen im Nachhinein in der Administration erstellen.'
+    configuration_email_help_text: 'Diese E-Mail-Adresse wird für ausgehende Shop-E-Mails genutzt.'
+    configuration_admin_language_de: Deutsch
+    configuration_admin_language_en: Englisch
+    configuration_admin_password: 'Admin-Passwort:'
+    finish_header: 'Installation abgeschlossen'
+    finish_info: 'Du hast Shopware erfolgreich installiert!'
+    finish_info_heading: Juhu!
+    finish_first_steps: '"Erste Schritte"-Anleitung'
+    finish_frontend: 'Zur Storefront'
+    finish_backend: 'Zur Administration'
+    finish_message: "
+        <p>
+            <strong>Herzlich Willkommen in Shopware,</strong>
+        </p>
+        <p>
+            wir freuen uns Dich in unserer Community begrüßen zu dürfen. Du hast Shopware erfolgreich installiert.
+        <p>
+            Dein Shop ist jetzt einsatzbereit. Falls Du noch neu in Shopware bist, empfehlen wir die Anleitung <a href=\"https://docs.shopware.com/de/shopware-6-de/erste-schritte/willkommen-bei-shopware\" target=\"_blank\">\"Erste Schritte in Shopware\"</a>. Wenn Du Dich zum ersten Mal in der Administration anmeldest, wird Dich unser Ersteinrichtungs-Assistent durch die grundlegende Einrichtung Deines Shops führen.
+        </p>
+        <p>
+            Viel Spaß und Erfolg mit Deinem neuen Onlineshop!
+        </p>"

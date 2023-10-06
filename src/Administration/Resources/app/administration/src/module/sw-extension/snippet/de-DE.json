@@ -74,13 +74,33 @@
       "messageDeactivationFailedThemeAssignment": "Das Theme \"{themeName}\" konnte nicht deaktiviert werden. Bitte entferne die folgenden Theme-Zuweisungen: {assignments}",
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
-      "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller."
+      "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller.",
+      "appIsNotCompatible": "Die Erweiterung \"{name}\" ist nicht kompatibel mit dieser Shopware Version",
+      "appLicenseCouldNotBeVerified": {
+        "title": "Die Lizenz dieser Erweiterung konnte nicht überprüft werden",
+        "message": "Stelle sicher, dass Deine Lizenzdomain korrekt gesetzt ist und Du mit Deinem Shopware Account angemeldet bist, auf welchen diese Erweiterung lizenziert ist.",
+        "actionSetLicenseDomain": "Lizenzdomain setzen",
+        "actionLogin": "Login"
+      },
+      "storeSessionExpired": {
+        "title": "Shopware Account Sitzung abgelaufen",
+        "message": "Bitte melde Dich an, um auf Deine lizenzierten Erweiterungen zuzugreifen.",
+        "actionLabel": "Login"
+      }
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Erweiterungen",
       "store": "Store",
       "purchased": "Meine Erweiterungen",
       "support": "Support"
+    },
+    "sw-extension-app-module-error-page": {
+      "error": {
+        "heading": "Hoppla! Du bist zu schnell und hast die Orientierung verloren.",
+        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
+        "info": "Mach Dir keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird.",
+        "lblBackButton": "Zurück"
+      }
     }
   },
   "sw-extension-store": {
@@ -207,8 +227,8 @@
           "labelRating": "Keine Bewertungen | {numberOfRatings} Bewertung | {numberOfRatings} Bewertungen"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "Von {author} am {lastChangeDate}",
-          "labelExtensionVersion": "Version der Erweiterung {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Bewertungen und Rezensionen",
@@ -230,23 +250,24 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Miete:",
         "inactiveLabel": "(inaktiv)",
-        "purchasedLabel": "Gekauft am ",
-        "installedLabel": "Installiert am ",
-        "openExtensionLabel": "App öffnen",
-        "installExtensionLabel": "App installieren",
+        "purchasedLabel": "Gekauft:",
+        "installedLabel": "Installiert:",
+        "openExtensionLabel": "Öffnen",
+        "installExtensionLabel": "Installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
+        "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",
-          "config": "Konfiguration",
+          "config": "Konfigurieren",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
           "removeLabel": "Entfernen",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
-          "rateLabel": "Bewerten",
+          "rateLabel": "Erweiterung bewerten",
           "policyExtensions": "Datenschutz-Erweiterungen",
-          "permissions": "Berechtigungen",
+          "permissions": "Berechtigungen einsehen",
           "openExtension": "Erweiterung öffnen"
         }
       },
@@ -265,11 +286,14 @@
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} Berechtigungen",
+        "titleNewPermissions": "Neue {extensionLabel} Berechtigungen",
         "description": "{extensionLabel} erhält Zugang zu den folgenden Komponenten. Klicke auf den Link neben der Komponente, um die Entitätsdetails anzuzeigen.",
+        "descriptionNewPermissions": "{extensionLabel} fordert mit diesem Update geänderte Berechtigungen an. Stelle sicher, dass Du allen Änderungen zustimmst, bevor Du mit dem Update fortfährst.",
         "domainHint": "Einige Daten werden auch mit anderen Domains geteilt. Klicke auf den Link neben den Domains für weitere Details.",
         "textEntities": "Berechtigungen anzeigen",
         "domains": "Domains",
-        "showDomains": "Domains anzeigen"
+        "showDomains": "Domains anzeigen",
+        "acceptAndUpdate": "Akzeptieren und aktualisieren"
       },
       "sw-extension-domains-modal": {
         "modalTitle": "{extensionLabel} - Domains",
@@ -313,7 +337,7 @@
         "description": "Wenn Du die Erweiterung deinstallierst, kannst Du sie nicht mehr verwenden.",
         "alert": "Bist Du sicher, dass Du die Erweiterung deinstallieren möchtest?",
         "buttonLabel": "Deinstallieren",
-        "labelRemovePluginData": "Alle App-Daten entgültig entfernen",
+        "labelRemovePluginData": "Alle App-Daten endgültig entfernen",
         "helpTextRemovePluginData": "Warnung: Alle Daten der App werden dauerhaft entfernt. Dieser Vorgang ist nicht umkehrbar."
       },
       "sw-extension-listing-card": {
@@ -468,8 +492,8 @@
         "acl_role": "ACL-Rolle",
         "acl_user_role": "ACL-Nutzerrolle",
         "dead_message": "Tote Nachricht",
-        "event_action": "Event-Aktion",
         "message_queue_stats": "Statistiken der Nachrichtenwarteschlange",
+        "notification": "Benachrichtigung",
         "plugin": "Plugin",
         "scheduled_task": "Geplante Aufgaben"
       }
@@ -605,6 +629,9 @@
         "theme_media": "Medien",
         "theme_sales_channel": "Verkaufskanal"
       }
+    },
+    "additional_privileges": {
+      "title": "Zusätzliche Berechtigungen"
     }
   },
   "sw-privileges": {

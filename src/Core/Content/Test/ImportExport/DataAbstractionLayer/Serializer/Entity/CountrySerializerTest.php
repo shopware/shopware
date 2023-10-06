@@ -8,21 +8,26 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 class CountrySerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $countryRepository;
+    private EntityRepository $countryRepository;
 
     private CountrySerializer $serializer;
 
     private string $countryId = '67d89afb684e44eeacd71ba1f59a5ae1';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->countryRepository = $this->getContainer()->get('country.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);

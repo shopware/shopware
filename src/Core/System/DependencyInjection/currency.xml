@@ -35,6 +35,8 @@
 
         <service id="Shopware\Core\System\Currency\CurrencyFormatter" public="true">
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute" public="true">
@@ -48,7 +50,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.currency_route%</argument>
-            <argument type="service" id="logger"/>
         </service>
     </services>
 </container>

@@ -1,10 +1,15 @@
+/**
+ * @package buyers-experience
+ */
+
 import template from './sw-sales-channel-modal.html.twig';
 import './sw-sales-channel-modal.scss';
 
-const { Component, Defaults } = Shopware;
+const { Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-sales-channel-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -86,4 +91,4 @@ Component.register('sw-sales-channel-modal', {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
         },
     },
-});
+};

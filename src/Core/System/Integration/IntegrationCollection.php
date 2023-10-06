@@ -3,16 +3,12 @@
 namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                   add(IntegrationEntity $entity)
- * @method void                   set(string $key, IntegrationEntity $entity)
- * @method IntegrationEntity[]    getIterator()
- * @method IntegrationEntity[]    getElements()
- * @method IntegrationEntity|null get(string $key)
- * @method IntegrationEntity|null first()
- * @method IntegrationEntity|null last()
+ * @extends EntityCollection<IntegrationEntity>
  */
+#[Package('core')]
 class IntegrationCollection extends EntityCollection
 {
     public function getApiAlias(): string

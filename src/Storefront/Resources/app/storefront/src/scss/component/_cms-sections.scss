@@ -21,7 +21,7 @@ General styling for cms sections
     }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
     .cms-section-sidebar-mobile-wrap {
         flex-direction: column;
     }

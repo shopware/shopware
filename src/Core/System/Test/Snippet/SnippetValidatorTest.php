@@ -3,10 +3,15 @@
 namespace Shopware\Core\System\Test\Snippet;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetValidator;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class SnippetValidatorTest extends TestCase
 {
     public function testValidateShouldFindMissingSnippets(): void
@@ -58,9 +63,7 @@ class SnippetValidatorTest extends TestCase
             ->willReturn([$secondPath]);
 
         $snippetFileHandler->method('openJsonFile')
-            ->willReturnCallback(function () {
-                return ['foo' => 'bar'];
-            });
+            ->willReturnCallback(fn () => ['foo' => 'bar']);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
         $missingSnippets = $snippetValidator->validate();

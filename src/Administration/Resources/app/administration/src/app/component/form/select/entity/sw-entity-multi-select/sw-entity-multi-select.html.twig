@@ -1,16 +1,34 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_multi_select %}
 <sw-select-base
     ref="selectBase"
     class="sw-entity-multi-select"
     :is-loading="isLoading"
     v-bind="$attrs"
+    v-on="$listeners"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="$listeners"
+    @clear="clearSelection"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse}">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_entity_multi_select_advanced_selection_modal %}
+        <component
+            :is="advancedSelectionComponent"
+            v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
+            :initial-search-term="searchTerm"
+            :initial-selection="currentCollection"
+            v-bind="advancedSelectionParameters"
+            @modal-close="closeAdvancedSelectionModal"
+            @selection-submit="onAdvancedSelectionSubmit"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_multi_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
@@ -25,16 +43,19 @@
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_selection_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_selection_list_label %}
             <template #label-property="{ item, index, labelProperty, valueProperty, getKey }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_multi_select_base_selection_list_label_inner %}
                 <slot
                     name="selection-label-property"
                     v-bind="{ item, index, labelProperty, valueProperty, getKey }"
                 >
                     <sw-product-variant-info
-                        v-if="$attrs.displayVariants"
+                        v-if="displayVariants"
                         :variations="item.variation"
                     >
                         {{ displayLabelProperty(item) }}
@@ -52,8 +73,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base_results %}
     <template #results-list>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_multi_select_base_results_slot %}
         <sw-select-result-list
             ref="swSelectResultList"
@@ -64,34 +87,69 @@
             @paginate="paginate"
             @item-select="addItem"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_before %}
             <template #before-item-list>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_entity_multi_select_base_results_list_before_advanced_selection %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                <div
+                    v-if="isAdvancedSelectionActive"
+                    class="sw-multi-select-filtering__advanced-selection sw-select-result"
+                    @click="openAdvancedSelectionModal"
+                >
+                    {{ $tc('global.sw-entity-advanced-selection-modal.link') }}
+                </div>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_entity_multi_select_base_results_list_before_slot %}
                 <slot name="before-item-list"></slot>
+                {% endblock %}
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
-                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey, displayLabelProperty, isSelectionDisabled, descriptionPosition }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         :disabled="isSelectionDisabled(item)"
                         :description-position="descriptionPosition"
                         @item-select="addItem"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_entity_multi_select_base_results_list_result_preview %}
+                        <template #preview>
+                            <slot
+                                name="result-label-preview"
+                                v-bind="{
+                                    item,
+                                    index,
+                                    labelProperty,
+                                    valueProperty: 'id',
+                                    searchTerm,
+                                    highlightSearchTerm,
+                                    getKey
+                                }"
+                            ></slot>
+                        </template>
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
                             v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
                         >
                             <sw-product-variant-info
-                                v-if="$attrs.displayVariants"
+                                v-if="displayVariants"
                                 :variations="item.variation"
                                 :highlighted="true"
                                 :search-term="searchTerm"
@@ -110,6 +168,7 @@
                             </template>
                         </slot>
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_description %}
                         <template #description>
                             <slot
@@ -118,11 +177,12 @@
                             ></slot>
                         </template>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>
@@ -137,6 +197,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-select-base>
 {% endblock %}

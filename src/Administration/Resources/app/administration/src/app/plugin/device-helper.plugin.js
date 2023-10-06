@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 const { warn } = Shopware.Utils.debug;
 const { DeviceHelper } = Shopware.Helper;
 
 let pluginInstalled = false;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     install(Vue) {
         if (pluginInstalled) {

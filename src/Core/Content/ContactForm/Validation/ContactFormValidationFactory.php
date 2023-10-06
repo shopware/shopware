@@ -3,38 +3,33 @@
 namespace Shopware\Core\Content\ContactForm\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Decoratable
- */
+#[Package('buyers-experience')]
 class ContactFormValidationFactory implements DataValidationFactoryInterface
 {
     /**
-     * @var EventDispatcherInterface
+     * The regex to check if string contains an url
      */
-    private $eventDispatcher;
+    final public const DOMAIN_NAME_REGEX = '/((https?:\/))/';
 
     /**
-     * @var SystemConfigService
+     * @internal
      */
-    private $systemConfigService;
-
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition
@@ -51,19 +46,28 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
     {
         $definition = new DataValidationDefinition($validationName);
 
-        $definition->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
+        $definition
+            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
             ->add('email', new NotBlank(), new Email())
             ->add('subject', new NotBlank())
-            ->add('comment', new NotBlank());
+            ->add('comment', new NotBlank())
+            ->add('firstName', new Regex(['pattern' => self::DOMAIN_NAME_REGEX, 'match' => false]))
+            ->add('lastName', new Regex(['pattern' => self::DOMAIN_NAME_REGEX, 'match' => false]));
 
         $required = $this->systemConfigService->get('core.basicInformation.firstNameFieldRequired', $context->getSalesChannel()->getId());
         if ($required) {
-            $definition->add('firstName', new NotBlank());
+            $definition->set('firstName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
         }
 
         $required = $this->systemConfigService->get('core.basicInformation.lastNameFieldRequired', $context->getSalesChannel()->getId());
         if ($required) {
-            $definition->add('lastName', new NotBlank());
+            $definition->set('lastName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
         }
 
         $required = $this->systemConfigService->get('core.basicInformation.phoneNumberFieldRequired', $context->getSalesChannel()->getId());

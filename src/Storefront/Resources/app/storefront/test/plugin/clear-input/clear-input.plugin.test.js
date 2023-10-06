@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import ClearInput from 'src/plugin/clear-input-button/clear-input.plugin';
 
@@ -14,17 +10,6 @@ describe('ClearInput plugin tests', () => {
     };
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
         document.body.innerHTML = `<textarea></textarea><button id="${buttonSelector}"></button>`;
         textarea = document.body.querySelector('textarea');
         clearInput = new ClearInput(textarea, clearInputOptions);

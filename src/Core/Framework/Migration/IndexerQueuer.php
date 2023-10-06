@@ -4,21 +4,23 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class IndexerQueuer
 {
-    public const INDEXER_KEY = 'core.scheduled_indexers';
+    final public const INDEXER_KEY = 'core.scheduled_indexers';
 
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getIndexers(): array
     {
@@ -27,7 +29,7 @@ class IndexerQueuer
         $indexers = [];
 
         if ($current !== null) {
-            $decodedValue = json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
 
             $indexers = $decodedValue['_value'] ?? [];
         }
@@ -49,7 +51,7 @@ class IndexerQueuer
         $current = self::fetchCurrent($this->connection);
         $indexerList = [];
         if ($current !== null) {
-            $decodedValue = json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
@@ -73,7 +75,7 @@ class IndexerQueuer
 
         if ($current !== null) {
             $id = $current['id'];
-            $decodedValue = json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
@@ -84,7 +86,7 @@ class IndexerQueuer
             }
         }
 
-        $indexerList[$name] = isset($indexerList[$name]) ? array_merge($indexerList[$name], $requiredIndexers) : $requiredIndexers;
+        $indexerList[$name] = isset($indexerList[$name]) ? array_unique(array_merge($indexerList[$name], $requiredIndexers)) : $requiredIndexers;
 
         self::upsert($connection, $id, $indexerList);
     }
@@ -92,7 +94,7 @@ class IndexerQueuer
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
         $date = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $newValue = json_encode(['_value' => $indexerList]);
+        $newValue = json_encode(['_value' => $indexerList], \JSON_THROW_ON_ERROR);
 
         if (empty($indexerList) && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);
@@ -121,7 +123,7 @@ class IndexerQueuer
 
     private static function fetchCurrent(Connection $connection): ?array
     {
-        $currentRow = $connection->fetchAssoc(
+        $currentRow = $connection->fetchAssociative(
             '
             SELECT *
             FROM system_config

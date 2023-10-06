@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @internal
+ */
 class CartMergedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +50,7 @@ class CartMergedSubscriberTest extends TestCase
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);
 
         // Create Guest cart
-        $previousCart = new Cart('guest-cart', $currentContextToken);
+        $previousCart = new Cart($currentContextToken);
 
         $productId1 = $this->createProduct($currentContext->getContext());
         $productId2 = $this->createProduct($currentContext->getContext());
@@ -63,7 +66,7 @@ class CartMergedSubscriberTest extends TestCase
         $previousCart->addLineItems(new LineItemCollection([$productLineItem1, $productLineItem2]));
         $previousCart->markUnmodified();
 
-        $cartMergedEvent = new CartMergedEvent(new Cart('cart', 'customerToken'), $currentContext, $previousCart);
+        $cartMergedEvent = new CartMergedEvent(new Cart('customerToken'), $currentContext, $previousCart);
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
@@ -72,6 +75,9 @@ class CartMergedSubscriberTest extends TestCase
         static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
+    /**
+     * @param array<string, mixed> $salesChannelData
+     */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId = null): SalesChannelContext
     {
         if ($customerId) {

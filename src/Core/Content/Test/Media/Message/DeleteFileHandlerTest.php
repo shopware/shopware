@@ -7,6 +7,9 @@ use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DeleteFileHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -16,7 +19,7 @@ class DeleteFileHandlerTest extends TestCase
      */
     private $handler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->handler = $this->getContainer()->get(DeleteFileHandler::class);
     }
@@ -28,13 +31,13 @@ class DeleteFileHandlerTest extends TestCase
         $file1 = 'test/file1.txt';
         $file2 = 'test/file2.txt';
 
-        $filesystem->put($file1, 'file 1 content');
-        $filesystem->put($file2, 'file 2 content');
+        $filesystem->write($file1, 'file 1 content');
+        $filesystem->write($file2, 'file 2 content');
 
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));
@@ -48,13 +51,13 @@ class DeleteFileHandlerTest extends TestCase
         $file2 = 'test/file2.txt';
         $file3 = 'test/file3.txt';
 
-        $filesystem->put($file1, 'file 1 content');
-        $filesystem->put($file3, 'file 3 content');
+        $filesystem->write($file1, 'file 1 content');
+        $filesystem->write($file3, 'file 3 content');
 
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2, $file3]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));

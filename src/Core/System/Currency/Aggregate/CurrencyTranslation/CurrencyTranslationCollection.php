@@ -3,44 +3,32 @@
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @method void                           add(CurrencyTranslationEntity $entity)
- * @method void                           set(string $key, CurrencyTranslationEntity $entity)
- * @method CurrencyTranslationEntity[]    getIterator()
- * @method CurrencyTranslationEntity[]    getElements()
- * @method CurrencyTranslationEntity|null get(string $key)
- * @method CurrencyTranslationEntity|null first()
- * @method CurrencyTranslationEntity|null last()
+ * @extends EntityCollection<CurrencyTranslationEntity>
  */
+#[Package('buyers-experience')]
 class CurrencyTranslationCollection extends EntityCollection
 {
     public function getCurrencyIds(): array
     {
-        return $this->fmap(function (CurrencyTranslationEntity $currencyTranslation) {
-            return $currencyTranslation->getCurrencyId();
-        });
+        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId());
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (CurrencyTranslationEntity $currencyTranslation) use ($id) {
-            return $currencyTranslation->getCurrencyId() === $id;
-        });
+        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId() === $id);
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CurrencyTranslationEntity $currencyTranslation) {
-            return $currencyTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CurrencyTranslationEntity $currencyTranslation) use ($id) {
-            return $currencyTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 interface TokenizerInterface
 {
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function tokenize(string $string): array;
 }

@@ -2,14 +2,19 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class VersionFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -19,8 +24,8 @@ class VersionFieldSerializer implements FieldSerializerInterface
             $value = $parameters->getContext()->getContext()->getVersionId();
         }
 
-        //write version id of current object to write context
-        $parameters->getContext()->set($parameters->getDefinition()->getClass(), 'versionId', $value);
+        // write version id of current object to write context
+        $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), 'versionId', $value);
 
         $data[$field->getPropertyName()] = $value;
 
@@ -34,7 +39,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof VersionField) {
-            throw new InvalidSerializerFieldException(VersionField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VersionField::class, $field);
         }
 
         if ($data->getValue() === null) {
@@ -45,13 +50,12 @@ class VersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 
-    /**
-     * @param string $value
-     *
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*string */$value): string
+    public function decode(Field $field, mixed $value): ?string
     {
-        return Uuid::fromBytesToHex($value);
+        try {
+            return Uuid::fromBytesToHex($value);
+        } catch (\Exception) {
+            return null;
+        }
     }
 }

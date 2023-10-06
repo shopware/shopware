@@ -1,11 +1,13 @@
 /**
+ * @package admin
+ *
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';
 import flow from 'lodash/flow';
 import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
-import uuidV4 from 'uuid/v4';
+import { uuidv7 } from 'uuidv7';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
 import uniqBy from 'lodash/uniqBy';
@@ -26,13 +28,14 @@ import {
     pick,
 } from './utils/object.utils';
 import { warn, error } from './utils/debug.utils';
-import { currency, date, fileSize, md5, toISODate } from './utils/format.utils';
+import { currency, date, dateWithUserTimezone, fileSize, md5, toISODate } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils, { isUndefined } from './utils/types.utils';
 import fileReaderUtils from './utils/file-reader.utils';
 import sortUtils from './utils/sort.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
     deepCopyObject: deepCopyObject,
     hasOwnProperty: hasOwnProperty,
@@ -47,25 +50,31 @@ export const object = {
     pick: pick,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const debug = {
     warn: warn,
     error: error,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const format = {
     currency: currency,
     date: date,
+    dateWithUserTimezone: dateWithUserTimezone,
     fileSize: fileSize,
     md5: md5,
     toISODate: toISODate,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const dom = {
     getScrollbarHeight: domUtils.getScrollbarHeight,
     getScrollbarWidth: domUtils.getScrollbarWidth,
     copyToClipboard: domUtils.copyToClipboard,
+    copyStringToClipboard: domUtils.copyStringToClipboard,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
@@ -78,6 +87,7 @@ export const string = {
     isValidIp: stringUtils.isValidIp,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const types = {
     isObject: typesUtils.isObject,
     isPlainObject: typesUtils.isPlainObject,
@@ -93,6 +103,7 @@ export const types = {
     isUndefined: isUndefined,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const fileReader = {
     readAsArrayBuffer: fileReaderUtils.readFileAsArrayBuffer,
     readAsDataURL: fileReaderUtils.readFileAsDataURL,
@@ -101,10 +112,12 @@ export const fileReader = {
     getNameAndExtensionFromUrl: fileReaderUtils.getNameAndExtensionFromUrl,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const sort = {
     afterSort: sortUtils.afterSort,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const array = {
     flattenDeep: flattenDeep,
     remove: remove,
@@ -114,6 +127,7 @@ export const array = {
     intersectionBy: intersectionBy,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
     throttle,
@@ -129,15 +143,46 @@ export default {
     fileReader,
     sort,
     array,
+    moveItem,
 };
 
 /**
- * Returns a uuid string in hex format.
+ * Returns an uuid string in hex format.
  *
- * @returns {String}
+ * @returns { String }
  */
 function createId(): string {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-    return uuidV4().replace(/-/g, '');
+    return uuidv7().replace(/-/g, '');
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function moveItem(
+    entity: MutationObserver[],
+    oldIndex: number,
+    newIndex: number,
+) {
+    if (newIndex === null) {
+        newIndex = entity.length;
+    }
+
+    if (oldIndex < 0 || oldIndex >= entity.length || newIndex === oldIndex) {
+        return;
+    }
+
+    const movedItem = entity.find((_, index) => index === oldIndex);
+    if (!movedItem) {
+        return;
+    }
+
+    const remainingItems = entity.filter((_, index) => index !== oldIndex);
+
+    const orderedItems = [
+        ...remainingItems.slice(0, newIndex),
+        movedItem,
+        ...remainingItems.slice(newIndex),
+    ];
+
+    entity.splice(0, entity.length, ...orderedItems);
 }

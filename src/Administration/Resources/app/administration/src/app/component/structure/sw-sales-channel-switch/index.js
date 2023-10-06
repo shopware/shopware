@@ -1,9 +1,13 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-switch.html.twig';
 
 const { Component } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders a sales channel switcher.
@@ -12,6 +16,7 @@ const { debug } = Shopware.Utils;
  * @component-example
  * <sw-sales-channel-switch></sw-sales-channel-switch>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-switch', {
     template,
 

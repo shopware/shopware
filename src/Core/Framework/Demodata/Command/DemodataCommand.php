@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
+use Bezhanov\Faker\Provider\Commerce;
+use Faker\Factory;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
@@ -20,69 +24,67 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[AsCommand(
+    name: 'framework:demodata',
+    description: 'Generates demo data',
+)]
+#[Package('core')]
 class DemodataCommand extends Command
 {
-    protected static $defaultName = 'framework:demodata';
+    /**
+     * @var array<string, int>
+     */
+    private array $defaults = [];
 
-    private DemodataService $demodataService;
-
-    private string $kernelEnv;
-
-    private EventDispatcherInterface $eventDispatcher;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        DemodataService $demodataService,
-        EventDispatcherInterface $eventDispatcher,
-        string $kernelEnv
+        private readonly DemodataService $demodataService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $kernelEnv
     ) {
         parent::__construct();
+    }
 
-        $this->kernelEnv = $kernelEnv;
-        $this->demodataService = $demodataService;
-        $this->eventDispatcher = $eventDispatcher;
+    public function addDefault(string $name, int $value): void
+    {
+        $this->defaults[$name] = $value;
     }
 
     protected function configure(): void
     {
-        $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', '1000');
-        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '10');
-        $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', '60');
-        $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', '60');
-        $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', '60');
-        $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', '300');
-        $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300))', '10');
-        $this->addOption('users', '', InputOption::VALUE_REQUIRED, 'Users count', '0');
+        $this->addOption('product-attributes', null, InputOption::VALUE_OPTIONAL, 'Products attribute count');
+        $this->addOption('manufacturer-attributes', null, InputOption::VALUE_OPTIONAL, 'Manufacturer attribute count');
+        $this->addOption('order-attributes', null, InputOption::VALUE_OPTIONAL, 'Order attribute count');
+        $this->addOption('customer-attributes', null, InputOption::VALUE_OPTIONAL, 'Customer attribute count');
+        $this->addOption('media-attributes', null, InputOption::VALUE_OPTIONAL, 'Media attribute count');
 
-        $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', '10');
-
-        $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', '10');
-        $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', '3');
-        $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', '1');
-        $this->addOption('reviews', 'r', InputOption::VALUE_OPTIONAL, 'Reviews count', '20');
-
-        $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', '4');
-        $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
-        $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
-        $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
-        $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
-        $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
-        $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count', '0');
+        $this->addOption('reset-defaults', null, InputOption::VALUE_NONE, 'Set all counts to 0 unless specified');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
+        $this->ensureAllDependenciesArePresent();
 
-            return self::SUCCESS;
+        if ($this->kernelEnv !== 'prod') {
+            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
+
+            return self::INVALID;
         }
 
         $io = new ShopwareStyle($input, $output);
@@ -92,29 +94,31 @@ class DemodataCommand extends Command
 
         $request = new DemodataRequest();
 
-        $request->add(RuleDefinition::class, 25);
-        $request->add(MediaDefinition::class, (int) $input->getOption('media'));
-        $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
-        $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));
-        $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
-        $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
-        $request->add(ProductDefinition::class, (int) $input->getOption('products'));
-        $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
-        $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
-        $request->add(ProductReviewDefinition::class, (int) $input->getOption('reviews'));
-        $request->add(UserDefinition::class, (int) $input->getOption('users'));
-        $request->add(FlowDefinition::class, (int) $input->getOption('flows'));
+        $request->add(TagDefinition::class, $this->getCount($input, 'tags'));
+        $request->add(RuleDefinition::class, $this->getCount($input, 'rules'));
+        $request->add(MediaDefinition::class, $this->getCount($input, 'media'));
+        $request->add(CustomerDefinition::class, $this->getCount($input, 'customers'));
+        $request->add(PropertyGroupDefinition::class, $this->getCount($input, 'properties'));
+        $request->add(CategoryDefinition::class, $this->getCount($input, 'categories'));
+        $request->add(ProductManufacturerDefinition::class, $this->getCount($input, 'manufacturers'));
+        $request->add(ProductDefinition::class, $this->getCount($input, 'products'));
+        $request->add(ProductStreamDefinition::class, $this->getCount($input, 'product-streams'));
+        $request->add(PromotionDefinition::class, $this->getCount($input, 'promotions'));
+        $request->add(OrderDefinition::class, $this->getCount($input, 'orders'));
+        $request->add(ProductReviewDefinition::class, $this->getCount($input, 'reviews'));
+        $request->add(UserDefinition::class, $this->getCount($input, 'users'));
+        $request->add(FlowDefinition::class, $this->getCount($input, 'flows'));
 
         $request->add(
             CustomFieldSetDefinition::class,
-            (int) $input->getOption('attribute-sets'),
+            $this->getCount($input, 'attribute-sets'),
             $this->getCustomFieldOptions($input)
         );
 
-        $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));
-        $request->add(MailHeaderFooterDefinition::class, (int) $input->getOption('mail-header-footer'));
+        $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
+        $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
 
-        $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context));
+        $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 
         $demoContext = $this->demodataService->generate($request, $context, $io);
 
@@ -126,16 +130,46 @@ class DemodataCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, array<string, int>>
+     */
     private function getCustomFieldOptions(InputInterface $input): array
     {
         return [
             'relations' => [
-                'product' => (int) ($input->getOption('product-attributes') ?? $input->getOption('product-attributes') * 0.1),
-                'product_manufacturer' => (int) ($input->getOption('manufacturer-attributes') ?? $input->getOption('manufacturer-attributes') * 0.1),
-                'order' => (int) ($input->getOption('order-attributes') ?? $input->getOption('order-attributes') * 0.1),
-                'customer' => (int) ($input->getOption('customer-attributes') ?? $input->getOption('customer-attributes') * 0.1),
-                'media' => (int) ($input->getOption('media-attributes') ?? $input->getOption('media-attributes') * 0.1),
+                'product' => $this->getCount($input, 'product-attributes'),
+                'product_manufacturer' => $this->getCount($input, 'manufacturer-attributes'),
+                'order' => $this->getCount($input, 'order-attributes'),
+                'customer' => $this->getCount($input, 'customer-attributes'),
+                'media' => $this->getCount($input, 'media-attributes'),
             ],
         ];
+    }
+
+    private function getCount(InputInterface $input, string $name): int
+    {
+        if ($input->hasOption($name) && $input->getOption($name) !== null) {
+            return (int) $input->getOption($name);
+        }
+
+        if ($input->getOption('reset-defaults')) {
+            return 0;
+        }
+
+        return $this->defaults[$name] ?? 0;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function ensureAllDependenciesArePresent(): void
+    {
+        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
+
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+            }
+        }
     }
 }

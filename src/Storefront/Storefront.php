@@ -3,6 +3,7 @@
 namespace Shopware\Storefront;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass;
@@ -20,6 +21,10 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class Storefront extends Bundle implements ThemeInterface
 {
     /**
@@ -35,6 +40,7 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('controller.xml');
         $loader->load('theme.xml');
 
+        /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
         $this->buildConfig($container, $environment);
@@ -46,7 +52,7 @@ class Storefront extends Bundle implements ThemeInterface
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $locator = new FileLocator('Resources/config');
 

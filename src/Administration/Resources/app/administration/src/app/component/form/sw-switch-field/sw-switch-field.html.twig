@@ -1,4 +1,6 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_checkbox_field %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_switch_field %}
 <div
     class="sw-field--switch"
@@ -6,24 +8,34 @@
 >
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
+                {% if VUE3 %}
+                :id="formFieldName || identification"
+                {% else %}
                 :id="identification"
+                {% endif %}
                 type="checkbox"
                 :name="formFieldName || identification"
                 :checked="inputState"
                 :disabled="disabled"
                 @change="onChange"
             >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <div class="sw-field__switch-state">
                 <div class="sw-field__switch-state-knob"></div>
             </div>
         </div>
-
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
             v-bind="$attrs"
             :disabled="disabled"
+            {% if VUE3 %}
+            :name="formFieldName || identification"
+            {% else %}
             :name="identification"
+            {% endif %}
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
             @inheritance-restore="onInheritanceRestore($event)"
@@ -31,6 +43,10 @@
         >
             <template #label>
                 <slot name="label"></slot>
+            </template>
+
+            <template #hint>
+                <slot name="hint"></slot>
             </template>
         </sw-base-field>
 

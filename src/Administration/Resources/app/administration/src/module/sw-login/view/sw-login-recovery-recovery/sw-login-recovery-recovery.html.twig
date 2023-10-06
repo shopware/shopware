@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_login_recovery_recovery %}
 <div class="sw-login-recovery-recovery">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_recovery_recovery_headline %}
     <h2 class="sw-login__form-headline">
         <router-link
@@ -8,7 +10,7 @@
         >
             <sw-icon
                 class="sw-login__back-arrow"
-                name="default-arrow-simple-left"
+                name="regular-long-arrow-left"
                 small
             />
         </router-link>
@@ -16,23 +18,36 @@
     </h2>
     {% endblock %}
     <template v-if="hashValid === true">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_login_recovery_recovery_form %}
         <form @submit.prevent="updatePassword">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_new_password_field %}
             <sw-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
+                {% if VUE3 %}
+                v-model:value="newPassword"
+                {% else %}
                 v-model="newPassword"
+                {% endif %}
                 :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
+                :error="userPasswordError"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
             <sw-password-field
+                {% if VUE3 %}
+                v-model:value="newPasswordConfirm"
+                {% else %}
                 v-model="newPasswordConfirm"
+                {% endif %}
                 :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_submit %}
             <div class="sw-login__submit">
                 <sw-button

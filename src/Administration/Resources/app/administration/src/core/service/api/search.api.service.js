@@ -1,49 +1,25 @@
 import ApiService from '../api.service';
 
-const { Criteria } = Shopware.Data;
-
 /**
  * Gateway for the API end point 'product'
  * @class
  * @extends ApiService
  */
 class SearchApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = '_admin/search') {
+    constructor(httpClient, loginService, apiEndpoint = '_admin') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'searchService';
     }
 
-    /* eslint-disable no-unused-vars */
-    /** @deprecated tag:v6.5.0 - Will removed, using searchQuery instead */
-    search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
+    elastic(term, entities, limit, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        const criteria = new Criteria();
-        criteria.setTerm(term);
-        criteria.setLimit(limit);
-        criteria.setPage(page);
-
-        const entities = [
-            'landing_page',
-            'order',
-            'customer',
-            'product',
-            'category',
-            'media',
-            'product_manufacturer',
-            'tag',
-            'cms_page',
-        ];
-
-        const queries = {};
-
-        entities.forEach(entity => {
-            queries[entity] = criteria;
-        });
-
-        return this.searchQuery(queries, additionalHeaders);
+        return this.httpClient
+            .post(`${this.getApiBasePath()}/es-search`, { term, limit, entities }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
-    /* eslint-enable no-unused-vars */
 
     /**
      *
@@ -60,11 +36,12 @@ class SearchApiService extends ApiService {
         });
 
         return this.httpClient
-            .post(this.getApiBasePath(), queries, { headers })
+            .post(`${this.getApiBasePath()}/search`, queries, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SearchApiService;

@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/helper/jsonapi-parser
  */
 import types from 'src/core/service/utils/types.utils';
@@ -20,6 +22,7 @@ import { hasOwnProperty } from 'src/core/service/utils/object.utils';
  * @method jsonApiParserService
  * @memberOf module:core/helper/jsonapi-parser
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function jsonApiParserService(data) {
     const json = convertRawDataToJson(data);
 

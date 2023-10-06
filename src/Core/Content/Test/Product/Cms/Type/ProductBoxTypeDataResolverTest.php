@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
@@ -27,11 +28,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductBoxTypeDataResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $productBoxResolver;
 
-    private $systemConfig;
+    private MockObject&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {
@@ -130,8 +134,8 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setAvailableStock($availableStock);
         $product->setIsCloseout($closeout);
 
-        $salesChannel = $this->createMock(SalesChannelEntity::class);
-        $salesChannel->method('getId')->willReturn($salesChannelId);
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
@@ -271,7 +275,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
      * @return array[] closeout, hidden, availableStock
      *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
      */
-    public function EnrichWithStaticConfigProvider(): array
+    public static function EnrichWithStaticConfigProvider(): array
     {
         return [
             [false, false, 1],

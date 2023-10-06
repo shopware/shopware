@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-import-export-exporter.html.twig';
 import './sw-import-export-exporter.scss';
 
@@ -7,7 +10,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-exporter', {
+export default {
     template,
 
     inject: ['importExport', 'repositoryFactory', 'feature'],
@@ -38,7 +41,7 @@ Shopware.Component.register('sw-import-export-exporter', {
 
     computed: {
         profileCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('label'));
 
             if (this.sourceEntity.length > 0) {
@@ -107,4 +110,4 @@ Shopware.Component.register('sw-import-export-exporter', {
             this.exportModalProfile = profileName;
         },
     },
-});
+};

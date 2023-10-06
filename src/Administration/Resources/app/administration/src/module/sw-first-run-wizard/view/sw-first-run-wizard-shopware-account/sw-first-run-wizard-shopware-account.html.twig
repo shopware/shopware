@@ -1,9 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_shopware_account %}
 <div class="sw-first-run-wizard-shopware-account">
     <sw-container columns="1fr 1fr">
         <img
             class="sw-first-run-wizard-shopware-account__illustration"
-            :src="'/administration/static/img/first-run-wizard/shopware-account.svg' | asset"
+            :src="assetFilter('/administration/static/img/first-run-wizard/shopware-account.svg')"
             alt=""
         >
         <div>
@@ -26,9 +27,12 @@
                 </a>.
             </p>
             <div class="input-fields">
-                <sw-field
+                <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="shopwareId"
+                    {% else %}
                     v-model="shopwareId"
-                    type="text"
+                    {% endif %}
                     name="shopwareId"
                     validation="required"
                     :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
@@ -38,7 +42,11 @@
 
             <div class="input-fields">
                 <sw-password-field
+                    {% if VUE3 %}
+                    v-model:value="password"
+                    {% else %}
                     v-model="password"
+                    {% endif %}
                     :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
                     :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
                 />

@@ -8,26 +8,21 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('buyers-experience')]
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
-    public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
+    final public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
 
     /**
-     * @var PromotionDeliveryCalculator
+     * @internal
      */
-    private $calculator;
-
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $groupBuilder;
-
-    public function __construct(PromotionDeliveryCalculator $calculator, LineItemGroupBuilder $groupBuilder)
-    {
-        $this->calculator = $calculator;
-        $this->groupBuilder = $groupBuilder;
+    public function __construct(
+        private readonly PromotionDeliveryCalculator $calculator,
+        private readonly LineItemGroupBuilder $groupBuilder
+    ) {
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

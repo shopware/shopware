@@ -1,9 +1,13 @@
 import template from './sw-condition-line-item-in-category.html.twig';
+import './sw-condition-line-item-in-category.scss';
 
 const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
     template,
     inheritAttrs: false,
@@ -62,7 +66,7 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.categoryIds);
 
             return this.categoryRepository.search(criteria, Context.api).then((categories) => {

@@ -1,0 +1,714 @@
+.line-item {
+    margin-bottom: $spacer;
+
+    &.is-discount {
+        .line-item-total-price {
+            color: $success;
+        }
+    }
+}
+
+.line-item-info {
+    // Equals: .col-10 .col-md-5
+    @include make-col-ready();
+    @include make-col(10);
+    @include media-breakpoint-up(md) {
+        @include make-col(5);
+    }
+}
+
+.line-item-details {
+    // Equals: .col-12 .col-sm-7 .col-md-8;
+    @include make-col-ready();
+    @include make-col(12);
+    @include media-breakpoint-up(sm) {
+        @include make-col(7);
+    }
+    @include media-breakpoint-up(md) {
+        @include make-col(8);
+    }
+}
+
+.line-item-quantity {
+    // Equals: .col-12 .col-sm-4 .col-md-2;
+    @include make-col-ready();
+    @include make-col(12);
+    @include media-breakpoint-up(sm) {
+        @include make-col(4);
+    }
+    @include media-breakpoint-up(md) {
+        @include make-col(2);
+    }
+}
+
+.line-item-quantity-label {
+    @include make-col-ready();
+    @include make-col(6);
+    @include media-breakpoint-up(sm) {
+        @include make-col(12);
+    }
+}
+
+.line-item-quantity-select-wrapper {
+    @include make-col-ready();
+    @include make-col(6);
+    @include media-breakpoint-up(sm) {
+        @include make-col(12);
+    }
+}
+
+
+.line-item-unit-price {
+    // Equals: .col-12 .col-sm-4 .col-md-2;
+    @include make-col(12);
+    @include media-breakpoint-up(sm) {
+        @include make-col(4);
+    }
+    @include media-breakpoint-up(md) {
+        @include make-col(2);
+    }
+}
+
+.line-item-tax-price {
+    @include make-col(12);
+    @include media-breakpoint-up(sm) {
+        @include make-col(4);
+    }
+    @include media-breakpoint-up(md) {
+        @include make-col(2);
+    }
+}
+
+.line-item-total-price {
+    // Equals: .col-12 .col-sm-4 .col-md-2;
+    @include make-col-ready();
+    @include make-col(12);
+    @include media-breakpoint-up(sm) {
+        @include make-col(4);
+    }
+    @include media-breakpoint-up(md) {
+        @include make-col(2);
+    }
+}
+
+.line-item-remove {
+    // Equals: .col-2 .col-md-1;
+    @include make-col-ready();
+    @include make-col(2);
+    @include media-breakpoint-up(md) {
+        @include make-col(1);
+    }
+}
+
+// Always display columns underneath each other for offcanvas mode
+.is-offcanvas {
+    .line-item-info {
+        @include make-col(10);
+    }
+
+    .line-item-details {
+        @include make-col(12);
+    }
+
+    .line-item-quantity {
+        @include make-col(12);
+    }
+
+    .line-item-quantity-label {
+        @include make-col(7);
+    }
+
+    .line-item-quantity-select-wrapper {
+        @include make-col(5);
+    }
+
+    .line-item-unit-price {
+        @include make-col(12);
+    }
+
+    .line-item-tax-price {
+        @include make-col(12);
+    }
+
+    .line-item-total-price {
+        @include make-col(12);
+    }
+
+    .line-item-remove {
+        @include make-col(2);
+    }
+
+    .line-item-details-container {
+        padding-left: 0;
+    }
+}
+
+.no-remove-button {
+    // Info column needs to use more gird space when no remove button exists as last row.
+    .line-item-info {
+        @include media-breakpoint-up(md) {
+            @include make-col(6);
+        }
+    }
+}
+
+.line-item.is-order {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.line-item.is-order .line-item-children .line-item {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+// Reduced table spacing for table grid
+.line-item-info,
+.line-item-details,
+.line-item-quantity,
+.line-item-unit-price,
+.line-item-total-price,
+.line-item-tax-price,
+.line-item-remove {
+    padding-right: $spacer-sm / 2;
+    padding-left: $spacer-sm / 2;
+}
+
+.line-item-discount-icon,
+.line-item-icon {
+    text-align: center;
+    height: 100%;
+
+    .icon {
+        height: 100%;
+
+        > svg {
+            top: 0;
+        }
+    }
+}
+
+.line-item-discount,
+.line-item-promotion {
+    .line-item-icon .icon {
+        color: $success;
+    }
+}
+
+.line-item-container {
+    .line-item-icon .icon {
+        color: $secondary;
+    }
+}
+
+.line-item-nested-icon {
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    display: flex;
+    margin: 0 auto;
+    width: 65px;
+    height: 65px;
+
+    .icon {
+        > svg {
+            top: 0;
+        }
+    }
+}
+
+.line-item-info {
+    order: 1;
+}
+
+.line-item-quantity {
+    order: 3;
+}
+
+.line-item-quantity-container {
+    &.disabled {
+        background-color: $gray-200;
+        border: 1px solid $gray-600;
+
+        .icon {
+            color: $gray-300;
+        }
+
+        input {
+            background-color: $gray-200;
+            color: $gray-600;
+            border: 0;
+        }
+    }
+}
+
+.line-item-unit-price,
+.line-item-tax-price {
+    order: 5;
+}
+
+.line-item-total-price {
+    order: 4;
+}
+
+.line-item-remove {
+    order: 2;
+    text-align: right;
+}
+
+.line-item-img-container {
+    text-align: center;
+    width: 70px;
+}
+
+.line-item-img-link {
+    display: block;
+}
+
+.line-item-img {
+    width: 100%;
+    height: 70px;
+    object-fit: contain;
+}
+
+.line-item-info {
+    margin-bottom: $spacer;
+}
+
+.line-item-total-price {
+    font-weight: $font-weight-bold;
+}
+
+.line-item-total-price,
+.line-item-tax-price {
+    justify-content: space-between;
+    display: flex;
+}
+
+.line-item-total-price {
+    justify-content: flex-end;
+}
+
+.line-item-tax-price {
+    justify-content: flex-end;
+}
+
+@include media-breakpoint-only(xs) {
+    .line-item-tax-price,
+    .line-item-unit-price {
+        font-size: $font-size-sm;
+        font-style: italic;
+    }
+}
+
+.line-item-unit-price {
+    display: none;
+}
+
+@include media-breakpoint-up(sm) {
+    .line-item-unit-price {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.line-item-unit-price.is-shown {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.is-offcanvas .line-item-unit-price {
+    display: none;
+    font-size: $font-size-sm;
+    font-style: italic;
+}
+
+.is-offcanvas .line-item-unit-price {
+    &.is-shown {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.line-item-quantity-label,
+.line-item-unit-price-label,
+.line-item-total-price-label,
+.line-item-tax-price-label {
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacer-sm;
+}
+
+.line-item-quantity-row {
+    align-items: center;
+    margin-bottom: $spacer-sm;
+}
+
+.line-item-quantity {
+    margin-bottom: $spacer-sm;
+}
+
+.line-item-details {
+    padding-top: 8px;
+}
+
+.line-item-details-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .line-item-details-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}
+
+.line-item-variants {
+    margin-bottom: $spacer-sm;
+}
+
+.line-item-variants-properties {
+    display: flex;
+}
+
+.line-item-variants-properties-name {
+    margin-right: $spacer-sm;
+}
+
+// Apply tablet and desktop styling only for default and order items
+.is-default,
+.is-order {
+    @include media-breakpoint-up(sm) {
+        .line-item-quantity-container {
+            margin-left: auto;
+        }
+
+        .line-item-quantity-row {
+            align-items: normal;
+            margin-bottom: 0;
+        }
+
+        .line-item-quantity {
+            flex-direction: column;
+            display: flex;
+        }
+
+        .line-item-unit-price,
+        .line-item-total-price,
+        .line-item-tax-price {
+            text-align: right;
+        }
+
+        .line-item-unit-price,
+        .line-item-total-price,
+        .line-item-tax-price {
+            justify-content: normal;
+            flex-direction: column;
+        }
+
+        .line-item-tax-price {
+            order: 4;
+        }
+
+        .line-item-total-price {
+            order: 5;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        .line-item-info,
+        .line-item-quantity,
+        .line-item-unit-price,
+        .line-item-total-price,
+        .line-item-tax-price,
+        .line-item-remove {
+            order: 0;
+        }
+
+        .line-item-info {
+            margin-bottom: 0;
+        }
+
+        .line-item-quantity-label,
+        .line-item-unit-price-label,
+        .line-item-total-price-label,
+        .line-item-tax-price-label {
+            display: none;
+        }
+    }
+}
+
+// Styling for nested line items
+.line-item-children {
+    background-color: $gray-100;
+    font-size: $font-size-sm;
+    width: 100%;
+    padding: 10px 20px;
+    order: 10;
+    margin-top: 10px;
+    flex-shrink: initial;
+
+    .line-item-children-elements {
+        padding: 12px 0 0;
+    }
+
+    .line-item-headline {
+        padding: 0;
+        font-weight: $font-weight-semibold;
+    }
+
+    .line-item-change-button {
+        width: fit-content;
+        margin: 0 12px;
+        font-size: 12px;
+        text-decoration: underline;
+        background-color: transparent;
+        border-style: none;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .line-item-collapse {
+        margin: 0;
+    }
+
+    .line-item-collapse-container,
+    .line-item-child-label {
+        padding: 0;
+    }
+
+    .line-item-child-label {
+        position: relative;
+    }
+
+    .line-item-collapse-icon-container {
+        padding: 0;
+        text-align: right;
+    }
+
+    .line-item-collapse-button,
+    .line-item-child-remove-icon {
+        background-color: transparent;
+        border-style: none;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .line-item-collapse-button > .line-item-collapse-icon {
+        transform: rotate(180deg);
+        transition: all 0.2s ease-out;
+    }
+
+    .line-item-collapse-button.collapsed > .line-item-collapse-icon {
+        transform: rotate(0deg);
+    }
+
+    .line-item-children-element {
+        margin: 0;
+        padding: 8px 4px 0;
+    }
+
+    .line-item-children-element > .nesting-level-0 {
+        list-style: none;
+    }
+
+    .line-item-children-element:last-child,
+    .line-item-children-element-divider:last-child {
+        border-style: none;
+    }
+
+    .line-item-child-label-bullet {
+        display: list-item;
+    }
+
+    .line-item-child-total-price {
+        padding: 0;
+        text-align: right;
+        font-weight: $font-weight-semibold;
+    }
+
+    .line-item-child-remove-icon-container {
+        padding: 0;
+        text-align: right;
+    }
+
+    .line-item-children-element-divider {
+        border-top: 1px solid $sw-border-color;
+        margin: $spacer-md 0;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .line-item-children.nesting-level-1 {
+        margin-left: 96px;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .line-item-children.nesting-level-1 {
+        margin-left: 4px;
+    }
+}
+
+@include media-breakpoint-up(xl) {
+    .line-item-children.nesting-level-1 {
+        margin-left: 96px;
+    }
+}
+
+// Always avoid nested line item indentation for offcanvas
+.is-offcanvas .line-item-children {
+    margin-left: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.line-item-children {
+    font-size: $font-size-sm;
+
+    &.nesting-level-2 {
+        background-color: darken($gray-100, 3.5%);
+    }
+
+    &.nesting-level-3 {
+        background-color: darken($gray-100, 5.5%);
+    }
+
+    .line-item-details-container {
+        padding-left: 0;
+    }
+
+    .line-item-headline-text {
+        font-weight: normal;
+    }
+
+    .line-item-collapse {
+        align-items: center;
+    }
+}
+
+.line-item {
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.line-item-nested-icon {
+    background-color: $gray-600;
+}
+
+.line-item-img {
+    padding: $spacer-xs;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-sm;
+}
+
+.line-item-ordernumber {
+    margin-bottom: $spacer-sm;
+    font-size: $font-size-sm;
+}
+
+.line-item-delivery-date {
+    font-size: $font-size-sm;
+}
+
+.line-item-variants {
+    font-size: $font-size-sm;
+}
+
+.line-item-variants-properties-name {
+    font-weight: $font-weight-bold;
+}
+
+.line-item-label {
+    color: $body-color;
+    font-weight: $font-weight-bold;
+}
+
+a.line-item-label {
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+}
+
+.line-item-quantity-label,
+.line-item-unit-price-label,
+.line-item-total-price-label,
+.line-item-tax-price-label {
+    color: $gray-800;
+}
+
+.line-item-total-price-value {
+    text-align: right;
+}
+
+.line-item-unit-price-label {
+    display: none;
+}
+
+.line-item-tax-price-label {
+    display: inline;
+    font-weight: normal;
+    margin-right: 5px;
+}
+
+.line-item-total-price-label {
+    display: none;
+}
+
+@include media-breakpoint-only(sm) {
+    .line-item-unit-price-label {
+        display: block;
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .line-item-unit-price-value-descriptor {
+        display: none;
+    }
+
+    .line-item-total-price-label {
+        display: block;
+    }
+
+    .line-item-tax-price-label {
+        display: block;
+        font-weight: bold;
+        margin-right: 0;
+    }
+}
+
+.is-offcanvas {
+    .line-item-unit-price-label {
+        display: none;
+    }
+
+    .line-item-total-price-label {
+        display: none;
+    }
+
+    .line-item-unit-price-value-descriptor {
+        display: inline;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .line-item-details-container {
+        padding-left: $spacer;
+    }
+}
+
+.line-item-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .line-item-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}

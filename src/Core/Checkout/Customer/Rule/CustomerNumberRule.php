@@ -3,30 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('services-settings')]
 class CustomerNumberRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $numbers;
+    final public const RULE_NAME = 'customerCustomerNumber';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $numbers
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $numbers = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->numbers = $numbers;
     }
 
     public function match(RuleScope $scope): bool
@@ -36,33 +35,28 @@ class CustomerNumberRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $this->numbers = array_map('strtolower', $this->numbers);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if (!\is_array($this->numbers)) {
+            throw new UnsupportedValueException(\gettype($this->numbers), self::class);
         }
+
+        return RuleComparison::stringArray($customer->getCustomerNumber(), array_map('strtolower', $this->numbers), $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'numbers' => [new NotBlank(), new ArrayOfType('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'numbers' => RuleConstraints::stringArray(),
+            'operator' => RuleConstraints::stringOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'customerCustomerNumber';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->taggedField('numbers');
     }
 }

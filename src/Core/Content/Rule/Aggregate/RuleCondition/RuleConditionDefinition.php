@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -17,10 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('services-settings')]
 class RuleConditionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'rule_condition';
+    final public const ENTITY_NAME = 'rule_condition';
 
     public function getEntityName(): string
     {
@@ -51,12 +54,14 @@ class RuleConditionDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('type', 'type'),
+            (new StringField('type', 'type'))->addFlags(new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
+            new FkField('script_id', 'scriptId', AppScriptConditionDefinition::class),
             new ParentFkField(self::class),
             new JsonField('value', 'value'),
             new IntField('position', 'position'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
+            new ManyToOneAssociationField('appScriptCondition', 'script_id', AppScriptConditionDefinition::class, 'id', true),
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
             new CustomFields(),

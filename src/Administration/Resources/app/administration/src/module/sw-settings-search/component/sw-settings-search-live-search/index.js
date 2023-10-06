@@ -1,11 +1,15 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
 import '../sw-settings-search-live-search-keyword';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-settings-search-live-search', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -115,7 +119,7 @@ Component.register('sw-settings-search-live-search', {
         },
 
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria()).then((response) => {
+            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
             });
         },
@@ -133,4 +137,4 @@ Component.register('sw-settings-search-live-search', {
             this.showExampleModal = false;
         },
     },
-});
+};

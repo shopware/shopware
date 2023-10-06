@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-detail-base.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.register('sw-property-detail-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -53,4 +58,4 @@ Component.register('sw-property-detail-base', {
             'sortingType',
         ]),
     },
-});
+};

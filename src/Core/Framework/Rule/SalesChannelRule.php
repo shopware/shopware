@@ -2,57 +2,43 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('services-settings')]
 class SalesChannelRule extends Rule
 {
-    /**
-     * @var string[]
-     */
-    protected $salesChannelIds;
+    final public const RULE_NAME = 'salesChannel';
 
     /**
-     * @var string
+     * @internal
+     *
+     * @param list<string>|null $salesChannelIds
      */
-    protected $operator;
-
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $salesChannelIds = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->salesChannelIds = $salesChannelIds;
     }
 
     public function match(RuleScope $scope): bool
     {
-        $salesChannelId = $scope->getSalesChannelContext()->getSalesChannel()->getId();
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($salesChannelId, $this->salesChannelIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($salesChannelId, $this->salesChannelIds, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$scope->getSalesChannelContext()->getSalesChannel()->getId()], $this->salesChannelIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'salesChannelIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'salesChannelIds' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
-    public function getName(): string
+    public function getConfig(): RuleConfig
     {
-        return 'salesChannel';
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('salesChannelIds', SalesChannelDefinition::ENTITY_NAME, true);
     }
 }

@@ -1,4 +1,5 @@
-@import '~scss/variables';
+@use "sass:math";
+@import "~scss/variables";
 
 .sw-step-item {
     height: 32px;
@@ -14,7 +15,7 @@
         background-color: $color-gray-100;
         border: 1px solid $color-gray-100;
         position: absolute;
-        left: 16px - (3px / 2);
+        left: 16px - math.div(3px, 2);
         top: -20px;
     }
 
@@ -39,10 +40,10 @@
 
     .sw-step-item__description {
         padding-left: 10px;
-        font-size: $font-size-small;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
         color: $color-gray-500;
-        line-height: $font-size-small;
+        line-height: $font-size-xs;
     }
 
     &.sw-step-item--disabled {

@@ -3,8 +3,8 @@
 .sw-inheritance-warning {
     display: flex;
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto 20px auto;
+    max-width: $content-width;
+    margin: 0 auto 20px;
     background-color: $color-module-purple-50;
     border: 1px solid $color-module-purple-900;
     border-radius: $border-radius-default;
@@ -15,9 +15,13 @@
         margin-top: 2px;
     }
 
+    .icon--regular-link-horizontal {
+        color: $color-module-purple-900;
+    }
+
     p {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         line-height: 22px;
     }
 }

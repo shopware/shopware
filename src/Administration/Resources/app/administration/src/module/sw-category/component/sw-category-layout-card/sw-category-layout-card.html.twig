@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_layout_card %}
 <sw-card
     class="sw-category-layout-card"
@@ -7,11 +8,14 @@
 >
     <div class="sw-category-layout-card__base-layout">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_preview %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-category-layout-card__preview"
+            role="button"
+            tabindex="0"
             @click="openLayoutModal"
+            @keydown.enter="openLayoutModal"
         >
             <sw-cms-list-item
                 :page="cmsPage"
@@ -21,6 +25,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_modal %}
         <sw-cms-layout-modal
             v-if="showLayoutSelectionModal"
@@ -32,12 +37,15 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_desc %}
         <div class="sw-category-layout-card__desc">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_info %}
             <div class="sw-category-layout-card__desc-info">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_headline %}
                 <div
                     class="sw-category-layout-card__desc-headline"
@@ -47,21 +55,24 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_subheadline %}
                 <div
                     class="sw-category-layout-card__desc-subheadline"
                     :class="{ 'is--empty': !cmsPage }"
                 >
-                    {{ cmsPage ? cmsPageTypes[cmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
+                    {{ pageTypeTitle }}
                 </div>
                 {% endblock %}
 
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_actions %}
             <div class="sw-category-layout-card__desc-actions">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_layout %}
                 <sw-button
                     class="sw-category-detail-layout__change-layout-action"
@@ -73,6 +84,7 @@
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_designer %}
                 <sw-button
                     class="sw-category-detail-layout__open-in-pagebuilder"
@@ -80,10 +92,11 @@
                     :disabled="!acl.can('category.editor')"
                     @click="openInPagebuilder"
                 >
-                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_remove %}
                 <sw-button
                     v-if="cmsPage"
@@ -94,7 +107,7 @@
                     @click="onLayoutReset"
                 >
                     <sw-icon
-                        name="default-action-trash"
+                        name="regular-trash"
                         small
                     />
                 </sw-button>
@@ -102,9 +115,6 @@
 
             </div>
             {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - will be removed #}
-            {% block sw_category_detail_layout_desc_link %}{% endblock %}
 
         </div>
         {% endblock %}

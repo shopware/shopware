@@ -4,6 +4,9 @@ import './sw-snippet-field.scss';
 const { Component, State, Data: { Criteria } } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Input field that allows you to easily edit and translate snippet in a modal.
  * @status ready
@@ -56,12 +59,20 @@ Component.register('sw-snippet-field', {
         },
 
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('id', Shopware.Context.api.systemLanguageId));
             criteria.addAssociation('locale');
 
             return criteria;
+        },
+
+        textField() {
+            return this.fieldType === 'text';
+        },
+
+        textareaField() {
+            return this.fieldType === 'textarea';
         },
     },
 
@@ -81,7 +92,7 @@ Component.register('sw-snippet-field', {
                 this.snippets = translations.data[this.snippet];
             }
 
-            this.snippetSets = await this.snippetSetRepository.search(new Criteria(), Shopware.Context.api);
+            this.snippetSets = await this.snippetSetRepository.search(new Criteria(1, 25), Shopware.Context.api);
 
             await this.updatePlaceholderValueToSnippetTranslation();
 

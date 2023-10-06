@@ -12,7 +12,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,23 +21,26 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use SalesChannelApiTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
     private SeoUrlPersister $seoUrlPersister;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     private SeoUrlGenerator $seoUrlGenerator;
 
     private SalesChannelEntity $salesChannel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);

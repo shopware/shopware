@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Script\Facade;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
  * An array facade can also be accessed like a "normal" array inside twig.
@@ -25,27 +27,30 @@ namespace Shopware\Core\Framework\Script\Facade;
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
+#[Package('core')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private array $items;
+    private readonly ?\Closure $closure;
 
-    private ?\Closure $closure;
-
-    public function __construct(array $items, ?\Closure $closure = null)
-    {
-        $this->items = $items;
+    /**
+     * @param array<string|int, mixed> $items
+     */
+    public function __construct(
+        private array $items,
+        ?\Closure $closure = null
+    ) {
         $this->closure = $closure;
     }
 
     /**
      * `set()` adds a new element to the array using the given key.
      *
-     * @param string|int                              $key The array key.
-     * @param string|int|float|array|object|bool|null $value The value that should be added.
+     * @param string|int $key The array key.
+     * @param mixed $value The value that should be added.
      *
      * @example payload-cases/payload-cases.twig 5 3 Add a new element with key `test` and value 1.
      */
-    public function set($key, $value): void
+    public function set(string|int $key, $value): void
     {
         $this->items[$key] = $value;
         $this->update();
@@ -54,7 +59,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * `push()` adds a new value to the end of the array.
      *
-     * @param string|int|float|array|object|bool|null $value The value that should be added.
+     * @param mixed $value The value that should be added.
      */
     public function push($value): void
     {
@@ -67,7 +72,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @param string|int $index The index that should be removed.
      */
-    public function removeBy($index): void
+    public function removeBy(string|int $index): void
     {
         unset($this->items[$index]);
         $this->update();
@@ -76,7 +81,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * `remove()` removes the given value from the array. It does nothing if the provided value does not exist in the array.
      *
-     * @param string|int|float|array|object|bool|null $value The value that should be removed.
+     * @param mixed $value The value that should be removed.
      */
     public function remove($value): void
     {
@@ -102,11 +107,11 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * `merge()` recursively merges the array with the given array.
      *
-     * @param array|ArrayFacade $array The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
+     * @param array<string|int, mixed>|ArrayFacade $array The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
      *
      * @example payload-cases/payload-cases.twig 13 3 Merge two arrays.
      */
-    public function merge($array): void
+    public function merge(array|ArrayFacade $array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
@@ -118,11 +123,11 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * `replace()` recursively replaces elements from the given array into this array.
      *
-     * @param array|ArrayFacade $array The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
+     * @param array<string|int, mixed>|ArrayFacade $array The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
      *
      * @example payload-cases/payload-cases.twig 17 3 Replace elements in the product payload array.
      */
-    public function replace($array): void
+    public function replace(array|ArrayFacade $array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
@@ -149,7 +154,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @param string|int $offset
      *
-     * @return string|int|float|array|object|bool|null
+     * @return mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)/* :mixed */
@@ -160,8 +165,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * @internal should not be used directly, use the default twig array syntax instead
      *
-     * @param string|int                              $offset
-     * @param string|int|float|array|object|bool|null $value
+     * @param string|int $offset
+     * @param mixed $value
      */
     public function offsetSet($offset, $value): void
     {
@@ -200,6 +205,16 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     public function count(): int
     {
         return \count($this->items);
+    }
+
+    /**
+     * `all()` function returns all elements of this array.
+     *
+     * @return array<string|int, mixed> Returns all elements of this array.
+     */
+    public function all(): array
+    {
+        return $this->items;
     }
 
     private function update(): void

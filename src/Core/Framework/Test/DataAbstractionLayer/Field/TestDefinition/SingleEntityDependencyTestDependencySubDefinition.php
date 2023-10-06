@@ -9,9 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class SingleEntityDependencyTestDependencySubDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_country';
+    final public const ENTITY_NAME = '_test_country';
 
     public function getEntityName(): string
     {

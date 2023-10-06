@@ -4,25 +4,32 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Log\Package;
 
-class SetCustomerCustomFieldAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('services-settings')]
+class SetCustomerCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
+    private readonly Connection $connection;
 
-    private EntityRepositoryInterface $customerRepository;
-
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $customerRepository
+        private readonly EntityRepository $customerRepository
     ) {
         $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string
@@ -30,30 +37,30 @@ class SetCustomerCustomFieldAction extends FlowAction
         return 'action.set.customer.custom.field';
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [CustomerAware::class];
     }
 
-    public function handle(FlowEvent $event): void
+    public function handleFlow(StorableFlow $flow): void
     {
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof CustomerAware) {
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
             return;
         }
 
-        $config = $event->getConfig();
-        $customerId = $baseEvent->getCustomerId();
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
+    }
 
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function update(Context $context, array $config, string $customerId): void
+    {
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $baseEvent->getContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
 
         $customFields = $this->getCustomFieldForUpdating($customer->getCustomfields(), $config);
 
@@ -68,6 +75,6 @@ class SetCustomerCustomFieldAction extends FlowAction
                 'id' => $customerId,
                 'customFields' => $customFields,
             ],
-        ], $baseEvent->getContext());
+        ], $context);
     }
 }

@@ -4,7 +4,7 @@
             {% block buy_widget_rich_snippets_brand %}
                 {% if product.manufacturer %}
                     <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
-                        <meta itemprop="name" content="{{ product.manufacturer.translated.name }}" />
+                        <meta itemprop="name" content="{{ product.manufacturer.translated.name }}">
                     </div>
                 {% endif %}
             {% endblock %}
@@ -12,56 +12,50 @@
             {% block buy_widget_rich_snippets_gtin13 %}
                 {% if product.ean %}
                     <meta itemprop="gtin13"
-                          content="{{ product.ean }}"/>
+                          content="{{ product.ean }}">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_mpn %}
                 {% if product.manufacturerNumber %}
                     <meta itemprop="mpn"
-                          content="{{ product.manufacturerNumber }}"/>
+                          content="{{ product.manufacturerNumber }}">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_weight %}
                 {% if product.weight %}
                     <meta itemprop="weight"
-                          content="{{ product.weight }} kg"/>
+                          content="{{ product.weight }} kg">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_height %}
                 {% if product.height %}
                     <meta itemprop="height"
-                          content="{{ product.height }} mm"/>
+                          content="{{ product.height }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_width %}
                 {% if product.width %}
                     <meta itemprop="width"
-                          content="{{ product.width }} mm"/>
+                          content="{{ product.width }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_depth %}
                 {% if product.length %}
                     <meta itemprop="depth"
-                          content="{{ product.length }} mm"/>
+                          content="{{ product.length }} mm">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ product.releaseDate|format_date(pattern="Y-MM-dd", locale=app.request.locale) }}"/>
+                      content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
             {% endblock %}
         {% endblock %}
-
-        {% if not feature('FEATURE_NEXT_16992') %}
-            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
-            {% block buy_widget_not_available %}
-            {% endblock %}
-        {% endif %}
 
         {% block buy_widget_buy_container %}
             <div itemprop="offers"
@@ -70,7 +64,7 @@
                 {% block buy_widget_data %}
                     {% block buy_widget_data_rich_snippet_url %}
                         <meta itemprop="url"
-                              content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}"/>
+                              content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_range %}
@@ -87,15 +81,15 @@
                                 {% endif %}
                             {% endfor %}
 
-                            <meta itemprop="lowPrice" content="{{ lowestPrice }}"/>
-                            <meta itemprop="highPrice" content="{{ highestPrice }}"/>
-                            <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}"/>
+                            <meta itemprop="lowPrice" content="{{ lowestPrice }}">
+                            <meta itemprop="highPrice" content="{{ highestPrice }}">
+                            <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}">
                         {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_currency %}
                         <meta itemprop="priceCurrency"
-                              content="{{ context.currency.translated.shortName }}"/>
+                              content="{{ context.currency.translated.shortName }}">
                     {% endblock %}
 
                     {% block buy_widget_price %}
@@ -115,10 +109,10 @@
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
                                     <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                                       href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-toggle="modal"
-                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                                       data-bs-toggle="modal"
+                                       data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
                                 {% endblock %}
@@ -126,28 +120,40 @@
                         </div>
                     {% endblock %}
 
-                    {% set remoteClickOptions = {
-                        selector: "#review-tab-" ~ product.id,
-                        scrollToElement: true
-                    } %}
-
-                    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
-
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
+
+                            {% if remoteClickOptions is not defined %}
+                                {% set remoteClickOptions = {
+                                    selector: "#review-tab-" ~ product.id,
+                                    scrollToElement: true
+                                } %}
+                            {% endif %}
+
+                            {% if reviewTabHref is not defined %}
+                                {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+                            {% endif %}
+
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
                                     points: product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a data-toggle="tab"
-                                   class="product-detail-reviews-link"
-                                   data-offcanvas-tabs="true"
-                                   data-remote-click="true"
-                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="{{ reviewTabHref }}"
-                                   aria-controls="review-tab-pane">
+                                <a
+                                    data-bs-toggle="tab"
+                                    class="product-detail-reviews-link"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    data-remote-click="true"
+                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    href="{{ reviewTabHref }}"
+                                    aria-controls="review-tab-pane"
+                                >
                                     {{ totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}
                                 </a>
@@ -201,7 +207,7 @@
 
                     {% block buy_widget_ordernumber %}
                         <meta itemprop="productID"
-                              content="{{ product.id }}"/>
+                              content="{{ product.id }}">
                         <span class="product-detail-ordernumber"
                               itemprop="sku">
                             {{ product.productNumber }}

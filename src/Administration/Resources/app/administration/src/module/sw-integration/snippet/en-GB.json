@@ -4,7 +4,7 @@
       "mainMenuItemIndex": "Integrations",
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
-      "heroHeadlineIntegrations": "Manage Integrations",
+      "heroHeadlineIntegrations": "Manage integrations",
       "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
     },
     "list": {

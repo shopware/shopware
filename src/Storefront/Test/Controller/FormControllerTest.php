@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Controller\FormController;
@@ -13,6 +14,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
+#[Package('buyers-experience')]
 class FormControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -33,10 +38,9 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        $responseContent = $response->getContent();
-        $content = json_decode($responseContent, true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -59,7 +63,7 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -100,7 +104,7 @@ class FormControllerTest extends TestCase
         ];
 
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
         $this->getContainer()->get('request_stack')->push($request);
 
         $token = $this->tokenize('frontend.form.contact.send', $data);
@@ -113,7 +117,7 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = json_decode($responseContent, true);
+        $content = json_decode((string) $responseContent, true, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -141,9 +145,9 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
-        $type = $content[0]->type;
-        $messageCount = mb_substr_count($content[0]->alert, '<li>');
+        $content = (array) json_decode((string) $responseContent, true, 512, \JSON_THROW_ON_ERROR);
+        $type = $content[0]['type'];
+        $messageCount = mb_substr_count((string) $content[0]['alert'], '<li>');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());

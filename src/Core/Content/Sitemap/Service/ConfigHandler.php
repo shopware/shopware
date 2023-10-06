@@ -4,20 +4,21 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\InvalidSitemapKey;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('sales-channel')]
 class ConfigHandler
 {
-    public const EXCLUDED_URLS_KEY = 'excluded_urls';
-    public const CUSTOM_URLS_KEY = 'custom_urls';
+    final public const EXCLUDED_URLS_KEY = 'excluded_urls';
+    final public const CUSTOM_URLS_KEY = 'custom_urls';
 
     /**
-     * @var ConfigHandlerInterface[]
+     * @internal
+     *
+     * @param ConfigHandlerInterface[] $configHandlers
      */
-    private $configHandlers;
-
-    public function __construct(iterable $configHandlers)
+    public function __construct(private readonly iterable $configHandlers)
     {
-        $this->configHandlers = $configHandlers;
     }
 
     public function get(string $key): array

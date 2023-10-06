@@ -1,9 +1,11 @@
 import template from './sw-extension-permissions-modal.html.twig';
 import './sw-extension-permissions-modal.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-extension-permissions-modal', {
+/**
+ * @package services-settings
+ * @private
+ */
+export default {
     template,
 
     props: {
@@ -25,6 +27,21 @@ Component.register('sw-extension-permissions-modal', {
             required: false,
             default: null,
         },
+        closeLabel: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        title: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        description: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -37,6 +54,10 @@ Component.register('sw-extension-permissions-modal', {
 
     computed: {
         modalTitle() {
+            if (this.title) {
+                return this.title;
+            }
+
             return this.$tc(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 1,
@@ -49,6 +70,13 @@ Component.register('sw-extension-permissions-modal', {
                 .map(([category, permissions]) => {
                     permissions = permissions.reduce((acc, permission) => {
                         const entity = permission.entity;
+
+                        if (entity === 'additional_privileges') {
+                            acc[permission.operation] = [];
+
+                            return acc;
+                        }
+
                         acc[entity] = (acc[entity] || []).concat(permission.operation);
 
                         return acc;
@@ -63,6 +91,30 @@ Component.register('sw-extension-permissions-modal', {
             }
 
             return [];
+        },
+
+        closeBtnLabel() {
+            if (this.closeLabel) {
+                return this.closeLabel;
+            }
+
+            return this.$tc('global.sw-modal.labelClose');
+        },
+
+        descriptionText() {
+            if (this.description) {
+                return this.description;
+            }
+
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.description',
+                1,
+                { extensionLabel: this.extensionLabel },
+            );
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -93,4 +145,4 @@ Component.register('sw-extension-permissions-modal', {
             this.showDomainsModal = !!shouldOpen;
         },
     },
-});
+};

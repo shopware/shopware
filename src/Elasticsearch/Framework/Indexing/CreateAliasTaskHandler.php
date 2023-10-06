@@ -3,38 +3,41 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use OpenSearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * @internal
+ *
+ * @final
+ */
+#[AsMessageHandler(handles: CreateAliasTask::class)]
+#[Package('core')]
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
-    private Client $client;
-
-    private Connection $connection;
-
-    private ElasticsearchHelper $elasticsearchHelper;
-
-    private array $config;
-
+    /**
+     * @internal
+     *
+     * @param array<mixed> $config
+     */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
-        Client $client,
-        Connection $connection,
-        ElasticsearchHelper $elasticsearchHelper,
-        array $config
+        EntityRepository $scheduledTaskRepository,
+        private readonly Client $client,
+        private readonly Connection $connection,
+        private readonly ElasticsearchHelper $elasticsearchHelper,
+        private readonly array $config,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractKeyValueStorage $keyValueStorage
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->elasticsearchHelper = $elasticsearchHelper;
-        $this->config = $config;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [CreateAliasTask::class];
     }
 
     public function run(): void
@@ -43,7 +46,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->handleQueue();
         } catch (\Throwable $e) {
             // catch exception - otherwise the task will never be called again
-            $this->elasticsearchHelper->logOrThrowException($e);
+            $this->elasticsearchHelper->logAndThrowException($e);
         }
     }
 
@@ -76,10 +79,19 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private function handleQueue(): void
     {
-        $indices = $this->connection->fetchAll('SELECT * FROM elasticsearch_index_task');
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $this->keyValueStorage->set(ElasticsearchHelper::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
+        }
+
+        $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         if (empty($indices)) {
             return;
         }
+
+        $changes = [];
 
         foreach ($indices as $row) {
             $index = $row['index'];
@@ -103,10 +115,14 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
                 ],
             ]);
 
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM elasticsearch_index_task WHERE id = :id',
                 ['id' => $row['id']]
             );
+
+            $changes[(string) $index] = $alias;
         }
+
+        $this->eventDispatcher->dispatch(new ElasticsearchIndexAliasSwitchedEvent($changes));
     }
 }

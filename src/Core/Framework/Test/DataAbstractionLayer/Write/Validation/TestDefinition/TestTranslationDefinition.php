@@ -7,9 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class TestTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = '_test_lock_translation';
+    final public const ENTITY_NAME = '_test_lock_translation';
 
     public function getEntityName(): string
     {

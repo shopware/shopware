@@ -39,10 +39,15 @@
     text-align: right;
 }
 
+.cart-header-quantity {
+    text-align: center;
+}
+
 $cart-grid-gutter-width: $spacer-sm;
 
 .cart-header-row,
-.cart-item-row {
+.cart-item-row,
+.line-item-row {
     margin-right: -$cart-grid-gutter-width / 2;
     margin-left: -$cart-grid-gutter-width / 2;
 

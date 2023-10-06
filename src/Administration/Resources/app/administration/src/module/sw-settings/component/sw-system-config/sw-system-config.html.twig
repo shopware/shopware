@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_system_config %}
 <div class="sw-system-config">
     <div
@@ -9,6 +10,7 @@
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </div>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_system_config_content_card %}
     <sw-card
         v-for="card, index in config"
@@ -17,6 +19,7 @@
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :ai-badge="card.aiBadge"
     >
         <slot
             name="beforeElements"
@@ -31,15 +34,29 @@
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>
+        <template v-if="hasCssFields">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_system_config_content_compile_notice %}
+            <sw-alert variant="warning">
+                {{ $tc('sw-settings.system-config.compileNotice') }}
+            </sw-alert>
+
+            {% endblock %}
+        </template>
         <template v-if="!isLoading">
             <template v-for="element in card.elements">
                 <slot
                     name="card-element"
                     v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_system_config_content_card_field %}
                     <sw-inherit-wrapper
+                        {% if VUE3 %}
+                        v-model:value="actualConfigData[currentSalesChannelId][element.name]"
+                        {% else %}
                         v-model="actualConfigData[currentSalesChannelId][element.name]"
+                        {% endif %}
                         v-bind="getInheritWrapperBind(element)"
                         :has-parent="isNotDefaultSalesChannel"
                         :inherited-value="getInheritedValue(element)"
@@ -51,6 +68,7 @@
                                 :key="props.isInheritField + props.isInherited"
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
+                                :error="getFieldError(element.name)"
                                 @input="props.updateCurrentValue"
                                 @change="props.updateCurrentValue"
                             />
@@ -64,7 +82,8 @@
         <slot
             name="afterElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
-        ></slot>
+        >
+        </slot>
     </sw-card>
     {% endblock %}
 </div>

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -17,21 +17,25 @@ use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\ImageCollection;
+use Shopware\Core\Framework\Store\Struct\PermissionCollection;
+use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @internal
+ *
  * @group skip-paratest
  */
 class ExtensionLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ExtensionBehaviour;
+    use IntegrationTestBehaviour;
 
     private ExtensionLoader $extensionLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionLoader = $this->getContainer()->get(ExtensionLoader::class);
 
@@ -39,7 +43,7 @@ class ExtensionLoaderTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removePlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
@@ -53,24 +57,28 @@ class ExtensionLoaderTest extends TestCase
             new AppCollection([])
         );
 
-        static::assertTrue($extensions->get('TestAppTheme')->isTheme());
+        /** @var ExtensionStruct $extension */
+        $extension = $extensions->get('TestAppTheme');
+        static::assertTrue($extension->isTheme());
         $this->removeApp(__DIR__ . '/../_fixtures/TestAppTheme');
     }
 
     public function testLocalUpdateShouldSetLatestVersion(): void
     {
         $appManifestPath = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
-        file_put_contents($appManifestPath, str_replace('1.0.0', '1.0.1', file_get_contents($appManifestPath)));
-
-        $installedApp = $this->getInstalledApp();
+        $appManifestXml = file_get_contents($appManifestPath);
+        static::assertIsString($appManifestXml, 'Could not read manifest.xml file');
+        file_put_contents($appManifestPath, str_replace('1.0.0', '1.0.1', $appManifestXml));
 
         $extensions = $this->extensionLoader->loadFromAppCollection(
             Context::createDefaultContext(),
-            new AppCollection([$installedApp])
+            new AppCollection([$this->getInstalledApp()])
         );
 
-        static::assertSame('1.0.0', $extensions->get('TestApp')->getVersion());
-        static::assertSame('1.0.1', $extensions->get('TestApp')->getLatestVersion());
+        /** @var ExtensionStruct $extension */
+        $extension = $extensions->get('TestApp');
+        static::assertSame('1.0.0', $extension->getVersion());
+        static::assertSame('1.0.1', $extension->getLatestVersion());
     }
 
     public function testItLoadsExtensionFromResponseLikeArray(): void
@@ -133,7 +141,7 @@ class ExtensionLoaderTest extends TestCase
 
         $time = new \DateTime();
 
-        /** @var EntityRepositoryInterface $pluginRepository */
+        /** @var EntityRepository $pluginRepository */
         $pluginRepository = $this->getContainer()->get('plugin.repository');
         $pluginRepository->update([
             [
@@ -165,33 +173,49 @@ class ExtensionLoaderTest extends TestCase
         ], $extensions->first()->getLanguages());
 
         static::assertSame($installedApp->getUpdatedAt(), $extensions->first()->getUpdatedAt());
+        static::assertEquals(new PermissionCollection([
+            PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'create']),
+            PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'read']),
+            PermissionStruct::fromArray(['entity' => 'additional_privileges', 'operation' => 'additional:privilege']),
+        ]), $extensions->first()->getPermissions());
 
         foreach ($extensions as $extension) {
             static::assertEquals(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
         }
     }
 
-    private function getInstalledApp(): ?AppEntity
+    private function getInstalledApp(): AppEntity
     {
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('translations');
 
-        return $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        $app = $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($app, 'Installed app not found');
+
+        return $app;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getDetailResponseFixture(): array
     {
         $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
+        static::assertIsString($content, 'Could not read extension-detail.json file');
 
-        return json_decode($content, true);
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     private function getListingResponseFixture(): array
     {
         $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json');
+        static::assertIsString($content, 'Could not read extension-listing.json file');
 
-        return json_decode($content, true);
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

@@ -6,13 +6,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class SwSanitizeTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private SwSanitizeTwigFilter $swSanitize;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->swSanitize = $this->getContainer()->get(SwSanitizeTwigFilter::class);
     }

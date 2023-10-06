@@ -154,7 +154,7 @@ class ForwardCompatible
 ### Path strategies
 Beside the url generator change, we also had to change the media path strategy. The strategies are no longer working with a `MediaEntity`. They are now working with a `MediaFile` object. This object is a simple struct, which contains the path and the updated at timestamp. The path is the same as the one stored in the database. The updated at timestamp is the timestamp, when the path was generated. This is important for the cache invalidation. The `MediaFile` object is also used for the thumbnail generation. The thumbnail generation is now also working with a `MediaLocation` object instead.
 
-As foundation, we use `\Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy` as base class and dependency injection service id:
+As foundation, we use `\Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy` as base class and dependency injection service id:
 
 ```php
 <?php

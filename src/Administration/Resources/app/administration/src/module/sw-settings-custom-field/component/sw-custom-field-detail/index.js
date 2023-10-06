@@ -199,8 +199,8 @@ export default {
             }
 
             this.currentCustomField.config = {
-                ...this.currentCustomField.config,
                 ...this.fieldTypes[customFieldType].config,
+                ...this.currentCustomField.config,
             };
         },
 

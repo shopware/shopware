@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\CustomField\Custom
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldTypeFactory;
 
 /**

@@ -9,8 +9,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal only for use by the app-system
- *
- * @phpstan-consistent-constructor
  */
 #[Package('core')]
 abstract class XmlElement extends Struct

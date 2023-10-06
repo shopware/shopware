@@ -4,8 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomField
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\IntField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\IntField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 

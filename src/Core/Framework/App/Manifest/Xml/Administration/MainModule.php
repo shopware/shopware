@@ -13,22 +13,32 @@ class MainModule extends XmlElement
 {
     protected string $source;
 
-    public function getSource(): string
+    private function __construct(array $data)
     {
-        return $this->source;
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parse($element));
+    }
+
+    public static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
+        foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = $attribute->value;
         }
 
         return $values;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
     }
 }

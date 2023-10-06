@@ -5001,7 +5001,52 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Exception/UnallowedHostException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/Administration/Admin.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin\\:\\:parseChilds\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/Administration/Admin.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\MainModule\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/Administration/MainModule.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\MainModule\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/Administration/MainModule.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:__construct\\(\\) has parameter \\$allowedHosts with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:fromArray\\(\\) has parameter \\$allowedHosts with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:getHosts\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:parseAllowedHosts\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Cookie\\\\Cookies\\:\\:__construct\\(\\) has parameter \\$cookies with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Manifest/Xml/Cookie/Cookies.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Cookie\\\\Cookies\\:\\:parseChild\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/Cookie/Cookies.php
 
@@ -5221,69 +5266,24 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/Storefront/Storefront.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Payments\\:\\:__construct\\(\\) has parameter \\$paymentMethods with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront\\\\Storefront\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Payments.php
+			path: src/Core/Framework/App/Manifest/Xml/Storefront/Storefront.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
+			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhook\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
+			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:parseChild\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhooks\\:\\:__construct\\(\\) has parameter \\$webhooks with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:parseChild\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleConditions\\:\\:__construct\\(\\) has parameter \\$ruleConditions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleConditions.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Setup.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Setup.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Storefront.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Storefront.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Webhook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Webhook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhooks\\:\\:__construct\\(\\) has parameter \\$webhooks with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Webhooks.php
+			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhooks.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:__construct\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"

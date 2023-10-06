@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -13,16 +12,11 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[Package('core')]
 class ShippingMethod extends XmlElement
 {
-    protected const REQUIRED_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = ['name', 'description'];
+
+    final public const REQUIRED_FIELDS = [
         'identifier',
         'name',
-        'deliveryTime',
-    ];
-
-    private const TRANSLATABLE_FIELDS = [
-        'name',
-        'description',
-        'tracking-url',
     ];
 
     protected string $identifier;
@@ -39,16 +33,24 @@ class ShippingMethod extends XmlElement
 
     protected ?string $icon = null;
 
-    protected int $position = ShippingMethodEntity::POSITION_DEFAULT;
-
-    protected bool $active;
+    protected ?DeliveryTime $deliveryTime;
 
     /**
-     * @var array<string, string>
+     * @param array<int|string, string|array<string, string>> $data
      */
-    protected array $trackingUrl = [];
+    private function __construct(array $data)
+    {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
 
-    protected DeliveryTime $deliveryTime;
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parse($element));
+    }
 
     public function toArray(string $defaultLocale): array
     {
@@ -102,25 +104,15 @@ class ShippingMethod extends XmlElement
         return $this->icon;
     }
 
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getTrackingUrl(): array
-    {
-        return $this->trackingUrl;
-    }
-
-    public function getDeliveryTime(): DeliveryTime
+    public function getDeliveryTime(): ?DeliveryTime
     {
         return $this->deliveryTime;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<int|string, string|array<string, string>>
+     */
+    private static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -141,7 +133,7 @@ class ShippingMethod extends XmlElement
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
+            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue ?? '');
         }
 
         return $values;

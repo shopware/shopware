@@ -12,25 +12,38 @@ use Shopware\Core\Framework\Log\Package;
 class RuleConditions extends XmlElement
 {
     /**
-     * @var list<RuleCondition>
+     * @var RuleCondition[]
      */
-    protected array $ruleConditions = [];
+    protected $ruleConditions = [];
+
+    private function __construct(array $ruleConditions)
+    {
+        $this->ruleConditions = $ruleConditions;
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseRuleConditions($element));
+    }
 
     /**
-     * @return list<RuleCondition>
+     * @return RuleCondition[]
      */
     public function getRuleConditions(): array
     {
         return $this->ruleConditions;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return RuleCondition[]
+     */
+    private static function parseRuleConditions(\DOMElement $element): array
     {
         $ruleConditions = [];
         foreach ($element->getElementsByTagName('rule-condition') as $ruleCondition) {
             $ruleConditions[] = RuleCondition::fromXml($ruleCondition);
         }
 
-        return ['ruleConditions' => $ruleConditions];
+        return $ruleConditions;
     }
 }

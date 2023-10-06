@@ -11,9 +11,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Setup extends XmlElement
 {
-    protected string $registrationUrl;
+    /**
+     * @var string
+     */
+    protected $registrationUrl;
 
-    protected ?string $secret = null;
+    /**
+     * @var string|null
+     */
+    protected $secret;
+
+    private function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parse($element));
+    }
 
     public function getRegistrationUrl(): string
     {
@@ -25,7 +43,7 @@ class Setup extends XmlElement
         return $this->secret;
     }
 
-    protected static function parse(\DOMElement $element): array
+    private static function parse(\DOMElement $element): array
     {
         $values = [];
 

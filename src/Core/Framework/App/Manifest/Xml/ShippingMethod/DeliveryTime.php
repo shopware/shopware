@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 class DeliveryTime extends XmlElement
 {
-    protected const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'id',
         'min',
         'max',
@@ -28,6 +28,18 @@ class DeliveryTime extends XmlElement
     protected int $max;
 
     protected string $unit;
+
+    /**
+     * @param array<int|string, string|array<string, string>> $data
+     */
+    public function __construct(array $data)
+    {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
 
     public function getId(): string
     {
@@ -54,7 +66,7 @@ class DeliveryTime extends XmlElement
         return $this->unit;
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
     {
         $deliveryTimeArray = [];
         foreach ($element->childNodes as $childNode) {
@@ -65,6 +77,6 @@ class DeliveryTime extends XmlElement
             $deliveryTimeArray[self::kebabCaseToCamelCase($childNode->tagName)] = XmlReader::phpize($childNode->nodeValue);
         }
 
-        return $deliveryTimeArray;
+        return new self($deliveryTimeArray);
     }
 }

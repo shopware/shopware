@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\CustomField;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
 
 /**
  * @internal

@@ -41,7 +41,7 @@ jobs:
         ports:
           - "9200:9200"
       database:
-        image: mysql:8.0.33
+        image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: root

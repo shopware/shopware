@@ -106,7 +106,7 @@ class RuleAreaUpdaterTest extends TestCase
             . 'EXISTS(SELECT 1 FROM rule_condition WHERE (`rule_id` = `rule`.`id`) AND (`type` IN (:flowTypes))) AS flowCondition '
             . 'FROM rule WHERE `rule`.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']],
-            ['ids' => ArrayParameterType::STRING, 'flowTypes' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY, 'flowTypes' => ArrayParameterType::STRING]
         )->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);

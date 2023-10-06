@@ -259,7 +259,7 @@ E2E Changed install NL scenarios:
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    -   name: mysql:8.0.33
+    -   name: mysql:8.0
         alias: database
   variables:
     APP_ENV: e2e

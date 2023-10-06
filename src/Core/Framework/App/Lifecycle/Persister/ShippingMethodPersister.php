@@ -14,7 +14,7 @@ use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEnt
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Metadata
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata
  */
 class MetadataTest extends TestCase
 {

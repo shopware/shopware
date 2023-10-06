@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**

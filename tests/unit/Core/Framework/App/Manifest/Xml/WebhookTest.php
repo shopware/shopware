@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Webhook
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook
  */
 class WebhookTest extends TestCase
 {

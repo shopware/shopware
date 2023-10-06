@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Cookies
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies
  */
 class CookiesTest extends TestCase
 {

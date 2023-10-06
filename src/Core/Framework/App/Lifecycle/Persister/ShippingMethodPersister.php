@@ -95,7 +95,8 @@ class ShippingMethodPersister
                 unset(
                     $payload['name'],
                     $payload['description'],
-                    $payload['icon']
+                    $payload['icon'],
+                    $payload['active']
                 );
                 $existingShippingMethods->remove($shippingMethodEntity->getId());
             } else {

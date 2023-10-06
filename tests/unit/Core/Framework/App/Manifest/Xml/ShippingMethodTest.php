@@ -166,6 +166,26 @@ class ShippingMethodTest extends TestCase
         static::assertSame('icon.png', $shippingMethod->getIcon());
     }
 
+    public function testFromXmlShouldContainActivePropertyAsBool(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/shippingMethod-manifest.xml');
+
+        $shippingMethods = $manifest->getShippingMethods()?->getShippingMethods();
+        static::assertIsArray($shippingMethods);
+
+        static::assertArrayHasKey(0, $shippingMethods);
+        $firstShippingMethod = $shippingMethods[0]->getVars();
+        static::assertArrayHasKey('active', $firstShippingMethod);
+        static::assertIsBool($firstShippingMethod['active']);
+        static::assertTrue($firstShippingMethod['active']);
+
+        static::assertArrayHasKey(1, $shippingMethods);
+        $secondShippingMethod = $shippingMethods[1]->getVars();
+        static::assertArrayHasKey('active', $secondShippingMethod);
+        static::assertIsBool($secondShippingMethod['active']);
+        static::assertFalse($secondShippingMethod['active']);
+    }
+
     /**
      * @param ShippingMethod[] $shippingMethods
      */

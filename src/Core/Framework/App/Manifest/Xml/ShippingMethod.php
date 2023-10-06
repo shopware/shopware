@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
@@ -114,7 +115,7 @@ class ShippingMethod extends XmlElement
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
+            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue ?? '');
         }
 
         return $values;

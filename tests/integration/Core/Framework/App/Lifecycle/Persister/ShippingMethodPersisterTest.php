@@ -34,6 +34,7 @@ class ShippingMethodPersisterTest extends TestCase
 
     private const APP_NAME = 'test';
     private const APP_PATH = __DIR__ . '/../_fixtures/shippingMethodBase/test';
+    private const ACTIVE_FLAG_APP_PATH = __DIR__ . '/../_fixtures/ShippingMethodActiveFlag/test';
     private const MANIFEST_UPDATE = __DIR__ . '/../_fixtures/shippingMethodUpdate/test/manifest.xml';
     private const MANIFEST_UPDATE_IDENTIFIER = __DIR__ . '/../_fixtures/shippingMethodUpdateIdentifier/test/manifest.xml';
     private const IDENTIFIER_FIRST_METHOD = 'swagFirstShippingMethod';
@@ -140,6 +141,35 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::APP_PATH);
     }
 
+    public function testUpdateShippingMethodsShouldNotActivatedAndDeactivatedShippingMethodDuringUpdate(): void
+    {
+        $this->installApp(self::ACTIVE_FLAG_APP_PATH);
+
+        $appShippingMethods = $this->getApp()->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+
+        $firstShippingMethod = $appShippingMethods->filterByProperty('identifier', 'swagFirstShippingMethod')->first()?->getShippingMethod();
+        $secondShippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD)->first()?->getShippingMethod();
+        static::assertInstanceOf(ShippingMethodEntity::class, $firstShippingMethod);
+        static::assertInstanceOf(ShippingMethodEntity::class, $secondShippingMethod);
+        static::assertTrue($firstShippingMethod->getActive(), 'Install: swagFirstShippingMethod is not activated');
+        static::assertFalse($secondShippingMethod->getActive(), 'Install: swagSecondShippingMethod is not deactivated');
+
+        $this->updateApp($this->getAppId(), __DIR__ . '/../_fixtures/ShippingMethodActiveFlagUpdate/test/manifest.xml');
+
+        $updatedAppShippingMethods = $this->getApp()->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $updatedAppShippingMethods);
+
+        $updatedFirstShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', 'swagFirstShippingMethod')->first()?->getShippingMethod();
+        $updatedSecondShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD)->first()?->getShippingMethod();
+        static::assertInstanceOf(ShippingMethodEntity::class, $updatedFirstShippingMethod);
+        static::assertInstanceOf(ShippingMethodEntity::class, $updatedSecondShippingMethod);
+        static::assertTrue($updatedFirstShippingMethod->getActive(), 'Update: swagFirstShippingMethod is activated');
+        static::assertFalse($updatedSecondShippingMethod->getActive(), 'Update: swagSecondShippingMethod is deactivated');
+
+        $this->removeApp(self::APP_PATH);
+    }
+
     private function getNumberOfShippingMethods(?bool $getAppShippingMethod = false): int
     {
         $sql = 'SELECT count(*) from `shipping_method`';
@@ -164,14 +194,6 @@ class ShippingMethodPersisterTest extends TestCase
         static::assertInstanceOf(AppEntity::class, $app);
 
         return $app;
-    }
-
-    private function getAppId(): string
-    {
-        $sql = 'SELECT id from `app` where name ="' . self::APP_NAME . '";';
-        $appUuid = $this->connection->fetchOne($sql);
-
-        return Uuid::fromBytesToHex($appUuid);
     }
 
     private function updateApp(string $appId, string $manifestXml): void
@@ -222,5 +244,16 @@ class ShippingMethodPersisterTest extends TestCase
         static::assertSame($ruleId, $shippingMethod->getAvailabilityRuleId());
 
         return $ruleId;
+    }
+
+    private function getAppId(): string
+    {
+        $sql = 'SELECT `id` from `app` where name ="' . self::APP_NAME . '";';
+        $appUuid = $this->connection->fetchOne($sql);
+        if (!$appUuid) {
+            static::fail('Cannot find appId for app with name ' . self::APP_NAME);
+        }
+
+        return Uuid::fromBytesToHex($appUuid);
     }
 }

@@ -21,6 +21,7 @@
             <description>This is a simple description</description>
             <description lang="de-DE">Das ist eine einfache Beschreibung</description>
             <icon>icons/TestIcon.png</icon>
+            <active>true</active>
         </shipping-method>
         <shipping-method>
             <identifier>shippingMethodThree</identifier>
@@ -28,6 +29,7 @@
             <name lang="de-DE">Dritte Versandart</name>
             <description>This is another simple description</description>
             <description lang="de-DE">Das ist eine andere einfache Beschreibung</description>
+            <active>false</active>
         </shipping-method>
     </shipping-methods>
 </manifest>

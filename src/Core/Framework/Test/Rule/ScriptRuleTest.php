@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -162,7 +163,7 @@ class ScriptRuleTest extends TestCase
         static::assertTrue($payload->match($expectedTrueScope));
     }
 
-    public function testRuleValidation(): void
+    public function testRuleValidationFails(): void
     {
         $this->installApp();
 
@@ -196,6 +197,72 @@ class ScriptRuleTest extends TestCase
             static::assertSame('/0/value/customerGroupIds', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
         }
+    }
+
+    public static function manifestPathProvider(): \Generator
+    {
+        yield 'Default fixture App with customerGroupIds property' => [
+            '/test/manifest.xml',
+            [
+                'operator' => '=',
+                'customerGroupIds' => [Uuid::randomHex()],
+            ],
+        ];
+
+        yield 'App with firstName as rule property' => [
+            '/test/manifest_arbitraryRule_firstName.xml',
+            [
+                'operator' => '=',
+                'firstName' => 'hello',
+            ],
+        ];
+
+        yield 'App with existing constraints name as rule property' => [
+            '/test/manifest_arbitraryRule_constraints.xml',
+            [
+                'operator' => '=',
+                'constraints' => 'broken',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $value
+     *
+     * @dataProvider manifestPathProvider
+     */
+    public function testRuleValidationSucceedsWithArbitraryProperties(string $manifestPath, array $value): void
+    {
+        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
+        $manifest = Manifest::createFromXmlFile($fixturesPath . $manifestPath);
+        $this->setupApp($manifest);
+
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        $this->conditionRepository->create([
+            [
+                'id' => $id,
+                'type' => (new ScriptRule())->getName(),
+                'ruleId' => $ruleId,
+                'scriptId' => $this->scriptId,
+                'value' => $value,
+            ],
+        ], $this->context);
+
+        /** @var RuleEntity $rule */
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(AndRule::class, $payload);
+
+        $scriptRule = $payload->getRules()[0];
+        static::assertInstanceOf(ScriptRule::class, $scriptRule);
+        static::assertSame($value, $scriptRule->getValues());
+        static::assertSame([], $scriptRule->getConstraints());
     }
 
     public function testRuleWithInactiveScript(): void
@@ -244,6 +311,18 @@ class ScriptRuleTest extends TestCase
         static::assertFalse($payload->match($scope));
     }
 
+    public function testRuleValueAssignment(): void
+    {
+        $rule = new ScriptRule();
+        $value = [
+            'operator' => '=',
+            'customerGroupIds' => [Uuid::randomHex()],
+        ];
+        $rule->assignValues($value);
+
+        static::assertSame($value, $rule->getValues());
+    }
+
     private function getCheckoutScope(string $ruleId): CheckoutRuleScope
     {
         $this->ruleRepository->create(
@@ -280,6 +359,11 @@ class ScriptRuleTest extends TestCase
         $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
 
         $manifest = Manifest::createFromXmlFile($fixturesPath . '/test/manifest.xml');
+        $this->setupApp($manifest);
+    }
+
+    private function setupApp(Manifest $manifest): void
+    {
         $this->appLifecycle->install($manifest, false, $this->context);
         /** @var AppEntity $app */
         $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -445,22 +446,19 @@ class FileSaverTest extends TestCase
             ],
         ];
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
+        $this->mediaRepository->create($data, $context);
 
-        $this->fileSaver->renameMedia($old->getId(), $png->getFileName(), $context);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A file with the name "original_media.png" already exists.');
+
+        $this->fileSaver->renameMedia($ids->get('old'), 'original_media', $context);
     }
 
     public function testRenameMediaForNewExtensionWorksWithSameName(): void
     {
         $context = Context::createDefaultContext();
 
-        $png = $this->getPng();
-        $txt = $this->getTxt();
-
-        $mediaPath = $png->getPath();
-
-        $this->getPublicFilesystem()->write($mediaPath, 'test file content');
+        $ids = new IdsCollection();
 
         $data = [
             [
@@ -496,20 +494,15 @@ class FileSaverTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
 
-        $newPath = $updatedMedia->getPath();
-
-        static::assertTrue($this->getPublicFilesystem()->has($newPath));
-        static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
+        static::assertTrue($this->getPublicFilesystem()->has($updatedMedia->getPath()));
+        static::assertFalse($this->getPublicFilesystem()->has('media/rename_png.png'));
     }
 
     public function testRenameMediaDoesSkipIfOldFileNameEqualsNewOne(): void
     {
         $context = Context::createDefaultContext();
 
-        $png = $this->getPng();
-
-        $mediaPath = $png->getPath();
-        $this->getPublicFilesystem()->write($mediaPath, 'test file content');
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->get('png'),

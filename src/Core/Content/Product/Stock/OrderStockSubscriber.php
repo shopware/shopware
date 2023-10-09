@@ -224,7 +224,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
         $orderIdBytes = Uuid::fromHexToBytes($orderId);
         $versionBytes = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT id, referenced_id as product_id, quantity
             FROM order_line_item
             WHERE type = :type

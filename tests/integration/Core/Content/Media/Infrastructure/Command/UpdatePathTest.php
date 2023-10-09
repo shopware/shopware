@@ -67,7 +67,7 @@ class UpdatePathTest extends TestCase
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['media'])],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertArrayHasKey($ids->get('media'), $paths);
@@ -78,7 +78,7 @@ class UpdatePathTest extends TestCase
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media_thumbnail WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['media_thumbnail'])],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertArrayHasKey($ids->get('media_thumbnail'), $paths);

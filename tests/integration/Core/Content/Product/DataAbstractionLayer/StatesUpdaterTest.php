@@ -99,7 +99,7 @@ class StatesUpdaterTest extends TestCase
                 'states' => json_encode([State::IS_PHYSICAL]),
                 'ids' => Uuid::fromHexToBytesList([$ids->get('product-1'), $ids->get('product-2')]),
             ],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 }

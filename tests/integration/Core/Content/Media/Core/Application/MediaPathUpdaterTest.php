@@ -50,7 +50,7 @@ class MediaPathUpdaterTest extends TestCase
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['media-1'])],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertCount(1, $paths);
@@ -100,7 +100,7 @@ class MediaPathUpdaterTest extends TestCase
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media_thumbnail WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['thumbnail-1', 'thumbnail-2'])],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertCount(2, $paths);

@@ -4,7 +4,7 @@ import { expect } from '@playwright/test';
 export class CheckoutConfirmPage {
     public readonly headline: Locator;
     public readonly termsAndConditionsCheckbox: Locator;
-    public readonly grantTotalPrice: Locator;
+    public readonly grandTotalPrice: Locator;
     public readonly submitOrderButton: Locator;
 
     /**
@@ -23,7 +23,7 @@ export class CheckoutConfirmPage {
     constructor(public readonly page: Page) {
         this.headline = page.getByRole('heading', { name: 'Complete order' });
         this.termsAndConditionsCheckbox = page.getByLabel('I have read and accepted the general terms and conditions.');
-        this.grantTotalPrice = page.locator(`dt:has-text('Grand total') + dd`);
+        this.grandTotalPrice = page.locator(`dt:has-text('Grand total') + dd`);
         this.submitOrderButton = page.getByRole('button', { name: 'Submit order' });
 
         this.paymentCashOnDelivery = page.getByLabel('Cash on delivery');

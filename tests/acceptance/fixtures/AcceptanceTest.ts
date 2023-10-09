@@ -11,7 +11,7 @@ import {
     getSnippetSetId,
     getTaxId,
     getThemeId,
-} from "./sales-channel-helper";
+} from "./SalesChannelHelper";
 import { components } from "@shopware/api-client/admin-api-types";
 import crypto from "crypto";
 
@@ -410,14 +410,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     storeApiContext: [
         // eslint-disable-next-line no-empty-pattern
         async ({ defaultStorefront }, use) => {
-            console.log('defaultStorefront', defaultStorefront);
 
             const options = {
                 'app_url': process.env['APP_URL'],
                 'sw-access-key': defaultStorefront.salesChannel.accessKey
             }
-
-            console.log('Options', options);
 
             const storeApiContext = await StoreApiContext.newContext(options);
             await use(storeApiContext);

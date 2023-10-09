@@ -116,7 +116,7 @@ export default defineConfig({
         })(),
 
         /**
-         * Uncomment other brothers after prototype!
+         * Uncomment other browsers after prototype!
          */
         // {
         //   name: 'firefox',

@@ -48,7 +48,7 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
     });
 
     await test.step('Shop customer validates price sum.', async () => {
-        await expect(checkoutConfirmPage.grantTotalPrice).toHaveText('€10.00*');
+        await expect(checkoutConfirmPage.grandTotalPrice).toHaveText('€10.00*');
     });
 
     await test.step('Shop customer submits order.', async () => {

@@ -15,7 +15,7 @@ interface Options<PAYLOAD> {
 
 export class StoreApiContext {
     private context: APIRequestContext;
-    private readonly options: StoreApiOptions;
+    public options: StoreApiOptions;
 
     constructor(context: APIRequestContext, options: StoreApiOptions) {
         this.context = context;
@@ -37,13 +37,31 @@ export class StoreApiContext {
             extraHTTPHeaders['sw-context-token'] = options['sw-context-token'];
         }
 
-        console.log('Context Headers', extraHTTPHeaders);
-
         return await request.newContext({
             baseURL: `${options['app_url']}store-api/`,
             ignoreHTTPSErrors: options.ignoreHTTPSErrors ?? false,
             extraHTTPHeaders,
         });
+    }
+
+    async login(storeUser) {
+        const loginResponse = await this.post(`account/login`, {
+            data: {
+                username: storeUser.email,
+                password: storeUser.password
+            }
+        });
+
+        const responseData = await loginResponse.json();
+
+        if (!responseData.contextToken) {
+            throw new Error(`Failed to login with user ${storeUser.email} | ${JSON.stringify(responseData)}`);
+        }
+
+        this.options['sw-context-token'] = responseData.contextToken;
+        this.context = await StoreApiContext.createContext(this.options);
+
+        return responseData;
     }
 
     async delete<PAYLOAD>(url: string, options?: PAYLOAD): Promise<APIResponse> {

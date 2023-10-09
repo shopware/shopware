@@ -3339,9 +3339,9 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], $this->context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_OR), [
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_OR, [
             new PrefixFilter('seoUrls.pathInfo', '/detail/')
-        ]);
+        ]));
 
         $ids = $this->repository->searchIds($criteria, $this->context);
 

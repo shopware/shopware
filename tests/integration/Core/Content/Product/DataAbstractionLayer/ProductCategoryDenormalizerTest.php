@@ -90,7 +90,7 @@ class ProductCategoryDenormalizerTest extends TestCase
                 'productId' => Uuid::fromHexToBytes($productId),
                 'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
             ],
-            ['categoryIds' => ArrayParameterType::BINARY
+            ['categoryIds' => ArrayParameterType::BINARY]
         );
     }
 

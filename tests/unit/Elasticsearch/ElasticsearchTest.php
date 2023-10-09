@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
@@ -32,6 +33,11 @@ class ElasticsearchTest extends TestCase
         $frameworkExtension = $framework->getContainerExtension();
         static::assertNotNull($frameworkExtension);
         $container->registerExtension($frameworkExtension);
+
+        $monolog = new MonologBundle();
+        $monologExtension = $monolog->getContainerExtension();
+        static::assertNotNull($monologExtension);
+        $container->registerExtension($monologExtension);
 
         $bundle = new Elasticsearch();
         $extension = $bundle->getContainerExtension();

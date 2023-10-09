@@ -89,25 +89,4 @@ abstract class Rule extends Struct
     {
         return 'rule_' . $this->getName();
     }
-
-    /**
-     * @param array<mixed> $options
-     *
-     * @return $this
-     */
-    public function assign(array $options)
-    {
-        foreach ($options as $key => $value) {
-            if (!property_exists($this, $key)) {
-                continue;
-            }
-
-            try {
-                $this->$key = $value; /* @phpstan-ignore-line */
-            } catch (\Error|\Exception $error) {
-            }
-        }
-
-        return $this;
-    }
 }

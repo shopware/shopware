@@ -52,11 +52,6 @@ class ScriptRule extends Rule
 
     protected bool $debug = true;
 
-    /**
-     * @var array<string>
-     */
-    protected array $customerGroupIds = [];
-
     public function match(RuleScope $scope): bool
     {
         $context = [...['scope' => $scope], ...$this->values];

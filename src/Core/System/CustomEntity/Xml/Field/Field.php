@@ -16,6 +16,9 @@ abstract class Field extends XmlElement
 
     protected bool $storeApiAware;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -43,17 +46,20 @@ abstract class Field extends XmlElement
 
     abstract public static function fromXml(\DOMElement $element): Field;
 
+    /**
+     * @return array<string, mixed>
+     */
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        if (is_iterable($element->attributes)) {
-            foreach ($element->attributes as $attribute) {
-                \assert($attribute instanceof \DOMAttr);
-                $name = self::kebabCaseToCamelCase($attribute->name);
-
-                $values[$name] = XmlUtils::phpize($attribute->value);
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
             }
+            $name = self::kebabCaseToCamelCase($attribute->name);
+
+            $values[$name] = XmlUtils::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

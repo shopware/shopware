@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -144,6 +145,9 @@ class CompiledFieldCollection extends FieldCollection
         return $this->mappedByStorageName[$storageName] ?? null;
     }
 
+    /**
+     * @param class-string<Flag> $flagClass
+     */
     public function filterByFlag(string $flagClass): self
     {
         return $this->filter(static fn (Field $field) => $field->is($flagClass));

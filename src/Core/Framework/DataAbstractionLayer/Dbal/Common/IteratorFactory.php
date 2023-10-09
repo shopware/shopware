@@ -23,14 +23,13 @@ class IteratorFactory
     ) {
     }
 
+    /**
+     * @param array{offset: int|null}|null $lastId
+     */
     public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
         if (\is_string($definition)) {
             $definition = $this->registry->getByEntityName($definition);
-        }
-
-        if (!$definition instanceof EntityDefinition) {
-            throw new \InvalidArgumentException('Definition must be an instance of EntityDefinition');
         }
 
         $entity = $definition->getEntityName();

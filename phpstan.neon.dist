@@ -219,6 +219,11 @@ parameters:
             paths:
                 - src/Core/DevOps/StaticAnalyze/PHPStan/Rules/NoFlowStoreFunctionRule.php
 
+        - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
+            path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
+            count: 1
+
         # Tests for Abstract classes should reflect the class naming, but not be abstract itself
         -
             message: '#Class name starting with "Abstract" must have an `abstract` keyword#'
@@ -283,6 +288,14 @@ parameters:
 
         - message: '#Method Shopware\\Core\\Test\\Stub\\Redis\\RedisStub::do.*\(\) is unused#'
           path: src/Core/Test/Stub/Redis/RedisStub.php
+
+        # To not have a single case for each type, we check them dynamically.
+        - message: '#Make callable type explicit#'
+          path: src/Core/Framework/Validation/HappyPathValidator.php
+          count: 2
+        - message: '#Use explicit names over dynamic ones#'
+          path: src/Core/Framework/Validation/HappyPathValidator.php
+          count: 2
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

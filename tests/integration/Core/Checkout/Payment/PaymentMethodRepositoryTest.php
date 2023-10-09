@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,6 +25,9 @@ class PaymentMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentRepository;
 
     private string $paymentMethodId;
@@ -47,7 +49,6 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
@@ -78,8 +79,7 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
-        /** @var PaymentMethodEntity $firstPaymentMethod */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -99,8 +99,7 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
-        /** @var PaymentMethodEntity $firstPaymentMethod */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -140,8 +139,7 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
-        /** @var PaymentMethodEntity $firstPaymentMethod */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
@@ -209,11 +207,10 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
 
-        /** @var PaymentMethodEntity $paymentMethod */
-        $paymentMethod = $resultSet->filterByProperty('id', $this->paymentMethodId)
-            ->getElements()[$this->paymentMethodId];
+        $paymentMethod = $resultSet->filterByProperty('id', $this->paymentMethodId)->get($this->paymentMethodId);
+        static::assertNotNull($paymentMethod);
 
         static::assertSame(DefaultPayment::class, $paymentMethod->getHandlerIdentifier());
     }
@@ -230,7 +227,6 @@ class PaymentMethodRepositoryTest extends TestCase
 
             static::fail('The name should always be required!');
         } catch (WriteException $e) {
-            /** @var WriteConstraintViolationException $constraintViolation */
             $constraintViolation = $e->getExceptions()[0];
             static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
             static::assertEquals('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());
@@ -279,7 +275,6 @@ class PaymentMethodRepositoryTest extends TestCase
     {
         $pluginId = Uuid::randomHex();
 
-        /** @var EntityRepository $pluginRepo */
         $pluginRepo = $this->getContainer()->get('plugin.repository');
         $pluginRepo->create([[
             'id' => $pluginId,

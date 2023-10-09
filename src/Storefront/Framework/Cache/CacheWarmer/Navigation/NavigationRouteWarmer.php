@@ -21,6 +21,9 @@ class NavigationRouteWarmer implements CacheRouteWarmer
     ) {
     }
 
+    /**
+     * @param array{offset: int|null}|null $offset
+     */
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);

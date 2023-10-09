@@ -95,12 +95,13 @@ class BenchExtension implements ExtensionInterface
         if (is_file($fixturePath) && preg_match('/\.php$/', basename($fixturePath))) {
             yield $fixturePath;
         } elseif (is_dir($fixturePath)) {
-            /** @var string[] $directory */
             $directory = scandir($fixturePath);
-            foreach ($directory as $subName) {
-                if (!preg_match('/^\.+$/', $subName)) {
-                    foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
-                        yield $fixture;
+            if (\is_array($directory)) {
+                foreach ($directory as $subName) {
+                    if (!preg_match('/^\.+$/', $subName)) {
+                        foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
+                            yield $fixture;
+                        }
                     }
                 }
             }

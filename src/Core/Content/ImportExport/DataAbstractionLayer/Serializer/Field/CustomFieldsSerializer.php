@@ -23,8 +23,6 @@ class CustomFieldsSerializer extends FieldSerializer
     }
 
     /**
-     * @param mixed|null $value
-     *
      * @return iterable<string, mixed>
      */
     public function serialize(Config $config, Field $field, $value): iterable

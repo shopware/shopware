@@ -170,6 +170,7 @@ Component.register('sw-multi-tag-select', {
         getKey: get,
 
         setDropDown(open = true) {
+            this.$refs.selectionList.focus();
             this.hasFocus = open;
 
             if (open) {

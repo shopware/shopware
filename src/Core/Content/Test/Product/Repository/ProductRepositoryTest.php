@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -34,6 +35,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -3304,6 +3307,45 @@ class ProductRepositoryTest extends TestCase
             static::assertArrayHasKey($key, $event->getList());
             static::assertEquals($value, $event->getList()[$key]);
         }
+    }
+
+    public function testNotFilterMissingVersionIdField(): void
+    {
+        $this->createLanguage(self::TEST_LANGUAGE_ID);
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id'            => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock'         => 10,
+            'name'          => 'Test',
+            'price'         => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'tax'           => ['name' => 'test', 'taxRate' => 19],
+            'manufacturer'  => ['name' => 'test'],
+            'seoUrls'       => [
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'languageId'     => self::TEST_LANGUAGE_ID,
+                    'routeName'      => TestProductSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo'       => '/test-detail/' . $id,
+                    'seoPathInfo'    => 'product/seo-' . $id,
+                    'isCanonical'    => false,
+                    'isModified'     => true,
+                    'isDeleted'      => false,
+                ],
+            ],
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_OR), [
+            new PrefixFilter('seoUrls.pathInfo', '/detail/')
+        ]);
+
+        $ids = $this->repository->searchIds($criteria, $this->context);
+
+        self::assertGreaterThan(0, $ids->getTotal());
     }
 
     /**

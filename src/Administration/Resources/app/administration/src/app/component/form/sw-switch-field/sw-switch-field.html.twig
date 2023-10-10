@@ -39,12 +39,6 @@
             :name="formFieldName || identification"
             {% else %}
             v-bind="$attrs"
-            :disabled="disabled"
-            {% if VUE3 %}
-            :name="formFieldName || identification"
-            {% else %}
-            :name="identification"
-            {% endif %}
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
             :name="identification"

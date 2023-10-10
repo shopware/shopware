@@ -104,6 +104,7 @@
                             {% else %}
                             v-model="tax.taxRate"
                             {% endif %}
+                            name="sw-field--tax-taxRate"
                             required
                             :digits="3"
                             :disabled="!acl.can('tax.editor')"
@@ -128,6 +129,7 @@
                                 :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
                                 :value="isDefault"
+                                name="sw-field--isDefault"
                                 {% if VUE3 %}
                                 @update:value="onChangeDefaultTaxRate"
                                 {% else %}

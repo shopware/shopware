@@ -9,6 +9,14 @@ import { defineComponent } from 'vue';
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default Shopware.Mixin.register('sw-form-field', defineComponent({
+    inject: ['feature'],
+
+    data() {
+        return {
+            inheritanceAttrs: {},
+        };
+    },
+
     props: {
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -10,6 +10,7 @@
     <sw-text-field
         {% if VUE3 %}
         v-model:value="set.name"
+        name="sw-field--set-name"
         {% else %}
         v-model="set.name"
         {% endif %}
@@ -28,6 +29,7 @@
     <sw-number-field
         {% if VUE3 %}
         v-model:value="set.position"
+        name="sw-field--set-position"
         {% else %}
         v-model="set.position"
         {% endif %}
@@ -43,6 +45,7 @@
         v-if="set.config"
         {% if VUE3 %}
         v-model:value="set.config.translated"
+        name="sw-field--set-config-translated"
         {% else %}
         v-model="set.config.translated"
         {% endif %}

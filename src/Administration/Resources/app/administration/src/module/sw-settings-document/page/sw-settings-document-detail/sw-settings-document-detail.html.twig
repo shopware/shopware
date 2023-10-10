@@ -88,8 +88,11 @@
                             id="documentConfigTypes"
                             {% if VUE3 %}
                             v-model:value="documentConfig.documentTypeId"
+                            name="sw-field--documentConfig-documentTypeId"
+                            @update:value="(id, type) => onChangeType(type)"
                             {% else %}
                             v-model="documentConfig.documentTypeId"
+                            @change="(id, type) => onChangeType(type)"
                             {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
@@ -103,11 +106,6 @@
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor')"
-                            {% if VUE3 %}
-                            @update:value="(id, type) => onChangeType(type)"
-                            {% else %}
-                            @change="(id, type) => onChangeType(type)"
-                            {% endif %}
                         />
                         {% endblock %}
                         <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
@@ -189,6 +187,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.name"
+                                name="sw-field--documentConfig-name"
                                 {% else %}
                                 v-model="documentConfig.name"
                                 {% endif %}
@@ -211,6 +210,7 @@
                             <sw-media-field
                                 {% if VUE3 %}
                                 v-model:mediaId="documentConfig.logoId"
+                                name="sw-field--documentConfig-logoId"
                                 {% else %}
                                 v-model="documentConfig.logoId"
                                 {% endif %}
@@ -225,6 +225,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.filenamePrefix"
+                                name="sw-field--documentConfig-filenamePrefix"
                                 {% else %}
                                 v-model="documentConfig.filenamePrefix"
                                 {% endif %}
@@ -239,6 +240,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.filenameSuffix"
+                                name="sw-field--documentConfig-filenameSuffix"
                                 {% else %}
                                 v-model="documentConfig.filenameSuffix"
                                 {% endif %}
@@ -249,19 +251,21 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_form_field_renderer_content %}
-                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                        <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-v-for-template-key -->
                         <template
                             v-for="(formField, index) in generalFormFields"
                             v-if="documentConfig.config"
                             {% if VUE3 %}
                             :key="`formField-${index}`"
+                            {% else %}
                             {% endif %}
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_detail_content_form_field_renderer %}
                             <sw-form-field-renderer
                                 v-if="formField"
-                                {% if VUE2 %}
+                                {% if VUE3 %}
+                                {% else %}
                                 :key="`formField-${index}`"
                                 {% endif %}
                                 v-model="documentConfig.config[formField.name]"
@@ -283,6 +287,7 @@
                             v-if="isShowDivergentDeliveryAddress"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
+                            name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             {% else %}
                             v-model="documentConfig.config.displayDivergentDeliveryAddress"
                             {% endif %}
@@ -298,6 +303,7 @@
                             v-if="isShowDisplayNoteDelivery"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
+                            name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             {% else %}
                             v-model="documentConfig.config.displayAdditionalNoteDelivery"
                             {% endif %}
@@ -313,6 +319,7 @@
                             v-if="isShowDisplayNoteDelivery"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayCustomerVatId"
+                            name="sw-field--documentConfig-config-displayCustomerVatId"
                             {% else %}
                             v-model="documentConfig.config.displayCustomerVatId"
                             {% endif %}
@@ -328,6 +335,7 @@
                             v-if="showCountriesSelect"
                             {% if VUE3 %}
                             v-model:ids="documentConfig.config.deliveryCountries"
+                            name="sw-field--documentConfig-config-deliveryCountries"
                             {% else %}
                             v-model="documentConfig.config.deliveryCountries"
                             {% endif %}

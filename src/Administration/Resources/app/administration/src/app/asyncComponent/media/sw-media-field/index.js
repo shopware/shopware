@@ -95,7 +95,7 @@ export default {
                             return this.value;
                         },
                         set(newValue) {
-                            this.$emit('update:value', newValue);
+                            this.$emit('input', newValue);
                         },
                     },
                 };

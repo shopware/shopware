@@ -78,6 +78,7 @@
                             {% else %}
                             v-model="user.firstName"
                             {% endif %}
+                            name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userFirstNameError"
@@ -94,6 +95,7 @@
                             {% else %}
                             v-model="user.lastName"
                             {% endif %}
+                            name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userLastNameError"
@@ -110,6 +112,7 @@
                             {% else %}
                             v-model.trim="user.email"
                             {% endif %}
+                            name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error-message="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
                             :error="userEmailError"
@@ -128,6 +131,7 @@
                             {% else %}
                             v-model="user.username"
                             {% endif %}
+                            name="sw-field--user-username"
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
                             :error="userUsernameError"
@@ -185,6 +189,7 @@
                             {% else %}
                             v-model="user.localeId"
                             {% endif %}
+                            name="sw-field--user-localeId"
                             class="sw-settings-user-detail__grid-language"
                             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                             :disabled="!acl.can('users_and_permissions.editor')"
@@ -211,6 +216,7 @@
                             {% else %}
                             v-model="user.timeZone"
                             {% endif %}
+                            name="sw-field--user-timeZone"
                             class="sw-settings-user-detail__grid-timezone"
                             :options="timezoneOptions"
                             required
@@ -228,6 +234,7 @@
                             {% else %}
                             v-model="user.admin"
                             {% endif %}
+                            name="sw-field--user-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
@@ -242,6 +249,7 @@
                             {% else %}
                             v-model="user.title"
                             {% endif %}
+                            name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"

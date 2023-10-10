@@ -99,6 +99,7 @@
                         {% else %}
                         v-model="mailTemplate.mailTemplateTypeId"
                         {% endif %}
+                        name="sw-field--mailTemplate-mailTemplateTypeId"
                         entity="mail_template_type"
                         required
                         show-clearable-button
@@ -122,6 +123,7 @@
                         {% else %}
                         v-model="mailTemplate.description"
                         {% endif %}
+                        name="sw-field--mailTemplate-description"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -151,6 +153,7 @@
                                 {% else %}
                                 v-model="mailTemplate.subject"
                                 {% endif %}
+                                name="sw-field--mailTemplate-subject"
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
                                 :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
@@ -168,6 +171,7 @@
                             {% else %}
                             v-model="mailTemplate.senderName"
                             {% endif %}
+                            name="sw-field--mailTemplate-senderName"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
                             :disabled="!acl.can('mail_templates.editor')"
@@ -363,6 +367,7 @@
                         {% else %}
                         v-model="testerMail"
                         {% endif %}
+                        name="sw-field--testerMail"
                         :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
                         :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -377,6 +382,7 @@
                         {% else %}
                         v-model="testMailSalesChannelId"
                         {% endif %}
+                        name="sw-field--testMailSalesChannelId"
                         entity="sales_channel"
                         :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"

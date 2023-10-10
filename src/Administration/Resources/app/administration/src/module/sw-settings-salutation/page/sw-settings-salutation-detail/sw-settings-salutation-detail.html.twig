@@ -97,6 +97,7 @@
                             {% else %}
                             v-model="salutation.salutationKey"
                             {% endif %}
+                            name="sw-field--salutation-salutationKey"
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
                             :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
@@ -121,6 +122,7 @@
                             {% else %}
                             v-model="salutation.displayName"
                             {% endif %}
+                            name="sw-field--salutation-displayName"
                             required
                             class="sw-settings-salutation-detail__displayName"
                             :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
@@ -138,6 +140,7 @@
                             {% else %}
                             v-model="salutation.letterName"
                             {% endif %}
+                            name="sw-field--salutation-letterName"
                             required
                             class="sw-settings-salutation-detail__letterName"
                             :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"

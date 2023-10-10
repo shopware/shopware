@@ -26,7 +26,12 @@ Component.register('sw-boolean-radio-group', {
     class="sw-boolean-radio-group"
     v-bind="$attrs"
     :options="options"
+    {% if VUE3 %}
+    v-model:value="castedValue"
+    {% else %}
     v-model="castedValue"
+    {% endif %}
+    name="sw-field--castedValue"
     :bordered="bordered">
 </sw-radio-field>
 `,

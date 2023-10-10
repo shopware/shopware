@@ -9,6 +9,14 @@ import { defineComponent } from 'vue';
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default Shopware.Mixin.register('sw-form-field', defineComponent({
+    inject: ['feature'],
+
+    data() {
+        return {
+            inheritanceAttrs: {},
+        };
+    },
+
     props: {
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,6 +130,32 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         },
 
         setAttributesForProps(prop: string, propValue: boolean) {
+            if (this.feature.isActive('VUE3')) {
+                switch (prop) {
+                    case 'isInherited': {
+                        this.inheritanceAttrs = {
+                            ...this.inheritanceAttrs,
+                            [prop]: propValue,
+                        };
+                        break;
+                    }
+
+                    case 'isInheritField': {
+                        this.inheritanceAttrs = {
+                            ...this.inheritanceAttrs,
+                            isInheritanceField: propValue,
+                        };
+                        break;
+                    }
+
+                    default: {
+                        break;
+                    }
+                }
+
+                return;
+            }
+
             switch (prop) {
                 case 'isInherited': {
                     this.$set(this.$attrs, prop, propValue);

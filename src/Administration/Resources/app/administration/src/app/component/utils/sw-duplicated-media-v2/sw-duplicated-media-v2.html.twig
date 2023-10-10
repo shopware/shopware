@@ -56,14 +56,14 @@
             {% block sw_media_duplicated_media_target_name %}
             <span
                 v-if="selectedOption !== 'Rename'"
-                key="sw-duplicated-media-v2__target-label"
+                key="sw-duplicated-media-v2__target-label-fileName"
                 class="sw-duplicated-media-v2__target-label"
             >
                 {{ `${currentTask.fileName}.${currentTask.extension}` }}
             </span>
             <span
                 v-else
-                key="sw-duplicated-media-v2__target-label"
+                key="sw-duplicated-media-v2__target-label-suggestedName"
                 class="sw-duplicated-media-v2__target-label"
             >
                 {{ `${suggestedName}.${currentTask.extension}` }}

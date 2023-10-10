@@ -2,9 +2,18 @@
     class="sw-modals-renderer"
     style="display: none;"
 >
-    <template v-for="modal in modals">
+    <!-- eslint-disable vue/no-v-for-template-key -->
+    <template
+        v-for="modal in modals" {% if VUE3 %}
+        :key="modal.locationId"
+        {% else %}
+        {% endif %}
+    >
         <sw-modal
+            {% if VUE3 %}
+            {% else %}
             :key="modal.locationId"
+            {% endif %}
             :title="modal.title"
             :closable="modal.closable"
             :show-header="modal.showHeader"

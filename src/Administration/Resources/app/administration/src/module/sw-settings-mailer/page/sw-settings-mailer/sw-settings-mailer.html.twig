@@ -91,7 +91,13 @@
                 <div class="sw-settings-mailer__radio-selection">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_agent_options %}
-                    <sw-select-field v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                    <sw-select-field
+                        {% if VUE3 %}
+                        v-model:value="mailerSettings['core.mailerSettings.emailAgent']"
+                        {% else %}
+                        v-model="mailerSettings['core.mailerSettings.emailAgent']"
+                        {% endif %}
+                    >
                         <option value="local">
                             {{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}
                         </option>

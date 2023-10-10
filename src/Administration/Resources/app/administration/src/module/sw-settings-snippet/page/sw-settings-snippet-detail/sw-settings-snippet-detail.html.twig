@@ -100,6 +100,7 @@
                                 v-model="translationKey"
                                 {% endif %}
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                                name="sw-field--translationKey"
                                 :label="$tc('sw-settings-snippet.detail.labelName')"
                                 :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                 :disabled="!(isCreate || isAddedSnippet)"
@@ -134,6 +135,7 @@
                                 v-model="snippet.value"
                                 {% endif %}
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                                name="sw-field--snippet-value"
                                 :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                 :disabled="!acl.can('snippet.editor')"
                                 :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"

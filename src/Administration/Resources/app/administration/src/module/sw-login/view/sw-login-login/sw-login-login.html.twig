@@ -33,6 +33,7 @@
         v-model="username"
         {% endif %}
         v-autofocus
+        name="sw-field--username"
         :label="$tc('sw-login.index.labelUsername')"
         :placeholder="$tc('sw-login.index.placeholderUsername')"
         :disabled="showLoginAlert"
@@ -48,6 +49,7 @@
         {% else %}
         v-model="password"
         {% endif %}
+        name="sw-field--password"
         :label="$tc('sw-login.index.labelPassword')"
         :placeholder="$tc('sw-login.index.placeholderPassword')"
         :disabled="showLoginAlert"

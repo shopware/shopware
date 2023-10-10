@@ -151,10 +151,20 @@
         v-if="children.length > 0"
         class="sw-admin-menu__sub-navigation-list"
     >
-        <template v-for="entry in children">
+        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key,vue/no-duplicate-attributes,vue/no-parsing-error -->
+        <template
+            v-for="entry in children"
+            {% if VUE3 %}
+            :key="getCustomKey(entry.id || entryPath + '-separator')"
+            {% else %}
+            {% endif %}
+        >
             <li
                 v-if="isFirstPluginInMenuEntries(entry, children)"
+                {% if VUE3 %}
+                {% else %}
                 :key="getCustomKey(entry.id || entryPath + '-separator')"
+                {% endif %}
                 :style="{ 'border-color': borderColor }"
                 class="sw-admin-menu__separator"
             >
@@ -162,7 +172,10 @@
             </li>
 
             <sw-admin-menu-item
+                {% if VUE3 %}
+                {% else %}
                 :key="getCustomKey(entry.id || entryPath)"
+                {% endif %}
                 :entry="entry"
                 :border-color="borderColor"
                 :display-icon="false"

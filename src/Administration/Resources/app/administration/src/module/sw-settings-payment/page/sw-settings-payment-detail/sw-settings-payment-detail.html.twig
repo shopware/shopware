@@ -101,6 +101,7 @@
                                 {% else %}
                                 v-model="paymentMethod.name"
                                 {% endif %}
+                                name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
                                 :disabled="!acl.can('payment.editor')"
@@ -118,6 +119,7 @@
                                 {% else %}
                                 v-model="paymentMethod.position"
                                 {% endif %}
+                                name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelPosition')"
@@ -138,6 +140,7 @@
                                 {% else %}
                                 v-model="paymentMethod.description"
                                 {% endif %}
+                                name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor')"
                                 :value="paymentMethod.description"
                                 class="sw-settings-payment-detail__description"
@@ -181,6 +184,7 @@
                                 {% else %}
                                 v-model="paymentMethod.active"
                                 {% endif %}
+                                name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelActive')"
@@ -195,6 +199,7 @@
                                 {% else %}
                                 v-model="paymentMethod.afterOrderEnabled"
                                 {% endif %}
+                                name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"

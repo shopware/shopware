@@ -26,6 +26,7 @@
             disabled: acl.can('product_search_config.editor'),
             showOnDisabledElements: true
         }"
+        name="sw-field--searchBehaviourConfigs-andLogic"
         class="sw-settings-search__search-behaviour-condition"
         block
         :disabled="!acl.can('product_search_config.editor')"
@@ -46,6 +47,7 @@
             disabled: acl.can('product_search_config.editor'),
             showOnDisabledElements: true
         }"
+        name="sw-field--searchBehaviourConfigs-minSearchLength"
         class="sw-settings-search__search-behaviour-term-length"
         :label="$tc('sw-settings-search.generalTab.labelMinimalSearchTerm')"
         :disabled="!acl.can('product_search_config.editor')"

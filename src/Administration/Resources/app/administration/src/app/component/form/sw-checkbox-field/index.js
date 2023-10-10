@@ -38,6 +38,12 @@ Component.register('sw-checkbox-field', {
             default: false,
         },
 
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+
         value: {
             type: Boolean,
             required: false,

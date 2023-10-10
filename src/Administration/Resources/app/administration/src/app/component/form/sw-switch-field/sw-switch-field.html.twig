@@ -29,15 +29,22 @@
         </div>
         <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
-            v-bind="$attrs"
-            :disabled="disabled"
             {% if VUE3 %}
+            v-bind="{
+                ...$attrs,
+                ...inheritanceAttrs
+            }"
+            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
+            :is-inherited="inheritanceAttrs.isInherited"
             :name="formFieldName || identification"
             {% else %}
-            :name="identification"
-            {% endif %}
+            v-bind="$attrs"
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
+            :name="identification"
+            {% endif %}
+            :disabled="disabled"
+            :label="label"
             @inheritance-restore="onInheritanceRestore($event)"
             @inheritance-remove="$emit('inheritance-remove', $event)"
         >

@@ -14,7 +14,7 @@ describe('Country: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of country module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of country module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
             method: 'POST',

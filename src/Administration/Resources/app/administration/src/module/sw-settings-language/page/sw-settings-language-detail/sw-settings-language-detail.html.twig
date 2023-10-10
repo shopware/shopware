@@ -88,6 +88,7 @@
                             {% else %}
                             v-model="language.name"
                             {% endif %}
+                            name="sw-field--language-name"
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
@@ -106,6 +107,7 @@
                             {% else %}
                             v-model="language.localeId"
                             {% endif %}
+                            name="sw-field--language-localeId"
                             required
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
@@ -198,6 +200,7 @@
                             {% else %}
                             v-model="language.parentId"
                             {% endif %}
+                            name="sw-field--language-parentId"
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
                             :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"

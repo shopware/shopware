@@ -94,6 +94,7 @@
                             {% else %}
                             v-model="shippingMethod.name"
                             {% endif %}
+                            name="sw-field--shippingMethod-name"
                             required
                             :disabled="!acl.can('shipping.editor')"
                             :error="shippingMethodNameError"
@@ -109,6 +110,7 @@
                             {% else %}
                             v-model="shippingMethod.position"
                             {% endif %}
+                            name="sw-field--shippingMethod-position"
                             class="sw-settings-shipping-detail__field-position"
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelPosition')"
@@ -123,6 +125,7 @@
                             {% else %}
                             v-model="shippingMethod.active"
                             {% endif %}
+                            name="sw-field--shippingMethod-active"
                             bordered
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"
@@ -141,6 +144,7 @@
                             {% else %}
                             v-model="shippingMethod.description"
                             {% endif %}
+                            name="sw-field--shippingMethod-description"
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor')"
@@ -181,6 +185,7 @@
                         {% else %}
                         v-model="shippingMethod.deliveryTimeId"
                         {% endif %}
+                        name="sw-field--shippingMethod-deliveryTimeId"
                         class="sw-settings-shipping-detail__delivery-time"
                         entity="delivery_time"
                         :disabled="!acl.can('shipping.editor')"
@@ -201,6 +206,7 @@
                         {% else %}
                         v-model="shippingMethod.trackingUrl"
                         {% endif %}
+                        name="sw-field--shippingMethod-trackingUrl"
                         :disabled="!acl.can('shipping.editor')"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"

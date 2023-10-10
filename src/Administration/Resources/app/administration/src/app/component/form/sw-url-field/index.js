@@ -91,7 +91,13 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     watch: {
         value() {
-            this.checkInput(this.value || '');
+            if (this.feature.isActive('VUE3')) {
+                this.$nextTick(() => {
+                    this.checkInput(this.value || '');
+                });
+            } else {
+                this.checkInput(this.value || '');
+            }
         },
     },
 
@@ -129,7 +135,9 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 this.currentValue = validated;
 
                 if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', this.url);
+                    if (this.value !== this.url) {
+                        this.$emit('update:value', this.url);
+                    }
                     return;
                 }
 
@@ -139,13 +147,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
         handleEmptyUrl() {
             this.currentValue = '';
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', '');
-                return;
-            }
-
-            this.$emit('input', '');
         },
 
         validateCurrentValue(value) {

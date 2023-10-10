@@ -10,7 +10,7 @@ describe('Cart settings: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of cart settings module', { tags: ['pa-checkout'] }, () => {
+    it('@visual: check appearance of cart settings module', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.cart`,
             method: 'GET',

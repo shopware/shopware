@@ -32,12 +32,23 @@
             </div>
         </div>
 
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
+            {% if VUE3 %}
+            v-bind="{
+                ...$attrs,
+                ...inheritanceAttrs
+            }"
+            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
+            :is-inherited="inheritanceAttrs.isInherited"
+            {% else %}
             v-bind="$attrs"
-            :disabled="disabled"
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
+            {% endif %}
+            :disabled="disabled"
             :name="identification"
+            :label="label"
             @inheritance-restore="$emit('inheritance-restore', $event)"
             @inheritance-remove="$emit('inheritance-remove', $event)"
         >

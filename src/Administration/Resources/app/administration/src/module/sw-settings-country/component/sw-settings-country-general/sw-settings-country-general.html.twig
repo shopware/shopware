@@ -13,11 +13,12 @@
             gap="0px 30px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
             {% block sw_settings_country_general_content_field_name %}
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.name"
+                name="sw-field--country-name"
                 {% else %}
                 v-model="country.name"
                 {% endif %}
@@ -34,6 +35,7 @@
             <sw-number-field
                 {% if VUE3 %}
                 v-model:value="country.position"
+                name="sw-field--country-position"
                 {% else %}
                 v-model="country.position"
                 {% endif %}
@@ -49,6 +51,7 @@
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.iso"
+                name="sw-field--country-iso"
                 {% else %}
                 v-model="country.iso"
                 {% endif %}
@@ -63,6 +66,7 @@
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.iso3"
+                name="sw-field--country-iso3"
                 {% else %}
                 v-model="country.iso3"
                 {% endif %}
@@ -89,6 +93,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.active"
+                name="sw-field--country-active"
                 {% else %}
                 v-model="country.active"
                 {% endif %}
@@ -104,6 +109,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.shippingAvailable"
+                name="sw-field--country-shippingAvailable"
                 {% else %}
                 v-model="country.shippingAvailable"
                 {% endif %}
@@ -119,6 +125,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.customerTax.enabled"
+                name="sw-field--country-customerTax-enabled"
                 {% else %}
                 v-model="country.customerTax.enabled"
                 {% endif %}
@@ -141,6 +148,7 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.customerTax.amount"
+                    name="sw-field--country-customerTax-amount"
                     {% else %}
                     v-model="country.customerTax.amount"
                     {% endif %}
@@ -154,6 +162,7 @@
                         <sw-entity-single-select
                             {% if VUE3 %}
                             v-model:value="country.customerTax.currencyId"
+                            name="sw-field--country-customerTax-currencyId"
                             {% else %}
                             v-model="country.customerTax.currencyId"
                             {% endif %}
@@ -197,6 +206,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.companyTax.enabled"
+                name="sw-field--country-companyTax-enabled"
                 {% else %}
                 v-model="country.companyTax.enabled"
                 {% endif %}
@@ -220,6 +230,7 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.companyTax.amount"
+                    name="sw-field--country-companyTax-amount"
                     {% else %}
                     v-model="country.companyTax.amount"
                     {% endif %}
@@ -233,6 +244,7 @@
                         <sw-entity-single-select
                             {% if VUE3 %}
                             v-model:value="country.companyTax.currencyId"
+                            name="sw-field--country-companyTax-currencyId"
                             {% else %}
                             v-model="country.companyTax.currencyId"
                             {% endif %}
@@ -291,6 +303,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.checkVatIdPattern"
+                name="sw-field--country-checkVatIdPattern"
                 {% else %}
                 v-model="country.checkVatIdPattern"
                 {% endif %}
@@ -307,6 +320,7 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.vatIdRequired"
+                name="sw-field--country-vatIdRequired"
                 {% else %}
                 v-model="country.vatIdRequired"
                 {% endif %}

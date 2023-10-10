@@ -60,14 +60,14 @@ describe('Review: Test ACL privileges', () => {
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
-        cy.get('#sw-field--email').should('be.visible');
-        cy.get('#sw-field--email').scrollIntoView();
+        cy.get('#sw-field--user-email').should('be.visible');
+        cy.get('#sw-field--user-email').scrollIntoView();
         if(Cypress.isBrowser('chrome')) {
-            cy.get('#sw-field--email').realHover();
+            cy.get('#sw-field--user-email').realHover();
         }
-        cy.get('#sw-field--email').click();
-        cy.get('#sw-field--email').clear();
-        cy.get('#sw-field--email').type('changed@shopware.com');
+        cy.get('#sw-field--user-email').click();
+        cy.get('#sw-field--user-email').clear();
+        cy.get('#sw-field--user-email').type('changed@shopware.com');
 
         cy.get('.sw-profile__save-action')
             .should('be.visible')
@@ -92,7 +92,7 @@ describe('Review: Test ACL privileges', () => {
                 cy.get('.sw-modal')
                     .should('not.exist');
 
-                cy.get('#sw-field--email')
+                cy.get('#sw-field--user-email')
                     .should('be.visible')
                     .should('have.value', 'changed@shopware.com');
             });

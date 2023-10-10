@@ -526,6 +526,31 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
 });
 
 /**
+ * Remove the prepared admin changes for screenshot
+ * @memberOf Cypress.Chainable#
+ * @name resetAdminChangesForScreenshot
+ * @function
+ */
+Cypress.Commands.add('resetAdminChangesForScreenshot', () => {
+    cy.changeElementStyling(
+        '.sw-version__info',
+        'visibility: visible'
+    );
+
+    // Find all open ".sw-alert--notification" and close them
+    cy.get('.sw-alert--notification').then(($alerts) => {
+        if ($alerts.length) {
+            cy.changeElementStyling(
+                '.sw-notification__alert',
+                'display: block'
+            );
+
+            cy.get('.sw-alert--notification .sw-alert__close').click({ multiple: true });
+        }
+    });
+});
+
+/**
  * Creates a product with multiple reviews
  * @memberOf Cypress.Chainable#
  * @name createMultipleReviewsFixture

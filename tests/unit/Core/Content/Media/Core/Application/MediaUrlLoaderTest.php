@@ -154,6 +154,26 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
     }
 
+    public function testLegacySkipped(): void
+    {
+        $mock = $this->createMock(UrlGeneratorInterface::class);
+        $mock->expects(static::never())
+            ->method('getRelativeMediaUrl');
+
+        $media = new MediaEntity();
+        $media->assign([
+            'id' => 'media',
+            'path' => 'media/foo.png',
+        ]);
+
+        $new = $this->createMock(MediaUrlGenerator::class);
+
+        $subscriber = new MediaUrlLoader($new, $mock);
+        $subscriber->legacyPath([$media]);
+
+        static::assertEquals('media/foo.png', $media->getPath());
+    }
+
     public static function loadedProvider(): \Generator
     {
         $ids = new IdsCollection();

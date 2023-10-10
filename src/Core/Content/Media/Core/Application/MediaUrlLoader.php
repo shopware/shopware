@@ -87,6 +87,10 @@ class MediaUrlLoader
                 continue;
             }
 
+            if (!empty($media->getPath())) {
+                continue;
+            }
+
             $media->setPath($this->legacyGenerator->getRelativeMediaUrl($media));
 
             if ($media->getThumbnails() === null) {

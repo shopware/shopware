@@ -291,6 +291,12 @@ class RequestCriteriaBuilder
                 continue;
             }
 
+            if (!\is_scalar($value)) {
+                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must be scalar.', $field)), '/filter/' . $field);
+
+                continue;
+            }
+
             $queries[] = new EqualsFilter($this->buildFieldName($definition, $field), $value);
         }
 

@@ -31,6 +31,8 @@ const { Component } = Shopware;
 Component.register('sw-wizard', {
     template,
 
+    inject: ['feature'],
+
     props: {
         showNavigationDots: {
             type: Boolean,
@@ -102,6 +104,13 @@ Component.register('sw-wizard', {
         addPage(component) {
             this.pages.push(component);
             this.$emit('pages-updated', this.pages, component, 'add');
+
+            if (this.feature.isActive('VUE3')) {
+                // The timing in Vue3 is different. So mounted happens now before
+                // the child components are mounted. So we need to change
+                // the page after each new page addition
+                this.changePage(this.currentlyActivePage);
+            }
         },
 
         removePage(component) {

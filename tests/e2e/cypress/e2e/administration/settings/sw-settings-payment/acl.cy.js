@@ -10,7 +10,7 @@ describe('Payment: Test ACL privileges', () => {
             });
     });
 
-    it('@settings: has no access to payment module', { tags: ['pa-checkout'] }, () => {
+    it('@settings: has no access to payment module', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
@@ -28,7 +28,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-list').should('not.exist');
     });
 
-    it('@settings: can view payment but is not able to edit or activate payment ', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can view payment but is not able to edit or activate payment ', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
@@ -54,7 +54,7 @@ describe('Payment: Test ACL privileges', () => {
             .should('be.disabled');
     });
 
-    it('@settings: can edit payment', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can edit payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,
@@ -103,7 +103,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('My description');
     });
 
-    it('@settings: can create payment', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can create payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,

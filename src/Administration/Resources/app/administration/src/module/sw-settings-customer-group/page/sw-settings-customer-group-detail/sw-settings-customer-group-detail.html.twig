@@ -91,11 +91,12 @@
                             columns="repeat(2, minmax(250px, 1fr))"
                             gap="0px 30px"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="customerGroup.name"
+                                name="sw-field--customerGroup-name"
                                 {% else %}
                                 v-model="customerGroup.name"
                                 {% endif %}
@@ -125,11 +126,12 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_registration_form %}
                             <sw-switch-field
                                 {% if VUE3 %}
                                 v-model:value="customerGroup.registrationActive"
+                                name="sw-field--customerGroup-registrationActive"
                                 {% else %}
                                 v-model="customerGroup.registrationActive"
                                 {% endif %}
@@ -160,6 +162,7 @@
                     <sw-text-field
                         {% if VUE3 %}
                         v-model:value="customerGroup.registrationTitle"
+                        name="sw-field--customerGroup-registrationTitle"
                         {% else %}
                         v-model="customerGroup.registrationTitle"
                         {% endif %}
@@ -189,6 +192,7 @@
                     <sw-textarea-field
                         {% if VUE3 %}
                         v-model:value="customerGroup.registrationSeoMetaDescription"
+                        name="sw-field--customerGroup-registrationSeoMetaDescription"
                         {% else %}
                         v-model="customerGroup.registrationSeoMetaDescription"
                         {% endif %}
@@ -203,6 +207,7 @@
                     <sw-switch-field
                         {% if VUE3 %}
                         v-model:value="customerGroup.registrationOnlyCompanyRegistration"
+                        name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
                         {% else %}
                         v-model="customerGroup.registrationOnlyCompanyRegistration"
                         {% endif %}
@@ -229,6 +234,7 @@
                     <sw-entity-multi-select
                         {% if VUE3 %}
                         v-model:entityCollection="customerGroup.registrationSalesChannels"
+                        name="sw-field--customerGroup-registrationSalesChannels"
                         {% else %}
                         v-model="customerGroup.registrationSalesChannels"
                         {% endif %}
@@ -244,6 +250,7 @@
                         v-if="customerGroupId"
                         {% if VUE3 %}
                         v-model:value="technicalUrl"
+                        name="sw-field--technicalUrl"
                         {% else %}
                         v-model="technicalUrl"
                         {% endif %}
@@ -264,11 +271,7 @@
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="getSeoUrl(seoUrl)"
-                            {% else %}
-                            v-model="getSeoUrl(seoUrl)"
-                            {% endif %}
+                            :value="getSeoUrl(seoUrl)"
                             :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', 0, { salesChannelName: seoUrl.salesChannel.translated.name})"
                             :copyable="true"
                             :disabled="true"

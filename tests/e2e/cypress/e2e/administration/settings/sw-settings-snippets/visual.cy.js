@@ -14,7 +14,7 @@ describe('Snippets: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of snippet module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of snippet module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/snippet-set`,
             method: 'POST',

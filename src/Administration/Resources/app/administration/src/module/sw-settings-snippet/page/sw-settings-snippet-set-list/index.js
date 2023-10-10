@@ -14,6 +14,7 @@ export default {
         'snippetSetService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -102,12 +103,24 @@ export default {
             }
 
             this.$nextTick(() => {
-                const foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
+                let foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
+                    if (this.feature.isActive('VUE3')) {
+                        if (vueComponent.$options.name === 'AsyncComponentWrapper') {
+                            vueComponent = vueComponent.$children[0];
+                        }
+                    }
+
                     return vueComponent.item !== undefined && vueComponent.item.id === newSnippetSet.id;
                 });
 
                 if (!foundRow) {
                     return false;
+                }
+
+                if (this.feature.isActive('VUE3')) {
+                    if (foundRow.$options.name === 'AsyncComponentWrapper') {
+                        foundRow = foundRow.$children[0];
+                    }
                 }
 
                 foundRow.isEditingActive = true;

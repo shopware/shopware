@@ -17,7 +17,7 @@ describe('Import/Export - Check import functionality', () => {
         page = null;
     });
 
-    it('@base @settings: Perform import with product profile', { tags: ['pa-system-settings'] }, () => {
+    it('@base @settings: Perform import with product profile', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST',

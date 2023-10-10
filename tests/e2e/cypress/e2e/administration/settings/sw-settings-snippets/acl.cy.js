@@ -8,7 +8,7 @@ describe('Snippets: Test acl privileges', () => {
             });
     });
 
-    it('@settings: Read snippets', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: Read snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -50,7 +50,7 @@ describe('Snippets: Test acl privileges', () => {
             .then(content => cy.expect(content).to.contain(''));
     });
 
-    it('@settings: Edit snippets', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: Edit snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -88,7 +88,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: Create snippets', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: Create snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -117,7 +117,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        
+
         // clicking snippet create button
         cy.get('.sw-tooltip--wrapper > .sw-button')
             .should('be.visible')
@@ -143,7 +143,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: Create snippet set', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: Create snippet set', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',

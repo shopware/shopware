@@ -13,6 +13,7 @@
             {% else %}
             v-model="role.name"
             {% endif %}
+            name="sw-field--role-name"
             :error="roleNameError"
             :disabled="!acl.can('users_and_permissions.editor')"
             :label="$tc('sw-users-permissions.roles.detail.labelName')"
@@ -28,6 +29,7 @@
             {% else %}
             v-model="role.description"
             {% endif %}
+            name="sw-field--role-description"
             :error="roleDescriptionError"
             :disabled="!acl.can('users_and_permissions.editor')"
             :label="$tc('sw-users-permissions.roles.detail.labelDescription')"

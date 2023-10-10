@@ -274,7 +274,7 @@ export default {
                 }
 
                 const config = {
-                    message: this.$t(this.stateText[log.activity][log.state], {
+                    message: this.$t((this.stateText?.[log.activity]?.[log.state] ?? ''), {
                         profile: log.profileName,
                     }),
                     autoClose: false,

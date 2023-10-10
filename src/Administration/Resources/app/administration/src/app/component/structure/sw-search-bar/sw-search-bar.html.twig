@@ -137,14 +137,22 @@
                 <sw-loader v-if="isLoading" />
                 {% endblock %}
 
+                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
                 <template
                     v-for="(entity, column) in results"
                     v-else-if="!isResultEmpty()"
+                    {% if VUE3 %}
+                    :key="entity.entity"
+                    {% else %}
+                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_list %}
                     <div
+                        {% if VUE3 %}
+                        {% else %}
                         :key="entity.entity"
+                        {% endif %}
                         class="sw-search-bar__results-column"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -413,11 +421,20 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_trends_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
-                <template v-for="(entity, column) in resultsSearchTrends">
+                <template
+                    v-for="(entity, column) in resultsSearchTrends"
+                    {% if VUE3 %}
+                    :key="entity.entity"
+                    {% else %}
+                    {% endif %}
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_trends_results_list %}
                     <div
+                        {% if VUE3 %}
+                        {% else %}
                         :key="entity.entity"
+                        {% endif %}
                         class="sw-search-bar__results-column"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

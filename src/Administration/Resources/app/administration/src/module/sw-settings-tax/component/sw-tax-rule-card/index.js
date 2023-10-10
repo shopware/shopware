@@ -15,6 +15,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     props: {
@@ -187,6 +188,11 @@ export default {
 
         getTypeCellComponent(taxRule) {
             const subComponentName = taxRule.type.technicalName.replace(/_/g, '-');
+
+            if (this.feature.isActive('VUE3')) {
+                return Shopware.Component.getComponentRegistry().get(`sw-settings-tax-rule-type-${subComponentName}-cell`);
+            }
+
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
         },
     },

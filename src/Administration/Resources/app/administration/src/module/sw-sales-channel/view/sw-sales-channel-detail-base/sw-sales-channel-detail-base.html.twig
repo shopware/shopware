@@ -805,6 +805,7 @@
             {% else %}
             v-model="salesChannel.maintenance"
             {% endif %}
+            name="sw-field--salesChannel-maintenance"
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
         />

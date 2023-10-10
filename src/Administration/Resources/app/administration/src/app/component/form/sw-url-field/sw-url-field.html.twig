@@ -1,10 +1,17 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
 {% block sw_url_field %}
 <sw-contextual-field
     class="sw-field--url"
+    {% if VUE3 %}
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
+    {% else %}
     v-bind="$attrs"
+    {% endif %}
     :error="combinedError"
     :name="formFieldName"
     @inheritance-restore="$emit('inheritance-restore', $event)"

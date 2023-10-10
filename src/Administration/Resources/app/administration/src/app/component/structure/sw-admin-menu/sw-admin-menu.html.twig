@@ -45,18 +45,28 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_navigation_main_list %}
                 <ul class="sw-admin-menu__navigation-list">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
                     {% block sw_admin_menu_navigation_main_items %}
-                    <sw-admin-menu-item
+                    <template
                         v-for="(entry, index) in mainMenuEntries"
+                        {% if VUE3 %}
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
-                        :sidebar-expanded="isExpanded"
-                        :entry="entry"
-                        @menu-item-click="onMenuItemClick"
-                        @menu-item-enter="onMenuItemEnter"
-                        @sub-menu-item-enter="onSubMenuItemEnter"
-                    />
+                        {% else %}
+                        {% endif %}
+                    >
+                        <sw-admin-menu-item
+                            {% if VUE3 %}
+                            {% else %}
+                            :key="`${entry.id || entry.path}-${entry.children.length}`"
+                            {% endif %}
+                            :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
+                            :sidebar-expanded="isExpanded"
+                            :entry="entry"
+                            @menu-item-click="onMenuItemClick"
+                            @menu-item-enter="onMenuItemEnter"
+                            @sub-menu-item-enter="onSubMenuItemEnter"
+                        />
+                    </template>
                     {% endblock %}
                 </ul>
                 {% endblock %}
@@ -229,11 +239,21 @@
             @mouseenter="onFlyoutEnter"
             @mouseleave="onFlyoutLeave"
         >
-            <template v-for="entry in flyoutEntries">
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+            <template
+                v-for="entry in flyoutEntries"
+                {% if VUE3 %}
+                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                {% else %}
+                {% endif %}
+            >
 
                 <li
                     v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                    {% if VUE3 %}
+                    {% else %}
                     :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                    {% endif %}
                     :style="{ 'border-color': flyoutColor }"
                     class="sw-admin-menu__separator"
                 >
@@ -241,7 +261,6 @@
                 </li>
 
                 <sw-admin-menu-item
-                    :key="`${entry.id || entry.path}-${entry.children.length}`"
                     :entry="entry"
                     :border-color="flyoutColor"
                     :display-icon="false"

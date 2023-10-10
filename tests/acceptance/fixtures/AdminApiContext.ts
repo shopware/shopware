@@ -46,7 +46,7 @@ export class AdminApiContext {
         }
         return await request.newContext({
             baseURL: `${options.app_url}api/`,
-            ignoreHTTPSErrors: options.ignoreHTTPSErrors ?? false,
+            ignoreHTTPSErrors: options.ignoreHTTPSErrors,
             extraHTTPHeaders,
         });
     }

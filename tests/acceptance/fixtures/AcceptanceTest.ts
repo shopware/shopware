@@ -413,7 +413,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             const options = {
                 'app_url': process.env['APP_URL'],
-                'sw-access-key': defaultStorefront.salesChannel.accessKey
+                'sw-access-key': defaultStorefront.salesChannel.accessKey,
+                'ignoreHTTPSErrors': true
             }
 
             const storeApiContext = await StoreApiContext.newContext(options);

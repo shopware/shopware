@@ -91,6 +91,10 @@ Component.register('sw-admin-menu-item', {
             return false;
         },
 
+        expandedMenuEntries() {
+            return Shopware.State.get('adminMenu').expandedEntries;
+        },
+
         entryPath() {
             if (this.entry.path && this.hasAccessToRoute(this.entry.path)) {
                 return this.entry.path;

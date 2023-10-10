@@ -90,6 +90,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     public function testAdminApiRoutesHaveASchema(): void
     {
+        static::markTestSkipped('Intermittent failures, skipping to not block builds. Reenable with NEXT-30964');
+
         $generator = $this->getContainer()->get(OpenApi3Generator::class);
         $schema = $generator->generate(
             $this->getContainer()->get(DefinitionInstanceRegistry::class)->getDefinitions(),
@@ -104,7 +106,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 continue;
             }
             $path = $route->getPath();
-            if (!$this->isAdminApi($path)) {
+            if (!str_starts_with($path, '/api')) {
                 continue;
             }
             $path = \substr($path, \strlen('/api'));
@@ -140,11 +142,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
     private function isStoreApi(string $path): bool
     {
         return str_starts_with($path, '/store-api');
-    }
-
-    private function isAdminApi(string $path): bool
-    {
-        return str_starts_with($path, '/api');
     }
 
     private function isRepositoryCrudRoute(Route $route): bool

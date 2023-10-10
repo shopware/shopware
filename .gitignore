@@ -136,7 +136,6 @@ docker-compose.override.yaml
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
-vendor-bin/**/composer.json
 .uniqueid.txt
 
 # nix

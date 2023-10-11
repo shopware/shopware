@@ -154,6 +154,9 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
+     */
     public function testLegacySkipped(): void
     {
         $mock = $this->createMock(UrlGeneratorInterface::class);
@@ -172,6 +175,56 @@ class MediaUrlLoaderTest extends TestCase
         $subscriber->legacyPath([$media]);
 
         static::assertEquals('media/foo.png', $media->getPath());
+    }
+
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
+     */
+    public function testLegacyPathWithoutFileName(): void
+    {
+        $mock = $this->createMock(UrlGeneratorInterface::class);
+        $mock->expects(static::never())
+            ->method('getRelativeMediaUrl');
+
+        $media = new MediaEntity();
+        $media->assign([
+            'id' => 'media',
+            'mimeType' => 'image/png',
+            'fileExtension' => 'png',
+            'path' => '',
+        ]);
+
+        $new = $this->createMock(MediaUrlGenerator::class);
+
+        $subscriber = new MediaUrlLoader($new, $mock);
+        $subscriber->legacyPath([$media]);
+
+        static::assertEmpty($media->getPath());
+    }
+
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
+     */
+    public function testLegacyFunctionWithoutFilename(): void
+    {
+        $mock = $this->createMock(UrlGeneratorInterface::class);
+        $mock->expects(static::never())
+            ->method('getAbsoluteMediaUrl');
+
+        $media = new MediaEntity();
+        $media->assign([
+            'id' => 'media',
+            'mimeType' => 'image/png',
+            'fileExtension' => 'png',
+            'path' => '',
+        ]);
+
+        $new = $this->createMock(MediaUrlGenerator::class);
+
+        $subscriber = new MediaUrlLoader($new, $mock);
+        $subscriber->legacy([$media]);
+
+        static::assertEmpty($media->getUrl());
     }
 
     public static function loadedProvider(): \Generator

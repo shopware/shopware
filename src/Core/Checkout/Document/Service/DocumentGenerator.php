@@ -260,7 +260,7 @@ class DocumentGenerator
     ): void {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentType.technicalName', $documentTypeName));
-        $criteria->addFilter(new EqualsFilter('config.documentNumber', $documentNumber));
+        $criteria->addFilter(new EqualsFilter('documentNumber', $documentNumber));
 
         if ($documentId !== null) {
             $criteria->addFilter(new NotFilter(

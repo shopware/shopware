@@ -67,6 +67,11 @@ class DocumentEntity extends Entity
     protected $deepLinkCode;
 
     /**
+     * @var string|null
+     */
+    protected $documentNumber;
+
+    /**
      * @var DocumentTypeEntity|null
      */
     protected $documentType;
@@ -159,6 +164,16 @@ class DocumentEntity extends Entity
     public function setDeepLinkCode(string $deepLinkCode): void
     {
         $this->deepLinkCode = $deepLinkCode;
+    }
+
+    public function getDocumentNumber(): string|null
+    {
+        return $this->documentNumber;
+    }
+
+    public function setDocumentNumber(string|null $documentNumber): void
+    {
+        $this->documentNumber = $documentNumber;
     }
 
     public function getDocumentType(): ?DocumentTypeEntity

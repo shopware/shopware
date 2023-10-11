@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -64,6 +65,7 @@ class DocumentDefinition extends EntityDefinition
             (new BoolField('sent', 'sent'))->addFlags(new ApiAware()),
             (new BoolField('static', 'static'))->addFlags(new ApiAware()),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('document_number', 'documentNumber'))->addFlags(new ApiAware(), new Computed()),
             (new CustomFields())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

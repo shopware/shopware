@@ -1167,6 +1167,7 @@
     "document.sent",
     "document.static",
     "document.deepLinkCode",
+    "document.documentNumber",
     "document.customFields",
     "document.documentType",
     "document.order",

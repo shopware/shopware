@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\DeliveryTime;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -44,7 +44,6 @@ class ShippingMethodTest extends TestCase
         $shippingMethod = ShippingMethod::fromXml($shippingMethodDomElement);
 
         $deliveryTime = $shippingMethod->getDeliveryTime();
-        static::assertInstanceOf(DeliveryTime::class, $deliveryTime);
 
         static::assertSame('4b00146bdc8b4175b12d3fc36ec114c8', $deliveryTime->getId());
         static::assertSame('Short delivery time 1-2 days', $deliveryTime->getName());
@@ -184,6 +183,50 @@ class ShippingMethodTest extends TestCase
         static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
 
         static::assertSame('icon.png', $shippingMethod->getIcon());
+    }
+
+    public function testGetPosition(): void
+    {
+        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
+
+        $manifestShippingMethods = $manifest->getShippingMethods();
+        static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethods);
+        $manifestShippingMethods = $manifestShippingMethods->getShippingMethods();
+        $shippingMethod = $manifestShippingMethods[0];
+        static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
+
+        static::assertSame(3, $shippingMethod->getPosition());
+    }
+
+    public function testGetPositionDefaultValue(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/shippingMethod-manifest.xml');
+
+        $manifestShippingMethods = $manifest->getShippingMethods();
+        static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethods);
+        $manifestShippingMethods = $manifestShippingMethods->getShippingMethods();
+        $shippingMethod = $manifestShippingMethods[1];
+        static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
+
+        static::assertSame(ShippingMethodEntity::POSITION_DEFAULT, $shippingMethod->getPosition());
+    }
+
+    public function testGetTrackingUrl(): void
+    {
+        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
+
+        $manifestShippingMethods = $manifest->getShippingMethods();
+        static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethods);
+        $manifestShippingMethods = $manifestShippingMethods->getShippingMethods();
+        $shippingMethod = $manifestShippingMethods[0];
+        static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
+
+        $expectedValues = [
+            'en-GB' => 'https://www.mytrackingurl.com',
+            'de-DE' => 'https://de.mytrackingurl.com',
+        ];
+
+        static::assertSame($expectedValues, $shippingMethod->getTrackingUrl());
     }
 
     public function testFromXmlShouldContainActivePropertyAsBool(): void

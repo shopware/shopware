@@ -12,10 +12,6 @@
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
     </meta>
-    <setup>
-        <registrationUrl>https://my.app.com/test/registration</registrationUrl>
-        <secret>s3cr3t</secret>
-    </setup>
     <shipping-methods>
         <shipping-method>
             <identifier>swagFirstShippingMethod</identifier>
@@ -24,10 +20,27 @@
             <description>update of the simple description</description>
             <description lang="de-DE">eine neue einfache Beschreibung</description>
             <icon>icons/new-icon.png</icon>
+            <position>2</position>
+            <tracking-url>https://www.mytrackingurl.com/updated-by-manifest</tracking-url>
+            <tracking-url lang="de-DE">https://de.mytrackingurl.com/updated-by-manifest</tracking-url>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114d0</id>
+                <name>updated delivery time</name>
+                <min>1</min>
+                <max>2</max>
+                <unit>year</unit>
+            </delivery-time>
         </shipping-method>
         <shipping-method>
             <identifier>swagSecondShippingMethod</identifier>
             <name>new name for the second Shipping Method</name>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114d1</id>
+                <name>another delivery time updated</name>
+                <min>2</min>
+                <max>3</max>
+                <unit>day</unit>
+            </delivery-time>
         </shipping-method>
     </shipping-methods>
 </manifest>

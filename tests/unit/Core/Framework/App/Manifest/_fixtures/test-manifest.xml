@@ -181,6 +181,9 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <description>This is a simple description</description>
             <description lang="de-DE">Das ist eine einfache Beschreibung</description>
             <icon>icon.png</icon>
+            <position>3</position>
+            <tracking-url>https://www.mytrackingurl.com</tracking-url>
+            <tracking-url lang="de-DE">https://de.mytrackingurl.com</tracking-url>
             <delivery-time>
                 <id>4b00146bdc8b4175b12d3fc36ec114c8</id>
                 <name>Short delivery time 1-2 days</name>
@@ -192,6 +195,13 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
         <shipping-method>
             <identifier>swagSecondShippingMethod</identifier>
             <name>second Shipping Method</name>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c9</id>
+                <name>another delivery time</name>
+                <min>2</min>
+                <max>3</max>
+                <unit>day</unit>
+            </delivery-time>
         </shipping-method>
     </shipping-methods>
 </manifest>

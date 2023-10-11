@@ -561,7 +561,7 @@
             <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:boolean" name="active" minOccurs="0" default="false"/>
-            <xs:element type="delivery-time" name="delivery-time" minOccurs="0"/>
+            <xs:element type="delivery-time" name="delivery-time" minOccurs="1" maxOccurs="1"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">
@@ -569,6 +569,8 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element type="xs:int" name="position" minOccurs="0"/>
+            <xs:element type="translatableString" name="tracking-url" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="rule-conditions">

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -12,11 +13,12 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[Package('core')]
 class ShippingMethod extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['name', 'description'];
+    final public const TRANSLATABLE_FIELDS = ['name', 'description', 'tracking-url'];
 
     final public const REQUIRED_FIELDS = [
         'identifier',
         'name',
+        'deliveryTime',
     ];
 
     protected string $identifier;
@@ -33,7 +35,14 @@ class ShippingMethod extends XmlElement
 
     protected ?string $icon = null;
 
-    protected ?DeliveryTime $deliveryTime;
+    protected int $position = ShippingMethodEntity::POSITION_DEFAULT;
+
+    /**
+     * @var array<string, string>
+     */
+    protected array $trackingUrl = [];
+
+    protected DeliveryTime $deliveryTime;
 
     /**
      * @param array<int|string, string|array<string, string>> $data
@@ -104,7 +113,20 @@ class ShippingMethod extends XmlElement
         return $this->icon;
     }
 
-    public function getDeliveryTime(): ?DeliveryTime
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getTrackingUrl(): array
+    {
+        return $this->trackingUrl;
+    }
+
+    public function getDeliveryTime(): DeliveryTime
     {
         return $this->deliveryTime;
     }

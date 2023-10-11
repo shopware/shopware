@@ -103,7 +103,6 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="app_shipping_method.repository"/>
             <argument type="service" id="rule.repository"/>
-            <argument type="service" id="delivery_time.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>

@@ -24,8 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeCollection;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
  * @internal
@@ -39,14 +37,12 @@ class ShippingMethodPersister
      * @param EntityRepository<ShippingMethodCollection>                  $shippingMethodRepository
      * @param EntityRepository<EntityCollection<AppShippingMethodEntity>> $appShippingMethodRepository
      * @param EntityRepository<RuleCollection>                            $ruleRepository
-     * @param EntityRepository<DeliveryTimeCollection>                    $deliveryTimeRepository
      * @param EntityRepository<MediaCollection>                           $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
         private readonly EntityRepository $appShippingMethodRepository,
         private readonly EntityRepository $ruleRepository,
-        private readonly EntityRepository $deliveryTimeRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly MediaService $mediaService,
         private readonly AbstractAppLoader $appLoader,
@@ -96,12 +92,13 @@ class ShippingMethodPersister
                     $payload['name'],
                     $payload['description'],
                     $payload['icon'],
-                    $payload['active']
+                    $payload['position'],
+                    $payload['active'],
+                    $payload['deliveryTime'],
                 );
                 $existingShippingMethods->remove($shippingMethodEntity->getId());
             } else {
                 $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
-                $payload['deliveryTimeId'] = $this->getDeliveryTimeUuid($context, $appName);
                 $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
                 $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
             }
@@ -164,18 +161,6 @@ class ShippingMethodPersister
         }
 
         return $rule->getId();
-    }
-
-    private function getDeliveryTimeUuid(Context $context, string $appName): string
-    {
-        $criteria = new Criteria();
-        $deliveryTime = $this->deliveryTimeRepository->search($criteria, $context)->getEntities()->first();
-
-        if (!$deliveryTime instanceof DeliveryTimeEntity) {
-            throw AppException::installationFailed($appName, 'No Delivery times available. You have to create one before installing the app.');
-        }
-
-        return $deliveryTime->getId();
     }
 
     private function getIconId(Manifest $manifest, ShippingMethod $shippingMethod, Context $context): ?string

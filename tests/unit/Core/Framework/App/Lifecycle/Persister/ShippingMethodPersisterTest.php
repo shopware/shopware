@@ -25,8 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeCollection;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -89,7 +87,6 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('shippingMethodRepository', $services) ? $services['shippingMethodRepository'] : $this->createShippingMethodRepositoryMock(),
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
             \array_key_exists('ruleRepository', $services) ? $services['ruleRepository'] : $this->createRuleRepositoryMock([$rule]),
-            \array_key_exists('deliveryTimeRepository', $services) ? $services['deliveryTimeRepository'] : $this->createDeliveryTimeRepositoryMock([$deliveryTime]),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
             \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
@@ -153,20 +150,6 @@ class ShippingMethodPersisterTest extends TestCase
                 new RuleCollection($entities),
             ],
             new RuleDefinition()
-        );
-    }
-
-    /**
-     * @param array<DeliveryTimeEntity> $entities
-     */
-    private function createDeliveryTimeRepositoryMock(array $entities = []): EntityRepository
-    {
-        return new StaticEntityRepository(
-            [
-                new DeliveryTimeCollection($entities),
-                new DeliveryTimeCollection($entities),
-            ],
-            new DeliveryTimeDefinition()
         );
     }
 

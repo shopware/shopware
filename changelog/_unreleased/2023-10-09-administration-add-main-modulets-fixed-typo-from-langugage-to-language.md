@@ -1,6 +1,6 @@
 ---
 title: Typo from "langugage" to "language"
-issue: NEXT-00000
+issue: NEXT-30963
 author: Matheus Gontijo
 author_email: matheusla2@gmail.com
 author_github: @matheusgontijo

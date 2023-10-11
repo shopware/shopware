@@ -1,9 +1,16 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_set_renderer_card_form_renderer %}
 <div class="sw-custom-field-set-renderer-card-form-renderer">
-    <template v-for="customField in set.customFields">
+    <template
+        v-for="customField in set.customFields"
+        {% if VUE3 %}
+        :key="customField.id"
+        {% endif %}
+    >
         <sw-container
+            {% if VUE2 %}
             :key="customField.id"
+            {% endif %}
             columns="240px 1fr"
             gap="32px"
         >

@@ -185,6 +185,9 @@
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
+            {% if VUE3 %}
+            :key="`switch-${currency.isoCode}`"
+            {% endif %}
             #[`column-price.${currency.id}.net`]="{ item, compact, isInlineEdit }"
         >
 
@@ -194,7 +197,9 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
                 <sw-inheritance-switch
+                    {% if VUE2 %}
                     :key="`switch-${currency.isoCode}`"
+                    {% endif %}
                     :is-inherited="isPriceFieldInherited(item, currency)"
                     class="sw-product-detail-context-prices__inherited-icon"
                     @inheritance-restore="onInheritanceRestore(item, currency)"
@@ -205,7 +210,9 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
                 <sw-price-field
+                    {% if VUE2 %}
                     :key="`price-field-${currency.isoCode}`"
+                    {% endif %}
                     :price="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
@@ -519,6 +526,9 @@
                 {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
                 <template
                     v-for="currency in currencies"
+                    {% if VUE3 %}
+                    :key="currency.id"
+                    {% endif %}
                     #[`column-price.${currency.id}.net`]="{ item }"
                 >
                     <sw-inheritance-switch

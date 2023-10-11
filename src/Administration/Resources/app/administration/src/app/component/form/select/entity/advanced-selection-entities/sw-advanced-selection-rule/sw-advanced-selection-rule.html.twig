@@ -117,9 +117,14 @@
     <template
         v-for="(propertyName, index) in assignmentProperties"
         #[`column-${propertyName}`]="{ item, aggregations }"
+        {% if VUE3 %}
+        :key="index"
+        {% endif %}
     >
         <span
+            {% if VUE2 %}
             :key="index"
+            {% endif %}
             class="sw-data-grid__cell-value"
         >
             {{ getCounts(item.id, aggregations)[propertyName] }}

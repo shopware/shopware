@@ -251,21 +251,19 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_form_field_renderer_content %}
-                        <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-v-for-template-key -->
+                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                         <template
                             v-for="(formField, index) in generalFormFields"
                             v-if="documentConfig.config"
                             {% if VUE3 %}
                             :key="`formField-${index}`"
-                            {% else %}
                             {% endif %}
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_detail_content_form_field_renderer %}
                             <sw-form-field-renderer
                                 v-if="formField"
-                                {% if VUE3 %}
-                                {% else %}
+                                {% if VUE2 %}
                                 :key="`formField-${index}`"
                                 {% endif %}
                                 v-model="documentConfig.config[formField.name]"
@@ -366,11 +364,18 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_company_form_field_renderer_content %}
                         <template v-if="documentConfig.config">
-                            <template v-for="formField in companyFormFields">
+                            <template
+                                v-for="formField in companyFormFields"
+                                {% if VUE3 %}
+                                :key="formField.name"
+                                {% endif %}
+                            >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_company_form_field_renderer %}
                                 <sw-form-field-renderer
+                                    {% if VUE2 %}
                                     :key="formField.name"
+                                    {% endif %}
                                     v-model="documentConfig.config[formField.name]"
                                     :disabled="!acl.can('document.editor')"
                                     v-bind="formField"

@@ -186,10 +186,15 @@
         {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
         <template
             v-for="currency in currencies"
+            {% if VUE3 %}
+            :key="currency.isoCode"
+            {% endif %}
             #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
         >
             <sw-inherit-wrapper
+                {% if VUE2 %}
                 :key="currency.isoCode"
+                {% endif %}
                 class="sw-settings-shipping-price-matrix__price"
                 :value="getPrice(item, currency)"
                 :has-parent="!currency.isSystemDefault"

@@ -46,10 +46,17 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_permissions_grid_permissions %}
-        <template v-for="permission in permissionsWithParents">
+        <template
+            v-for="permission in permissionsWithParents"
+            {% if VUE3 %}
+            :key="permission.value"
+            {% endif %}
+        >
             <div
                 v-if="permission.type === 'parent'"
+                {% if VUE2 %}
                 :key="permission.value"
+                {% endif %}
                 :class="'sw-users-permissions-permissions-grid__parent_' + permission.value"
                 class="sw-users-permissions-permissions-grid__entry
                                 sw-users-permissions-permissions-grid__parent"

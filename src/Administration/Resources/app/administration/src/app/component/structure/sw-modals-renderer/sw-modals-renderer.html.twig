@@ -2,16 +2,14 @@
     class="sw-modals-renderer"
     style="display: none;"
 >
-    <!-- eslint-disable vue/no-v-for-template-key -->
     <template
-        v-for="modal in modals" {% if VUE3 %}
+        v-for="modal in modals"
+        {% if VUE3 %}
         :key="modal.locationId"
-        {% else %}
         {% endif %}
     >
         <sw-modal
-            {% if VUE3 %}
-            {% else %}
+            {% if VUE2 %}
             :key="modal.locationId"
             {% endif %}
             :title="modal.title"

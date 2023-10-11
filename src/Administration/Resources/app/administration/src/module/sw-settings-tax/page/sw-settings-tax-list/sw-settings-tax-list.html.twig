@@ -297,7 +297,6 @@
                             v-else
                             class="sw-tax-provider-items"
                         >
-                            <!-- eslint-disable vue/no-v-for-template-key -->
                             <template
                                 v-for="taxProvider in taxProviders"
                                 {% if VUE3 %}
@@ -305,8 +304,7 @@
                                 {% endif %}
                             >
                                 <div
-                                    {% if VUE3 %}
-                                    {% else %}
+                                    {% if VUE2 %}
                                     :key="taxProvider.id"
                                     {% endif %}
                                     class="sw-tax-provider-item"

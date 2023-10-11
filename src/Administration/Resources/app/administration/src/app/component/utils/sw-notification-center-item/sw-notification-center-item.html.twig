@@ -57,20 +57,18 @@
         v-if="notification.actions"
         class="sw-notification-center-item__actions"
     >
-        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_actions_inner %}
         <template
             v-for="action in notificationActions"
             {% if VUE3 %}
             :key="action.label"
-            {% else %}
             {% endif %}
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_notification_center_item_actions_item_container %}
             <div
-                {% if VUE3 %}
-                {% else %}
+                {% if VUE2 %}
                 :key="action.label"
                 {% endif %}
                 class="sw-notification-center-item__actions-item-container"

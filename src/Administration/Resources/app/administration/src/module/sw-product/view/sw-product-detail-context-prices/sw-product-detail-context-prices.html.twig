@@ -200,11 +200,16 @@
                 {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                 <template
                     v-for="currency in currencies"
+                    {% if VUE3 %}
+                    :key="currency.id"
+                    {% endif %}
                     #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
                 >
                     <template v-if="showListPrices[priceGroup.ruleId] === false">
                         <div
+                            {% if VUE2 %}
                             :key="currency"
+                            {% endif %}
                             class="product-detail-context-prices__price-field-wrapper"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

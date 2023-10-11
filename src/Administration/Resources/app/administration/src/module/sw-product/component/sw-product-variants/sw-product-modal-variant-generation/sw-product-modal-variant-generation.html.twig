@@ -229,10 +229,15 @@
                     <div>
                         <template
                             v-for="(option, index) in item.options"
+                            {% if VUE3 %}
+                            :key="index"
+                            {% endif %}
                         >
                             <span
                                 v-if="option.entity"
+                                {% if VUE2 %}
                                 :key="index"
+                                {% endif %}
                             >
                                 {{ option.entity.group.translated?.name || option.entity.group.name }}:
                                 {{ option.entity.translated?.name || option.entity.name }}

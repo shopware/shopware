@@ -290,12 +290,19 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_content %}
                         <template v-if="!isLoading">
-                            <template v-for="(section, index) in page.sections">
+                            <template
+                                v-for="(section, index) in page.sections"
+                                {% if VUE3 %}
+                                :key="section.id"
+                                {% endif %}
+                            >
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_detail_stage_content_section %}
                                 <sw-cms-section
+                                    {% if VUE2 %}
                                     :key="section.id"
+                                    {% endif %}
                                     class="sw-cms-stage-section"
                                     :page="page"
                                     :section="section"

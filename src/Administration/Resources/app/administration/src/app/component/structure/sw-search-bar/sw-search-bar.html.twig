@@ -137,20 +137,18 @@
                 <sw-loader v-if="isLoading" />
                 {% endblock %}
 
-                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                 <template
                     v-for="(entity, column) in results"
                     v-else-if="!isResultEmpty()"
                     {% if VUE3 %}
                     :key="entity.entity"
-                    {% else %}
                     {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_list %}
                     <div
-                        {% if VUE3 %}
-                        {% else %}
+                        {% if VUE2 %}
                         :key="entity.entity"
                         {% endif %}
                         class="sw-search-bar__results-column"
@@ -425,14 +423,12 @@
                     v-for="(entity, column) in resultsSearchTrends"
                     {% if VUE3 %}
                     :key="entity.entity"
-                    {% else %}
                     {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_trends_results_list %}
                     <div
-                        {% if VUE3 %}
-                        {% else %}
+                        {% if VUE2 %}
                         :key="entity.entity"
                         {% endif %}
                         class="sw-search-bar__results-column"

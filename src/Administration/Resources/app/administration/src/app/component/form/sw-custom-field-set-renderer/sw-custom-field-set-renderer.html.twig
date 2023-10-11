@@ -61,11 +61,18 @@
                             v-if="!set.customFields"
                             style="width:100%"
                         />
-                        <template v-else>
-                            <template
-                                v-for="customField in set.customFields"
-                                {% if VUE3 %}
+                        <template
+                            v-for="customField in set.customFields"
+                            v-else
+                            {% if VUE3 %}
+                            :key="customField.name"
+                            {% endif %}
+                        >
+                            <sw-inherit-wrapper
+                                v-if="entity && customField.config"
+                                {% if VUE2 %}
                                 :key="customField.name"
+                                {% endif %}
                                 {% if VUE3 %}
                                 v-model:value="customFields[customField.name]"
                                 {% else %}
@@ -118,20 +125,34 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_media %}
         <template v-else-if="variant === 'media-collapse'">
-            <template v-for="set in visibleCustomFieldSets">
+            <template
+                v-for="set in visibleCustomFieldSets"
+                {% if VUE3 %}
+                :key="`sw-media-collapse--${set.id}`"
+                {% endif %}
+            >
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <sw-media-collapse
                     v-if="set.customFields && set.customFields.length > 0"
+                    {% if VUE2 %}
                     :key="`sw-media-collapse--${set.id}`"
+                    {% endif %}
                     :expand-on-loading="false"
                     :title="getInlineSnippet(set.config.label) || set.name"
                 >
                     <template #content>
-                        <template v-for="customField in set.customFields">
+                        <template
+                            v-for="customField in set.customFields"
+                            {% if VUE3 %}
+                            :key="customField.name"
+                            {% endif %}
+                        >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                             <sw-form-field-renderer
+                                {% if VUE2 %}
                                 :key="customField.name"
+                                {% endif %}
                                 v-model="customFields[customField.name]"
                                 v-bind="customField"
                                 :disabled="disabled"
@@ -147,11 +168,11 @@
                             :disabled="isLoading || disabled"
                             variant="primary"
                             size="small"
-                        {% if VUE3 %}
+                            {% if VUE3 %}
                             @update:process-success="$emit('process-finish')"
-                        {% else %}
+                            {% else %}
                             @process-finish="$emit('process-finish')"
-                        {% endif %}
+                            {% endif %}
                             @click="$emit('save')"
                         >
                             {{ $tc('global.default.save') }}

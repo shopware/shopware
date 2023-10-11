@@ -100,7 +100,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     private function ensureDirectoryExists(): void
     {
-        if (!$this->fileSystem->fileExists($this->exportDirectory)) {
+        if (!$this->fileSystem->directoryExists($this->exportDirectory)) {
             $this->fileSystem->createDirectory($this->exportDirectory);
         }
     }

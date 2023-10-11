@@ -53,11 +53,6 @@ class ScriptRule extends Rule
 
     protected bool $debug = true;
 
-    /**
-     * @var array<string>
-     */
-    protected array $customerGroupIds = [];
-
     public function match(RuleScope $scope): bool
     {
         $context = [...['scope' => $scope], ...$this->values];
@@ -127,6 +122,26 @@ class ScriptRule extends Rule
     public function setConstraints(array $constraints): void
     {
         $this->constraints = $constraints;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return $this
+     */
+    public function assignValues(array $options): ScriptRule
+    {
+        $this->values = $options;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getValues(): array
+    {
+        return $this->values;
     }
 
     /**

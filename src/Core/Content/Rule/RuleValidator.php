@@ -123,11 +123,14 @@ class RuleValidator implements EventSubscriberInterface
         $value = $this->getConditionValue($condition, $payload);
 
         // add violations when a property is not defined on the rule instance
-        $missingProperties = array_filter(
-            $value,
-            static fn (string $key): bool => !property_exists($ruleInstance, $key),
-            \ARRAY_FILTER_USE_KEY
-        );
+        $missingProperties = [];
+        if (!$ruleInstance instanceof ScriptRule) {
+            $missingProperties = array_filter(
+                $value,
+                static fn (string $key): bool => !property_exists($ruleInstance, $key),
+                \ARRAY_FILTER_USE_KEY
+            );
+        }
 
         foreach (array_keys($missingProperties) as $missingProperty) {
             $violationList->add(
@@ -139,10 +142,14 @@ class RuleValidator implements EventSubscriberInterface
             );
         }
 
-        $ruleInstance->assign($value);
+        // remove missing properties from value before assigning it to the rule instance
+        $value = array_diff_key($value, $missingProperties);
 
         if ($ruleInstance instanceof ScriptRule) {
+            $ruleInstance->assignValues($value);
             $this->setScriptConstraints($ruleInstance, $condition, $payload, $context);
+        } else {
+            $ruleInstance->assign($value);
         }
 
         $this->validateConsistence(

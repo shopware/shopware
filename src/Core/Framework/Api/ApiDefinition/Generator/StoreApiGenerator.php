@@ -88,7 +88,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $schemaPaths = [$this->schemaPath];
 
         if (!empty($bundleName)) {
-            $schemaPaths = $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName);
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         } else {
             $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         }

@@ -6,19 +6,29 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_line_chart_multiple %}
-    <template v-if="needOneDimensionalArray">
+    <template
+        v-if="needOneDimensionalArray"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_line_chart_multiple_chart %}
-        <apexchart
+        <template
             v-for="(serie, index) in optimizedSeries"
-            v-bind="$attrs"
+            {% if VUE3 %}
             :key="`multiple-chart-${index}`"
-            :type="type"
-            :options="mergedOptions"
-            :series="serie.data"
-            :height="height"
-            v-on="$listeners"
-        />
+            {% endif %}
+        >
+            <apexchart
+                v-bind="$attrs"
+                {% if VUE2 %}
+                :key="`multiple-chart-${index}`"
+                {% endif %}
+                :type="type"
+                :options="mergedOptions"
+                :series="serie.data"
+                :height="height"
+                v-on="$listeners"
+            />
+        </template>
         {% endblock %}
     </template>
     {% endblock %}

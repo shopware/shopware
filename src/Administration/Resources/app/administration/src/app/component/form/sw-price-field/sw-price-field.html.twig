@@ -62,13 +62,17 @@
         >
             <sw-icon
                 v-if="priceForCurrency.linked"
+                {% if VUE2 %}
                 key="price-field-locked-indicator"
+                {% endif %}
                 name="regular-lock"
                 size="16"
             />
             <sw-icon
                 v-else
+                {% if VUE2 %}
                 key="price-field-locked-indicator"
+                {% endif %}
                 name="regular-lock-open"
                 size="16"
             />

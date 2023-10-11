@@ -201,7 +201,7 @@
     {% endif %}
         <component
             :is="documentModal"
-            {% if VUE3 != true %}
+            {% if VUE2 %}
             v-if="showModal"
             {% endif %}
             :current-document-type="currentDocumentType"

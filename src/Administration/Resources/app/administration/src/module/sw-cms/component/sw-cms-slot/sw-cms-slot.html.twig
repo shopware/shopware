@@ -147,10 +147,15 @@
                         {% block sw_cms_slot_content_element_modal_selection_element %}
                         <template
                             v-for="element in cmsElementGroup.items"
+                            {% if VUE3 %}
+                            :key="element.name"
+                            {% endif %}
                         >
                             <div
                                 v-if="!element.hidden && element.previewComponent"
+                                {% if VUE2 %}
                                 :key="element.name"
+                                {% endif %}
                                 class="element-selection__element-wrapper"
                             >
                                 <div class="element-selection__element">

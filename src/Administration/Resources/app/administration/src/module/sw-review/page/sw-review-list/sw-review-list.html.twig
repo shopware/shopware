@@ -129,7 +129,7 @@
             <template #column-comment="{ item }">
                 <!-- eslint-disable vue/valid-v-model -->
                 <sw-data-grid-column-boolean
-                    v-model="item.comment && item.comment.length > 0"
+                    :value="item.comment && item.comment.length > 0"
                     :is-inline-edit="false"
                 />
             </template>

@@ -36,7 +36,7 @@ class AppShippingMethodDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.5.6.0';
+        return '6.5.7.0';
     }
 
     protected function defineFields(): FieldCollection

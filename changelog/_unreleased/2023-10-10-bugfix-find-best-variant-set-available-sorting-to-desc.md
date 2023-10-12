@@ -1,6 +1,6 @@
 ---
 title: Fix find best variant sorting
-issue: NEXT-29904
+issue: NEXT-XXX
 author: Alexander Kludt
 author_email: coding@aggrosoft.de
 ---

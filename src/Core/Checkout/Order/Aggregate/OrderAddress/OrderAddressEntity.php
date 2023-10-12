@@ -49,7 +49,9 @@ class OrderAddressEntity extends Entity
     protected $street;
 
     /**
-     * @var string|null
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     *
+     * @var string
      */
     protected $zipcode;
 
@@ -188,7 +190,10 @@ class OrderAddressEntity extends Entity
         $this->street = $street;
     }
 
-    public function getZipcode(): ?string
+    /**
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     */
+    public function getZipcode(): string
     {
         /**
          * @decrecated tag:v6.6.0 - Remove as return type will be nullable
@@ -200,7 +205,10 @@ class OrderAddressEntity extends Entity
         return $this->zipcode;
     }
 
-    public function setZipcode(?string $zipcode): void
+    /**
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     */
+    public function setZipcode(string $zipcode): void
     {
         $this->zipcode = $zipcode;
     }

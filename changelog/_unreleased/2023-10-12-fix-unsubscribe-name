@@ -1,0 +1,9 @@
+---
+title: Fix unsubscribe name
+issue: NEXT-29662
+author: Tommy Quissens
+author_email: tommy.quissens@meteor.be
+author_github: @quisse
+---
+# Storefront
+* The javascript `sort()` function sorts it's array, which prevent unsubscribing of events to an element since the name at key `0` is sorted.

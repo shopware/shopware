@@ -14,9 +14,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_header_search %}
         <sw-simple-search-field
+            v-model="term"
             class="sw-cms-layout-modal__header-search"
             :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-            :search-term="term"
             @search-term-change="onSearch"
         />
         {% endblock %}

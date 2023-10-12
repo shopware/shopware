@@ -110,6 +110,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
         $productEntity->setId($this->idsCollection->create('product1'));
+        $productEntity->setAvailable(true);
         $productEntity->setUniqueIdentifier('BestVariant');
 
         $idsSearchResult = new IdSearchResult(
@@ -139,6 +140,7 @@ class ProductDetailRouteTest extends TestCase
         static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals(4, $result->getProduct()->getCmsPageId());
         static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertTrue($result->getProduct()->getAvailable());
     }
 
     public function testConfigHideCloseoutProductsWhenOutOfStockFiltersResults(): void

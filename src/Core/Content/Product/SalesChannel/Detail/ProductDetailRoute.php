@@ -142,7 +142,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('product.parentId', $productId))
             ->addSorting(new FieldSorting('product.price'))
-            ->addSorting(new FieldSorting('product.available'))
+            ->addSorting(new FieldSorting('product.available', FieldSorting::DESCENDING))
             ->setLimit(1);
 
         $criteria->setTitle('product-detail-route::find-best-variant');

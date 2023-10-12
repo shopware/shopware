@@ -169,7 +169,39 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::ACTIVE_FLAG_APP_PATH);
     }
 
-    private function getNumberOfShippingMethods(?bool $getAppShippingMethod = false): int
+    public function testGetAvailabilityRuleUuidReturnsAlwaysValidRule(): void
+    {
+        $this->installApp(self::APP_PATH);
+
+        $alwaysValidRule = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `name` = "Always valid (Default)"'));
+
+        $appShippingMethods = $this->getApp()->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
+
+        static::assertSame($alwaysValidRule, $availabilityRuleId);
+
+        $this->removeApp(self::APP_PATH);
+    }
+
+    public function testGetAvailabilityRuleUuidReturnsFirstRuleForShippingArea(): void
+    {
+        $this->connection->update('rule', ['name' => 'Foo Bar'], ['name' => 'Always valid (Default)']);
+
+        $this->installApp(self::APP_PATH);
+
+        $ruleId = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `areas` LIKE "%shipping%" ORDER BY `id` ASC'));
+
+        $appShippingMethods = $this->getApp()->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
+
+        static::assertSame($ruleId, $availabilityRuleId);
+
+        $this->removeApp(self::APP_PATH);
+    }
+
+    private function getNumberOfShippingMethods(bool $getAppShippingMethod = false): int
     {
         $sql = 'SELECT count(*) from `shipping_method`';
 

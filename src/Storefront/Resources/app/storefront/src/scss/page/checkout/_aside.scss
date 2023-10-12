@@ -47,6 +47,7 @@
     margin-bottom: $spacer-lg;
 }
 
+/** @deprecated tag:v6.6.0 - Styling for "checkout-aside-item" will be removed because the corresponding templates were replaced with "line-item" in v6.5.0. Please build upon the CSS for "line-item" instead. */
 .checkout-aside-item {
     margin-bottom: $spacer;
 
@@ -68,6 +69,7 @@
     }
 }
 
+/** @deprecated tag:v6.6.0 - Styling for "checkout-aside-item" will be removed because the corresponding templates were replaced with "line-item" in v6.5.0. Please build upon the CSS for "line-item" instead. */
 .checkout-aside-item-price {
     font-weight: $font-weight-bold;
     text-align: right;

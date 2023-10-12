@@ -210,7 +210,9 @@
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}
                             <sw-icon
                                 v-if="expanded"
+                                {% if VUE2 %}
                                 key="filter-collapse-expanded-indicator"
+                                {% endif %}
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-down-xxs"
                                 size="12px"
@@ -221,7 +223,9 @@
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}
                             <sw-icon
                                 v-else
+                                {% if VUE2 %}
                                 key="filter-collapse-expanded-indicator"
+                                {% endif %}
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-right-xxs"
                                 size="12px"

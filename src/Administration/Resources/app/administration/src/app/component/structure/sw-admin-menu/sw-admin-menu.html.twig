@@ -45,18 +45,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_navigation_main_list %}
                 <ul class="sw-admin-menu__navigation-list">
-                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
                     <template
                         v-for="(entry, index) in mainMenuEntries"
                         {% if VUE3 %}
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        {% else %}
                         {% endif %}
                     >
                         <sw-admin-menu-item
-                            {% if VUE3 %}
-                            {% else %}
+                            {% if VUE2 %}
                             :key="`${entry.id || entry.path}-${entry.children.length}`"
                             {% endif %}
                             :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
@@ -239,19 +237,17 @@
             @mouseenter="onFlyoutEnter"
             @mouseleave="onFlyoutLeave"
         >
-            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
             <template
                 v-for="entry in flyoutEntries"
                 {% if VUE3 %}
                 :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
-                {% else %}
                 {% endif %}
             >
 
                 <li
                     v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                    {% if VUE3 %}
-                    {% else %}
+                    {% if VUE2 %}
                     :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
                     {% endif %}
                     :style="{ 'border-color': flyoutColor }"

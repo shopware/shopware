@@ -1,12 +1,19 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_change_type_field_renderer %}
 <div class="sw-bulk-edit-change-field-renderer">
-    <template v-for="(formField, index) in formFields">
+    <template
+        v-for="(formField, index) in formFields"
+        {% if VUE3 %}
+        :key="`formField-${index}`"
+        {% endif %}
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_change_type_field_renderer_container %}
         <sw-container
             v-if="formField && bulkEditData[formField.name]"
+            {% if VUE2 %}
             :key="`formField-${index}`"
+            {% endif %}
             columns="240px 1fr"
             gap="32px"
             :class="`sw-bulk-edit-change-field__container sw-bulk-edit-change-field-${formField.name}`"

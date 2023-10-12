@@ -36,20 +36,18 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notifications_item_actions_slot %}
                 <template #actions>
-                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-v-for-template-key -->
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_notifications_item_actions %}
                     <template
                         v-for="action in notification.actions"
                         {% if VUE3 %}
                         :key="action.label"
-                        {% else %}
                         {% endif %}
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_notifications_item_action_item %}
                         <sw-button
-                            {% if VUE3 %}
-                            {% else %}
+                            {% if VUE2 %}
                             :key="action.label"
                             {% endif %}
                             :disabled="action.disabled"

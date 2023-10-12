@@ -259,10 +259,14 @@ function resolveTemplates() {
 
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
+    const templateVars = {
+        VUE3: !!window._features_?.VUE3,
+        VUE2: !window._features_?.VUE3,
+    };
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render({ VUE3: !!window._features_?.VUE3 });
+        const finalHtml = item.template.render(templateVars);
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -296,7 +300,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render({ VUE3: !!window._features_?.VUE3 });
+    const finalHtml = updatedTemplate.template.render(templateVars);
 
     // Update item which will written to the registry
     updatedTemplate = {

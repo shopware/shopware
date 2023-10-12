@@ -91,10 +91,17 @@
                 </sw-meteor-card>
 
                 <template v-else>
-                    <template v-for="entry in extensionListPaginated">
+                    <template
+                        v-for="entry in extensionListPaginated"
+                        {% if VUE3 %}
+                        :key="entry.name"
+                        {% endif %}
+                    >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                            {% if VUE2 %}
                             :key="entry.name"
+                            {% endif %}
                             :extension="entry"
                             @update-list="updateList"
                         />

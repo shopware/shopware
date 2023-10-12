@@ -7,13 +7,17 @@
     <template #smart-bar-header>
         <h2
             v-if="languageHasName"
+            {% if VUE2 %}
             key="sw-setting-language-header"
+            {% endif %}
         >
             {{ language.name }}
         </h2>
         <h2
             v-else
+            {% if VUE2 %}
             key="sw-setting-language-header"
+            {% endif %}
         >
             {{ $tc('sw-settings-language.detail.textHeadline') }}
         </h2>

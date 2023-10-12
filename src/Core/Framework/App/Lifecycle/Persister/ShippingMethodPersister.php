@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -150,22 +150,36 @@ class ShippingMethodPersister
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new ContainsFilter('areas', RuleAreas::SHIPPING_AREA),
             new EqualsFilter('invalid', 0),
+            new EqualsFilter('name', 'Always valid (Default)'),
         ]));
+        $criteria->setLimit(1);
 
-        $rule = $this->ruleRepository->search($criteria, $context)->getEntities()->first();
-
-        if (!$rule instanceof RuleEntity) {
-            throw AppException::installationFailed($appName, 'No availability rule available. You have to create one before installing the app.');
+        $ruleId = $this->ruleRepository->searchIds($criteria, $context)->firstId();
+        if ($ruleId !== null) {
+            return $ruleId;
         }
 
-        return $rule->getId();
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('invalid', 0),
+            new ContainsFilter('areas', RuleAreas::SHIPPING_AREA),
+        ]));
+        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
+        $criteria->setLimit(1);
+
+        $ruleId = $this->ruleRepository->searchIds($criteria, $context)->firstId();
+        if ($ruleId !== null) {
+            return $ruleId;
+        }
+
+        throw AppException::installationFailed($appName, 'No availability rule available. You have to create one before installing the app.');
     }
 
     private function getIconId(Manifest $manifest, ShippingMethod $shippingMethod, Context $context): ?string
     {
-        if (!$iconPath = $shippingMethod->getIcon()) {
+        $iconPath = $shippingMethod->getIcon();
+        if (!$iconPath) {
             return null;
         }
 

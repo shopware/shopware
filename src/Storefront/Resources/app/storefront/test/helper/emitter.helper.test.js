@@ -116,6 +116,12 @@ describe('NativeEventEmitter tests', () => {
             expect(emitter.listeners.length).toBe(2);
             emitter.unsubscribe(`${eventName}.test`);
             expect(emitter.listeners.length).toBe(1);
+
+            // sort will order uppercase characters before lowercase
+            // this tests if the sort isn't changing the splitEventName
+            expect(emitter.listeners.length).toBe(2);
+            emitter.unsubscribe(`${eventName}.Test`);
+            expect(emitter.listeners.length).toBe(1);
         });
     });
 

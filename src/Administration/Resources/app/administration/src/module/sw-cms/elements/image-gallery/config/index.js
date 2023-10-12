@@ -22,7 +22,7 @@ export default {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
-            enitiy: this.element,
+            entity: this.element,
             mediaItems: [],
             columnWidth: '100px',
         };

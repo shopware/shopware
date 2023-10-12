@@ -17,9 +17,9 @@ class AppShippingMethodEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?AppEntity $app;
+    protected ?AppEntity $app = null;
 
-    protected string $appId;
+    protected ?string $appId = null;
 
     protected string $identifier;
 
@@ -27,11 +27,11 @@ class AppShippingMethodEntity extends Entity
 
     protected string $shippingMethodId;
 
-    protected ?ShippingMethodEntity $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    protected ?string $originalMediaId;
+    protected ?string $originalMediaId = null;
 
-    protected ?MediaEntity $originalMedia;
+    protected ?MediaEntity $originalMedia = null;
 
     public function getApp(): ?AppEntity
     {
@@ -43,12 +43,12 @@ class AppShippingMethodEntity extends Entity
         $this->app = $app;
     }
 
-    public function getAppId(): string
+    public function getAppId(): ?string
     {
         return $this->appId;
     }
 
-    public function setAppId(string $appId): void
+    public function setAppId(?string $appId): void
     {
         $this->appId = $appId;
     }

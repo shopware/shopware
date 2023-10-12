@@ -536,7 +536,7 @@ class OrderConverterTest extends TestCase
         $dispatcher
             ->expects(static::once())
             ->method('dispatch')
-            ->with(static::callback(function (SalesChannelContextAssembledEvent $event) use ($order): bool {
+            ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
                 static::assertSame($order, $event->getOrder());
 
                 return true;
@@ -1115,7 +1115,6 @@ class OrderConverterTest extends TestCase
                         'id' => null,
                         'customFields' => null,
                         'appShippingMethod' => null,
-                        'technicalName' => null,
                     ],
                     'shippingCosts' => [
                         'unitPrice' => 1,

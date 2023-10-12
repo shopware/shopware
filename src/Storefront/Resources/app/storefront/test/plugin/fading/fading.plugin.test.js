@@ -1,6 +1,9 @@
 import Fading from 'src/plugin/fading/fading.plugin.js';
 import template from './fading.template.html';
 
+/**
+ * @deprecated tag:v6.6.0 - Plugin test for "Fading" will be removed without replacement. Plugin is not used anymore.
+ */
 describe('Fading plugin test', () => {
     let fadingPlugin;
     let collapseSpy;

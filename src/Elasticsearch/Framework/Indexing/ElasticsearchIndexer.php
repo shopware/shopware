@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -189,7 +189,7 @@ class ElasticsearchIndexer
         $definition = $this->registry->get((string) $offset->getDefinition());
 
         if (!$definition) {
-            throw new \RuntimeException(sprintf('Definition %s not found', $offset->getDefinition()));
+            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -370,7 +370,7 @@ class ElasticsearchIndexer
         $context->addExtension('currencies', $this->currencyRepository->search(new Criteria(), Context::createDefaultContext()));
 
         if (!$definition) {
-            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
+            throw ElasticsearchException::unsupportedElasticsearchDefinition($entity);
         }
 
         $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
@@ -397,7 +397,7 @@ class ElasticsearchIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw new ElasticsearchIndexingException($errors);
+            throw ElasticsearchException::indexingError($errors);
         }
     }
 

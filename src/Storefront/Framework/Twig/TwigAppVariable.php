@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -39,7 +40,7 @@ class TwigAppVariable extends AppVariable
         $request = $this->appVariable->getRequest();
 
         if ($request === null) {
-            throw new \RuntimeException('The "app.request" variable is not available.');
+            throw StorefrontFrameworkException::appRequestNotAvailable();
         }
 
         $clonedRequest = clone $request;

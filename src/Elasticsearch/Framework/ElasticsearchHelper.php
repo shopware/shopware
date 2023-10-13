@@ -14,8 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
-use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 
@@ -81,7 +80,7 @@ class ElasticsearchHelper
         }
 
         if (!$this->client->ping()) {
-            return $this->logAndThrowException(new ServerNotAvailableException());
+            return $this->logAndThrowException(ElasticsearchException::serverNotAvailable());
         }
 
         return true;
@@ -167,7 +166,7 @@ class ElasticsearchHelper
         $esDefinition = $this->registry->get($definition->getEntityName());
 
         if (!$esDefinition) {
-            throw new UnsupportedElasticsearchDefinitionException($definition->getEntityName());
+            throw ElasticsearchException::unsupportedElasticsearchDefinition($definition->getEntityName());
         }
 
         $query = $esDefinition->buildTermQuery($context, $criteria);

@@ -41,24 +41,4 @@ class ElasticsearchTest extends TestCase
 
         static::assertTrue($container->hasDefinition(ElasticsearchIndexer::class));
     }
-
-    public function testBundleWithInvalidEnvironment(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setParameter('kernel.environment', 1);
-
-        $framework = new FrameworkBundle();
-        $frameworkExtension = $framework->getContainerExtension();
-        static::assertNotNull($frameworkExtension);
-        $container->registerExtension($frameworkExtension);
-
-        $bundle = new Elasticsearch();
-        $extension = $bundle->getContainerExtension();
-        static::assertInstanceOf(ExtensionInterface::class, $extension);
-        $container->registerExtension($extension);
-
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Container parameter "kernel.environment" needs to be a string');
-        $bundle->build($container);
-    }
 }

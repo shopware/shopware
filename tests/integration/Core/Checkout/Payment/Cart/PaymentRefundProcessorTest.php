@@ -94,6 +94,7 @@ class PaymentRefundProcessorTest extends TestCase
             ->add('paymentMethod', [
                 'id' => $this->ids->get('payment_method'),
                 // this enables refund handling for the payment method
+                'technicalName' => 'payment_test',
                 'handlerIdentifier' => RefundPaymentHandlerInterface::class,
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => [
@@ -196,6 +197,7 @@ class PaymentRefundProcessorTest extends TestCase
             ->add('paymentMethod', [
                 'id' => $this->ids->get('payment_method'),
                 // this enables refund handling for the payment method
+                'technicalName' => 'payment_test',
                 'handlerIdentifier' => RefundPaymentHandlerInterface::class,
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => [

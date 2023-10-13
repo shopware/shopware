@@ -496,6 +496,7 @@ class CreditNoteRendererTest extends TestCase
             'id' => $shippingMethodId,
             'type' => 0,
             'name' => 'test shipping method',
+            'technicalName' => Uuid::randomHex(),
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [
@@ -559,6 +560,7 @@ class CreditNoteRendererTest extends TestCase
             'id' => $paymentMethodId,
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Payment',
+            'technicalName' => Uuid::randomHex(),
             'active' => true,
             'position' => 0,
             'availabilityRules' => [

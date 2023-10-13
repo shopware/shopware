@@ -404,6 +404,7 @@ SQL;
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => Uuid::randomHex(),
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],

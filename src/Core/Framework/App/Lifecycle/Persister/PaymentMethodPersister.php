@@ -45,6 +45,7 @@ class PaymentMethodPersister
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($defaultLocale);
             $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+            $payload['technicalName'] = \sprintf('payment_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
             /** @var PaymentMethodEntity|null $existing */
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();

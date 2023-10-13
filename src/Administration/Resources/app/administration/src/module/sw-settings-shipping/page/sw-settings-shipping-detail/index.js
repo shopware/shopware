@@ -66,6 +66,7 @@ export default {
         ]),
         ...mapPropertyErrors('shippingMethod', [
             'name',
+            'technicalName',
             'deliveryTimeId',
             'availabilityRuleId',
         ]),
@@ -243,10 +244,19 @@ export default {
         },
 
         onSave() {
-            const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-            );
+            /**
+             * @deprecated tag:v6.7.0 - Can be removed: technical names are now required
+             */
+            if (!this.shippingMethod.technicalName) {
+                return Shopware.State.dispatch('error/addApiError', {
+                    expression: `shipping_method.${this.shippingMethod.id}.technicalName`,
+                    error: new Shopware.Classes.ShopwareError(
+                        {
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        },
+                    ),
+                });
+            }
 
             this.filterIncompletePrices();
 
@@ -254,21 +264,36 @@ export default {
             this.isProcessLoading = true;
 
             return this.shippingMethodRepository.save(this.shippingMethod, Context.api).then(() => {
-                this.isProcessLoading = false;
                 this.isSaveSuccessful = true;
                 if (!this.shippingMethodId) {
                     this.$router.push({ name: 'sw.settings.shipping.detail', params: { id: this.shippingMethod.id } });
                 }
                 this.$refs.mediaSidebarItem.getList();
+                this.loadEntityData();
             }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
-                });
+                this.onError(exception);
                 warn(this._name, exception.message, exception.response);
                 this.isProcessLoading = false;
                 throw exception;
-            }).then(() => this.loadEntityData());
+            }).finally(() => {
+                this.isProcessLoading = false;
+            });
+        },
+
+        onError(error) {
+            let errorDetails = null;
+
+            try {
+                errorDetails = error.response.data.errors[0].detail;
+            } catch (e) {
+                errorDetails = '';
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                // eslint-disable-next-line max-len
+                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', 0, { name: this.shippingMethod.name })} ${errorDetails}`,
+            });
         },
 
         filterIncompletePrices() {

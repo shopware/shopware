@@ -2130,6 +2130,7 @@ class VersioningTest extends TestCase
             'id' => $paymentMethodId,
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Payment',
+            'technicalName' => 'payment_test',
             'active' => true,
             'position' => 0,
             'availabilityRule' => [

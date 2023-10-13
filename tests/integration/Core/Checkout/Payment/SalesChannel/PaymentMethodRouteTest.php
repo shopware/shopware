@@ -163,6 +163,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment'),
                 'name' => 'Payment 1',
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -184,6 +185,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment2'),
                 'name' => 'Payment 2',
+                'technicalName' => 'payment_test2',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -205,6 +207,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment3'),
                 'name' => 'Payment 3',
+                'technicalName' => 'payment_test3',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [

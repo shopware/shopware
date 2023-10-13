@@ -634,6 +634,10 @@
             <argument type="tagged" tag="shopware.dal.exception_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator">
             <tag name="kernel.event_subscriber"/>
         </service>

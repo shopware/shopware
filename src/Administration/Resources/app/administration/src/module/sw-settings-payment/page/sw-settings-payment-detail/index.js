@@ -112,7 +112,7 @@ export default {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('paymentMethod', ['name']),
+        ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
     },
 
     watch: {
@@ -185,10 +185,24 @@ export default {
         },
 
         onSave() {
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-            );
             this.isSaveSuccessful = false;
+
+            /**
+             * @deprecated tag:v6.7.0 - Can be removed: technical names are now required
+             */
+            if (!this.paymentMethod.technicalName) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `payment_method.${this.paymentMethod.id}.technicalName`,
+                    error: new Shopware.Classes.ShopwareError(
+                        {
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        },
+                    ),
+                });
+
+                return Promise.reject();
+            }
+
             this.isLoading = true;
 
             return this.paymentMethodRepository.save(this.paymentMethod)
@@ -198,15 +212,29 @@ export default {
                     this.loadEntityData();
                 })
                 .catch((exception) => {
-                    this.createNotificationError({
-                        message: messageSaveError,
-                    });
+                    this.onError(exception);
                     warn(this._name, exception.message, exception.response);
                     throw exception;
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        onError(error) {
+            let errorDetails = null;
+
+            try {
+                errorDetails = error.response.data.errors[0].detail;
+            } catch (e) {
+                errorDetails = '';
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                // eslint-disable-next-line max-len
+                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', 0, { name: this.paymentMethod.name })} ${errorDetails}`,
+            });
         },
 
         onCancel() {

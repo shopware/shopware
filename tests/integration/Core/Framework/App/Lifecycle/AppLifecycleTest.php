@@ -450,6 +450,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\myMethod',
                         'name' => 'My method',
+                        'technicalName' => 'payment_test',
                         'active' => false,
                         'media' => [
                             'private' => true,
@@ -462,6 +463,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\toBeRemoved',
                         'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
                         'active' => false,
                     ],
                     'appName' => 'test',
@@ -613,6 +615,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\myMethod',
                         'name' => 'My method',
+                        'technicalName' => 'payment_test',
                         'active' => true,
                         'media' => [
                             'private' => false,
@@ -625,6 +628,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\toBeRemoved',
                         'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
                         'active' => true,
                     ],
                     'appName' => 'test',

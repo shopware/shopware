@@ -52,6 +52,7 @@ class PaymentMethodIndexerTest extends TestCase
                         'en-GB' => 'Credit card',
                         'de-DE' => 'Kreditkarte',
                     ],
+                    'technicalName' => 'payment_creaditcard',
                     'active' => true,
                 ],
                 [
@@ -60,6 +61,7 @@ class PaymentMethodIndexerTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnungskauf',
                     ],
+                    'technicalName' => 'payment_invoice',
                     'active' => true,
                     'plugin' => [
                         'name' => 'Shopware',
@@ -78,6 +80,7 @@ class PaymentMethodIndexerTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnung',
                     ],
+                    'technicalName' => 'payment_invoiceplugin',
                     'active' => true,
                     'plugin' => [
                         'name' => 'Plugin',
@@ -96,6 +99,7 @@ class PaymentMethodIndexerTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnung',
                     ],
+                    'technicalName' => 'payment_App_identifier',
                     'active' => true,
                     'appPaymentMethod' => [
                         'identifier' => 'identifier',

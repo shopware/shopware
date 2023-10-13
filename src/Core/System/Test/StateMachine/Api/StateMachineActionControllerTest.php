@@ -323,6 +323,7 @@ class StateMachineActionControllerTest extends TestCase
         $shipping = [
             'id' => Uuid::randomHex(),
             'name' => 'test',
+            'technicalName' => 'shipping_test',
             'active' => true,
             'prices' => [
                 [

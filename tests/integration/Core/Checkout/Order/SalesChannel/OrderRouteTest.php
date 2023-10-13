@@ -811,6 +811,7 @@ class OrderRouteTest extends TestCase
                         'defaultBillingAddressId' => $addressId,
                         'defaultPaymentMethod' => [
                             'name' => 'Invoice',
+                            'technicalName' => Uuid::randomHex(),
                             'active' => true,
                             'description' => 'Default payment method',
                             'handlerIdentifier' => SyncTestPaymentHandler::class,
@@ -892,6 +893,7 @@ class OrderRouteTest extends TestCase
             [
                 'id' => $paymentId,
                 'name' => 'Test Payment with Rule',
+                'technicalName' => 'payment_test_rule',
                 'description' => 'Payment rule test',
                 'active' => true,
                 'afterOrderEnabled' => true,

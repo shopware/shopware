@@ -35,6 +35,7 @@ class CachedShippingMethodRouteTest extends TestCase
 
     private const DATA = [
         'name' => 'test',
+        'technicalName' => 'shipping_test',
         'availabilityRule' => ['name' => 'test', 'priority' => 1],
         'deliveryTime' => ['name' => 'test', 'min' => 1, 'max' => 1, 'unit' => 'day'],
     ];

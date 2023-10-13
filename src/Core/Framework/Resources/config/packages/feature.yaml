@@ -7,6 +7,9 @@ shopware:
       - name: v6.6.0.0
         default: false
         major: true
+      - name: v6.7.0.0
+        default: false
+        major: true
       - name: VUE3
         default: false
         major: true

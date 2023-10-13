@@ -196,6 +196,7 @@ trait SalesChannelApiTestBehaviour
                 'active' => true,
                 'description' => 'Default payment method',
                 'handlerIdentifier' => SyncTestPaymentHandler::class,
+                'technicalName' => Uuid::randomHex(),
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'true',

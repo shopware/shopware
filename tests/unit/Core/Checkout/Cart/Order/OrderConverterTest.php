@@ -1115,6 +1115,7 @@ class OrderConverterTest extends TestCase
                         'id' => null,
                         'customFields' => null,
                         'appShippingMethod' => null,
+                        'technicalName' => null,
                     ],
                     'shippingCosts' => [
                         'unitPrice' => 1,

@@ -9,7 +9,7 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Admin
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin
  */
 class AdminTest extends TestCase
 {

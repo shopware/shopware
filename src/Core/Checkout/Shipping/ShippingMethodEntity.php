@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -127,6 +128,8 @@ class ShippingMethodEntity extends Entity
      * @var TaxEntity|null
      */
     protected $tax;
+
+    protected ?AppShippingMethodEntity $appShippingMethod = null;
 
     public function __construct()
     {
@@ -331,5 +334,15 @@ class ShippingMethodEntity extends Entity
     public function setTax(TaxEntity $tax): void
     {
         $this->tax = $tax;
+    }
+
+    public function getAppShippingMethod(): ?AppShippingMethodEntity
+    {
+        return $this->appShippingMethod;
+    }
+
+    public function setAppShippingMethod(?AppShippingMethodEntity $appShippingMethod): void
+    {
+        $this->appShippingMethod = $appShippingMethod;
     }
 }

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Permissions
+ * @covers \Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions
  */
 class PermissionsTest extends TestCase
 {

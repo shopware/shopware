@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

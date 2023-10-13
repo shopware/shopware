@@ -21,6 +21,8 @@
     "app_template.updatedAt",
     "app_payment_method.createdAt",
     "app_payment_method.updatedAt",
+    "app_shipping_method.createdAt",
+    "app_shipping_method.updatedAt",
     "app_cms_block.createdAt",
     "app_cms_block.updatedAt",
     "app_cms_block.translated",

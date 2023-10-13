@@ -52,6 +52,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -96,7 +97,7 @@ class OrderConverterTest extends TestCase
     public function testAssembleSalesChannelContext(string $exceptionClass, string $manipulateOrder = ''): void
     {
         if ($exceptionClass !== '') {
-            static::expectException($exceptionClass);
+            $this->expectException($exceptionClass);
         }
 
         $orderAddressRepositorySearchResult = [];
@@ -140,7 +141,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<list<string>>
      */
     public static function assembleSalesChannelContextData(): array
     {
@@ -168,12 +169,14 @@ class OrderConverterTest extends TestCase
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
 
         // unset uncheckable ids
-        unset($result['id']);
-        unset($result['billingAddressId']);
-        unset($result['deepLinkCode']);
-        unset($result['orderDateTime']);
-        unset($result['stateId']);
-        unset($result['languageId']);
+        unset(
+            $result['id'],
+            $result['billingAddressId'],
+            $result['deepLinkCode'],
+            $result['orderDateTime'],
+            $result['stateId'],
+            $result['languageId'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
@@ -202,20 +205,24 @@ class OrderConverterTest extends TestCase
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
 
         // unset uncheckable ids
-        unset($result['id']);
-        unset($result['billingAddressId']);
-        unset($result['deepLinkCode']);
-        unset($result['orderDateTime']);
-        unset($result['stateId']);
-        unset($result['languageId']);
+        unset(
+            $result['id'],
+            $result['billingAddressId'],
+            $result['deepLinkCode'],
+            $result['orderDateTime'],
+            $result['stateId'],
+            $result['languageId'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset($result['deliveries'][$i]['shippingOrderAddress']['id']);
-            unset($result['deliveries'][$i]['shippingDateEarliest']);
-            unset($result['deliveries'][$i]['shippingDateLatest']);
+            unset(
+                $result['deliveries'][$i]['shippingOrderAddress']['id'],
+                $result['deliveries'][$i]['shippingDateEarliest'],
+                $result['deliveries'][$i]['shippingDateLatest'],
+            );
         }
 
         $expected = $this->getExpectedConvertToOrder();
@@ -239,7 +246,7 @@ class OrderConverterTest extends TestCase
     public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
         if ($exceptionClass !== '') {
-            static::expectException($exceptionClass);
+            $this->expectException($exceptionClass);
         }
 
         $cart = $this->getCart();
@@ -260,20 +267,24 @@ class OrderConverterTest extends TestCase
         $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
 
         // unset uncheckable ids
-        unset($result['id']);
-        unset($result['billingAddressId']);
-        unset($result['deepLinkCode']);
-        unset($result['orderDateTime']);
-        unset($result['stateId']);
-        unset($result['languageId']);
+        unset(
+            $result['id'],
+            $result['billingAddressId'],
+            $result['deepLinkCode'],
+            $result['orderDateTime'],
+            $result['stateId'],
+            $result['languageId'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset($result['deliveries'][$i]['shippingOrderAddress']['id']);
-            unset($result['deliveries'][$i]['shippingDateEarliest']);
-            unset($result['deliveries'][$i]['shippingDateLatest']);
+            unset(
+                $result['deliveries'][$i]['shippingOrderAddress']['id'],
+                $result['deliveries'][$i]['shippingDateEarliest'],
+                $result['deliveries'][$i]['shippingDateLatest'],
+            );
         }
 
         $expected = $this->getExpectedConvertToOrder();
@@ -290,7 +301,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
      */
     public static function convertToOrderExceptionsData(): array
     {
@@ -322,18 +333,24 @@ class OrderConverterTest extends TestCase
         static::assertNotFalse($result);
 
         // unset uncheckable ids
-        unset($result['extensions']['originalId']);
-        unset($result['token']);
+        unset(
+            $result['extensions']['originalId'],
+            $result['token'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['extensions']['originalId']);
-            unset($result['lineItems'][$i]['uniqueIdentifier']);
+            unset(
+                $result['lineItems'][$i]['extensions']['originalId'],
+                $result['lineItems'][$i]['uniqueIdentifier'],
+            );
         }
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['deliveryDate']);
             for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
-                unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
-                unset($result['deliveries'][$i]['positions'][$f]['lineItem']['uniqueIdentifier']);
+                unset(
+                    $result['deliveries'][$i]['positions'][$f]['deliveryDate'],
+                    $result['deliveries'][$i]['positions'][$f]['lineItem']['uniqueIdentifier'],
+                );
             }
         }
 
@@ -356,11 +373,15 @@ class OrderConverterTest extends TestCase
         static::assertNotFalse($result);
 
         // unset uncheckable ids
-        unset($result['extensions']['originalId']);
-        unset($result['token']);
+        unset(
+            $result['extensions']['originalId'],
+            $result['token'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['extensions']['originalId']);
-            unset($result['lineItems'][$i]['uniqueIdentifier']);
+            unset(
+                $result['lineItems'][$i]['extensions']['originalId'],
+                $result['lineItems'][$i]['uniqueIdentifier'],
+            );
         }
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
@@ -399,7 +420,7 @@ class OrderConverterTest extends TestCase
      */
     public function testConvertToCartExceptions(string $manipulateOrder): void
     {
-        static::expectException(OrderException::class);
+        $this->expectException(OrderException::class);
 
         $order = $this->getOrder($manipulateOrder);
 
@@ -410,8 +431,10 @@ class OrderConverterTest extends TestCase
         static::assertNotFalse($result);
 
         // unset uncheckable ids
-        unset($result['extensions']['originalId']);
-        unset($result['token']);
+        unset(
+            $result['extensions']['originalId'],
+            $result['token'],
+        );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
         }
@@ -471,7 +494,7 @@ class OrderConverterTest extends TestCase
         static::assertInstanceOf(LineItem::class, $lineItem);
         $collection = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         static::assertInstanceOf(OrderLineItemDownloadCollection::class, $collection);
-        static::assertEquals(1, $collection->count());
+        static::assertCount(1, $collection);
 
         $cart = $this->getCart();
         $cart->getLineItems()->clear();
@@ -514,7 +537,7 @@ class OrderConverterTest extends TestCase
         $dispatcher
             ->expects(static::once())
             ->method('dispatch')
-            ->with(static::callback(function (SalesChannelContextAssembledEvent $event) use ($order): bool {
+            ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
                 static::assertSame($order, $event->getOrder());
 
                 return true;
@@ -898,7 +921,7 @@ class OrderConverterTest extends TestCase
     // Expectations
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function getExpectedConvertToCart(): array
     {
@@ -1085,6 +1108,7 @@ class OrderConverterTest extends TestCase
                         'extensions' => [],
                         'id' => null,
                         'customFields' => null,
+                        'appShippingMethod' => null,
                     ],
                     'shippingCosts' => [
                         'unitPrice' => 1,
@@ -1115,7 +1139,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function getExpectedConvertToOrder(): array
     {

@@ -34,4 +34,9 @@ class PaymentTransactionStructFactory extends AbstractPaymentTransactionStructFa
     {
         return new RecurringPaymentTransactionStruct($orderTransaction, $order);
     }
+
+    public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct
+    {
+        return new PaymentTransactionStruct($orderTransactionId, $returnUrl);
+    }
 }

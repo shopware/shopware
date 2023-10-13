@@ -21,4 +21,6 @@ abstract class AbstractPaymentTransactionStructFactory
     abstract public function prepared(OrderTransactionEntity $orderTransaction, OrderEntity $order): PreparedPaymentTransactionStruct;
 
     abstract public function recurring(OrderTransactionEntity $orderTransaction, OrderEntity $order): RecurringPaymentTransactionStruct;
+
+    abstract public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct;
 }

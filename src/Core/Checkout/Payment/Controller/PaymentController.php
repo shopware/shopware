@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,7 +31,7 @@ class PaymentController extends AbstractController
      * @internal
      */
     public function __construct(
-        private readonly PaymentService $paymentService,
+        private readonly PaymentProcessor $paymentProcessor,
         private readonly OrderConverter $orderConverter,
         private readonly TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
         private readonly EntityRepository $orderRepository
@@ -48,7 +49,7 @@ class PaymentController extends AbstractController
 
         $salesChannelContext = $this->assembleSalesChannelContext($paymentToken);
 
-        $result = $this->paymentService->finalizeTransaction(
+        $result = $this->paymentProcessor->finalize(
             $paymentToken,
             $request,
             $salesChannelContext

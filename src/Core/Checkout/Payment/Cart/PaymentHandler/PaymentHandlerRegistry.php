@@ -63,7 +63,7 @@ class PaymentHandlerRegistry
     public function getPaymentMethodHandler(
         string $paymentMethodId,
         ?string $expectedHandlerType = null
-    ): ?PaymentHandlerInterface {
+    ): PaymentHandlerInterface|AbstractPaymentHandler|null {
         $result = $this->connection->createQueryBuilder()
             ->select('
                 payment_method.handler_identifier,

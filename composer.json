@@ -474,6 +474,12 @@
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
             "phpstan analyze --memory-limit=2G"
         ],
+        "phpstan-errors-by-area": [
+            "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
+        ],
+        "phpstan-v66-errors-by-area": [
+            "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-v66-baseline.neon"
+        ],
         "phpunit": [
             "phpunit --exclude-group=quarantined"
         ],

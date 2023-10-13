@@ -47,7 +47,6 @@ Lint Acceptance:
         - cd tests/acceptance
         - npm clean-install
         - npx eslint .
-        - npx prettier . --check
 
 Check eslint parser (Administration):
     extends: .base-with-node

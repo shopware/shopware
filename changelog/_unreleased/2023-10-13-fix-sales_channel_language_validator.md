@@ -6,4 +6,4 @@ author_email: sascha.heilmeier@netlogix.de
 author_github: @scarbous
 ---
 # API
-* Fix the validation of the SalesChannel to avoid errors when updating the sales channels.
+* Changed the validation of the SalesChannel to avoid errors when updating the sales channels.

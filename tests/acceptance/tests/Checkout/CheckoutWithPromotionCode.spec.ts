@@ -1,5 +1,5 @@
-import { test, expect } from "@fixtures/AcceptanceTest";
-import { CheckoutCartPage, CheckoutConfirmPage, CheckoutFinishPage } from "@page-objects/StorefrontPages";
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { CheckoutCartPage, CheckoutConfirmPage, CheckoutFinishPage } from '@page-objects/StorefrontPages';
 
 test('Registered shop customer uses a promotion code during checkout. @checkout', async ({
     adminApiContext,
@@ -7,7 +7,7 @@ test('Registered shop customer uses a promotion code during checkout. @checkout'
     storeApiContext,
     defaultStorefront,
     salesChannelProduct,
-    idProvider
+    idProvider,
 }) => {
     const promotionCode = `${idProvider.getIdPair().id}`;
     const promotionName = `Test Promotion ${promotionCode}`;
@@ -23,20 +23,22 @@ test('Registered shop customer uses a promotion code during checkout. @checkout'
         // Create new cart for the shop customer.
         const cartResponse = await storeApiContext.post(`checkout/cart`, {
             data: {
-                name: `default-customer-cart-${promotionCode}`
-            }
+                name: `default-customer-cart-${promotionCode}`,
+            },
         });
         expect(cartResponse.ok()).toBeTruthy();
 
         // Create new line items in the cart.
         const lineItemResponse = await storeApiContext.post('checkout/cart/line-item', {
             data: {
-                items: [{
-                    type: 'product',
-                    referencedId: salesChannelProduct.id,
-                    quantity: 10
-                }]
-            }
+                items: [
+                    {
+                        type: 'product',
+                        referencedId: salesChannelProduct.id,
+                        quantity: 10,
+                    },
+                ],
+            },
         });
         expect(lineItemResponse.ok()).toBeTruthy();
 
@@ -55,17 +57,21 @@ test('Registered shop customer uses a promotion code during checkout. @checkout'
                 preventCombination: true,
                 customerRestriction: false,
                 code: promotionCode,
-                discounts: [{
-                    scope: 'cart',
-                    type: 'percentage',
-                    value: 10,
-                    considerAdvancedRules: false
-                }],
-                salesChannels: [{
-                    salesChannelId: defaultStorefront.salesChannel.id,
-                    priority: 1
-                }]
-            }
+                discounts: [
+                    {
+                        scope: 'cart',
+                        type: 'percentage',
+                        value: 10,
+                        considerAdvancedRules: false,
+                    },
+                ],
+                salesChannels: [
+                    {
+                        salesChannelId: defaultStorefront.salesChannel.id,
+                        priority: 1,
+                    },
+                ],
+            },
         });
         expect(promotionResponse.ok()).toBeTruthy();
     });
@@ -85,7 +91,7 @@ test('Registered shop customer uses a promotion code during checkout. @checkout'
         await expect(cartPage.page.getByText(promotionName)).toBeVisible();
 
         // Value of test product with price of €10 and quantity of 10 with 10% discount.
-        await expect(cartPage.grandTotalPrice).toHaveText('€90.00*')
+        await expect(cartPage.grandTotalPrice).toHaveText('€90.00*');
     });
 
     await test.step('Shop customer proceeds to checkout.', async () => {
@@ -122,13 +128,15 @@ test('Registered shop customer uses a promotion code during checkout. @checkout'
 
         const order = await orderResponse.json();
 
-        expect(order.data).toEqual(expect.objectContaining({
-            price: expect.objectContaining({
-                totalPrice: 90
-            }),
-            orderCustomer: expect.objectContaining({
-                email: defaultStorefront.customer.email
+        expect(order.data).toEqual(
+            expect.objectContaining({
+                price: expect.objectContaining({
+                    totalPrice: 90,
+                }),
+                orderCustomer: expect.objectContaining({
+                    email: defaultStorefront.customer.email,
+                }),
             })
-        }))
+        );
     });
 });

@@ -1,17 +1,17 @@
-import { AdminApiContext } from "./AdminApiContext";
-import { expect } from "@playwright/test";
+import { AdminApiContext } from './AdminApiContext';
+import { expect } from '@playwright/test';
 
 export const getLanguageData = async (
     languageCode: string,
     adminApiContext: AdminApiContext
 ): Promise<{ id: string; localeId: string }> => {
-    const resp = await adminApiContext.post("./search/language", {
+    const resp = await adminApiContext.post('./search/language', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "translationCode.code",
+                    type: 'equals',
+                    field: 'translationCode.code',
                     value: languageCode,
                 },
             ],
@@ -29,13 +29,13 @@ export const getLanguageData = async (
 };
 
 export const getSnippetSetId = async (languageCode: string, adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/snippet-set", {
+    const resp = await adminApiContext.post('./search/snippet-set', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "iso",
+                    type: 'equals',
+                    field: 'iso',
                     value: languageCode,
                 },
             ],
@@ -48,14 +48,14 @@ export const getSnippetSetId = async (languageCode: string, adminApiContext: Adm
 };
 
 export const getCurrencyId = async (adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/currency", {
+    const resp = await adminApiContext.post('./search/currency', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "isoCode",
-                    value: "EUR",
+                    type: 'equals',
+                    field: 'isoCode',
+                    value: 'EUR',
                 },
             ],
         },
@@ -68,7 +68,7 @@ export const getCurrencyId = async (adminApiContext: AdminApiContext): Promise<s
 };
 
 export const getTaxId = async (adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/tax", {
+    const resp = await adminApiContext.post('./search/tax', {
         data: {
             limit: 1,
         },
@@ -81,13 +81,13 @@ export const getTaxId = async (adminApiContext: AdminApiContext): Promise<string
 };
 
 export const getPaymentMethodId = async (handlerId: string, adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/payment-method", {
+    const resp = await adminApiContext.post('./search/payment-method', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "handlerIdentifier",
+                    type: 'equals',
+                    field: 'handlerIdentifier',
                     value: handlerId,
                 },
             ],
@@ -102,14 +102,14 @@ export const getPaymentMethodId = async (handlerId: string, adminApiContext: Adm
 };
 
 export const getDefaultShippingMethod = async (adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/shipping-method", {
+    const resp = await adminApiContext.post('./search/shipping-method', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "name",
-                    value: "Standard",
+                    type: 'equals',
+                    field: 'name',
+                    value: 'Standard',
                 },
             ],
         },
@@ -123,13 +123,13 @@ export const getDefaultShippingMethod = async (adminApiContext: AdminApiContext)
 };
 
 export const getCountryId = async (iso2: string, adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/country", {
+    const resp = await adminApiContext.post('./search/country', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "iso",
+                    type: 'equals',
+                    field: 'iso',
                     value: iso2,
                 },
             ],
@@ -143,13 +143,13 @@ export const getCountryId = async (iso2: string, adminApiContext: AdminApiContex
 };
 
 export const getThemeId = async (technicalName: string, adminApiContext: AdminApiContext): Promise<string> => {
-    const resp = await adminApiContext.post("./search/theme", {
+    const resp = await adminApiContext.post('./search/theme', {
         data: {
             limit: 1,
             filter: [
                 {
-                    type: "equals",
-                    field: "technicalName",
+                    type: 'equals',
+                    field: 'technicalName',
                     value: technicalName,
                 },
             ],

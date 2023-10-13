@@ -1,9 +1,9 @@
-import { request, APIResponse, APIRequestContext } from "@playwright/test";
+import { request, APIResponse, APIRequestContext } from '@playwright/test';
 
 export interface StoreApiOptions {
     app_url?: string;
-    "sw-access-key"?: string;
-    "sw-context-token"?: string;
+    'sw-access-key'?: string;
+    'sw-context-token'?: string;
     ignoreHTTPSErrors?: boolean;
 }
 
@@ -28,9 +28,9 @@ export class StoreApiContext {
 
     static async createContext(options: StoreApiOptions) {
         const extraHTTPHeaders = {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'Content-Type': 'application/json',
-            'sw-access-key': options['sw-access-key']
+            'sw-access-key': options['sw-access-key'],
         };
 
         if (options['sw-context-token']) {
@@ -48,8 +48,8 @@ export class StoreApiContext {
         const loginResponse = await this.post(`account/login`, {
             data: {
                 username: storeUser.email,
-                password: storeUser.password
-            }
+                password: storeUser.password,
+            },
         });
 
         const responseData = await loginResponse.json();

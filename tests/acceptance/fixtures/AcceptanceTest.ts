@@ -1,7 +1,7 @@
-import { APIResponse, test as base, expect, Page } from "@playwright/test";
-import { AdminApiContext } from "./AdminApiContext";
-import { StoreApiContext } from "@fixtures/StoreApiContext";
-import { IdProvider } from "./IdProvider";
+import { APIResponse, test as base, expect, Page } from '@playwright/test';
+import { AdminApiContext } from './AdminApiContext';
+import { StoreApiContext } from '@fixtures/StoreApiContext';
+import { IdProvider } from './IdProvider';
 import {
     getCountryId,
     getCurrencyId,
@@ -11,9 +11,9 @@ import {
     getSnippetSetId,
     getTaxId,
     getThemeId,
-} from "./SalesChannelHelper";
-import { components } from "@shopware/api-client/admin-api-types";
-import crypto from "crypto";
+} from './SalesChannelHelper';
+import { components } from '@shopware/api-client/admin-api-types';
+import crypto from 'crypto';
 
 interface StoreBaseConfig {
     storefrontTypeId: string;
@@ -32,17 +32,17 @@ interface StoreBaseConfig {
 
 interface TestFixtures {
     adminPage: Page;
-    product: components["schemas"]["Product"];
+    product: components['schemas']['Product'];
     storefrontPage: Page;
     anonStorefrontPage: Page;
-    salesChannelProduct: components["schemas"]["Product"];
+    salesChannelProduct: components['schemas']['Product'];
 }
 
 interface WorkerFixtures {
     idProvider: IdProvider;
     defaultStorefront: {
-        salesChannel: components["schemas"]["SalesChannel"];
-        customer: components["schemas"]["Customer"] & { password: string };
+        salesChannel: components['schemas']['SalesChannel'];
+        customer: components['schemas']['Customer'] & { password: string };
         url: string;
     };
     adminApiContext: AdminApiContext;
@@ -50,7 +50,7 @@ interface WorkerFixtures {
     storeBaseConfig: StoreBaseConfig;
 }
 
-export * from "@playwright/test";
+export * from '@playwright/test';
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
     idProvider: [
@@ -60,7 +60,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             await use(idProvider);
         },
-        { scope: "worker" },
+        { scope: 'worker' },
     ],
 
     adminApiContext: [
@@ -69,25 +69,25 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             const adminApiContext = await AdminApiContext.newContext();
             await use(adminApiContext);
         },
-        { scope: "worker" },
+        { scope: 'worker' },
     ],
 
     storeBaseConfig: [
         async ({ adminApiContext }, use) => {
             const requests = {
-                language: getLanguageData("en-GB", adminApiContext),
+                language: getLanguageData('en-GB', adminApiContext),
                 eurCurrencyId: getCurrencyId(adminApiContext),
                 invoicePaymentMethodId: getPaymentMethodId(
-                    "Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment",
+                    'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment',
                     adminApiContext
                 ),
                 defaultShippingMethod: getDefaultShippingMethod(adminApiContext),
                 getTaxId: getTaxId(adminApiContext),
 
-                deCountryId: getCountryId("de", adminApiContext),
-                enGBSnippetSetId: getSnippetSetId("en-GB", adminApiContext),
+                deCountryId: getCountryId('de', adminApiContext),
+                enGBSnippetSetId: getSnippetSetId('en-GB', adminApiContext),
 
-                defaultThemeId: getThemeId("Storefront", adminApiContext),
+                defaultThemeId: getThemeId('Storefront', adminApiContext),
             };
             await Promise.all(Object.values(requests));
 
@@ -95,7 +95,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             await use({
                 enGBLocaleId: lang.localeId,
                 enGBLanguageId: lang.id,
-                storefrontTypeId: "8a243080f92e4c719546314b577cf82b",
+                storefrontTypeId: '8a243080f92e4c719546314b577cf82b',
                 eurCurrencyId: await requests.eurCurrencyId,
                 invoicePaymentMethodId: await requests.invoicePaymentMethodId,
                 defaultShippingMethod: await requests.defaultShippingMethod,
@@ -106,11 +106,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
                 defaultThemeId: await requests.defaultThemeId,
 
-                appUrl: process.env["APP_URL"],
-                adminUrl: process.env["ADMIN_URL"] || `${process.env["APP_URL"]}admin/`,
+                appUrl: process.env['APP_URL'],
+                adminUrl: process.env['ADMIN_URL'] || `${process.env['APP_URL']}admin/`,
             });
         },
-        { scope: "worker" },
+        { scope: 'worker' },
     ],
 
     adminPage: async ({ idProvider, adminApiContext, browser, storeBaseConfig }, use) => {
@@ -128,34 +128,34 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             lastName: `${id} admin`,
             localeId: storeBaseConfig.enGBLocaleId,
             email: `admin_${id}@example.com`,
-            timezone: "Europe/Berlin",
-            password: "shopware",
+            timezone: 'Europe/Berlin',
+            password: 'shopware',
             admin: true,
         };
 
-        const response = await adminApiContext.post("./user", {
+        const response = await adminApiContext.post('./user', {
             data: adminUser,
         });
 
         expect(response.ok()).toBeTruthy();
 
-        await page.goto("#/login");
+        await page.goto('#/login');
 
-        await page.getByLabel("Username").fill(adminUser.username);
-        await page.getByLabel("Password").fill(adminUser.password);
+        await page.getByLabel('Username').fill(adminUser.username);
+        await page.getByLabel('Password').fill(adminUser.password);
 
-        await page.getByRole("button", { name: "Log in" }).click();
+        await page.getByRole('button', { name: 'Log in' }).click();
 
         // Wait until the page is loaded
-        await expect(page.locator("css=.sw-admin-menu__header-logo").first()).toBeVisible({
+        await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
             timeout: 10000,
         });
 
-        await expect(page.locator(".sw-skeleton")).toHaveCount(0, {
+        await expect(page.locator('.sw-skeleton')).toHaveCount(0, {
             timeout: 10000,
         });
 
-        await expect(page.locator(".sw-loader")).toHaveCount(0, {
+        await expect(page.locator('.sw-loader')).toHaveCount(0, {
             timeout: 10000,
         });
 
@@ -174,19 +174,19 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         async ({ idProvider, adminApiContext, storeBaseConfig }, use) => {
             // thread id seems to be random
 
-            const { id, uuid } = idProvider.getWorkerDerivedStableId("salesChannel");
+            const { id, uuid } = idProvider.getWorkerDerivedStableId('salesChannel');
 
-            const { uuid: rootCategoryUuid } = idProvider.getWorkerDerivedStableId("category");
-            const { uuid: customerGroupUuid } = idProvider.getWorkerDerivedStableId("customerGroup");
-            const { uuid: domainUuid } = idProvider.getWorkerDerivedStableId("domain");
-            const { uuid: customerUuid } = idProvider.getWorkerDerivedStableId("customer");
+            const { uuid: rootCategoryUuid } = idProvider.getWorkerDerivedStableId('category');
+            const { uuid: customerGroupUuid } = idProvider.getWorkerDerivedStableId('customerGroup');
+            const { uuid: domainUuid } = idProvider.getWorkerDerivedStableId('domain');
+            const { uuid: customerUuid } = idProvider.getWorkerDerivedStableId('customer');
 
             const baseUrl = `${storeBaseConfig.appUrl}test-${uuid}/`;
 
             const currentConfigResponse = await adminApiContext.get(
                 `./_action/system-config?domain=storefront&salesChannelId=${uuid}`
             );
-            const currentConfig = (await currentConfigResponse.json()) as { "storefront.themeSeed": string } | null;
+            const currentConfig = (await currentConfigResponse.json()) as { 'storefront.themeSeed': string } | null;
 
             await adminApiContext.delete(`./customer/${customerUuid}`);
 
@@ -194,8 +194,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 data: {
                     filter: [
                         {
-                            type: "equals",
-                            field: "salesChannelId",
+                            type: 'equals',
+                            field: 'salesChannelId',
                             value: uuid,
                         },
                     ],
@@ -224,14 +224,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                     data: {
                         filter: [
                             {
-                                type: "equals",
-                                field: "salesChannelId",
+                                type: 'equals',
+                                field: 'salesChannelId',
                                 value: uuid,
                             },
                         ],
                     },
                     headers: {
-                        "sw-version-id": versionId,
+                        'sw-version-id': versionId,
                     },
                 });
 
@@ -250,11 +250,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             await adminApiContext.delete(`./sales-channel/${uuid}`);
 
-            const syncResp = await adminApiContext.post("./_action/sync", {
+            const syncResp = await adminApiContext.post('./_action/sync', {
                 data: {
-                    "write-sales-channel": {
-                        entity: "sales_channel",
-                        action: "upsert",
+                    'write-sales-channel': {
+                        entity: 'sales_channel',
+                        action: 'upsert',
                         payload: [
                             {
                                 id: uuid,
@@ -267,7 +267,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                                 shippingMethodId: storeBaseConfig.defaultShippingMethod,
                                 countryId: storeBaseConfig.deCountryId,
 
-                                accessKey: "SWSC" + uuid,
+                                accessKey: 'SWSC' + uuid,
 
                                 homeEnabled: true,
 
@@ -275,8 +275,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                                     id: rootCategoryUuid,
                                     name: `${id} Acceptance test`,
                                     displayNestedProducts: true,
-                                    type: "page",
-                                    productAssignmentType: "product",
+                                    type: 'page',
+                                    productAssignmentType: 'product',
                                 },
 
                                 domains: [
@@ -302,9 +302,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                             },
                         ],
                     },
-                    "theme-assignment": {
-                        entity: "theme_sales_channel",
-                        action: "upsert",
+                    'theme-assignment': {
+                        entity: 'theme_sales_channel',
+                        action: 'upsert',
                         payload: [
                             {
                                 salesChannelId: uuid,
@@ -320,11 +320,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
             let themeAssignPromise;
 
-            if (currentConfig && currentConfig["storefront.themeSeed"]) {
+            if (currentConfig && currentConfig['storefront.themeSeed']) {
                 // check if theme folder exists
-                const md5 = (data: string) => crypto.createHash("md5").update(data).digest("hex");
+                const md5 = (data: string) => crypto.createHash('md5').update(data).digest('hex');
 
-                const md5Str = md5(`${storeBaseConfig.defaultThemeId}${uuid}${currentConfig["storefront.themeSeed"]}`);
+                const md5Str = md5(`${storeBaseConfig.defaultThemeId}${uuid}${currentConfig['storefront.themeSeed']}`);
 
                 const themeCssResp = await adminApiContext.head(`${storeBaseConfig.appUrl}theme/${md5Str}/css/all.css`);
 
@@ -332,7 +332,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 if (themeCssResp.status() === 200) {
                     themeAssignPromise = adminApiContext.post(`./_action/system-config?salesChannelId=${uuid}`, {
                         data: {
-                            "storefront.themeSeed": currentConfig["storefront.themeSeed"],
+                            'storefront.themeSeed': currentConfig['storefront.themeSeed'],
                         },
                     });
                 }
@@ -345,29 +345,29 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             }
 
             const salutationResponse = await adminApiContext.get(`./salutation`);
-            const salutations = (await salutationResponse.json()) as { data: components["schemas"]["Salutation"][] };
+            const salutations = (await salutationResponse.json()) as { data: components['schemas']['Salutation'][] };
 
             const customerData = {
                 id: customerUuid,
                 email: `customer_${id}@example.com`,
-                password: "shopware",
+                password: 'shopware',
                 salutationId: salutations.data[0].id,
 
                 defaultShippingAddress: {
                     firstName: `${id} admin`,
                     lastName: `${id} admin`,
-                    city: "not",
-                    street: "not",
-                    zipcode: "not",
+                    city: 'not',
+                    street: 'not',
+                    zipcode: 'not',
                     countryId: storeBaseConfig.deCountryId,
                     salutationId: salutations.data[0].id,
                 },
                 defaultBillingAddress: {
                     firstName: `${id} admin`,
                     lastName: `${id} admin`,
-                    city: "not",
-                    street: "not",
-                    zipcode: "not",
+                    city: 'not',
+                    street: 'not',
+                    zipcode: 'not',
                     countryId: storeBaseConfig.deCountryId,
                     salutationId: salutations.data[0].id,
                 },
@@ -381,7 +381,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 defaultPaymentMethodId: storeBaseConfig.invoicePaymentMethodId,
             };
 
-            const customerRespPromise = adminApiContext.post("./customer?_response", {
+            const customerRespPromise = adminApiContext.post('./customer?_response', {
                 data: customerData,
             });
 
@@ -395,8 +395,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             expect(themeAssignResp.ok()).toBeTruthy();
             expect(salesChannelResp.ok()).toBeTruthy();
 
-            const customer = (await customerResp.json()) as { data: components["schemas"]["Customer"] };
-            const salesChannel = (await salesChannelResp.json()) as { data: components["schemas"]["SalesChannel"] };
+            const customer = (await customerResp.json()) as { data: components['schemas']['Customer'] };
+            const salesChannel = (await salesChannelResp.json()) as { data: components['schemas']['SalesChannel'] };
 
             await use({
                 salesChannel: salesChannel.data,
@@ -404,23 +404,22 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                 url: baseUrl,
             });
         },
-        { scope: "worker" },
+        { scope: 'worker' },
     ],
 
     storeApiContext: [
         // eslint-disable-next-line no-empty-pattern
         async ({ defaultStorefront }, use) => {
-
             const options = {
-                'app_url': process.env['APP_URL'],
+                app_url: process.env['APP_URL'],
                 'sw-access-key': defaultStorefront.salesChannel.accessKey,
-                'ignoreHTTPSErrors': true
-            }
+                ignoreHTTPSErrors: true,
+            };
 
             const storeApiContext = await StoreApiContext.newContext(options);
             await use(storeApiContext);
         },
-        { scope: "worker" },
+        { scope: 'worker' },
     ],
 
     storefrontPage: async ({ defaultStorefront, browser }, use) => {
@@ -432,14 +431,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const page = await context.newPage();
 
         // Go to login page and login
-        await page.goto("./account/login");
+        await page.goto('./account/login');
 
-        await page.getByLabel("Your email address").type(customer.email);
-        await page.getByLabel("Your password").type(customer.password);
-        await page.getByRole("button", { name: "Log in" }).click();
-        await page.getByRole("heading", { name: "Overview" }).isVisible();
+        await page.getByLabel('Your email address').type(customer.email);
+        await page.getByLabel('Your password').type(customer.password);
+        await page.getByRole('button', { name: 'Log in' }).click();
+        await page.getByRole('heading', { name: 'Overview' }).isVisible();
 
-        await page.goto("./");
+        await page.goto('./');
 
         await use(page);
 
@@ -455,7 +454,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         });
         const page = await context.newPage();
 
-        await page.goto("./");
+        await page.goto('./');
 
         await use(page);
 
@@ -472,14 +471,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const productName = `Test_product_${productId}`;
 
         // Create product
-        const newProduct = await adminApiContext.post<components["schemas"]["Product"]>("./product?_response", {
+        const newProduct = await adminApiContext.post<components['schemas']['Product']>('./product?_response', {
             data: {
                 active: true,
                 stock: 10,
                 taxId: storeBaseConfig.taxId,
                 id: productUuid,
                 name: productName,
-                productNumber: "TEST-" + productId,
+                productNumber: 'TEST-' + productId,
                 price: [
                     {
                         // @ts-expect-error broken types
@@ -498,7 +497,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         expect(newProduct.ok()).toBeTruthy();
 
         // Allow access to new product in test
-        const newProductValue = (await newProduct.json()) as { data: components["schemas"]["Product"] };
+        const newProductValue = (await newProduct.json()) as { data: components['schemas']['Product'] };
         await use(newProductValue.data);
 
         // Delete product after the test is done
@@ -506,11 +505,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
 
     salesChannelProduct: async ({ adminApiContext, defaultStorefront, product }, use) => {
-        const syncResp = await adminApiContext.post("./_action/sync", {
+        const syncResp = await adminApiContext.post('./_action/sync', {
             data: {
-                "add product to sales channel": {
-                    entity: "product_visibility",
-                    action: "upsert",
+                'add product to sales channel': {
+                    entity: 'product_visibility',
+                    action: 'upsert',
                     payload: [
                         {
                             productId: product.id,
@@ -519,9 +518,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                         },
                     ],
                 },
-                "add product to root navigation": {
-                    entity: "product_category",
-                    action: "upsert",
+                'add product to root navigation': {
+                    entity: 'product_category',
+                    action: 'upsert',
                     payload: [
                         {
                             productId: product.id,

@@ -1,4 +1,4 @@
-import { request, APIResponse, APIRequestContext } from "@playwright/test";
+import { request, APIResponse, APIRequestContext } from '@playwright/test';
 
 export interface AppAuthOptions {
     app_url?: string;
@@ -26,9 +26,9 @@ export class AdminApiContext {
     public static async newContext(options?: AppAuthOptions): Promise<AdminApiContext> {
         const withDefaults = options || {};
 
-        withDefaults.app_url = withDefaults.app_url || process.env["APP_URL"];
-        withDefaults.client_id = withDefaults.client_id || process.env["SHOPWARE_ACCESS_KEY_ID"];
-        withDefaults.client_secret = withDefaults.client_secret || process.env["SHOPWARE_SECRET_ACCESS_KEY"];
+        withDefaults.app_url = withDefaults.app_url || process.env['APP_URL'];
+        withDefaults.client_id = withDefaults.client_id || process.env['SHOPWARE_ACCESS_KEY_ID'];
+        withDefaults.client_secret = withDefaults.client_secret || process.env['SHOPWARE_SECRET_ACCESS_KEY'];
         withDefaults.ignoreHTTPSErrors = true;
         withDefaults.access_token = await this.authenticate(withDefaults);
 
@@ -37,12 +37,12 @@ export class AdminApiContext {
 
     static async createContext(options: AppAuthOptions): Promise<APIRequestContext> {
         const extraHTTPHeaders = {
-            Accept: "application/json",
-            "Content-Type": "application/json",
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
         };
 
         if (options.access_token) {
-            extraHTTPHeaders["Authorization"] = "Bearer " + options.access_token;
+            extraHTTPHeaders['Authorization'] = 'Bearer ' + options.access_token;
         }
         return await request.newContext({
             baseURL: `${options.app_url}api/`,
@@ -54,33 +54,33 @@ export class AdminApiContext {
     static async authenticate(options: AppAuthOptions): Promise<string> {
         const authResponse: APIResponse = await (
             await this.createContext(options)
-        ).post("./oauth/token", {
+        ).post('./oauth/token', {
             data: {
-                grant_type: "client_credentials",
+                grant_type: 'client_credentials',
                 client_id: options.client_id,
                 client_secret: options.client_secret,
-                scope: ["write"],
+                scope: ['write'],
             },
         });
 
         const authData = (await authResponse.json()) as { access_token?: string };
 
-        if (!authData["access_token"]) {
+        if (!authData['access_token']) {
             throw new Error(
-                "Failed to authenticate with client_id " +
+                'Failed to authenticate with client_id ' +
                     options.client_id +
-                    "Request: " +
+                    'Request: ' +
                     JSON.stringify({
-                        grant_type: "client_credentials",
+                        grant_type: 'client_credentials',
                         client_id: options.client_id,
                         client_secret: options.client_secret,
                     }) +
-                    "Error: " +
+                    'Error: ' +
                     JSON.stringify(authData)
             );
         }
 
-        return authData["access_token"];
+        return authData['access_token'];
     }
 
     isAuthenticated(): boolean {

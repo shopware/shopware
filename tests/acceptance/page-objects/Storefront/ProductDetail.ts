@@ -8,7 +8,10 @@ export class ProductDetailPage {
 
     private readonly product;
 
-    constructor(public readonly page: Page, product) {
+    constructor(
+        public readonly page: Page,
+        product
+    ) {
         this.addToCartButton = page.getByRole('button', { name: 'Add to shopping cart' });
         this.offCanvasCartTitle = page.getByText('Shopping cart');
         this.offCanvasCart = page.getByRole('dialog');

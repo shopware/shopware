@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import { stringify } from "uuid";
+import crypto from 'crypto';
+import { stringify } from 'uuid';
 
 interface IdPair {
     id: string;
@@ -15,7 +15,7 @@ export class IdProvider {
     getIdPair(): IdPair {
         return {
             id: `${crypto.randomInt(0, 281474976710655)}`,
-            uuid: crypto.randomUUID().replaceAll("-", ""),
+            uuid: crypto.randomUUID().replaceAll('-', ''),
         };
     }
 
@@ -25,7 +25,7 @@ export class IdProvider {
 
     getWorkerDerivedStableId(key: string): IdPair {
         // TODO: make it depend on the access key id
-        const hash = crypto.createHash("sha256");
+        const hash = crypto.createHash('sha256');
         hash.update(this.seed);
         hash.update(key);
         hash.update(`${this.workerIndex}`);
@@ -38,7 +38,7 @@ export class IdProvider {
 
         return {
             id: `${this.workerIndex}`,
-            uuid: stringify(bytes).replaceAll("-", ""),
+            uuid: stringify(bytes).replaceAll('-', ''),
         };
     }
 }

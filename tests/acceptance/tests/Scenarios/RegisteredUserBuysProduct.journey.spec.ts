@@ -1,15 +1,16 @@
-import { test, expect } from "@fixtures/AcceptanceTest";
-import { ProductDetailPage, CheckoutConfirmPage, CheckoutFinishPage } from "@page-objects/StorefrontPages";
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { ProductDetailPage, CheckoutConfirmPage, CheckoutFinishPage } from '@page-objects/StorefrontPages';
 
 test('Journey: Registered shop customer buys a product. @journey @checkout', async ({
     salesChannelProduct,
     storefrontPage,
     defaultStorefront,
-    adminApiContext
-})=> {
+    adminApiContext,
+}) => {
     test.info().annotations.push({
         type: 'Description',
-        description: 'This scenario tests a full shop customer journey from selecting a product, adding it to the cart and performing a checkout.',
+        description:
+            'This scenario tests a full shop customer journey from selecting a product, adding it to the cart and performing a checkout.',
     });
 
     const detailPage = new ProductDetailPage(storefrontPage, salesChannelProduct);
@@ -18,7 +19,9 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
 
     await test.step('Shop customer navigates to product detail page.', async () => {
         await detailPage.goto();
-        await expect(detailPage.page).toHaveTitle(`${salesChannelProduct.translated.name} | ${salesChannelProduct.productNumber}`);
+        await expect(detailPage.page).toHaveTitle(
+            `${salesChannelProduct.translated.name} | ${salesChannelProduct.productNumber}`
+        );
     });
 
     await test.step('Shop customer adds product to cart.', async () => {
@@ -64,13 +67,15 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
 
         const order = await orderResponse.json();
 
-        expect(order.data).toEqual(expect.objectContaining({
-            price: expect.objectContaining({
-                totalPrice: 10
-            }),
-            orderCustomer: expect.objectContaining({
-                email: defaultStorefront.customer.email
+        expect(order.data).toEqual(
+            expect.objectContaining({
+                price: expect.objectContaining({
+                    totalPrice: 10,
+                }),
+                orderCustomer: expect.objectContaining({
+                    email: defaultStorefront.customer.email,
+                }),
             })
-        }))
+        );
     });
 });

@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "eslint": "eslint . --ext .ts",
-    "prettier": "prettier --check .",
-    "prettier-fix": "prettier --write ."
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "npm run lint -- --fix"
   },
   "keywords": [],
   "author": "shopware AG",
@@ -17,9 +16,7 @@
     "@typescript-eslint/parser": "^6.7.2",
     "dotenv": "^16.3.1",
     "eslint": "^8.49.0",
-    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-playwright": "^0.16.0",
-    "prettier": "3.0.3",
     "typescript": "^5.2.2"
   },
   "dependencies": {

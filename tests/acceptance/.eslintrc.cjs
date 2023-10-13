@@ -4,10 +4,20 @@ module.exports = {
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/stylistic",
-        "plugin:playwright/recommended",
-        "prettier",
+        "plugin:playwright/recommended"
     ],
     parser: "@typescript-eslint/parser",
     plugins: ["@typescript-eslint"],
-    root: true
+    root: true,
+    rules: {
+        quotes: [
+            "error",
+            "single",
+            {
+                allowTemplateLiterals: true,
+            },
+        ],
+        "no-console": ["error", { allow: ["warn", "error"] }],
+        "comma-dangle": ["error", "always-multiline"],
+    },
 };

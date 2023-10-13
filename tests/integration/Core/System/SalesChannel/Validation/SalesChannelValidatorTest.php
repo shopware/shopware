@@ -269,6 +269,20 @@ class SalesChannelValidatorTest extends TestCase
             [],
             [$id1, $id2],
         ];
+
+        yield 'Update default language id and multiple languages in same time' => [
+            [
+                [
+                    'id' => $id1,
+                    'languageId' => 'de-DE',
+                    'languages' => [
+                        ['id' => 'de-DE'],
+                        ['id' => Defaults::LANGUAGE_SYSTEM]],
+                ],
+            ],
+            [],
+            [$id1, $id2],
+        ];
     }
 
     public function testPreventDeletionOfDefaultLanguageId(): void
@@ -302,35 +316,6 @@ class SalesChannelValidatorTest extends TestCase
 
         $result = $salesChannelRepository->search(new Criteria([$id]), $context);
         static::assertCount(0, $result);
-    }
-
-    public function testInsertSalesChannelLanguageWhichAlreadyExist(): void
-    {
-        $id = Uuid::randomHex();
-
-        $salesChannelData = $this
-            ->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
-
-        $context = Context::createDefaultContext();
-
-        $this->getSalesChannelRepository()
-            ->create([$salesChannelData], $context);
-
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage(sprintf(
-            self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
-            Defaults::LANGUAGE_SYSTEM,
-            $id
-        ));
-
-        $this->getSalesChannelLanguageRepository()->create([[
-            'salesChannelId' => $id,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-        ]], $context);
-
-        $this->getSalesChannelRepository()->delete([[
-            'id' => $id,
-        ]], Context::createDefaultContext());
     }
 
     public function testOnlyStorefrontAndHeadlessSalesChannelsWillBeSupported(): void

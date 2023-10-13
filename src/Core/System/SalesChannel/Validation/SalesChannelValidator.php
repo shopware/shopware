@@ -381,6 +381,13 @@ class SalesChannelValidator implements EventSubscriberInterface
             $id = (string) $record['sales_channel_id'];
             $mapping[$id]['current_default'] = $record['current_default'];
             $mapping[$id]['state'][] = $record['language_id'];
+            $mapping[$id]['inserts'] = array_filter(
+                $mapping[$id]['inserts'] ?? [],
+                fn ($value) => $value !== $record['language_id']
+            );
+            if (empty($mapping[$id]['inserts'])) {
+                unset($mapping[$id]['inserts']);
+            }
         }
 
         return $mapping;

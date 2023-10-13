@@ -17,6 +17,9 @@ class PluginException extends HttpException
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     */
     public static function cannotDeleteManaged(string $pluginName): self
     {
         return new self(

@@ -29,6 +29,9 @@ class AppException extends HttpException
 
     public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     */
     public static function cannotDeleteManaged(string $pluginName): self
     {
         return new self(

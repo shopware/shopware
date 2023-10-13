@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,8 @@ class ElasticsearchIndexingExceptionTest extends TestCase
 {
     public function testIndexingError(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $res = ElasticsearchIndexingException::indexingError([[
             'index' => 'index',
             'id' => 'id',
@@ -31,6 +34,8 @@ class ElasticsearchIndexingExceptionTest extends TestCase
 
     public function testDefinitionNotFound(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $res = ElasticsearchIndexingException::definitionNotFound('foo');
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $res->getStatusCode());

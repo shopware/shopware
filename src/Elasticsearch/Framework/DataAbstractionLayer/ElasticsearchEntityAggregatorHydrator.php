@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\ElasticsearchException;
 
 #[Package('core')]
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
@@ -112,7 +113,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 $nested = $aggregation->getAggregation();
 
                 if (!$nested) {
-                    throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
+                    throw ElasticsearchException::nestedAggregationMissingInFilterAggregation($aggregation->getName());
                 }
                 $nestedResult = $result;
 
@@ -136,7 +137,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 return $this->hydrateRangeAggregation($aggregation, $result);
 
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', $aggregation::class));
+                throw ElasticsearchException::unsupportedAggregation($aggregation::class);
         }
     }
 

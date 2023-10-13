@@ -2,21 +2,30 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Elasticsearch\ElasticsearchException;
+use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.6.0 - will be removed, use ElasticsearchException::serverNotAvailable instead
+ */
 #[Package('core')]
-class ServerNotAvailableException extends ShopwareHttpException
+class ServerNotAvailableException extends ElasticsearchException
 {
     final public const CODE = 'ELASTICSEARCH_SERVER_NOT_AVAILABLE';
 
     public function __construct()
     {
-        parent::__construct('Elasticsearch server is not available');
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchException::serverNotAvailable instead')
+        );
 
-    public function getErrorCode(): string
-    {
-        return self::CODE;
+        parent::__construct(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CODE,
+            'Elasticsearch server is not available'
+        );
     }
 }

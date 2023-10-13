@@ -22,7 +22,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -110,7 +110,7 @@ class AdminSearchRegistryTest extends TestCase
             [],
             []
         );
-        $this->expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchException::class);
         $registry->getIndexer('test');
     }
 
@@ -466,7 +466,7 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
-        $this->expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchException::class);
         $index->__invoke(new AdminSearchIndexingMessage(
             'promotion',
             'promotion',

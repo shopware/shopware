@@ -16,11 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingException as IndexingException;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
@@ -143,8 +142,8 @@ class MultilingualEsIndexerTest extends TestCase
 
         $offset = new IndexerOffset([], ['foo'], null);
 
-        static::expectException(IndexingException::class);
-        static::expectExceptionMessage('Elasticsearch definition of foo not found');
+        static::expectException(ElasticsearchException::class);
+        static::expectExceptionMessage('Definition foo not found');
 
         $indexer->iterate($offset);
     }
@@ -212,8 +211,8 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(IndexingException::class);
-        static::expectExceptionMessage('Elasticsearch definition of not_existing not found');
+        static::expectException(ElasticsearchException::class);
+        static::expectExceptionMessage('Definition not_existing not found');
 
         $indexer($message);
     }
@@ -298,7 +297,7 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer($logger);
 
-        static::expectException(ElasticsearchIndexingException::class);
+        static::expectException(ElasticsearchException::class);
 
         $indexer($message);
     }

@@ -187,18 +187,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
     }
 
-    public function updateMappings(): void
-    {
-        foreach ($this->indexer as $indexer) {
-            $mapping = $this->buildMapping($indexer);
-
-            $this->client->indices()->putMapping([
-                'index' => $this->adminEsHelper->getIndex($indexer->getName()),
-                'body' => $mapping,
-            ]);
-        }
-    }
-
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
     {
         foreach ($this->indexer as $indexer) {

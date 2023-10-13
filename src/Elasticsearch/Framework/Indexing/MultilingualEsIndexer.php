@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Symfony\Component\Finder\Finder;
@@ -96,7 +97,7 @@ class MultilingualEsIndexer
         $definition = $this->registry->get((string) $offset->getDefinition());
 
         if (!$definition) {
-            throw ElasticsearchIndexingException::definitionNotFound((string) $offset->getDefinition());
+            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -248,7 +249,7 @@ class MultilingualEsIndexer
         $context = $message->getContext();
 
         if (!$definition) {
-            throw ElasticsearchIndexingException::definitionNotFound($entity);
+            throw ElasticsearchException::definitionNotFound($entity);
         }
 
         $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
@@ -276,7 +277,7 @@ class MultilingualEsIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw ElasticsearchIndexingException::indexingError($errors);
+            throw ElasticsearchException::indexingError($errors);
         }
     }
 }

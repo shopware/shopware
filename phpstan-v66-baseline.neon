@@ -2260,16 +2260,6 @@ parameters:
             path: src/Storefront/Theme/ThemeService.php
 
         -
-            message: "#^Cannot call method getParentClass\\(\\) on PHPStan\\\\Reflection\\\\ClassReflection\\|null\\.$#"
-            count: 1
-            path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Internal/InternalClassRule.php
-
-        -
-            message: "#^Property Shopware\\\\Core\\\\DevOps\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Internal\\\\InternalClassRule\\:\\:\\$reflectionProvider is never read, only written\\.$#"
-            count: 1
-            path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Internal/InternalClassRule.php
-
-        -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 3
             path: src/Core/Content/Media/TypeDetector/ImageTypeDetector.php

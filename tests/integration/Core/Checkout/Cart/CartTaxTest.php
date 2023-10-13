@@ -496,6 +496,7 @@ class CartTaxTest extends TestCase
                 'active' => true,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule'),
                     'name' => 'asd',

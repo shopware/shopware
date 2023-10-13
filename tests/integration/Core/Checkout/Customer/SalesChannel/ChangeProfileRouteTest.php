@@ -653,6 +653,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment'),
                 'name' => $this->ids->get('payment'),
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -664,6 +665,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment2'),
                 'name' => $this->ids->get('payment2'),
+                'technicalName' => 'payment_test2',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -708,6 +710,7 @@ class ChangeProfileRouteTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test_invoice',
                     'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,

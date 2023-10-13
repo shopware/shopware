@@ -66,6 +66,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
             'handlerIdentifier' => AsyncTestPaymentHandler::class,
             'created_at' => new \DateTime(),
             'name' => 'additional PaymentMethod',
+            'technicalName' => 'payment_additional',
         ];
 
         $this->ruleRepository->update([[
@@ -179,6 +180,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'handlerIdentifier' => SyncTestPaymentHandler::class,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
+                        'technicalName' => 'payment_test',
                     ],
                 ],
             ],
@@ -216,6 +218,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => true,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
+                        'technicalName' => 'payment_test',
                     ],
                     [
                         'id' => Uuid::randomHex(),
@@ -223,6 +226,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => false,
                         'created_at' => new \DateTime(),
                         'name' => 'unused paymentMethod',
+                        'technicalName' => 'payment_unused',
                     ],
                 ],
             ],
@@ -237,6 +241,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => true,
                         'created_at' => new \DateTime('-2 days'),
                         'name' => 'paymentFreePayment',
+                        'technicalName' => 'payment_freepayment',
                     ],
                 ],
             ],

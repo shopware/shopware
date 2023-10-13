@@ -210,6 +210,7 @@ class ResetPasswordRouteTest extends TestCase
             'defaultBillingAddressId' => $addressId,
             'defaultPaymentMethod' => [
                 'name' => 'Invoice',
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'description' => 'Default payment method',
                 'handlerIdentifier' => SyncTestPaymentHandler::class,

@@ -84,7 +84,11 @@ class CustomerSerializerTest extends TestCase
             ],
         ];
 
-        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer));
+        $deserialized = $this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer);
+
+        static::assertIsNotArray($deserialized);
+
+        $deserialized = \iterator_to_array($deserialized);
 
         static::assertSame($this->customerGroupId, $deserialized['groupId']);
         static::assertSame($this->customerGroupId, $deserialized['group']['id']);
@@ -133,6 +137,7 @@ class CustomerSerializerTest extends TestCase
             [
                 'id' => $this->paymentMethodId,
                 'name' => 'test payment method',
+                'technicalName' => 'payment_test',
             ],
         ], Context::createDefaultContext());
     }

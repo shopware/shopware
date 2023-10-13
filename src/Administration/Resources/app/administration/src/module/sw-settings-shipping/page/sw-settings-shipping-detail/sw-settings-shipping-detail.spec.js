@@ -15,6 +15,7 @@ async function createWrapper(privileges = []) {
     localVue.use(Vuex);
 
     const shippingMethod = {};
+    shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
@@ -44,6 +45,9 @@ async function createWrapper(privileges = []) {
             },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([]),
+            },
+            feature: {
+                isActive: () => true,
             },
         },
         stubs: {

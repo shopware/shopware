@@ -51,6 +51,9 @@ async function createWrapper(privileges = []) {
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve([]),
                 },
+                feature: {
+                    isActive: () => true,
+                },
             },
             stubs: {
                 'sw-page': {

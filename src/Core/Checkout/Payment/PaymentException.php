@@ -48,6 +48,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_REFUND_UNKNOWN_ERROR = 'CHECKOUT__REFUND_UNKNOWN_ERROR';
     final public const PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR = 'CHECKOUT__REFUND_UNKNOWN_HANDLER_ERROR';
     final public const PAYMENT_VALIDATE_PREPARED_ERROR = 'CHECKOUT__VALIDATE_PREPARED_PAYMENT_ERROR';
+    final public const PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME = 'CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME';
 
     public static function asyncFinalizeInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
@@ -365,6 +366,16 @@ class PaymentException extends HttpException
             'The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage],
             $e
+        );
+    }
+
+    public static function duplicateTechnicalName(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME,
+            'The technical name "{{ technicalName }}" is not unique.',
+            ['technicalName' => $technicalName]
         );
     }
 

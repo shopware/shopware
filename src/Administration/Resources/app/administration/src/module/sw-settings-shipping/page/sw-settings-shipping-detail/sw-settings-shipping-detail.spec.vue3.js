@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = []) {
     const shippingMethod = {};
+    shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
@@ -38,6 +39,9 @@ async function createWrapper(privileges = []) {
                 },
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve([]),
+                },
+                feature: {
+                    isActive: () => true,
                 },
             },
             stubs: {

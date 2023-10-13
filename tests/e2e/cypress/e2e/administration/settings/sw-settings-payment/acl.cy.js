@@ -131,6 +131,7 @@ describe('Payment: Test ACL privileges', () => {
 
         // Add payment method
         cy.get('#sw-field--paymentMethod-name').typeAndCheck('1 Coleur');
+        cy.get('#sw-field--paymentMethod-technicalName').typeAndCheck('payment-coleur');
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');
         cy.get('.sw-payment-detail__save-action').click();
 

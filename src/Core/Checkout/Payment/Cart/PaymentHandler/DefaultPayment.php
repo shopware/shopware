@@ -3,14 +3,15 @@
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
-use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Package('checkout')]
-class DefaultPayment implements SynchronousPaymentHandlerInterface
+class DefaultPayment extends AbstractPaymentHandler
 {
     /**
      * @var OrderTransactionStateHandler
@@ -25,9 +26,14 @@ class DefaultPayment implements SynchronousPaymentHandlerInterface
         $this->transactionStateHandler = $transactionStateHandler;
     }
 
-    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
+    public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
     {
-        throw new SyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'Payment method not found');
         // needed for payment methods like Cash on delivery and Paid in advance
+        return null;
+    }
+
+    public function supports(Context $context): array
+    {
+        return [];
     }
 }

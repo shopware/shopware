@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-systems
@@ -29,7 +27,11 @@ class PaymentPayloadService
     }
 
     /**
-     * @param class-string<AbstractResponse> $responseClass
+     * @template T of AbstractResponse
+     *
+     * @param class-string<T> $responseClass
+     *
+     * @return T
      */
     public function request(
         string $url,
@@ -37,23 +39,19 @@ class PaymentPayloadService
         AppEntity $app,
         string $responseClass,
         Context $context
-    ): ?Struct {
+    ): AbstractResponse {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
-        try {
-            $response = $this->client->post($url, $optionRequest);
+        $response = $this->client->post($url, $optionRequest);
 
-            $content = $response->getBody()->getContents();
+        $content = $response->getBody()->getContents();
 
-            $transactionId = null;
-            if ($payload instanceof PaymentPayloadInterface) {
-                $transactionId = $payload->getOrderTransaction()->getId();
-            }
-
-            return $responseClass::create($transactionId, \json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
-        } catch (GuzzleException) {
-            return null;
+        $transactionId = null;
+        if ($payload instanceof PaymentPayloadInterface) {
+            $transactionId = $payload->getOrderTransaction()->getId();
         }
+
+        return $responseClass::create($transactionId, \json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**

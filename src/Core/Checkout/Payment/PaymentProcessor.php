@@ -9,30 +9,22 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -57,8 +49,6 @@ class PaymentProcessor
         private readonly EntityRepository $orderTransactionRepository,
         private readonly OrderTransactionStateHandler $transactionStateHandler,
         private readonly LoggerInterface $logger,
-        private readonly EntityRepository $orderRepository,
-        private readonly SalesChannelContextServiceInterface $contextService,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
@@ -80,7 +70,7 @@ class PaymentProcessor
         try {
             $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
             if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
+                throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
             }
 
             // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
@@ -90,10 +80,10 @@ class PaymentProcessor
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $returnUrl);
-            $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue('validateStruct'));
+            $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue('validateStruct') ?? []);
 
-            return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext, $validateStruct);
-        } catch (\Throwable $e) {
+            return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validateStruct);
+        } catch (HttpException $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
@@ -140,7 +130,7 @@ class PaymentProcessor
 
         try {
             $transactionStruct = $this->paymentTransactionStructFactory->build($transactionId);
-            $paymentHandler->finalize($request, $transactionStruct, $context);
+            $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
         } catch (CustomerCanceledAsyncPaymentException $e) {
             $this->transactionStateHandler->cancel($transactionId, $context->getContext());
             $token->setException($e);
@@ -178,13 +168,9 @@ class PaymentProcessor
     {
         $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
 
-        if (\is_numeric($paymentFinalizeTransactionTime)) {
-            $paymentFinalizeTransactionTime = (int)$paymentFinalizeTransactionTime;
-            // setting is in minutes, token holds in seconds
-            $paymentFinalizeTransactionTime *= 60;
-        } else {
-            $paymentFinalizeTransactionTime = null;
-        }
+        $paymentFinalizeTransactionTime = \is_numeric($paymentFinalizeTransactionTime)
+            ? (int) $paymentFinalizeTransactionTime * 60
+            : null;
 
         $tokenStruct = new TokenStruct(
             null,

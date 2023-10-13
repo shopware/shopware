@@ -20,7 +20,7 @@ abstract class AbstractResponse extends Struct
     /**
      * @param array<string, mixed> $data
      */
-    public static function create(?string $transactionId, array $data): self
+    public static function create(?string $transactionId, array $data): static
     {
         $response = new static();
         $response->assign($data);
@@ -33,10 +33,8 @@ abstract class AbstractResponse extends Struct
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return $this
      */
-    public function assign(array $options)
+    public function assign(array $options): static
     {
         foreach ($options as $key => $value) {
             if (property_exists($this, $key)) {

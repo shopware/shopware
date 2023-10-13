@@ -3,8 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
+use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
@@ -173,7 +172,7 @@ class PaymentHandlerRegistry
     private function resolveAppPaymentMethodHandler(
         array $appPaymentMethod,
         ?string $expectedHandlerType = null
-    ): ?PaymentHandlerInterface {
+    ): AbstractPaymentHandler|PaymentHandlerInterface|null {
         // validate if prepared and refund handlers have all information set
         if ($expectedHandlerType) {
             if (\is_a(PreparedPaymentHandlerInterface::class, $expectedHandlerType, true)) {
@@ -195,10 +194,6 @@ class PaymentHandlerRegistry
             }
         }
 
-        if (empty($appPaymentMethod['finalize_url'])) {
-            return $this->handlers[AppSyncPaymentHandler::class] ?? null;
-        }
-
-        return $this->handlers[AppAsyncPaymentHandler::class] ?? null;
+        return $this->handlers[AppPaymentHandler::class] ?? null;
     }
 }

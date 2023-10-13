@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
@@ -103,7 +104,7 @@ class PreparedPaymentService
         return $transactions->last();
     }
 
-    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction): PaymentHandlerInterface
+    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction): AbstractPaymentHandler|PaymentHandlerInterface
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
@@ -118,7 +119,7 @@ class PreparedPaymentService
         return $paymentHandler;
     }
 
-    private function getPaymentHandlerFromSalesChannelContext(SalesChannelContext $salesChannelContext): ?PaymentHandlerInterface
+    private function getPaymentHandlerFromSalesChannelContext(SalesChannelContext $salesChannelContext): AbstractPaymentHandler|PaymentHandlerInterface|null
     {
         $paymentMethod = $salesChannelContext->getPaymentMethod();
 

@@ -134,6 +134,14 @@
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
+                    <template #subtitle>
+                        <span class="sw-cms-page-form__block-overwrite-indicatior"
+                             v-for="slot in block.slots"
+                        >
+                            <sw-icon v-if="slot.config.isOverwritten" name="regular-tools-alt" color="#3498db" />
+                        </span>
+                    </template>
+
                     <template #header-right>
                         <div class="sw-cms-page-form__block-device-actions">
                             <sw-icon :name="getDeviceActive('mobile', section, block)" />
@@ -151,7 +159,6 @@
                         :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                     >
-
                         <template v-if="displayNotification(section, block)">
                             <sw-alert variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}

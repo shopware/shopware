@@ -409,6 +409,7 @@ export default {
                                     if (slot.config === null) {
                                         slot.config = {};
                                     }
+                                    slot.config.isOverwritten = true;
                                     merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
                                 }
                             });
@@ -834,6 +835,9 @@ export default {
                             }
                             if (configField.type) {
                                 delete configField.type;
+                            }
+                            if (configField.hasOwnProperty('isOverwritten')) {
+                                delete configField.isOverwritten;
                             }
                         });
                     });

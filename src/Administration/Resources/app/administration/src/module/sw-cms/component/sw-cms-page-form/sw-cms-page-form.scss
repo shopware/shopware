@@ -169,4 +169,8 @@
         align-items: center;
         justify-content: flex-end;
     }
+
+    &__block-overwrite-indicatior {
+        display: flex;
+    }
 }

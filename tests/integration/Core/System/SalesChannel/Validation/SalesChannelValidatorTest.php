@@ -269,6 +269,20 @@ class SalesChannelValidatorTest extends TestCase
             [],
             [$id1, $id2],
         ];
+
+        yield 'Update default language id and multiple languages in same time' => [
+            [
+                [
+                    'id' => $id1,
+                    'languageId' => 'de-DE',
+                    'languages' => [
+                        [ 'id' => 'de-DE' ],
+                        [ 'id' => Defaults::LANGUAGE_SYSTEM ]],
+                ],
+            ],
+            [],
+            [$id1, $id2],
+        ];
     }
 
     public function testPreventDeletionOfDefaultLanguageId(): void

@@ -85,6 +85,7 @@
                         name="regular-lightbulb"
                         size="16"
                         color="#f39c12"
+                        v-if="hasCmsPageOverrides()"
                         v-tooltip="{ message: 'Content was customized on this category. Changing the layout will reset to the content from the new layout.'}"
                     ></sw-icon>
                 </sw-button>

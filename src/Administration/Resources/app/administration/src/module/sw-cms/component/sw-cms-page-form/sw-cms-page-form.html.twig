@@ -166,10 +166,11 @@
                         >
                             <template #additional>
                                 <sw-button
-                                    v-if="element.config.isOverwritten"
+                                    v-if="getIsOverridden(element)"
                                     size="small"
                                     class="sw-cms-page-form__overwrite-reset"
                                     square
+                                    @click="clearOverride(element)"
                                 >
                                     <sw-icon
                                         name="regular-trash"

@@ -92,5 +92,12 @@ export default {
         closeLayoutModal() {
             this.showLayoutSelectionModal = false;
         },
+
+        hasCmsPageOverrides() {
+            return true;
+            // FIXME: How to determine if there are any overrides in this component?
+            // const overrides = this.category.getCmsPageOverrides();
+            // return (overrides !== null && overrides.length > 0);
+        },
     },
 };

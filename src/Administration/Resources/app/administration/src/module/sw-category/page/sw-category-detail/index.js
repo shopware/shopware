@@ -401,21 +401,19 @@ export default {
                     return null;
                 }
 
-                if (this.category.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.category.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    slot.config.isOverwritten = true;
-                                    merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
-                                }
-                            });
+                cmsPage.sections.forEach((section) => {
+                    section.blocks.forEach((block) => {
+                        block.slots.forEach((slot) => {
+                            if (slot.config === null) {
+                                slot.config = {};
+                            }
+                            slot.originalConfig = cloneDeep(slot.config);
+                            if (this.category.slotConfig !== null && this.category.slotConfig[slot.id]) {
+                                merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
+                            }
                         });
                     });
-                }
+                });
 
                 this.updateCmsPageDataMapping();
                 Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);

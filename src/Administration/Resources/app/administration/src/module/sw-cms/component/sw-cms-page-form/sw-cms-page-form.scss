@@ -170,7 +170,10 @@
         justify-content: flex-end;
     }
 
-    &__block-overwrite-indicatior {
-        display: flex;
+    &__overwrite-reset {
+        height: 32px;
+        position: absolute; // FIXME: overlaps sometimes
+        right: 0;
+        top: 10px;
     }
 }

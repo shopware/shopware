@@ -134,14 +134,6 @@
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
-                    <template #subtitle>
-                        <span class="sw-cms-page-form__block-overwrite-indicatior"
-                             v-for="slot in block.slots"
-                        >
-                            <sw-icon v-if="slot.config.isOverwritten" name="regular-tools-alt" color="#3498db" />
-                        </span>
-                    </template>
-
                     <template #header-right>
                         <div class="sw-cms-page-form__block-device-actions">
                             <sw-icon :name="getDeviceActive('mobile', section, block)" />
@@ -171,7 +163,22 @@
                             :is="cmsElements[element.type].configComponent"
                             :element="element"
                             @element-update="elementUpdate"
-                        />
+                        >
+                            <template #additional>
+                                <sw-button
+                                    v-if="element.config.isOverwritten"
+                                    size="small"
+                                    class="sw-cms-page-form__overwrite-reset"
+                                    square
+                                >
+                                    <sw-icon
+                                        name="regular-trash"
+                                        small
+                                        v-tooltip="{ message: 'Reset to content from layout' }"
+                                    />
+                                </sw-button>
+                            </template>
+                        </component>
                         {% endblock %}
                     </div>
                     {% endblock %}

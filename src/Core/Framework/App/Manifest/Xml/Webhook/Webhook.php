@@ -27,9 +27,15 @@ class Webhook extends XmlElement
      */
     protected $event;
 
+    protected bool $onlyLiveVersion = false;
+
+    /**
+     * @param array{name: string, url: string, event: string, onlyLiveVersion?: bool} $data
+     */
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
+            /** @phpstan-ignore-next-line  */
             $this->$property = $value;
         }
     }
@@ -54,6 +60,14 @@ class Webhook extends XmlElement
         return $this->event;
     }
 
+    public function getOnlyLiveVersion(): bool
+    {
+        return $this->onlyLiveVersion;
+    }
+
+    /**
+     * @return array{name: string, url: string, event: string, onlyLiveVersion?: bool}
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -62,6 +76,8 @@ class Webhook extends XmlElement
             \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
+
+        /** @var array{name: string, url: string, event: string, onlyLiveVersion?: bool} $values */
 
         return $values;
     }

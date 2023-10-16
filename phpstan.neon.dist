@@ -191,7 +191,6 @@ parameters:
         # @deprecated tag:v6.6.0 Adding a new required paramter app in Webhooks for the next major version
         - message: '#PHPDoc tag \@param references unknown parameter: \$app#'
           path: src/Core/Framework/Webhook/Hookable.php
-        - '#Method Shopware\\Core\\Framework\\Webhook\\Hookable::getWebhookPayload\(\) invoked with 1 parameter, 0 required#'
 
         # XML parser classes are allowed to make use of dynamic assigns
         -

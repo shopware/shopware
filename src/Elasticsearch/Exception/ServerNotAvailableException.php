@@ -19,7 +19,7 @@ class ServerNotAvailableException extends ElasticsearchException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchException::serverNotAvailable instead')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'ElasticsearchException::serverNotAvailable')
         );
 
         parent::__construct(

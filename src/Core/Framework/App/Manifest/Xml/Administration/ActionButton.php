@@ -12,10 +12,12 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 class ActionButton extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['label'];
+    private const TRANSLATABLE_FIELDS = [
+        'label',
+    ];
 
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     protected array $label = [];
 
@@ -27,24 +29,6 @@ class ActionButton extends XmlElement
 
     protected string $url;
 
-    /**
-     * @param array<int|string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
-    /**
-     * @return array<string, string>
-     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -62,7 +46,7 @@ class ActionButton extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getLabel(): array
     {
@@ -89,10 +73,7 @@ class ActionButton extends XmlElement
         return $this->url;
     }
 
-    /**
-     * @return array<int|string, mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 

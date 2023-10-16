@@ -14,22 +14,13 @@ class TextField extends CustomFieldType
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $placeholder = [];
+    protected array $placeholder = [];
 
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): CustomFieldType
-    {
-        return new self(self::parse($element, self::TRANSLATABLE_FIELDS));
-    }
-
+    /**
+     * @return array<string, string>
+     */
     public function getPlaceholder(): array
     {
         return $this->placeholder;

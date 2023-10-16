@@ -12,19 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class Tax extends XmlElement
 {
     /**
-     * @param array<TaxProvider> $taxProviders
+     * @var list<TaxProvider>
      */
-    private function __construct(protected array $taxProviders)
-    {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseTaxProviders($element));
-    }
+    protected array $taxProviders = [];
 
     /**
-     * @return TaxProvider[]
+     * @return list<TaxProvider>
      */
     public function getTaxProviders(): array
     {
@@ -39,10 +32,7 @@ class Tax extends XmlElement
         return \array_map(fn (TaxProvider $taxProvider) => $taxProvider->getProcessUrl(), $this->taxProviders);
     }
 
-    /**
-     * @return TaxProvider[]
-     */
-    private static function parseTaxProviders(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $taxProviders = [];
 
@@ -50,6 +40,6 @@ class Tax extends XmlElement
             $taxProviders[] = TaxProvider::fromXml($taxProvider);
         }
 
-        return $taxProviders;
+        return ['taxProviders' => $taxProviders];
     }
 }

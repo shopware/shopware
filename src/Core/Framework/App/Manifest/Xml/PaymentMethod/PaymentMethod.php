@@ -11,22 +11,25 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PaymentMethod extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['name', 'description'];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'identifier',
         'name',
+    ];
+
+    private const TRANSLATABLE_FIELDS = [
+        'name',
+        'description',
     ];
 
     protected string $identifier;
 
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     protected array $name = [];
 
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     protected array $description = [];
 
@@ -45,22 +48,8 @@ class PaymentMethod extends XmlElement
     protected ?string $icon = null;
 
     /**
-     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -104,7 +93,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getName(): array
     {
@@ -112,7 +101,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getDescription(): array
     {
@@ -154,10 +143,7 @@ class PaymentMethod extends XmlElement
         return $this->icon;
     }
 
-    /**
-     * @return mixed[]
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 

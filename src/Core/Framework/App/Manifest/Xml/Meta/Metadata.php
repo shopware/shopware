@@ -14,13 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Metadata extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = [
-        'label',
-        'description',
-        'privacyPolicyExtensions',
-    ];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'label',
         'name',
         'author',
@@ -29,80 +23,48 @@ class Metadata extends XmlElement
         'version',
     ];
 
-    /**
-     * @var array<string, string>
-     */
-    protected $label = [];
+    private const TRANSLATABLE_FIELDS = [
+        'label',
+        'description',
+        'privacyPolicyExtensions',
+    ];
 
     /**
      * @var array<string, string>
      */
-    protected $description = [];
+    protected array $label = [];
 
     /**
-     * @var string
+     * @var array<string, string>
      */
-    protected $name;
+    protected array $description = [];
+
+    protected string $name;
+
+    protected string $author;
+
+    protected string $copyright;
+
+    protected ?string $license;
+
+    protected ?string $compatibility;
+
+    protected string $version;
+
+    protected ?string $icon = null;
+
+    protected ?string $privacy = null;
 
     /**
-     * @var string
+     * @var array<string, string>
      */
-    protected $author;
-
-    /**
-     * @var string
-     */
-    protected $copyright;
-
-    /**
-     * @var string|null
-     */
-    protected $license;
-
-    /**
-     * @var string|null
-     */
-    protected $compatibility;
-
-    /**
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * @var string|null
-     */
-    protected $icon;
-
-    /**
-     * @var string|null
-     */
-    protected $privacy;
-
-    /**
-     * @var string[]
-     */
-    protected $privacyPolicyExtensions = [];
+    protected array $privacyPolicyExtensions = [];
 
     protected ?string $url = null;
 
     /**
-     * @param array<int|string, mixed> $data
+     * @return array<string, mixed>
      */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -177,9 +139,7 @@ class Metadata extends XmlElement
     {
         $constraint = $this->compatibility ?? '>=6.4.0';
 
-        $parser = new VersionParser();
-
-        return $parser->parseConstraints($constraint);
+        return (new VersionParser())->parseConstraints($constraint);
     }
 
     public function getVersion(): string
@@ -203,17 +163,14 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, string>
      */
     public function getPrivacyPolicyExtensions(): array
     {
         return $this->privacyPolicyExtensions;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 

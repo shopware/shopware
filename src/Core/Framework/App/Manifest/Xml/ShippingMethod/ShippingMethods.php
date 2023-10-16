@@ -12,16 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 class ShippingMethods extends XmlElement
 {
     /**
-     * @param list<ShippingMethod> $shippingMethods
+     * @var list<ShippingMethod>
      */
-    private function __construct(protected readonly array $shippingMethods)
-    {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseShippingMethods($element));
-    }
+    protected array $shippingMethods;
 
     /**
      * @return list<ShippingMethod>
@@ -31,16 +24,13 @@ class ShippingMethods extends XmlElement
         return $this->shippingMethods;
     }
 
-    /**
-     * @return list<ShippingMethod>
-     */
-    private static function parseShippingMethods(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $shippingMethods = [];
         foreach ($element->getElementsByTagName('shipping-method') as $shippingMethod) {
             $shippingMethods[] = ShippingMethod::fromXml($shippingMethod);
         }
 
-        return $shippingMethods;
+        return ['shippingMethods' => $shippingMethods];
     }
 }

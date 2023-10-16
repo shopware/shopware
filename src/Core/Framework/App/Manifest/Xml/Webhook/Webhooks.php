@@ -12,22 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class Webhooks extends XmlElement
 {
     /**
-     * @var Webhook[]
+     * @var list<Webhook>
      */
-    protected $webhooks = [];
-
-    private function __construct(array $webhooks)
-    {
-        $this->webhooks = $webhooks;
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseWebhooks($element));
-    }
+    protected array $webhooks;
 
     /**
-     * @return Webhook[]
+     * @return list<Webhook>
      */
     public function getWebhooks(): array
     {
@@ -35,7 +25,7 @@ class Webhooks extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getUrls(): array
     {
@@ -48,16 +38,13 @@ class Webhooks extends XmlElement
         return $urls;
     }
 
-    /**
-     * @return Webhook[]
-     */
-    private static function parseWebhooks(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $webhooks = [];
         foreach ($element->getElementsByTagName('webhook') as $webhook) {
             $webhooks[] = Webhook::fromXml($webhook);
         }
 
-        return $webhooks;
+        return ['webhooks' => $webhooks];
     }
 }

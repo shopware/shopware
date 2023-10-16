@@ -19,13 +19,12 @@ class MetadataTest extends TestCase
             __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-
-        /** @var \DOMElement $meta */
+        static::assertNotNull($action);
         $meta = $action->getElementsByTagName('meta')->item(0);
+        static::assertNotNull($meta);
 
         $expected = [
             'label' => [
@@ -50,6 +49,6 @@ class MetadataTest extends TestCase
         ];
 
         $metaData = Metadata::fromXml($meta);
-        static::assertEquals($expected, $metaData->toArray('en-GB'));
+        static::assertSame($expected, $metaData->toArray('en-GB'));
     }
 }

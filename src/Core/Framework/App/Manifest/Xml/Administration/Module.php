@@ -12,47 +12,22 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 class Module extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['label'];
+    private const TRANSLATABLE_FIELDS = [
+        'label',
+    ];
 
     /**
      * @var array<string, string>
      */
-    protected $label;
+    protected array $label;
 
-    /**
-     * @var string|null
-     */
-    protected $source;
+    protected ?string $source = null;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $parent;
+    protected ?string $parent = null;
 
-    /**
-     * @var int
-     */
-    protected $position = 1;
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
+    protected int $position = 1;
 
     /**
      * @return array<string, string>
@@ -82,10 +57,7 @@ class Module extends XmlElement
         return $this->position;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 

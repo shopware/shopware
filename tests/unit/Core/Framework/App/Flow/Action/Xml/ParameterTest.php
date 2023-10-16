@@ -19,16 +19,14 @@ class ParameterTest extends TestCase
             __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-
-        /** @var \DOMElement $parameters */
+        static::assertNotNull($action);
         $parameters = $action->getElementsByTagName('parameters')->item(0);
-
-        /** @var \DOMElement $parameter */
+        static::assertNotNull($parameters);
         $parameter = $parameters->getElementsByTagName('parameter')->item(0);
+        static::assertNotNull($parameter);
 
         $expected = [
             'type' => 'string',
@@ -38,6 +36,6 @@ class ParameterTest extends TestCase
 
         $result = Parameter::fromXml($parameter);
         static::assertCount(3, $result->toArray('en-GB'));
-        static::assertEquals($expected, $result->toArray('en-GB'));
+        static::assertSame($expected, $result->toArray('en-GB'));
     }
 }

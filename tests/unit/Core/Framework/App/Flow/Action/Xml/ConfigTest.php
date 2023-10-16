@@ -20,12 +20,12 @@ class ConfigTest extends TestCase
             __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-        /** @var \DOMElement $config */
+        static::assertNotNull($action);
         $config = $action->getElementsByTagName('config')->item(0);
+        static::assertNotNull($config);
 
         $config = Config::fromXml($config);
         static::assertCount(4, $config->getConfig());

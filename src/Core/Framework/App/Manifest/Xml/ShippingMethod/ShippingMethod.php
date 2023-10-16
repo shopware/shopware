@@ -13,12 +13,16 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[Package('core')]
 class ShippingMethod extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['name', 'description', 'tracking-url'];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'identifier',
         'name',
         'deliveryTime',
+    ];
+
+    private const TRANSLATABLE_FIELDS = [
+        'name',
+        'description',
+        'tracking-url',
     ];
 
     protected string $identifier;
@@ -43,23 +47,6 @@ class ShippingMethod extends XmlElement
     protected array $trackingUrl = [];
 
     protected DeliveryTime $deliveryTime;
-
-    /**
-     * @param array<int|string, string|array<string, string>> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
 
     public function toArray(string $defaultLocale): array
     {
@@ -131,10 +118,7 @@ class ShippingMethod extends XmlElement
         return $this->deliveryTime;
     }
 
-    /**
-     * @return array<int|string, string|array<string, string>>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -155,7 +139,7 @@ class ShippingMethod extends XmlElement
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue ?? '');
+            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
         }
 
         return $values;

@@ -19,12 +19,6 @@ use Symfony\Component\Config\Util\XmlUtils;
  */
 class ActionTest extends TestCase
 {
-    private Parameters $parameters;
-
-    private Config $config;
-
-    private Headers $headers;
-
     private Action $action;
 
     private \DOMDocument $document;
@@ -36,26 +30,26 @@ class ActionTest extends TestCase
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
 
-        /** @var \DOMElement $actions */
         $actions = $this->document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-        /** @var \DOMElement $meta */
+        static::assertNotNull($action);
         $meta = $action->getElementsByTagName('meta')->item(0);
+        static::assertNotNull($meta);
 
         $meta = Metadata::fromXml($meta);
 
-        $parameter = new Parameter(['id' => 'key']);
-        $this->parameters = new Parameters([$parameter]);
-        $this->headers = new Headers([$parameter]);
-        $inputFiled = new InputField(['id' => 'key']);
-        $this->config = new Config([$inputFiled]);
+        $parameter = Parameter::fromArray(['id' => 'key']);
+        $parameters = Parameters::fromArray(['parameters' => [$parameter]]);
+        $headers = Headers::fromArray(['parameters' => [$parameter]]);
+        $inputFiled = InputField::fromArray(['id' => 'key']);
+        $config = Config::fromArray(['config' => [$inputFiled]]);
 
-        $this->action = new Action([
+        $this->action = Action::fromArray([
             'meta' => $meta,
-            'headers' => $this->headers,
-            'parameters' => $this->parameters,
-            'config' => $this->config,
+            'headers' => $headers,
+            'parameters' => $parameters,
+            'config' => $config,
         ]);
     }
 
@@ -77,10 +71,10 @@ class ActionTest extends TestCase
 
     public function testFromXml(): void
     {
-        /** @var \DOMElement $actions */
         $actions = $this->document->getElementsByTagName('flow-actions')->item(0);
+        static::assertNotNull($actions);
         foreach ($actions->getElementsByTagName('flow-action') as $action) {
-            $result = $this->action->fromXml($action)->toArray('en-GB');
+            $result = $this->action::fromXml($action)->toArray('en-GB');
             static::assertArrayHasKey('meta', $result);
             static::assertArrayHasKey('headers', $result);
             static::assertArrayHasKey('config', $result);
@@ -112,7 +106,7 @@ class ActionTest extends TestCase
             'badge' => 'abc',
         ];
 
-        static::assertEquals($expected, $this->action->getMeta()->toArray('en-GB'));
+        static::assertSame($expected, $this->action->getMeta()->toArray('en-GB'));
     }
 
     public function testGetHeaders(): void

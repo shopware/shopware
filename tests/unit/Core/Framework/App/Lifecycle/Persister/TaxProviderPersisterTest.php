@@ -42,7 +42,7 @@ class TaxProviderPersisterTest extends TestCase
                 'identifier' => 'test',
                 'name' => 'lol',
                 'processUrl' => 'https://example.com',
-                'priority' => '1',
+                'priority' => 1,
             ],
         ]);
 
@@ -79,7 +79,7 @@ class TaxProviderPersisterTest extends TestCase
                 'identifier' => 'test',
                 'name' => 'lol',
                 'processUrl' => 'https://example.com',
-                'priority' => '1',
+                'priority' => 1,
             ],
         ]);
 
@@ -131,9 +131,7 @@ class TaxProviderPersisterTest extends TestCase
         $manifest = $this->createManifest($this->createTaxProviders([]));
 
         $repo = $this->createMock(EntityRepository::class);
-        $repo
-            ->expects(static::never())
-            ->method('upsert');
+        $repo->expects(static::never())->method('upsert');
 
         $persister = new TaxProviderPersister($repo);
         $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());
@@ -152,15 +150,9 @@ class TaxProviderPersisterTest extends TestCase
 
         $manifest = $ref->newInstanceWithoutConstructor();
 
-        $ref = new \ReflectionClass(Tax::class);
-        $taxConstructor = $ref->getConstructor();
-        static::assertNotNull($taxConstructor);
-
-        $taxConstructor->setAccessible(true);
-
-        $tax = $ref->newInstanceWithoutConstructor();
-
-        $taxConstructor->invoke($tax, $providers);
+        $tax = Tax::fromArray([
+            'taxProviders' => $providers,
+        ]);
 
         $domDocument = new \DOMDocument();
         $domElement = $domDocument->createElement('root');
@@ -205,7 +197,7 @@ class TaxProviderPersisterTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $providers
+     * @param list<array{identifier: string, name: string, processUrl: string, priority: int}> $providers
      *
      * @return array<TaxProvider>
      */
@@ -214,19 +206,7 @@ class TaxProviderPersisterTest extends TestCase
         $taxProviders = [];
 
         foreach ($providers as $providerData) {
-            $ref = new \ReflectionClass(TaxProvider::class);
-            $constructor = $ref->getConstructor();
-            static::assertNotNull($constructor);
-
-            $constructor->setAccessible(true);
-
-            $taxProvider = $ref->newInstanceWithoutConstructor();
-
-            static::assertInstanceOf(TaxProvider::class, $taxProvider);
-
-            $constructor->invoke($taxProvider, $providerData);
-
-            $taxProviders[] = $taxProvider;
+            $taxProviders[] = TaxProvider::fromArray($providerData);
         }
 
         return $taxProviders;

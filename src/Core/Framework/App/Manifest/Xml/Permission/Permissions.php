@@ -20,44 +20,17 @@ class Permissions extends XmlElement
      *      ['category' => ['read']],
      * ]
      *
-     * @var array<string, string[]>
+     * @var array<string, list<string>>
      */
     protected array $permissions;
 
     /**
-     * @var string[]
+     * @var list<string>
      */
-    protected array $additionalPrivileges;
+    protected array $additionalPrivileges = [];
 
     /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parsePermissions($element));
-    }
-
-    /**
-     * @param array<string, string[]> $permissions CRUD permissions as array indexed by resource
-     * @param array<string> $additionalPrivileges additional non-CRUD privileges as flat list
-     */
-    public static function fromArray(array $permissions, array $additionalPrivileges = []): self
-    {
-        return new self([
-            'permissions' => $permissions,
-            'additionalPrivileges' => $additionalPrivileges,
-        ]);
-    }
-
-    /**
-     * @return array<string, string[]>
+     * @return array<string, list<string>>
      */
     public function getPermissions(): array
     {
@@ -65,7 +38,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @param array<string, string[]> $permissions
+     * @param array<string, list<string>> $permissions
      */
     public function add(array $permissions): void
     {
@@ -75,7 +48,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getAdditionalPrivileges(): array
     {
@@ -92,17 +65,14 @@ class Permissions extends XmlElement
      *     'category:read',
      * ]
      *
-     * @return string[]
+     * @return array<string>
      */
     public function asParsedPrivileges(): array
     {
         return $this->generatePrivileges();
     }
 
-    /**
-     * @return array{permissions: array<string, string[]>, additionalPrivileges: string[]}
-     */
-    private static function parsePermissions(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $permissions = [];
         $additionalPrivileges = [];
@@ -132,7 +102,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function generatePrivileges(): array
     {

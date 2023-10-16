@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\Hookable;
+namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent
  */
 class HookableEntityWrittenEventTest extends TestCase
 {
@@ -30,6 +33,26 @@ class HookableEntityWrittenEventTest extends TestCase
                 'operation' => 'delete',
                 'primaryKey' => $entityId,
                 'updatedFields' => [],
+            ],
+        ], $event->getWebhookPayload());
+    }
+
+    public function testGetterWithVersionId(): void
+    {
+        $entityId = Uuid::randomHex();
+        $event = HookableEntityWrittenEvent::fromWrittenEvent($this->getEntityWrittenEvent(
+            $entityId,
+            ['versionId' => Defaults::LIVE_VERSION]
+        ));
+
+        static::assertEquals('product.written', $event->getName());
+        static::assertEquals([
+            [
+                'entity' => 'product',
+                'operation' => 'delete',
+                'primaryKey' => $entityId,
+                'updatedFields' => ['versionId'],
+                'versionId' => Defaults::LIVE_VERSION,
             ],
         ], $event->getWebhookPayload());
     }
@@ -56,7 +79,10 @@ class HookableEntityWrittenEventTest extends TestCase
         ));
     }
 
-    private function getEntityWrittenEvent(string $entityId): EntityWrittenEvent
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function getEntityWrittenEvent(string $entityId, array $payload = []): EntityWrittenEvent
     {
         $context = Context::createDefaultContext();
 
@@ -65,7 +91,7 @@ class HookableEntityWrittenEventTest extends TestCase
             [
                 new EntityWriteResult(
                     $entityId,
-                    [],
+                    $payload,
                     ProductDefinition::ENTITY_NAME,
                     EntityWriteResult::OPERATION_DELETE,
                     null,

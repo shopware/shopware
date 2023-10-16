@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\Hookable;
+namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -21,15 +21,14 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory
  */
 class HookableEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var HookableEventFactory
-     */
-    private $hookableEventFactory;
+    private HookableEventFactory $hookableEventFactory;
 
     protected function setUp(): void
     {
@@ -82,6 +81,7 @@ class HookableEventFactoryTest extends TestCase
             'entity' => 'product',
             'operation' => 'insert',
             'primaryKey' => $id,
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $payload);
 
         $expectedUpdatedFields = [
@@ -146,6 +146,7 @@ class HookableEventFactoryTest extends TestCase
             'entity' => 'product',
             'operation' => 'update',
             'primaryKey' => $id,
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $payload);
 
         $expectedUpdatedFields = [
@@ -180,6 +181,7 @@ class HookableEventFactoryTest extends TestCase
             'entity' => 'product',
             'operation' => 'delete',
             'primaryKey' => $id,
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
     }
 
@@ -256,6 +258,7 @@ class HookableEventFactoryTest extends TestCase
                 'name',
                 'description',
             ],
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
     }
 
@@ -315,6 +318,7 @@ class HookableEventFactoryTest extends TestCase
                 'name',
                 'description',
             ],
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
 
         $event = $hookables[1];
@@ -333,6 +337,7 @@ class HookableEventFactoryTest extends TestCase
                 'quantityStart',
                 'createdAt',
             ],
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
     }
 
@@ -386,7 +391,47 @@ class HookableEventFactoryTest extends TestCase
                 'quantityStart',
                 'createdAt',
             ],
+            'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
+    }
+
+    public function testCreatesHookableEntityInsertWithoutVersionId(): void
+    {
+        $id = Uuid::randomHex();
+
+        /** @var EntityRepository $salesChannelDomainRepository */
+        $salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
+        $writtenEvent = $this->insertSalesChannelDomain($id, $salesChannelDomainRepository);
+
+        $hookables = $this->hookableEventFactory->createHookablesFor($writtenEvent);
+
+        static::assertCount(1, $hookables);
+        $event = $hookables[0];
+        static::assertEquals('sales_channel_domain.written', $event->getName());
+
+        $payload = $event->getWebhookPayload();
+        static::assertCount(1, $payload);
+        $actualUpdatedFields = $payload[0]['updatedFields'];
+        unset($payload[0]['updatedFields']);
+
+        static::assertEquals([[
+            'entity' => 'sales_channel_domain',
+            'operation' => 'insert',
+            'primaryKey' => $id,
+        ]], $payload);
+
+        $expectedUpdatedFields = [
+            'id',
+            'salesChannelId',
+            'url',
+            'languageId',
+            'currencyId',
+            'snippetSetId',
+        ];
+
+        foreach ($expectedUpdatedFields as $field) {
+            static::assertContains($field, $actualUpdatedFields);
+        }
     }
 
     private function insertProduct(string $id, EntityRepository $productRepository): EntityWrittenContainerEvent
@@ -412,6 +457,22 @@ class HookableEventFactoryTest extends TestCase
                     'name' => 'luxury',
                     'taxRate' => '25',
                 ],
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    private function insertSalesChannelDomain(
+        string $id,
+        EntityRepository $salesChannelDomainRepository
+    ): EntityWrittenContainerEvent {
+        return $salesChannelDomainRepository->upsert([
+            [
+                'id' => $id,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'url' => 'http://test.com',
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             ],
         ], Context::createDefaultContext());
     }

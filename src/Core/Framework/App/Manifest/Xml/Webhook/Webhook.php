@@ -12,38 +12,13 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 class Webhook extends XmlElement
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $url;
+    protected string $url;
 
-    /**
-     * @var string
-     */
-    protected $event;
+    protected string $event;
 
     protected bool $onlyLiveVersion = false;
-
-    /**
-     * @param array{name: string, url: string, event: string, onlyLiveVersion?: bool} $data
-     */
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            /** @phpstan-ignore-next-line  */
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
 
     public function getName(): string
     {
@@ -65,19 +40,16 @@ class Webhook extends XmlElement
         return $this->onlyLiveVersion;
     }
 
-    /**
-     * @return array{name: string, url: string, event: string, onlyLiveVersion?: bool}
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
         foreach ($element->attributes as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
+            }
             $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
-
-        /** @var array{name: string, url: string, event: string, onlyLiveVersion?: bool} $values */
 
         return $values;
     }

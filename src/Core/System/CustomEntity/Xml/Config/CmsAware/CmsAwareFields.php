@@ -17,24 +17,24 @@ use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 class CmsAwareFields
 {
     /**
-     * @return Field[]
+     * @return list<Field>
      */
     public static function getCmsAwareFields(): array
     {
         return [
-            new StringField(['name' => 'sw_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new TextField(['name' => 'sw_content', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new ManyToOneField(['name' => 'sw_cms_page', 'reference' => 'cms_page', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
-            new JsonField(['name' => 'sw_slot_config', 'storeApiAware' => true, 'required' => false]),
-            new ManyToManyField(['name' => 'sw_categories', 'reference' => 'category', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'cascade']),
+            StringField::fromArray(['name' => 'sw_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            TextField::fromArray(['name' => 'sw_content', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            ManyToOneField::fromArray(['name' => 'sw_cms_page', 'reference' => 'cms_page', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
+            JsonField::fromArray(['name' => 'sw_slot_config', 'storeApiAware' => true, 'required' => false]),
+            ManyToManyField::fromArray(['name' => 'sw_categories', 'reference' => 'category', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'cascade']),
 
             // SEO fields
-            new StringField(['name' => 'sw_seo_meta_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new StringField(['name' => 'sw_seo_meta_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new StringField(['name' => 'sw_seo_url', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new StringField(['name' => 'sw_og_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new StringField(['name' => 'sw_og_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new ManyToOneField(['name' => 'sw_og_image', 'reference' => 'media', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
+            StringField::fromArray(['name' => 'sw_seo_meta_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            StringField::fromArray(['name' => 'sw_seo_meta_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            StringField::fromArray(['name' => 'sw_seo_url', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            StringField::fromArray(['name' => 'sw_og_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            StringField::fromArray(['name' => 'sw_og_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            ManyToOneField::fromArray(['name' => 'sw_og_image', 'reference' => 'media', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
         ];
     }
 }

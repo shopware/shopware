@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
@@ -17,32 +16,26 @@ class SingleSelectField extends CustomFieldType
     protected const COMPONENT_NAME = 'sw-single-select';
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $placeholder = [];
+    protected array $placeholder = [];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $options;
+    protected array $options;
 
-    protected function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): CustomFieldType
-    {
-        return new self(self::parseSelect($element));
-    }
-
+    /**
+     * @return array<string, string>
+     */
     public function getPlaceholder(): array
     {
         return $this->placeholder;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getOptions(): array
     {
         return $this->options;
@@ -69,56 +62,5 @@ class SingleSelectField extends CustomFieldType
                 'options' => $options,
             ],
         ];
-    }
-
-    protected static function parseSelect(\DOMElement $element): array
-    {
-        $values = [];
-
-        foreach ($element->attributes as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
-            $values[$attribute->name] = $attribute->value;
-        }
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            if ($child->tagName === 'options') {
-                $values[$child->tagName] = self::parseOptions($child);
-
-                continue;
-            }
-
-            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
-            } else {
-                $values[self::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
-            }
-        }
-
-        return $values;
-    }
-
-    protected static function parseOptions(\DOMElement $child): array
-    {
-        $values = [];
-
-        foreach ($child->childNodes as $option) {
-            if (!$option instanceof \DOMElement) {
-                continue;
-            }
-
-            $option = self::parse($option, ['name']);
-            /** @var string $key */
-            $key = $option['value'];
-            /** @var array<string, string> $names */
-            $names = $option['name'];
-
-            $values[$key] = $names;
-        }
-
-        return $values;
     }
 }

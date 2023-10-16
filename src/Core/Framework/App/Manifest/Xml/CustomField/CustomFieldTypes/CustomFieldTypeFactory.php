@@ -29,6 +29,7 @@ class CustomFieldTypeFactory
 
     public static function createFromXml(\DOMElement $element): CustomFieldType
     {
+        /** @var class-string<CustomFieldType>|null $fieldClass */
         $fieldClass = self::TAG_TO_CLASS_MAPPING[$element->tagName] ?? null;
 
         if (!$fieldClass) {

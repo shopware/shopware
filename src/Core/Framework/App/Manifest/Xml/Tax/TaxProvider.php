@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\Tax;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class TaxProvider extends XmlElement
 {
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'identifier',
         'name',
         'processUrl',
@@ -24,19 +25,7 @@ class TaxProvider extends XmlElement
 
     protected string $processUrl;
 
-    protected string $priority;
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
+    protected int $priority;
 
     public function getIdentifier(): string
     {
@@ -55,18 +44,10 @@ class TaxProvider extends XmlElement
 
     public function getPriority(): int
     {
-        return (int) $this->priority;
+        return $this->priority;
     }
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -75,7 +56,7 @@ class TaxProvider extends XmlElement
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
+            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
         }
 
         return $values;

@@ -13,18 +13,20 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class RuleCondition extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['name'];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'identifier',
         'name',
         'script',
     ];
 
+    private const TRANSLATABLE_FIELDS = [
+        'name',
+    ];
+
     protected string $identifier;
 
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     protected array $name = [];
 
@@ -33,23 +35,9 @@ class RuleCondition extends XmlElement
     protected ?string $group = null;
 
     /**
-     * @var CustomFieldType[]
+     * @var list<CustomFieldType>
      */
     protected array $constraints = [];
-
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
 
     public function toArray(string $defaultLocale): array
     {
@@ -75,7 +63,7 @@ class RuleCondition extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getName(): array
     {
@@ -93,14 +81,14 @@ class RuleCondition extends XmlElement
     }
 
     /**
-     * @return CustomFieldType[]
+     * @return list<CustomFieldType>
      */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -115,6 +103,11 @@ class RuleCondition extends XmlElement
         return $values;
     }
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
     private static function parseChild(\DOMElement $child, array $values): array
     {
         // translated

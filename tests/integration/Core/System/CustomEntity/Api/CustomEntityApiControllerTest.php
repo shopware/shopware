@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\CustomEntity\Api;
+namespace Shopware\Tests\Integration\Core\System\CustomEntity\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Test\CustomEntity\CustomEntityTest;
+use Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,6 +25,6 @@ class CustomEntityApiControllerTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/search/custom-entity-non-existing');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 }

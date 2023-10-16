@@ -23,27 +23,41 @@ class ShippingMethodTest extends TestCase
 
     public function testFromXml(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $shipment = $manifest->getShippingMethods();
+        $shipment = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertNotNull($shipment, 'No shipments found in manifest.xml.');
 
         $shippingMethods = $shipment->getShippingMethods();
         static::assertCount(2, $shippingMethods);
 
-        $this->checkShippingMethodValues($shippingMethods);
+        $expectedValues = [
+            [
+                'identifier' => 'swagFirstShippingMethod',
+                'name' => [
+                    'en-GB' => 'First shipping method',
+                    'de-DE' => 'Erste Versandmethode',
+                ],
+            ],
+            [
+                'identifier' => 'swagSecondShippingMethod',
+                'name' => [
+                    'en-GB' => 'second Shipping Method',
+                ],
+            ],
+        ];
+
+        foreach ($shippingMethods as $i => $shippingMethod) {
+            static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
+            static::assertSame($shippingMethod->getIdentifier(), $expectedValues[$i]['identifier']);
+            static::assertSame($shippingMethod->getName(), $expectedValues[$i]['name']);
+        }
     }
 
     public function testFromXmlWithDeliveryTime(): void
     {
-        $xmlDocument = XmlUtils::loadFile(self::TEST_MANIFEST, self::XSD_FILE);
-
-        $shippingMethodDomElement = $xmlDocument->getElementsByTagName('shipping-method')->item(0);
+        $shippingMethodDomElement = XmlUtils::loadFile(self::TEST_MANIFEST, self::XSD_FILE)->getElementsByTagName('shipping-method')->item(0);
         static::assertInstanceOf(\DOMElement::class, $shippingMethodDomElement);
 
-        $shippingMethod = ShippingMethod::fromXml($shippingMethodDomElement);
-
-        $deliveryTime = $shippingMethod->getDeliveryTime();
+        $deliveryTime = ShippingMethod::fromXml($shippingMethodDomElement)->getDeliveryTime();
 
         static::assertSame('4b00146bdc8b4175b12d3fc36ec114c8', $deliveryTime->getId());
         static::assertSame('Short delivery time 1-2 days', $deliveryTime->getName());
@@ -52,30 +66,29 @@ class ShippingMethodTest extends TestCase
         static::assertSame('day', $deliveryTime->getUnit());
     }
 
-    public function testFromXmlShouldThrowExceptionWithoutRequiredFields(): void
+    public function testFromXmlShouldThrowExceptionWithoutRequiredFieldName(): void
     {
-        $xmlDocument = XmlUtils::loadFile(self::INVALID_TEST_MANIFEST, self::XSD_FILE);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('name must not be empty');
-        $shippingMethodOne = $xmlDocument->getElementsByTagName('shipping-method')->item(0);
+        $shippingMethodOne = XmlUtils::loadFile(self::INVALID_TEST_MANIFEST, self::XSD_FILE)->getElementsByTagName('shipping-method')->item(0);
 
         static::assertInstanceOf(\DOMElement::class, $shippingMethodOne);
-        ShippingMethod::fromXml($shippingMethodOne);
-
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('identifier must not be empty');
-        $shippingMethodTwo = $xmlDocument->getElementsByTagName('shipping-method')->item(1);
+        $this->expectExceptionMessage('name must not be empty');
+        ShippingMethod::fromXml($shippingMethodOne);
+    }
+
+    public function testFromXmlShouldThrowExceptionWithoutRequiredFieldIdentifier(): void
+    {
+        $shippingMethodTwo = XmlUtils::loadFile(self::INVALID_TEST_MANIFEST, self::XSD_FILE)->getElementsByTagName('shipping-method')->item(1);
 
         static::assertInstanceOf(\DOMElement::class, $shippingMethodTwo);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('identifier must not be empty');
         ShippingMethod::fromXml($shippingMethodTwo);
     }
 
     public function testToArray(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethod = $manifest->getShippingMethods();
+        $manifestShippingMethod = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -119,9 +132,7 @@ class ShippingMethodTest extends TestCase
 
     public function testGetDescription(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethod = $manifest->getShippingMethods();
+        $manifestShippingMethod = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -143,9 +154,7 @@ class ShippingMethodTest extends TestCase
 
     public function testGetName(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethod = $manifest->getShippingMethods();
+        $manifestShippingMethod = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -167,9 +176,7 @@ class ShippingMethodTest extends TestCase
 
     public function testGetIcon(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethod = $manifest->getShippingMethods();
+        $manifestShippingMethod = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethod);
 
         $result = $manifestShippingMethod->toArray('en-GB');
@@ -187,9 +194,7 @@ class ShippingMethodTest extends TestCase
 
     public function testGetPosition(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethods = $manifest->getShippingMethods();
+        $manifestShippingMethods = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethods);
         $manifestShippingMethods = $manifestShippingMethods->getShippingMethods();
         $shippingMethod = $manifestShippingMethods[0];
@@ -213,9 +218,7 @@ class ShippingMethodTest extends TestCase
 
     public function testGetTrackingUrl(): void
     {
-        $manifest = Manifest::createFromXmlFile(self::TEST_MANIFEST);
-
-        $manifestShippingMethods = $manifest->getShippingMethods();
+        $manifestShippingMethods = Manifest::createFromXmlFile(self::TEST_MANIFEST)->getShippingMethods();
         static::assertInstanceOf(ShippingMethods::class, $manifestShippingMethods);
         $manifestShippingMethods = $manifestShippingMethods->getShippingMethods();
         $shippingMethod = $manifestShippingMethods[0];
@@ -247,33 +250,5 @@ class ShippingMethodTest extends TestCase
         static::assertArrayHasKey('active', $secondShippingMethod);
         static::assertIsBool($secondShippingMethod['active']);
         static::assertFalse($secondShippingMethod['active']);
-    }
-
-    /**
-     * @param ShippingMethod[] $shippingMethods
-     */
-    private function checkShippingMethodValues(array $shippingMethods): void
-    {
-        $expectedValues = [
-            [
-                'identifier' => 'swagFirstShippingMethod',
-                'name' => [
-                    'en-GB' => 'First shipping method',
-                    'de-DE' => 'Erste Versandmethode',
-                ],
-            ],
-            [
-                'identifier' => 'swagSecondShippingMethod',
-                'name' => [
-                    'en-GB' => 'second Shipping Method',
-                ],
-            ],
-        ];
-
-        for ($i = 0, $iMax = \count($shippingMethods); $i < $iMax; ++$i) {
-            static::assertInstanceOf(ShippingMethod::class, $shippingMethods[$i]);
-            static::assertSame($shippingMethods[$i]->getIdentifier(), $expectedValues[$i]['identifier']);
-            static::assertSame($shippingMethods[$i]->getName(), $expectedValues[$i]['name']);
-        }
     }
 }

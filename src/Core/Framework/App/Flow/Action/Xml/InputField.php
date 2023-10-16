@@ -36,28 +36,18 @@ class InputField extends XmlElement
     /**
      * @var array<string, string>|null
      */
-    protected ?array $helpText = [];
+    protected ?array $helpText = null;
 
     protected ?string $defaultValue = null;
 
     /**
-     * @var array<string, string>|null
+     * @var list<array<string, string>>|null
      */
     protected ?array $options = [];
 
     protected ?string $type = null;
 
     protected string $id;
-
-    /**
-     * @param array<int|string, mixed> $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
 
     public function getName(): ?string
     {
@@ -99,7 +89,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return array<string, string|array<string, string>>|null
+     * @return list<array<string, string>>|null
      */
     public function getOptions(): ?array
     {
@@ -122,23 +112,12 @@ class InputField extends XmlElement
             'required' => $this->getRequired(),
             'helpText' => $this->getHelpText(),
             'defaultValue' => $this->getDefaultValue(),
-            'options' => array_map(
-                fn ($option) => \is_array($option) ? $option : json_decode($option, true),
-                $this->getOptions() ?? []
-            ),
+            'options' => $this->getOptions() ?? [],
             'type' => $this->getType(),
         ]);
     }
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -175,7 +154,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return list<array<string, string>>
      */
     private static function parseOptions(\DOMElement $element): array
     {
@@ -193,7 +172,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<string, string>
      */
     private static function parseOption(\DOMElement $element): array
     {

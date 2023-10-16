@@ -21,16 +21,6 @@ class Parameter extends XmlElement
 
     protected string $value;
 
-    /**
-     * @param array<int|string, mixed> $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
     public function getType(): string
     {
         Feature::triggerDeprecationOrThrow(
@@ -61,21 +51,23 @@ class Parameter extends XmlElement
         return $this->value;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Parameter')
         );
 
-        return new self(self::parse($element));
+        return parent::fromXml($element);
     }
 
-    /**
-     * @return array<int|string, mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Parameter')
+        );
+
         $values = [];
 
         /** @var \DOMNamedNodeMap $attributes */

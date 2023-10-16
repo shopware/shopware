@@ -14,45 +14,36 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 class CustomFieldSet extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['label'];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'label',
         'name',
         'relatedEntities',
         'fields',
     ];
+    private const TRANSLATABLE_FIELDS = ['label'];
 
+    /**
+     * @var array<string, string>
+     */
     protected array $label;
 
     protected string $name;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $relatedEntities = [];
 
     /**
-     * @var CustomFieldType[]
+     * @var list<CustomFieldType>
      */
     protected array $fields = [];
 
     protected bool $global = false;
 
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
+    /**
+     * @return array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
+     */
     public function toEntityArray(string $appId): array
     {
         $relations = array_map(static fn (string $entity) => ['entityName' => $entity], $this->relatedEntities);
@@ -72,6 +63,9 @@ class CustomFieldSet extends XmlElement
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLabel(): array
     {
         return $this->label;
@@ -83,7 +77,7 @@ class CustomFieldSet extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRelatedEntities(): array
     {
@@ -91,7 +85,7 @@ class CustomFieldSet extends XmlElement
     }
 
     /**
-     * @return CustomFieldType[]
+     * @return list<CustomFieldType>
      */
     public function getFields(): array
     {
@@ -103,12 +97,14 @@ class CustomFieldSet extends XmlElement
         return $this->global;
     }
 
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes ?? [] as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
+            }
             $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 
@@ -123,6 +119,11 @@ class CustomFieldSet extends XmlElement
         return $values;
     }
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
     private static function parseChild(\DOMElement $child, array $values): array
     {
         // translated

@@ -12,22 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class Payments extends XmlElement
 {
     /**
-     * @var PaymentMethod[]
+     * @var list<PaymentMethod>
      */
-    protected $paymentMethods = [];
-
-    private function __construct(array $paymentMethods)
-    {
-        $this->paymentMethods = $paymentMethods;
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parsePaymentMethods($element));
-    }
+    protected array $paymentMethods = [];
 
     /**
-     * @return PaymentMethod[]
+     * @return list<PaymentMethod>
      */
     public function getPaymentMethods(): array
     {
@@ -51,16 +41,13 @@ class Payments extends XmlElement
         return array_filter($urls);
     }
 
-    /**
-     * @return PaymentMethod[]
-     */
-    private static function parsePaymentMethods(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $paymentMethods = [];
         foreach ($element->getElementsByTagName('payment-method') as $paymentMethod) {
             $paymentMethods[] = PaymentMethod::fromXml($paymentMethod);
         }
 
-        return $paymentMethods;
+        return ['paymentMethods' => $paymentMethods];
     }
 }

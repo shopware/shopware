@@ -20,16 +20,14 @@ class ParametersTest extends TestCase
             __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-
-        /** @var \DOMElement $parameters */
+        static::assertNotNull($action);
         $parameters = $action->getElementsByTagName('parameters')->item(0);
+        static::assertNotNull($parameters);
 
-        $results = Parameters::fromXml($parameters);
-        $result = $results->getParameters();
+        $result = Parameters::fromXml($parameters)->getParameters();
         static::assertCount(3, $result);
         static::assertInstanceOf(Parameter::class, $result[0]);
         static::assertInstanceOf(Parameter::class, $result[1]);

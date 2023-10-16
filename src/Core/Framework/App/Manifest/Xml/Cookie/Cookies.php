@@ -11,40 +11,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Cookies extends XmlElement
 {
-    final public const NAME_TAG = 'snippet-name';
-    final public const DESCRIPTION_TAG = 'snippet-description';
-    final public const COOKIE_TAG = 'cookie';
-    final public const VALUE_TAG = 'value';
-    final public const EXPIRATION_TAG = 'expiration';
-    final public const ENTRIES_TAG = 'entries';
+    private const NAME_TAG = 'snippet-name';
+    private const DESCRIPTION_TAG = 'snippet-description';
+    private const COOKIE_TAG = 'cookie';
+    private const VALUE_TAG = 'value';
+    private const EXPIRATION_TAG = 'expiration';
+    private const ENTRIES_TAG = 'entries';
 
     /**
-     * @var Cookies[]
+     * @var list<array<string, mixed>>
      */
-    protected $cookies = [];
-
-    private function __construct(array $cookies)
-    {
-        $this->cookies = $cookies;
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseCookies($element));
-    }
+    protected array $cookies = [];
 
     /**
-     * @return Cookies[]
+     * @return list<array<string, mixed>>
      */
     public function getCookies(): array
     {
         return $this->cookies;
     }
 
-    /**
-     * @return Cookies[]
-     */
-    private static function parseCookies(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -56,9 +43,14 @@ class Cookies extends XmlElement
             $values = self::parseChild($child, $values);
         }
 
-        return $values;
+        return ['cookies' => $values];
     }
 
+    /**
+     * @param list<array<string, mixed>> $values
+     *
+     * @return list<array<string, mixed>>
+     */
     private static function parseChild(\DOMElement $element, array $values): array
     {
         $cookie = [];
@@ -73,7 +65,7 @@ class Cookies extends XmlElement
             }
 
             if ($child->tagName === self::ENTRIES_TAG) {
-                $cookie[self::ENTRIES_TAG] = self::parseCookies($child);
+                $cookie[self::ENTRIES_TAG] = self::parse($child)['cookies'];
             }
         }
 

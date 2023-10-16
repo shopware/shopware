@@ -23,28 +23,6 @@ class DefaultConfig extends XmlElement
 
     protected ?string $backgroundColor = null;
 
-    private function __construct(array $defaultConfig)
-    {
-        foreach ($defaultConfig as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        $defaultConfig = [];
-
-        foreach ($element->childNodes as $config) {
-            if ($config instanceof \DOMText) {
-                continue;
-            }
-
-            $defaultConfig[self::kebabCaseToCamelCase($config->nodeName)] = $config->nodeValue;
-        }
-
-        return new self($defaultConfig);
-    }
-
     public function getMarginTop(): ?string
     {
         return $this->marginTop;
@@ -73,5 +51,20 @@ class DefaultConfig extends XmlElement
     public function getBackgroundColor(): ?string
     {
         return $this->backgroundColor;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $defaultConfig = [];
+
+        foreach ($element->childNodes as $config) {
+            if ($config instanceof \DOMText) {
+                continue;
+            }
+
+            $defaultConfig[self::kebabCaseToCamelCase($config->nodeName)] = $config->nodeValue;
+        }
+
+        return $defaultConfig;
     }
 }

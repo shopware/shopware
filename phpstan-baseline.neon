@@ -5381,16 +5381,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/Storefront/Storefront.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhook\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhook.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhook\\\\Webhooks\\:\\:__construct\\(\\) has parameter \\$webhooks with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/Webhook/Webhooks.php

@@ -99,7 +99,8 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
     </custom-fields>
     <webhooks>
         <webhook name="hook1" url="https://test.com/hook" event="checkout.customer.before.login"/>
-        <webhook name="hook2" url="https://test.com/hook2" event="checkout.order.placed"/>
+        <webhook name="hook2" url="https://test.com/hook2" event="product.written" onlyLiveVersion="true"/>
+        <webhook name="hook3" url="https://test.com/hook3" event="product.written" onlyLiveVersion="false"/>
     </webhooks>
     <cookies>
         <cookie>

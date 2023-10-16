@@ -245,6 +245,7 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:anyURI" name="url" use="required"/>
         <xs:attribute type="xs:NMTOKEN" name="event" use="required"/>
+        <xs:attribute type="xs:boolean" name="onlyLiveVersion" default="false"/>
     </xs:complexType>
     <xs:complexType name="custom-field-set">
         <xs:choice maxOccurs="unbounded">

@@ -68,7 +68,11 @@ export default {
             }
 
             return this.sequences.some(sequence => {
-                const { actionName, _isNew } = sequence;
+                const { actionName, _isNew, ruleId } = sequence;
+                if (!actionName && ruleId) {
+                    return false;
+                }
+
                 return !_isNew && !this.hasAvailableAction(actionName);
             });
         },

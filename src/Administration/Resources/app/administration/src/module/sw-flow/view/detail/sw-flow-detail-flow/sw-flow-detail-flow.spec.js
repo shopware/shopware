@@ -323,4 +323,20 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const alertElement = wrapper.findAll('.sw-flow-detail-flow-template');
         expect(alertElement.exists()).toBe(true);
     });
+
+    it('should create a sequence when sequences is empty and eventName exists', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor',
+        ]);
+
+        Shopware.State.commit('swFlowState/setFlow', {
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: [],
+        });
+        const createSequenceMock = jest.spyOn(wrapper.vm, 'createSequence');
+
+        await wrapper.vm.$nextTick();
+        expect(createSequenceMock).toHaveBeenCalledTimes(1);
+    });
 });

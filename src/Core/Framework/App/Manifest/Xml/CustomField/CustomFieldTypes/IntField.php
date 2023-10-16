@@ -14,37 +14,19 @@ class IntField extends CustomFieldType
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $placeholder = [];
+    protected array $placeholder = [];
+
+    protected ?int $steps = null;
+
+    protected ?int $min = null;
+
+    protected ?int $max = null;
 
     /**
-     * @var int|null
+     * @return array<string, string>
      */
-    protected $steps;
-
-    /**
-     * @var int|null
-     */
-    protected $min;
-
-    /**
-     * @var int|null
-     */
-    protected $max;
-
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): CustomFieldType
-    {
-        return new self(self::parse($element, self::TRANSLATABLE_FIELDS));
-    }
-
     public function getPlaceholder(): array
     {
         return $this->placeholder;

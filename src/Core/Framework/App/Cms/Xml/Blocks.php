@@ -12,26 +12,19 @@ use Shopware\Core\Framework\Log\Package;
 class Blocks extends XmlElement
 {
     /**
-     * @param Block[] $blocks
+     * @var list<Block>
      */
-    private function __construct(protected array $blocks)
-    {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseBlocks($element));
-    }
+    protected array $blocks = [];
 
     /**
-     * @return Block[]
+     * @return list<Block>
      */
     public function getBlocks(): array
     {
         return $this->blocks;
     }
 
-    private static function parseBlocks(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $blocks = [];
 
@@ -39,6 +32,6 @@ class Blocks extends XmlElement
             $blocks[] = Block::fromXml($block);
         }
 
-        return $blocks;
+        return ['blocks' => $blocks];
     }
 }

@@ -15,11 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 class Config extends XmlElement
 {
     /**
-     * @param InputField[] $config
+     * @var InputField[]
      */
-    public function __construct(protected array $config)
-    {
-    }
+    protected array $config;
 
     /**
      * @return InputField[]
@@ -34,20 +32,17 @@ class Config extends XmlElement
         return $this->config;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Config')
         );
 
-        return new self(self::parseInputField($element));
+        return parent::fromXml($element);
     }
 
-    /**
-     * @return array<int, InputField>
-     */
-    private static function parseInputField(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
@@ -60,6 +55,6 @@ class Config extends XmlElement
             $values[] = InputField::fromXml($parameter);
         }
 
-        return $values;
+        return ['config' => $values];
     }
 }

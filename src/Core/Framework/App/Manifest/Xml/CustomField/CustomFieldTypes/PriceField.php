@@ -11,18 +11,6 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 #[Package('core')]
 class PriceField extends CustomFieldType
 {
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): CustomFieldType
-    {
-        return new self(self::parse($element));
-    }
-
     protected function toEntityArray(): array
     {
         return [

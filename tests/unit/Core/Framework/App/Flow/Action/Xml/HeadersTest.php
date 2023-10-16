@@ -20,13 +20,12 @@ class HeadersTest extends TestCase
             __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-
-        /** @var \DOMElement $headers */
+        static::assertNotNull($action);
         $headers = $action->getElementsByTagName('headers')->item(0);
+        static::assertNotNull($headers);
 
         $headers = Headers::fromXml($headers);
         static::assertCount(2, $headers->getParameters());

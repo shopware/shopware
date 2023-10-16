@@ -13,19 +13,12 @@ class Storefront extends XmlElement
 {
     protected int $templateLoadPriority = 0;
 
-    private function __construct(array $data)
+    public function getTemplateLoadPriority(): int
     {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
+        return $this->templateLoadPriority;
     }
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
-    public static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -40,10 +33,5 @@ class Storefront extends XmlElement
         }
 
         return $values;
-    }
-
-    public function getTemplateLoadPriority(): int
-    {
-        return $this->templateLoadPriority;
     }
 }

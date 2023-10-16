@@ -11,26 +11,20 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AllowedHosts extends XmlElement
 {
-    private function __construct(protected array $allowedHosts)
-    {
-    }
+    /**
+     * @var list<string>
+     */
+    protected array $allowedHosts;
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseAllowedHosts($element));
-    }
-
-    public static function fromArray(array $allowedHosts): self
-    {
-        return new self($allowedHosts);
-    }
-
+    /**
+     * @return list<string>
+     */
     public function getHosts(): array
     {
         return $this->allowedHosts;
     }
 
-    private static function parseAllowedHosts(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $allowedHosts = [];
 
@@ -42,6 +36,6 @@ class AllowedHosts extends XmlElement
             $allowedHosts[] = $child->nodeValue;
         }
 
-        return $allowedHosts;
+        return ['allowedHosts' => $allowedHosts];
     }
 }

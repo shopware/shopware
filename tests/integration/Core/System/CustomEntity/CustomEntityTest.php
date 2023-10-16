@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\CustomEntity;
+namespace Shopware\Tests\Integration\Core\System\CustomEntity;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -99,8 +98,7 @@ class CustomEntityTest extends TestCase
 
         self::cleanUp($container);
 
-        $entities = ['category', 'product'];
-        foreach ($entities as $entity) {
+        foreach (['category', 'product'] as $entity) {
             $definition = $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity);
 
             foreach ($definition->getFields() as $field) {
@@ -116,8 +114,6 @@ class CustomEntityTest extends TestCase
         $result = $container->get('category.repository')->search($criteria, Context::createDefaultContext());
 
         // ensure that the dal extensions are removed before continue with next test
-        static::assertInstanceOf(EntitySearchResult::class, $result);
-
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
         static::assertCount(0, $categories);
 
@@ -168,13 +164,9 @@ class CustomEntityTest extends TestCase
     {
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/install.xml');
 
-        $this->getContainer()
-            ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage());
+        $this->getContainer()->get(CustomEntityPersister::class)->update($entities->toStorage());
 
-        $this->getContainer()
-            ->get(CustomEntitySchemaUpdater::class)
-            ->update();
+        $this->getContainer()->get(CustomEntitySchemaUpdater::class)->update();
 
         $schema = $this->getSchema();
 
@@ -247,7 +239,7 @@ class CustomEntityTest extends TestCase
         static::assertTrue($schema->hasTable('test_with_enum_column'));
         static::assertTrue($schema->hasTable('custom_entity_blog'));
         static::assertTrue($schema->hasTable('ce_blog_comment'));
-        static::assertEquals($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
+        static::assertSame($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
 
         self::cleanUp($this->getContainer());
     }
@@ -270,8 +262,8 @@ class CustomEntityTest extends TestCase
 
     private function testEventSystem(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $blogRepository);
 
         $blogRepository->create([self::blog('blog-4', $ids)], Context::createDefaultContext());
 
@@ -404,7 +396,7 @@ class CustomEntityTest extends TestCase
         static::assertCount(1, $inheritedProductsExtension);
         $blog = $inheritedProductsExtension->first();
         static::assertInstanceOf(ArrayEntity::class, $blog);
-        static::assertEquals($blog1['id'], $blog->getId());
+        static::assertSame($blog1['id'], $blog->getId());
 
         $v2 = $products->get($ids->get('v2'));
         static::assertInstanceOf(ProductEntity::class, $v2);
@@ -414,10 +406,10 @@ class CustomEntityTest extends TestCase
         static::assertCount(1, $inheritedProductsExtension);
         $blog = $inheritedProductsExtension->first();
         static::assertInstanceOf(ArrayEntity::class, $blog);
-        static::assertEquals($blog2['id'], $blog->getId());
+        static::assertSame($blog2['id'], $blog->getId());
 
-        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $blogRepository);
         $blogRepository->delete([['id' => $ids->get('inh.blog.2')]], $context);
 
         $criteria = new Criteria($ids->getList(['v2']));
@@ -432,7 +424,7 @@ class CustomEntityTest extends TestCase
         static::assertCount(1, $inheritedProductsExtension);
         $blog = $inheritedProductsExtension->first();
         static::assertInstanceOf(ArrayEntity::class, $blog);
-        static::assertEquals($blog1['id'], $blog->getId());
+        static::assertSame($blog1['id'], $blog->getId());
     }
 
     private function testOneToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
@@ -477,17 +469,17 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $v1);
         static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
         static::assertInstanceOf(ArrayEntity::class, $v1->getExtension('customEntityBlogInheritedLinkProduct'));
-        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+        static::assertSame($blog1['id'], $v1->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
         $v2 = $products->get($ids->get('one-to-one-2'));
         static::assertInstanceOf(ProductEntity::class, $v2);
         static::assertTrue($v2->hasExtension('customEntityBlogInheritedLinkProduct'));
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
-        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+        static::assertSame($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
         $context->addState('debug');
-        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $blogRepository);
         $blogRepository->delete([['id' => $ids->get('inh.one-to-one.2')]], $context);
 
         $criteria = new Criteria($ids->getList(['one-to-one-2']));
@@ -498,7 +490,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $v2);
         static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
-        static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+        static::assertSame($blog1['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
     }
 
     private function testManyToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
@@ -547,7 +539,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(EntityCollection::class, $v1->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertCount(1, $v1->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertInstanceOf(ArrayEntity::class, $v1->getExtension('customEntityBlogInheritedTopSeller')->first());
-        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+        static::assertSame($blog1['id'], $v1->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
 
         $v2 = $products->get($ids->get('many-to-one-2'));
         static::assertInstanceOf(ProductEntity::class, $v2);
@@ -555,10 +547,10 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(EntityCollection::class, $v2->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedTopSeller')->first());
-        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+        static::assertSame($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
 
-        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $blogRepository);
         $blogRepository->delete([['id' => $ids->get('inh.many-to-one.2')]], $context);
 
         $criteria = new Criteria($ids->getList(['many-to-one-2']));
@@ -571,7 +563,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(EntityCollection::class, $v2->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedTopSeller')->first());
-        static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+        static::assertSame($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
     }
 
     /**
@@ -595,45 +587,47 @@ class CustomEntityTest extends TestCase
 
         $expected = new CustomEntityXmlSchema(
             __DIR__ . '/_fixtures/custom-entity-test/Resources',
-            new Entities([
-                new Entity([
-                    'name' => 'custom_entity_blog',
-                    'fields' => [
-                        new IntField(['name' => 'position', 'storeApiAware' => true]),
-                        new FloatField(['name' => 'rating', 'storeApiAware' => true]),
-                        new StringField(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
-                        new TextField(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
-                        new BoolField(['name' => 'display', 'storeApiAware' => true, 'translatable' => true]),
-                        new JsonField(['name' => 'payload', 'storeApiAware' => false]),
-                        new EmailField(['name' => 'email', 'storeApiAware' => false]),
-                        new PriceField(['name' => 'price', 'storeApiAware' => false]),
-                        new DateField(['name' => 'my_date', 'storeApiAware' => false]),
-                        new ManyToManyField(['name' => 'products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => false]),
-                        new ManyToOneField(['name' => 'top_seller_restrict', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => false, 'onDelete' => 'restrict']),
-                        new ManyToOneField(['name' => 'top_seller_cascade', 'storeApiAware' => true, 'reference' => 'product', 'required' => true, 'inherited' => false, 'onDelete' => 'cascade']),
-                        new ManyToOneField(['name' => 'top_seller_set_null', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'set-null']),
-                        new OneToOneField(['name' => 'link_product_restrict', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'restrict']),
-                        new OneToOneField(['name' => 'link_product_cascade', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'cascade']),
-                        new OneToOneField(['name' => 'link_product_set_null', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'set-null']),
-                        new OneToManyField(['name' => 'links_restrict', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'restrict']),
-                        new OneToManyField(['name' => 'links_set_null', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'set-null']),
+            Entities::fromArray([
+                'entities' => [
+                    Entity::fromArray([
+                        'name' => 'custom_entity_blog',
+                        'fields' => [
+                            IntField::fromArray(['name' => 'position', 'storeApiAware' => true]),
+                            FloatField::fromArray(['name' => 'rating', 'storeApiAware' => true]),
+                            StringField::fromArray(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
+                            TextField::fromArray(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
+                            BoolField::fromArray(['name' => 'display', 'storeApiAware' => true, 'translatable' => true]),
+                            JsonField::fromArray(['name' => 'payload', 'storeApiAware' => false]),
+                            EmailField::fromArray(['name' => 'email', 'storeApiAware' => false]),
+                            PriceField::fromArray(['name' => 'price', 'storeApiAware' => false]),
+                            DateField::fromArray(['name' => 'my_date', 'storeApiAware' => false]),
+                            ManyToManyField::fromArray(['name' => 'products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => false]),
+                            ManyToOneField::fromArray(['name' => 'top_seller_restrict', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => false, 'onDelete' => 'restrict']),
+                            ManyToOneField::fromArray(['name' => 'top_seller_cascade', 'storeApiAware' => true, 'reference' => 'product', 'required' => true, 'inherited' => false, 'onDelete' => 'cascade']),
+                            ManyToOneField::fromArray(['name' => 'top_seller_set_null', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'set-null']),
+                            OneToOneField::fromArray(['name' => 'link_product_restrict', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'restrict']),
+                            OneToOneField::fromArray(['name' => 'link_product_cascade', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'cascade']),
+                            OneToOneField::fromArray(['name' => 'link_product_set_null', 'storeApiAware' => false, 'reference' => 'product', 'inherited' => false, 'onDelete' => 'set-null']),
+                            OneToManyField::fromArray(['name' => 'links_restrict', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'restrict']),
+                            OneToManyField::fromArray(['name' => 'links_set_null', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'set-null']),
 
-                        new OneToManyField(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'ce_blog_comment', 'onDelete' => 'cascade', 'reverseRequired' => true]),
+                            OneToManyField::fromArray(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'ce_blog_comment', 'onDelete' => 'cascade', 'reverseRequired' => true]),
 
-                        new ManyToManyField(['name' => 'inherited_products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => true]),
-                        new ManyToOneField(['name' => 'inherited_top_seller', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
-                        new OneToOneField(['name' => 'inherited_link_product', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
-                    ],
-                ]),
-                new Entity([
-                    'name' => 'ce_blog_comment',
-                    'fields' => [
-                        new StringField(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
-                        new TextField(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
-                        new EmailField(['name' => 'email', 'storeApiAware' => false]),
-                        new ManyToOneField(['name' => 'recommendation', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
-                    ],
-                ]),
+                            ManyToManyField::fromArray(['name' => 'inherited_products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => true]),
+                            ManyToOneField::fromArray(['name' => 'inherited_top_seller', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
+                            OneToOneField::fromArray(['name' => 'inherited_link_product', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
+                        ],
+                    ]),
+                    Entity::fromArray([
+                        'name' => 'ce_blog_comment',
+                        'fields' => [
+                            StringField::fromArray(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
+                            TextField::fromArray(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
+                            EmailField::fromArray(['name' => 'email', 'storeApiAware' => false]),
+                            ManyToOneField::fromArray(['name' => 'recommendation', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
+                        ],
+                    ]),
+                ],
             ])
         );
 
@@ -672,7 +666,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'inherited_link_product', 'type' => 'one-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'set-null'],
         ];
 
-        static::assertEquals('custom_entity_blog', $storage[0]['name']);
+        static::assertSame('custom_entity_blog', $storage[0]['name']);
         static::assertEquals($fields, json_decode((string) $storage[0]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         $fields = [
@@ -681,7 +675,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false],
             ['name' => 'recommendation', 'type' => 'many-to-one', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'inherited' => false, 'onDelete' => 'set-null'],
         ];
-        static::assertEquals('ce_blog_comment', $storage[1]['name']);
+        static::assertSame('ce_blog_comment', $storage[1]['name']);
         static::assertEquals($fields, json_decode((string) $storage[1]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         static::assertNotNull($storage[0]['created_at']);
@@ -738,19 +732,19 @@ class CustomEntityTest extends TestCase
         $blog = $blogs->first();
 
         static::assertInstanceOf(DALEntity::class, $blog);
-        static::assertEquals($ids->get('blog-2'), $blog->get('id'));
-        static::assertEquals(1, $blog->get('position'));
-        static::assertEquals(2.2, $blog->get('rating'));
-        static::assertEquals('blog-2', $blog->get('title'));
-        static::assertEquals('Test &lt;123&gt;', $blog->get('content'));
+        static::assertSame($ids->get('blog-2'), $blog->get('id'));
+        static::assertSame(1, $blog->get('position'));
+        static::assertSame(2.2, $blog->get('rating'));
+        static::assertSame('blog-2', $blog->get('title'));
+        static::assertSame('Test &lt;123&gt;', $blog->get('content'));
         static::assertTrue($blog->get('display'));
-        static::assertEquals(['foo' => 'Bar'], $blog->get('payload'));
-        static::assertEquals('test@test.com', $blog->get('email'));
+        static::assertSame(['foo' => 'Bar'], $blog->get('payload'));
+        static::assertSame('test@test.com', $blog->get('email'));
         static::assertInstanceOf(\DateTimeImmutable::class, $blog->get('myDate'));
         static::assertEquals(new PriceCollection([new Price(Defaults::CURRENCY, 10, 10, false)]), $blog->get('price'));
 
         static::assertInstanceOf(ArrayEntity::class, $blog);
-        static::assertEquals($ids->get('blog-2'), $blog->getId());
+        static::assertSame($ids->get('blog-2'), $blog->getId());
         static::assertInstanceOf(ProductEntity::class, $blog->get('topSellerCascade'));
         static::assertInstanceOf(ProductEntity::class, $blog->get('topSellerSetNull'));
         static::assertInstanceOf(ProductEntity::class, $blog->get('linkProductCascade'));
@@ -790,9 +784,9 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
         static::assertCount(1, $body['data']);
-        static::assertEquals(1, $body['total']);
-        static::assertEquals('update', $body['data'][0]['title']);
-        static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
+        static::assertSame(1, $body['total']);
+        static::assertSame('update', $body['data'][0]['title']);
+        static::assertSame($ids->get('blog-1'), $body['data'][0]['id']);
         static::assertArrayHasKey('inheritedProducts', $body['data'][0]);
         static::assertNull($body['data'][0]['inheritedProducts']);
 
@@ -809,8 +803,8 @@ class CustomEntityTest extends TestCase
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
         static::assertArrayHasKey('data', $body);
-        static::assertEquals('update', $body['data']['title']);
-        static::assertEquals($ids->get('blog-1'), $body['data']['id']);
+        static::assertSame('update', $body['data']['title']);
+        static::assertSame($ids->get('blog-1'), $body['data']['id']);
         static::assertArrayHasKey('inheritedProducts', $body['data']);
         static::assertNull($body['data']['inheritedProducts']);
 
@@ -830,9 +824,9 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
         static::assertCount(1, $body['data']);
-        static::assertEquals(1, $body['total']);
-        static::assertEquals('update', $body['data'][0]['title']);
-        static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
+        static::assertSame(1, $body['total']);
+        static::assertSame('update', $body['data'][0]['title']);
+        static::assertSame($ids->get('blog-1'), $body['data'][0]['id']);
         static::assertArrayHasKey('inheritedProducts', $body['data'][0]);
         static::assertNull($body['data'][0]['inheritedProducts']);
 
@@ -851,8 +845,8 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertCount(1, $body['data']);
-        static::assertEquals(1, $body['total']);
-        static::assertEquals($ids->get('blog-1'), $body['data'][0]);
+        static::assertSame(1, $body['total']);
+        static::assertSame($ids->get('blog-1'), $body['data'][0]);
 
         $client->request(
             'DELETE',
@@ -868,8 +862,8 @@ class CustomEntityTest extends TestCase
 
     private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $blogRepository);
         $blogRepository->create([self::blog('blog-3', $ids)], Context::createDefaultContext());
 
         $criteria = [
@@ -1178,7 +1172,7 @@ class CustomEntityTest extends TestCase
         ];
 
         static::assertInstanceOf(AclRoleEntity::class, $app->getAclRole());
-        static::assertEquals($expected, $app->getAclRole()->getPrivileges());
+        static::assertSame($expected, $app->getAclRole()->getPrivileges());
     }
 
     private function testAllowDisable(bool $expected): void
@@ -1186,6 +1180,6 @@ class CustomEntityTest extends TestCase
         $allowed = $this->getContainer()->get(Connection::class)
             ->fetchOne('SELECT allow_disable FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
 
-        static::assertEquals($expected, (bool) $allowed);
+        static::assertSame($expected, (bool) $allowed);
     }
 }

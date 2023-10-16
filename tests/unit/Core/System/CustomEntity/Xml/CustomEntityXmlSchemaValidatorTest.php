@@ -40,8 +40,8 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
 
         \assert($dom->documentElement instanceof \DOMElement);
 
-        $entities = new Entities([
-            Entity::fromXml($dom->documentElement),
+        $entities = Entities::fromArray([
+            'entities' => [Entity::fromXml($dom->documentElement)],
         ]);
         $schema = new CustomEntityXmlSchema(__DIR__, $entities);
 

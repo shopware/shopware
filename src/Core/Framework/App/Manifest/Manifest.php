@@ -43,7 +43,7 @@ class Manifest
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
         private readonly ?Tax $tax,
-        private readonly ?ShippingMethods $shipments,
+        private readonly ?ShippingMethods $shippingMethods,
     ) {
     }
 
@@ -52,8 +52,8 @@ class Manifest
         try {
             $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
 
-            /** @var \DOMElement $meta */
             $meta = $doc->getElementsByTagName('meta')->item(0);
+            \assert($meta !== null);
             $metadata = Metadata::fromXml($meta);
             $setup = $doc->getElementsByTagName('setup')->item(0);
             $setup = $setup === null ? null : Setup::fromXml($setup);
@@ -137,12 +137,14 @@ class Manifest
     }
 
     /**
-     * @param array<string, string[]> $permission
+     * @param array<string, list<string>> $permission
      */
     public function addPermissions(array $permission): void
     {
         if ($this->permissions === null) {
-            $this->permissions = Permissions::fromArray([]);
+            $this->permissions = Permissions::fromArray([
+                'permissions' => [],
+            ]);
         }
 
         $this->permissions->add($permission);
@@ -211,14 +213,14 @@ class Manifest
             $urls = \array_merge($urls, $this->tax->getUrls());
         }
 
-        $urls = \array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
+        $urls = \array_map(fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }
 
     public function getShippingMethods(): ?ShippingMethods
     {
-        return $this->shipments;
+        return $this->shippingMethods;
     }
 
     public function isManagedByComposer(): bool

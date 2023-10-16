@@ -13,12 +13,12 @@ use Shopware\Core\Framework\Log\Package;
 class Admin extends XmlElement
 {
     /**
-     * @var ActionButton[]
+     * @var list<ActionButton>
      */
     protected array $actionButtons = [];
 
     /**
-     * @var Module[]
+     * @var list<Module>
      */
     protected array $modules = [];
 
@@ -26,20 +26,8 @@ class Admin extends XmlElement
 
     protected ?string $baseAppUrl = null;
 
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseChilds($element));
-    }
-
     /**
-     * @return ActionButton[]
+     * @return list<ActionButton>
      */
     public function getActionButtons(): array
     {
@@ -47,7 +35,7 @@ class Admin extends XmlElement
     }
 
     /**
-     * @return Module[]
+     * @return list<Module>
      */
     public function getModules(): array
     {
@@ -90,7 +78,7 @@ class Admin extends XmlElement
         return array_filter($urls);
     }
 
-    private static function parseChilds(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         if (\count($element->getElementsByTagName('main-module')) > 1) {
             throw new InvalidArgumentException('Main module must only appear once');

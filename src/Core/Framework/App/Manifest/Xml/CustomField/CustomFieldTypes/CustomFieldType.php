@@ -12,41 +12,30 @@ use Shopware\Core\Framework\Util\XmlReader;
 #[Package('core')]
 abstract class CustomFieldType extends XmlElement
 {
-    protected const TRANSLATABLE_FIELDS = ['label', 'help-text'];
+    protected const TRANSLATABLE_FIELDS = [
+        'label',
+        'help-text',
+    ];
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var bool
-     */
-    protected $required = false;
+    protected bool $required = false;
 
-    /**
-     * @var bool
-     */
-    protected $allowCustomerWrite = false;
+    protected bool $allowCustomerWrite = false;
 
     protected bool $allowCartExpose = false;
 
-    /**
-     * @var int
-     */
-    protected $position = 1;
+    protected int $position = 1;
 
     /**
      * @var array<string, string>
      */
-    protected $label;
+    protected array $label = [];
 
     /**
      * @var array<string, string>
      */
-    protected $helpText = [];
-
-    abstract public static function fromXml(\DOMElement $element): self;
+    protected array $helpText = [];
 
     /**
      * @return array<string, mixed>
@@ -119,30 +108,38 @@ abstract class CustomFieldType extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{type: string, config: array<string, mixed>}
      */
     abstract protected function toEntityArray(): array;
 
     /**
-     * @param string[]|null $translatableFields
+     * @param list<string>|null  $translatableFields
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      */
     protected static function parse(\DOMElement $element, ?array $translatableFields = null): array
     {
         if (!$translatableFields) {
-            $translatableFields = self::TRANSLATABLE_FIELDS;
+            $translatableFields = static::TRANSLATABLE_FIELDS;
         }
 
         $values = [];
 
-        foreach ($element->attributes ?? [] as $attribute) {
-            \assert($attribute instanceof \DOMAttr);
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
+            }
             $values[$attribute->name] = $attribute->value;
         }
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
+                continue;
+            }
+
+            if ($child->tagName === 'options') {
+                $values[$child->tagName] = static::parseOptions($child);
+
                 continue;
             }
 
@@ -154,6 +151,26 @@ abstract class CustomFieldType extends XmlElement
             }
 
             $values[self::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected static function parseOptions(\DOMElement $child): array
+    {
+        $values = [];
+
+        foreach ($child->childNodes as $option) {
+            if (!$option instanceof \DOMElement) {
+                continue;
+            }
+
+            $option = static::parse($option, ['name']);
+            $key = (string) $option['value'];
+            $values[$key] = $option['name'];
         }
 
         return $values;

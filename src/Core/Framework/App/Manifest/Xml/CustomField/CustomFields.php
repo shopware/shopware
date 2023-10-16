@@ -12,35 +12,25 @@ use Shopware\Core\Framework\Log\Package;
 class CustomFields extends XmlElement
 {
     /**
-     * @var CustomFieldSet[]
+     * @var list<CustomFieldSet>
      */
     protected $customFieldSets = [];
 
-    private function __construct(array $customFieldSets)
-    {
-        $this->customFieldSets = $customFieldSets;
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseCustomFieldSets($element));
-    }
-
     /**
-     * @return CustomFieldSet[]
+     * @return list<CustomFieldSet>
      */
     public function getCustomFieldSets(): array
     {
         return $this->customFieldSets;
     }
 
-    private static function parseCustomFieldSets(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $customFieldSets = [];
         foreach ($element->getElementsByTagName('custom-field-set') as $customFieldSet) {
             $customFieldSets[] = CustomFieldSet::fromXml($customFieldSet);
         }
 
-        return $customFieldSets;
+        return ['customFieldSets' => $customFieldSets];
     }
 }

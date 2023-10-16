@@ -69,8 +69,8 @@ class WebhookDispatcherTest extends TestCase
         $this->bus = $this->createMock(MessageBusInterface::class);
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
 
-        /** @var GuzzleHistoryCollector $guzzleHistory */
         $guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $guzzleHistory);
         $this->guzzleHistory = $guzzleHistory;
     }
 
@@ -109,7 +109,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'customer' => ['read'],
+            'permissions' => [
+                'customer' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -238,7 +240,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'customer' => ['read'],
+            'permissions' => [
+                'customer' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -270,20 +274,20 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
-        static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
+        static::assertSame('Max', $data['data']['payload']['customer']['firstName']);
+        static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [
                     'contextToken' => 'testToken',
@@ -297,7 +301,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -341,7 +345,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'customer' => ['read'],
+            'permissions' => [
+                'customer' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -415,10 +421,10 @@ class WebhookDispatcherTest extends TestCase
         $returnedEvent = $webhookDispatcher->dispatch($event);
         static::assertSame($event, $returnedEvent);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -427,7 +433,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $payload['source']);
         unset($payload['timestamp'], $payload['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [
                     'email' => 'test@example.com',
@@ -485,15 +491,15 @@ class WebhookDispatcherTest extends TestCase
         static::assertCount(2, $history);
 
         foreach ($history as $historyEntry) {
-            /** @var Request $request */
             $request = $historyEntry['request'];
+            static::assertInstanceOf(Request::class, $request);
 
             $payload = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('timestamp', $payload);
             static::assertArrayHasKey('eventId', $payload['source']);
             unset($payload['timestamp'], $payload['source']['eventId']);
 
-            static::assertEquals(
+            static::assertSame(
                 [
                     'data' => [
                         'payload' => [
@@ -579,10 +585,10 @@ class WebhookDispatcherTest extends TestCase
         );
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -592,7 +598,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $payload['source']);
         unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [[
                     'entity' => 'product',
@@ -778,10 +784,10 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -790,7 +796,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [
                     'email' => 'test@example.com',
@@ -804,7 +810,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -901,7 +907,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['read'],
+            'permissions' => [
+                'product' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -925,10 +933,10 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -937,7 +945,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [
                     [
@@ -956,7 +964,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -1067,10 +1075,10 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -1079,7 +1087,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [],
                 'event' => AppDeletedEvent::NAME,
@@ -1091,7 +1099,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -1155,10 +1163,10 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -1167,7 +1175,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [],
                 'event' => AppDeletedEvent::NAME,
@@ -1179,7 +1187,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -1240,10 +1248,10 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookDispatcher->dispatch($event);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -1252,7 +1260,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
 
-        static::assertEquals([
+        static::assertSame([
             'data' => [
                 'payload' => [],
                 'event' => AppDeletedEvent::NAME,
@@ -1264,7 +1272,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], $data);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -1306,7 +1314,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['read'],
+            'permissions' => [
+                'product' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -1348,13 +1358,13 @@ class WebhookDispatcherTest extends TestCase
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);
-                static::assertEquals($payload, $actualPayload);
-                static::assertEquals($appId, $message->getAppId());
-                static::assertEquals($webhookId, $message->getWebhookId());
-                static::assertEquals($shopwareVersion, $message->getShopwareVersion());
-                static::assertEquals('s3cr3t', $message->getSecret());
-                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
-                static::assertEquals('en-GB', $message->getUserLocale());
+                static::assertSame($payload, $actualPayload);
+                static::assertSame($appId, $message->getAppId());
+                static::assertSame($webhookId, $message->getWebhookId());
+                static::assertSame($shopwareVersion, $message->getShopwareVersion());
+                static::assertSame('s3cr3t', $message->getSecret());
+                static::assertSame(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertSame('en-GB', $message->getUserLocale());
 
                 return true;
             }))
@@ -1406,7 +1416,9 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['read'],
+            'permissions' => [
+                'product' => ['read'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
@@ -1480,13 +1492,13 @@ class WebhookDispatcherTest extends TestCase
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
                 unset($actualPayload['source']['eventId']);
-                static::assertEquals($payload, $actualPayload);
-                static::assertEquals($webhookId, $message->getWebhookId());
-                static::assertEquals($shopwareVersion, $message->getShopwareVersion());
+                static::assertSame($payload, $actualPayload);
+                static::assertSame($webhookId, $message->getWebhookId());
+                static::assertSame($shopwareVersion, $message->getShopwareVersion());
                 static::assertNull($message->getAppId());
                 static::assertNull($message->getSecret());
-                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
-                static::assertEquals('en-GB', $message->getUserLocale());
+                static::assertSame(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertSame('en-GB', $message->getUserLocale());
 
                 return true;
             }))

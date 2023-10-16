@@ -16,23 +16,9 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 final class AdminUi extends ConfigXmlElement
 {
     /**
-     * @param array<string, Entity> $entities
+     * @var array<string, Entity>
      */
-    private function __construct(
-        protected readonly array $entities,
-    ) {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        $entities = [];
-        foreach ($element->getElementsByTagName('entity') as $entity) {
-            $entity = Entity::fromXml($entity);
-            $entities[$entity->getName()] = $entity;
-        }
-
-        return new self($entities);
-    }
+    protected array $entities;
 
     /**
      * @return array<string, Entity>
@@ -40,5 +26,16 @@ final class AdminUi extends ConfigXmlElement
     public function getEntities(): array
     {
         return $this->entities;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $entities = [];
+        foreach ($element->getElementsByTagName('entity') as $entity) {
+            $entity = Entity::fromXml($entity);
+            $entities[$entity->getName()] = $entity;
+        }
+
+        return ['entities' => $entities];
     }
 }

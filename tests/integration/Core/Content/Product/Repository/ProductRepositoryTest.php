@@ -33,6 +33,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -3237,6 +3239,30 @@ class ProductRepositoryTest extends TestCase
             static::assertArrayHasKey($key, $event->getList());
             static::assertEquals($value, $event->getList()[$key]);
         }
+    }
+
+    public function testNotFilterMissingVersionIdField(): void
+    {
+        $this->createLanguage(self::TEST_LANGUAGE_ID);
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'x1'))
+            ->stock(10)
+            ->name('Test')
+            ->price(10, 9)
+            ->seoUrl('/test-detail/' . $ids->get('x1'), 'product/seo-' . $ids->get('x1'))
+            ->build();
+
+        $this->repository->upsert([$product], $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_OR, [
+            new PrefixFilter('seoUrls.pathInfo', '/detail/'),
+        ]));
+
+        $ids = $this->repository->searchIds($criteria, $this->context);
+
+        static::assertSame(1, $ids->getTotal());
     }
 
     /**

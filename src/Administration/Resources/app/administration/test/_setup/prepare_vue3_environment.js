@@ -53,6 +53,9 @@ Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
         return Vue.set(target, propertyName, value);
     },
+    deleteReactive(target, propertyName) {
+        Vue.delete(target, propertyName);
+    },
     root: {
         $tc: v => v,
     },

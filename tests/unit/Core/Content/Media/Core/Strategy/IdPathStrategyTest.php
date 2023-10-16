@@ -17,11 +17,17 @@ class IdPathStrategyTest extends TestCase
     /**
      * @dataProvider strategyProvider
      */
-    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, string $expected): void
+    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, ?string $expected): void
     {
         $strategy = new IdPathStrategy();
 
         $generate = $strategy->generate([$struct]);
+
+        if ($expected === null) {
+            static::assertArrayNotHasKey($struct->id, $generate);
+
+            return;
+        }
 
         static::assertArrayHasKey($struct->id, $generate);
 
@@ -32,7 +38,7 @@ class IdPathStrategyTest extends TestCase
     {
         yield 'Test without extension' => [
             new MediaLocationStruct('foo', null, 'test', null),
-            'media/ac/bd/18/test',
+            null,
         ];
 
         yield 'Test with extension' => [

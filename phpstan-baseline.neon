@@ -4001,36 +4001,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportGeneratorTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportGeneratorTest\\:\\:createTestEntity\\(\\) has parameter \\$override with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportGeneratorTest\\:\\:getSalesChannelDomain\\(\\) should return Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$productExport of method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportGenerator\\:\\:generate\\(\\) expects Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$productExport of method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportGeneratorInterface\\:\\:generate\\(\\) expects Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/ProductExport/Service/ProductExportGeneratorTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExporterInterface\\:\\:generate\\(\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ProductExport/Service/ProductExportValidatorTest.php

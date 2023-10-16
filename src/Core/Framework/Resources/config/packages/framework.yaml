@@ -248,6 +248,9 @@ framework:
         Shopware\Core\Content\ProductExport\Exception\RenderProductException:
             log_level: notice
         # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\ProductExport\Exception\EmptyExportException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
         Shopware\Core\Content\Media\Exception\UploadException:
             log_level: notice
         # deprecated tag:v6.6.0 - Exception will be removed

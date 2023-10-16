@@ -83,7 +83,7 @@ class MediaUrlLoader
         }
 
         foreach ($entities as $media) {
-            if (!$media->hasFile() || $media->isPrivate()) {
+            if (!$media->hasFile()) {
                 continue;
             }
 

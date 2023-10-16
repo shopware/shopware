@@ -27,7 +27,7 @@ Component.register('sw-price-field', {
 
     model: {
         prop: 'price',
-        event: 'change',
+        event: 'priceChange',
     },
 
     props: {

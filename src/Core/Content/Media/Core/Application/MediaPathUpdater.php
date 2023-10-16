@@ -45,7 +45,15 @@ class MediaPathUpdater
 
         $locations = $this->builder->media($ids);
 
+        if (empty($locations)) {
+            return;
+        }
+
         $paths = $this->strategy->generate($locations);
+
+        if (empty($paths)) {
+            return;
+        }
 
         $this->storage->media($paths);
     }
@@ -67,8 +75,14 @@ class MediaPathUpdater
         $ids = $ids instanceof \Traversable ? \iterator_to_array($ids) : $ids;
 
         $locations = $this->builder->thumbnails($ids);
+        if (empty($locations)) {
+            return;
+        }
 
         $paths = $this->strategy->generate($locations);
+        if (empty($paths)) {
+            return;
+        }
 
         $this->storage->thumbnails($paths);
     }

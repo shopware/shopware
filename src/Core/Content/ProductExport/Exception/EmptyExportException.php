@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.6.0 - will be removed, use ProductExportException::productExportNotFound instead
+ */
 #[Package('inventory')]
-class EmptyExportException extends ShopwareHttpException
+class EmptyExportException extends ProductExportException
 {
     public function __construct(?string $id = null)
     {

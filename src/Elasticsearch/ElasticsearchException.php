@@ -56,7 +56,7 @@ class ElasticsearchException extends HttpException
             return new ElasticsearchIndexingException($items);
         }
 
-        $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'reason'));
+        $message = \PHP_EOL . implode(\PHP_EOL, array_column($items, 'reason'));
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,

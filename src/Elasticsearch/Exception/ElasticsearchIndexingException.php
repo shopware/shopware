@@ -22,7 +22,7 @@ class ElasticsearchIndexingException extends ElasticsearchException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchException::indexingError instead')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'ElasticsearchException::indexingError')
         );
 
         $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'reason'));

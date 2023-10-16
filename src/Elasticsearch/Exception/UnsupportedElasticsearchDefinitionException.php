@@ -19,7 +19,7 @@ class UnsupportedElasticsearchDefinitionException extends ElasticsearchException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchException::unsupportedElasticsearchDefinition instead')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'ElasticsearchException::unsupportedElasticsearchDefinition')
         );
 
         parent::__construct(

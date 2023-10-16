@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
-use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -36,7 +36,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
-use Shopware\Core\Framework\App\Template\TemplateEntity;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -47,8 +47,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Script\ScriptEntity;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -68,7 +67,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
-    use IntegrationTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
@@ -109,7 +107,6 @@ class AppLifecycleTest extends TestCase
         $cache->save(CacheCompressor::compress($item, []));
 
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->customEntityRepository = static::getContainer()->get('custom_entity.repository');
     }
 
     public function testInstall(): void
@@ -304,8 +301,8 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
         $this->appLifecycle->install($manifest, true, $this->context);
     }
 
@@ -1558,13 +1555,13 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
     }
 
@@ -1572,18 +1569,17 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
 
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
 
         $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
         $appLifeCycle->update(
             $updatedManifest,
             [
@@ -1598,8 +1594,8 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();

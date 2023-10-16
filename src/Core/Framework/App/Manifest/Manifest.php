@@ -43,7 +43,7 @@ class Manifest
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
         private readonly ?Tax $tax,
-        private readonly ?ShippingMethods $shipments,
+        private readonly ?ShippingMethods $shippingMethods,
     ) {
     }
 
@@ -220,7 +220,7 @@ class Manifest
 
     public function getShippingMethods(): ?ShippingMethods
     {
-        return $this->shipments;
+        return $this->shippingMethods;
     }
 
     public function isManagedByComposer(): bool

@@ -65,57 +65,6 @@ class Metadata extends XmlElement
     /**
      * @return array<string, mixed>
      */
-    protected $copyright;
-
-    /**
-     * @var string|null
-     */
-    protected $license;
-
-    /**
-     * @var string|null
-     */
-    protected $compatibility;
-
-    /**
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * @var string|null
-     */
-    protected $icon;
-
-    /**
-     * @var string|null
-     */
-    protected $privacy;
-
-    /**
-     * @var string[]
-     */
-    protected $privacyPolicyExtensions = [];
-
-    protected ?string $url = null;
-
-    /**
-     * @param array<int|string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);

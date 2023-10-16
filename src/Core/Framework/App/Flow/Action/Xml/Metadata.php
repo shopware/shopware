@@ -57,18 +57,6 @@ class Metadata extends XmlElement
     protected ?string $badge = null;
 
     /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    /**
      * @return array<string, string>
      */
     public function getLabel(): array
@@ -131,11 +119,6 @@ class Metadata extends XmlElement
     }
 
     public function getBadge(): ?string
-    {
-        return $this->badge;
-    }
-
-    public static function fromXml(\DOMElement $element): self
     {
         return $this->badge;
     }

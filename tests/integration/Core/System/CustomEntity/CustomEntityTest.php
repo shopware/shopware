@@ -732,11 +732,11 @@ class CustomEntityTest extends TestCase
         $blog = $blogs->first();
 
         static::assertInstanceOf(DALEntity::class, $blog);
-        static::assertEquals($ids->get('blog-2'), $blog->get('id'));
-        static::assertEquals(1, $blog->get('position'));
-        static::assertEquals(2.2, $blog->get('rating'));
-        static::assertEquals('blog-2', $blog->get('title'));
-        static::assertEquals('Test &lt;123&gt;', $blog->get('content'));
+        static::assertSame($ids->get('blog-2'), $blog->get('id'));
+        static::assertSame(1, $blog->get('position'));
+        static::assertSame(2.2, $blog->get('rating'));
+        static::assertSame('blog-2', $blog->get('title'));
+        static::assertSame('Test &lt;123&gt;', $blog->get('content'));
         static::assertTrue($blog->get('display'));
         static::assertSame(['foo' => 'Bar'], $blog->get('payload'));
         static::assertSame('test@test.com', $blog->get('email'));

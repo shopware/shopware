@@ -48,22 +48,8 @@ class PaymentMethod extends XmlElement
     protected ?string $icon = null;
 
     /**
-     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -157,10 +143,7 @@ class PaymentMethod extends XmlElement
         return $this->icon;
     }
 
-    /**
-     * @return mixed[]
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 

@@ -195,6 +195,8 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
             log_level: notice
+        Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException:
+            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException:
             log_level: notice
         Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption:

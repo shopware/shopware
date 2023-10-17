@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -16,7 +17,15 @@ class ShippingMethodCollection extends EntityCollection
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         return $this->filter(
-            fn (ShippingMethodEntity $shippingMethod) => \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true)
+            function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
+                if (Feature::isActive('v6.6.0.0')) {
+                    if ($shippingMethod->getAvailabilityRuleId() === null) {
+                        return true;
+                    }
+                }
+
+                return \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
+            }
         );
     }
 

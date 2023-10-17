@@ -90,7 +90,9 @@ class ShippingMethodEntity extends Entity
     protected $availabilityRule;
 
     /**
-     * @var string
+     * @deprecated tag:v6.6.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
+     *
+     * @var string|null
      */
     protected $availabilityRuleId;
 
@@ -266,12 +268,21 @@ class ShippingMethodEntity extends Entity
         $this->availabilityRule = $availabilityRule;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Will also return null
+     * return type will be ?string in v6.6.0.0
+     */
     public function getAvailabilityRuleId(): string
     {
-        return $this->availabilityRuleId;
+        /**
+         * @deprecated tag:v6.6.0
+         * remove the null-check
+         * return $this->availabilityRuleId;
+         */
+        return $this->availabilityRuleId ?? '';
     }
 
-    public function setAvailabilityRuleId(string $availabilityRuleId): void
+    public function setAvailabilityRuleId(?string $availabilityRuleId): void
     {
         $this->availabilityRuleId = $availabilityRuleId;
     }

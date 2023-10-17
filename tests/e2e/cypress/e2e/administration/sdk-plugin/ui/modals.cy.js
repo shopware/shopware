@@ -14,7 +14,7 @@ describe('Category: SDK Test', ()=> {
                 .should('exist');
         });
     });
-    it('@sdk: modals', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: modals', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         const Page = new ProductPageObject();
 
         cy.contains('.smart-bar__content', 'Products');

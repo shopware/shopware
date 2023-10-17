@@ -26,7 +26,7 @@ describe('SDK Tests: Notification', ()=> {
             .should('have.length.least', 3);
     });
 
-    it('@sdk: dispatch a notification', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: dispatch a notification', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-admin-menu__item--sw-order')

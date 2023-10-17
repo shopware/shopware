@@ -13,7 +13,10 @@ class OrderCustomFieldRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCustomField';
 
-    protected string|int|bool|null|float $renderedFieldValue = null;
+    /**
+     * @var array<string>|string|int|bool|float|null
+     */
+    protected array|string|int|bool|null|float $renderedFieldValue = null;
 
     /**
      * @param array<string, string> $renderedField

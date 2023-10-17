@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
+use Shopware\Core\Framework\Script\ScriptException;
 use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
 use Twig\Error\LoaderError;

@@ -78,7 +78,7 @@ class ShippingMethodDefinition extends EntityDefinition
             $availabilityRuleIdField->addFlags(new Required());
         }
 
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),

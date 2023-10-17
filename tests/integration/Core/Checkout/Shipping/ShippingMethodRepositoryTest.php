@@ -64,6 +64,28 @@ class ShippingMethodRepositoryTest extends TestCase
         static::assertSame($this->ruleId, $rule->getAvailabilityRuleId());
     }
 
+    public function testCreateShippingMethodWithoutAvailabilityRule(): void
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::markTestSkipped('Availability rule can be nullable as of v6.6.0.0');
+        }
+
+        $defaultContext = Context::createDefaultContext();
+
+        $shippingMethod = $this->createShippingMethodDummyArray();
+        unset($shippingMethod[0]['availabilityRule']);
+
+        $this->shippingRepository->create($shippingMethod, $defaultContext);
+
+        $resultSet = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext)->getEntities()->first();
+
+        static::assertNotNull($resultSet);
+        /**
+         * @deprecated tag:v6.6.0 - The expected return value has to be changed from empty string to null as of v6.6.0.0
+         */
+        static::assertSame('', $resultSet->getAvailabilityRuleId());
+    }
+
     public function testUpdateShippingMethod(): void
     {
         $defaultContext = Context::createDefaultContext();

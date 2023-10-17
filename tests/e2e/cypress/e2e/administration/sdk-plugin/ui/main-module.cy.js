@@ -17,7 +17,7 @@ describe('Category: SDK Test', ()=> {
             .should('have.length.least', 3);
     });
 
-    it('@sdk: add main module', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: add main module', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
         cy.contains('.sw-meteor-page__smart-bar-title', 'My extensions');
@@ -38,7 +38,7 @@ describe('Category: SDK Test', ()=> {
         cy.contains('.smart-bar__content', 'My App');
     });
 
-    it('@sdk: check main module with searchbar', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: check main module with searchbar', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
         cy.contains('.sw-meteor-page__smart-bar-title', 'My extensions');

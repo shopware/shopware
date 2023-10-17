@@ -26,6 +26,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Euro')
             .click();
@@ -56,6 +60,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -105,6 +113,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({

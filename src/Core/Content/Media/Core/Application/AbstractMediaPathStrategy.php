@@ -105,7 +105,9 @@ abstract class AbstractMediaPathStrategy
      */
     protected function replaceCharacters(): array
     {
-        return [];
+        return [
+            'ad' => 'g0',
+        ];
     }
 
     private function hasFile(ThumbnailLocationStruct|MediaLocationStruct $location): bool

@@ -26,8 +26,7 @@ function initializeTabsVue2(): void {
         const router = Shopware.Application.view?.router;
 
         // @ts-expect-error
-        // eslint-disable-next-line max-len
-        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+        const currentRoute = router.currentRoute;
 
         /* istanbul ignore next */
         if (
@@ -45,8 +44,7 @@ function initializeTabsVue2(): void {
         const router = Shopware.Application.view!.router;
 
         // @ts-expect-error
-        // eslint-disable-next-line max-len
-        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+        const currentRoute = router.currentRoute;
 
         if (router && currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);

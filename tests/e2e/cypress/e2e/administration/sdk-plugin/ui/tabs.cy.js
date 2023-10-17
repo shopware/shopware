@@ -14,7 +14,7 @@ describe('Category: SDK Test', ()=> {
                 .should('exist');
         });
     });
-    it('@sdk: Check tab existence', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: Check tab existence', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         const Page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -37,5 +37,7 @@ describe('Category: SDK Test', ()=> {
 
         cy.getSDKiFrame('ui-modals')
             .should('exist');
+
+        // TODO: add reload and check if tab still exists with content
     });
 });

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
@@ -75,7 +76,7 @@ class ScriptExecutor
                 static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
-                $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
+                $scriptException = ScriptException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
                 $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;

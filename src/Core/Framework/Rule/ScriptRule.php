@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
+use Shopware\Core\Framework\Script\ScriptException;
 use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
 use Twig\Error\LoaderError;
@@ -104,7 +105,7 @@ class ScriptRule extends Rule
         try {
             return $this->render($twig, $script, $hook, $name, $context);
         } catch (\Throwable $e) {
-            throw new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
+            throw RuleException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
         }
     }
 

@@ -70,14 +70,17 @@
         {% block sw_landing_page_detail_base_information_tags %}
         <sw-entity-tag-select
             v-if="landingPage && !isLoading"
+            {% if VUE3 %}
+            v-model:entity-collection="landingPage.tags"
+            {% else %}
             v-model="landingPage.tags"
+            {% endif %}
             class="sw-landing-page-detail-base__tags"
             :label="$tc('sw-landing-page.base.general.labelTags')"
             :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
             :disabled="!acl.can('landing_page.editor')"
         />
         {% endblock %}
-
     </sw-card>
     {% endblock %}
 
@@ -148,6 +151,7 @@
                 v-model="landingPage.url"
                 {% endif %}
                 required
+                name="landingPageUrl"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelUrl')"
                 :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"

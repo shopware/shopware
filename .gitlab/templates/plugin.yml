@@ -10,7 +10,7 @@ stages:
     - deploy
 
 variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
     PROJECT_ROOT: ${CI_PROJECT_DIR}
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
@@ -90,7 +90,7 @@ workflow:
   - tar -czf /tmp/plugin.tar.gz .
   - rm -Rf .* * || true
   - echo "Checkout platform branch $PLATFORM_BRANCH"
-  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+  - git clone --depth=1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
   - >
       if ! [[ -z "${MERGE_REF_PATH}" ]]; then
         echo '$MERGE_REF_PATH is set, checking out merged result'
@@ -99,6 +99,10 @@ workflow:
         echo "Checking out ${MERGE_REF_PATH::-4}merge"
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
+  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+  - PLATFORM_VERSION="${LATEST_TAG#"v"}"
+  - composer config version "$PLATFORM_VERSION"
+  - composer update
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
   - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
 
@@ -119,7 +123,7 @@ workflow:
         plugin_name="$(echo "$plugin" | jq -r .name)"
         plugin_url="$(echo "$plugin" | jq -r .url)"
         plugin_branch="$(echo "$plugin" | jq -r .branch)"
-        git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
+        git clone --depth=1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
         npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" || true
         npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
         npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true

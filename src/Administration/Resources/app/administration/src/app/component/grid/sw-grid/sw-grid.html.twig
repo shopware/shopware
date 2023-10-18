@@ -117,12 +117,17 @@
 
                     <slot
                         v-for="(item, index) in items"
+                        {% if VUE3 %}
+                        :key="item.id"
+                        {% endif %}
                         name="items"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
+                            {% if VUE2 %}
                             :key="item.id"
+                            {% endif %}
                             :style="columnFlex"
                             :item="item"
                             :index="index"

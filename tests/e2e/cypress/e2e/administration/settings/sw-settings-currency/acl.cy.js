@@ -13,7 +13,7 @@ describe('Currency: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view currency', {tags: ['pa-inventory']}, () => {
+    it('@settings: can view currency', { tags: ['pa-inventory', 'VUE3_SKIP'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
@@ -26,6 +26,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Euro')
             .click();
@@ -37,7 +41,7 @@ describe('Currency: Test acl privileges', () => {
         cy.get('#sw-field--currency-factor').should('have.value', '1');
     });
 
-    it('@settings: can edit currency', { tags: ['pa-inventory'] }, () => {
+    it('@settings: can edit currency', { tags: ['pa-inventory', 'VUE3_SKIP'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -56,6 +60,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -82,7 +90,7 @@ describe('Currency: Test acl privileges', () => {
             .contains('Kreuzer');
     });
 
-    it('@settings: can create currency', { tags: ['pa-inventory', 'quarantined'] }, () => {
+    it('@settings: can create currency', { tags: ['pa-inventory', 'quarantined', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -105,6 +113,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -130,7 +142,7 @@ describe('Currency: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`, 'Dukaten');
     });
 
-    it('@settings: can delete currency', { tags: ['pa-inventory'] }, () => {
+    it('@settings: can delete currency', { tags: ['pa-inventory', 'VUE3_SKIP'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -149,6 +161,10 @@ describe('Currency: Test acl privileges', () => {
         });
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.contains('.sw-data-grid__cell-content', 'US-Dollar').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -157,7 +173,16 @@ describe('Currency: Test acl privileges', () => {
         }).as('deleteCurrency');
 
         // filter currency via search bar
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('ZZ Yen');
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/**`,
+            method: 'post',
+        }).as('searchResultCall');
+
+        cy.get('input.sw-search-bar__input').type('ZZ Yen').should('have.value', 'ZZ Yen');
+
+        cy.wait('@searchResultCall')
+            .its('response.statusCode').should('equal', 200);
 
         // Delete currency
         cy.clickContextMenuItem(

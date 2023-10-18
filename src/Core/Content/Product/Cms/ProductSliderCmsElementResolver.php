@@ -108,8 +108,10 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            /** @var ProductCollection $streamResult */
             $streamResult = $entitySearchResult->getEntities();
+            if (!$streamResult instanceof ProductCollection) {
+                return;
+            }
 
             $slider->setProducts($streamResult);
             $slider->setStreamId($productConfig->getStringValue());
@@ -123,9 +125,8 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        /** @var ProductCollection|null $products */
         $products = $searchResult->getEntities();
-        if ($products === null) {
+        if (!$products instanceof ProductCollection) {
             return;
         }
 

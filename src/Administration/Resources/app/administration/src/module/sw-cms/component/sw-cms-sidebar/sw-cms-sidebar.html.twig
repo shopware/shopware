@@ -502,9 +502,16 @@
                 <template v-if="getMainContentBlocks(section.blocks).length > 0">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_navigator_main_element %}
-                    <template v-for="block in getMainContentBlocks(section.blocks)">
+                    <template
+                        v-for="block in getMainContentBlocks(section.blocks)"
+                        {% if VUE3 %}
+                        :key="block.id"
+                        {% endif %}
+                    >
                         <sw-cms-sidebar-nav-element
+                            {% if VUE2 %}
                             :key="block.id"
+                            {% endif %}
                             v-draggable="getDragData(block, sectionIndex)"
                             v-droppable="getDropData(block, sectionIndex)"
                             :block="block"
@@ -541,9 +548,16 @@
                     <template v-if="getSidebarContentBlocks(section.blocks).length > 0">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_navigator_sidebar_element %}
-                        <template v-for="block in getSidebarContentBlocks(section.blocks)">
+                        <template
+                            v-for="block in getSidebarContentBlocks(section.blocks)"
+                            {% if VUE3 %}
+                            :key="block.id"
+                            {% endif %}
+                        >
                             <sw-cms-sidebar-nav-element
+                                {% if VUE2 %}
                                 :key="block.id"
+                                {% endif %}
                                 v-draggable="getDragData(block, sectionIndex)"
                                 v-droppable="getDropData(block, sectionIndex)"
                                 :block="block"

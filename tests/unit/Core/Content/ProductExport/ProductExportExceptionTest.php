@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
@@ -42,7 +43,9 @@ class ProductExportExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
+     * @DisabledFeatures("v6.6.0.0")
+     *
+     * @deprecated tag:v6.6.0.0 - will be removed
      */
     public function testRenderHeaderException(): void
     {
@@ -55,7 +58,9 @@ class ProductExportExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
+     * @DisabledFeatures("v6.6.0.0")
+     *
+     * @deprecated tag:v6.6.0.0 - will be removed
      */
     public function testRenderProductException(): void
     {
@@ -95,5 +100,29 @@ class ProductExportExceptionTest extends TestCase
         static::expectException(ProductExportException::class);
 
         throw $exception;
+    }
+
+    /**
+     * @DisabledFeatures("v6.6.0.0")
+     *
+     * @deprecated tag:v6.6.0.0 - will be removed
+     */
+    public function testProductExportNotFoundLegacy(): void
+    {
+        $exception = ProductExportException::productExportNotFound('product-id');
+
+        static::assertInstanceOf(EmptyExportException::class, $exception);
+    }
+
+    public function testProductExportNotFound(): void
+    {
+        $exception = ProductExportException::productExportNotFound('product-id');
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertEquals(ProductExportException::PRODUCT_EXPORT_NOT_FOUND, $exception->getErrorCode());
+        static::assertEquals('No products for export with ID product-id found', $exception->getMessage());
+
+        $exception = ProductExportException::productExportNotFound();
+        static::assertEquals('No products for export found', $exception->getMessage());
     }
 }

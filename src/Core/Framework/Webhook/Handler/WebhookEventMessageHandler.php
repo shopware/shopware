@@ -43,7 +43,6 @@ final class WebhookEventMessageHandler
         $timestamp = time();
         $payload['timestamp'] = $timestamp;
 
-        /** @var string $jsonPayload */
         $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
 
         $headers = ['Content-Type' => 'application/json',

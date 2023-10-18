@@ -31,7 +31,7 @@ class HookableEntityWrittenEvent implements Hookable
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
      */
     public function getWebhookPayload(): array
     {
@@ -44,7 +44,7 @@ class HookableEntityWrittenEvent implements Hookable
     }
 
     /**
-     * @return array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: array<string>}[]
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
      */
     public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
@@ -59,6 +59,10 @@ class HookableEntityWrittenEvent implements Hookable
 
             if (!$event instanceof EntityDeletedEvent) {
                 $result['updatedFields'] = array_keys($writeResult->getPayload());
+            }
+
+            if (\array_key_exists('versionId', $writeResult->getPayload())) {
+                $result['versionId'] = $writeResult->getPayload()['versionId'];
             }
 
             $payload[] = $result;

@@ -491,9 +491,9 @@ export default {
             return this.loadEntityData();
         },
 
-        saveFinish() {
+        async saveFinish() {
             if (this.documentConfig.isNew()) {
-                this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+                await this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
             }
             this.loadEntityData();
         },

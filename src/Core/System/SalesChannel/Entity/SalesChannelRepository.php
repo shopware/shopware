@@ -181,7 +181,6 @@ class SalesChannelRepository
         while (!empty($queue) && --$maxCount > 0) {
             $cur = array_shift($queue);
 
-            /** @var EntityDefinition $definition */
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 

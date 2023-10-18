@@ -29,12 +29,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -91,7 +92,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
         private readonly FlowEventPersister $flowEventPersister,
-        private readonly string $env
+        private readonly string $env,
+        private readonly ShippingMethodPersister $shippingMethodPersister,
     ) {
     }
 
@@ -249,6 +251,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
+
+        $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
 
         $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);

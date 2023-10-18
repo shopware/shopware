@@ -82,14 +82,17 @@
                         columns="repeat(auto-fit, minmax(100%, 1fr))"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order,vue/no-parsing-error -->
                         {% block sw_document_detail_base_general_input_type %}
                         <sw-entity-single-select
                             id="documentConfigTypes"
                             {% if VUE3 %}
                             v-model:value="documentConfig.documentTypeId"
+                            name="sw-field--documentConfig-documentTypeId"
+                            @update:value="(id, type) => onChangeType(type)"
                             {% else %}
                             v-model="documentConfig.documentTypeId"
+                            @change="(id, type) => onChangeType(type)"
                             {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
@@ -103,19 +106,20 @@
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
                             :disabled="documentConfig.global || !acl.can('document.editor')"
-                            {% if VUE3 %}
-                            @update:value="(id, type) => onChangeType(type)"
-                            {% else %}
-                            @change="(id, type) => onChangeType(type)"
-                            {% endif %}
                         />
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_document_detail_base_general_input_sales_channel %}
                         <sw-multi-select
                             v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
                             id="documentSalesChannel"
+                            {% if VUE3 %}
+                            v-model:value="documentConfigSalesChannels"
+                            @update:value="(v) => documentConfigSalesChannels = v"
+                            {% else %}
                             v-model="documentConfigSalesChannels"
+                            {% endif %}
+                            name="sw-field--documentConfigSalesChannels"
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
@@ -183,6 +187,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.name"
+                                name="sw-field--documentConfig-name"
                                 {% else %}
                                 v-model="documentConfig.name"
                                 {% endif %}
@@ -205,6 +210,7 @@
                             <sw-media-field
                                 {% if VUE3 %}
                                 v-model:mediaId="documentConfig.logoId"
+                                name="sw-field--documentConfig-logoId"
                                 {% else %}
                                 v-model="documentConfig.logoId"
                                 {% endif %}
@@ -219,6 +225,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.filenamePrefix"
+                                name="sw-field--documentConfig-filenamePrefix"
                                 {% else %}
                                 v-model="documentConfig.filenamePrefix"
                                 {% endif %}
@@ -233,6 +240,7 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.filenameSuffix"
+                                name="sw-field--documentConfig-filenameSuffix"
                                 {% else %}
                                 v-model="documentConfig.filenameSuffix"
                                 {% endif %}
@@ -247,12 +255,17 @@
                         <template
                             v-for="(formField, index) in generalFormFields"
                             v-if="documentConfig.config"
+                            {% if VUE3 %}
+                            :key="`formField-${index}`"
+                            {% endif %}
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_detail_content_form_field_renderer %}
                             <sw-form-field-renderer
                                 v-if="formField"
+                                {% if VUE2 %}
                                 :key="`formField-${index}`"
+                                {% endif %}
                                 v-model="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor')"
                                 class="sw-settings-document-detail__form-field-renderer"
@@ -272,6 +285,7 @@
                             v-if="isShowDivergentDeliveryAddress"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
+                            name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             {% else %}
                             v-model="documentConfig.config.displayDivergentDeliveryAddress"
                             {% endif %}
@@ -287,6 +301,7 @@
                             v-if="isShowDisplayNoteDelivery"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
+                            name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             {% else %}
                             v-model="documentConfig.config.displayAdditionalNoteDelivery"
                             {% endif %}
@@ -302,6 +317,7 @@
                             v-if="isShowDisplayNoteDelivery"
                             {% if VUE3 %}
                             v-model:value="documentConfig.config.displayCustomerVatId"
+                            name="sw-field--documentConfig-config-displayCustomerVatId"
                             {% else %}
                             v-model="documentConfig.config.displayCustomerVatId"
                             {% endif %}
@@ -317,6 +333,7 @@
                             v-if="showCountriesSelect"
                             {% if VUE3 %}
                             v-model:ids="documentConfig.config.deliveryCountries"
+                            name="sw-field--documentConfig-config-deliveryCountries"
                             {% else %}
                             v-model="documentConfig.config.deliveryCountries"
                             {% endif %}
@@ -347,11 +364,18 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_company_form_field_renderer_content %}
                         <template v-if="documentConfig.config">
-                            <template v-for="formField in companyFormFields">
+                            <template
+                                v-for="formField in companyFormFields"
+                                {% if VUE3 %}
+                                :key="formField.name"
+                                {% endif %}
+                            >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_company_form_field_renderer %}
                                 <sw-form-field-renderer
+                                    {% if VUE2 %}
                                     :key="formField.name"
+                                    {% endif %}
                                     v-model="documentConfig.config[formField.name]"
                                     :disabled="!acl.can('document.editor')"
                                     v-bind="formField"

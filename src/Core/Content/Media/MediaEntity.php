@@ -22,7 +22,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -232,6 +234,11 @@ class MediaEntity extends Entity
      */
     protected $appPaymentMethods;
 
+    /**
+     * @var EntityCollection<AppShippingMethodEntity>|null
+     */
+    protected ?EntityCollection $appShippingMethods = null;
+
     protected ?ProductDownloadCollection $productDownloads = null;
 
     protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
@@ -425,7 +432,7 @@ class MediaEntity extends Entity
     {
         $hasFile = $this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null;
 
-        return $this->hasFile = $hasFile;
+        return $this->hasFile = $hasFile || $this->path !== null;
     }
 
     public function getFileName(): ?string
@@ -663,6 +670,22 @@ class MediaEntity extends Entity
     public function setAppPaymentMethods(AppPaymentMethodCollection $appPaymentMethods): void
     {
         $this->appPaymentMethods = $appPaymentMethods;
+    }
+
+    /**
+     * @return EntityCollection<AppShippingMethodEntity>|null
+     */
+    public function getAppShippingMethods(): ?EntityCollection
+    {
+        return $this->appShippingMethods;
+    }
+
+    /**
+     * @param EntityCollection<AppShippingMethodEntity> $appShippingMethods
+     */
+    public function setAppShippingMethods(EntityCollection $appShippingMethods): void
+    {
+        $this->appShippingMethods = $appShippingMethods;
     }
 
     public function getProductDownloads(): ?ProductDownloadCollection

@@ -14,7 +14,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         });
     });
 
-    it('@package: test seo url for the category ', { tags: ['pa-sales-channels'] }, () => {
+    it('@package: test seo url for the category ', { tags: ['pa-sales-channels', 'VUE3'] }, () => {
         const page = new CategoryPageObject();
 
         cy.intercept({

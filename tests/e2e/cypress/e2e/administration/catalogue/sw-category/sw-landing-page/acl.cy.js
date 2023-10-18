@@ -7,7 +7,7 @@ import CategoryPageObject from '../../../../../support/pages/module/sw-category.
 
 describe('Landing pages: Test ACL privileges', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
+        cy.log('Clean previous state and prepare Administration');
         let salesChannel;
         cy.searchViaAdminApi({
             endpoint: 'sales-channel',
@@ -36,8 +36,7 @@ describe('Landing pages: Test ACL privileges', () => {
             });
     });
 
-
-    it('@catalogue: can duplicate landing pages', {tags: ['pa-content-management']}, () => {
+    it('@catalogue: can duplicate landing pages', {tags: ['pa-content-management', 'VUE3']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -57,23 +56,23 @@ describe('Landing pages: Test ACL privileges', () => {
             },
         ]);
 
-        // Request for duplicate landing page
+        cy.log('Request for duplicate landing page');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/landing-page/*`,
             method: 'POST',
         }).as('duplicateData');
 
-        // Request for loading landing pages
+        cy.log('Request for loading landing pages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
-        // Collapse category and expand landing page tree
+        cy.log('Collapse category and expand landing page tree');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
-        // Waiting for loading landing pages
+        cy.log('Waiting for loading landing pages');
         cy.wait('@loadLandingPage');
 
-        // Click on duplicate in context menu
+        cy.log('Click on duplicate in context menu');
         const page = new CategoryPageObject();
         cy.clickContextMenuItem(
             '.sw-context-menu__duplicate-action',
@@ -81,13 +80,13 @@ describe('Landing pages: Test ACL privileges', () => {
             `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
-        // Verify duplicate
+        cy.log('Verify duplicate');
         cy.wait('@duplicateData')
             .its('response.statusCode').should('equal', 200);
         cy.contains(`${page.elements.categoryTreeItem}:nth-child(2)`, 'Testingpage Copy');
     });
 
-    it('@catalogue: can create landing pages', {tags: ['pa-content-management']}, () => {
+    it('@catalogue: can create landing pages', {tags: ['pa-content-management', 'VUE3']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -107,32 +106,32 @@ describe('Landing pages: Test ACL privileges', () => {
             },
         ]);
 
-        // Request for save landing page
+        cy.log('Request for save landing page');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page`,
             method: 'POST',
         }).as('saveData');
 
-        // Request for loading the landing pages
+        cy.log('Request for loading the landing pages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
-        // Collapse category tree and expand landing page tree
+        cy.log('Collapse category tree and expand landing page tree');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
-        // Wait for loading the landing pages
+        cy.log('Wait for loading the landing pages');
         cy.wait('@loadLandingPage');
 
-        // Click on add landing page button
+        cy.log('Click on add landing page button');
         cy.get('.sw-landing-page-tree__add-button a').click();
 
-        // Fill in landing page information
-        cy.get('#landingPageName').typeAndCheck('MyLandingPage');
+        cy.log('Fill in landing page information');
+        cy.get('input[name="landingPageName"]').typeAndCheck('MyLandingPage');
         cy.get('input[name="landingPageActive"]').check();
         cy.get('.sw-landing-page-detail-base__sales_channel').typeMultiSelectAndCheck('Storefront');
-        cy.get('#sw-field--landingPage-url').typeAndCheck('my-landing-page');
+        cy.get('input[name="landingPageUrl"]').typeAndCheck('my-landing-page');
 
-        // Save landing page
+        cy.log('Save landing page');
         cy.get('.sw-category-detail__save-landing-page-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
@@ -140,7 +139,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).first().contains('MyLandingPage');
     });
 
-    it('@catalogue: can view landing pages', {tags: ['pa-content-management']}, () => {
+    it('@catalogue: can view landing pages', {tags: ['pa-content-management', 'VUE3']}, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -153,27 +152,27 @@ describe('Landing pages: Test ACL privileges', () => {
             },
         ]);
 
-        // Request for loading landing pages
+        cy.log('Request for loading landing pages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
 
-        // Collapse category and expand landing page tree
+        cy.log('Collapse category and expand landing page tree');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
-        // Loading landing pages
+        cy.log('Loading landing pages');
         cy.wait('@loadLandingPages');
 
-        // Expect empty state
+        cy.log('Expect empty state');
         cy.contains('.sw-empty-state__title', 'No category selected');
 
-        // Click on the first landing page to view details
+        cy.log('Click on the first landing page to view details');
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
 
-        // Expect the landing page
+        cy.log('Expect the landing page');
         cy.get('#landingPageName').should('have.value', 'Testingpage');
     });
 
-    it('@catalogue: can edit landing pages', {tags: ['pa-content-management']}, () => {
+    it('@catalogue: can edit landing pages', {tags: ['pa-content-management', 'VUE3']}, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -190,43 +189,43 @@ describe('Landing pages: Test ACL privileges', () => {
             },
         ]);
 
-        // Request for update landing page
+        cy.log('Request for update landing page');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
             method: 'PATCH',
         }).as('saveData');
 
-        // Request for loading landing pages
+        cy.log('Request for loading landing pages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
 
-        // Collapse category and expand landing page tree
+        cy.log('Collapse category and expand landing page tree');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
-        // Loading landing pages
+        cy.log('Loading landing pages');
         cy.wait('@loadLandingPages');
 
-        // Expect empty screen
+        cy.log('Expect empty screen');
         cy.contains('.sw-empty-state__title', 'No category selected');
 
-        // Open landing page for edit
+        cy.log('Open landing page for edit');
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
 
-        // Select landing page
+        cy.log('Select landing page');
         cy.get('#landingPageName').should('have.value', 'Testingpage');
 
-        // Edit the landing page
+        cy.log('Edit the landing page');
         cy.get('#landingPageName').clearTypeAndCheck('Page');
 
-        // Save the landing page
+        cy.log('Save the landing page');
         cy.get('.sw-category-detail__save-landing-page-action').click();
 
-        // Wait for landing page request with correct data to be successful
+        cy.log('Wait for landing page request with correct data to be successful');
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can delete landing pages', {tags: ['pa-content-management']}, () => {
+    it('@catalogue: can delete landing pages', {tags: ['pa-content-management', 'VUE3']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -250,23 +249,23 @@ describe('Landing pages: Test ACL privileges', () => {
             },
         ]);
 
-        // Request for delete landing page
+        cy.log('Request for delete landing page');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
             method: 'delete',
         }).as('deleteData');
 
-        // Request for loading landing pages
+        cy.log('Request for loading landing pages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
-        // Collapse category and expand landing page tree
+        cy.log('Collapse category and expand landing page tree');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
-        // Loading landing pages
+        cy.log('Loading landing pages');
         cy.wait('@loadLandingPage');
 
-        // Click on delete in context menu
+        cy.log('Click on delete in context menu');
         const page = new CategoryPageObject();
         cy.clickContextMenuItem(
             '.sw-context-menu__group-button-delete',
@@ -274,7 +273,7 @@ describe('Landing pages: Test ACL privileges', () => {
             `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
-        // Expect delete modal to be open
+        cy.log('Expect delete modal to be open');
         cy.get('.sw-modal')
             .should('be.visible');
         cy.contains('.sw_tree__confirm-delete-text', 'Testingpage');
@@ -283,7 +282,7 @@ describe('Landing pages: Test ACL privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        // Verify deletion
+        cy.log('Verify deletion');
         cy.wait('@deleteData')
             .its('response.statusCode').should('equal', 204);
     });

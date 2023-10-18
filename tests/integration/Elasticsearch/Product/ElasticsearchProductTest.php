@@ -81,9 +81,9 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,11 +128,14 @@ class ElasticsearchProductTest extends TestCase
 
     private AbstractElasticsearchDefinition $definition;
 
+    private ElasticsearchIndexingUtils $utils;
+
     private Context $context;
 
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
 
         $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
 
@@ -278,7 +281,7 @@ class ElasticsearchProductTest extends TestCase
 
             return $this->ids;
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -316,7 +319,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -336,7 +339,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertCount(\count($data->prefixed('product-')), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -359,7 +362,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $products->getIds());
             static::assertSame(\count($data->prefixed('product-')), $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -381,7 +384,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -403,7 +406,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(9, $products->getIds());
             static::assertSame(9, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -425,7 +428,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(6, $products->getIds());
             static::assertSame(6, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -448,7 +451,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(3, $products->getTotal());
             static::assertContains($data->get('product-1'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -484,7 +487,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-5'), $products->getIds());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -511,7 +514,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(\count($expectedProducts), $products->getIds());
             static::assertEquals(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -650,7 +653,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-2'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -698,7 +701,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -746,7 +749,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -776,7 +779,7 @@ class ElasticsearchProductTest extends TestCase
                 || \in_array($data->get('product-6'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -802,7 +805,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -832,7 +835,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue(FloatComparator::equals(194.57142857143, $result->getAvg()));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -878,7 +881,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -937,7 +940,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertEquals(300, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -983,7 +986,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1013,7 +1016,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(1362, $result->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1070,7 +1073,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(SumResult::class, $price);
             static::assertEquals(0, $price->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1100,7 +1103,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(350, $result->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1157,7 +1160,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(MaxResult::class, $price);
             static::assertEquals(300, $price->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1187,7 +1190,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(1, $result->getMin());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1244,7 +1247,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(MinResult::class, $stock);
             static::assertEquals(300, $stock->getMin());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1274,7 +1277,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(6, $result->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1331,7 +1334,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(CountResult::class, $stock);
             static::assertEquals(2, $stock->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1365,7 +1368,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue(FloatComparator::equals(192.85714285714, $result->getAvg()));
             static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1431,7 +1434,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(250, $price->getMin());
             static::assertEquals(275, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1465,7 +1468,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($result->getEntities()->has($data->get('m2')));
             static::assertTrue($result->getEntities()->has($data->get('m3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1498,7 +1501,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($result->getEntities()->has($data->get('m2')));
             static::assertTrue($result->getEntities()->has($data->get('m3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1535,7 +1538,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertTrue($products->has($data->get('product-6')));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1571,7 +1574,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(6, $result->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1644,7 +1647,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotContains($data->get('l'), $result->getKeys());
             static::assertCount(2, $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1668,7 +1671,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($products->has($data->get('product-1')));
             static::assertTrue($products->has($data->get('product-3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1710,7 +1713,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotContains($data->get('l'), $result->getKeys());
             static::assertNotContains($data->get('green'), $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1750,7 +1753,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('l'), $result->getKeys());
             static::assertContains($data->get('green'), $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1800,7 +1803,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertSame($count, $bucket->getCount());
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1970,7 +1973,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertEquals(300, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1991,7 +1994,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(1, $result->getTotal());
             static::assertTrue($result->has($data->get('product-1')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2020,7 +2023,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertSame(3, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2049,7 +2052,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertSame(0, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2076,7 +2079,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-3'), $products->getIds());
             static::assertContains($data->get('product-4'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2110,7 +2113,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals($expected, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2143,7 +2146,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals($expected, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2165,7 +2168,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertCount(11, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2209,7 +2212,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($listing->getAggregations()->has('properties'));
             static::assertTrue($listing->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2243,7 +2246,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('s5'), $idList[1]);
             static::assertContains($data->get('s6'), $idList[1]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2294,7 +2297,7 @@ class ElasticsearchProductTest extends TestCase
                 }
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2368,7 +2371,7 @@ class ElasticsearchProductTest extends TestCase
                 $this->assertSorting($message, $ids, $context, $case, FieldSorting::DESCENDING);
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2564,7 +2567,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertEquals($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2616,7 +2619,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertEquals(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2690,7 +2693,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(0, $aggregation->getMin());
             static::assertEquals(66.67, $aggregation->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2715,12 +2718,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2736,12 +2739,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2758,12 +2761,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2783,12 +2786,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2808,12 +2811,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
 
@@ -2833,12 +2836,12 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
         } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
             static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
         }
     }
@@ -3125,7 +3128,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($ids->get('variant-3.2'), $result);
             static::assertContains($ids->get('variant-3.1'), $result);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3168,7 +3171,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
             static::assertContains($ids->get('product-2'), $result);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3216,7 +3219,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame($ids->get('dal-2.1'), $result[1]);
             static::assertSame($ids->get('dal-1'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3242,7 +3245,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains('1', $result->getKeys());
             static::assertContains('1.5', $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3266,7 +3269,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertSame($ids->get('product-2'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3291,7 +3294,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $result);
             static::assertSame($ids->get('s-4'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -3605,11 +3608,9 @@ class ElasticsearchProductTest extends TestCase
             $customMapping
         );
 
-        $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
-
-        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
-            $newImplementation,
-            $customMapping
+        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+            $this->utils,
+            ['product' => $customMapping],
         );
 
         $products = [
@@ -3617,7 +3618,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Silk')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->visibility()
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50, 50, 'default', 150, 150)

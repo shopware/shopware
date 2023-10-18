@@ -83,10 +83,18 @@ class MediaUrlLoader
         }
 
         foreach ($entities as $media) {
-            if (!$media->hasFile() || $media->isPrivate()) {
+            if (!$media->hasFile()) {
                 continue;
             }
 
+            if (!empty($media->getPath())) {
+                continue;
+            }
+
+            // legacy generator has a check for empty filename, previously prevent by the hasFile function
+            if (empty($media->getFileName())) {
+                continue;
+            }
             $media->setPath($this->legacyGenerator->getRelativeMediaUrl($media));
 
             if ($media->getThumbnails() === null) {
@@ -125,6 +133,11 @@ class MediaUrlLoader
             }
 
             if (!empty($media->getUrl())) {
+                continue;
+            }
+
+            // legacy generator has a check for empty filename, previously prevent by the hasFile function
+            if (empty($media->getFileName())) {
                 continue;
             }
 

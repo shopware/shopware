@@ -36,11 +36,13 @@
 
         {% if config('core.basicInformation.acceptAllCookies') %}
             {% block layout_cookie_configuration_allow_all_button %}
-                <button
-                    type="submit"
-                    class="btn btn-primary btn-block js-offcanvas-cookie-accept-all">
-                    {{ "cookie.acceptAll"|trans|sw_sanitize }}
-                </button>
+                <div class="d-grid mb-2">
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-block js-offcanvas-cookie-accept-all">
+                        {{ "cookie.acceptAll"|trans|sw_sanitize }}
+                    </button>
+                </div>
             {% endblock %}
         {% endif %}
 

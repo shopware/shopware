@@ -38,5 +38,10 @@ return [
         // Internal flag added
         'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
         'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\MainModule',
+
+        // Removed property, which was unintentionally added
+        'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
     ],
 ];

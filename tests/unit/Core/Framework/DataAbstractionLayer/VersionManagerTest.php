@@ -192,7 +192,7 @@ class VersionManagerTest extends TestCase
         $versionCommitData->setAction('insert');
         $versionCommitData->setId(Uuid::randomHex());
         $versionCommitData->setEntityName('product');
-        $versionCommitData->setEntityId([Uuid::randomHex()]);
+        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
         $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
         $versionCommit->setId(Uuid::randomHex());
 
@@ -243,8 +243,8 @@ class VersionManagerTest extends TestCase
         $versionCommitData->setAction('upsert');
         $versionCommitData->setId(Uuid::randomHex());
         $versionCommitData->setEntityName('product');
-        $versionCommitData->setEntityId([Uuid::randomHex()]);
-        $versionCommitData->setPayload(['Id' => Uuid::randomHex()]);
+        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
+        $versionCommitData->setPayload(['id' => Uuid::randomHex()]);
         $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
         $versionCommit->setId(Uuid::randomHex());
 

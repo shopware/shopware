@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,6 +24,9 @@ class ShippingMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ShippingMethodCollection>
+     */
     private EntityRepository $shippingRepository;
 
     private string $shippingMethodId;
@@ -48,9 +51,8 @@ class ShippingMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->shippingMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
+        $resultSet = $this->shippingRepository->search($criteria, $defaultContext)->getEntities();
 
-        /** @var ShippingMethodEntity|null $rule */
         $rule = $resultSet->first();
 
         static::assertNotNull($rule);
@@ -84,11 +86,8 @@ class ShippingMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->shippingMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
-
-        /** @var ShippingMethodEntity|null $rule */
+        $resultSet = $this->shippingRepository->search($criteria, $defaultContext)->getEntities();
         $rule = $resultSet->first();
-
         static::assertNotNull($rule);
         static::assertNotNull($rule->getAvailabilityRule());
 
@@ -128,7 +127,6 @@ class ShippingMethodRepositoryTest extends TestCase
 
             static::fail('The type should always be required!');
         } catch (WriteException $e) {
-            /** @var WriteConstraintViolationException $constraintViolation */
             $constraintViolation = $e->getExceptions()[0];
             static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
             static::assertEquals('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());

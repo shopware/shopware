@@ -17,11 +17,17 @@ class PhysicalFilenamePathStrategyTest extends TestCase
     /**
      * @dataProvider strategyProvider
      */
-    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, string $expected): void
+    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, ?string $expected): void
     {
         $strategy = new PhysicalFilenamePathStrategy();
 
         $generate = $strategy->generate([$struct]);
+
+        if ($expected === null) {
+            static::assertArrayNotHasKey($struct->id, $generate);
+
+            return;
+        }
 
         static::assertArrayHasKey($struct->id, $generate);
 
@@ -32,7 +38,7 @@ class PhysicalFilenamePathStrategyTest extends TestCase
     {
         yield 'Test without extension' => [
             new MediaLocationStruct('foo', null, 'test', null),
-            'media/09/8f/6b/test',
+            null,
         ];
 
         yield 'Test with extension' => [
@@ -53,6 +59,10 @@ class PhysicalFilenamePathStrategyTest extends TestCase
                 new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01'))
             ),
             'thumbnail/49/6b/53/1609459200/test_100x100.jpg',
+        ];
+        yield 'Test file name results into /ad' => [
+            new MediaLocationStruct('foo', 'jpg', '018b3c6d2ddf726fb12ee582f5caba40', new \DateTimeImmutable('2021-01-01')),
+            'media/5c/4d/dc/1609459200/018b3c6d2ddf726fb12ee582f5caba40.jpg',
         ];
     }
 }

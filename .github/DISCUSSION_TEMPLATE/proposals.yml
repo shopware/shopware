@@ -1,0 +1,22 @@
+title: "Proposals"
+body:
+  - type: textarea
+    id: content
+    attributes:
+      label: Change description
+      description: |
+        Please describe your proposes change in detail.
+      value: |
+        <!-- How much effort to you expect is required to make the change? -->
+        # Effort
+
+        <!-- Please describe your proposes change in detail. -->
+        # Description
+
+        <!-- What is the benefit of the change? -->
+        # Benefit
+
+        <!-- Can this change lead to any breaks? If so how should they be handled -->
+        # Break strategy
+    validations:
+      required: true

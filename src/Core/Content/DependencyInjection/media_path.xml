@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\Content\Media\Core\Application\MediaUrlLoader">
-            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" />
 
             <!-- trigger "new" media path handling and url generation -->
@@ -63,7 +63,7 @@
             <tag name="shopware.path.strategy" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator" class="Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator">
+        <service id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator" class="Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator">
             <argument type="service" id="shopware.filesystem.public"/>
         </service>
 

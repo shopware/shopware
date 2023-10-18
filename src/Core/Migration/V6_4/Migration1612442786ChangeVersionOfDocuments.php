@@ -34,7 +34,7 @@ class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
                 $wrongVersionedDocument['created_at']
             );
 
-            if (\is_array($orders) && \count($orders) === 1) {
+            if (\count($orders) === 1) {
                 /* Update the document version with the version of the order */
                 $this->updateDocument($connection, $orders[0]['version_id'], $wrongVersionedDocument['id']);
             } else {
@@ -44,7 +44,7 @@ class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
                     $wrongVersionedDocument['order_id']
                 );
 
-                if (\is_array($orders) && \count($orders) === 1) {
+                if (\count($orders) === 1) {
                     /* Update the document version with the version of the order */
                     $this->updateDocument($connection, $orders[0]['version_id'], $wrongVersionedDocument['id']);
                 }

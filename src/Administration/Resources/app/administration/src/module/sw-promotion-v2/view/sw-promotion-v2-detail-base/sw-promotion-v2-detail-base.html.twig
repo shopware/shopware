@@ -60,7 +60,7 @@
                 v-model="promotion.validFrom"
                 {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-from"
-                date-type="datetime-local"
+                date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
                 :placeholder-text="$tc('sw-promotion-v2.detail.base.general.validFromPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
@@ -76,7 +76,7 @@
                 v-model="promotion.validUntil"
                 {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-until"
-                date-type="datetime-local"
+                date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
                 :placeholder-text="$tc('sw-promotion-v2.detail.base.general.validUntilPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"

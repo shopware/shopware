@@ -139,7 +139,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             address: {},
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
+        await flushPromises();
+
+        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]')
             .attributes('required')).toBeTruthy();
     });
 

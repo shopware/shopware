@@ -141,7 +141,7 @@ class CriteriaPartResolver
             $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
             $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
-            if ($definition->isVersionAware()) {
+            if ($definition->isVersionAware() && $reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
                 $query->addSelect(self::accessor($alias, $definition->getEntityName() . '_version_id'));
             }
 
@@ -283,8 +283,10 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
-        /** @var ReverseInherited $flag */
         $flag = $field->getFlag(ReverseInherited::class);
+        if ($flag === null) {
+            return self::escape($field->getReferenceField());
+        }
 
         return self::escape($flag->getReversedPropertyName());
     }

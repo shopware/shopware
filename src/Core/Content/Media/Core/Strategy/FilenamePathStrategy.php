@@ -22,9 +22,4 @@ class FilenamePathStrategy extends AbstractMediaPathStrategy
     {
         return $location instanceof ThumbnailLocationStruct ? $location->media->fileName : $location->fileName;
     }
-
-    protected function replaceCharacters(): array
-    {
-        return ['ad' => 'g0'];
-    }
 }

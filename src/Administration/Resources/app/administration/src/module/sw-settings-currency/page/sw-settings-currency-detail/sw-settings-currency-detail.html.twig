@@ -99,6 +99,7 @@
                             {% else %}
                             v-model="currency.name"
                             {% endif %}
+                            name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelName')"
@@ -115,6 +116,7 @@
                             {% else %}
                             v-model="currency.isoCode"
                             {% endif %}
+                            name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelIsoCode')"
@@ -131,6 +133,7 @@
                             {% else %}
                             v-model="currency.shortName"
                             {% endif %}
+                            name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelShortName')"
@@ -147,6 +150,7 @@
                             {% else %}
                             v-model="currency.symbol"
                             {% endif %}
+                            name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelSymbol')"
@@ -163,6 +167,7 @@
                             {% else %}
                             v-model="currency.factor"
                             {% endif %}
+                            name="sw-field--currency-factor"
                             required
                             :digits="14"
                             :label="$tc('sw-settings-currency.detail.labelFactor')"
@@ -180,6 +185,7 @@
                             {% else %}
                             v-model="currency.taxFreeFrom"
                             {% endif %}
+                            name="sw-field--currency-taxFreeFrom"
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
                             :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"

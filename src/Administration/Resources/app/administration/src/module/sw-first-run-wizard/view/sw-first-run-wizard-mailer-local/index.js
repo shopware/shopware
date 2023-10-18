@@ -33,7 +33,7 @@ export default {
                     name: this.$tc('sw-settings-mailer.sendmail.sync'),
                 },
                 {
-                    value: '-t',
+                    value: '-t -i',
                     name: this.$tc('sw-settings-mailer.sendmail.async'),
                 },
             ];
@@ -112,7 +112,7 @@ export default {
             const option = this.mailerSettings['core.mailerSettings.sendMailOptions'];
 
             if (option === undefined || option === '') {
-                this.mailerSettings['core.mailerSettings.sendMailOptions'] = '-t';
+                this.mailerSettings['core.mailerSettings.sendMailOptions'] = '-t -i';
             }
 
             this.isLoading = false;

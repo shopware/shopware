@@ -43,6 +43,7 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = new PluginService(
             __DIR__,
@@ -90,6 +91,7 @@ class PluginServiceTest extends TestCase
                 $pluginFromFileSystemStruct,
             ]);
 
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = new PluginService(
             __DIR__,

@@ -28,6 +28,11 @@ abstract class AbstractMediaPathStrategy
     {
         $paths = [];
         foreach ($locations as $location) {
+            // filter out locations without a file name (upload canceled)
+            if (!$this->hasFile($location)) {
+                continue;
+            }
+
             $type = match (true) {
                 $location instanceof MediaLocationStruct => 'media',
                 $location instanceof ThumbnailLocationStruct => 'thumbnail',
@@ -100,6 +105,15 @@ abstract class AbstractMediaPathStrategy
      */
     protected function replaceCharacters(): array
     {
-        return [];
+        return [
+            'ad' => 'g0',
+        ];
+    }
+
+    private function hasFile(ThumbnailLocationStruct|MediaLocationStruct $location): bool
+    {
+        $media = $location instanceof ThumbnailLocationStruct ? $location->media : $location;
+
+        return $media->fileName !== null && $media->extension !== null;
     }
 }

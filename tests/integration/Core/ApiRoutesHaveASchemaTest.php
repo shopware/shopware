@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -25,17 +27,25 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private RouteCollection $routes;
 
+    private ContainerInterface $container;
+
     protected function setUp(): void
     {
-        $router = $this->getContainer()->get(RouterInterface::class);
+        $container = KernelLifecycleManager::bootKernel()->getContainer()->get('test.service_container');
+
+        static::assertInstanceOf(ContainerInterface::class, $container);
+
+        $this->container = $container;
+
+        $router = $this->container->get(RouterInterface::class);
         $this->routes = $router->getRouteCollection();
     }
 
     public function testStoreApiRoutesHaveASchema(): void
     {
-        $generator = $this->getContainer()->get(StoreApiGenerator::class);
+        $generator = $this->container->get(StoreApiGenerator::class);
         $schema = $generator->generate(
-            $this->getContainer()->get(SalesChannelDefinitionInstanceRegistry::class)->getDefinitions(),
+            $this->container->get(SalesChannelDefinitionInstanceRegistry::class)->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
             null
@@ -90,9 +100,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     public function testAdminApiRoutesHaveASchema(): void
     {
-        $generator = $this->getContainer()->get(OpenApi3Generator::class);
+        $generator = $this->container->get(OpenApi3Generator::class);
         $schema = $generator->generate(
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)->getDefinitions(),
+            $this->container->get(DefinitionInstanceRegistry::class)->getDefinitions(),
             DefinitionService::API
         );
 

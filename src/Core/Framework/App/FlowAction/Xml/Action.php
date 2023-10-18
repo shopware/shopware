@@ -22,16 +22,6 @@ class Action extends XmlElement
 
     protected Config $config;
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
     public function getMeta(): Metadata
     {
         Feature::triggerDeprecationOrThrow(
@@ -99,37 +89,23 @@ class Action extends XmlElement
         ]);
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
         );
 
-        return new self(self::parse($element));
+        return parent::fromXml($element);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function normalizeParameters(): array
+    protected static function parse(\DOMElement $element): array
     {
-        /** @var array<string, mixed> $parameters */
-        $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
 
-        $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
-
-        /** @var string $parameters */
-        $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
-
-        return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function parse(\DOMElement $element): array
-    {
         $values = [];
 
         foreach ($element->getElementsByTagName('meta') as $meta) {
@@ -149,5 +125,21 @@ class Action extends XmlElement
         }
 
         return $values;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function normalizeParameters(): array
+    {
+        /** @var array<string, mixed> $parameters */
+        $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
+
+        $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
+
+        /** @var string $parameters */
+        $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
+
+        return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

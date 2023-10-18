@@ -118,7 +118,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument>%shopware.filesystem.private_local_download_strategy%</argument>
-            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
         </service>
 
         <!-- Commands -->

@@ -19,16 +19,6 @@ class Action extends XmlElement
 
     protected Config $config;
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
     public function getMeta(): Metadata
     {
         return $this->meta;
@@ -49,9 +39,6 @@ class Action extends XmlElement
         return $this->config;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -62,8 +49,8 @@ class Action extends XmlElement
             'url' => $this->meta->getUrl(),
             'delayable' => $this->meta->getDelayable(),
             'parameters' => $this->normalizeParameters(),
-            'config' => array_map(fn ($config) => $config->jsonSerialize(), $this->config->getConfig()),
-            'headers' => array_map(fn ($header) => $header->jsonSerialize(), $this->headers->getParameters()),
+            'config' => array_map(fn (InputField $config) => $config->jsonSerialize(), $this->config->getConfig()),
+            'headers' => array_map(fn (Parameter $header) => $header->jsonSerialize(), $this->headers->getParameters()),
             'requirements' => $this->meta->getRequirements(),
             'label' => $this->meta->getLabel(),
             'description' => $this->meta->getDescription(),
@@ -71,31 +58,7 @@ class Action extends XmlElement
         ]);
     }
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parse($element));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function normalizeParameters(): array
-    {
-        /** @var array<string, mixed> $parameters */
-        $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
-
-        $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
-
-        /** @var string $parameters */
-        $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
-
-        return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -116,5 +79,19 @@ class Action extends XmlElement
         }
 
         return $values;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function normalizeParameters(): array
+    {
+        $parameters = array_map(fn (Parameter $parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
+
+        $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
+
+        $parameters = (string) \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
+
+        return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

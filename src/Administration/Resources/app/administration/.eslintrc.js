@@ -193,7 +193,7 @@ module.exports = {
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
                 'vue/no-v-model-argument': 'off',
-                'vue/no-v-for-template-key': 'error',
+                'vue/no-v-for-template-key': 'off',
                 // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
                 'vue/html-closing-bracket-newline': 'off',
                 'vue/no-v-for-template-key-on-child': 'off',

@@ -7,6 +7,8 @@
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { Route } from 'vue-router';
 import type VueRouter from 'vue-router';
+// Import explicitly global types from admin-extension-sdk
+import '@shopware-ag/admin-extension-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';

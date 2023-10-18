@@ -70,7 +70,6 @@ const missingTests = [
     'src/app/component/grid/sw-grid-row/index.js',
     'src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js',
     'src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js',
-    'src/app/component/rule/condition-type/sw-condition-date-range/index.js',
     'src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js',
     'src/app/component/rule/condition-type/sw-condition-goods-count/index.js',
     'src/app/component/rule/condition-type/sw-condition-goods-price/index.js',

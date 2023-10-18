@@ -74,7 +74,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_stock_content %}
         {{ item.stock }}
-        <sw-color-badge :variant="stockColorVariant(item.stock)" />
+        <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
         {% endblock %}
     </template>
     {% endblock %}

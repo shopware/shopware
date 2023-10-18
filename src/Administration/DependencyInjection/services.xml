@@ -152,5 +152,19 @@
             <argument type="service" id="user_config.repository" />
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Administration\Dashboard\OrderAmountService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument>%shopware.dbal.time_zone_support_enabled%</argument>
+        </service>
+
+        <service id="Shopware\Administration\Controller\DashboardController" public="true">
+            <argument type="service" id="Shopware\Administration\Dashboard\OrderAmountService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
     </services>
 </container>

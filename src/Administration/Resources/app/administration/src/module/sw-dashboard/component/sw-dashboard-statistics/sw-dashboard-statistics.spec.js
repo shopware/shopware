@@ -57,6 +57,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve(responseMock),
+                    buildHeaders: () => {},
                 }),
             },
             stateStyleDataProviderService: {},
@@ -106,6 +107,16 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
                     state.currentUser = user;
                 },
             },
+        });
+
+        Shopware.Application.addInitializer('httpClient', () => {
+            return {
+                get: () => Promise.resolve({
+                    data: {
+                        statistic: [],
+                    },
+                }),
+            };
         });
         jest.useFakeTimers('modern');
     });

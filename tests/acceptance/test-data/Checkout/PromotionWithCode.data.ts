@@ -1,0 +1,44 @@
+import { test as base } from '@playwright/test';
+import { expect } from '@fixtures/AcceptanceTest';
+
+export const PromotionWithCodeData = base.extend({
+    promotionWithCodeData: async ({ adminApiContext, defaultStorefront, idProvider }, use) => {
+        const promotionCode = `${idProvider.getIdPair().id}`;
+        const promotionName = `Test Promotion ${promotionCode}`;
+
+        // Create a new promotion code via admin API context.
+        const promotionResponse = await adminApiContext.post('promotion?_response=1', {
+            data: {
+                name: promotionName,
+                active: true,
+                maxRedemptionsGlobal: 100,
+                maxRedemptionsPerCustomer: 10,
+                priority: 1,
+                exclusive: false,
+                useCodes: true,
+                useIndividualCodes: false,
+                useSetGroups: false,
+                preventCombination: true,
+                customerRestriction: false,
+                code: promotionCode,
+                discounts: [
+                    {
+                        scope: 'cart',
+                        type: 'percentage',
+                        value: 10,
+                        considerAdvancedRules: false,
+                    },
+                ],
+                salesChannels: [
+                    {
+                        salesChannelId: defaultStorefront.salesChannel.id,
+                        priority: 1,
+                    },
+                ],
+            },
+        });
+        expect(promotionResponse.ok()).toBeTruthy();
+
+        use({ promotionCode, promotionName });
+    },
+});

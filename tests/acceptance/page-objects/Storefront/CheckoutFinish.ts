@@ -1,6 +1,7 @@
 import type { Page, Locator } from '@playwright/test';
+import type { PageObject } from '@fixtures/PageObject';
 
-export class CheckoutFinishPage {
+export class CheckoutFinishPage implements PageObject {
     public readonly headline: Locator;
     public readonly orderNumberText: Locator;
     public readonly grandTotalPrice: Locator;
@@ -11,6 +12,10 @@ export class CheckoutFinishPage {
         this.headline = page.getByRole('heading', { name: 'Thank you for your order' });
         this.orderNumberText = page.getByText(this.orderNumberRegex);
         this.grandTotalPrice = page.locator('dt:has-text("Grand total") + dd');
+    }
+
+    async goTo() {
+        console.error('The checkout finish page should only be navigated to via checkout action.')
     }
 
     async getOrderNumber() {

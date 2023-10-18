@@ -1,7 +1,7 @@
 import type { Page, Locator } from '@playwright/test';
-import { expect } from '@playwright/test';
+import type { PageObject } from '@fixtures/PageObject';
 
-export class CheckoutConfirmPage {
+export class CheckoutConfirmPage implements PageObject {
     public readonly headline: Locator;
     public readonly termsAndConditionsCheckbox: Locator;
     public readonly grandTotalPrice: Locator;
@@ -34,32 +34,7 @@ export class CheckoutConfirmPage {
         this.shippingExpress = page.getByLabel('Express');
     }
 
-    async goto() {
+    async goTo() {
         await this.page.goto('checkout/confirm');
-    }
-
-    async selectCashOnDeliveryPaymentOption() {
-        await this.paymentCashOnDelivery.check();
-        await expect(this.paymentCashOnDelivery).toBeChecked();
-    }
-
-    async selectPaidInAdvancePaymentOption() {
-        await this.paymentPaidInAdvance.check();
-        await expect(this.paymentPaidInAdvance).toBeChecked();
-    }
-
-    async selectInvoicePaymentOption() {
-        await this.paymentInvoice.check();
-        await expect(this.paymentInvoice).toBeChecked();
-    }
-
-    async selectStandardShippingOption() {
-        await this.shippingStandard.check();
-        await expect(this.shippingStandard).toBeChecked();
-    }
-
-    async selectExpressShoppingOption() {
-        await this.shippingExpress.check();
-        await expect(this.shippingExpress).toBeChecked();
     }
 }

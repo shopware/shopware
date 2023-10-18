@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@fixtures/*": ["fixtures/*"],
-      "@page-objects/*": ["page-objects/*"]
+      "@page-objects/*": ["page-objects/*"],
+      "@tasks/*": ["tasks/*"]
     }
   }
 }

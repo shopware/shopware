@@ -1,6 +1,7 @@
 import type { Page, Locator } from '@playwright/test';
+import type { PageObject } from '@fixtures/PageObject';
 
-export class CheckoutCartPage {
+export class CheckoutCartPage implements PageObject {
     public readonly headline: Locator;
     public readonly goToCheckoutButton: Locator;
     public readonly enterDiscountInput: Locator;
@@ -13,7 +14,7 @@ export class CheckoutCartPage {
         this.grandTotalPrice = page.locator('dt:has-text("Grand total") + dd');
     }
 
-    async goto() {
+    async goTo() {
         await this.page.goto('checkout/cart');
     }
 }

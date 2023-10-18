@@ -61,5 +61,10 @@ class FilenamePathStrategyTest extends TestCase
             ),
             'thumbnail/09/8f/6b/1609459200/test_100x100.jpg',
         ];
+
+        yield 'Test file name results into /ad' => [
+            new MediaLocationStruct('foo', 'jpg', '018b3c6d2ddf726fb12ee582f5caba40', new \DateTimeImmutable('2021-01-01')),
+            'media/fd/18/g0/1609459200/018b3c6d2ddf726fb12ee582f5caba40.jpg',
+        ];
     }
 }

@@ -60,5 +60,9 @@ class IdPathStrategyTest extends TestCase
             ),
             'thumbnail/ac/bd/18/1609459200/test_100x100.jpg',
         ];
+        yield 'Test id results into /ad' => [
+            new MediaLocationStruct('018b3c6d2ddf726fb12ee582f5caba40', 'jpg', 'test', new \DateTimeImmutable('2021-01-01')),
+            'media/fd/18/g0/1609459200/test.jpg',
+        ];
     }
 }

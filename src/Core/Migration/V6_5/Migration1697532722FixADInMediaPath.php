@@ -10,19 +10,18 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('core')]
-class Migration1697462064FixMediaPath extends MigrationStep
+class Migration1697532722FixADInMediaPath extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1697462064;
+        return 1697532722;
     }
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('UPDATE media SET path = NULL WHERE file_name IS NULL OR file_name = \'\'');
-        $connection->executeQuery('UPDATE media_thumbnail, media SET media_thumbnail.path = NULL WHERE (media.file_name IS NULL OR file_name = \'\') AND media.id = media_thumbnail.media_id');
-
-        $this->registerIndexer($connection, 'media.path.post_update');
+        // replace /ad/ with /g0/ in media.path and media_thumbnail.path
+        $connection->executeQuery('UPDATE media SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
+        $connection->executeQuery('UPDATE media_thumbnail SET path = REPLACE(path, \'/ad/\', \'/g0/\') WHERE path LIKE \'%/ad/%\'');
     }
 
     public function updateDestructive(Connection $connection): void

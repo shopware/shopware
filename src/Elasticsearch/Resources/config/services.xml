@@ -348,12 +348,7 @@
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>
 
-        <service id="shopware.elasticsearch.logger" class="Psr\Log\LoggerInterface">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-            <argument type="string">elasticsearch</argument>
-            <argument>90</argument>
-            <argument>%elasticsearch.logger_level%</argument>
-        </service>
+        <service id="shopware.elasticsearch.logger" alias="monolog.logger.elasticsearch"/>
 
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
         <service id="_dummy_es_env_usage" class="iterable" lazy="true">

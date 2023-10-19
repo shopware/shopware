@@ -95,6 +95,7 @@ class SystemUpdateFinishCommand extends Command
         $eventDispatcher = $this->container->get('event_dispatcher');
         $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $newVersion);
         $eventDispatcher->dispatch($updateEvent);
+        $output->writeln($updateEvent->getPostUpdateMessage());
 
         $this->installAssets($output);
 

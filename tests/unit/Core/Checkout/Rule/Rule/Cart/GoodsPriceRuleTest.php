@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -159,5 +161,67 @@ class GoodsPriceRuleTest extends TestCase
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
         );
+    }
+
+    public function testMatchWithWrongScopeShouldReturnFalse(): void
+    {
+        $goodsCountRule = new GoodsPriceRule();
+        $wrongScope = $this->createMock(RuleScope::class);
+
+        static::assertFalse($goodsCountRule->match($wrongScope));
+    }
+
+    public function testMatchWithSimpleRule(): void
+    {
+        $goodsCountRule = new GoodsPriceRule(Rule::OPERATOR_EQ, 300.0);
+        $goodsCountRule->setRules([new SimpleRule()]);
+
+        static::assertTrue($goodsCountRule->match($this->createCartRuleScope()));
+    }
+
+    public function testMatchWithSimpleRuleExpectFalse(): void
+    {
+        $goodsCountRule = new GoodsPriceRule(Rule::OPERATOR_EQ, 300.0);
+        $goodsCountRule->setRules([new SimpleRule(false)]);
+
+        static::assertFalse($goodsCountRule->match($this->createCartRuleScope()));
+    }
+
+    public function testGetConstraints(): void
+    {
+        $goodsCountRule = new GoodsPriceRule();
+
+        $result = $goodsCountRule->getConstraints();
+
+        static::assertArrayHasKey('amount', $result);
+        static::assertArrayHasKey('operator', $result);
+
+        static::assertIsArray($result['amount']);
+        static::assertIsArray($result['operator']);
+    }
+
+    private function createCartRuleScope(): CartRuleScope
+    {
+        $cart = new Cart('test');
+        $cart->add(
+            (new LineItem('a', 'a'))
+                ->setGood(true)
+                ->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+        $cart->add(
+            (new LineItem('b', 'a'))
+                ->setGood(true)
+                ->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
+        $cart->add(
+            (new LineItem('c', 'a'))
+                ->setGood(true)
+                ->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        return new CartRuleScope($cart, $context);
     }
 }

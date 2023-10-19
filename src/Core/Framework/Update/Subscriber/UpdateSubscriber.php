@@ -51,18 +51,21 @@ class UpdateSubscriber implements EventSubscriberInterface
             $integrationId = $source->getIntegrationId();
             $createdByUserId = $source->getUserId();
         }
+        $wrappedMessage = \wordwrap($event->getPostUpdateMessage(), 255, "\v", true);
 
-        $this->notificationService->createNotification(
-            [
-                'id' => Uuid::randomHex(),
-                'status' => 'warning',
-                'message' => $event->getPostUpdateMessage(),
-                'adminOnly' => true,
-                'requiredPrivileges' => [],
-                'createdByIntegrationId' => $integrationId,
-                'createdByUserId' => $createdByUserId,
-            ],
-            $event->getContext()
-        );
+        foreach (\array_map(fn (string $message): string => trim($message, ' '), \array_reverse(\explode("\v", $wrappedMessage))) as $partialMessage) {
+            $this->notificationService->createNotification(
+                [
+                    'id' => Uuid::randomHex(),
+                    'status' => 'warning',
+                    'message' => $partialMessage,
+                    'adminOnly' => true,
+                    'requiredPrivileges' => [],
+                    'createdByIntegrationId' => $integrationId,
+                    'createdByUserId' => $createdByUserId,
+                ],
+                $event->getContext()
+            );
+        }
     }
 }

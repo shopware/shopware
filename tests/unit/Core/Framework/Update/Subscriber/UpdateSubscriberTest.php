@@ -49,6 +49,24 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber->updateFinishedDone($event);
     }
 
+    public function testUpdateSuccessfulWithMuchInformation(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('userId123', 'integrationId321'));
+        $version = '6.0.1_test';
+
+        $notificationServiceMock = $this->createMock(NotificationService::class);
+        $notificationServiceMock
+            ->expects($this->atLeast(2))
+            ->method('createNotification');
+
+        $event = new UpdatePostFinishEvent($context, $version, $version);
+        $event->appendPostUpdateMessage('something to inform' . bin2hex(\random_bytes(200)));
+
+        $updateSubscriber = new UpdateSubscriber($notificationServiceMock);
+
+        $updateSubscriber->updateFinishedDone($event);
+    }
+
     public function testUpdateWithoutMessageGetsSkipped(): void
     {
         $context = Context::createDefaultContext();

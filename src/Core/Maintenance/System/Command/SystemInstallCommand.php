@@ -180,9 +180,21 @@ class SystemInstallCommand extends Command
     {
         $application = $this->getApplication();
 
-        \assert($application !== null);
+        if ($application === null) {
+            throw new \RuntimeException('No application initialised');
+        }
 
-        return $this->runCommandByApplication($application, $commands, $output);
+        $wasCatchingExceptions = $application->areExceptionsCaught();
+        $wasAutoExiting = $application->isAutoExitEnabled();
+        $application->setCatchExceptions(false);
+        $application->setAutoExit(false);
+
+        try {
+            return $this->runCommandByApplication($application, $commands, $output);
+        } finally {
+            $application->setCatchExceptions($wasCatchingExceptions);
+            $application->setAutoExit($wasAutoExiting);
+        }
     }
 
     /**
@@ -196,11 +208,13 @@ class SystemInstallCommand extends Command
 
             $output->writeln('');
 
+            $commandName = (string) $parameters['command'];
             $allowedToFail = $parameters['allowedToFail'] ?? false;
-            unset($parameters['allowedToFail']);
+            unset($parameters['command'], $parameters['allowedToFail']);
+            \array_unshift($parameters, $commandName);
 
             try {
-                $returnCode = $application->doRun(new ArrayInput($parameters), $output);
+                $returnCode = $application->run(new ArrayInput($parameters), $output);
 
                 if ($returnCode !== 0 && !$allowedToFail) {
                     return $returnCode;

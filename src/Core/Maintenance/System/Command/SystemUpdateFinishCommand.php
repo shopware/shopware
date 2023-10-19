@@ -141,16 +141,21 @@ class SystemUpdateFinishCommand extends Command
         return $kernel->getContainer();
     }
 
-    /**
-     * @param array<string, string|bool|null> $arguments
-     */
-    private function runCommand(Application $application, Command $command, array $arguments, OutputInterface $output): int
+    private function runCommand(Application $application,  Command $command, array $arguments, OutputInterface $output): int
     {
         \array_unshift($arguments, $command->getName());
 
-        return $application->doRun(
-            new ArrayInput($arguments),
-            $output
-        );
+        $arrayInput = new ArrayInput($arguments, $command->getDefinition());
+        $wasCatchingExceptions = $application->areExceptionsCaught();
+        $wasAutoExiting = $application->isAutoExitEnabled();
+        $application->setCatchExceptions(false);
+        $application->setAutoExit(false);
+
+        try {
+            return $application->run($arrayInput, $output);
+        } finally {
+            $application->setCatchExceptions($wasCatchingExceptions);
+            $application->setAutoExit($wasAutoExiting);
+        }
     }
 }

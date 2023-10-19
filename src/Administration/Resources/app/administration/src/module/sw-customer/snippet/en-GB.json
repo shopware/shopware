@@ -188,6 +188,10 @@
       "emptySubline": "Manage your customers' orders here",
       "buttonCreateOrder": "Add order"
     },
+    "loginAsCustomerModal": {
+      "modalTitle": "Select the sales channel below you wish to perform the login",
+      "labelCancel": "Close"
+    },
     "addressForm": {
       "labelCompany": "Company",
       "labelDepartment": "Department",
@@ -225,11 +229,13 @@
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
+      "buttonLoginAsCustomer": "Login as customer",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationLoginAsCustomerErrorMessage": "There was an error logging in as a customer.",
       "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {

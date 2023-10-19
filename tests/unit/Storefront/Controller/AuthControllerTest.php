@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -48,6 +49,7 @@ class AuthControllerTest extends TestCase
         $resetPasswordRoute = $this->createMock(AbstractResetPasswordRoute::class);
         $this->loginRoute = $this->createMock(AbstractLoginRoute::class);
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
+        $loginAsCustomerRoute = $this->createMock(AbstractLoginAsCustomerRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
         $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
         $this->salesChannelContextService = $this->createMock(SalesChannelContextServiceInterface::class);
@@ -58,6 +60,7 @@ class AuthControllerTest extends TestCase
             $resetPasswordRoute,
             $this->loginRoute,
             $logoutRoute,
+            $loginAsCustomerRoute,
             $cartFacade,
             $recoverPasswordRoute,
             $this->salesChannelContextService,

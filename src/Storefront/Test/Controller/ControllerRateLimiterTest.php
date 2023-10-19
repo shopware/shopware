@@ -3,11 +3,14 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
@@ -121,6 +124,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->getContainer()->get(ResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->getContainer()->get(LogoutRoute::class),
+            $this->getContainer()->get(LoginAsCustomerRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
             $this->getContainer()->get(SalesChannelContextService::class)
@@ -153,6 +157,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(AbstractResetPasswordRoute::class),
             $this->createMock(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
+            $this->createMock(AbstractLoginAsCustomerRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
             $this->getContainer()->get(SalesChannelContextService::class)
@@ -192,6 +197,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(AbstractResetPasswordRoute::class),
             $loginRoute,
             $this->createMock(AbstractLogoutRoute::class),
+            $this->createMock(AbstractLoginAsCustomerRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
             $this->getContainer()->get(SalesChannelContextService::class)

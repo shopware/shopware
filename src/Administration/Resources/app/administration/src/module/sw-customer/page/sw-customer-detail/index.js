@@ -49,6 +49,7 @@ export default {
             customerAddressCustomFieldSets: [],
             customerCustomFieldSets: [],
             errorEmailCustomer: null,
+            showLoginAsCustomerModal: false,
         };
     },
 
@@ -322,6 +323,14 @@ export default {
         onChangeLanguage(languageId) {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             this.createdComponent();
+        },
+
+        onClickButtonShowLoginAsCustomerModal() {
+            this.showLoginAsCustomerModal = true;
+        },
+
+        onClickButtonCloseLoginAsCustomerModal() {
+            this.showLoginAsCustomerModal = false;
         },
 
         async validPassword(customer) {

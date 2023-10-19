@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundExcep
 use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -60,6 +61,11 @@ class CustomerException extends HttpException
     public const CUSTOMER_OPTIN_NOT_COMPLETED = 'CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED';
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
 
+    public const LOGIN_AS_CUSTOMER_INVALID_TOKEN_CODE = 'CHECKOUT__LOGIN_AS_CUSTOMER_INVALID_TOKEN';
+    public const LOGIN_AS_CUSTOMER_MISSING_CUSTOMER_ID_CODE = 'CHECKOUT__LOGIN_AS_CUSTOMER_MISSING_CUSTOMER_ID';
+    public const LOGIN_AS_CUSTOMER_MISSING_SALES_CHANNEL_ID_CODE = 'CHECKOUT__LOGIN_AS_CUSTOMER_MISSING_SALES_CHANNEL_ID';
+    public const LOGIN_AS_CUSTOMER_MISSING_TOKEN_CODE = 'CHECKOUT__LOGIN_AS_CUSTOMER_MISSING_TOKEN';
+
     public static function customerGroupNotFound(string $id): self
     {
         return new self(
@@ -68,6 +74,48 @@ class CustomerException extends HttpException
             'Customer group with id "{{ id }}" not found',
             ['id' => $id]
         );
+    }
+
+    public static function invalidToken(string $token): InvalidLoginAsCustomerTokenException
+    {
+        return new InvalidLoginAsCustomerTokenException(
+            Response::HTTP_BAD_REQUEST,
+            self::LOGIN_AS_CUSTOMER_INVALID_TOKEN_CODE,
+            'The token "{{ token }}" is invalid.',
+            ['token' => $token]
+        );
+    }
+
+    public static function missingCustomerId(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LOGIN_AS_CUSTOMER_MISSING_CUSTOMER_ID_CODE,
+            'customerId is missing.',
+        );
+    }
+
+    public static function missingSalesChannelId(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LOGIN_AS_CUSTOMER_MISSING_SALES_CHANNEL_ID_CODE,
+            'salesChannelId is missing.',
+        );
+    }
+
+    public static function missingToken(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LOGIN_AS_CUSTOMER_MISSING_TOKEN_CODE,
+            'token is missing.',
+        );
+    }
+
+    public static function customerNotFoundById(string $customerId): CustomerNotFoundByIdException
+    {
+        return new CustomerNotFoundByIdException($customerId);
     }
 
     public static function groupRequestNotFound(string $id): self

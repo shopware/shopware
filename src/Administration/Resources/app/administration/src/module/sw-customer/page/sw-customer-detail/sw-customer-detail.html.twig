@@ -43,6 +43,24 @@
         </span>
         {% endblock %}
 
+        {% block sw_customer_login_as_customer_modal %}
+            <sw-customer-login-as-customer-modal
+                v-if="showLoginAsCustomerModal"
+                @modal-close="onClickButtonCloseLoginAsCustomerModal"
+                :customer="customer"
+            />
+        {% endblock %}
+
+        {% block sw_customer_detail_actions_storefront_customer_login %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            <sw-button
+                :disabled="isLoading"
+                @click="onClickButtonShowLoginAsCustomerModal"
+            >
+                {{ $tc('sw-customer.detail.buttonLoginAsCustomer') }}
+            </sw-button>
+        {% endblock %}
+
         <span v-else>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_actions_cancel %}

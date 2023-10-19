@@ -5,13 +5,17 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginAsCustomerRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -52,6 +56,7 @@ class AuthController extends StorefrontController
         private readonly AbstractResetPasswordRoute $resetPasswordRoute,
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly AbstractLoginAsCustomerRoute $loginAsCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
         private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService
@@ -302,5 +307,40 @@ class AuthController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    #[Route(path: '/account/login/customer/{token}/{salesChannelId}/{customerId}', name: 'frontend.account.login.customer', methods: ['GET'])]
+    public function loginAsCustomer(string $token, string $salesChannelId, string $customerId, SalesChannelContext $context, Request $request): Response
+    {
+        try {
+            $dataBag = new RequestDataBag([
+                LoginAsCustomerRoute::TOKEN => $token,
+                LoginAsCustomerRoute::SALES_CHANNEL_ID => $salesChannelId,
+                LoginAsCustomerRoute::CUSTOMER_ID => $customerId,
+            ]);
+
+            $contextToken = $this->loginAsCustomerRoute->loginAsCustomer($dataBag, $context)->getToken();
+
+            $newContext = $this->salesChannelContextService->get(
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $contextToken,
+                    $context->getLanguageIdChain()[0],
+                    $context->getCurrencyId(),
+                    $context->getDomainId(),
+                    $context->getContext()
+                )
+            );
+
+            // Update the sales channel context for CacheResponseSubscriber
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $newContext);
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
+            return $this->redirectToRoute('frontend.account.home.page');
+        } catch (InvalidLoginAsCustomerTokenException) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        } catch (CustomerNotFoundByIdException) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
     }
 }

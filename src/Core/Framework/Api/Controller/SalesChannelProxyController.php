@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\ApiException;
@@ -71,6 +73,7 @@ class SalesChannelProxyController extends AbstractController
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $customerRepository,
         protected DataValidator $validator,
         protected SalesChannelContextPersister $contextPersister,
         private readonly SalesChannelRequestContextResolver $requestContextResolver,
@@ -80,7 +83,8 @@ class SalesChannelProxyController extends AbstractController
         private readonly AbstractCartOrderRoute $orderRoute,
         private readonly CartService $cartService,
         private readonly Connection $connection,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly LoginAsCustomerTokenGenerator $loginAsCustomerTokenGenerator
     ) {
     }
 
@@ -142,6 +146,48 @@ class SalesChannelProxyController extends AbstractController
 
         $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
+        ], \JSON_THROW_ON_ERROR);
+        $response = new Response();
+        $response->headers->set('content-type', 'application/json');
+        $response->setContent($content ?: null);
+
+        return $response;
+    }
+
+    #[Route(path: '/api/_proxy/login-as-customer-token-generate', name: 'api.proxy.login-as-customer-token-generate', methods: ['POST'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
+    public function loginAsCustomerTokenGenerate(Request $request, Context $context): Response
+    {
+        if (!$request->request->has(self::SALES_CHANNEL_ID)) {
+            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+        }
+
+        $salesChannelId = (string) $request->request->get('salesChannelId');
+
+        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
+
+        if (!$request->request->has(self::CUSTOMER_ID)) {
+            throw RoutingException::missingRequestParameter(self::CUSTOMER_ID);
+        }
+
+        $customerId = (string) $request->request->get('customerId');
+
+        $this->fetchCustomer($customerId, $context);
+
+        $token = $this->loginAsCustomerTokenGenerator->generate($salesChannelId, $customerId);
+
+        $redirectUrlWithToken = sprintf(
+            '%s/%s',
+            $salesChannel->getDomains()->first()->getUrl(),
+            $this->generateUrl('frontend.account.login.customer', [
+                'token' => $token,
+                'salesChannelId' => $salesChannelId,
+                'customerId' => $customerId,
+            ])
+        );
+
+        $content = json_encode([
+            'token' => $token,
+            'redirectUrl' => $redirectUrlWithToken,
         ], \JSON_THROW_ON_ERROR);
         $response = new Response();
         $response->headers->set('content-type', 'application/json');
@@ -243,14 +289,33 @@ class SalesChannelProxyController extends AbstractController
      */
     private function fetchSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
     {
+        $criteria = (new Criteria([$salesChannelId]))
+            ->addAssociation('domains');
+
         /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
         if ($salesChannel === null) {
             throw ApiException::invalidSalesChannelId($salesChannelId);
         }
 
         return $salesChannel;
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws InvalidSalesChannelIdException
+     */
+    private function fetchCustomer(string $customerId, Context $context): CustomerEntity
+    {
+        /** @var CustomerEntity|null $customer */
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
+
+        if ($customer === null) {
+            throw new InvalidSalesChannelIdException($customerId);
+        }
+
+        return $customer;
     }
 
     private function getContextToken(Request $request): string

@@ -58,6 +58,28 @@ class StoreContextService extends ApiService {
 
         return this.httpClient.get(route, { ...additionalParams, headers });
     }
+
+    loginAsCustomerTokenGenerate(
+        customerId: string,
+        salesChannelId: string,
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
+        const route = '_proxy/login-as-customer-token-generate';
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+        };
+
+        return this.httpClient
+            .post(
+                route,
+                {
+                    customerId,
+                    salesChannelId,
+                },
+                { additionalParams, headers },
+            );
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

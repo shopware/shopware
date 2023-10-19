@@ -285,8 +285,26 @@ class SystemSetupCommand extends Command
             return;
         }
 
-        $dumpInput = new ArrayInput(['env' => $input->getOption('app-env')], $this->dumpEnvCommand->getDefinition());
-        $this->dumpEnvCommand->run($dumpInput, $output);
+        $application = $this->getApplication();
+
+        if ($application === null) {
+            throw new \RuntimeException('No application initialised');
+        }
+
+        $wasCatchingExceptions = $application->areExceptionsCaught();
+        $wasAutoExiting = $application->isAutoExitEnabled();
+        $application->setCatchExceptions(false);
+        $application->setAutoExit(false);
+
+        try {
+            $application->run(new ArrayInput([
+                $this->dumpEnvCommand->getName(),
+                'env' => $input->getOption('app-env'),
+            ], $this->dumpEnvCommand->getDefinition()), $output);
+        } finally {
+            $application->setCatchExceptions($wasCatchingExceptions);
+            $application->setAutoExit($wasAutoExiting);
+        }
     }
 
     private function generateJwt(InputInterface $input, OutputStyle $io): int

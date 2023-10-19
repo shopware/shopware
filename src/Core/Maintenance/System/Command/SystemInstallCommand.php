@@ -179,22 +179,43 @@ class SystemInstallCommand extends Command
     private function runCommands(array $commands, OutputInterface $output): int
     {
         $application = $this->getApplication();
+
         if ($application === null) {
             throw new \RuntimeException('No application initialised');
         }
 
+        $wasCatchingExceptions = $application->areExceptionsCaught();
+        $wasAutoExiting = $application->isAutoExitEnabled();
+        $application->setCatchExceptions(false);
+        $application->setAutoExit(false);
+
+        try {
+            return $this->runCommandByApplication($application, $commands, $output);
+        } finally {
+            $application->setCatchExceptions($wasCatchingExceptions);
+            $application->setAutoExit($wasAutoExiting);
+        }
+    }
+
+    /**
+     * @param array<int, array<string, string|bool|null>> $commands
+     */
+    private function runCommandByApplication(Application $application, array $commands, OutputInterface $output): int
+    {
         foreach ($commands as $parameters) {
             // remove params with null value
             $parameters = array_filter($parameters);
 
             $output->writeln('');
 
-            $command = $application->find((string) $parameters['command']);
+            $commandName = (string) $parameters['command'];
             $allowedToFail = $parameters['allowedToFail'] ?? false;
             unset($parameters['command'], $parameters['allowedToFail']);
+            \array_unshift($parameters, $commandName);
 
             try {
-                $returnCode = $command->run(new ArrayInput($parameters, $command->getDefinition()), $output);
+                $returnCode = $application->run(new ArrayInput($parameters), $output);
+
                 if ($returnCode !== 0 && !$allowedToFail) {
                     return $returnCode;
                 }

@@ -1223,7 +1223,7 @@ class RecalculationServiceTest extends TestCase
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
     {
-        $cart = new Cart('a-b-c');
+        $cart = new Cart(Uuid::randomHex());
 
         $cart = $this->addProduct($cart, $productId1 ?? Uuid::randomHex());
 

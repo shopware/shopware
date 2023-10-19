@@ -3,12 +3,25 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Cart;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartVolumeRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
@@ -48,7 +61,7 @@ class CartVolumeRuleTest extends TestCase
     {
         $cartVolumeRule = new CartVolumeRule($operator, $volume);
 
-        $cart = Generator::createCartWithDelivery();
+        $cart = $this->createCart();
         $context = $this->createMock(SalesChannelContext::class);
 
         $cartRuleScope = new CartRuleScope($cart, $context);
@@ -197,5 +210,41 @@ class CartVolumeRuleTest extends TestCase
 
         static::assertIsArray($result['operatorSet']['operators']);
         static::assertSame('volume', $result['fields'][0]['config']['unit']);
+    }
+
+    private function createCart(): Cart
+    {
+        $cart = Generator::createCart();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $calculatedPrice = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $deliveryPositionCollection = new DeliveryPositionCollection();
+        foreach ($cart->getLineItems() as $lineItem) {
+            $deliveryPosition = new DeliveryPosition(
+                'anyIdentifier',
+                $lineItem,
+                $lineItem->getQuantity(),
+                $calculatedPrice,
+                $deliveryDate
+            );
+
+            $lineItem->setDeliveryInformation(new DeliveryInformation(1000, 10.0, false, 2, null, 10.0, 10.0, 10.0));
+
+            $deliveryPositionCollection->add($deliveryPosition);
+        }
+
+        $delivery = new Delivery(
+            $deliveryPositionCollection,
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            $calculatedPrice
+        );
+
+        $cart->addDeliveries(new DeliveryCollection([$delivery]));
+
+        return $cart;
     }
 }

@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -143,5 +145,54 @@ class GoodsCountRuleTest extends TestCase
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
         );
+    }
+
+    public function testMatchWithWrongScopeShouldReturnFalse(): void
+    {
+        $goodsCountRule = new GoodsCountRule();
+        $wrongScope = $this->createMock(RuleScope::class);
+
+        static::assertFalse($goodsCountRule->match($wrongScope));
+    }
+
+    public function testMatchWithSimpleRule(): void
+    {
+        $goodsCountRule = new GoodsCountRule(Rule::OPERATOR_EQ, 3);
+        $goodsCountRule->setRules([new SimpleRule()]);
+
+        static::assertTrue($goodsCountRule->match($this->createCartRuleScope()));
+    }
+
+    public function testMatchWithSimpleRuleExpectFalse(): void
+    {
+        $goodsCountRule = new GoodsCountRule(Rule::OPERATOR_EQ, 3);
+        $goodsCountRule->setRules([new SimpleRule(false)]);
+
+        static::assertFalse($goodsCountRule->match($this->createCartRuleScope()));
+    }
+
+    public function testGetConstraints(): void
+    {
+        $goodsCountRule = new GoodsCountRule();
+
+        $result = $goodsCountRule->getConstraints();
+
+        static::assertArrayHasKey('count', $result);
+        static::assertArrayHasKey('operator', $result);
+
+        static::assertIsArray($result['count']);
+        static::assertIsArray($result['operator']);
+    }
+
+    private function createCartRuleScope(): CartRuleScope
+    {
+        $cart = new Cart('test');
+        $cart->add((new LineItem('a', 'a'))->setGood(true));
+        $cart->add((new LineItem('b', 'a'))->setGood(true));
+        $cart->add((new LineItem('c', 'a'))->setGood(true));
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        return new CartRuleScope($cart, $context);
     }
 }

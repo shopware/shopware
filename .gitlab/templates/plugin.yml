@@ -291,6 +291,24 @@ jest (administration):
         - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
+jest Vue3:
+    stage: test
+    needs: []
+    rules:
+        # exists does not support variables, so we cannot use ${PLUGIN_SOURCE_DIR} here
+        - exists:
+              - src/Resources/app/administration/jest.vue3.config.js
+              - Resources/app/administration/jest.vue3.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+    script:
+        - '(cd $ADMIN_PATH && npm ci)'
+        - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
+        - npm ci --no-audit --prefer-offline
+        - VUE3=1 npm exec jest -- --config jest.vue3.config.js --ci
+
 jest (storefront):
     stage: test
     needs: []

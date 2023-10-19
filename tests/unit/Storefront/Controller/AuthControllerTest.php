@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -121,6 +122,19 @@ class AuthControllerTest extends TestCase
         );
         static::assertInstanceOf(CustomerEntity::class, $newSalesChannelContext->getCustomer());
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testGuestLoginPageWithoutRedirectParametersThrows(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+
+        $this->expectException(CustomerException::class);
+        $this->expectExceptionMessage('Guest account is not allowed to login');
+
+        $this->controller->guestLoginPage($request, $context);
     }
 }
 

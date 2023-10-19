@@ -56,6 +56,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -605,11 +606,18 @@ class AuthControllerTest extends TestCase
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', []);
+        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testAccountGuestLoginPageWithoutRedirectFails(): void
+    {
+        $response = $this->request('GET', '/account/guest/login', []);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void

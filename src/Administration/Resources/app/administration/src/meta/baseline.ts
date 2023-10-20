@@ -558,7 +558,6 @@ const missingTests = [
     'src/module/sw-order/view/sw-order-detail-documents/index.js',
     'src/module/sw-privilege-error/index.js',
     'src/module/sw-product/component/sw-product-basic-form/index.js',
-    'src/module/sw-product/component/sw-product-cross-selling-form/index.js',
     'src/module/sw-product/component/sw-product-packaging-form/index.js',
     'src/module/sw-product/component/sw-product-settings-form/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js',

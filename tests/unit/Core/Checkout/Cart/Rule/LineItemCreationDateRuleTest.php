@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -230,6 +231,31 @@ class LineItemCreationDateRuleTest extends TestCase
             'one matching' => ['2020-02-06 00:00:00', '2020-02-06 00:00:00', '2020-01-01 18:00:00', true],
             'all matching' => ['2020-02-06 00:00:00', '2020-02-06 00:00:00', '2020-02-06 00:00:00', true],
         ];
+    }
+
+    public function testMatchesCreateDateCatchExceptionShouldReturnFalse(): void
+    {
+        $lineItemCreationDateRule = new LineItemCreationDateRule(Rule::OPERATOR_EQ, '1970-01-01');
+
+        $lineItem = new LineItem('anyId', 'a');
+        $lineItem->assign(['payload' => ['createdAt' => 'errorDate']]);
+
+        static::assertFalse(
+            $lineItemCreationDateRule->match(new LineItemScope(
+                $lineItem,
+                $this->createMock(SalesChannelContext::class)
+            ))
+        );
+    }
+
+    public function testGetConfig(): void
+    {
+        $lineItemCreationDateRule = new LineItemCreationDateRule();
+
+        $result = $lineItemCreationDateRule->getConfig()->getData();
+
+        static::assertIsArray($result['operatorSet']['operators']);
+        static::assertEquals(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
     }
 
     private function createLineItemWithCreatedDate(string $createdAt): LineItem

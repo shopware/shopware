@@ -201,10 +201,14 @@ PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]
 PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]'); // Not used in core, but implemented for plugins
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
+
+/** @deprecated tag:v6.6.0 - Plugin "Ellipsis" will be removed without replacement. Plugin is not used anymore. */
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]'); // Not used in core, but implemented for plugins
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
+
+/** @deprecated tag:v6.6.0 - Plugin "Fading" will be removed without replacement. Plugin is not used anymore. */
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quantity-selector]');

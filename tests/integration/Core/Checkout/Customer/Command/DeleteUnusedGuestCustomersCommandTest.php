@@ -198,6 +198,12 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'addresses' => [
+                array_merge(
+                    $customer['addresses']['default-address'],
+                    ['id' => $customer['defaultShippingAddressId']]
+                ),
+            ],
             'deliveries' => [
                 [
                     'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),

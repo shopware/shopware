@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -127,6 +128,23 @@ class LineItemClearanceSaleRuleTest extends TestCase
             'rule no / clearance sale no' => [false, false, true],
             'rule no / clearance sale yes' => [false, true, true],
         ];
+    }
+
+    public function testMatchWithWrongScopeShouldReturnFalse(): void
+    {
+        $goodsCountRule = new LineItemClearanceSaleRule();
+        $wrongScope = $this->createMock(RuleScope::class);
+
+        static::assertFalse($goodsCountRule->match($wrongScope));
+    }
+
+    public function testGetConfig(): void
+    {
+        $cartVolumeRule = new LineItemClearanceSaleRule();
+
+        $result = $cartVolumeRule->getConfig()->getData();
+
+        static::assertSame('clearanceSale', $result['fields'][0]['name']);
     }
 
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem

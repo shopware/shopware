@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -187,12 +189,44 @@ class LineItemActualStockRuleTest extends TestCase
     {
         $this->rule->assign(['stock' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
-        $match = $this->rule->match(new LineItemScope(
+        $scope = new LineItemScope(
             $this->createLineItem(),
             $this->createMock(SalesChannelContext::class)
-        ));
+        );
 
-        static::assertFalse($match);
+        static::assertFalse($this->rule->match($scope));
+    }
+
+    public function testMatchWithWrongScopeShouldReturnFalse(): void
+    {
+        $goodsCountRule = new LineItemActualStockRule();
+        $wrongScope = $this->createMock(RuleScope::class);
+
+        static::assertFalse($goodsCountRule->match($wrongScope));
+    }
+
+    public function testMatchWithoutStockExpectException(): void
+    {
+        $goodsCountRule = new LineItemActualStockRule();
+        $scope = new LineItemScope(
+            $this->createLineItem(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        $this->expectException(UnsupportedValueException::class);
+        $this->expectExceptionMessage('Unsupported value of type NULL in Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule');
+
+        $goodsCountRule->match($scope);
+    }
+
+    public function testGetConfig(): void
+    {
+        $cartVolumeRule = new LineItemActualStockRule();
+
+        $result = $cartVolumeRule->getConfig()->getData();
+
+        static::assertIsArray($result['operatorSet']['operators']);
+        static::assertSame('stock', $result['fields'][0]['name']);
     }
 
     private function createLineItemWithStock(int $stock): LineItem

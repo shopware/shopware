@@ -291,7 +291,7 @@ jest (administration):
         - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
-jest Vue3:
+jest (administration vue3):
     stage: test
     needs: []
     rules:
@@ -305,6 +305,7 @@ jest Vue3:
     script:
         - '(cd $ADMIN_PATH && npm ci)'
         - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
+        - npm --prefix $ADMIN_PATH run unit-setup
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci --no-audit --prefer-offline
         - VUE3=1 npm exec jest -- --config jest.vue3.config.js --ci

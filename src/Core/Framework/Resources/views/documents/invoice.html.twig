@@ -54,7 +54,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
             {{ shippingAddress.firstName }} {{ shippingAddress.lastName }} <br>
             {{ shippingAddress.street }}<br>
             {{ shippingAddress.zipcode }} {{ shippingAddress.city }}<br>
-            {{ shippingAddress.country.name }}<br>
+            {{ shippingAddress.country.translated.name }}<br>
             {{ shippingAddress.phoneNumber }}
         </div>
     {% else %}

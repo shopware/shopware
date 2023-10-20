@@ -5,6 +5,12 @@ namespace Shopware\Core\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -206,6 +212,42 @@ class Generator extends TestCase
                 CartPrice::TAX_STATE_GROSS
             )
         );
+
+        return $cart;
+    }
+
+    public static function createCartWithDelivery(): Cart
+    {
+        $cart = static::createCart();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $calculatedPrice = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $deliveryPositionCollection = new DeliveryPositionCollection();
+        foreach ($cart->getLineItems() as $lineItem) {
+            $deliveryPosition = new DeliveryPosition(
+                'anyIdentifier',
+                $lineItem,
+                $lineItem->getQuantity(),
+                $calculatedPrice,
+                $deliveryDate
+            );
+
+            $lineItem->setDeliveryInformation(new DeliveryInformation(1000, 10.0, false, 2, null, 10.0, 10.0, 10.0));
+
+            $deliveryPositionCollection->add($deliveryPosition);
+        }
+
+        $delivery = new Delivery(
+            $deliveryPositionCollection,
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            $calculatedPrice
+        );
+
+        $cart->addDeliveries(new DeliveryCollection([$delivery]));
 
         return $cart;
     }

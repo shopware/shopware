@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,7 +41,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly EntityDefinitionQueryHelper $helper,
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly Tokenizer $tokenizer,
+        private readonly TokenizerInterface $tokenizer,
         private readonly ElasticsearchHelper $elasticsearchHelper
     ) {
     }

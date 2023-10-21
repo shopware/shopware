@@ -5,6 +5,13 @@ import DomAccess from 'src/helper/dom-access.helper';
  * @package checkout
  */
 export default class AddToWishlistPlugin extends Plugin {
+    static options = {
+        texts: {
+            add: 'Add to wishlist',
+            remove: 'Remove from wishlist',
+        },
+    }
+
     init() {
         this.classList = {
             isLoading: 'product-wishlist-loading',

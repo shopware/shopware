@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -27,6 +28,13 @@ final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHand
 
     public function run(): void
     {
-        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary WHERE keyword NOT IN (SELECT DISTINCT keyword FROM product_search_keyword)');
+        do {
+            $result = RetryableQuery::retryable(
+                $this->connection,
+                fn (): int => (int) $this->connection->executeStatement(
+                    'DELETE FROM product_keyword_dictionary WHERE keyword NOT IN (SELECT DISTINCT keyword FROM product_search_keyword) LIMIT 1000',
+                )
+            );
+        } while ($result > 0);
     }
 }

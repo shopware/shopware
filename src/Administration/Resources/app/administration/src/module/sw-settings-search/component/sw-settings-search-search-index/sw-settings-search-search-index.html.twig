@@ -50,7 +50,12 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_index_lastest_build %}
     <span class="sw-settings-search__search-index-latest-build">
-        {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} {{ latestBuild }}
+        <template v-if="latestIndex">
+            {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago :date="latestIndex.firstDate"></sw-time-ago> &dash; <sw-time-ago :date="latestIndex.lastDate"></sw-time-ago>
+        </template>
+        <template v-else>
+            {{ $tc('sw-settings-search.generalTab.textSearchNotIndexedYet') }}
+        </template>
     </span>
     {% endblock %}
     {% endblock %}

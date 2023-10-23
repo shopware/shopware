@@ -3,35 +3,46 @@
  */
 import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
+import Vue from 'vue';
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-cms-slot', {
         sync: true,
     }), {
         props: {
-            element: {},
+            element: {
+                type: 'example_cms_element_type',
+            },
+            ...props,
         },
         global: {
             stubs: {
                 'foo-bar': true,
                 'sw-icon': true,
                 'sw-modal': true,
+                'sw-skeleton-bar': true,
             },
             provide: {
                 cmsService: {
+                    getCmsServiceState: () => Vue.observable({
+                        elementRegistry: {
+                            product_list_block: null,
+                            landing_block: null,
+                            example_cms_element_type: {
+                                component: 'foo-bar',
+                                disabledConfigInfoTextKey: 'lorem',
+                                defaultConfig: {
+                                    text: 'lorem',
+                                },
+                            },
+                        },
+                    }),
                     getCmsElementRegistry: () => {
                         return {
                             product_list_block: null,
                             landing_block: null,
                         };
                     },
-                    getCmsElementConfigByName: () => ({
-                        component: 'foo-bar',
-                        disabledConfigInfoTextKey: 'lorem',
-                        defaultConfig: {
-                            text: 'lorem',
-                        },
-                    }),
                     isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType),
                 },
                 cmsElementFavorites: {
@@ -43,6 +54,9 @@ async function createWrapper() {
         },
     });
 }
+
+jest.useFakeTimers();
+
 describe('module/sw-cms/component/sw-cms-slot', () => {
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
@@ -96,6 +110,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
+                type: 'example_cms_element_type',
                 locked: true,
             },
             active: true,
@@ -107,7 +122,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
 
     it('test onSelectElement', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.element).toEqual({});
+        expect(wrapper.vm.element).toEqual({
+            type: 'example_cms_element_type',
+        });
 
         wrapper.vm.onSelectElement({
             name: 'testElement',
@@ -174,5 +191,27 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
 
         expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
+    });
+
+    it('should show an error state after 10s when element is not existing', async () => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'not-existing',
+            },
+        });
+
+        // Element not found should not be visible
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
+        // Loading skeleton should be visible
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+
+        // Advance time by 10s
+        jest.advanceTimersByTime(10000);
+        await flushPromises();
+
+        // Element not found should be visible after 10 seconds
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
+        // Loading skeleton should not be visible after 10 seconds
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
     });
 });

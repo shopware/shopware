@@ -115,6 +115,7 @@ type CmsService = {
     getCmsBlockRegistry: $TSFixMeFunction,
     getEntityMappingTypes: $TSFixMeFunction,
     getPropertyByMappingPath: $TSFixMeFunction,
+    getCmsServiceState: $TSFixMeFunction,
 };
 
 // declare global types

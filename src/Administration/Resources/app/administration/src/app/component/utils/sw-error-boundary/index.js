@@ -33,6 +33,11 @@ Shopware.Component.register('sw-error-boundary', {
             return true;
         }
 
+        // Show more detailed error messages in development mode
+        if (process.env.NODE_ENV === 'development') {
+            return true;
+        }
+
         console.error('An error was captured in current module:', err);
 
         this.logErrorInEntries(err, vm);

@@ -19,6 +19,7 @@ async function createWrapper(propsData = {}) {
         stubs: {
             'foo-bar': true,
             'sw-icon': true,
+            'sw-skeleton-bar': true,
         },
         provide: {
             cmsService: {
@@ -188,5 +189,27 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
 
         expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
+    });
+
+    it('should show an error state after 10s when element is not existing', async () => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'not-existing',
+            },
+        });
+
+        // Element not found should not be visible
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
+        // Loading skeleton should be visible
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+
+        // Advance time by 10s
+        jest.advanceTimersByTime(10000);
+        await flushPromises();
+
+        // Element not found should be visible after 10 seconds
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
+        // Loading skeleton should not be visible after 10 seconds
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
     });
 });

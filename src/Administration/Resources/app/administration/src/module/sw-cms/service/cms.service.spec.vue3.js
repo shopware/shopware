@@ -1110,5 +1110,15 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.LISTING)).toBe(true);
             expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(true);
         });
+
+        it('should return the cmsServiceState', () => {
+            const cmsServiceState = cmsService.getCmsServiceState();
+
+            expect(cmsServiceState).toEqual({
+                elementRegistry: expect.anything(),
+                blockRegistry: expect.anything(),
+                mappingTypesCache: expect.anything(),
+            });
+        });
     });
 });

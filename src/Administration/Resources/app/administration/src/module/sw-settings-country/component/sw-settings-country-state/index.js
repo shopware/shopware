@@ -172,12 +172,12 @@ export default {
         },
 
         checkEmptyState() {
-            if (this.country.isNew()) {
-                this.showEmptyState = this.country.states.length === 0;
+            if (this.country?.isNew()) {
+                this.showEmptyState = this.country?.states?.length === 0;
                 return;
             }
 
-            this.showEmptyState = this.$refs.countryStateGrid.total === 0;
+            this.showEmptyState = this.$refs.countryStateGrid?.total === 0;
         },
     },
 };

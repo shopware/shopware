@@ -12,7 +12,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     props: {
         tax: {
@@ -46,6 +46,11 @@ export default {
                 return null;
             }
             const subComponentName = this.currentTaxRuleType.technicalName.replace(/_/g, '-');
+
+            if (this.feature.isActive('VUE3')) {
+                return `sw-settings-tax-rule-type-${subComponentName}`;
+            }
+
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}`];
         },
         taxRuleTypeCriteria() {

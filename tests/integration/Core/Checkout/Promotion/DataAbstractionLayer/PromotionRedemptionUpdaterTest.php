@@ -63,7 +63,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             [
                 $this->ids->get('voucherA'),
                 $this->ids->get('voucherB'),
-                $this->ids->get('voucherD')
+                $this->ids->get('voucherD'),
             ],
             Context::createDefaultContext()
         );
@@ -257,7 +257,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         return [
             'orderId' => $orderId,
             'customerId' => Uuid::fromBytesToHex($customer['id']),
-            'customerName' => $customer['first_name'] . ' ' . $customer['last_name']
+            'customerName' => $customer['first_name'] . ' ' . $customer['last_name'],
         ];
     }
 
@@ -312,13 +312,13 @@ class PromotionRedemptionUpdaterTest extends TestCase
                     [
                         'id' => $this->ids->get('VoucherA'),
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
-                        'code' => "",
+                        'code' => '',
                         'identifier' => $this->ids->get('VoucherA'),
                         'quantity' => 1,
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherA'),
-                            'code' => "",
-                            "promotionCodeType" => "global",
+                            'code' => '',
+                            'promotionCodeType' => 'global',
                         ],
                         'promotionId' => $this->ids->get('voucherA'),
                         'label' => 'label',

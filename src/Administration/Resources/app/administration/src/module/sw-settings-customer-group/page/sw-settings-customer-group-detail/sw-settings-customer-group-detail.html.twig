@@ -120,8 +120,8 @@
                                 {% endif %}
                                 bordered
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
-                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
+                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 1)"
+                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 0)"
                                 :disabled="!acl.can('customer_groups.editor')"
                             />
                             {% endblock %}

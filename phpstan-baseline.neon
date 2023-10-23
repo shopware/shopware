@@ -11411,11 +11411,6 @@ parameters:
 			path: tests/unit/Storefront/Framework/Routing/StorefrontResponseTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Search\\\\\\\\Filter\\\\\\\\EqualsFilter' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsFilter will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Seo/SeoUrlRoute/NavigationPageSeoUrlRouteTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php

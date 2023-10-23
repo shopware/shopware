@@ -77,6 +77,10 @@ Component.register('sw-card', {
         },
     },
 
+    compatConfig: {
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+    },
+
     methods: {
         cardClasses() {
             const classes = {

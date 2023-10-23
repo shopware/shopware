@@ -114,7 +114,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('has the correct class', async () => {
-        expect(wrapper.get('.sw-card-wrapper').classes()).toContain(classes.componentRoot);
+        expect(wrapper.get('.sw-card').classes()).toContain(classes.componentRoot);
     });
 
     it('shows a list of features', async () => {

@@ -209,7 +209,8 @@
                         >
                             <sw-media-field
                                 {% if VUE3 %}
-                                v-model:mediaId="documentConfig.logoId"
+                                :value="documentConfig.logoId"
+                                @update:value="(v) => documentConfig.logoId = v"
                                 name="sw-field--documentConfig-logoId"
                                 {% else %}
                                 v-model="documentConfig.logoId"

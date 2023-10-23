@@ -137,21 +137,21 @@
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
                                 </sw-icon>
 
                                 <sw-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
                                 </sw-icon>
                                 {% endblock %}
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
-                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
                                 </template>
                                 {% endblock %}
                             </slot>

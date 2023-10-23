@@ -33,7 +33,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches %}
         <div
+            {% if VUE2 %}
             :key="`body-${privilege.key}`"
+            {% endif %}
             class="sw-users-permissions-detailed-additional-permissions__switches"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -47,7 +49,9 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
                 <sw-switch-field
+                    {% if VUE2 %}
                     :key="`field-${privilege.key}-${roleName}`"
+                    {% endif %}
                     :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isEntitySelected(roleName)"
                     :disabled="isEntityDisabled(roleName) || disabled"

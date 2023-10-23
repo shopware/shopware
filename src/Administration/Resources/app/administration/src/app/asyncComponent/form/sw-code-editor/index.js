@@ -192,6 +192,8 @@ export default {
             if (this.setFocus) {
                 this.editor.focus();
             }
+
+            this.$emit('mounted');
         },
 
         destroyedComponent() {

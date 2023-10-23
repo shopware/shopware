@@ -62,9 +62,10 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             }
 
             // if we did not use an individual code we might have
-            // just used a global one or anything else, so just quit in this case.
+            // just used a global one or anything else, so just continue in this case
+            // and go on with the next promotion if any are left in the collection
             if (!($individualCode instanceof PromotionIndividualCodeEntity)) {
-                return;
+                continue;
             }
 
             /** @var OrderCustomerEntity $customer */

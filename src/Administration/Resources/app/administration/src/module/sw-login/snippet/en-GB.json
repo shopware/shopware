@@ -48,7 +48,7 @@
       "text": "Enter the email address linked to your account.",
       "email": {
         "label": "Email address:",
-        "placeholder": "shop@example.com"
+        "placeholder": "shop{'@'}example.com"
       },
       "submit": "Send recovery link"
     }

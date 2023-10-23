@@ -247,8 +247,7 @@ export default {
     },
 
     watch: {
-        searchConfigId(newValue) {
-            this.searchConfigId = newValue;
+        searchConfigId() {
             this.loadData();
         },
 

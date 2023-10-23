@@ -20,6 +20,7 @@ async function createWrapper() {
             },
             mocks: {
                 $route: { query: '' },
+                $router: { resolve: () => ({ href: 'the_link' }) },
             },
             stubs: {
                 'sw-page': {

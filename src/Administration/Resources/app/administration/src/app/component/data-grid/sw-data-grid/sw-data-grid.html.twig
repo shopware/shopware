@@ -137,13 +137,6 @@
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
-                                </sw-icon>
-
-                                <sw-icon
-                                    v-else-if="column.iconLabel"
-                                    :name="column.iconLabel"
-                                >
                                     {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
                                 </sw-icon>
 

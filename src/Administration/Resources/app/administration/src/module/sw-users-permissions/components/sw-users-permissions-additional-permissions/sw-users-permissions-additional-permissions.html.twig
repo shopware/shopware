@@ -116,6 +116,7 @@
                     v-if="roleName === 'all'"
                     {% if VUE2 %}
                     :key="roleName"
+                    {% endif %}
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
                     :value="isPrivilegeSelected('app.' + roleName)"

@@ -13,6 +13,7 @@
     {% block sw_cms_slot_content_component %}
     <component
         :is="elementConfig.component"
+        v-if="elementConfig && elementConfig.component"
         {% if VUE3 %}
         v-model:element="element"
         {% else %}
@@ -22,6 +23,41 @@
         :disabled="disabled"
     />
     {% endblock %}
+
+    {# This is just a quick inline design which needs to be refactored for a real design implementation #}
+    <div
+        v-else-if="elementNotFound"
+        class="sw-cms-slot__element-not-found"
+        style="
+            width: 100%;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fbe5ea;
+            border: 1px solid #de294c;
+            border-radius: 4px;
+            gap: 16px;
+        "
+    >
+        <sw-icon
+            name="regular-exclamation-circle"
+            color="#de294c"
+        />
+
+        <div>
+            <p style="color: #de294c;">
+                <strong>Element could not be load</strong>
+            </p>
+            <p style="color: #de294c; margin-top: 6px;">
+                Please try again or select another element.
+            </p>
+        </div>
+    </div>
+
+    <div v-else>
+        <sw-skeleton-bar style="width: 100%; min-height: 250px;" />
+    </div>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_preview_overlay %}
@@ -61,7 +97,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_swap %}
             <div
-                v-if="elementConfig.removable !== false"
+                v-if="elementConfig?.removable !== false"
                 class="sw-cms-slot__element-action"
                 role="button"
                 tabindex="0"

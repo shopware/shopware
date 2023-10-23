@@ -41,6 +41,7 @@ export default {
         return {
             showElementSettings: false,
             showElementSelection: false,
+            elementNotFound: false,
         };
     },
 
@@ -49,8 +50,12 @@ export default {
             return this.element.id;
         },
 
+        cmsServiceState() {
+            return this.cmsService.getCmsServiceState();
+        },
+
         elementConfig() {
-            return this.cmsService.getCmsElementConfigByName(this.element.type);
+            return this.cmsServiceState.elementRegistry[this.element.type];
         },
 
         cmsElements() {
@@ -93,7 +98,7 @@ export default {
         },
 
         cmsSlotSettingsClasses() {
-            if (this.elementConfig.defaultConfig && !this.element.locked) {
+            if (this.elementConfig?.defaultConfig && !this.element?.locked) {
                 return null;
             }
 
@@ -101,7 +106,7 @@ export default {
         },
 
         tooltipDisabled() {
-            if (this.elementConfig.disabledConfigInfoTextKey) {
+            if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
                     message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
@@ -115,9 +120,22 @@ export default {
         },
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            // Show a "Not found" error after 10 seconds, when no element has been found
+            setTimeout(() => {
+                if (!this.elementConfig) {
+                    this.elementNotFound = true;
+                }
+            }, 10000);
+        },
+
         onSettingsButtonClick() {
-            if (!this.elementConfig.defaultConfig || this.element.locked) {
+            if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
 

@@ -1,18 +1,4 @@
 .scripts:
-  # install node $NODE_VERSION
-  install-node:
-      script:
-        - export NODE_VERSION="${NODE_VERSION:-18}"
-        - export NVM_DIR=/opt/nvm
-        # found no way to automatically load shell initialization scripts in gitlab
-        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm install $NODE_VERSION'
-        - rm -f /usr/bin/{npm,node,npx}
-        - VERSION_DIRS=($NVM_DIR/versions/node/v$NODE_VERSION*)
-        - ln -s "${VERSION_DIRS[-1]}/bin/node" /usr/bin/node
-        - ln -s "${VERSION_DIRS[-1]}/bin/npm" /usr/bin/npm
-        - ln -s "${VERSION_DIRS[-1]}/bin/npx" /usr/bin/npx
-        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm use $NODE_VERSION'
-        - node --version
   handle-failed-merge-train:
       after_script:
         - >

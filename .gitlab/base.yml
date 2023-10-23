@@ -1,4 +1,6 @@
 variables:
+    CI_IMAGE_TAG: latest
+    CI_BUILD_IMAGE_TAG: latest
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
     GIT_STRATEGY: fetch
@@ -17,14 +19,16 @@ variables:
     APP_SECRET: devsecret
     OPENSEARCH_URL: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
-    NODE_VERSION: '18.15'
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+    FPM_USER: root
+    PHP_MEMORY_LIMIT: 2g
+    SHOPWARE_ES_INDEX_PREFIX: sw
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+
 
 # for jobs which should run on each MR/Pipeline
 .base:
-    image:
-      name: shopware/development:8.1-composer-2
-      pull_policy: if-not-present
+    image: ${CI_REGISTRY}/infrastructure/docker-base/ci:${CI_IMAGE_TAG}
     # we want our base pipeline to finish fast
     timeout: 30m
     interruptible: true
@@ -38,8 +42,6 @@ variables:
       - shopware
     before_script:
         - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
-        - !reference [.scripts, install-node, script]
-        - cp public/.htaccess.dist public/.htaccess
         - !reference [ .scripts, init, composer ]
         - >
           if [[ -r var/database.sql ]]; then
@@ -53,11 +55,17 @@ variables:
               composer run e2e:sdk-plugin:fixture-to-plugin
           fi
         - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
-        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
-        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
+        - 'rm -Rf /var/www/html/public || true'
+        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
     after_script:
-        - !reference [.upload-junit-xml, after_script]
         - !reference [.tag-pipeline-span, after_script]
+    artifacts:
+      expire_in: 4 days
+
+.base-with-node:
+  extends: .base
+  image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
 
 .base-with-db:
   extends: .base

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Payment\Exception\RefundException;
@@ -35,8 +34,8 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();

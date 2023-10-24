@@ -62,12 +62,11 @@ class AppFlowActionProviderTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, 'asdsad');
+        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, 'testSalesChannelId');
 
         $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
-        $flowFactory = new FlowFactory([$orderStorer]);
 
-        $flow = $flowFactory->create($awareEvent);
+        $flow = (new FlowFactory([$orderStorer]))->create($awareEvent);
         $flow->setConfig($config);
 
         $stringTemplateRender = $this->createMock(StringTemplateRenderer::class);

@@ -25,8 +25,8 @@ class AppDeactivatedEventTest extends TestCase
 
         static::assertEquals($app, $event->getApp());
         static::assertEquals($context, $event->getContext());
-        static::assertEquals(AppDeactivatedEvent::NAME, $event->getName());
-        static::assertEquals([], $event->getWebhookPayload());
+        static::assertSame(AppDeactivatedEvent::NAME, $event->getName());
+        static::assertSame([], $event->getWebhookPayload());
     }
 
     public function testIsAllowed(): void

@@ -25,7 +25,7 @@ class ActionTest extends TestCase
         static::assertNotNull($firstAction->getParameters());
         static::assertNotNull($firstAction->getConfig());
 
-        static::assertEquals('abc.cde.ccc', $firstAction->getMeta()->getName());
+        static::assertSame('abc.cde.ccc', $firstAction->getMeta()->getName());
         static::assertEquals(['order', 'customer'], $firstAction->getMeta()->getRequirements());
         static::assertEquals(
             [

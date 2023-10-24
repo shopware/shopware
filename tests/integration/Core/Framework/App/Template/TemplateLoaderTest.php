@@ -39,7 +39,7 @@ class TemplateLoaderTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             [],
             $this->templateLoader->getTemplatePathsForApp($manifest)
         );

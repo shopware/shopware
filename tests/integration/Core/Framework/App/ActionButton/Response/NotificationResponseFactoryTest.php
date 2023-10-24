@@ -45,7 +45,7 @@ class NotificationResponseFactoryTest extends TestCase
      */
     public function testSupportsOnlyNotificationActionType(string $actionType, bool $isSupported): void
     {
-        static::assertEquals($isSupported, $this->factory->supports($actionType));
+        static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
     public function testCreatesNotificationResponse(): void

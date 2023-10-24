@@ -37,7 +37,7 @@ class ResolveAppUrlChangeCommandTest extends TestCase
         $commandTester->setInputs(['testStrategy']);
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('Choose what strategy should be applied, to resolve the app url change?:', $commandTester->getDisplay());
         static::assertStringContainsString('testStrategy', $commandTester->getDisplay());
@@ -68,7 +68,7 @@ class ResolveAppUrlChangeCommandTest extends TestCase
 
         $commandTester->execute(['strategy' => 'testStrategy']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringNotContainsString('Choose what strategy should be applied, to resolve the app url change?:', $commandTester->getDisplay());
         static::assertStringContainsString('[OK] Strategy "testStrategy" was applied successfully', $commandTester->getDisplay());
@@ -98,7 +98,7 @@ class ResolveAppUrlChangeCommandTest extends TestCase
         $commandTester->setInputs(['testStrategy']);
         $commandTester->execute(['strategy' => 'doesNotExist']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[NOTE] Strategy with name: "doesNotExist" not found.', $commandTester->getDisplay());
         static::assertStringContainsString('Choose what strategy should be applied, to resolve the app url change?:', $commandTester->getDisplay());

@@ -1558,7 +1558,7 @@ class AppLifecycleTest extends TestCase
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
 
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
         $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
         static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
@@ -1567,7 +1567,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
 
         $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
         static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
@@ -1576,7 +1576,7 @@ class AppLifecycleTest extends TestCase
         $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($app);
 
-        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
@@ -1592,7 +1592,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretInDevEnvIsSuccessfulWhenSecretIsSet(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
 
         $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
         static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
@@ -1606,7 +1606,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretDoesNotThrowExceptionWhenNoSecretSetAndNotInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
         $this->appLifecycle->install($manifest, true, $this->context);
 

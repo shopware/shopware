@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -37,8 +36,8 @@ class AppRecurringHandlerTest extends AbstractAppPaymentHandlerTestCase
         $paymentHandler = $this->getContainer()->get(AppPaymentHandler::class);
         $paymentHandler->captureRecurring($this->getRecurringStruct(), Context::createDefaultContext());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();

@@ -49,8 +49,8 @@ class ExecutorTest extends TestCase
             $this->createMock(KernelInterface::class)
         );
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('connection problems');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('connection problems');
 
         $appAction = new AppAction('https://example.com', 'https://localhost', '1.0.0', 'action-id', 'label', [Uuid::randomHex()], 'GET', 'asd', '123123123');
 

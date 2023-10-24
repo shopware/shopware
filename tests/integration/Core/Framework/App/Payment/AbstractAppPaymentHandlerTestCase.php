@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -305,8 +305,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('state');
 
-        /** @var OrderTransactionEntity|null $transaction */
-        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($transaction);
 
         $states = $this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $this->context)->getStates();
@@ -321,8 +320,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $criteria = new Criteria([$refundId]);
         $criteria->addAssociation('state');
 
-        /** @var OrderTransactionCaptureRefundEntity|null $refund */
-        $refund = $this->orderTransactionCaptureRefundRepository->search($criteria, $this->context)->first();
+        $refund = $this->orderTransactionCaptureRefundRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($refund);
 
         $states = $this->stateMachineRegistry->getStateMachine(OrderTransactionCaptureRefundStates::STATE_MACHINE, $this->context)->getStates();

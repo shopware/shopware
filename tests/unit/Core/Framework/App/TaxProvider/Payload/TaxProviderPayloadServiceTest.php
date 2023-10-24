@@ -219,8 +219,8 @@ class TaxProviderPayloadServiceTest extends TestCase
 
         $payload = $this->createMock(TaxProviderPayload::class);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App secret is missing');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App secret is missing');
 
         $taxProviderPayloadService->request(
             $url,

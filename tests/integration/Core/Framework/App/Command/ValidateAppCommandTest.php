@@ -20,7 +20,7 @@ class ValidateAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute(['name' => 'withoutPermissions']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringContainsString('[OK]', $commandTester->getDisplay());
     }
 
@@ -29,7 +29,7 @@ class ValidateAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         static::assertStringContainsString('[ERROR] The app "validationFailure" is invalid', $commandTester->getDisplay());
         static::assertStringContainsString('[ERROR] The app "validationFailures" is invalid', $commandTester->getDisplay());
     }

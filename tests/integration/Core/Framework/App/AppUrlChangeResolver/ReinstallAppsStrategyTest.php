@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -45,7 +46,7 @@ class ReinstallAppsStrategyTest extends TestCase
     {
         $reinstallAppsResolver = $this->getContainer()->get(ReinstallAppsStrategy::class);
 
-        static::assertEquals(
+        static::assertSame(
             ReinstallAppsStrategy::STRATEGY_NAME,
             $reinstallAppsResolver->getName()
         );
@@ -146,14 +147,14 @@ class ReinstallAppsStrategyTest extends TestCase
 
     private function getInstalledApp(Context $context): AppEntity
     {
-        /** @var EntityRepository $appRepo */
+        /** @var EntityRepository<AppCollection> $appRepo */
         $appRepo = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        $apps = $appRepo->search($criteria, $context);
-        static::assertEquals(1, $apps->getTotal());
+        $app = $appRepo->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($app);
 
-        return $apps->first();
+        return $app;
     }
 }

@@ -20,8 +20,8 @@ class CustomEventsTest extends TestCase
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
-        /** @var \DOMElement $events */
         $events = $doc->getElementsByTagName('flow-events')->item(0);
+        static::assertNotNull($events);
         $result = CustomEvents::fromXml($events)->toArray('en-GB');
         static::assertArrayHasKey('customEvent', $result);
     }

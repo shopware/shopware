@@ -18,7 +18,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 class AppLoaderTest extends TestCase
 {
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     private array $packages;
 
@@ -132,7 +132,7 @@ class AppLoaderTest extends TestCase
         $modified = $packages[0];
         static::assertIsArray($modified);
         $modified['versions'] = [
-            // Points to path that does not exists
+            // Points to path that does not exist
             'swag/app' => [
                 'dev_requirement' => false,
                 'type' => AppLoader::COMPOSER_TYPE,
@@ -159,7 +159,8 @@ class AppLoaderTest extends TestCase
         static::assertEquals('test', $app->getMetadata()->getName());
         static::assertEquals('1.0.0', $app->getMetadata()->getVersion());
 
-        static::expectException(AppException::class);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App test is managed by Composer and cannot be deleted');
         $appLoader->deleteApp('test');
     }
 

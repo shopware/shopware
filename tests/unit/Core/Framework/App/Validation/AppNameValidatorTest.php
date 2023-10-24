@@ -16,17 +16,14 @@ class AppNameValidatorTest extends TestCase
 {
     private AppNameValidator $appNameValidator;
 
-    private string $testAppDir;
-
     protected function setUp(): void
     {
         $this->appNameValidator = new AppNameValidator();
-        $this->testAppDir = __DIR__ . '/../../../../../integration/Core/Framework/App/Manifest/_fixtures';
     }
 
     public function testValidate(): void
     {
-        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $violations = $this->appNameValidator->validate($manifest, null);
         static::assertCount(0, $violations->getElements());
@@ -34,7 +31,7 @@ class AppNameValidatorTest extends TestCase
 
     public function testValidateNonCaseSensitive(): void
     {
-        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $manifest->getMetadata()->assign(['name' => 'TeSt']);
 
         $violations = $this->appNameValidator->validate($manifest, null);
@@ -43,7 +40,7 @@ class AppNameValidatorTest extends TestCase
 
     public function testValidateReturnsErrors(): void
     {
-        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/invalidAppName/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidAppName/manifest.xml');
 
         $violations = $this->appNameValidator->validate($manifest, null);
 

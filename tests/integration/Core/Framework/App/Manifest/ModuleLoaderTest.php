@@ -18,7 +18,7 @@ class ModuleLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository  $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 
@@ -101,7 +101,7 @@ class ModuleLoaderTest extends TestCase
 
         $loadedModules = $this->getSortedModules();
 
-        static::assertEquals([], $loadedModules);
+        static::assertSame([], $loadedModules);
     }
 
     public function testMainModules(): void
@@ -134,7 +134,7 @@ class ModuleLoaderTest extends TestCase
         $this->createApp('App');
 
         $modules = $this->getSortedModules();
-        static::assertEquals([], $modules);
+        static::assertSame([], $modules);
     }
 
     /**
@@ -258,21 +258,21 @@ class ModuleLoaderTest extends TestCase
         unset($url['query']);
 
         $expectedUrl = parse_url($urlPath);
-        static::assertEquals($expectedUrl, $url);
+        static::assertSame($expectedUrl, $url);
 
-        /** @var array{"value": string} $shopId */
         $shopId = $this->getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        static::assertIsArray($shopId);
 
         parse_str($queryString, $query);
-        static::assertEquals($_SERVER['APP_URL'], $query['shop-url']);
+        static::assertSame($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
-        static::assertEquals($shopId['value'], $query['shop-id']);
+        static::assertSame($shopId['value'], $query['shop-id']);
         static::assertArrayHasKey('sw-version', $query);
-        static::assertEquals($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
+        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
         static::assertArrayHasKey('sw-context-language', $query);
-        static::assertEquals(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
+        static::assertSame(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
         static::assertArrayHasKey('sw-user-language', $query);
-        static::assertEquals('en-GB', $query['sw-user-language']);
+        static::assertSame('en-GB', $query['sw-user-language']);
         static::assertArrayHasKey('shopware-shop-signature', $query);
 
         $signature = $query['shopware-shop-signature'];
@@ -281,6 +281,6 @@ class ModuleLoaderTest extends TestCase
 
         $signedQuery = str_replace('&shopware-shop-signature=' . $signature, '', $queryString);
 
-        static::assertEquals(hash_hmac('sha256', $signedQuery, $secret), $signature);
+        static::assertSame(hash_hmac('sha256', $signedQuery, $secret), $signature);
     }
 }

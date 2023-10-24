@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Delta;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -22,9 +22,7 @@ class DomainsDeltaProviderTest extends TestCase
 
     public function testGetName(): void
     {
-        $expected = 'domains';
-        static::assertSame($expected, DomainsDeltaProvider::DELTA_NAME);
-        static::assertSame($expected, (new DomainsDeltaProvider())->getDeltaName());
+        static::assertSame('domains', (new DomainsDeltaProvider())->getDeltaName());
     }
 
     public function testGetDomainsDelta(): void
@@ -38,10 +36,8 @@ class DomainsDeltaProviderTest extends TestCase
             ->addFilter(new EqualsFilter('name', 'test'))
             ->addAssociation('acl_role');
 
-        /** @var AppEntity $app */
-        $app = $this->getAppRepository()
-            ->search($criteria, $context)
-            ->first();
+        $app = $this->getAppRepository()->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($app);
 
         // Modify the existing privileges to get a delta
         $app->setAllowedHosts([]);
@@ -71,10 +67,8 @@ class DomainsDeltaProviderTest extends TestCase
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('name', 'test'));
 
-        /** @var AppEntity $app */
-        $app = $this->getAppRepository()
-            ->search($criteria, $context)
-            ->first();
+        $app = $this->getAppRepository()->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($app);
 
         static::assertFalse((new DomainsDeltaProvider())->hasDelta($manifest, $app));
 
@@ -88,6 +82,9 @@ class DomainsDeltaProviderTest extends TestCase
         return $this->getContainer()->get(AppLifecycle::class);
     }
 
+    /**
+     * @return EntityRepository<AppCollection>
+     */
     private function getAppRepository(): EntityRepository
     {
         return $this->getContainer()->get('app.repository');

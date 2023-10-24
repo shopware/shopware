@@ -22,9 +22,10 @@ class FlowEventTest extends TestCase
         static::assertDirectoryExists($result->getPath());
     }
 
-    public function testCreateFromXmlFileFaild(): void
+    public function testCreateFromXmlFileFailed(): void
     {
-        static::expectException(XmlParsingException::class);
+        $this->expectException(XmlParsingException::class);
+        $this->expectExceptionMessageMatches('/Unable to parse file \".*flow-1-0.xml"\. Message: Resource \".*flow-1-0.xml\" is not a file./');
         $xmlFile = \dirname(__FILE__, 3) . '/_fixtures/flow-1-0.xml';
         Event::createFromXmlFile($xmlFile);
     }

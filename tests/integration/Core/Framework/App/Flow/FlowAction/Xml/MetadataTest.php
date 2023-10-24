@@ -22,11 +22,11 @@ class MetadataTest extends TestCase
         $firstAction = $flowActions->getActions()->getActions()[0];
         $meta = $firstAction->getMeta();
 
-        static::assertEquals('abc.cde.ccc', $meta->getName());
-        static::assertEquals(['order', 'customer'], $meta->getRequirements());
-        static::assertEquals('https://example.xyz', $meta->getUrl());
-        static::assertEquals('sw-pencil', $meta->getSwIcon());
-        static::assertEquals('resource/pencil', $meta->getIcon());
+        static::assertSame('abc.cde.ccc', $meta->getName());
+        static::assertSame(['order', 'customer'], $meta->getRequirements());
+        static::assertSame('https://example.xyz', $meta->getUrl());
+        static::assertSame('sw-pencil', $meta->getSwIcon());
+        static::assertSame('resource/pencil', $meta->getIcon());
         static::assertEquals(
             [
                 'en-GB' => 'First action app',

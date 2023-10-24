@@ -31,17 +31,17 @@ class PrivateHandshakeTest extends TestCase
         parse_str($request->getUri()->getQuery(), $queryParams);
 
         static::assertArrayHasKey('shop-url', $queryParams);
-        static::assertEquals(urlencode($shopUrl), $queryParams['shop-url']);
+        static::assertSame(urlencode($shopUrl), $queryParams['shop-url']);
 
         static::assertArrayHasKey('shop-id', $queryParams);
-        static::assertEquals($shopId, $queryParams['shop-id']);
+        static::assertSame($shopId, $queryParams['shop-id']);
 
         static::assertArrayHasKey('timestamp', $queryParams);
         static::assertIsString($queryParams['timestamp']);
         static::assertNotEmpty($queryParams['timestamp']);
 
         static::assertTrue($request->hasHeader('shopware-app-signature'));
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $request->getUri()->getQuery(), $secret),
             $request->getHeaderLine('shopware-app-signature')
         );
@@ -61,6 +61,6 @@ class PrivateHandshakeTest extends TestCase
 
         $appProof = $handshake->fetchAppProof();
 
-        static::assertEquals(hash_hmac('sha256', $shopId . $shopUrl . $appName, $secret), $appProof);
+        static::assertSame(hash_hmac('sha256', $shopId . $shopUrl . $appName, $secret), $appProof);
     }
 }

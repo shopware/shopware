@@ -44,7 +44,7 @@ class ShopIdProviderTest extends TestCase
         $firstShopId = $this->shopIdProvider->getShopId();
         $secondShopId = $this->shopIdProvider->getShopId();
 
-        static::assertEquals($firstShopId, $secondShopId);
+        static::assertSame($firstShopId, $secondShopId);
 
         static::assertEquals([
             'app_url' => $_SERVER['APP_URL'],
@@ -85,7 +85,7 @@ class ShopIdProviderTest extends TestCase
             'value' => $firstShopId,
         ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 
-        static::assertEquals($firstShopId, $secondShopId);
+        static::assertSame($firstShopId, $secondShopId);
     }
 
     public function testItRemovesTheAppUrlChangedMarkerIfOutdated(): void

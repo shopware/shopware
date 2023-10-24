@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,14 +20,14 @@ class AppLoadedSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'app.loaded' => 'unserialize',
         ], AppLoadedSubscriber::getSubscribedEvents());
     }
 
     public function testUnserialize(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $id = Uuid::randomHex();
@@ -53,12 +53,11 @@ class AppLoadedSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var AppEntity $app */
-        $app = $appRepository->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
-        $icon = \file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png');
+        $app = $appRepository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->get($id);
         static::assertNotNull($app);
+        $icon = \file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png');
         static::assertNotFalse($icon);
 
-        static::assertEquals(\base64_encode($icon), $app->getIcon());
+        static::assertSame(\base64_encode($icon), $app->getIcon());
     }
 }

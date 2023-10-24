@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -40,8 +39,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertInstanceOf(ArrayStruct::class, $returnValue);
         static::assertSame(['test' => 'response'], $returnValue->all());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -179,8 +178,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct(['test' => 'test']));
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -405,8 +404,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             ->addAssociation('addresses.country')
             ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;

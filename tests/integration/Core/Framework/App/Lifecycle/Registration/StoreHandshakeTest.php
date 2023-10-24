@@ -42,17 +42,17 @@ class StoreHandshakeTest extends TestCase
         parse_str($request->getUri()->getQuery(), $queryParams);
 
         static::assertArrayHasKey('shop-url', $queryParams);
-        static::assertEquals(urlencode($shopUrl), $queryParams['shop-url']);
+        static::assertSame(urlencode($shopUrl), $queryParams['shop-url']);
 
         static::assertArrayHasKey('shop-id', $queryParams);
-        static::assertEquals($shopId, $queryParams['shop-id']);
+        static::assertSame($shopId, $queryParams['shop-id']);
 
         static::assertArrayHasKey('timestamp', $queryParams);
         static::assertIsString($queryParams['timestamp']);
         static::assertNotEmpty($queryParams['timestamp']);
 
         static::assertTrue($request->hasHeader('shopware-app-signature'));
-        static::assertEquals(
+        static::assertSame(
             '1234',
             $request->getHeaderLine('shopware-app-signature')
         );
@@ -75,7 +75,7 @@ class StoreHandshakeTest extends TestCase
 
         $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
-        static::assertEquals('1234', $handshake->fetchAppProof());
+        static::assertSame('1234', $handshake->fetchAppProof());
     }
 
     public function testThrowsIfSbpRespondsWithUnauthorized(): void

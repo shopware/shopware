@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
@@ -43,7 +44,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
     {
         $moveShopPermanentlyResolver = $this->getContainer()->get(MoveShopPermanentlyStrategy::class);
 
-        static::assertEquals(
+        static::assertSame(
             MoveShopPermanentlyStrategy::STRATEGY_NAME,
             $moveShopPermanentlyResolver->getName()
         );
@@ -78,7 +79,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $moveShopPermanentlyResolver->resolve($this->context);
 
-        static::assertEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertSame($shopId, $this->shopIdProvider->getShopId());
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
@@ -111,7 +112,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $moveShopPermanentlyResolver->resolve($this->context);
 
-        static::assertEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertSame($shopId, $this->shopIdProvider->getShopId());
     }
 
     private function changeAppUrl(): string
@@ -134,14 +135,14 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
     private function getInstalledApp(Context $context): AppEntity
     {
-        /** @var EntityRepository $appRepo */
+        /** @var EntityRepository<AppCollection> $appRepo */
         $appRepo = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        $apps = $appRepo->search($criteria, $context);
-        static::assertEquals(1, $apps->getTotal());
+        $app = $appRepo->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($app);
 
-        return $apps->first();
+        return $app;
     }
 }

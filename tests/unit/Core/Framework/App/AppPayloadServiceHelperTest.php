@@ -36,14 +36,14 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testBuildSource(): void
     {
-        $shopIdProvider = static::createMock(ShopIdProvider::class);
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($this->ids->get('shop-id'));
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
-            static::createMock(DefinitionInstanceRegistry::class),
-            static::createMock(JsonEntityEncoder::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(JsonEntityEncoder::class),
             $shopIdProvider
         );
 
@@ -51,8 +51,6 @@ class AppPayloadServiceHelperTest extends TestCase
         $app->setVersion('1.0.0');
 
         $source = $appPayloadServiceHelper->buildSource($app, 'https://shopware.com');
-
-        static::assertInstanceOf(Source::class, $source);
 
         static::assertSame('https://shopware.com', $source->getUrl());
         static::assertSame($this->ids->get('shop-id'), $source->getShopId());
@@ -62,7 +60,7 @@ class AppPayloadServiceHelperTest extends TestCase
     public function testEncode(): void
     {
         $context = new Context(new SystemSource());
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getContext')
             ->willReturn($context);
@@ -72,7 +70,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
         $payload->setSource($source);
 
-        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
@@ -84,7 +82,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
             $entityEncoder,
-            static::createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class)
         );
 
         $array = $appPayloadServiceHelper->encode($payload);

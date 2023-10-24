@@ -9,15 +9,17 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -65,6 +67,9 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     protected IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     protected EntityRepository $orderRepository;
 
     private EntityRepository $customerRepository;
@@ -77,10 +82,16 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
     private EntityRepository $orderTransactionCaptureRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCaptureRefundCollection>
+     */
     private EntityRepository $orderTransactionCaptureRefundRepository;
 
     private Context $context;
@@ -110,10 +121,11 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'testPayments'));
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
-        /** @var AppEntity $app */
-        $app = $appRepository->search($criteria, $this->context)->first();
+        $app = $appRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($app);
         $this->app = $app;
         $this->ids = new IdsCollection();
 
@@ -293,8 +305,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('state');
 
-        /** @var OrderTransactionEntity|null $transaction */
-        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($transaction);
 
         $states = $this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $this->context)->getStates();
@@ -309,8 +320,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $criteria = new Criteria([$refundId]);
         $criteria->addAssociation('state');
 
-        /** @var OrderTransactionCaptureRefundEntity|null $refund */
-        $refund = $this->orderTransactionCaptureRefundRepository->search($criteria, $this->context)->first();
+        $refund = $this->orderTransactionCaptureRefundRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($refund);
 
         $states = $this->stateMachineRegistry->getStateMachine(OrderTransactionCaptureRefundStates::STATE_MACHINE, $this->context)->getStates();

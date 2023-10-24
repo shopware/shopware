@@ -37,7 +37,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeFactory->expects(static::never())
             ->method('create');
 
-        $appRegistrationService = $this->createAppRegistrationService();
+        $appRegistrationService = $this->createAppRegistrationService($handshakeFactory);
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
@@ -71,8 +71,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Unknown app');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -114,8 +114,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -153,8 +153,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -198,8 +198,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -243,29 +243,25 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     /**
      * @param (HandshakeFactory&MockObject)|null $handshakeFactory
-     * @param (EntityRepository&MockObject)|null $appRepository
-     * @param (ShopIdProvider&MockObject)|null $shopIdProvider
      */
     private function createAppRegistrationService(
         ?HandshakeFactory $handshakeFactory = null,
         ?Client $httpClient = null,
-        ?EntityRepository $appRepository = null,
-        ?ShopIdProvider $shopIdProvider = null,
     ): AppRegistrationService {
         return new AppRegistrationService(
             $handshakeFactory ?? $this->createMock(HandshakeFactory::class),
             $httpClient ?? new Client(),
-            $appRepository ?? $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             'https://shopware.swag',
-            $shopIdProvider ?? $this->createMock(ShopIdProvider::class),
+            $this->createMock(ShopIdProvider::class),
             '6.5.2.0'
         );
     }

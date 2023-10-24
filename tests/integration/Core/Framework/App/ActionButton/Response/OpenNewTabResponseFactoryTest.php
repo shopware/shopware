@@ -46,7 +46,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
      */
     public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
     {
-        static::assertEquals($isSupported, $this->factory->supports($actionType));
+        static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
     public function testCreatesOpenNewTabResponse(): void

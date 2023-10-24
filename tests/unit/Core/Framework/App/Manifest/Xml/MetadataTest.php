@@ -15,7 +15,7 @@ class MetadataTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test-manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
 
         $metaData = $manifest->getMetadata();
         static::assertEquals('test', $metaData->getName());
@@ -76,7 +76,7 @@ class MetadataTest extends TestCase
 
     public function testValidateTranslationsReturnsNull(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test-manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
         $error = $manifest->getMetadata()->validateTranslations();
 
         static::assertNull($error);

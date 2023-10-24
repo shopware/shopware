@@ -23,7 +23,7 @@ class AppFlowActionEventTest extends TestCase
 
         $event = new AppFlowActionEvent($eventName, $headers, $payload);
 
-        static::assertEquals($eventName, $event->getName());
+        static::assertSame($eventName, $event->getName());
         static::assertEquals($headers, $event->getWebhookHeaders());
         static::assertEquals($payload, $event->getWebhookPayload());
         static::assertTrue($event->isAllowed('11111', new AclPrivilegeCollection([])));

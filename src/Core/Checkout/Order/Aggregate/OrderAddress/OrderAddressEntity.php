@@ -51,7 +51,7 @@ class OrderAddressEntity extends Entity
     /**
      * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
      *
-     * @var string
+     * @var string|null
      */
     protected $zipcode;
 

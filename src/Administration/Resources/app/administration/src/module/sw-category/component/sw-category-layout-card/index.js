@@ -96,7 +96,7 @@ export default {
 
         hasCmsPageOverrides() {
             let overrideCount = 0;
-            if (this.cmsPage.sections === null) {
+            if (this.cmsPage === null || this.cmsPage.sections === null) {
                 return false;
             }
 

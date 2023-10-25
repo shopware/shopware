@@ -137,7 +137,6 @@ export default {
 
         clearOverride(slot) {
             slot.config = cloneDeep(slot.originalConfig);
-            // FIXME: in some cases, the texteditor is not updated, even the value changes
         },
     },
 };

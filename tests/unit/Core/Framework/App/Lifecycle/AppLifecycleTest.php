@@ -58,10 +58,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects(static::never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
     }
 
@@ -73,10 +73,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects(static::never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
         $appLifecycle->update($manifest, ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
     }
 
@@ -312,6 +312,9 @@ class AppLifecycleTest extends TestCase
         ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         AbstractAppLoader $appLoader
     ): AppLifecycle {
+        /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
+        $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
+
         return new AppLifecycle(
             $appRepository,
             $this->createMock(PermissionPersister::class),
@@ -332,7 +335,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(ConfigValidator::class),
             $this->createMock(EntityRepository::class),
-            new StaticEntityRepository([new AclRoleCollection()]),
+            $aclRoleRepo,
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,

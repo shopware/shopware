@@ -15,7 +15,7 @@ class CmsExtensionsTest extends TestCase
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/_fixtures/valid/cmsExtensionsWithBlocks.xml');
 
-        static::assertEquals(__DIR__ . '/_fixtures/valid', $cmsExtensions->getPath());
+        static::assertSame(__DIR__ . '/_fixtures/valid', $cmsExtensions->getPath());
         static::assertNotNull($cmsExtensions->getBlocks());
         static::assertCount(2, $cmsExtensions->getBlocks()->getBlocks());
     }
@@ -24,7 +24,7 @@ class CmsExtensionsTest extends TestCase
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/_fixtures/valid/cmsExtensionsWithoutBlocks.xml');
 
-        static::assertEquals(__DIR__ . '/_fixtures/valid', $cmsExtensions->getPath());
+        static::assertSame(__DIR__ . '/_fixtures/valid', $cmsExtensions->getPath());
         static::assertNull($cmsExtensions->getBlocks());
     }
 
@@ -33,7 +33,7 @@ class CmsExtensionsTest extends TestCase
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/_fixtures/valid/cmsExtensionsWithBlocks.xml');
 
         $cmsExtensions->setPath('test');
-        static::assertEquals('test', $cmsExtensions->getPath());
+        static::assertSame('test', $cmsExtensions->getPath());
     }
 
     public function testThrowsXmlParsingExceptionIfDuplicateCategory(): void

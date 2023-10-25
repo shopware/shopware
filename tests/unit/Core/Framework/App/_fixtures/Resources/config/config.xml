@@ -14,7 +14,7 @@
             <placeholder>you@example.com</placeholder>
             <placeholder lang="de-DE">du@beispiel.de</placeholder>
             <helpText>Please fill in your personal eMail address</helpText>
-            <helpText lang="de-DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
+            <helpText lang="de-DE">Bitte trage deine persönliche E-Mail-Adresse ein</helpText>
         </input-field>
     </card>
 </config>

@@ -19,7 +19,7 @@ class ValidatePayloadTest extends TestCase
 {
     public function testPayload(): void
     {
-        $cart = new Cart('hatouken');
+        $cart = new Cart('testToken');
         $requestData = ['foo' => 'bar'];
         $salesChannelContext = Generator::createSalesChannelContext();
         $source = new Source('foo', 'bar', '1.0.0');

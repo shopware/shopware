@@ -22,8 +22,8 @@ class InputFieldTest extends TestCase
 
         $firstInputField = $config[0];
 
-        static::assertEquals('textField', $firstInputField->getName());
-        static::assertEquals('text', $firstInputField->getType());
+        static::assertSame('textField', $firstInputField->getName());
+        static::assertSame('text', $firstInputField->getType());
         static::assertEquals([
             'en-GB' => 'To',
             'de-DE' => 'To DE',
@@ -38,6 +38,6 @@ class InputFieldTest extends TestCase
         ], $firstInputField->getHelpText());
 
         static::assertTrue($firstInputField->getRequired());
-        static::assertEquals('Shopware 6', $firstInputField->getDefaultValue());
+        static::assertSame('Shopware 6', $firstInputField->getDefaultValue());
     }
 }

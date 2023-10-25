@@ -10726,61 +10726,6 @@ parameters:
 			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\MoveShopPermanentlyStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/MoveShopPermanentlyStrategyTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\ReinstallAppsStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/ReinstallAppsStrategyTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\UninstallAppsStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/UninstallAppsStrategyTest.php
-
-		-
-			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Command/ActivateAppCommandTest.php
-
-		-
-			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Command/DeactivateAppCommandTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with 'domains' and 'domains' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Delta/DomainsDeltaProviderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with 'permissions' and 'permissions' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Delta/PermissionsDeltaProviderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Manifest\\\\\\\\Manifest' and Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Manifest will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Event/AppInstalledEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Manifest\\\\\\\\Manifest' and Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Manifest will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Event/AppUpdatedEventTest.php
-
-		-
-			message: "#^Cannot call method getIntegrationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Subscriber/CustomFieldProtectionSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getMessage\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Validation\\\\Error\\\\Error\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/App/Validation/TranslationValidatorTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationList will always evaluate to true\\.$#"
 			count: 2
 			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
@@ -11084,16 +11029,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 3
 			path: tests/unit/Core/Framework/Api/Controller/CustomSnippetFormatControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Payment\\\\\\\\Payload\\\\\\\\Struct\\\\\\\\Source' and Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\Source will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/App/AppPayloadServiceHelperTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/App/Manifest/Xml/AdminTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"

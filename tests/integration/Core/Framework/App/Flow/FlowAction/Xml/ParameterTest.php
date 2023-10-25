@@ -23,12 +23,12 @@ class ParameterTest extends TestCase
         $firstHeaderParameter = $firstAction->getHeaders()->getParameters()[0];
         $firstParameter = $firstAction->getParameters()->getParameters()[0];
 
-        static::assertEquals('string', $firstHeaderParameter->getType());
-        static::assertEquals('content-type', $firstHeaderParameter->getName());
-        static::assertEquals('application/json', $firstHeaderParameter->getValue());
+        static::assertSame('string', $firstHeaderParameter->getType());
+        static::assertSame('content-type', $firstHeaderParameter->getName());
+        static::assertSame('application/json', $firstHeaderParameter->getValue());
 
-        static::assertEquals('string', $firstParameter->getType());
-        static::assertEquals('to', $firstParameter->getName());
-        static::assertEquals('{{ customer.name }}', $firstParameter->getValue());
+        static::assertSame('string', $firstParameter->getType());
+        static::assertSame('to', $firstParameter->getName());
+        static::assertSame('{{ customer.name }}', $firstParameter->getValue());
     }
 }

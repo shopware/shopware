@@ -16,7 +16,7 @@ class FlowEventTest extends TestCase
         $flowEventsFile = '/_fixtures/valid/flowEventWithFlowEvents.xml';
         $flowEvents = Event::createFromXmlFile(__DIR__ . $flowEventsFile);
 
-        static::assertEquals(__DIR__ . '/_fixtures/valid', $flowEvents->getPath());
+        static::assertSame(__DIR__ . '/_fixtures/valid', $flowEvents->getPath());
         static::assertNotNull($flowEvents->getCustomEvents());
         static::assertCount(1, $flowEvents->getCustomEvents()->getCustomEvents());
     }

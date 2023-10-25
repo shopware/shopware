@@ -32,8 +32,8 @@ class SlotTest extends TestCase
 
         $slot = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[$i];
 
-        static::assertEquals($name, $slot->getName());
-        static::assertEquals($type, $slot->getType());
+        static::assertSame($name, $slot->getName());
+        static::assertSame($type, $slot->getType());
         static::assertEquals($config, $slot->getConfig()->toArray('en-GB'));
     }
 

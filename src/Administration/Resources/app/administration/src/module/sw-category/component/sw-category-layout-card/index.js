@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import template from './sw-category-layout-card.html.twig';
 import './sw-category-layout-card.scss';
 
@@ -94,10 +95,17 @@ export default {
         },
 
         hasCmsPageOverrides() {
-            return true;
-            // FIXME: How to determine if there are any overrides in this component?
-            // const overrides = this.category.getCmsPageOverrides();
-            // return (overrides !== null && overrides.length > 0);
+            let overrideCount = 0;
+            this.cmsPage.sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.slots.forEach((slot) => {
+                        if(!isEqual(slot.originalConfig, slot.config)) {
+                            overrideCount++;
+                        }
+                    })
+                })
+            })
+            return overrideCount > 0;
         },
     },
 };

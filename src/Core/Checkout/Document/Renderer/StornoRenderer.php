@@ -176,7 +176,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);

@@ -96,15 +96,25 @@ export default {
 
         hasCmsPageOverrides() {
             let overrideCount = 0;
+            if (this.cmsPage.sections === null) {
+                return false;
+            }
+
             this.cmsPage.sections.forEach((section) => {
-                section.blocks.forEach((block) => {
+                if (section.blocks === null) {
+                    return;
+                }
+                (section.blocks ?? []).forEach((block) => {
+                    if (block.slots === null) {
+                        return;
+                    }
                     block.slots.forEach((slot) => {
-                        if(!isEqual(slot.originalConfig, slot.config)) {
-                            overrideCount++;
+                        if (!isEqual(slot.originalConfig, slot.config)) {
+                            overrideCount += 1;
                         }
-                    })
-                })
-            })
+                    });
+                });
+            });
             return overrideCount > 0;
         },
     },

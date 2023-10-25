@@ -6,4 +6,4 @@ author_email: j.emig@one-dot.de
 author_github: @Xnaff
 ---
 # Core
-* Edit method `loadByIds` in `Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute` to use the ids from the context after the event dispatch. 
+* Changed method `loadByIds` in `Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute` to use the ids from the context after the event dispatch. 

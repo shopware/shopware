@@ -17,6 +17,7 @@ class ADRValidationTest extends TestCase
         $files = Finder::create()
             ->files()
             ->in(__DIR__ . '/../../../../adr')
+            ->exclude(['assets'])
             ->name('*.md')
             ->getIterator();
 

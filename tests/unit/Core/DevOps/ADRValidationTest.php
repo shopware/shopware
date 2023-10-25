@@ -17,6 +17,7 @@ class ADRValidationTest extends TestCase
         $files = Finder::create()
             ->files()
             ->in(__DIR__ . '/../../../../adr')
+            ->exclude(['assets'])
             ->name('*.md')
             ->getIterator();
 
@@ -27,7 +28,7 @@ class ADRValidationTest extends TestCase
 
             $errors = [];
             if (!\str_ends_with($file->getPath(), '/adr')) {
-                $errors[] = \sprintf('ADR is inside directory %s. ADR must be in adr/ directory', \substr($file->getPath(), \strlen(__DIR__ . '/../../../../../adr')));
+                $errors[] = \sprintf('ADR is inside directory %s. ADR must be in adr/ directory', \substr($file->getPath(), \strlen(__DIR__ . '/../../../../adr')));
             }
 
             if (!\str_starts_with($content, "---\n")) {

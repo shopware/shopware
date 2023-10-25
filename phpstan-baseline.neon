@@ -941,11 +941,6 @@ parameters:
 			path: src/Core/Content/Flow/Dispatching/AbstractFlowLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Action\\\\SendMailAction\\:\\:getMailTemplate\\(\\) should return Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\MailTemplateEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Action/SendMailAction.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\CachedFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/CachedFlowLoader.php

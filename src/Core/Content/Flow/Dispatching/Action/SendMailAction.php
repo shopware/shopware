@@ -237,9 +237,12 @@ class SendMailAction extends FlowAction implements DelayableAction
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        return $this->mailTemplateRepository
+        /** @var ?MailTemplateEntity $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository
             ->search($criteria, $context)
             ->first();
+
+        return $mailTemplate;
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

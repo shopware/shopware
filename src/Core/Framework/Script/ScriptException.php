@@ -32,7 +32,7 @@ class ScriptException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT,
-            'Method {{ method }} can only be called from inside the `SalesChannelContext`.',
+            'Method "{{ method }}" can only be called from inside the `SalesChannelContext`.',
             ['method' => $method]
         );
     }

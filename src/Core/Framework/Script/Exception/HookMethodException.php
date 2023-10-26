@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @ deprecated tag:v6.6.0 - Will be removed. Use Shopware\Core\Framework\Script\ScriptException instead
+ * @deprecated tag:v6.6.0 - Will be removed. Use Shopware\Core\Framework\Script\ScriptException instead
  */
 #[Package('core')]
 class HookMethodException extends ShopwareHttpException
@@ -68,6 +68,11 @@ class HookMethodException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0', 'Use Shopware\Core\Framework\Script\ScriptException instead')
+        );
+
         return 'FRAMEWORK__HOOK_METHOD_EXCEPTION';
     }
 }

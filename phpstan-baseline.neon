@@ -6156,16 +6156,6 @@ parameters:
 			path: src/Core/Framework/Routing/AbstractRouteScope.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ScriptResponse\\:\\:setBody\\(\\) has parameter \\$body with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Api/ScriptResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ScriptResponse\\:\\:setBody\\(\\) has parameter \\$body with no value type specified in iterable type array\\|Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Api/ScriptResponse.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\Debug\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Debugging/Debug.php

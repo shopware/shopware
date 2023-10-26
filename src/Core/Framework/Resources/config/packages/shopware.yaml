@@ -240,7 +240,13 @@ shopware:
               attributes: ["role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
               custom_attributes:
                   - tags: ["a", "span"]
-                    attributes: [ "href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy" ]
+                    attributes: ["href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
+            - name: snippet
+              tags: ["a"]
+              attributes: ["data-url", "data-ajax-modal"]
+              custom_attributes:
+                  - tags: ["a"]
+                    attributes: ["data-url", "data-ajax-modal"]
 
         fields:
             - name: product_translation.description
@@ -248,7 +254,7 @@ shopware:
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy"]
             - name: snippet.value
-              sets: ["basic", "media", "bootstrap"]
+              sets: ["basic", "media", "bootstrap", "snippet"]
 
     logger:
         file_rotation_count: 14

@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var LineItem[]
+     * @var array<array<string, mixed>>
      */
     protected $items;
 
@@ -28,7 +28,7 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
     protected $salesChannelContext;
 
     /**
-     * @param LineItem[] $items
+     * @param array<array<string, mixed>> $items
      */
     public function __construct(
         Cart $cart,
@@ -46,7 +46,7 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
     }
 
     /**
-     * @return LineItem[]
+     * @return array<array<string, mixed>>
      */
     public function getItems(): array
     {

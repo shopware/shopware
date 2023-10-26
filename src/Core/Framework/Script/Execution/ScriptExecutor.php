@@ -13,8 +13,6 @@ use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -52,10 +50,7 @@ class ScriptExecutor
         }
 
         if ($hook instanceof InterfaceHook) {
-            throw new \RuntimeException(sprintf(
-                'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',
-                $hook::class
-            ));
+            throw ScriptException::interfaceHookExecutionNotAllowed($hook::class);
         }
 
         $scripts = $this->loader->get($hook->getName());
@@ -121,11 +116,7 @@ class ScriptExecutor
             }
 
             if (!$hook instanceof OptionalFunctionHook) {
-                throw new \RuntimeException(sprintf(
-                    'Required function "%s" missing in script "%s", please make sure you add the required block in your script.',
-                    $hook->getFunctionName(),
-                    $script->getName()
-                ));
+                throw ScriptException::requiredFunctionMissingInInterfaceHook($hook->getFunctionName(), $script->getName());
             }
 
             $requiredFromVersion = $hook->willBeRequiredInVersion();
@@ -177,7 +168,7 @@ class ScriptExecutor
 
             $service = $this->container->get($serviceId);
             if (!$service instanceof HookServiceFactory) {
-                throw new NoHookServiceFactoryException($serviceId);
+                throw ScriptException::noHookServiceFactory($serviceId);
             }
 
             $services->add($service->getName(), $service->factory($hook, $script), $deprecatedServices[$serviceId] ?? null);
@@ -195,7 +186,7 @@ class ScriptExecutor
 
             $factory = $this->container->get($serviceId);
             if (!$factory instanceof HookServiceFactory) {
-                throw new NoHookServiceFactoryException($serviceId);
+                throw ScriptException::noHookServiceFactory($serviceId);
             }
 
             $service = $services->get($factory->getName());

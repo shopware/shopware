@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Shopware\Core\Framework\Script\ScriptException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -61,7 +61,7 @@ class ScriptResponse
     public function getInner(): ?Response
     {
         if (ScriptExecutor::$isInScriptExecutionContext) {
-            throw HookMethodException::accessFromScriptExecutionContextNotAllowed(self::class, __METHOD__);
+            throw ScriptException::accessFromScriptExecutionContextNotAllowed(self::class, __METHOD__);
         }
 
         return $this->inner;

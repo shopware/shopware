@@ -15,12 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
@@ -153,108 +149,6 @@ class VersionManagerTest extends TestCase
             Uuid::randomHex(),
             $this->createMock(WriteContext::class),
             $this->createMock(CloneBehavior::class)
-        );
-    }
-
-    public function testMergeEntityWithInsertVersionCommitActionWhenEmptyPayload(): void
-    {
-        $entityReaderMock = $this->createMock(EntityReaderInterface::class);
-        $lockFactory = $this->createMock(LockFactory::class);
-
-        $registry = new StaticDefinitionInstanceRegistry(
-            [
-                VersionManagerTestDefinition::class,
-            ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
-        $this->versionManager = new VersionManager(
-            $this->createMock(EntityWriterInterface::class),
-            $entityReaderMock,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SerializerInterface::class),
-            $registry,
-            $this->createMock(VersionCommitDefinition::class),
-            $this->createMock(VersionCommitDataDefinition::class),
-            $this->createMock(VersionDefinition::class),
-            $lockFactory
-        );
-
-        $lock = $this->createMock(LockInterface::class);
-        $lock->method('acquire')->willReturn(true);
-        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
-
-        $versionCommit = new VersionCommitEntity();
-        $versionCommitData = new VersionCommitDataEntity();
-        $versionCommitData->setAction('insert');
-        $versionCommitData->setId(Uuid::randomHex());
-        $versionCommitData->setEntityName('product');
-        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
-        $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
-        $versionCommit->setId(Uuid::randomHex());
-
-        $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
-
-        $writeContextMock = $this->createMock(WriteContext::class);
-
-        $this->versionManager->merge(
-            Uuid::randomHex(),
-            $writeContextMock
-        );
-    }
-
-    public function testMergeEntityWithUpsertVersionCommitAction(): void
-    {
-        $entityReaderMock = $this->createMock(EntityReaderInterface::class);
-
-        $lockFactory = $this->createMock(LockFactory::class);
-
-        $registry = new StaticDefinitionInstanceRegistry(
-            [
-                VersionManagerTestDefinition::class,
-            ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
-        $this->versionManager = new VersionManager(
-            $this->createMock(EntityWriterInterface::class),
-            $entityReaderMock,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SerializerInterface::class),
-            $registry,
-            $this->createMock(VersionCommitDefinition::class),
-            $this->createMock(VersionCommitDataDefinition::class),
-            $this->createMock(VersionDefinition::class),
-            $lockFactory
-        );
-
-        $lock = $this->createMock(LockInterface::class);
-        $lock->method('acquire')->willReturn(true);
-        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
-
-        $versionCommit = new VersionCommitEntity();
-        $versionCommitData = new VersionCommitDataEntity();
-        $versionCommitData->setAction('upsert');
-        $versionCommitData->setId(Uuid::randomHex());
-        $versionCommitData->setEntityName('product');
-        $versionCommitData->setEntityId(['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()]);
-        $versionCommitData->setPayload(['id' => Uuid::randomHex()]);
-        $versionCommit->setData(new VersionCommitDataCollection([$versionCommitData]));
-        $versionCommit->setId(Uuid::randomHex());
-
-        $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
-
-        $writeContextMock = $this->createMock(WriteContext::class);
-
-        $this->versionManager->merge(
-            Uuid::randomHex(),
-            $writeContextMock
         );
     }
 

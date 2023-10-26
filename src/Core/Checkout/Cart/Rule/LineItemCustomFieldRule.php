@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -66,25 +67,7 @@ class LineItemCustomFieldRule extends Rule
      */
     public function getConstraints(): array
     {
-        return [
-            'renderedField' => [new NotBlank()],
-            'selectedField' => [new NotBlank()],
-            'selectedFieldSet' => [new NotBlank()],
-            'renderedFieldValue' => $this->getRenderedFieldValueConstraints(),
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
-        ];
+        return CustomFieldRule::getConstraints($this->renderedField);
     }
 
     /**

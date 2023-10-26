@@ -16,6 +16,10 @@ class CustomerCustomFieldRule extends Rule
 
     protected string|int|bool|null|float $renderedFieldValue = null;
 
+    protected ?string $selectedField = null;
+
+    protected ?string $selectedFieldSet = null;
+
     /**
      * @param array<string, string> $renderedField
      *

@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -79,7 +79,7 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
     public function getFunction(string $name): FunctionHook
     {
         if (!\array_key_exists($name, self::FUNCTIONS)) {
-            throw HookMethodException::functionDoesNotExistInInterfaceHook(self::class, $name);
+            throw ScriptException::functionDoesNotExistInInterfaceHook(self::class, $name);
         }
 
         $functionHook = self::FUNCTIONS[$name];

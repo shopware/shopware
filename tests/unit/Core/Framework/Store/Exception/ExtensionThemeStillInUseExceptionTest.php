@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException
+ *
+ * @DisabledFeatures(features="v6_6_0_0")
  */
 class ExtensionThemeStillInUseExceptionTest extends TestCase
 {

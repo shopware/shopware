@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,11 @@ class ExtensionThemeStillInUseException extends StoreException
         array $parameters = [],
         ?\Throwable $e = null
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use StoreException::extensionThemeStillInUse instead.')
+        );
+
         $parameters['id'] = $id;
 
         parent::__construct(

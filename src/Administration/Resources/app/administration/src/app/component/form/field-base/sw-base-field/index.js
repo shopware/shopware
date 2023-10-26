@@ -112,7 +112,7 @@ Component.register('sw-base-field', {
 
         hasHint() {
             if (this.feature.isActive('VUE3')) {
-                return !!this.$slots.hint?.[0];
+                return this.$slots.hint?.()[0]?.children.length > 0;
             }
 
             return !!this.$slots.hint;

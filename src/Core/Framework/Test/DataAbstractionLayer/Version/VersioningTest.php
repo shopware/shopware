@@ -222,6 +222,56 @@ class VersioningTest extends TestCase
         static::assertCount(0, $changelog);
     }
 
+    public function testDeleteNoneExistingVersion(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->build();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()
+            ->get('product.repository')
+            ->create([$product], $context);
+
+        $versionId = $this->getContainer()
+            ->get('product.repository')
+            ->createVersion($ids->get('p1'), $context);
+
+        $version = $context->createWithVersionId($versionId);
+
+        $this->getContainer()
+            ->get('product.repository')
+            ->delete([['id' => $ids->get('p1')]], $version);
+
+        $this->getContainer()
+            ->get('version.repository')
+            ->delete([['id' => $versionId]], $context);
+
+        $e = null;
+
+        try {
+            $this->getContainer()
+                ->get('product.repository')
+                ->merge($versionId, $context);
+        } catch (DataAbstractionLayerException $e) {
+        }
+
+        static::assertInstanceOf(DataAbstractionLayerException::class, $e);
+        static::assertEquals(DataAbstractionLayerException::VERSION_NOT_EXISTS, $e->getErrorCode());
+
+        $versions = $this->getContainer()
+            ->get(Connection::class)
+            ->fetchFirstColumn(
+                'SELECT LOWER(HEX(version_id)) FROM product WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($ids->get('p1'))]
+            );
+
+        static::assertContains(Defaults::LIVE_VERSION, $versions);
+    }
+
     public function testICanVersionPriceFields(): void
     {
         $id = Uuid::randomHex();

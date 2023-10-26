@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 
 /**
- * @ deprecated tag:v6.6.0 - Will be removed. Use Shopware\Core\Framework\Script\ScriptException instead
+ * @deprecated tag:v6.6.0 - Will be removed. Use Shopware\Core\Framework\Script\ScriptException instead
  */
 #[Package('core')]
 class NoHookServiceFactoryException extends \RuntimeException

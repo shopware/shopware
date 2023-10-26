@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 #[Package('core')]
 class ScriptExecutionFailedException extends ScriptException
@@ -20,9 +21,13 @@ class ScriptExecutionFailedException extends ScriptException
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         $errorCode = self::ERROR_CODE;
 
-        if ($previous instanceof ShopwareHttpException) {
-            $statusCode = $previous->getStatusCode();
-            $errorCode = $previous->getErrorCode();
+        $rootException = $previous->getPrevious();
+        if ($rootException instanceof HttpExceptionInterface) {
+            $statusCode = $rootException->getStatusCode();
+        }
+
+        if ($rootException instanceof ShopwareHttpException) {
+            $errorCode = $rootException->getErrorCode();
         }
 
         parent::__construct(

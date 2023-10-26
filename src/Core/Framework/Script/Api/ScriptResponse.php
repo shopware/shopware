@@ -41,6 +41,9 @@ class ScriptResponse
         return $this->body;
     }
 
+    /**
+     * @param array<mixed>|ArrayFacade<mixed> $body
+     */
     public function setBody(array|ArrayFacade $body): void
     {
         if (\is_array($body)) {

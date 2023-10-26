@@ -138,6 +138,9 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         return $this->searchQueryBuilder->build($criteria, $context);

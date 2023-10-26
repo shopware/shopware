@@ -65,7 +65,7 @@ class ExtensionDataProviderTest extends TestCase
     {
         $app = $this->extensionDataProvider->getAppEntityFromTechnicalName('TestApp', $this->context);
 
-        static::assertEquals('TestApp', $app->getName());
+        static::assertSame('TestApp', $app->getName());
     }
 
     public function testGetAppEntityFromId(): void
@@ -80,7 +80,7 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionNotFoundException::class);
+        $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
     }
 
@@ -88,16 +88,16 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromTechnicalName instead.');
-        $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage('Could not find extension with technical name "testName".');
+        $this->extensionDataProvider->getAppEntityFromTechnicalName('testName', $this->context);
     }
 
     public function testGetAppEntityFromIdThrowsWithoutMajorFlag(): void
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionNotFoundException::class);
+        $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
     }
 
@@ -105,9 +105,11 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromId');
-        $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
+        $id = Uuid::randomHex();
+
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s".', $id));
+        $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 
     public function testItLoadsRemoteExtensions(): void

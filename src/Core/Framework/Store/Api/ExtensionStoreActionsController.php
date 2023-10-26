@@ -45,22 +45,17 @@ class ExtensionStoreActionsController extends AbstractController
     {
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
-
         if (!$file) {
             throw RoutingException::missingRequestParameter('file');
         }
 
         if ($file->getMimeType() !== 'application/zip') {
-            unlink($file->getPathname());
-
             throw new PluginNotAZipFileException((string) $file->getMimeType());
         }
 
         try {
             $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
-            unlink($file->getPathname());
-
             throw $e;
         }
 

@@ -165,4 +165,9 @@ class AppException extends HttpException
             ['appName' => $appName, 'reason' => $reason],
         );
     }
+
+    public static function xmlParsingException(string $file, string $message): XmlParsingException
+    {
+        return new XmlParsingException($file, $message);
+    }
 }

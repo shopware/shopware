@@ -90,4 +90,25 @@ class ManifestTest extends TestCase
 
         static::assertNull($manifest->getShippingMethods());
     }
+
+    public function testValidate(): void
+    {
+        $file = __DIR__ . '/_fixtures/shippingMethod-manifest.xml';
+        $fileContent = file_get_contents($file);
+        static::assertIsString($fileContent);
+
+        Manifest::validate($fileContent, $file);
+    }
+
+    public function testValidateWithInvalidShippingMethod(): void
+    {
+        $file = '/_fixtures/invalidShippingMethods-manifest.xml';
+        $fileContent = file_get_contents(__DIR__ . $file);
+        static::assertIsString($fileContent);
+
+        $this->expectException(XmlParsingException::class);
+        $this->expectExceptionMessage('Unable to parse file "/_fixtures/invalidShippingMethods-manifest.xml". Message: name must not be empty');
+
+        Manifest::validate($fileContent, $file);
+    }
 }

@@ -100,6 +100,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 /build/
 !build/artifacts/.gitkeep
 src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
+src/Core/Framework/Test/Plugin/_fixture/TestShippingApp.zip
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
@@ -146,4 +147,5 @@ vendor-bin/**/composer.lock
 # Devenv
 .devenv*
 devenv.local.nix
+
 

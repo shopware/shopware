@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -190,7 +191,7 @@ class InstallAppCommandTest extends TestCase
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader($appFolder, __DIR__, $this->createMock(ConfigReader::class)),
+            new AppLoader($appFolder, __DIR__, $this->createMock(ConfigReader::class), new NullLogger()),
             $this->getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             $this->getContainer()->get(ManifestValidator::class)

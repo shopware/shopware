@@ -41,12 +41,6 @@ class DomainExceptionRule implements Rule
         'Order',
     ];
 
-    private const VALID_SUB_DOMAINS = [
-        'Cart',
-        'Payment',
-        'Order',
-    ];
-
     public function __construct(
         private ReflectionProvider $reflectionProvider
     ) {

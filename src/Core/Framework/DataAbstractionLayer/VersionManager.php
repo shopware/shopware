@@ -162,6 +162,10 @@ class VersionManager
             throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
         }
 
+        if (!$this->versionExists($versionId)) {
+            throw DataAbstractionLayerException::versionNotExists($versionId);
+        }
+
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 

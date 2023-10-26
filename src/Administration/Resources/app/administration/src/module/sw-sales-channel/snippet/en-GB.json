@@ -254,7 +254,7 @@
           "trackingId": {
             "label": "Tracking ID",
             "placeHolder": "Enter tracking ID...",
-            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: UA-12345678-1"
+            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: G-XXXXXXXXXX"
           },
           "active": {
             "label": "Activate Google Analytics"

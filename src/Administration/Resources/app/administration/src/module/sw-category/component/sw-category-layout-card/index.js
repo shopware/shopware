@@ -96,16 +96,16 @@ export default {
 
         hasCmsPageOverrides() {
             let overrideCount = 0;
-            if (this.cmsPage === null || this.cmsPage.sections === null) {
+            if (!this.cmsPage || !this.cmsPage.sections) {
                 return false;
             }
 
             this.cmsPage.sections.forEach((section) => {
-                if (section.blocks === null) {
+                if (!section.blocks) {
                     return;
                 }
-                (section.blocks ?? []).forEach((block) => {
-                    if (block.slots === null) {
+                section.blocks.forEach((block) => {
+                    if (!block.slots) {
                         return;
                     }
                     block.slots.forEach((slot) => {

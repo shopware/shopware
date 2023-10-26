@@ -1581,11 +1581,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Exception/LogNotWritableException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportFactory\\:\\:findLog\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportLog\\\\ImportExportLogEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExportFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExportProfileEntity.php

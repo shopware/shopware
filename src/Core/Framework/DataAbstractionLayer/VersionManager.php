@@ -162,6 +162,10 @@ class VersionManager
             throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
         }
 
+        if (!$this->versionExists($versionId)) {
+            throw DataAbstractionLayerException::versionNotExists($versionId);
+        }
+
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 
@@ -708,11 +712,11 @@ class VersionManager
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
         $commitIds = $this->entitySearcher->search($this->versionCommitDefinition, $criteria, $writeContext->getContext());
 
-        $readCriteria = new Criteria();
-        if ($commitIds->getTotal() > 0) {
-            $readCriteria = new Criteria($commitIds->getIds());
+        if ($commitIds->getTotal() <= 0) {
+            throw DataAbstractionLayerException::noCommitsFound($versionId);
         }
 
+        $readCriteria = new Criteria($commitIds->getIds());
         $readCriteria->addAssociation('data');
 
         $readCriteria
@@ -858,5 +862,16 @@ class VersionManager
                 $this->entityWriter->delete($definition, [$primary], $versionContext);
             }
         }
+    }
+
+    private function versionExists(string $versionId): bool
+    {
+        $exists = $this->entitySearcher->search(
+            $this->versionDefinition,
+            new Criteria([$versionId]),
+            Context::createDefaultContext()
+        );
+
+        return $exists->has($versionId);
     }
 }

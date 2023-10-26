@@ -31,6 +31,8 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
 
     final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
+    public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
+    public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -137,6 +139,26 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,
             'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function noCommitsFound(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_NO_COMMITS_FOUND,
+            'No commits found for version {{ versionId }}.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionNotExists(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_NOT_EXISTS,
+            'Version {{ versionId }} does not exist. Version was probably deleted or already merged.',
             ['versionId' => $versionId]
         );
     }

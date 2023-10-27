@@ -30,7 +30,7 @@ export default {
             offset: 0,
             syncPolling: null,
             totalProduct: 0,
-            latestProductIndexed: {},
+            latestIndex: null,
         };
     },
 
@@ -51,10 +51,14 @@ export default {
 
         productSearchKeywordsCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addSorting(Criteria.sort('id', 'DESC', true));
+            criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
+            criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
         latestBuild() {
             if (!this.latestProductIndexed) {
                 return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
@@ -88,8 +92,11 @@ export default {
         getLatestProductKeywordIndexed() {
             this.isLoading = true;
             this.productSearchKeywordRepository.search(this.productSearchKeywordsCriteria, Context.api)
-                .then((items) => {
-                    this.latestProductIndexed = items[0];
+                .then((result) => {
+                    this.latestIndex = {
+                        firstDate: result.aggregations.firstDate.min,
+                        lastDate: result.aggregations.lastDate.max,
+                    };
                 })
                 .catch((err) => {
                     this.createNotificationError({

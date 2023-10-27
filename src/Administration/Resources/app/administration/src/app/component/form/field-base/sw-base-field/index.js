@@ -135,7 +135,7 @@ Component.register('sw-base-field', {
 
         showLabel() {
             if (this.feature.isActive('VUE3')) {
-                return !!this.label || !!this.$slots.label?.[0];
+                return !!this.label || this.$slots.label?.()[0]?.children.length > 0;
             }
 
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();

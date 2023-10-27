@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-describe('Extension:  Visual tests', () => {
+describe('Extension:  Visual tests', { tags: ['VUE3'] }, () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
         const now = new Date(2018, 1, 1);

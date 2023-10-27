@@ -1,34 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme;
+namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Test\Theme\fixtures\MockStorefront\MockStorefront;
-use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
-use Shopware\Storefront\Test\Theme\fixtures\ThemeNotIncludingPluginJsAndCss\ThemeNotIncludingPluginJsAndCss;
-use Shopware\Storefront\Test\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
-use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
-use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeNotIncludingPluginJsAndCss\ThemeNotIncludingPluginJsAndCss;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Storefront\Theme\ThemeFileResolver
  */
 class ThemeFileResolverTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testResolvedFilesIncludeSkinScssPath(): void
     {
+        $projectDir = __DIR__;
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory($this->getContainer()->getParameter('kernel.project_dir'));
+        $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -36,10 +36,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-
-        $themeFileResolver = new ThemeFileResolver(new ThemeFileImporter($projectDir));
-        $resolvedFiles = $themeFileResolver->resolveFiles(
+        $resolvedFiles = (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -56,7 +53,7 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontBootstrapScss();
         $storefrontBundle = new MockStorefront();
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = __DIR__;
 
         $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
@@ -66,8 +63,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $themeFileResolver = new ThemeFileResolver(new ThemeFileImporter($projectDir));
-        $resolvedFiles = $themeFileResolver->resolveFiles(
+        $resolvedFiles = (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -85,7 +81,7 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = __DIR__;
 
         $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
@@ -97,13 +93,11 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
         $configCollection->add($plugin);
 
-        $themeFileResolver = new ThemeFileResolver(new ThemeFileImporter($projectDir));
-        $resolvedFiles = $themeFileResolver->resolveFiles(
+        $resolvedFiles = (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
             $configCollection,
             false
         );
-        /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles['script'];
         $actual = $scriptFiles->getFilepaths();
         $expected = array_unique($scriptFiles->getFilepaths());
@@ -113,7 +107,7 @@ class ThemeFileResolverTest extends TestCase
 
     public function testParentThemeIncludesPlugins(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = __DIR__;
 
         $themePluginBundle = new ThemeNotIncludingPluginJsAndCss();
         $storefrontBundle = new MockStorefront();
@@ -129,14 +123,12 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
         $configCollection->add($plugin);
 
-        $themeFileResolver = new ThemeFileResolver(new ThemeFileImporter($projectDir));
-        $resolvedFiles = $themeFileResolver->resolveFiles(
+        $resolvedFiles = (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
             $configCollection,
             false
         );
 
-        /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles['script'];
         $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/main.js';
         $pluginScriptIncluded = false;
@@ -151,7 +143,6 @@ class ThemeFileResolverTest extends TestCase
 
         static::assertTrue($pluginScriptIncluded);
 
-        /** @var FileCollection $styleFiles */
         $styleFiles = $resolvedFiles['style'];
         $pluginEntryStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/base.scss';
         $pluginStyleIncluded = false;
@@ -172,7 +163,8 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory($this->getContainer()->getParameter('kernel.project_dir'));
+        $projectDir = __DIR__;
+        $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -180,9 +172,9 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $firstFile = $config->getStyleFiles()->first();
-        $currentPath = $firstFile ? $firstFile->getFilepath() : '';
+        static::assertNotNull($firstFile);
+        $currentPath = $firstFile->getFilepath();
 
         (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
@@ -191,10 +183,7 @@ class ThemeFileResolverTest extends TestCase
         );
 
         // Path is still relative
-        static::assertSame(
-            $currentPath,
-            $config->getStyleFiles()->first() ? $config->getStyleFiles()->first()->getFilepath() : ''
-        );
+        static::assertSame($currentPath, $config->getStyleFiles()->first()?->getFilepath());
 
         $config->setScriptFiles(new FileCollection());
         $config->setStorefrontEntryFilepath(__FILE__);
@@ -205,9 +194,6 @@ class ThemeFileResolverTest extends TestCase
             true
         );
 
-        static::assertSame(
-            $currentPath,
-            $config->getStyleFiles()->first() ? $config->getStyleFiles()->first()->getFilepath() : ''
-        );
+        static::assertSame($currentPath, $config->getStyleFiles()->first()?->getFilepath());
     }
 }

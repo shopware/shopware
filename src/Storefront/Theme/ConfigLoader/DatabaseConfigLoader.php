@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -45,7 +45,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         $pluginConfig = $this->loadConfigByName($themeId, $context);
 
         if (!$pluginConfig) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $pluginConfig = clone $pluginConfig;
@@ -90,7 +90,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         $theme = $themes->get($themeId);
         if (!$theme) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
         $baseThemeConfig = [];
 

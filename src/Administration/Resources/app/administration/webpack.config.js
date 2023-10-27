@@ -35,7 +35,7 @@ crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha
 /* eslint-disable */
 
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
-const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN  !== '1';
+const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -259,19 +259,19 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.(html|twig)$/,
                 use: [
                     {
-                      loader: 'string-replace-loader',
-                      options: {
-                          multiple: [
-                              {
-                                  search: /<!--[\s\S]*?-->/gm,
-                                  replace: '',
-                              },
-                              {
-                                  search: /^(?!\{#-)\{#[\s\S]*?#\}/gm,
-                                  replace: '',
-                              }
-                          ],
-                      }
+                        loader: 'string-replace-loader',
+                        options: {
+                            multiple: [
+                                {
+                                    search: /<!--[\s\S]*?-->/gm,
+                                    replace: '',
+                                },
+                                {
+                                    search: /^(?!\{#-)\{#[\s\S]*?#\}/gm,
+                                    replace: '',
+                                }
+                            ],
+                        }
                     },
                     'raw-loader',
                 ],
@@ -575,6 +575,8 @@ const coreConfig = {
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,
+                    sockHost: process.env.SOCKHOST ?? null,
+                    sockPort: process.env.SOCKPORT ?? null,
                     open: openBrowserForWatch,
                     proxy: {
                         '/api': {
@@ -824,7 +826,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                                         sourceType: 'module',
                                         requireConfigFile: false,
                                     },
-                                    plugins: [ 'plugin-rules' ],
+                                    plugins: ['plugin-rules'],
                                     rules: {
                                         'plugin-rules/no-src-imports': 'error'
                                     }

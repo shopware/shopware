@@ -49,7 +49,7 @@ final class ServiceStubs
     public function __call(string $name, array $arguments): object
     {
         if (!isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('The service `%s` is not available in `%s`-hook', $name, $this->hook));
+            throw ScriptException::serviceNotAvailableInHook($name, $this->hook);
         }
 
         if (isset($this->services[$name]['deprecation'])) {
@@ -65,7 +65,7 @@ final class ServiceStubs
     public function add(string $name, object $service, ?string $deprecationNotice = null): void
     {
         if (isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('Service with name "%s" already exists', $name));
+            throw ScriptException::serviceAlreadyExists($name);
         }
 
         $this->services[$name]['service'] = $service;
@@ -81,7 +81,7 @@ final class ServiceStubs
     public function get(string $name): object
     {
         if (!isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('The service `%s` is not available in `%s`-hook', $name, $this->hook));
+            throw ScriptException::serviceNotAvailableInHook($name, $this->hook);
         }
 
         if (isset($this->services[$name]['deprecation'])) {

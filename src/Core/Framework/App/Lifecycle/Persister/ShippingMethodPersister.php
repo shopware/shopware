@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -98,7 +99,13 @@ class ShippingMethodPersister
                 );
                 $existingShippingMethods->remove($shippingMethodEntity->getId());
             } else {
-                $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
+                if (!Feature::isActive('v6.6.0.0')) {
+                    /**
+                     * @deprecated tag:v6.6.0 - availabilityRuleId can be nullable as of 6.6.0 - Remove this line
+                     */
+                    $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
+                }
+
                 $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
                 $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
             }
@@ -146,6 +153,9 @@ class ShippingMethodPersister
         });
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.
+     */
     private function getAvailabilityRuleUuid(Context $context, string $appName): string
     {
         $criteria = new Criteria();

@@ -98,7 +98,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $expectedMapping = [
@@ -408,7 +410,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -449,7 +453,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
@@ -470,7 +476,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $searchQueryBuilder,
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         $criteria = new Criteria();
@@ -532,7 +540,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());
@@ -615,7 +625,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());

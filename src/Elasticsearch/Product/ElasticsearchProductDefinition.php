@@ -38,7 +38,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private array $customMapping,
         protected EventDispatcherInterface $eventDispatcher,
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
-        private readonly EsProductDefinition $newImplementation
+        private readonly EsProductDefinition $newImplementation,
+        private bool $excludeSource,
+        private readonly string $environment
     ) {
     }
 
@@ -56,8 +58,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             return $this->newImplementation->getMapping($context);
         }
 
-        return [
-            '_source' => ['includes' => ['id', 'autoIncrement']],
+        $debug = $this->environment !== 'prod';
+
+        $mapping = [
             'properties' => [
                 'id' => self::KEYWORD_FIELD,
                 'parentId' => self::KEYWORD_FIELD,
@@ -183,6 +186,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
             ],
         ];
+
+        if (!$this->excludeSource && !$debug) {
+            $mapping['_source'] = ['includes' => ['id', 'autoIncrement']];
+        }
+
+        return $mapping;
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery

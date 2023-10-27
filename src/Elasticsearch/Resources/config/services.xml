@@ -222,6 +222,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\EsProductDefinition"/>
+            <argument>%elasticsearch.product.exclude_source%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -317,6 +319,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
+            <argument>%kernel.environment%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 

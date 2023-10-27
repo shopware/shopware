@@ -68,6 +68,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     private MultilingualEsIndexer&MockObject $newEsIndexer;
 
+    private string $environment;
+
     protected function setUp(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
@@ -502,7 +504,8 @@ class ElasticsearchIndexerTest extends TestCase
             1,
             $this->bus,
             $this->newEsIndexer,
-            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher())
+            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher()),
+            $this->environment,
         );
     }
 

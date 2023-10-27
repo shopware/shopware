@@ -56,6 +56,7 @@ class ElasticsearchIndexer
         private readonly MessageBusInterface $bus,
         private readonly MultilingualEsIndexer $newImplementation,
         private readonly ElasticsearchLanguageProvider $languageProvider,
+        private readonly string $environment,
     ) {
     }
 
@@ -84,8 +85,9 @@ class ElasticsearchIndexer
 
     /**
      * @param IndexerOffset|null $offset
+     * @param array<string> $entities
      */
-    public function iterate($offset): ?ElasticsearchIndexingMessage
+    public function iterate($offset, array $entities = []): ?ElasticsearchIndexingMessage
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
             return $this->newImplementation->iterate($offset);
@@ -113,6 +115,7 @@ class ElasticsearchIndexer
 
         // current language has next message?
         $message = $this->createIndexingMessage($offset, $context);
+
         if ($message) {
             return $message;
         }
@@ -127,7 +130,7 @@ class ElasticsearchIndexer
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
-        return $this->iterate($offset);
+        return $this->iterate($offset, $entities);
     }
 
     /**
@@ -245,7 +248,7 @@ class ElasticsearchIndexer
 
         return new IndexerOffset(
             array_values($languages->getIds()),
-            $this->registry->getDefinitionNames(),
+            $entitiesToHandle,
             $timestamp->getTimestamp()
         );
     }

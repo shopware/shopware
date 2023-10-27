@@ -10551,11 +10551,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeConfigFieldFactory.php
 
 		-
-			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ThemeFileResolver.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php

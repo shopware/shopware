@@ -184,12 +184,14 @@ export default {
                 this.orderId ? [this.orderId] : [],
             );
 
-            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
+            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
             this.createNewVersionId();
         },
 
         async beforeDestroyComponent() {
             if (this.hasNewVersionId) {
+                State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(
                     this.orderId,
@@ -258,12 +260,17 @@ export default {
         },
 
         onCancelEditing() {
+            this.isLoading = true;
             State.commit('swOrderDetail/setLoading', ['order', true]);
+
+            const oldVersionContext = this.versionContext;
+            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+            this.hasNewVersionId = false;
 
             return this.orderRepository.deleteVersion(
                 this.orderId,
-                this.versionContext.versionId,
-                this.versionContext,
+                oldVersionContext.versionId,
+                oldVersionContext,
             ).then(() => {
                 this.hasOrderDeepEdit = false;
                 State.commit('swOrderDetail/setOrderAddressIds', false);
@@ -272,8 +279,6 @@ export default {
             }).finally(() => {
                 this.missingProductLineItems = [];
                 this.convertedProductLineItems = [];
-
-                State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
 
                 return this.createNewVersionId().then(() => {
                     State.commit('swOrderDetail/setLoading', ['order', false]);

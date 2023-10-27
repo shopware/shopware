@@ -18,7 +18,6 @@ async function importComponent(componentName) {
      * @see type componentInfo in scripts/componentImportResolver/generate.ts
      */
     const componentConfig = components[componentName];
-
     /**
      * Contains the component configuration in all cases.
      * Depending on how the component is registered or extended, the component may or may not be registered or extended just by the import statement.

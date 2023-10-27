@@ -63,6 +63,7 @@
     "babel-jest": "29.5.0",
     "babel-plugin-require-context-hook": "1.0.0",
     "bottlejs": "2.0.1",
+    "cli-progress": "^3.12.0",
     "cookie-storage": "6.1.0",
     "copy-webpack-plugin": "6.4.1",
     "date-fns": "2.29.3",

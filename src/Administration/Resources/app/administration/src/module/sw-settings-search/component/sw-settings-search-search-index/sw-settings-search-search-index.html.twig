@@ -51,7 +51,7 @@
     {% block sw_settings_search_search_index_lastest_build %}
     <span class="sw-settings-search__search-index-latest-build">
         <template v-if="latestIndex">
-            {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago :date="latestIndex.firstDate"></sw-time-ago> &dash; <sw-time-ago :date="latestIndex.lastDate"></sw-time-ago>
+            {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago :date="latestIndex.firstDate" /> &dash; <sw-time-ago :date="latestIndex.lastDate" />
         </template>
         <template v-else>
             {{ $tc('sw-settings-search.generalTab.textSearchNotIndexedYet') }}

@@ -55,6 +55,19 @@ export default {
             criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
         },
+
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
+        latestBuild() {
+            if (!this.latestProductIndexed) {
+                return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
+            }
+
+            const latestBuildDate = new Date(this.latestProductIndexed.createdAt);
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+            return format.date(latestBuildDate, options);
+        },
     },
 
     created() {

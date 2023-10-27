@@ -416,31 +416,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentConfigurationFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:\\$documentMediaFile \\(Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\) does not accept Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:\\$documentMediaFileId \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Event\\\\DocumentTemplateRendererParameterEvent\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php

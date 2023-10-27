@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
+use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
@@ -31,14 +31,14 @@ class ConfigReaderTest extends TestCase
 
     public function testConfigReaderWithInvalidPath(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/config.xml');
     }
 
     public function testConfigReaderWithInvalidConfig(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/_fixtures/invalid_config.xml');
     }

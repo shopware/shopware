@@ -122,6 +122,11 @@ class InstallAppCommand extends Command
             );
     }
 
+    /**
+     * @param array<string> $requestedApps
+     *
+     * @return array<string, Manifest>
+     */
     private function getMatchingManifests(array $requestedApps): array
     {
         $apps = $this->appLoader->load();
@@ -129,7 +134,7 @@ class InstallAppCommand extends Command
 
         foreach ($requestedApps as $requestedApp) {
             foreach ($apps as $app => $manifest) {
-                if (str_contains($app, (string) $requestedApp)) {
+                if (str_contains($app, $requestedApp)) {
                     $manifests[$app] = $manifest;
                 }
             }

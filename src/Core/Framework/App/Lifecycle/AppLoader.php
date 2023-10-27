@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Composer\InstalledVersions;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -113,7 +113,7 @@ class AppLoader extends AbstractAppLoader
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (XmlParsingException $exception) {
+            } catch (AppXmlParsingException $exception) {
                 $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
             }
         }
@@ -137,7 +137,7 @@ class AppLoader extends AbstractAppLoader
                     $manifest->setManagedByComposer(true);
 
                     $manifests[$manifest->getMetadata()->getName()] = $manifest;
-                } catch (XmlParsingException $exception) {
+                } catch (AppXmlParsingException $exception) {
                     $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
                 }
             }

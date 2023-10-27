@@ -437,6 +437,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.vm.installationFailedError).toEqual({
             title: 'Download not allowed',
             message: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
+            details: null,
             parameters: {
                 documentationLink: 'https://docs.shopware.com/en/shopware-6-en',
             },

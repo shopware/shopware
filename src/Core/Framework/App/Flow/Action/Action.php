@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Flow\Action;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Actions;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -20,6 +21,9 @@ class Action
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Thrown exception will change from AppFlowException to AppException
+     */
     public static function createFromXmlFile(string $xmlFile): self
     {
         if (!Feature::isActive('v6.6.0.0') && \str_contains($xmlFile, 'flow-action.xml')) {
@@ -36,7 +40,7 @@ class Action
         try {
             $doc = XmlUtils::loadFile($xmlFile, $schemaFile);
         } catch (\Exception $e) {
-            throw AppException::errorFlowCreateFromXmlFile($xmlFile, $e->getMessage());
+            throw AppException::createFromXmlFileFlowError($xmlFile, $e->getMessage(), $e);
         }
 
         $actions = $doc->getElementsByTagName('flow-actions')->item(0);

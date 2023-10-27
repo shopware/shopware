@@ -18,19 +18,26 @@ abstract class XmlReader
     /**
      * load and validate xml file - parse to array
      *
-     * @throws XmlParsingException
+     * @throws XmlParsingException|UtilException
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @deprecated tag:v6.6.0.0 - reason:exception-change Thrown exception will change from XmlParsingException to UtilXmlParsingException
      */
     public function read(string $xmlFile): array
     {
         try {
             $dom = XmlUtils::loadFile($xmlFile, $this->xsdFile);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFile, $e->getMessage());
+            throw UtilException::xmlParsingException($xmlFile, $e->getMessage());
         }
 
         return $this->parseFile($dom);
     }
 
+    /**
+     * @return array<int, \DOMElement>
+     */
     public static function getAllChildren(\DOMNode $node): array
     {
         $children = [];
@@ -43,6 +50,9 @@ abstract class XmlReader
         return $children;
     }
 
+    /**
+     * @return array<int, \DOMElement>
+     */
     public static function getChildByName(\DOMNode $node, string $name): array
     {
         $children = [];
@@ -75,14 +85,23 @@ abstract class XmlReader
         return (bool) static::phpize($value);
     }
 
+    /**
+     * @param \DOMNodeList<\DOMNode> $optionsList
+     *
+     * @return array<string, mixed>|null
+     */
     public static function parseOptionsNodeList(\DOMNodeList $optionsList): ?array
     {
         if ($optionsList->length === 0) {
             return null;
         }
 
-        $optionList = $optionsList->item(0)->childNodes;
+        $item = $optionsList->item(0);
+        if (!$item instanceof \DOMNode) {
+            return null;
+        }
 
+        $optionList = $item->childNodes;
         if ($optionList->length === 0) {
             return null;
         }
@@ -100,7 +119,9 @@ abstract class XmlReader
     }
 
     /**
-     * @throws XmlElementNotFoundException
+     * @throws XmlElementNotFoundException|UtilException
+     *
+     * @deprecated tag:v6.6.0 - reason:exception-change Thrown exception will change from XmlElementNotFoundException to UtilException
      */
     public static function getElementChildValueByName(\DOMElement $element, string $name, bool $throwException = false): ?string
     {
@@ -108,13 +129,18 @@ abstract class XmlReader
 
         if ($children->length === 0) {
             if ($throwException) {
-                throw new XmlElementNotFoundException($name);
+                throw UtilException::xmlElementNotFound($name);
             }
 
             return null;
         }
 
-        return $children->item(0)->nodeValue;
+        $item = $children->item(0);
+        if (!$item instanceof \DOMNode) {
+            return null;
+        }
+
+        return $item->nodeValue;
     }
 
     public static function validateTextAttribute(string $type, string $defaultValue = ''): string
@@ -148,6 +174,8 @@ abstract class XmlReader
 
     /**
      * This method is the main entry point to parse a xml file.
+     *
+     * @return array<int, mixed>
      */
     abstract protected function parseFile(\DOMDocument $xml): array;
 }

@@ -19,7 +19,7 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -56,15 +56,9 @@ class ThemeServiceTest extends TestCase
 
     private Context $context;
 
-    /**
-     * @var SystemConfigService&MockObject
-     */
-    private SystemConfigService $systemConfigMock;
+    private SystemConfigService&MockObject $systemConfigMock;
 
-    /**
-     * @var MessageBus&MockObject
-     */
-    private MessageBus $messageBusMock;
+    private MessageBus&MockObject $messageBusMock;
 
     protected function setUp(): void
     {
@@ -309,7 +303,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
         }
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
@@ -501,7 +495,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
         }
         $this->themeService->resetTheme($themeId, $this->context);
     }
@@ -534,7 +528,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
         }
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);

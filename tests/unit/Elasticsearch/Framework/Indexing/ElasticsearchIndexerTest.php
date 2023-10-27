@@ -68,6 +68,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     private MultilingualEsIndexer&MockObject $newEsIndexer;
 
+    private string $environment;
+
     protected function setUp(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
@@ -99,6 +101,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $this->indices = $this->createMock(IndicesNamespace::class);
         $this->client->method('indices')->willReturn($this->indices);
+        $this->environment = 'dev';
 
         parent::setUp();
     }
@@ -400,6 +403,90 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer($message);
     }
 
+    public function testIterateWithProductEntity(): void
+    {
+        $indexer = $this->getIndexer();
+
+        $this->connection
+            ->expects(static::exactly(2))
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product'];
+
+        $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateWithProductAndInvalidEntity(): void
+    {
+        $indexer = $this->getIndexer();
+
+        $this->connection
+            ->expects(static::exactly(2))
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product', 'category'];
+
+        $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateWithProductAndCategoryEntities(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $indexer = $this->getIndexer();
+
+        $this->connection
+            ->expects(static::exactly(4))
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product', 'category'];
+
+        $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateLogErrorForInvalidEntityInProd(): void
+    {
+        $this->environment = 'prod';
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects(static::once())
+            ->method('error')
+            ->with('ElasticSearch indexing error.Entity definition for category is not registered.');
+
+        $indexer = $this->getIndexer($logger);
+
+        $this->connection
+            ->expects(static::exactly(2))
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product', 'category'];
+
+        $indexer->iterate(null, $entities);
+    }
+
     private function getIndexer(?LoggerInterface $logger = null): ElasticsearchIndexer
     {
         $logger ??= new NullLogger();
@@ -417,7 +504,8 @@ class ElasticsearchIndexerTest extends TestCase
             1,
             $this->bus,
             $this->newEsIndexer,
-            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher())
+            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher()),
+            $this->environment,
         );
     }
 

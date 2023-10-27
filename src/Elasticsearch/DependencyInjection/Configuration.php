@@ -45,6 +45,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('custom_fields_mapping')
                             ->variablePrototype()->end()
                         ->end()
+                        ->booleanNode('exclude_source')->end()
                     ->end()
                 ->end()
                 ->arrayNode('search')

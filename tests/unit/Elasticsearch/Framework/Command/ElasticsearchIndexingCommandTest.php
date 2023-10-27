@@ -71,4 +71,18 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         static::assertStringContainsString('[ERROR] Elasticsearch indexing is disabled', $output);
     }
+
+    public function testExecuteOnly(): void
+    {
+        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+
+        $bus = $this->createMock(MessageBusInterface::class);
+        $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
+        $aliasHandler->expects(static::never())->method('run');
+
+        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
+        $commandTester->execute(['--only' => 'product,category']);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
 }

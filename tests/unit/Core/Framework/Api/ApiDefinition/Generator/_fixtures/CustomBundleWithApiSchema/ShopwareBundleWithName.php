@@ -9,8 +9,5 @@ use Shopware\Core\Framework\Bundle;
  */
 class ShopwareBundleWithName extends Bundle
 {
-    /**
-     * @var string
-     */
-    protected $name = 'CustomBundleWithSchema';
+    protected string $name = 'CustomBundleWithSchema';
 }

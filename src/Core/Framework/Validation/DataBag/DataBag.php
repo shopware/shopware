@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Validation\DataBag;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 #[Package('core')]
@@ -43,10 +42,6 @@ class DataBag extends ParameterBag
 
         if ($key === null) {
             return $data;
-        }
-
-        if (!\is_array($data = $data[$key] ?? [])) {
-            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($data)));
         }
 
         return $data;

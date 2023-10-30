@@ -109,7 +109,6 @@ class AppActionControllerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
-        static::assertNotFalse($body);
         static::assertJson($body);
         $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -165,7 +164,6 @@ class AppActionControllerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
-        static::assertNotFalse($body);
         static::assertJson($body);
         $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 

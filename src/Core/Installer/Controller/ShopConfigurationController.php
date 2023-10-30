@@ -64,7 +64,7 @@ class ShopConfigurationController extends InstallerController
                 'locale' => $this->supportedLanguages[$request->attributes->get('_locale')],
             ];
 
-            /** @var list<string>|null $availableCurrencies */
+            /** @var list<string> $availableCurrencies */
             $availableCurrencies = $request->request->all('available_currencies');
 
             $schema = 'http';

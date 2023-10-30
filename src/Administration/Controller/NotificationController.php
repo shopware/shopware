@@ -56,7 +56,7 @@ class NotificationController extends AbstractController
             throw RoutingException::missingRequestParameter('message');
         }
 
-        if (!\is_array($requiredPrivileges)) {
+        if ($requiredPrivileges === []) {
             throw RoutingException::invalidRequestParameter('requiredPrivileges');
         }
 

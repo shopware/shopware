@@ -757,10 +757,10 @@ class EntityReader implements EntityReaderInterface
         $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
 
         $orderBy = '';
-        $parts = $query->getQueryPart('orderBy');
+        $parts = $query->getQueryPart('orderBy'); // @phpstan-ignore-line
         if (!empty($parts)) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
-            $query->resetQueryPart('orderBy');
+            $query->resetOrderBy();
         }
         // order by is handled in group_concat
         $fieldCriteria->resetSorting();
@@ -908,7 +908,7 @@ class EntityReader implements EntityReaderInterface
             ]
         );
 
-        foreach ($query->getQueryPart('orderBy') as $i => $sorting) {
+        foreach ($query->getQueryPart('orderBy') as $i => $sorting) { // @phpstan-ignore-line
             // The first order is the primary key
             if ($i === 0) {
                 continue;

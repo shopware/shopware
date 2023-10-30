@@ -4,5 +4,5 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Admin/AdminSearchController.php" type="annotation" />
+    <import resource="../../Admin/AdminSearchController.php" type="attribute" />
 </routes>

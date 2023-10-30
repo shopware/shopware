@@ -10,10 +10,14 @@ Shopware.Component.register(
     {
         template,
 
+        emits: [
+            'set-default-unit',
+            'change-unit',
+        ],
+
         props: {
             type: {
                 type: String,
-                default: undefined,
                 required: true,
             },
             value: {

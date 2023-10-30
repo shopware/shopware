@@ -643,5 +643,10 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="messenger.bus.shopware" class="Shopware\Core\Framework\Adapter\Messenger\MessageBus" decorates="messenger.default_bus">
+            <argument type="service" id=".inner"/>
+            <argument type="collection"></argument>
+        </service>
     </services>
 </container>

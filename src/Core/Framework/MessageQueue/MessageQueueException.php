@@ -48,8 +48,8 @@ class MessageQueueException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CANNOT_FIND_SCHEDULED_TASK,
-            'Cannot find scheduled task by name "{{ name }}"',
-            ['name' => $name]
+            self::$couldNotFindMessage,
+            ['entity' => 'scheduled task', 'field' => 'name', 'value' => $name]
         );
     }
 }

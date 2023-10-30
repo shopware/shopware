@@ -29,8 +29,8 @@ class ThemeException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::THEME_SALES_CHANNEL_NOT_FOUND,
-            'The sales channel with the id {{ id }} could not be found',
-            ['id' => $salesChannelId]
+            self::$couldNotFindMessage,
+            ['entity' => 'sales channel', 'field' => 'id', 'value' => $salesChannelId]
         );
     }
 
@@ -43,8 +43,8 @@ class ThemeException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_THEME_BY_NAME,
-            'Unable to find the theme by name "{{ themeName }}"',
-            ['themeName' => $themeName]
+            self::$couldNotFindMessage,
+            ['entity' => 'theme', 'field' => 'name', 'value' => $themeName]
         );
     }
 
@@ -57,8 +57,8 @@ class ThemeException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_THEME_BY_ID,
-            'Unable to find the theme by ID "{{ themeId }}"',
-            ['themeId' => $themeId]
+            self::$couldNotFindMessage,
+            ['entity' => 'theme', 'field' => 'id', 'value' => $themeId]
         );
     }
 }

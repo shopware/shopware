@@ -5,16 +5,22 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tester\ApplicationTester;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @package system-settings
@@ -27,7 +33,11 @@ class SystemInstallCommandTest extends TestCase
 {
     protected function tearDown(): void
     {
-        @unlink(__DIR__ . '/install.lock');
+        $fs = new Filesystem();
+        $fs->remove([
+            __DIR__ . '/install.lock',
+            __DIR__ . '/config',
+        ]);
     }
 
     /**
@@ -154,6 +164,46 @@ class SystemInstallCommandTest extends TestCase
     }
 
     /**
+     * Test that sub commands of the system:install fire the correct lifecycle events, instead of testing
+     * them all, we just test one: system:generate-jwt-secret. If it works for one it most likely works for all.
+     */
+    public function testEventsForSubCommandsAreFired(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+        $connectionFactory->method('getConnection')->willReturn($connection);
+        $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
+
+        $dispatcher = new EventDispatcher();
+
+        $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener = new class() {
+            public bool $terminateCalledForSubCommand = false;
+
+            public function __invoke(ConsoleTerminateEvent $event): void
+            {
+                if ($event->getCommand()?->getName() === 'system:generate-jwt-secret') {
+                    $this->terminateCalledForSubCommand = true;
+                }
+            }
+        });
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->add(
+            new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
+        );
+        $application->setDispatcher($dispatcher);
+
+        $application->add(new SystemGenerateJwtSecretCommand(__DIR__, new JwtCertificateGenerator()));
+
+        $appTester = new ApplicationTester($application);
+
+        $appTester->run(['command' => 'system:install']);
+
+        static::assertTrue($listener->terminateCalledForSubCommand);
+    }
+
+    /**
      * @param array<string> $expectedCommands
      */
     private function prepareCommandInstance(array $expectedCommands = []): SystemInstallCommand
@@ -170,26 +220,9 @@ class SystemInstallCommandTest extends TestCase
         $application->method('has')
             ->willReturn(true);
 
-        $mockCommand = $this->getMockBuilder(Command::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockCommand->method('run')
-            ->willReturn(0);
-
-        $inputDefinitionMock = $this->createMock(InputDefinition::class);
-        $inputDefinitionMock->method('hasArgument')
-            ->willReturn(true);
-        $inputDefinitionMock->method('hasNegation')
-            ->willReturn(true);
-
-        $mockCommand->method('getDefinition')
-            ->willReturn($inputDefinitionMock);
-
-        $application
-            ->expects(static::exactly(\count($expectedCommands)))
-            ->method('find')
-            ->willReturn($mockCommand);
+        $application->expects(static::exactly(\count($expectedCommands)))
+            ->method('doRun')
+            ->willReturn(Command::SUCCESS);
 
         $systemInstallCmd->setApplication($application);
 

@@ -36,8 +36,8 @@ class LocaleException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 }

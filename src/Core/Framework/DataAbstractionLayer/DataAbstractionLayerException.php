@@ -148,8 +148,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VERSION_NO_COMMITS_FOUND,
-            'No commits found for version {{ versionId }}.',
-            ['versionId' => $versionId]
+            self::$couldNotFindMessage,
+            ['entity' => 'commits', 'field' => 'version', 'value' => $versionId]
         );
     }
 

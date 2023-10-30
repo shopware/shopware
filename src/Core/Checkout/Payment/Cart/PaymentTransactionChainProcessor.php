@@ -91,7 +91,7 @@ class PaymentTransactionChainProcessor
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
         }
 
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {

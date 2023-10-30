@@ -303,7 +303,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
         }
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
@@ -495,7 +495,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
         }
         $this->themeService->resetTheme($themeId, $this->context);
     }
@@ -528,7 +528,7 @@ class ThemeServiceTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
         } else {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $themeId));
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
         }
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);

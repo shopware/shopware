@@ -99,7 +99,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "notExisting".');
+        $this->expectExceptionMessage('Could not find extension with technical name "notExisting"');
         $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
     }
 
@@ -200,7 +200,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "TestApp".');
+        $this->expectExceptionMessage('Could not find extension with technical name "TestApp"');
         $this->lifecycleService->update('app', 'TestApp', false, $this->context);
     }
 

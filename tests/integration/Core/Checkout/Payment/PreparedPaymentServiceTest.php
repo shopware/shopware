@@ -7,10 +7,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
@@ -18,6 +21,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
@@ -50,12 +54,24 @@ class PreparedPaymentServiceTest extends TestCase
 
     private PreparedPaymentService $paymentService;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentMethodRepository;
 
     private Context $context;
@@ -113,7 +129,11 @@ class PreparedPaymentServiceTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
+        } else {
+            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
+        }
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -180,7 +200,11 @@ class PreparedPaymentServiceTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
+        } else {
+            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
+        }
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 
@@ -390,8 +414,7 @@ class PreparedPaymentServiceTest extends TestCase
                 ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         }
 
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;

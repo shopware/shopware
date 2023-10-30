@@ -48,8 +48,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CURRENCY_DOES_NOT_EXISTS_EXCEPTION,
-            'Currency with id "{{ currencyId }}" not found!.',
-            ['currencyId' => $currencyId]
+            self::$couldNotFindMessage,
+            ['entity' => 'currency', 'field' => 'id', 'value' => $currencyId]
         );
     }
 
@@ -58,8 +58,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION,
-            'Country state with id "{{ countryStateId }}" not found!.',
-            ['countryStateId' => $countryStateId]
+            self::$couldNotFindMessage,
+            ['entity' => 'country state', 'field' => 'id', 'value' => $countryStateId]
         );
     }
 
@@ -73,8 +73,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::COUNTRY_DOES_NOT_EXISTS_EXCEPTION,
-            'Country with id "{{ countryId }}" not found!.',
-            ['countryId' => $countryId]
+            self::$couldNotFindMessage,
+            ['entity' => 'country', 'field' => 'id', 'value' => $countryId]
         );
     }
 
@@ -102,8 +102,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 
@@ -121,6 +121,6 @@ class SalesChannelException extends HttpException
 
     public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
     {
-        return PaymentException::unknownPaymentMethod($paymentMethodId);
+        return PaymentException::unknownPaymentMethodById($paymentMethodId);
     }
 }

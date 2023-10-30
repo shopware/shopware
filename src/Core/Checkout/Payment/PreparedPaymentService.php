@@ -45,7 +45,7 @@ class PreparedPaymentService
         try {
             $paymentHandler = $this->getPaymentHandlerFromSalesChannelContext($salesChannelContext);
             if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethod($salesChannelContext->getPaymentMethod()->getId());
+                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
             }
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface)) {
@@ -108,12 +108,12 @@ class PreparedPaymentService
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethod->getId());
+            throw PaymentException::unknownPaymentMethodById($paymentMethod->getId());
         }
 
         return $paymentHandler;

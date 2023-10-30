@@ -89,7 +89,7 @@ class ExtensionDataProviderTest extends TestCase
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "testName".');
+        $this->expectExceptionMessage('Could not find extension with technical name "testName"');
         $this->extensionDataProvider->getAppEntityFromTechnicalName('testName', $this->context);
     }
 
@@ -108,7 +108,7 @@ class ExtensionDataProviderTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s".', $id));
+        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s"', $id));
         $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 

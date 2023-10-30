@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\Commands;
+namespace Shopware\Tests\Integration\Core\Content\Media\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
@@ -197,7 +197,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
         $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
+        $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
 
         $input = new StringInput('--folder-name="non-existing-folder"');
         $output = new BufferedOutput();

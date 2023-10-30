@@ -66,8 +66,8 @@ class CustomerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_GROUP_NOT_FOUND,
-            'Customer group with id "{{ id }}" not found',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'customer group', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -255,8 +255,8 @@ class CustomerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::LEGACY_PASSWORD_ENCODER_NOT_FOUND,
-            'Encoder with name "{{ encoder }}" not found.',
-            ['encoder' => $encoder]
+            self::$couldNotFindMessage,
+            ['entity' => 'encoder', 'field' => 'name', 'value' => $encoder]
         );
     }
 
@@ -282,8 +282,8 @@ class CustomerException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::WISHLIST_PRODUCT_NOT_FOUND,
-            'Wishlist product with id {{ productId }} not found',
-            ['productId' => $productId]
+            self::$couldNotFindMessage,
+            ['entity' => 'wishlist product', 'field' => 'id', 'value' => $productId]
         );
     }
 

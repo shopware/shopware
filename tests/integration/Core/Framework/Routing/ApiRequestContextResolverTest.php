@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Routing;
+namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -59,12 +59,11 @@ class ApiRequestContextResolverTest extends TestCase
             $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
         );
 
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
 
         static::assertInstanceOf(AdminApiSource::class, $context->getSource());
 
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
         static::assertEquals($isAdmin, $source->isAdmin());
@@ -95,12 +94,11 @@ class ApiRequestContextResolverTest extends TestCase
             $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
         );
 
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
 
         static::assertInstanceOf(AdminApiSource::class, $context->getSource());
 
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
         static::assertEquals($isAdmin, $source->isAdmin());
@@ -125,8 +123,8 @@ class ApiRequestContextResolverTest extends TestCase
             $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
         );
 
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
 
         static::assertFalse($context->hasState(Context::SKIP_TRIGGER_FLOW));
 
@@ -143,8 +141,8 @@ class ApiRequestContextResolverTest extends TestCase
             $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
         );
 
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
@@ -406,7 +404,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $error = $errors[0];
         static::assertArrayHasKey('detail', $error);
-        static::assertSame(\sprintf('App integration "%s" not found.', $ids->get('integration')), $error['detail']);
+        static::assertSame(\sprintf('Could not find app integration with id "%s"', $ids->get('integration')), $error['detail']);
     }
 
     public function testIntegrationWithoutPrivileges(): void

@@ -165,7 +165,7 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async"]
+        transports: ["async", "low_priority"]
 
     auto_update:
         enabled: true

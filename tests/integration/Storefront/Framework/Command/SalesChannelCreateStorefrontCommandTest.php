@@ -31,7 +31,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
     public function testExecuteCommandSuccessfully(string $isoCode, string $isoCodeExpected): void
     {
         $commandTester = new CommandTester($this->getContainer()->get(SalesChannelCreateStorefrontCommand::class));
-        $url = 'http://localhost';
+        $url = 'http://localhost/' . Uuid::randomHex();
 
         $commandTester->execute([
             '--name' => 'Storefront',

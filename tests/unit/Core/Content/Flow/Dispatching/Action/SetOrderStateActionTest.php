@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -159,6 +160,44 @@ class SetOrderStateActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
+    public function testThrowExceptionWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
+    {
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
+        $this->flow->expects(static::once())->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('getConfig')->willReturn([
+            'order' => 'fake_state',
+            'order_delivery' => '',
+            'force_transition' => false,
+        ]);
+
+        $this->connection->expects(static::exactly(4))
+            ->method('fetchOne');
+
+        $e = StateMachineException::stateMachineStateNotFound('order', 'open');
+        $this->orderService->expects(static::once())
+            ->method('orderStateTransition')
+            ->willThrowException($e);
+
+        $this->connection->expects(static::once())
+            ->method('getTransactionNestingLevel')
+            ->willReturn(2);
+
+        $this->connection->expects(static::once())
+            ->method('getNestTransactionsWithSavepoints')
+            ->willReturn(false);
+
+        $action = new SetOrderStateAction(
+            $this->connection,
+            $this->createMock(LoggerInterface::class),
+            $this->orderService
+        );
+
+        static::expectException(StateMachineException::class);
+        static::expectExceptionMessage($e->getMessage());
+
+        $action->handleFlow($this->flow);
+    }
+
     public static function actionProvider(): \Generator
     {
         yield 'Test aware with config three states success' => [
@@ -187,6 +226,18 @@ class SetOrderStateActionTest extends TestCase
             ],
         ];
 
+        yield 'Test aware with config no states success' => [
+            [
+                'order' => 'done',
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
         yield 'Test aware with config state allow force transition' => [
             [
                 'order' => 'completed',
@@ -199,6 +250,62 @@ class SetOrderStateActionTest extends TestCase
                 'order' => 'completed',
                 'orderDelivery' => 'returned',
                 'orderTransaction' => 'refunded',
+            ],
+        ];
+
+        yield 'Test aware with config state allow force transition and only one state' => [
+            [
+                'order' => 'completed',
+                'force_transition' => true,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
+        yield 'Test aware with config state allow force transition and non existing state' => [
+            [
+                'order' => 'fake_state',
+                'order_delivery' => '',
+                'force_transition' => true,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
+        yield 'Test aware with config state disallow force transition' => [
+            [
+                'order' => 'completed',
+                'order_delivery' => 'returned',
+                'order_transaction' => 'refunded',
+                'force_transition' => false,
+            ],
+            14,
+            [
+                'order' => 'open',
+                'orderDelivery' => 'open',
+                'orderTransaction' => 'open',
+            ],
+        ];
+
+        yield 'Test aware with config state disallow force transition and non existing state' => [
+            [
+                'order' => 'fake_state',
+                'order_delivery' => '',
+                'force_transition' => false,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
             ],
         ];
     }

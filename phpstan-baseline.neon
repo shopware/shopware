@@ -2891,11 +2891,6 @@ parameters:
 			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$order of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\CheckoutOrderPlacedEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:cloneDefaultProfile\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php

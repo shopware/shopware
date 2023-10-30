@@ -317,12 +317,13 @@ class SystemConfigService implements ResetInterface
 
         $insertQueue->execute();
 
+        // Dispatch the hook before the events to invalid the cache
+        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
+
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {
             $this->eventDispatcher->dispatch($event);
         }
-
-        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void

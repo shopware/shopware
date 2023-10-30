@@ -187,6 +187,18 @@ class SetOrderStateActionTest extends TestCase
             ],
         ];
 
+        yield 'Test aware with config no states success' => [
+            [
+                'order' => 'done',
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
         yield 'Test aware with config state allow force transition' => [
             [
                 'order' => 'completed',
@@ -199,6 +211,62 @@ class SetOrderStateActionTest extends TestCase
                 'order' => 'completed',
                 'orderDelivery' => 'returned',
                 'orderTransaction' => 'refunded',
+            ],
+        ];
+
+        yield 'Test aware with config state allow force transition and only one state' => [
+            [
+                'order' => 'completed',
+                'force_transition' => true,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
+        yield 'Test aware with config state allow force transition and non existing state' => [
+            [
+                'order' => 'fake_state',
+                'order_delivery' => '',
+                'force_transition' => true,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
+            ],
+        ];
+
+        yield 'Test aware with config state disallow force transition' => [
+            [
+                'order' => 'completed',
+                'order_delivery' => 'returned',
+                'order_transaction' => 'refunded',
+                'force_transition' => false,
+            ],
+            14,
+            [
+                'order' => 'open',
+                'orderDelivery' => 'open',
+                'orderTransaction' => 'open',
+            ],
+        ];
+
+        yield 'Test aware with config state disallow force transition and non existing state' => [
+            [
+                'order' => 'fake_state',
+                'order_delivery' => '',
+                'force_transition' => false,
+            ],
+            4,
+            [
+                'order' => 'open',
+                'orderDelivery' => null,
+                'orderTransaction' => null,
             ],
         ];
     }

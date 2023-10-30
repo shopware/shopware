@@ -74,16 +74,6 @@ class OrderException extends HttpException
         );
     }
 
-    public static function paymentMethodNotAvailable(string $id): self
-    {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::ORDER_PAYMENT_METHOD_UNAVAILABLE,
-            'The payment method with id {{ id }} is not available.',
-            ['id' => $id]
-        );
-    }
-
     public static function orderAlreadyPaid(string $orderId): self
     {
         return new self(
@@ -110,16 +100,6 @@ class OrderException extends HttpException
             self::ORDER_ORDER_NOT_FOUND_CODE,
             self::$couldNotFindMessage,
             ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
-        );
-    }
-
-    public static function missingTransactions(string $orderId): self
-    {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::ORDER_MISSING_TRANSACTIONS_CODE,
-            'Order with id {{ orderId }} has no transactions.',
-            ['orderId' => $orderId]
         );
     }
 

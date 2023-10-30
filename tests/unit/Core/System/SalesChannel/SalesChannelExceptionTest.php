@@ -85,7 +85,7 @@ class SalesChannelExceptionTest extends TestCase
             'exception' => SalesChannelException::languageNotFound('myCustomLanguage'),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,
             'errorCode' => SalesChannelException::LANGUAGE_NOT_FOUND,
-            'message' => 'The language "myCustomLanguage" was not found.',
+            'message' => 'Could not find language with id "myCustomLanguage"',
         ];
 
         if (!Feature::isActive('v6.6.0.0')) {
@@ -100,7 +100,7 @@ class SalesChannelExceptionTest extends TestCase
                 'exception' => SalesChannelException::unknownPaymentMethod('myCustomPaymentMethod'),
                 'statusCode' => Response::HTTP_BAD_REQUEST,
                 'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
-                'message' => 'The payment method myCustomPaymentMethod could not be found.',
+                'message' => 'Could not find payment method with id "myCustomPaymentMethod"',
             ];
         }
     }

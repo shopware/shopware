@@ -206,8 +206,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_NOT_FOUND,
-            'Media for id {{ mediaId }} not found.',
-            ['mediaId' => $mediaId]
+            self::$couldNotFindMessage,
+            ['entity' => 'media', 'field' => 'id', 'value' => $mediaId]
         );
     }
 
@@ -261,8 +261,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_MISSING_FILE,
-            'Could not find file for media with id: "{{ mediaId }}"',
-            ['mediaId' => $mediaId]
+            self::$couldNotFindMessage,
+            ['entity' => 'file for media', 'field' => 'id', 'value' => $mediaId]
         );
     }
 
@@ -275,8 +275,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FOLDER_NOT_FOUND,
-            'Could not find media folder with id: "{{ folderId }}"',
-            ['folderId' => $folderId]
+            self::$couldNotFindMessage,
+            ['entity' => 'media folder', 'field' => 'id', 'value' => $folderId]
         );
     }
 
@@ -285,8 +285,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FOLDER_NAME_NOT_FOUND,
-            'Could not find a folder with the name: "{{ folderName }}"',
-            ['folderName' => $folderName]
+            self::$couldNotFindMessage,
+            ['entity' => 'a folder', 'field' => 'name', 'value' => $folderName]
         );
     }
 

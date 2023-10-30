@@ -71,8 +71,8 @@ class AppException extends HttpException
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
-            'App with identifier "{{ identifier }}" not found',
-            ['identifier' => $identifier]
+            self::$couldNotFindMessage,
+            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
         );
     }
 

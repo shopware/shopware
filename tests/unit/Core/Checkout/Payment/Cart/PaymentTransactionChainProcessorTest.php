@@ -88,9 +88,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->expectException(InvalidOrderException::class);
         }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order'))
-        );
+        $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order')));
 
         $processor->process(
             $this->ids->get('test-order'),
@@ -156,9 +154,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The payment method %s could not be found.', $this->ids->get('payment'))
-        );
+        $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $this->ids->get('payment')));
 
         $processor->process(
             $this->ids->get('test-order'),

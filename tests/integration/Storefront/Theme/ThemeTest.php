@@ -814,7 +814,7 @@ class ThemeTest extends TestCase
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $randomId));
         } else {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme by ID "%s"', $randomId));
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
         }
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }

@@ -74,8 +74,8 @@ class PaymentRecurringProcessorTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(OrderException::class);
-
+        $this->expectException(OrderException::class);
+        $this->expectExceptionMessage('Could not find order with id "foo"');
         $processor->processRecurring($orderId, Context::createDefaultContext());
     }
 
@@ -102,8 +102,8 @@ class PaymentRecurringProcessorTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(OrderException::class);
-        static::expectExceptionMessage(OrderException::orderNotFound('foo')->getMessage());
+        $this->expectException(OrderException::class);
+        $this->expectExceptionMessage('Could not find order with id "foo"');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -134,8 +134,8 @@ class PaymentRecurringProcessorTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(OrderException::class);
-        static::expectExceptionMessage(OrderException::missingTransactions('foo')->getMessage());
+        $this->expectException(OrderException::class);
+        $this->expectExceptionMessage('Order with id foo has no transactions.');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -234,8 +234,8 @@ class PaymentRecurringProcessorTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The payment method foo could not be found.');
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('Could not find payment method with id "foo"');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -293,8 +293,8 @@ class PaymentRecurringProcessorTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The payment method foo_recurring_handler could not be found.');
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('Could not find payment method with handler identifier "foo_recurring_handler"');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -424,8 +424,8 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $processor = new PaymentRecurringProcessor($repo, $stateLoader, $stateHandler, $registry, new PaymentTransactionStructFactory(), $dispatcher);
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('error_foo');
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('error_foo');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }

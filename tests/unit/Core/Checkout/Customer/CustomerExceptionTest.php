@@ -35,9 +35,9 @@ class CustomerExceptionTest extends TestCase
         try {
             throw $exception;
         } catch (CustomerException $e) {
-            static::assertEquals($statusCode, $e->getStatusCode());
-            static::assertEquals($errorCode, $e->getErrorCode());
-            static::assertEquals($message, $e->getMessage());
+            static::assertSame($statusCode, $e->getStatusCode());
+            static::assertSame($errorCode, $e->getErrorCode());
+            static::assertSame($message, $e->getMessage());
         } catch (\Throwable $e) {
             static::fail(\sprintf('Exception with message "%s" of type %s has not expected type %s', $e->getMessage(), $e::class, CustomerException::class));
         }
@@ -55,14 +55,14 @@ class CustomerExceptionTest extends TestCase
         } catch (CustomerException $thrown) {
             if (!Feature::isActive('v6.6.0.0')) {
                 static::assertInstanceOf(InactiveCustomerException::class, $thrown);
-                static::assertEquals(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
-                static::assertEquals(CustomerException::CUSTOMER_IS_INACTIVE, $thrown->getErrorCode());
-                static::assertEquals('The customer with the id "id-1" is inactive.', $thrown->getMessage());
+                static::assertSame(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
+                static::assertSame(CustomerException::CUSTOMER_IS_INACTIVE, $thrown->getErrorCode());
+                static::assertSame('The customer with the id "id-1" is inactive.', $thrown->getMessage());
             } else {
                 static::assertInstanceOf(CustomerOptinNotCompletedException::class, $e);
-                static::assertEquals(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
-                static::assertEquals(CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED, $thrown->getErrorCode());
-                static::assertEquals('The customer with the id "id-1" has not completed the opt-in.', $thrown->getMessage());
+                static::assertSame(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
+                static::assertSame(CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED, $thrown->getErrorCode());
+                static::assertSame('The customer with the id "id-1" has not completed the opt-in.', $thrown->getMessage());
             }
         }
 
@@ -73,15 +73,15 @@ class CustomerExceptionTest extends TestCase
         } catch (CustomerException|CountryException $thrown) {
             if (!Feature::isActive('v6.6.0.0')) {
                 static::assertInstanceOf(CountryNotFoundException::class, $thrown);
-                static::assertEquals(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
-                static::assertEquals(CountryException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
+                static::assertSame(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
+                static::assertSame(CountryException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
             } else {
                 static::assertInstanceOf(CustomerException::class, $e);
-                static::assertEquals(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
-                static::assertEquals(CustomerException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
+                static::assertSame(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
+                static::assertSame(CustomerException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
             }
 
-            static::assertEquals('Country with id "100" not found.', $thrown->getMessage());
+            static::assertSame('Country with id "100" not found.', $thrown->getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ class CustomerExceptionTest extends TestCase
             'args' => ['id-1'],
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CustomerException::CUSTOMER_GROUP_NOT_FOUND,
-            'message' => 'Customer group with id "id-1" not found',
+            'message' => 'Could not find customer group with id "id-1"',
         ];
 
         yield CustomerException::CUSTOMER_GROUP_REQUEST_NOT_FOUND => [
@@ -260,7 +260,7 @@ class CustomerExceptionTest extends TestCase
             'args' => ['encoder'],
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CustomerException::LEGACY_PASSWORD_ENCODER_NOT_FOUND,
-            'message' => 'Encoder with name "encoder" not found.',
+            'message' => 'Could not find encoder with name "encoder"',
         ];
 
         yield CustomerException::NO_HASH_PROVIDED => [
@@ -276,7 +276,7 @@ class CustomerExceptionTest extends TestCase
             'args' => ['id-1'],
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => CustomerException::WISHLIST_PRODUCT_NOT_FOUND,
-            'message' => 'Wishlist product with id id-1 not found',
+            'message' => 'Could not find wishlist product with id "id-1"',
         ];
 
         yield CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED => [

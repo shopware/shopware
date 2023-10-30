@@ -83,8 +83,8 @@ class StoreException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,
-            'Could not find extension with id "{{ id }}".',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'extension', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -97,8 +97,8 @@ class StoreException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,
-            'Could not find extension with technical name "{{ technicalName }}".',
-            ['technicalName' => $technicalName]
+            self::$couldNotFindMessage,
+            ['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName]
         );
     }
 }

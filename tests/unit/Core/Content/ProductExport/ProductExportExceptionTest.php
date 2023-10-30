@@ -24,7 +24,7 @@ class ProductExportExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame('PRODUCT_EXPORT__TEMPLATE_BODY_NOT_SET', $exception->getErrorCode());
 
-        static::expectException(ProductExportException::class);
+        $this->expectException(ProductExportException::class);
 
         throw $exception;
     }
@@ -37,7 +37,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderFooterException('Footer!');
         static::assertSame('Failed rendering string template using Twig: Footer!', $exception->getMessage());
 
-        static::expectException(RenderFooterException::class);
+        $this->expectException(RenderFooterException::class);
 
         throw $exception;
     }
@@ -52,7 +52,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderHeaderException('Header!');
         static::assertSame('Failed rendering string template using Twig: Header!', $exception->getMessage());
 
-        static::expectException(RenderHeaderException::class);
+        $this->expectException(RenderHeaderException::class);
 
         throw $exception;
     }
@@ -67,7 +67,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderProductException('Product!');
         static::assertSame('Failed rendering string template using Twig: Product!', $exception->getMessage());
 
-        static::expectException(RenderProductException::class);
+        $this->expectException(RenderProductException::class);
 
         throw $exception;
     }
@@ -77,7 +77,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderFooterException('Footer!');
         static::assertSame('Failed rendering string template using Twig: Footer!', $exception->getMessage());
 
-        static::expectException(ProductExportException::class);
+        $this->expectException(ProductExportException::class);
 
         throw $exception;
     }
@@ -87,7 +87,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderHeaderException('Header!');
         static::assertSame('Failed rendering string template using Twig: Header!', $exception->getMessage());
 
-        static::expectException(ProductExportException::class);
+        $this->expectException(ProductExportException::class);
 
         throw $exception;
     }
@@ -97,7 +97,7 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::renderProductException('Product!');
         static::assertSame('Failed rendering string template using Twig: Product!', $exception->getMessage());
 
-        static::expectException(ProductExportException::class);
+        $this->expectException(ProductExportException::class);
 
         throw $exception;
     }
@@ -118,11 +118,11 @@ class ProductExportExceptionTest extends TestCase
     {
         $exception = ProductExportException::productExportNotFound('product-id');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-        static::assertEquals(ProductExportException::PRODUCT_EXPORT_NOT_FOUND, $exception->getErrorCode());
-        static::assertEquals('No products for export with ID product-id found', $exception->getMessage());
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(ProductExportException::PRODUCT_EXPORT_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find products for export with id "product-id"', $exception->getMessage());
 
         $exception = ProductExportException::productExportNotFound();
-        static::assertEquals('No products for export found', $exception->getMessage());
+        static::assertSame('No products for export found', $exception->getMessage());
     }
 }

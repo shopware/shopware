@@ -24,8 +24,8 @@ class ShippingException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SHIPPING_METHOD_NOT_FOUND,
-            'Shipping method with id "{{ shippingMethodId }}" not found.',
-            ['shippingMethodId' => $id],
+            self::$couldNotFindMessage,
+            ['entity' => 'shipping method', 'field' => 'id', 'value' => $id],
             $e
         );
     }

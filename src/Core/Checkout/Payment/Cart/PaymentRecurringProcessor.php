@@ -73,12 +73,12 @@ class PaymentRecurringProcessor
 
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getRecurringPaymentHandler($paymentMethod->getId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethod->getHandlerIdentifier());
+            throw PaymentException::unknownPaymentMethodByHandlerIdentifier($paymentMethod->getHandlerIdentifier());
         }
 
         $struct = $this->paymentTransactionStructFactory->recurring($transaction, $order);

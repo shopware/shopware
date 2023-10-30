@@ -404,7 +404,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $error = $errors[0];
         static::assertArrayHasKey('detail', $error);
-        static::assertSame(\sprintf('App integration "%s" not found.', $ids->get('integration')), $error['detail']);
+        static::assertSame(\sprintf('Could not find app integration with id "%s"', $ids->get('integration')), $error['detail']);
     }
 
     public function testIntegrationWithoutPrivileges(): void

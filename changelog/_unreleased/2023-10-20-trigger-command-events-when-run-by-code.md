@@ -1,8 +1,9 @@
 ---
-title: Trigger Symfony command events, when commands are run by code
+title: Trigger Symfony command events, when commands are executed via other commands
+issue: NEXT-31265
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens
 ---
 # Core
-* Changed sub command invocation within `system:install`, `system:setup` and `system:update:finish` from direct command service usage to running through Symfony application to trigger Symfony command events
+* Changed sub command invocation within `system:install`, `system:setup` and `system:update:finish` to use the console application so that the correct events are dispatched 

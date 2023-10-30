@@ -603,8 +603,6 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @param string[] $fields
-     *
-     * @internal
      */
     public function addFields(array $fields): self
     {
@@ -615,8 +613,6 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @return string[]
-     *
-     * @internal
      */
     public function getFields(): array
     {

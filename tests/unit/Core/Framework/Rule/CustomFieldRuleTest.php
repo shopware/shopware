@@ -40,10 +40,11 @@ class CustomFieldRuleTest extends TestCase
      * @dataProvider customFieldRuleData
      *
      * @param array<string, mixed> $customFields
+     * @param array<string>|bool|string|int|null $renderedFieldValue
      */
     public function testMatch(
         array $customFields,
-        bool|string|null|int $renderedFieldValue,
+        array|bool|string|null|int $renderedFieldValue,
         string $type,
         string $operator,
         bool $isMatching
@@ -283,6 +284,20 @@ class CustomFieldRuleTest extends TestCase
                 [self::CUSTOM_FIELD_NAME => 123.0],
                 123,
                 'float',
+                '=',
+                true,
+            ],
+            'custom field null / rendered field multi select value ["option_1", "option_2"]/ select type/ EQ operator / not matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
+                null,
+                'select',
+                '=',
+                false,
+            ],
+            'custom field ["option_1", "option_2"] value / rendered field value ["option_1", "option_2"]/ select type/ EQ operator / matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
+                ['option_1', 'option_2'],
+                'select',
                 '=',
                 true,
             ],

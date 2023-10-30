@@ -4056,36 +4056,6 @@ parameters:
 			path: src/Core/Content/Test/Rule/DataAbstractionLayer/RulePayloadSubscriberTest.php
 
 		-
-			message: "#^Cannot call method getConditions\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
-			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
-			message: "#^Cannot call method getValue\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Rule\\\\RuleValidatorTest\\:\\:\\$conditionRegistry is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Rule\\\\RuleValidatorTest\\:\\:\\$ruleConditionDefinition is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Rule\\\\RuleValidatorTest\\:\\:\\$ruleValidator is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Rule/RuleValidatorTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Seo\\\\\\\\Hreflang\\\\\\\\HreflangCollection' and Shopware\\\\Core\\\\Content\\\\Seo\\\\Hreflang\\\\HreflangCollection will always evaluate to true\\.$#"
 			count: 7
 			path: src/Core/Content/Test/Seo/HreflangLoaderTest.php

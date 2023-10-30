@@ -127,7 +127,7 @@ class RuleValidator implements EventSubscriberInterface
         if (!$ruleInstance instanceof ScriptRule) {
             $missingProperties = array_filter(
                 $value,
-                static fn (string $key): bool => !property_exists($ruleInstance, $key),
+                static fn (string $key): bool => !property_exists($ruleInstance, $key) && !\array_key_exists($key, $ruleInstance->getConstraints()),
                 \ARRAY_FILTER_USE_KEY
             );
         }

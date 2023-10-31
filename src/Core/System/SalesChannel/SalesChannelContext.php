@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -409,5 +410,25 @@ class SalesChannelContext extends Struct
     public function getCustomerId(): ?string
     {
         return $this->customer ? $this->customer->getId() : null;
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function live(callable $callback): mixed
+    {
+        $before = $this->context;
+
+        $this->context = $this->context->createWithVersionId(Defaults::LIVE_VERSION);
+
+        $result = $callback($this);
+
+        $this->context = $before;
+
+        return $result;
     }
 }

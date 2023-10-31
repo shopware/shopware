@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme;
+namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -28,6 +29,7 @@ use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -50,26 +52,26 @@ class ThemeTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $themeRepository;
 
     private string $createdStorefrontTheme = '';
 
-    private EntityRepository $mediaRepository;
-
     private string $faviconId;
 
-    private string $demostoreLogoId;
+    private string $demoStoreLogoId;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->themeService = $this->getContainer()->get(ThemeService::class);
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->themeService = static::getContainer()->get(ThemeService::class);
+        $this->themeRepository = static::getContainer()->get('theme.repository');
 
         $this->context = Context::createDefaultContext();
 
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         if ($theme === null) {
             $this->createdStorefrontTheme = Uuid::randomHex();
             $this->themeRepository->create([
@@ -100,14 +102,13 @@ class ThemeTest extends TestCase
                 ]
             )
         );
-        $medias = $this->mediaRepository->search($criteria, $this->context);
-
-        /** @var MediaEntity $media */
-        foreach ($medias as $media) {
+        /** @var EntityRepository<MediaCollection> $mediaRepository */
+        $mediaRepository = static::getContainer()->get('media.repository');
+        foreach ($mediaRepository->search($criteria, $this->context)->getEntities() as $media) {
             if ($media->getFileName() === 'favicon') {
                 $this->faviconId = $media->getId();
             } elseif ($media->getFileName() === 'demostore-logo') {
-                $this->demostoreLogoId = $media->getId();
+                $this->demoStoreLogoId = $media->getId();
             }
         }
     }
@@ -121,11 +122,11 @@ class ThemeTest extends TestCase
 
     public function testDefaultThemeConfig(): void
     {
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), false, $this->context);
 
-        $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demostoreLogoId);
+        $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demoStoreLogoId);
         foreach ($themeConfigFix['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
                 $themeConfigFix['fields'][$key]['value'] = $themeConfiguration['fields'][$key]['value'];
@@ -137,8 +138,7 @@ class ThemeTest extends TestCase
 
     public function testDefaultThemeConfigTranslated(): void
     {
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($theme);
 
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
@@ -152,11 +152,11 @@ class ThemeTest extends TestCase
 
     public function testDefaultThemeConfigStructuredFields(): void
     {
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
 
         $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
-        static::assertEquals(ThemeFixtures::getThemeStructuredFields(), $theme);
+        static::assertSame(ThemeFixtures::getThemeStructuredFields(), $theme);
     }
 
     public function testChildThemeConfigStructuredFields(): void
@@ -164,8 +164,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme(
             $baseTheme,
@@ -197,11 +197,11 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
-        static::assertEquals(
+        static::assertSame(
             'Primary colour',
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
         );
@@ -212,8 +212,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme(
             $baseTheme,
@@ -231,10 +231,10 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
-        $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $factory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
         $simpleThemeConfig = $factory->createFromBundle(new SimpleThemeConfigInheritance());
 
@@ -246,11 +246,11 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
-        static::assertEquals(
+        static::assertSame(
             'Primary colour',
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
         );
@@ -261,8 +261,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme(
             $baseTheme,
@@ -278,8 +278,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $this->themeService->updateTheme(
             $childTheme->getId(),
@@ -293,7 +293,7 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demostoreLogoId);
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $someCustom = [
             'name' => 'some-custom',
@@ -332,23 +332,23 @@ class ThemeTest extends TestCase
     }
 
     /**
-     * Check if a Theme without fieldconfigs will also be updateable
+     * Check if a Theme without field configs will also be updatable
      */
     public function testInheritedBlankThemeConfig(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createBlankTheme($baseTheme);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $this->themeService->updateTheme(
             $childTheme->getId(),
@@ -362,7 +362,7 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demostoreLogoId);
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demoStoreLogoId);
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
@@ -383,8 +383,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme($baseTheme, [
             'blocks' => [
@@ -400,16 +400,16 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $name));
 
-        /** @var ThemeEntity $inheritedTheme */
-        $inheritedTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $inheritedTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($inheritedTheme);
 
         $name = $this->createTheme($inheritedTheme);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $this->themeService->updateTheme(
             $childTheme->getId(),
@@ -423,7 +423,7 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demostoreLogoId);
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $themeInheritedConfig['blocks']['newBlock']['label'] = [
             'en-GB' => 'New Block',
@@ -445,8 +445,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme(
             $baseTheme,
@@ -456,16 +456,16 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $name));
 
-        /** @var ThemeEntity $inheritedTheme */
-        $inheritedTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $inheritedTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($inheritedTheme);
 
         $name = $this->createTheme($inheritedTheme);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $this->themeService->updateTheme(
             $childTheme->getId(),
@@ -482,25 +482,25 @@ class ThemeTest extends TestCase
 
         static::assertArrayHasKey('multi', $theme['fields']);
         static::assertArrayHasKey('value', $theme['fields']['multi']);
-        static::assertEquals(['top'], $theme['fields']['multi']['value']);
+        static::assertSame(['top'], $theme['fields']['multi']['value']);
     }
 
     public function testCompileTheme(): void
     {
-        static::markTestSkipped('theme compile is not possible cause app.js does not exists');
+        static::markTestSkipped('theme compile is not possible cause app.js does not exist');
         $criteria = new Criteria(); /** @phpstan-ignore-line  */
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $name = $this->createTheme($baseTheme);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         $this->themeService->updateTheme(
             $childTheme->getId(),
@@ -523,13 +523,13 @@ class ThemeTest extends TestCase
         $this->createParentlessSimpleTheme();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SimpleTheme'));
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($baseTheme);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $this->createTheme($baseTheme)));
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
         $this->themeRepository->update([[
             'id' => $childTheme->getId(),
             'technicalName' => null,
@@ -550,7 +550,7 @@ class ThemeTest extends TestCase
                 })
             );
 
-        $kernel = new class($this->getContainer()->get('kernel')) implements KernelInterface {
+        $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
 
             public function __construct(private readonly Kernel $kernel)
@@ -655,26 +655,26 @@ class ThemeTest extends TestCase
         $themeService = new ThemeService(
             new StorefrontPluginRegistry(
                 $kernel,
-                $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
-                $this->getContainer()->get(ActiveAppsLoader::class)
+                static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+                static::getContainer()->get(ActiveAppsLoader::class)
             ),
-            $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->get('theme_sales_channel.repository'),
+            static::getContainer()->get('theme.repository'),
+            static::getContainer()->get('theme_sales_channel.repository'),
             $themeCompilerMock,
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             new DatabaseConfigLoader(
-                $this->getContainer()->get('theme.repository'),
+                static::getContainer()->get('theme.repository'),
                 new StorefrontPluginRegistry(
                     $kernel,
-                    $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
-                    $this->getContainer()->get(ActiveAppsLoader::class)
+                    static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+                    static::getContainer()->get(ActiveAppsLoader::class)
                 ),
-                $this->getContainer()->get('media.repository'),
+                static::getContainer()->get('media.repository'),
             ),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get(NotificationService::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get(NotificationService::class)
         );
         $themeService->updateTheme(
             $childTheme->getId(),
@@ -701,8 +701,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search($criteria, $this->context)->first();
+        $theme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
 
         $data = [
             'id' => $theme->getId(),
@@ -715,8 +715,8 @@ class ThemeTest extends TestCase
 
         $this->themeRepository->update([$data], $this->context);
 
-        /** @var ThemeEntity $updatedTheme */
-        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->first();
+        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($updatedTheme);
         static::assertNotNull($updatedTheme->getConfigValues());
 
         $themeServiceReturnedConfig = $this->themeService->getThemeConfiguration($updatedTheme->getId(), false, $this->context);
@@ -730,8 +730,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search($criteria, $this->context)->first();
+        $theme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
 
         $theme->setConfigValues(
             [
@@ -760,8 +760,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         try {
             $this->themeService->updateTheme(
@@ -790,8 +790,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
-        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($childTheme);
 
         static::assertEquals(
             [
@@ -811,19 +811,23 @@ class ThemeTest extends TestCase
     public function testThemeServiceUpdateWrongId(): void
     {
         $randomId = Uuid::randomHex();
-        static::expectExceptionMessage('Unable to find the theme "' . $randomId . '"');
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $randomId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
+        }
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }
 
     public function testRefreshPlugin(): void
     {
-        $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
+        $themeLifecycleService = static::getContainer()->get(ThemeLifecycleService::class);
         $themeLifecycleService->refreshThemes($this->context);
-        $themes = $this->themeRepository->search(new Criteria(), $this->context);
+        $themes = $this->themeRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertCount(1, $themes->getElements());
-        /** @var ThemeEntity $theme */
+        static::assertCount(1, $themes);
         $theme = $themes->first();
+        static::assertNotNull($theme);
         static::assertSame('Storefront', $theme->getTechnicalName());
         static::assertNotEmpty($theme->getLabels());
     }
@@ -834,8 +838,8 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search($criteria, $this->context)->first();
+        $theme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
         static::assertEmpty($theme->getConfigValues());
 
         $data = [
@@ -849,14 +853,14 @@ class ThemeTest extends TestCase
 
         $this->themeRepository->update([$data], $this->context);
 
-        /** @var ThemeEntity $updatedTheme */
-        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->first();
+        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($updatedTheme);
         static::assertNotNull($updatedTheme->getConfigValues());
 
         $this->themeService->resetTheme($theme->getId(), $this->context);
 
-        /** @var ThemeEntity $resetTheme */
-        $resetTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $resetTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($resetTheme);
 
         static::assertEmpty($resetTheme->getConfigValues());
         static::assertNotEmpty($resetTheme->getUpdatedAt());
@@ -893,12 +897,12 @@ class ThemeTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $customConfig
-     * @param array<int, array<string, string>> $saleschannels
+     * @param array<string, mixed>              $customConfig
+     * @param array<int, array<string, string>> $saleSchannels
      */
-    private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleschannels = [], ?string $givenName = null): string
+    private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleSchannels = [], ?string $givenName = null): string
     {
-        $name = $givenName ?? 'test' . Uuid::randomHex();
+        $name = $givenName ?? ('test' . Uuid::randomHex());
 
         $id = Uuid::randomHex();
         $this->themeRepository->create(
@@ -917,7 +921,7 @@ class ThemeTest extends TestCase
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
-                    'salesChannels' => $saleschannels,
+                    'salesChannels' => $saleSchannels,
                 ],
             ],
             $this->context

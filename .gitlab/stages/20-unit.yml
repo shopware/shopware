@@ -2,7 +2,7 @@
 
 # unit stage - This files contains all jobs belonging to the unit stage
 
-Jest (Administration):    
+Jest (Administration):
     extends: .base-with-node
     stage: unit
     needs: []
@@ -22,7 +22,7 @@ Jest (Administration):
                 coverage_format: cobertura
                 path: build/artifacts/jest/cobertura-coverage.xml
 
-Jest Vue 3 (Administration):    
+Jest Vue 3 (Administration):
     extends: .base-with-node
     stage: unit
     needs: []
@@ -37,7 +37,7 @@ Jest Vue 3 (Administration):
       - npm --prefix $ADMIN_PATH run unit:vue3 -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
       - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
 
-Jest (Storefront):    
+Jest (Storefront):
     extends: .base-with-node
     stage: unit
     needs: []
@@ -332,7 +332,7 @@ PHP Full:
         - >
             for SUITE in $TEST_SUITES; do
                 if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --stop-on-failure --exclude-group=quarantined;
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined;
                 else
                   composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined || FAILED=1
                 fi

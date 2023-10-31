@@ -41,7 +41,7 @@ class AppJWTGenerateRouteTest extends TestCase
         $context = Generator::createSalesChannelContext();
 
         $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App with identifier "test" not found');
+        $this->expectExceptionMessage('Could not find app with identifier "test"');
         $appJWTGenerateRoute->generate('test', $context);
     }
 
@@ -81,6 +81,6 @@ class AppJWTGenerateRouteTest extends TestCase
 
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
-        static::assertEquals($context->getSalesChannel()->getId(), $payload['salesChannelId']);
+        static::assertSame($context->getSalesChannel()->getId(), $payload['salesChannelId']);
     }
 }

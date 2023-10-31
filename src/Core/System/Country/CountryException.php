@@ -24,8 +24,8 @@ class CountryException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_NOT_FOUND,
-            'Country with id "{{ countryId }}" not found.',
-            ['countryId' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'country', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -38,8 +38,8 @@ class CountryException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_STATE_NOT_FOUND,
-            'Country state with id "{{ stateId }}" not found.',
-            ['stateId' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'country state', 'field' => 'id', 'value' => $id]
         );
     }
 }

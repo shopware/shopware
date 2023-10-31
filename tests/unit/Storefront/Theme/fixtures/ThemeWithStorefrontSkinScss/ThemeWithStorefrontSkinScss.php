@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontSkinScss;
+namespace Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\Framework\ThemeInterface;

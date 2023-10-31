@@ -67,8 +67,8 @@ class ProductExportException extends HttpException
             return new self(
                 Response::HTTP_NOT_FOUND,
                 self::PRODUCT_EXPORT_NOT_FOUND,
-                'No products for export with ID {{ id }} found',
-                ['id' => $id]
+                self::$couldNotFindMessage,
+                ['entity' => 'products for export', 'field' => 'id', 'value' => $id],
             );
         }
 

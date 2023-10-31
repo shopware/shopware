@@ -1,11 +1,11 @@
 ---
 title: Update return type of AfterLineItemQuantityChangedEvent::getItems()
-issue: ISSUE-3390
+issue: NEXT-31347
 author: Akshit Bhardwaj
 author_email: bhardwajakshit78@gmail.com
 author_github: bhardwajakshit
 ---
-# Upgrade Information
-Changed return type of AfterLineItemQuantityChangedEvent::getItems() from LineItem[] to array<array<string, mixed>> 
+# Core
+* Changed phpdoc return type of AfterLineItemQuantityChangedEvent::getItems() from LineItem[] to array<array<string, mixed>>
 
 

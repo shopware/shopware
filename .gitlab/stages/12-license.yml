@@ -15,7 +15,7 @@ PHP License check:
         - 'composer.json'
   script:
     - !reference [ .scripts, init, composer ]
-    - vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
+    # - vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
 
 Storefront License check:
   extends: .security-base

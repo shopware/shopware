@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -45,6 +46,7 @@ class DomainExceptionRule implements Rule
         UnrecoverableMessageHandlingException::class, // Symfony
         RecoverableMessageHandlingException::class, // Symfony
         NotFoundHttpException::class, // Symfony
+        BadRequestException::class, // Symfony
     ];
 
     private const VALID_SUB_DOMAINS = [

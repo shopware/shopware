@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Promotion\Api\PromotionActionController;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**

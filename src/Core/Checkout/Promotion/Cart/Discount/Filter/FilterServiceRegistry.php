@@ -11,6 +11,9 @@ class FilterServiceRegistry
 {
     /**
      * @internal
+     *
+     * @param iterable<FilterSorterInterface> $sorters
+     * @param iterable<FilterPickerInterface> $pickers
      */
     public function __construct(
         private readonly iterable $sorters,
@@ -20,6 +23,8 @@ class FilterServiceRegistry
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterSorterInterface>
      */
     public function getSorters(): \Generator
     {
@@ -47,6 +52,8 @@ class FilterServiceRegistry
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterPickerInterface>
      */
     public function getPickers(): \Generator
     {

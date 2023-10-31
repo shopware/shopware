@@ -56,6 +56,7 @@
     "/_action/promotion/codes/generate-individual",
     "/_action/promotion/codes/preview",
     "/_action/promotion/codes/replace-individual",
+    "/_action/promotion/discount/picker",
     "/_action/promotion/setgroup/packager",
     "/_action/promotion/setgroup/sorter",
     "/_action/redirect-to-echo",

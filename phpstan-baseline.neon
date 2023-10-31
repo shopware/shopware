@@ -676,21 +676,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/Discount/Filter/Applier/Applier.php
 
 		-
-			message: "#^Anonymous variable in a `\\$picker\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Filter/FilterServiceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\Filter\\\\FilterServiceRegistry\\:\\:__construct\\(\\) has parameter \\$pickers with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Filter/FilterServiceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\Filter\\\\FilterServiceRegistry\\:\\:__construct\\(\\) has parameter \\$sorters with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Filter/FilterServiceRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\ScopePackager\\\\SetGroupScopeDiscountPackager\\:\\:buildGroupDefinitionList\\(\\) has parameter \\$groups with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/Discount/ScopePackager/SetGroupScopeDiscountPackager.php

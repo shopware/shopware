@@ -191,6 +191,7 @@ class CartRuleLoader implements ResetInterface
 
         $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
         $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+
         if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
             return CartPrice::TAX_STATE_FREE;
         }

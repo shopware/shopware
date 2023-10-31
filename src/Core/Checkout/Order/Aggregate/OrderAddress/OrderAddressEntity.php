@@ -51,7 +51,7 @@ class OrderAddressEntity extends Entity
     /**
      * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
      *
-     * @var string
+     * @var string|null
      */
     protected $zipcode;
 
@@ -195,6 +195,13 @@ class OrderAddressEntity extends Entity
      */
     public function getZipcode(): string
     {
+        /**
+         * @decrecated tag:v6.6.0 - Remove as return type will be nullable
+         */
+        if ($this->zipcode === null) {
+            return '';
+        }
+
         return $this->zipcode;
     }
 

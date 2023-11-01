@@ -14,10 +14,10 @@ All blocks of this template are available in the template which renders this tem
         <div class="payment-shipping-container">
             {% block document_payment_shipping_inner %}
                 {% block document_payment %}
-                    {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.last.paymentMethod.name})|sw_sanitize }}<br>
+                    {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}<br>
                 {% endblock %}
                 {% block document_shipping %}
-                    {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.name})|sw_sanitize }}<br><br>
+                    {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.translated.name})|sw_sanitize }}<br><br>
                 {% endblock %}
                 {% block document_payment_shipping_additional %}
                     {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize }}<br>

@@ -57,7 +57,8 @@ class ResolverTest extends TestCase
         $this->secondStrategy->expects(static::never())
             ->method('resolve');
 
-        static::expectException(AppUrlChangeStrategyNotFoundException::class);
+        $this->expectException(AppUrlChangeStrategyNotFoundException::class);
+        $this->expectExceptionMessage('Unable to find AppUrlChangeResolver with name: "ThirdStrategy".');
         $this->appUrlChangedResolverStrategy->resolve('ThirdStrategy', Context::createDefaultContext());
     }
 

@@ -14,12 +14,15 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Theme\ThemeEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -33,23 +36,32 @@ class ExtensionLifecycleServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
-    private ExtensionLifecycleService $lifecycleService;
+    private AbstractExtensionLifecycle $lifecycleService;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
+    /**
+     * @var EntityRepository<ThemeCollection>|null
+     */
     private ?EntityRepository $themeRepository;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->lifecycleService = $this->getContainer()->get(ExtensionLifecycleService::class);
+        $this->lifecycleService = static::getContainer()->get(ExtensionLifecycleService::class);
 
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->themeRepository = $this->getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->themeRepository = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
@@ -66,15 +78,12 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         $this->lifecycleService->install('app', 'TestApp', $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
         static::assertCount(1, $apps);
 
         $testApp = $apps->first();
-
         static::assertNotNull($testApp);
-        static::assertEquals('TestApp', $testApp->getName());
+        static::assertSame('TestApp', $testApp->getName());
         static::assertFalse($testApp->isActive());
     }
 
@@ -89,8 +98,8 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromTechnicalName instead.');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not find extension with technical name "notExisting"');
         $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
     }
 
@@ -98,7 +107,7 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionInstallException::class);
+        $this->expectException(ExtensionInstallException::class);
         $this->lifecycleService->install('app', 'notExisting', $this->context);
     }
 
@@ -106,8 +115,8 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionInstallException instead.');
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage('Cannot find app by name notExisting');
         $this->lifecycleService->install('app', 'notExisting', $this->context);
     }
 
@@ -118,7 +127,6 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->lifecycleService->uninstall('app', 'TestApp', false, $this->context);
         $this->lifecycleService->remove('app', 'TestApp', $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(0, $apps);
@@ -130,15 +138,12 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         $this->lifecycleService->activate('app', 'TestApp', $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
         static::assertCount(1, $apps);
 
         $testApp = $apps->first();
-
         static::assertNotNull($testApp);
-        static::assertEquals('TestApp', $testApp->getName());
+        static::assertSame('TestApp', $testApp->getName());
         static::assertTrue($testApp->isActive());
     }
 
@@ -148,24 +153,18 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         $this->lifecycleService->activate('app', 'TestApp', $this->context);
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-        $testApp = $apps->first();
-
+        $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
         static::assertTrue($testApp->isActive());
 
         $this->lifecycleService->deactivate('app', 'TestApp', $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
         static::assertCount(1, $apps);
 
         $testApp = $apps->first();
-
         static::assertNotNull($testApp);
-        static::assertEquals('TestApp', $testApp->getName());
+        static::assertSame('TestApp', $testApp->getName());
         static::assertFalse($testApp->isActive());
     }
 
@@ -173,7 +172,7 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionInstallException::class);
+        $this->expectException(ExtensionInstallException::class);
         $this->lifecycleService->update('app', 'foo', false, $this->context);
     }
 
@@ -181,8 +180,8 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionInstallException instead.');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot find extension');
         $this->lifecycleService->update('app', 'foo', false, $this->context);
     }
 
@@ -191,7 +190,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
-        static::expectException(ExtensionNotFoundException::class);
+        $this->expectException(ExtensionNotFoundException::class);
         $this->lifecycleService->update('app', 'TestApp', false, $this->context);
     }
 
@@ -200,8 +199,8 @@ class ExtensionLifecycleServiceTest extends TestCase
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromTechnicalName instead.');
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage('Could not find extension with technical name "TestApp"');
         $this->lifecycleService->update('app', 'TestApp', false, $this->context);
     }
 
@@ -209,26 +208,18 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-        $testApp = $apps->first();
-
+        $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
         static::assertSame('1.0.0', $testApp->getVersion());
 
-        $appManifestPath = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
-
+        $appManifestPath = static::getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
         $appManifest = file_get_contents($appManifestPath);
         static::assertIsString($appManifest);
-
         file_put_contents($appManifestPath, str_replace('1.0.0', '1.0.1', $appManifest));
 
         $this->lifecycleService->update('app', 'TestApp', false, $this->context);
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-        $testApp = $apps->first();
-
+        $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
         static::assertSame('1.0.1', $testApp->getVersion());
     }
@@ -243,22 +234,16 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-        $testApp = $apps->first();
-
+        $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
 
-        /** @var ThemeEntity|null $theme */
         $theme = $themeRepo->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'TestAppTheme')),
             $this->context
-        )->first();
-
-        $defaultSalesChannelId = $this->salesChannelRepository->searchIds(new Criteria(), $this->context)
-            ->firstId();
-
+        )->getEntities()->first();
         static::assertNotNull($theme);
+
+        $defaultSalesChannelId = $this->salesChannelRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($defaultSalesChannelId);
 
         $this->salesChannelRepository->update([[
@@ -268,7 +253,12 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        static::expectException(ExtensionThemeStillInUseException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectException(StoreException::class);
+        } else {
+            $this->expectException(ExtensionThemeStillInUseException::class);
+        }
+        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             $testApp->getName(),
@@ -287,12 +277,10 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
-        /** @var ThemeEntity|null $theme */
         $theme = $themeRepo->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'TestAppTheme')),
             $this->context
-        )->first();
-
+        )->getEntities()->first();
         static::assertNotNull($theme);
 
         $childThemeId = Uuid::randomHex();
@@ -304,8 +292,7 @@ class ExtensionLifecycleServiceTest extends TestCase
             'parentThemeId' => $theme->getId(),
         ]], $this->context);
 
-        $defaultSalesChannelId = $this->salesChannelRepository->searchIds(new Criteria(), $this->context)
-            ->firstId();
+        $defaultSalesChannelId = $this->salesChannelRepository->searchIds(new Criteria(), $this->context)->firstId();
 
         $this->salesChannelRepository->update([[
             'id' => $defaultSalesChannelId,
@@ -314,7 +301,14 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        static::expectException(ExtensionThemeStillInUseException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectException(StoreException::class);
+        } else {
+            $this->expectException(ExtensionThemeStillInUseException::class);
+        }
+        $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($testApp);
+        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             'TestAppTheme',
@@ -337,15 +331,12 @@ class ExtensionLifecycleServiceTest extends TestCase
         $themeCriteria->addFilter(new EqualsFilter('technicalName', 'TestAppTheme'))
             ->addAssociation('salesChannels');
 
-        /** @var ThemeEntity|null $theme */
-        $theme = $themeRepo->search($themeCriteria, $this->context)->first();
-
+        $theme = $themeRepo->search($themeCriteria, $this->context)->getEntities()->first();
         static::assertNotNull($theme);
 
         $salesChannels = $theme->getSalesChannels();
-
         static::assertNotNull($salesChannels);
-        static::assertEquals(0, $salesChannels->count());
+        static::assertCount(0, $salesChannels);
 
         $this->lifecycleService->uninstall(
             'type',
@@ -366,8 +357,8 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
 
-        $oldName = $this->getContainer()->getParameter('shopware.app_dir') . '/TestAppTheme';
-        $newName = $this->getContainer()->getParameter('shopware.app_dir') . '/some-random-folder-name';
+        $oldName = static::getContainer()->getParameter('shopware.app_dir') . '/TestAppTheme';
+        $newName = static::getContainer()->getParameter('shopware.app_dir') . '/some-random-folder-name';
 
         rename($oldName, $newName);
 

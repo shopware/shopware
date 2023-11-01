@@ -26,7 +26,7 @@ class TaskRunnerTest extends TestCase
         $taskRunner = new TaskRunner([], $scheduledTaskRepository);
 
         $this->expectException(MessageQueueException::class);
-        $this->expectExceptionMessage('Cannot find scheduled task by name "non-existing-task"');
+        $this->expectExceptionMessage('Could not find scheduled task with name "non-existing-task"');
         $taskRunner->runSingleTask('non-existing-task', Context::createDefaultContext());
     }
 

@@ -149,9 +149,7 @@ class PaymentException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::PAYMENT_INVALID_ORDER_ID,
             'The order with id {{ orderId }} is invalid or could not be found.',
-            [
-                'orderId' => $orderId,
-            ],
+            ['orderId' => $orderId],
             $e
         );
     }
@@ -282,7 +280,20 @@ class PaymentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - use PaymentException::unknownPaymentMethodById or PaymentException::unknownPaymentMethodByHandlerIdentifier instead
+     */
     public static function unknownPaymentMethod(string $paymentMethodId, ?\Throwable $e = null): self
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use PaymentException::unknownPaymentMethodById or PaymentException::unknownPaymentMethodByHandlerIdentifier instead')
+        );
+
+        return self::unknownPaymentMethodById($paymentMethodId, $e);
+    }
+
+    public static function unknownPaymentMethodById(string $paymentMethodId, ?\Throwable $e = null): self
     {
         if (!Feature::isActive('v6.6.0.0')) {
             return new UnknownPaymentMethodException($paymentMethodId, $e);
@@ -291,10 +302,23 @@ class PaymentException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_UNKNOWN_PAYMENT_METHOD,
-            'The payment method {{ paymentMethodId }} could not be found.',
-            [
-                'paymentMethodId' => $paymentMethodId,
-            ],
+            self::$couldNotFindMessage,
+            ['entity' => 'payment method', 'field' => 'id', 'value' => $paymentMethodId],
+            $e
+        );
+    }
+
+    public static function unknownPaymentMethodByHandlerIdentifier(string $paymentMethodId, ?\Throwable $e = null): self
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new UnknownPaymentMethodException($paymentMethodId, $e);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_UNKNOWN_PAYMENT_METHOD,
+            self::$couldNotFindMessage,
+            ['entity' => 'payment method', 'field' => 'handler identifier', 'value' => $paymentMethodId],
             $e
         );
     }
@@ -309,9 +333,7 @@ class PaymentException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_REFUND_UNKNOWN_ERROR,
             'The Refund process failed with following exception: Unknown refund with id {{ refundId }}.',
-            [
-                'refundId' => $refundId,
-            ],
+            ['refundId' => $refundId],
             $e
         );
     }
@@ -326,9 +348,7 @@ class PaymentException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR,
             'The Refund process failed with following exception: Unknown refund handler for refund id {{ refundId }}.',
-            [
-                'refundId' => $refundId,
-            ],
+            ['refundId' => $refundId],
             $e
         );
     }
@@ -343,9 +363,7 @@ class PaymentException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_VALIDATE_PREPARED_ERROR,
             'The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
-            [
-                'errorMessage' => $errorMessage,
-            ],
+            ['errorMessage' => $errorMessage],
             $e
         );
     }

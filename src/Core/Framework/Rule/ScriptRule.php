@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
@@ -104,7 +103,7 @@ class ScriptRule extends Rule
         try {
             return $this->render($twig, $script, $hook, $name, $context);
         } catch (\Throwable $e) {
-            throw new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
+            throw RuleException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
         }
     }
 

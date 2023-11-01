@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -43,7 +44,7 @@ class UninstallAppsStrategyTest extends TestCase
     {
         $uninstallAppsResolver = $this->getContainer()->get(UninstallAppsStrategy::class);
 
-        static::assertEquals(
+        static::assertSame(
             UninstallAppsStrategy::STRATEGY_NAME,
             $uninstallAppsResolver->getName()
         );
@@ -103,13 +104,12 @@ class UninstallAppsStrategyTest extends TestCase
 
     private function getInstalledApp(Context $context): ?AppEntity
     {
-        /** @var EntityRepository $appRepo */
+        /** @var EntityRepository<AppCollection> $appRepo */
         $appRepo = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        $apps = $appRepo->search($criteria, $context);
 
-        return $apps->first();
+        return $appRepo->search($criteria, $context)->getEntities()->first();
     }
 }

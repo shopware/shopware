@@ -55,6 +55,12 @@ class ImportExportExceptionTest extends TestCase
                 'errorCode' => '500',
                 'message' => 'The getDecorated() function of core class foo cannot be used. This class is the base class.',
             ],
+            [
+                'exception' => ImportExportException::profileNotFound('null'),
+                'statusCode' => Response::HTTP_NOT_FOUND,
+                'errorCode' => 'CONTENT__IMPORT_EXPORT_PROFILE_NOT_FOUND',
+                'message' => 'Cannot find import/export profile with id null',
+            ],
         ];
 
         foreach ($testCases as $testCase) {

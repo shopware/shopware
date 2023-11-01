@@ -72,10 +72,15 @@
                                     {% endif %}
 
                                     {% if lineItem.payload.productNumber %}
-                                        {% block component_line_item_type_product_order_number %}
-                                            <div class="line-item-ordernumber">
-                                                {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
-                                            </div>
+                                        {% block componcent_line_item_type_product_number %}
+
+                                            {# @deprecated tag:v6.6.0 - Block will be removed. Use `componcent_line_item_type_product_number` instead.  #}
+                                            {% block component_line_item_type_product_order_number %}
+                                                {# @deprecated tag:v6.6.0 - Class `line-item-ordernumber` will be removed. Use `line-item-product-number` instead.  #}
+                                                <div class="line-item-ordernumber line-item-product-number">
+                                                    {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
+                                                </div>
+                                            {%  endblock %}
                                         {% endblock %}
                                     {% endif %}
 

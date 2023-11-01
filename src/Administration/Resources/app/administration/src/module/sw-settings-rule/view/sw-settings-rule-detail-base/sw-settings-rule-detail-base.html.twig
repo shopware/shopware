@@ -10,10 +10,7 @@
         :title="$tc('sw-settings-rule.detail.titleCard')"
     >
         <template v-if="rule">
-            <sw-container
-                columns="2fr 1fr"
-                gap="0px 32px"
-            >
+            <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
                 <sw-text-field
@@ -45,7 +42,7 @@
                     required
                 />
                 {% endblock %}
-            </sw-container>
+            </div>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
@@ -61,10 +58,7 @@
             />
             {% endblock %}
 
-            <sw-container
-                columns="1fr 1fr"
-                gap="0px 32px"
-            >
+            <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 32px">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_type %}
                 <sw-multi-select
@@ -95,14 +89,18 @@
                 {% block sw_settings_rule_detail_base_content_card_field_tags %}
                 <sw-entity-tag-select
                     v-if="rule"
+                    {% if VUE3 %}
+                    v-model:entityCollection="rule.tags"
+                    {% else %}
                     v-model="rule.tags"
+                    {% endif %}
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"
                     :disabled="!acl.can('rule.editor')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderTags')"
                 />
                 {% endblock %}
-            </sw-container>
+            </div>
         </template>
         <sw-loader v-else />
     </sw-card>
@@ -126,7 +124,7 @@
             :association-entity="rule"
             :root-condition="null"
             :disabled="!acl.can('rule.editor')"
-            @conditions-changed="onConditionsChanged"
+            @conditions-changed="$emit('conditions-changed', $event)"
             @initial-loading-done="$emit('tree-finished-loading')"
         />
     </sw-card>

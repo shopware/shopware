@@ -51,7 +51,7 @@ abstract class AbstractElasticsearchDefinition
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will become abstract, implementation should implement their own `buildTermQuery`
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Will become abstract, implementation should implement their own `buildTermQuery` and return type will change to BuilderInterface
      */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {

@@ -66,6 +66,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -200,19 +201,19 @@ class CriteriaParser
             $filter instanceof PrefixFilter => $this->parsePrefixFilter($filter, $definition, $context),
             $filter instanceof SuffixFilter => $this->parseSuffixFilter($filter, $definition, $context),
             $filter instanceof RangeFilter => $this->parseRangeFilter($filter, $definition, $context),
-            default => throw new \RuntimeException(sprintf('Unsupported filter %s', $filter::class)),
+            default => throw ElasticsearchException::unsupportedFilter($filter::class),
         };
     }
 
     protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): AbstractAggregation
     {
         if ($aggregation->getAggregation() === null) {
-            throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
+            throw ElasticsearchException::nestedAggregationMissingInFilterAggregation($aggregation->getName());
         }
 
         $nested = $this->parseAggregation($aggregation->getAggregation(), $definition, $context);
         if ($nested === null) {
-            throw new \RuntimeException(sprintf('Nested filter aggregation %s can not be parsed.', $aggregation->getName()));
+            throw ElasticsearchException::nestedAggregationParseError($aggregation->getName());
         }
 
         // when aggregation inside the filter aggregation points to a nested object (e.g. product.properties.id) we have to add all filters
@@ -258,7 +259,7 @@ class CriteriaParser
         if (\count($bool->getQueries()) > 0 && $nested instanceof NestedAggregation) {
             $real = $nested->getAggregation($nested->getName());
             if (!$real instanceof AbstractAggregation) {
-                throw new \RuntimeException(sprintf('Nested filter aggregation %s can not be parsed.', $aggregation->getName()));
+                throw ElasticsearchException::nestedAggregationParseError($aggregation->getName());
             }
 
             $filter = new Bucketing\FilterAggregation($aggregation->getName(), $bool);
@@ -287,14 +288,15 @@ class CriteriaParser
                 continue;
             }
 
-            $filter = $filter->getAggregation($filter->getName());
+            $filterName = $filter->getName();
+            $filter = $filter->getAggregation($filterName);
             if (!$filter instanceof AbstractAggregation) {
-                throw new \RuntimeException('Expected nested+filter+reverse pattern for parsed filters to set next parent correctly');
+                throw ElasticsearchException::parentFilterError($filterName);
             }
 
             $parent = $filter->getAggregation($filter->getName());
             if (!$parent instanceof AbstractAggregation) {
-                throw new \RuntimeException('Expected nested+filter+reverse pattern for parsed filters to set next parent correctly');
+                throw ElasticsearchException::parentFilterError($filter->getName());
             }
         }
 

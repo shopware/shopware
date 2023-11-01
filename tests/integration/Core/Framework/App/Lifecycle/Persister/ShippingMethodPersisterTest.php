@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -169,8 +170,13 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::ACTIVE_FLAG_APP_PATH);
     }
 
+    /**
+     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
+     */
     public function testGetAvailabilityRuleUuidReturnsAlwaysValidRule(): void
     {
+        Feature::skipTestIfActive('V6_6_0_0', $this);
+
         $this->installApp(self::APP_PATH);
 
         $alwaysValidRule = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `name` = "Always valid (Default)"'));
@@ -184,8 +190,13 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::APP_PATH);
     }
 
+    /**
+     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
+     */
     public function testGetAvailabilityRuleUuidReturnsFirstRuleForShippingArea(): void
     {
+        Feature::skipTestIfActive('V6_6_0_0', $this);
+
         $this->connection->update('rule', ['name' => 'Foo Bar'], ['name' => 'Always valid (Default)']);
 
         $this->installApp(self::APP_PATH);

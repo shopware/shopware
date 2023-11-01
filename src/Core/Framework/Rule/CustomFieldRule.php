@@ -48,8 +48,9 @@ class CustomFieldRule
     /**
      * @param array<string, string> $renderedField
      * @param array<string, mixed> $customFields
+     * @param array<string>|string|int|bool|float|null $renderedFieldValue
      */
-    public static function match(array $renderedField, string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
+    public static function match(array $renderedField, array|string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
     {
         $actual = self::getValue($customFields, $renderedField);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);
@@ -113,8 +114,10 @@ class CustomFieldRule
     /**
      * @param array<string, mixed> $customFields
      * @param array<string, string> $renderedField
+     *
+     * @return array<string>|float|bool|int|string|null
      */
-    private static function getValue(array $customFields, array $renderedField): float|bool|int|string|null
+    private static function getValue(array $customFields, array $renderedField): array|float|bool|int|string|null
     {
         if (!empty($customFields) && \array_key_exists($renderedField['name'], $customFields)) {
             return $customFields[$renderedField['name']];
@@ -128,9 +131,12 @@ class CustomFieldRule
     }
 
     /**
+     * @param array<string>|float|bool|int|string|null $renderedFieldValue
      * @param array<string, string> $renderedField
+     *
+     * @return array<string>|float|bool|int|string|null
      */
-    private static function getExpectedValue(float|bool|int|string|null $renderedFieldValue, array $renderedField): float|bool|int|string|null
+    private static function getExpectedValue(array|float|bool|int|string|null $renderedFieldValue, array $renderedField): array|float|bool|int|string|null
     {
         if (self::isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);

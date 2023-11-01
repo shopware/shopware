@@ -74,9 +74,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     throw new DocumentGenerationException('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                $documentRefer = json_decode((string) $invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
-
-                $referenceInvoiceNumbers[$orderId] = $documentRefer['documentNumber'];
+                $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
+                $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
                 $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
 
@@ -176,7 +175,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);

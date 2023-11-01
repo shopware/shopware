@@ -1,6 +1,7 @@
 parameters:
     messenger.default_transport_name: 'v65'
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+    env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
     env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_DSN): 'null://null'
 
@@ -61,9 +62,18 @@ framework:
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
+            low_priority:
+                dsn: "%env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN)%"
+                serializer: messenger.transport.symfony_serializer
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
 
         routing:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
+            'Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface': low_priority
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
 
     exceptions:
@@ -194,6 +204,8 @@ framework:
         Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException:
             log_level: notice
         Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
+            log_level: notice
+        Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException:
             log_level: notice

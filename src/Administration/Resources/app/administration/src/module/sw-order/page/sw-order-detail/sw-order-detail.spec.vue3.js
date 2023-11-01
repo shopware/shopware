@@ -137,6 +137,19 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
 
+    it('should remove version context immediately when cancelling', async () => {
+        const oldVersionId = wrapper.vm.versionContext.versionId;
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => {
+            expect(wrapper.vm.versionContext.versionId).not.toBe(oldVersionId);
+
+            return Promise.resolve();
+        });
+
+        await wrapper.vm.onCancelEditing();
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
     it('should reload entity data with orderCriteria', () => {
         const criteria = wrapper.vm.orderCriteria;
 

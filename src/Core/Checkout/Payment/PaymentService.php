@@ -155,7 +155,7 @@ class PaymentService
         $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethodId);
 
         if (!$handler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethodId);
+            throw PaymentException::unknownPaymentMethodById($paymentMethodId);
         }
 
         return $handler;

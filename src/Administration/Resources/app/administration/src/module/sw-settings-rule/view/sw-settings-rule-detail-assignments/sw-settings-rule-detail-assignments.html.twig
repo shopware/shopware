@@ -17,7 +17,7 @@
             {% block sw_settings_rule_detail_assignments_toolbar %}
             <sw-card-filter
                 placeholder=""
-                @sw-card-filter-term-change="onFilterEntity(entity, ...arguments)"
+                @sw-card-filter-term-change="onFilterEntity(entity, $event)"
             >
                 <template #filter>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

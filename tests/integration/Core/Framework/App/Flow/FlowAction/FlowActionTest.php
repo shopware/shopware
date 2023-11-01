@@ -18,9 +18,9 @@ class FlowActionTest extends TestCase
         $flowActions = Action::createFromXmlFile(__DIR__ . $flowActionsFile);
 
         if (Feature::isActive('v6.6.0.0')) {
-            static::assertEquals(__DIR__ . '/_fixtures/valid/major', $flowActions->getPath());
+            static::assertSame(__DIR__ . '/_fixtures/valid/major', $flowActions->getPath());
         } else {
-            static::assertEquals(__DIR__ . '/_fixtures/valid/minor', $flowActions->getPath());
+            static::assertSame(__DIR__ . '/_fixtures/valid/minor', $flowActions->getPath());
         }
 
         static::assertNotNull($flowActions->getActions());

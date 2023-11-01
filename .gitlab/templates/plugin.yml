@@ -18,6 +18,7 @@ variables:
     DATABASE_URL: 'mysql://root:root@database:3306/root'
     APP_SECRET: 'devsecret'
     APP_URL: http://localhost:8000
+    APP_ENV: test
     # cypress
     CYPRESS_baseUrl: http://localhost:8000
     CYPRESS_localUsage: 1
@@ -32,7 +33,7 @@ variables:
         value: trunk
         description: 'The shopware/platform branch that is used'
     DEV_IMAGE:
-        value: shopware/development:8.1-composer-2
+        value: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:latest
         description: 'base docker image used. Can be changed to test other php versions. Example: shopware/development:8.0-composer-2'
     PLUGIN_SOURCE_DIR:
         value: src/
@@ -281,6 +282,7 @@ jest (administration):
               - src/Resources/app/administration/jest.config.js
               - Resources/app/administration/jest.config.js
     variables:
+        APP_ENV: prod
         ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
@@ -291,6 +293,26 @@ jest (administration):
         - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
+jest (administration vue3):
+    stage: test
+    needs: []
+    rules:
+        # exists does not support variables, so we cannot use ${PLUGIN_SOURCE_DIR} here
+        - exists:
+              - src/Resources/app/administration/jest.vue3.config.js
+              - Resources/app/administration/jest.vue3.config.js
+    variables:
+        APP_ENV: prod
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+    script:
+        - '(cd $ADMIN_PATH && npm ci)'
+        - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
+        - npm --prefix $ADMIN_PATH run unit-setup
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
+        - npm ci --no-audit --prefer-offline
+        - VUE3=1 npm exec jest -- --config jest.vue3.config.js --ci
+
 jest (storefront):
     stage: test
     needs: []
@@ -300,6 +322,7 @@ jest (storefront):
               - Resources/app/storefront/jest.config.js
               - src/Resources/app/storefront/jest.config.js
     variables:
+        APP_ENV: prod
         ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
@@ -332,6 +355,7 @@ template filled:
     - npm ci --no-audit --prefer-offline
 
 .base e2e:
+    image: shopware/development:8.2-composer-2
     stage: E2E
     needs: []
     script:

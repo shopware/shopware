@@ -4,7 +4,6 @@ Symfony security check:
     extends: .long-running
     stage: unit
     needs: []
-    image: shopware/development:8.1-composer-2
     before_script: []
     script:
         - composer install --no-interaction --no-scripts

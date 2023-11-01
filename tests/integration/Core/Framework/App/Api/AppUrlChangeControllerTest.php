@@ -29,7 +29,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $appUrlChangeResolver = $this->getContainer()->get(Resolver::class);
         static::assertEquals($appUrlChangeResolver->getAvailableStrategies(), $response);
@@ -54,7 +54,7 @@ class AppUrlChangeControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($response);
 
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode(), $response);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode(), $response);
     }
 
     public function testResolveWithNotFoundStrategy(): void
@@ -76,10 +76,10 @@ class AppUrlChangeControllerTest extends TestCase
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
 
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Unable to find AppUrlChangeResolver with name: "test".', $response['errors'][0]['detail']);
+        static::assertSame('Unable to find AppUrlChangeResolver with name: "test".', $response['errors'][0]['detail']);
     }
 
     public function testResolveWithoutStrategy(): void
@@ -95,10 +95,10 @@ class AppUrlChangeControllerTest extends TestCase
 
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
 
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Parameter "strategy" is missing.', $response['errors'][0]['detail']);
+        static::assertSame('Parameter "strategy" is missing.', $response['errors'][0]['detail']);
     }
 
     public function testGetUrlDiffWithApps(): void
@@ -119,7 +119,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertEquals(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);
     }
 
@@ -136,6 +136,6 @@ class AppUrlChangeControllerTest extends TestCase
         $url = '/api/app-system/app-url-change/url-difference';
         $this->getBrowser()->request('GET', $url);
 
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
     }
 }

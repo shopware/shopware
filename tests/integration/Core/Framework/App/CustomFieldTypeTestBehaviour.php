@@ -3,15 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
-use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -27,33 +23,30 @@ trait CustomFieldTypeTestBehaviour
         $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
         $appLifecycle->install($manifest, true, $context);
 
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
         $criteria = new Criteria();
         $criteria->addAssociation('customFieldSets.customFields');
 
-        /** @var AppCollection $apps */
         $apps = $appRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $app */
         $app = $apps->first();
-        static::assertEquals('SwagApp', $app->getName());
+        static::assertNotNull($app);
+        static::assertSame('SwagApp', $app->getName());
 
-        /** @var CustomFieldSetCollection $fieldSets */
         $fieldSets = $app->getCustomFieldSets();
+        static::assertNotNull($fieldSets);
         static::assertCount(1, $fieldSets);
-        /** @var CustomFieldSetEntity $customFieldSet */
         $customFieldSet = $fieldSets->first();
-        static::assertEquals('custom_field_test', $customFieldSet->getName());
+        static::assertNotNull($customFieldSet);
+        static::assertSame('custom_field_test', $customFieldSet->getName());
         static::assertNotNull($customFieldSet->getCustomFields());
 
         static::assertCount(1, $customFieldSet->getCustomFields());
 
-        /** @var CustomFieldCollection $customFields */
-        $customFields = $customFieldSet->getCustomFields();
-        /** @var CustomFieldEntity $customField */
-        $customField = $customFields->first();
+        $customField = $customFieldSet->getCustomFields()->first();
+        static::assertNotNull($customField);
 
         return $customField;
     }

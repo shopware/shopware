@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -35,7 +36,7 @@ class ExtensionDataProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionDataProvider = $this->getContainer()->get(AbstractExtensionDataProvider::class);
+        $this->extensionDataProvider = static::getContainer()->get(AbstractExtensionDataProvider::class);
         $this->context = $this->createAdminStoreContext();
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
@@ -49,22 +50,22 @@ class ExtensionDataProviderTest extends TestCase
     public function testItReturnsInstalledAppsAsExtensionCollection(): void
     {
         $this->setLicenseDomain('localhost');
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '[]'));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '[]'));
 
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtension = $installedExtensions->get('TestApp');
 
         static::assertInstanceOf(ExtensionStruct::class, $installedExtension);
         static::assertNull($installedExtension->getId());
-        static::assertEquals('Swag App Test', $installedExtension->getLabel());
+        static::assertSame('Swag App Test', $installedExtension->getLabel());
     }
 
     public function testGetAppEntityFromTechnicalName(): void
     {
         $app = $this->extensionDataProvider->getAppEntityFromTechnicalName('TestApp', $this->context);
 
-        static::assertEquals('TestApp', $app->getName());
+        static::assertSame('TestApp', $app->getName());
     }
 
     public function testGetAppEntityFromId(): void
@@ -72,17 +73,14 @@ class ExtensionDataProviderTest extends TestCase
         $installedApp = $this->extensionDataProvider->getAppEntityFromTechnicalName('TestApp', $this->context);
 
         $app = $this->extensionDataProvider->getAppEntityFromId($installedApp->getId(), $this->context);
-        static::assertEquals(
-            $installedApp,
-            $app
-        );
+        static::assertEquals($installedApp, $app);
     }
 
     public function testGetAppEntityFromTechnicalNameThrowsWithoutMajorFlag(): void
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionNotFoundException::class);
+        $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
     }
 
@@ -90,16 +88,16 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromTechnicalName instead.');
-        $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage('Could not find extension with technical name "testName"');
+        $this->extensionDataProvider->getAppEntityFromTechnicalName('testName', $this->context);
     }
 
     public function testGetAppEntityFromIdThrowsWithoutMajorFlag(): void
     {
         Feature::skipTestIfActive('V6_6_0_0', $this);
 
-        static::expectException(ExtensionNotFoundException::class);
+        $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
     }
 
@@ -107,19 +105,21 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('V6_6_0_0', $this);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Use StoreException::extensionNotFoundFromId');
-        $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
+        $id = Uuid::randomHex();
+
+        $this->expectException(StoreException::class);
+        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s"', $id));
+        $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 
     public function testItLoadsRemoteExtensions(): void
     {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        static::getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"data":[]}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
         static::assertCount(7, $installedExtensions);
     }
@@ -136,9 +136,9 @@ class ExtensionDataProviderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
         static::assertCount(1, $installedExtensions);
     }
@@ -147,12 +147,12 @@ class ExtensionDataProviderTest extends TestCase
     {
         $this->setLicenseDomain(null);
 
-        $this->getRequestHandler()->append(
+        $this->getStoreRequestHandler()->append(
             $this->getDomainMissingResponse(),
             $this->getDomainMissingResponse()
         );
 
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
 
         static::assertCount(1, $installedExtensions);
@@ -161,7 +161,7 @@ class ExtensionDataProviderTest extends TestCase
 
         static::assertInstanceOf(ExtensionStruct::class, $installedExtension);
         static::assertNull($installedExtension->getId());
-        static::assertEquals('Swag App Test', $installedExtension->getLabel());
+        static::assertSame('Swag App Test', $installedExtension->getLabel());
     }
 
     private function getDomainMissingResponse(): ResponseInterface

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -18,7 +19,7 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -39,43 +40,25 @@ use Symfony\Component\Messenger\MessageBus;
  */
 class ThemeServiceTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connectionMock;
+    private Connection&MockObject $connectionMock;
 
-    /**
-     * @var StorefrontPluginRegistry&MockObject
-     */
-    private StorefrontPluginRegistry $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
-    private MockObject&EntityRepository $themeRepositoryMock;
+    private EntityRepository&MockObject $themeRepositoryMock;
 
-    private MockObject&EntityRepository $themeSalesChannelRepositoryMock;
+    private EntityRepository&MockObject $themeSalesChannelRepositoryMock;
 
-    /**
-     * @var ThemeCompiler&MockObject
-     */
-    private ThemeCompiler $themeCompilerMock;
+    private ThemeCompiler&MockObject $themeCompilerMock;
 
-    /**
-     * @var EventDispatcher&MockObject
-     */
-    private EventDispatcher $eventDispatcherMock;
+    private EventDispatcher&MockObject $eventDispatcherMock;
 
     private ThemeService $themeService;
 
     private Context $context;
 
-    /**
-     * @var SystemConfigService&MockObject
-     */
-    private SystemConfigService $systemConfigMock;
+    private SystemConfigService&MockObject $systemConfigMock;
 
-    /**
-     * @var MessageBus&MockObject
-     */
-    private MessageBus $messageBusMock;
+    private MessageBus&MockObject $messageBusMock;
 
     protected function setUp(): void
     {
@@ -316,8 +299,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -504,9 +491,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
-
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
@@ -534,8 +524,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);
     }

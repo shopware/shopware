@@ -21,6 +21,8 @@ export default {
         },
     },
 
+    inject: ['feature'],
+
     data() {
         return {
             cmsPageState: Shopware.State.get('cmsPageState'),
@@ -52,6 +54,11 @@ export default {
             }
 
             this.$store.dispatch('cmsPageState/setSection', this.section);
+
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.$emit('page-config-open', 'itemConfig');
+                return;
+            }
             this.$parent.$emit('page-config-open', 'itemConfig');
         },
     },

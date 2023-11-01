@@ -208,7 +208,7 @@
           "textProblem": "A problem occurred while installing your extension. We will inform the manufacturer.",
           "notificationLicense": "Please note that the subscription to this extension remains active.",
           "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available via email at {0} or via phone at {1}.",
-          "supportEmail": "financial.services@shopware.com",
+          "supportEmail": "financial.services{'@'}shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
       },

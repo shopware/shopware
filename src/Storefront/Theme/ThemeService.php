@@ -17,7 +17,7 @@ use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -115,7 +115,7 @@ class ThemeService implements ResetInterface
         $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
 
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -176,7 +176,7 @@ class ThemeService implements ResetInterface
         $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
         if (!$theme) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -189,7 +189,7 @@ class ThemeService implements ResetInterface
 
     /**
      * @throws InvalidThemeConfigException
-     * @throws InvalidThemeException
+     * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      *
      * @return array<string, mixed>
@@ -204,12 +204,12 @@ class ThemeService implements ResetInterface
         $theme = $themes->get($themeId);
 
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
         if ($baseTheme === null) {
-            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+            throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
         }
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
@@ -579,7 +579,7 @@ class ThemeService implements ResetInterface
     {
         $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $translations = $theme->getLabels() ?: [];

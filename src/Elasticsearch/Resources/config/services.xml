@@ -222,6 +222,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\EsProductDefinition"/>
+            <argument>%elasticsearch.product.exclude_source%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -317,6 +319,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
+            <argument>%kernel.environment%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -348,12 +351,7 @@
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>
 
-        <service id="shopware.elasticsearch.logger" class="Psr\Log\LoggerInterface">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-            <argument type="string">elasticsearch</argument>
-            <argument>90</argument>
-            <argument>%elasticsearch.logger_level%</argument>
-        </service>
+        <service id="shopware.elasticsearch.logger" alias="monolog.logger.elasticsearch"/>
 
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
         <service id="_dummy_es_env_usage" class="iterable" lazy="true">

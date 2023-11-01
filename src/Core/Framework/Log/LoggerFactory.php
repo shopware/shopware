@@ -8,9 +8,10 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Feature;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal
+ * @deprecated tag:v6.6.0 - Will be removed, use monolog channels instead.
  */
 #[Package('core')]
 class LoggerFactory
@@ -30,6 +31,11 @@ class LoggerFactory
      */
     public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int|Level $loggerLevel = Level::Debug): LoggerInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'createRotating')
+        );
+
         $result = new Logger($filePrefix);
         $result->pushProcessor(new PsrLogMessageProcessor());
 

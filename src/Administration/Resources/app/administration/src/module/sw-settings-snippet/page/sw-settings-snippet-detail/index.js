@@ -1,7 +1,6 @@
 /**
  * @package services-settings
  */
-import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
 const { Mixin, Data: { Criteria } } = Shopware;
@@ -70,7 +69,7 @@ export default {
         },
 
         backPath() {
-            if (this.$route.query.ids && this.$route.query.ids.length > 0) {
+            if (this.$route.query?.ids?.length > 0) {
                 return {
                     name: 'sw.settings.snippet.list',
                     query: {
@@ -203,7 +202,6 @@ export default {
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
@@ -216,7 +214,6 @@ export default {
                 if (!snippet.author) {
                     snippet.author = this.currentAuthor;
                 }
-                snippet.value = Sanitizer.sanitize(snippet.value, { ADD_ATTR: ['target'] });
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
                     // If you clear the input-box, reset it to its origin value
@@ -226,9 +223,7 @@ export default {
                 if (snippet.translationKey !== this.translationKey) {
                     // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
-                        responses.push(
-                            this.snippetRepository.delete(snippet.id),
-                        );
+                        responses.push(this.snippetRepository.delete(snippet.id));
                     }
 
                     if (snippet.value === null || snippet.value === '') {
@@ -238,19 +233,13 @@ export default {
                     snippet.translationKey = this.translationKey;
                     snippet.id = null;
 
-                    responses.push(
-                        this.snippetRepository.save(snippet),
-                    );
+                    responses.push(this.snippetRepository.save(snippet));
                 } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
-                    responses.push(
-                        this.snippetRepository.save(snippet),
-                    );
+                    responses.push(this.snippetRepository.save(snippet));
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     // There's no need to keep a snippet which is exactly like the file-snippet, so delete
-                    responses.push(
-                        this.snippetRepository.delete(snippet.id),
-                    );
+                    responses.push(this.snippetRepository.delete(snippet.id));
                 }
             });
 
@@ -263,10 +252,9 @@ export default {
                 let errormsg = '';
                 this.isLoading = false;
                 if (error.response.data.errors.length > 0) {
-                    errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
+                    errormsg = `<br/>Error Message: "${error.response.data.errors[0].detail}"`;
                 }
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,

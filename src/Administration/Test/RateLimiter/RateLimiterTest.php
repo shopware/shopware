@@ -6,10 +6,15 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 /**
  * @internal
@@ -71,6 +76,28 @@ class RateLimiterTest extends TestCase
                 static::assertEquals(200, $client->getResponse()->getStatusCode());
             }
         }
+    }
+
+    public function testRateLimitTheSameTwice(): void
+    {
+        $rateLimiter = new RateLimiter();
+        $rateLimiter->registerLimiterFactory('test', new RateLimiterFactory(
+            [
+                'enabled' => true,
+                'id' => 'test_limiter',
+                'policy' => 'sliding_window',
+                'limit' => 1,
+                'interval' => '15 seconds'
+            ],
+            $this->createMock(StorageInterface::class),
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(LockFactory::class),
+        ));
+        $key = '5655e0ce-8238-407f-ae2e-d65c01b7dea3';
+        $rateLimiter->ensureAccepted('test', $key);
+        $rateLimiter->reset('test', $key);
+        $rateLimiter->ensureAccepted('test', $key);
+        $rateLimiter->reset('test', $key);
     }
 
     private function createApp(string $integrationId): void

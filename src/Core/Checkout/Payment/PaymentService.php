@@ -90,7 +90,7 @@ class PaymentService
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
         } catch (PaymentProcessException|PaymentException $e) {
             $transactionId = $e->getOrderTransactionId();
-            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
             if ($transactionId !== null) {
                 $this->transactionStateHandler->fail($transactionId, $context->getContext());
             }
@@ -137,7 +137,7 @@ class PaymentService
             if ($e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
                 $this->transactionStateHandler->cancel($transactionId, $context->getContext());
             } else {
-                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
                 $this->transactionStateHandler->fail($transactionId, $context->getContext());
             }
             $token->setException($e);

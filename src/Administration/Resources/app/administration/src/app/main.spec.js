@@ -36,6 +36,7 @@ describe('src/app/main.ts', () => {
         UserActivityService: undefined,
         EntityValidationService: undefined,
         CustomEntityDefinitionService: undefined,
+        addUsageDataConsentListener: undefined,
     };
 
     beforeAll(async () => {
@@ -162,6 +163,9 @@ describe('src/app/main.ts', () => {
         jest.mock('src/app/service/custom-entity-definition.service');
         serviceMocks.CustomEntityDefinitionService = (await import('src/app/service/custom-entity-definition.service')).default;
 
+        jest.mock('src/core/service/usage-data-consent-listener.service');
+        serviceMocks.addUsageDataConsentListener = (await import('src/core/service/usage-data-consent-listener.service')).default;
+
         // Reset the Shopware object to make sure that the application is not already initialized
         Shopware = undefined;
         // Import the Shopware object
@@ -190,7 +194,7 @@ describe('src/app/main.ts', () => {
     it('should add all initializer to Application', () => {
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(32);
+        expect(initializers).toHaveLength(33);
         expect(initializers).toContain('apiServices');
         expect(initializers).toContain('state');
         expect(initializers).toContain('coreMixin');
@@ -223,6 +227,7 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('language');
         expect(initializers).toContain('userInformation');
         expect(initializers).toContain('worker');
+        expect(initializers).toContain('usageData');
     });
 
     it('should add all services to Application', () => {

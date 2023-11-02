@@ -3,22 +3,42 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <parameters>
-        <parameter key="shopware.usage_data.needs_approval_request">true</parameter>
-    </parameters>
     <services>
         <!-- Api -->
-        <service id="Shopware\Core\System\UsageData\Api\UsageDataController" public="true">
-            <argument type="service" id="Shopware\Core\System\UsageData\Approval\ApprovalDetector"/>
+        <service id="Shopware\Core\System\UsageData\Api\ConsentController" public="true">
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="user_config.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Core\System\UsageData\Approval\ApprovalDetector">
-            <argument>%shopware.usage_data.needs_approval_request%</argument>
+        <service id="Shopware\Core\System\UsageData\Consent\ConsentService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="integration.repository"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentReporter"/>
+        </service>
+
+        <!-- Services -->
+        <service id="shopware.usage_data.gateway.client" class="Symfony\Contracts\HttpClient\HttpClientInterface">
+            <factory class="Symfony\Component\HttpClient\HttpClient" method="create"/>
+            <argument type="collection">
+                <argument key="base_uri">%shopware.usage_data.gateway.base_uri%</argument>
+            </argument>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Consent\ConsentReporter">
+            <argument type="service" id="shopware.usage_data.gateway.client"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="string">%env(APP_URL)%</argument>
         </service>
     </services>
 </container>

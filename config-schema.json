@@ -95,6 +95,9 @@
                 },
                 "stock": {
                     "$ref": "#/definitions/stock"
+                },
+                "usage_data": {
+                  "$ref": "#/definitions/usage_data"
                 }
             },
             "title": "Shopware"
@@ -120,6 +123,25 @@
                 }
             },
             "title": "Enabled profiler, available since 6.4.11.0"
+        },
+        "usage_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "gateway": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "base_uri": {
+                            "type": "string"
+                        },
+                        "batch_size": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "title": "Usage data"
         },
         "twig": {
             "type": "object",

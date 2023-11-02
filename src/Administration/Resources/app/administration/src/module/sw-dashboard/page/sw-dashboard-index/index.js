@@ -6,7 +6,7 @@ import './sw-dashboard-index.scss';
  *
  * @private
  */
-export default {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     data() {
@@ -116,4 +116,4 @@ export default {
             return localeGreetings ?? fallbackGreetings;
         },
     },
-};
+});

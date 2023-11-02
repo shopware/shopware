@@ -561,6 +561,9 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
+
         $converter = new OrderConverter(
             $this->createMock(EntityRepository::class),
             $this->createMock(SalesChannelContextFactory::class),
@@ -570,15 +573,13 @@ class OrderConverterTest extends TestCase
             $addressRepository,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(LineItemDownloadLoader::class),
+            $ruleRepository,
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
-    /**
-     * @return MockObject&SalesChannelContext
-     */
-    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject
+    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);

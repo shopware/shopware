@@ -73,6 +73,7 @@ class OrderConverter
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
      * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<RuleCollection> $ruleRepository
      */
     public function __construct(
         protected EntityRepository $customerRepository,

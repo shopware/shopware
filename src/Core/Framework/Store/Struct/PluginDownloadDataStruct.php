@@ -21,6 +21,14 @@ class PluginDownloadDataStruct extends Struct
      */
     protected $type;
 
+    protected ?int $size = null;
+
+    protected ?string $sha1 = null;
+
+    protected ?string $binaryVersion = null;
+
+    protected ?string $manifestLocation = null;
+
     public function getLocation(): string
     {
         return $this->location;

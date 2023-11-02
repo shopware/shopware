@@ -1,4 +1,20 @@
 # 6.6.0.0
+## Introduced in 6.5.6.0
+## Removal of CacheInvalidatorStorage
+
+The delayed cache invalidation storage was until 6.6 the cache implementation.
+As this is not ideal for multi-server usage, we deprecated it in 6.5 and removed it now.
+Delaying of cache invalidations now requires a Redis instance to be configured.
+
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay_options:
+                storage: cache
+                dsn: 'redis://localhost'
+```
+
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default
 

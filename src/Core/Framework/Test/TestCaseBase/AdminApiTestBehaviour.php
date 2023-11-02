@@ -180,7 +180,7 @@ trait AdminApiTestBehaviour
             $authPayload['scope'] = $scopes;
         }
 
-        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, JSON_THROW_ON_ERROR));
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
@@ -246,7 +246,7 @@ trait AdminApiTestBehaviour
             'client_secret' => 'shopware',
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();

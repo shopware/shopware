@@ -11,17 +11,14 @@ class CustomerZipCode extends Constraint
 {
     final public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
 
-    public ?string $countryId = null;
-
-    public bool $caseSensitiveCheck = true;
-
-    /**
-     * @var array<string, string>
-     */
-    protected static $errorNames = [
+    protected const ERROR_NAMES = [
         NotBlank::IS_BLANK_ERROR => 'IS_BLANK_ERROR',
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
+
+    public ?string $countryId = null;
+
+    public bool $caseSensitiveCheck = true;
 
     private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
 

@@ -152,6 +152,8 @@
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
         "bamarni/composer-bin-plugin": "^1.8.2",
+        "brianium/paratest": "^6.6",
+        "dominikb/composer-license-checker": "dev-master",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.10.3",

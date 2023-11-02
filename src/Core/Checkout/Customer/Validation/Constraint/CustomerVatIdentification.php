@@ -11,18 +11,15 @@ class CustomerVatIdentification extends Constraint
 {
     final public const VAT_ID_FORMAT_NOT_CORRECT = '463d3548-1caf-11eb-adc1-0242ac120002';
 
+    protected const ERROR_NAMES = [
+        self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',
+    ];
+
     public string $message = 'The format of vatId {{ vatId }} is not correct.';
 
     protected bool $shouldCheck = false;
 
     protected string $countryId;
-
-    /**
-     * @var array<string, string>
-     */
-    protected static $errorNames = [
-        self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',
-    ];
 
     /**
      * @internal

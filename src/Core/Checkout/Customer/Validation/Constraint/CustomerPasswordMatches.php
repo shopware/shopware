@@ -12,6 +12,10 @@ class CustomerPasswordMatches extends Constraint
 {
     final public const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';
 
+    protected const ERROR_NAMES = [
+        self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
+    ];
+
     /**
      * @var string
      */
@@ -21,13 +25,6 @@ class CustomerPasswordMatches extends Constraint
      * @var SalesChannelContext
      */
     protected $context;
-
-    /**
-     * @var array<string, string>
-     */
-    protected static $errorNames = [
-        self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
-    ];
 
     /**
      * @internal

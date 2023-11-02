@@ -14,6 +14,10 @@ class EntityNotExists extends Constraint
 {
     final public const ENTITY_EXISTS = 'fr456trg-r43w-ko87-z54e-de4r5tghzt65';
 
+    protected const ERROR_NAMES = [
+        self::ENTITY_EXISTS => 'ENTITY_EXISTS',
+    ];
+
     public string $message = 'The {{ entity }} entity already exists.';
 
     protected string $entity;
@@ -23,13 +27,6 @@ class EntityNotExists extends Constraint
     protected Criteria $criteria;
 
     protected string $primaryProperty = 'id';
-
-    /**
-     * @var array<string, string>
-     */
-    protected static $errorNames = [
-        self::ENTITY_EXISTS => 'ENTITY_EXISTS',
-    ];
 
     /**
      * @param array{entity: string, context: Context, criteria?: Criteria} $options

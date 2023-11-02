@@ -41,6 +41,8 @@ class ShippingMethod extends XmlElement
 
     protected int $position = ShippingMethodEntity::POSITION_DEFAULT;
 
+    protected bool $active;
+
     /**
      * @var array<string, string>
      */

@@ -1,7 +1,7 @@
 // eslint-disable-next-line filename-rules/match
 import { shallowMount } from '@vue/test-utils';
 import swSettingsUsageDataPage from 'src/module/sw-settings-usage-data/page/sw-settings-usage-data';
-import { ALLOW_USAGE_DATA_SYSTEM_CONFIG_KEY } from 'src/core/service/api/usage-data.api.service';
+import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
 import 'src/app/component/base/sw-icon';
 
 Shopware.Component.register('sw-settings-usage-data', swSettingsUsageDataPage);

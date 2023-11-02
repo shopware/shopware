@@ -9,6 +9,7 @@ Shopware.Component.register('sw-usage-data-consent-banner', () => import('src/mo
 
 /**
  * @package services-settings
+ *
  * @private
  */
 Shopware.Module.register('sw-dashboard', {

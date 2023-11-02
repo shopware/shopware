@@ -417,3 +417,8 @@ shopware:
 
     stock:
         enable_stock_management: true
+
+    usage_data:
+        gateway:
+            base_uri: 'https://data.shopware.io'
+            batch_size: 50

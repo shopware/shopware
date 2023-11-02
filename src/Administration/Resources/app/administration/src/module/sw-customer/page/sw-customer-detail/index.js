@@ -169,7 +169,7 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
+        async loadCustomer() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
             Shopware.ExtensionAPI.publishData({

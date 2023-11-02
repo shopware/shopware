@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.6.1
+*  [NEXT-23915 - Fixing edge case where orders would disappear when cancelling admin order edit](./changelog/release-6-5-6-1/2023-10-23-fix-disappearing-orders-when-cancelling-admin-order-edit.md)
+
 ## 6.5.6.0
 *  [NEXT-00000 - Fix OpenApi definitions](./changelog/release-6-5-6-0/2023-07-07-fix-open-api-core-spec.md) ([Benjamin Wittwer](https://github.com/akf-bw))
 *  [NEXT-30599 - Fix overridden super calls in promise chains in admin components](./changelog/release-6-5-6-0/2023-08-09-fix-overridden-super-calls-in-promise-chains-in-admin-components.md) ([Maximilian Rüsch](https://github.com/maximilianruesch))

@@ -1,3 +1,4 @@
+import MockAdapter from 'axios-mock-adapter';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import UsageDataApiService from 'src/core/service/api/usage-data.api.service';
@@ -6,30 +7,58 @@ function getUsageDataService(client) {
     return new UsageDataApiService(client, createLoginService(client, Shopware.Context.api));
 }
 
-describe('metricsService', () => {
-    const client = createHTTPClient();
-    const service = getUsageDataService(client);
-
+describe('usageDataService', () => {
     it('has the correct name', async () => {
-        expect(service.name).toBe('usageDataService');
+        const usageDataApiService = getUsageDataService(createHTTPClient());
+
+        expect(usageDataApiService.name).toBe('usageDataService');
     });
 
-    describe('needs approval request', () => {
-        it('is defined', async () => {
-            expect(service.needsApproval).toBeDefined();
+    it('gets the consent from api', async () => {
+        const client = createHTTPClient();
+        const mockAdapter = new MockAdapter(client);
+        const usageDataApi = getUsageDataService(client);
+
+        mockAdapter.onGet('/api/usage-data/consent').reply(200, {
+            isConsentGiven: false,
+            isBannerHidden: false,
         });
 
-        it('calls the correct endpoint', async () => {
-            const getMethod = jest.spyOn(client, 'get').mockImplementation(() => Promise.resolve({
-                data: false,
-            }));
+        const response = await usageDataApi.getConsent();
 
-            service.needsApproval();
-            expect(getMethod).toHaveBeenCalledTimes(1);
-            expect(getMethod).toHaveBeenCalledWith('/usage-data/needs-approval', {
-                headers: service.getBasicHeaders(),
-                params: {},
-            });
+        expect(response).toEqual({
+            isConsentGiven: false,
+            isBannerHidden: false,
         });
+    });
+
+    it('sends the acceptance of the consent', async () => {
+        const client = createHTTPClient();
+        const mockAdapter = new MockAdapter(client);
+        const usageDataApi = getUsageDataService(client);
+
+        mockAdapter.onPost('/api/usage-data/accept-consent').reply(204);
+
+        expect(await usageDataApi.acceptConsent()).toBeUndefined();
+    });
+
+    it('sends the revocation of the consent', async () => {
+        const client = createHTTPClient();
+        const mockAdapter = new MockAdapter(client);
+        const usageDataApi = getUsageDataService(client);
+
+        mockAdapter.onPost('/api/usage-data/revoke-consent').reply(204);
+
+        expect(await usageDataApi.revokeConsent()).toBeUndefined();
+    });
+
+    it('can send a hide request for the dashboard banner', async () => {
+        const client = createHTTPClient();
+        const mockAdapter = new MockAdapter(client);
+        const usageDataApi = getUsageDataService(client);
+
+        mockAdapter.onPost('/api/usage-data/hide-consent-banner').reply(204);
+
+        expect(await usageDataApi.hideBanner()).toBeUndefined();
     });
 });

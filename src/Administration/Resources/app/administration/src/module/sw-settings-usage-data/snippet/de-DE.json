@@ -1,12 +1,53 @@
 {
   "sw-settings-usage-data": {
     "general": {
-      "mainMenuItemGeneral": "Nutzungsdaten",
-      "textHeadline": "Nutzungsdaten",
-      "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern.",
-      "alertText": "Diese Einstellung gilt für alle Benutzer der Shopware Administration.",
-      "alertTextOnlyAdmins": "Nur Administratoren können sie ändern.",
-      "shareUsageData": "Nutzungsdaten teilen"
+      "mainMenuItemGeneral": "Daten teilen",
+      "textHeadline": "Daten teilen",
+      "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern."
+    }
+  },
+  "sw-usage-data-consent-banner": {
+    "headline": "Die Zukunft des E-Commerce mitgestalten",
+    "improvingDescription": "Wir arbeiten ständig an der Verbesserung der Dienste, die wir Dir anbieten. Als nächsten Schritt analysieren wir Deine Daten mithilfe von Techniken wie maschinellem Lernen (z. B. Mustererkennung), um unser Produkt weiterzuentwickeln und zu verbessern. Deine Daten werden auch verwendet, um datengetriebene Dienste zu entwickeln, die Deinen Geschäftserfolg steigern.",
+    "improvingDescriptionNotAccepted": "Wir arbeiten ständig an der Verbesserung der Dienste, die wir Dir anbieten. Als nächsten Schritt möchten wir Deine Daten mithilfe von Techniken wie maschinellem Lernen (z. B. Mustererkennung) analysieren, um unser Produkt weiterzuentwickeln und zu verbessern. Deine Daten werden auch verwendet, um datengetriebene Dienste zu entwickeln, die Deinen Geschäftserfolg steigern.",
+    "fullDetailsDescription": "Alle Einzelheiten dieser Vereinbarung findest Du unter {link}. {fullDetailsDescriptionNotAccepted}",
+    "fullDetailsDescriptionNotAccepted": " Du kannst dem Teilen von Daten jederzeit widersprechen. Gestalte mit uns die Zukunft des E-Commerce, indem du uns Deine Daten zur Verfügung stellst!",
+    "confirmAuthorization": "Indem Du auf “Zustimmen” klickst, bestätigst Du, dass Du berechtigt bist, dieser Vereinbarung im Namen Deines Unternehmens zuzustimmen.",
+    "privacyPolicy": "shopware.com/de/data-use-details",
+    "privacyPolicyLink": "https://www.shopware.com/de/data-use-details/",
+    "collectionInformation": {
+      "title": "Daten, die wir sammeln:",
+      "titleNotAccepted": "Daten, die wir sammeln werden:",
+      "orderData": "Bestelldaten",
+      "usageData": "Daten teilen",
+      "diagnosticData": "Diagnosedaten",
+      "storeData": "Shopdaten",
+      "helpText": {
+        "orderDataHelp": "<strong>Bestelldaten</strong> in Shopware beziehen sich auf detaillierte Informationen zu den von Kunden auf der Plattform getätigten Bestellungen. Dazu gehören Angaben wie bestellte Produkte, Mengen, Preise, Herkunft, Zahlungsmethoden, Versand usw. Wir analysieren diese Daten, um Trends und Muster zu verstehen, die uns helfen, Funktionen zu verbessern und neue Services zur Steigerung des Geschäftserfolgs zu entwickeln. Wir sammeln keine persönlichen Daten von deinen Kunden, die zur Identifizierung einer einzelnen Person verwendet werden können.",
+        "usageDataHelp": "<strong>Nutzungsdaten</strong> in Shopware beziehen sich auf Informationen darüber, wie Admin-Nutzer und Besucher des Online-Shops mit unserer Plattform interagieren. Dazu gehören Details wie Interaktionen mit verschiedenen Shopware-Admin-Modulen, angesehene Seiten, Besuchsdauer, Klickpfade und Benutzeraktionen innerhalb der Plattform und des Online-Shops. Durch die Auswertung der Nutzungsdaten können wir Bereiche der Plattform identifizieren, die häufig besucht oder vermieden werden, um die Nutzung von Funktionen zu messen, was zu potenziellen Verbesserungen im Layout, Design und der Funktionalität führt. Wir sammeln keine persönlichen Daten, die zur Identifizierung von Admin-Benutzern oder Online-Shop-Besuchern verwendet werden können.",
+        "diagnosticDataHelp": "<strong>Diagnosedaten</strong> in Shopware beziehen sich auf Informationen im Zusammenhang mit dem Systemzustand, Fehlermeldungen und Leistungskennzahlen der Plattform. Dazu gehören Details wie Systemprotokolle, Fehlermeldungen, Serverantwortzeiten und andere technische Indikatoren. Die Analyse dieser Daten hilft uns dabei, häufig auftretende Probleme oder Sicherheitslücken schnell zu identifizieren, anzugehen und Lösungen zu implementieren, um die Integrität der Plattform aufrechtzuerhalten.",
+        "storeDataHelp": "<strong>Shopdaten</strong> in Shopware beziehen sich auf alle Informationen im Zusammenhang mit Deinem Online-Shop, wie Produkte, Angebote, Preise, Bilder, Beschreibungen usw., sowie Metadaten zur Einrichtung deines Shops, wie Themes und Plugins. Wir sammeln keine persönlichen Daten, die zur Identifizierung eines Admin-Nutzers oder eines Besuchers im Online-Shop verwendet werden können. Mit Hilfe von zusammengefassten Shop-Daten können wir Erkenntnisse mithilfe von maschinellem Lernen liefern, wie aufkommende Markttrends, die es Dir ermöglichen, Produktangebote oder Marketingstrategien entsprechend anzupassen."
+      }
+    },
+    "checkListDataSharing": {
+      "title": "Das können wir versichern:",
+      "gdprCompliant": "Wir sind DSGVO-konform",
+      "personalData": "Wir sammeln keine personenbezogenen Daten",
+      "securelyProcessed": "Deine Daten werden sicher verarbeitet und gespeichert",
+      "thirdParty": "Wir teilen Deine Daten nicht mit Dritten für deren eigene Zwecke",
+      "helpText": {
+        "shareDataHelpText": "<strong>\"Teilen\"</strong> bezieht sich auf die Offenlegung von Daten zu eigenen Zwecken der empfangenden Partei; wir können Daten an unsere Dienstleister weitergeben."
+      }
+    },
+    "acceptDataCollection": "Zustimmen",
+    "declineDataCollection": "Zurzeit nicht",
+    "togglePath": "Einstellungen",
+    "rejectedMessage": "Du kannst der Vereinbarung jederzeit zustimmen und so zur ständigen Weiterentwicklung unserer Dienste beitragen und davon profitieren, indem Du das Teilen von Daten in Deinen {link} erlaubst.",
+    "thankYouMessage": "{thanksForParticipation} Du kannst von dieser Vereinbarung jederzeit zurücktreten und damit aufhören, zur kontinuierlichen Entwicklung unserer Dienste beizutragen und davon zu profitieren, indem Du das Teilen von Daten in Deinen {link} deaktivierst.",
+    "thanksForParticipation": "Vielen Dank für Deine Teilnahme!",
+    "settings": {
+      "deactivateDataCollection": "Datenteilen deaktivieren",
+      "sharingInformation": "Du teilst Daten mit uns"
     }
   }
 }

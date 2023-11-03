@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Framework\Struct;
+namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\StateAwareTrait;

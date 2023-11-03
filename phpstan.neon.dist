@@ -204,12 +204,6 @@ parameters:
             paths:
                 - src/**/Xml/**
 
-        # Will be fixed with 6.6
-        -
-            message: '#There are 2 way to get "afterCategoryId" value: public property and getter now - pick one to avoid variant behavior.#'
-            paths:
-                - src/Core/Content/Category/CategoryEntity.php
-
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
@@ -228,12 +222,6 @@ parameters:
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
             count: 1
-
-        # Tests for Abstract classes should reflect the class naming, but not be abstract itself
-        -
-            message: '#Class name starting with "Abstract" must have an `abstract` keyword#'
-            paths:
-                - tests/unit
 
         # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
         -
@@ -292,9 +280,6 @@ parameters:
           path: src/Core/Test/Stub/Redis/RedisStub.php
 
         # To not have a single case for each type, we check them dynamically.
-        - message: '#Make callable type explicit#'
-          path: src/Core/Framework/Validation/HappyPathValidator.php
-          count: 2
         - message: '#Use explicit names over dynamic ones#'
           path: src/Core/Framework/Validation/HappyPathValidator.php
           count: 2
@@ -305,11 +290,7 @@ services:
 
 rules:
     # rules from https://github.com/symplify/phpstan-rules
-    - Symplify\PHPStanRules\Rules\Spotter\IfElseToMatchSpotterRule
-    - Symplify\PHPStanRules\Rules\Missing\CheckSprintfMatchingTypesRule
-
     # domain
-    - Symplify\PHPStanRules\Rules\CheckAttributteArgumentClassExistsRule
     - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
     - Symplify\PHPStanRules\Rules\ForbiddenParamTypeRemovalRule
     - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
@@ -322,25 +303,17 @@ rules:
     - Symplify\PHPStanRules\Rules\NoIssetOnObjectRule
 
     # explicit naming
-    - Symplify\PHPStanRules\Rules\NoParentMethodCallOnNoOverrideProcessRule
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
     # complexity rules
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedCallableRule
     - Symplify\PHPStanRules\Rules\Explicit\NoMixedPropertyFetcherRule
     - Symplify\PHPStanRules\Rules\Explicit\NoMixedMethodCallerRule
-    - Symplify\PHPStanRules\Rules\Explicit\NoGetterAndPropertyRule
-    - Symplify\PHPStanRules\Rules\PHPUnit\NoRightPHPUnitAssertScalarRule
     - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\RequiredAbstractClassKeywordRule
     - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
-
-    # test rules
-    - Symplify\PHPStanRules\Rules\NoConstructorInTestRule

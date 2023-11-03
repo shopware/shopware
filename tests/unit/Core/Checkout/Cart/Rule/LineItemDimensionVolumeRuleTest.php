@@ -10,8 +10,10 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
  * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule
@@ -233,6 +235,25 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         yield 'match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 300, true, true, true];
         yield 'match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 100, true, true];
         yield 'match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 100, true, false, true];
+    }
+
+    public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
+    {
+        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+
+        $lineItemDimensionVolumeRule = new LineItemDimensionVolumeRule();
+
+        static::assertFalse($lineItemDimensionVolumeRule->match($scope));
+    }
+
+    public function testGetConfig(): void
+    {
+        $lineItemDimensionVolumeRule = new LineItemDimensionVolumeRule();
+
+        $result = $lineItemDimensionVolumeRule->getConfig();
+
+        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result->getData()['operatorSet']['operators']);
+        static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields'][0]['config']['unit']);
     }
 
     private function createLineItemWithVolume(float $volume): LineItem

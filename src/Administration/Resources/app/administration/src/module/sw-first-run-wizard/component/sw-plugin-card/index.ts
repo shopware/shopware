@@ -82,16 +82,12 @@ export default Shopware.Component.wrapComponentConfig({
                 this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
-                // ts can not recognize functions from mixins
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.showExtensionErrors(error);
             } finally {
                 this.pluginIsLoading = false;
 
                 if (this.plugin.type === 'plugin') {
-                    // wait until cacheApiService is transpiled to ts
-                    // @ts-expect-error
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
                     this.cacheApiService.clear();
                 }

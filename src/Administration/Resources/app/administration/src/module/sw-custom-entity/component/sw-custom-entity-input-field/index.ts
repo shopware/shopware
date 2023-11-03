@@ -48,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         currentValue: {
-            get(): string | number | unknown {
+            get(): unknown {
                 return this.value;
             },
 

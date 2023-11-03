@@ -33,8 +33,8 @@ interface Config {
 export default Mixin.register('generic-condition', defineComponent({
     data(): {
         visibleValue: null|number,
-        baseUnit: null|unknown,
-        selectedUnit: null|unknown,
+        baseUnit: unknown,
+        selectedUnit: unknown,
         } {
         return {
             visibleValue: null,
@@ -117,7 +117,7 @@ export default Mixin.register('generic-condition', defineComponent({
         },
 
         currentError() {
-            let error: null|unknown = null;
+            let error: unknown = null;
 
             Object.values(this.config.fields).forEach((config) => {
                 if (error) {

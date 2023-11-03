@@ -135,7 +135,7 @@ export default Shopware.Component.wrapComponentConfig({
         getList(): void {
             this.isLoading = true;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.flowTemplateRepository.search(this.flowTemplateCriteria)
                 .then((data: EntityCollection<'flow_template'>) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

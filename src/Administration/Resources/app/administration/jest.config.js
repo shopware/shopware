@@ -69,6 +69,7 @@ module.exports = {
         vue$: 'vue/dist/vue.common.dev.js',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^lodash-es$': 'lodash',
+        '^vue-i18n_v3$': 'vue-i18n_v3/dist/vue-i18n.cjs.js'
     },
 
     reporters: isCi ? [

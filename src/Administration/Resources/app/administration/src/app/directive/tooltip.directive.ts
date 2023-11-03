@@ -533,7 +533,7 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  * *Note that the position variable has a higher priority as the modifier
  */
 Directive.register('tooltip', {
-    bind: (el: HTMLElement, binding) => {
+    bind: (el: HTMLElement, binding: any) => {
         createOrUpdateTooltip(el, binding);
     },
 

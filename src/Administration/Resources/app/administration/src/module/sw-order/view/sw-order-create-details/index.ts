@@ -174,6 +174,8 @@ export default Component.wrapComponentConfig({
                 }
 
                 this.isLoading = true;
+
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this.updateContext().finally(() => {
                     this.isLoading = false;
                 });

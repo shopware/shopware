@@ -134,6 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
                 this.paymentMethods = items;
             }).finally(() => {

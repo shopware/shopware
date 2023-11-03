@@ -52,7 +52,7 @@ function createClient() {
      * So in test cases we are using the originalAdapter directly
      * and skipping the caching mechanism.
      */
-    if (process?.env?.NODE_ENV !== 'test') {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'test') {
         requestCacheAdapterInterceptor(client);
     }
 

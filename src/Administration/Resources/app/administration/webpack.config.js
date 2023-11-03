@@ -3,15 +3,15 @@
  */
 
 const webpack = require('webpack');
-const webpackMerge = require('webpack-merge');
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
+const { merge } = require('webpack-merge');
+const FriendlyErrorsPlugin = require('@soda/friendly-errors-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('css-minimizer-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -95,13 +95,10 @@ if (!process.env.PROJECT_ROOT) {
     process.exit(1);
 }
 
-const cssUrlMatcher = (url) => {
-    // Only handle font urls
-    if (url.match(/\.(woff2?|eot|ttf|otf)(\?.*)?$/)) {
-        return true;
+const cssUrlMatcher = {
+    filter: (url) => {
+        return url.match(/\.(woff2?|eot|ttf|otf)(\?.*)?$/)
     }
-
-    return false;
 };
 
 /**
@@ -201,7 +198,6 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         all: false,
         colors: true,
         modules: true,
-        maxModules: 0,
         errors: true,
         warnings: true,
         entrypoints: true,
@@ -213,23 +209,23 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'eval-source-map' : 'source-map',
+    devtool: isDev ? 'eval-source-map' : false,
 
     optimization: {
-        moduleIds: 'hashed',
+        moduleIds: 'deterministic',
         chunkIds: 'named',
         ...(() => {
             if (isProd) {
                 return {
+                    minimize: true,
                     minimizer: [
                         new TerserPlugin({
                             terserOptions: {
                                 warnings: false,
                                 output: 6,
+                                sourceMap: true,
                             },
-                            cache: true,
                             parallel: true,
-                            sourceMap: true,
                         }),
                         new OptimizeCSSAssetsPlugin(),
                     ],
@@ -248,6 +244,10 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                 alias: {
                     scss: path.join(__dirname, 'src/app/assets/scss'),
+                    '@shopware-ag': path.join(__dirname, 'node_modules/@shopware-ag'),
+                },
+                fallback: {
+                    'path': require.resolve('path-browserify'),
                 },
             },
         };
@@ -571,10 +571,10 @@ const coreConfig = {
 
             return {
                 devServer: {
-                    inline: disableDevServerInlineMode ? false : true,
+                    liveReload: disableDevServerInlineMode ? false : true,
                     host: process.env.HOST,
                     port: process.env.PORT,
-                    disableHostCheck: true,
+                    allowedHosts: 'all',
                     open: openBrowserForWatch,
                     proxy: {
                         '/api': {
@@ -583,24 +583,36 @@ const coreConfig = {
                             secure: false,
                         },
                     },
-                    contentBase: [
-                        // 3 because it need to match the contentBasePublicPath index
-                        path.resolve(__dirname, 'static'),
-                        path.resolve(__dirname, 'static'),
-                        path.resolve(__dirname, 'static'),
-                        // the dev server is allowed to access the plugin folders
-                        ...pluginEntries.map(plugin => path.resolve(plugin.path, '../static')),
-                    ],
-                    contentBasePublicPath: [
-                        '/static',
-                        '/administration/static',
-                        '/bundles/administration/static',
-                        // the dev server is allowed to access the plugin folders
-                        ...pluginEntries.map((plugin) => `/bundles/${plugin.technicalFolderName.replace(/-/g, '')}/static`),
+                    static: [
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/static',
+                        },
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/administration/static',
+                        },
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/bundles/administration/static',
+                        },
+                        // The dev server is allowed to access the plugin folders
+                        ...pluginEntries.map((plugin) => ({
+                            directory: path.resolve(plugin.path, '../static'),
+                            publicPath: `/bundles/${plugin.technicalFolderName.replace(/-/g, '')}/static`,
+                        })),
                     ],
                 },
                 node: {
                     __filename: true,
+                },
+                stats: {
+                    warningsFilter: [
+                        // ignore this warning from @shopware-ag/admin-extension-sdk until it's changed
+                        /Should not import the named export 'version' \(imported as 'version'\) from default-exporting module \(only default export is available soon\)/,
+                        // ignore this warning from vue 3 (src/index.ts)
+                        /export 'configureCompat' \(imported as 'configureCompat'\) was not found in 'vue'/
+                    ],
                 },
             };
         }
@@ -617,6 +629,8 @@ const coreConfig = {
             resolve: {
                 alias: {
                     vue$: vueAlias,
+                    // disable vue-i18n_v3 (vue 3) imports in a vue 2 setup
+                    'vue-i18n_v3': featureFlags.VUE3 ? 'vue-i18n_v3' : false,
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -633,8 +647,8 @@ const coreConfig = {
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
         chunkFilename: isDev ? 'bundles/administration/static/js/[chunkhash].js' : 'static/js/[chunkhash].js',
         publicPath: isDev ? '/' : `bundles/administration/`,
-        globalObject: 'this',
-        jsonpFunction: `webpackJsonpAdministration`
+        globalObject: ('typeof self !== "undefined" ? self : this'),
+        chunkLoadingGlobal: `webpackJsonpAdministration`,
     },
 
     optimization: {
@@ -757,7 +771,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
     const htmlFilePath = path.resolve(plugin.path, '../index.html');
     const hasHtmlFile = fs.existsSync(htmlFilePath);
 
-    return webpackMerge([
+    return merge([
         createdBaseConfig,
         {
             entry: {
@@ -784,8 +798,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
-                globalObject: 'this',
-                jsonpFunction: `webpackJsonpPlugin${plugin.technicalName}`
+                globalObject: ('typeof self !== "undefined" ? self : this'),
+                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`
             },
 
             plugins: [
@@ -900,7 +914,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
 /**
  * We create the final core configuration by merging the baseConfig with the coreConfig
  */
-const mergedCoreConfig = webpackMerge([baseConfig({
+const mergedCoreConfig = merge([baseConfig({
     pluginPath: path.resolve(__dirname, 'src'),
     pluginFilepath: path.resolve(__dirname, 'src/app/main.js'),
 }), coreConfig]);

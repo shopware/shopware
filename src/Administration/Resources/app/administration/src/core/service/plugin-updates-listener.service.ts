@@ -20,6 +20,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
 
     function checkForPluginUpdates(innerServiceContainer: ServiceContainer) {
         // @ts-expect-error - localStorage.getItem() might return null but then Number.parseInt() will return NaN
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         const lastUpdate: number | Number.NaN = Number.parseInt(localStorage.getItem(localStorageKey), 10);
         const oneDay = 24 * 60 * 60 * 1000;
 

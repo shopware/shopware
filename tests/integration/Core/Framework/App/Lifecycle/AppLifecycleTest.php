@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
+use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -85,6 +86,8 @@ class AppLifecycleTest extends TestCase
 
     private Connection $connection;
 
+    private EntityRepository $customEntityRepository;
+
     protected function setUp(): void
     {
         $this->appRepository = static::getContainer()->get('app.repository');
@@ -104,6 +107,7 @@ class AppLifecycleTest extends TestCase
         $cache->save(CacheCompressor::compress($item, []));
 
         $this->connection = static::getContainer()->get(Connection::class);
+        $this->customEntityRepository = static::getContainer()->get('custom_entity.repository');
     }
 
     public function testInstall(): void
@@ -1606,6 +1610,93 @@ class AppLifecycleTest extends TestCase
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         static::assertNotNull($app);
+    }
+
+    public function testOnUninstallCustomEntitiesAreSoftDeleted(): void
+    {
+        // We need to stop the transaction because create table statements commit the transaction instantly
+        $this->stopTransactionAfter();
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
+
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        // We call delete with keepUserData = true
+        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
+
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+        static::assertNotNull($customEntity->getDeletedAt());
+
+        // Cleanup
+        $this->connection->executeStatement('DELETE FROM custom_entity');
+        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
+        $this->connection->executeStatement('DROP TABLE `custom_entity_test`');
+
+        // We need to start a new transaction, so we have something to stop after the test
+        $this->startTransactionBefore();
+    }
+
+    public function testOnUninstallCustomEntitiesAreHardDeleted(): void
+    {
+        // We need to stop the transaction because create table statements commit the transaction instantly
+        $this->stopTransactionAfter();
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
+
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        // We call delete with keepUserData = false
+        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
+
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+
+        static::assertFalse($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(0, $customEntities);
+
+        // Cleanup
+        $this->connection->executeStatement('DELETE FROM custom_entity');
+        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
+
+        // We need to start a new transaction, so we have something to stop after the test
+        $this->startTransactionBefore();
     }
 
     private function assertShippingMethodsExists(string $appId): void

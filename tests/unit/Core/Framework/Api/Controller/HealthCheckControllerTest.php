@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Shopware\Core\Framework\Api\Controller;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\HealthCheckController;

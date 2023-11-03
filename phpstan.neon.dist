@@ -279,11 +279,8 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
                 - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
-        - # For testing purpose this errors can be ignored
+        - # For testing purpose this error can be ignored
             message: '#Cannot assign new offset to Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade#'
-            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
-        -
-            message: '#Call to static method PHPUnit\\Framework\\Assert::assertContains\(\) with .* and Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade will always evaluate to true#'
             path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
 
         - # TestBuilders must not be internal

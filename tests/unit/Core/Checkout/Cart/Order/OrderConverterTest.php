@@ -44,10 +44,13 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -65,6 +68,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -122,15 +126,10 @@ class OrderConverterTest extends TestCase
                 ];
                 static::assertSame($expectedOptions, $options);
                 $salesChannelContext = $this->getSalesChannelContext(true);
-                $salesChannelContext->method('setItemRounding')->willReturnCallback(function ($input): void {
-                    static::assertSame($this->cashRoundingConfig, $input);
-                });
-                $salesChannelContext->method('setTotalRounding')->willReturnCallback(function ($input): void {
-                    static::assertSame($this->cashRoundingConfig, $input);
-                });
-                $salesChannelContext->method('setRuleIds')->willReturnCallback(function ($input): void {
-                    static::assertSame(['order-rule-id-1', 'order-rule-id-2'], $input);
-                });
+                $salesChannelContext->expects(static::once())->method('setItemRounding')->with($this->cashRoundingConfig);
+                $salesChannelContext->expects(static::once())->method('setTotalRounding')->with($this->cashRoundingConfig);
+                $salesChannelContext->expects(static::once())->method('setRuleIds')->with(['order-rule-id-1', 'order-rule-id-2']);
+                $salesChannelContext->expects(static::once())->method('setAreaRuleIds')->with([RuleAreas::PAYMENT_AREA => ['rule-id']]);
 
                 return $salesChannelContext;
             }
@@ -562,6 +561,9 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
+
         $converter = new OrderConverter(
             $this->createMock(EntityRepository::class),
             $this->createMock(SalesChannelContextFactory::class),
@@ -571,15 +573,13 @@ class OrderConverterTest extends TestCase
             $addressRepository,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(LineItemDownloadLoader::class),
+            $ruleRepository,
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
-    /**
-     * @return MockObject&SalesChannelContext
-     */
-    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject
+    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
@@ -778,6 +778,12 @@ class OrderConverterTest extends TestCase
             );
         }
 
+        $rule = new RuleEntity();
+        $rule->setId('rule-id');
+        $rule->setAreas([RuleAreas::PAYMENT_AREA]);
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository([new RuleCollection([$rule])]);
+
         $productDownload = new ProductDownloadEntity();
         $productDownload->setId(Uuid::randomHex());
         $productDownload->setMediaId(Uuid::randomHex());
@@ -810,7 +816,8 @@ class OrderConverterTest extends TestCase
             $orderDefinition,
             $orderAddressRepository,
             $initialStateIdLoader,
-            $lineItemDownloadLoader
+            $lineItemDownloadLoader,
+            $ruleRepository,
         );
     }
 

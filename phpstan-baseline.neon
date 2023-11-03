@@ -3171,31 +3171,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:getSalesChannelDomain\\(\\) should return Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:\\$salesChannelContext is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
 			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ProductExport/ProductExportRepositoryTest.php
@@ -4966,11 +4941,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/AclControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\AuthControllerTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/AuthControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\IndexingControllerTest\\:\\:provideOffsets\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/IndexingControllerTest.php
@@ -5029,11 +4999,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\OAuth\\\\ClientRepositoryTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/OAuth/ClientRepositoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:emptyInputProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6014,11 +5979,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Plugin/Requirement/RequirementsValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverAppTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRouteScopeTest\\:\\:provideAllowedData\\(\\) has no return type specified\\.$#"

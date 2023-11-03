@@ -108,7 +108,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
                     'joinCondition' => '`document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join')); // @phpstan-ignore-line
+        ], $this->queryBuilder->getQueryPart('join'));
     }
 
     public function testVersionConstraintWithReferenceToNonVersionedEntity(): void
@@ -141,7 +141,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
                     'joinCondition' => '`document`.`document_type_id` = `document.documentType`.`id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join')); // @phpstan-ignore-line
+        ], $this->queryBuilder->getQueryPart('join'));
     }
 
     public function testVersionConstraintWithReferenceToSelf(): void
@@ -174,7 +174,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
                     'joinCondition' => '`document`.`referenced_document_id` = `document.referencedDocument`.`id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join')); // @phpstan-ignore-line
+        ], $this->queryBuilder->getQueryPart('join'));
     }
 
     public function testVersionConstraintWithOneToOneVersionedReferenceFromVersionedEntity(): void
@@ -207,7 +207,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
                     'joinCondition' => '`order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join')); // @phpstan-ignore-line
+        ], $this->queryBuilder->getQueryPart('join'));
     }
 
     public function testCorrectOrderVersionOverAssociationOverRepositorySearch(): void

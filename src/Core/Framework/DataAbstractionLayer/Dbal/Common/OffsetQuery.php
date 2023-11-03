@@ -34,9 +34,9 @@ class OffsetQuery implements IterableQuery
         $query = clone $this->query;
 
         // get first column for distinct selection
-        $select = $query->getQueryPart('select'); // @phpstan-ignore-line
+        $select = $query->getQueryPart('select');
 
-        $query->resetOrderBy();
+        $query->resetQueryPart('orderBy');
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
         return (int) $query->executeQuery()->fetchOne();

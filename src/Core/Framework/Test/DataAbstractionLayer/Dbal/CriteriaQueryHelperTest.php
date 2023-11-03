@@ -105,7 +105,7 @@ class CriteriaQueryHelperTest extends TestCase
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [ // @phpstan-ignore-line
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
             'MIN(`product`.`created_at`) ASC',
             '_score DESC',
         ]);
@@ -123,7 +123,7 @@ class CriteriaQueryHelperTest extends TestCase
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [ // @phpstan-ignore-line
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
             'MIN(`product`.`created_at`) ASC',
             '_score ASC',
         ]);

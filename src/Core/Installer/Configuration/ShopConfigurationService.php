@@ -27,6 +27,14 @@ class ShopConfigurationService
      */
     public function updateShop(array $shop, Connection $connection): void
     {
+        $connection->transactional(fn (Connection $connection) => $this->performUpdate($shop, $connection));
+    }
+
+    /**
+     * @param Shop $shop
+     */
+    private function performUpdate(array $shop, Connection $connection): void
+    {
         if (empty($shop['locale']) || empty($shop['host'])) {
             throw new \RuntimeException('Please fill in all required fields. (shop configuration)');
         }

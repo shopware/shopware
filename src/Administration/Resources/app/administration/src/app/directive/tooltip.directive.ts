@@ -445,10 +445,7 @@ class Tooltip {
     }
 }
 
-/**
- * Helper function for creating or updating a tooltip instance
- */
-function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
+type TooltipParams = {
     value: {
         message: string,
         position: Placements,
@@ -463,7 +460,12 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
     modifiers: {
         [key: string]: unknown,
     }
-}) {
+};
+
+/**
+ * Helper function for creating or updating a tooltip instance
+ */
+function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: TooltipParams) {
     let message: string = typeof value === 'string' ? value : value.message;
     message = message ? message.trim() : '';
 
@@ -533,7 +535,7 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  * *Note that the position variable has a higher priority as the modifier
  */
 Directive.register('tooltip', {
-    bind: (el: HTMLElement, binding: any) => {
+    bind: (el: HTMLElement, binding: TooltipParams) => {
         createOrUpdateTooltip(el, binding);
     },
 

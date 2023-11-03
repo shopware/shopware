@@ -3,6 +3,7 @@
  */
 
 /* @private */
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import { defineComponent } from 'vue';
 
 /**
@@ -19,7 +20,7 @@ export default Shopware.Mixin.register('user-settings', defineComponent({
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.State.get('session')?.currentUser;
         },
     },
 
@@ -56,7 +57,7 @@ export default Shopware.Mixin.register('user-settings', defineComponent({
          * @return {Promise<*>}
          */
         async getUserSettings(identifier: string, userId = null) {
-            const entity = await this.getUserSettingsEntity(identifier, userId);
+            const entity = await this.getUserSettingsEntity(identifier, userId) as Entity<'user_config'>|null;
 
             if (!entity) {
                 return null;

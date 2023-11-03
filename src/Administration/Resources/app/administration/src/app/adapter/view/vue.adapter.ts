@@ -631,7 +631,7 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     setLocaleFromUser(store: Store<VuexRootState>) {
-        const currentUser = store.state.session.currentUser;
+        const currentUser = store.state?.session?.currentUser;
 
         if (currentUser) {
             const userLocaleId = currentUser.localeId;

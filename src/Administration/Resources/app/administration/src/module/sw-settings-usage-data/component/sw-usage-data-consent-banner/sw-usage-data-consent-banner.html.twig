@@ -159,7 +159,9 @@
             {{ $tc('sw-usage-data-consent-banner.confirmAuthorization') }}
         </p>
     </section>
-    <footer class="sw-usage-data-consent-banner__footer" :class="!canBeHidden ? 'sw-usage-data-consent-banner__footer-settings' : ''">
+    <footer
+        class="sw-usage-data-consent-banner__footer"
+        :class="!canBeHidden ? 'sw-usage-data-consent-banner__footer-settings' : ''">
         <sw-button
             v-if="!isAccepted"
             class="sw-usage-data-consent-banner__accept-button"

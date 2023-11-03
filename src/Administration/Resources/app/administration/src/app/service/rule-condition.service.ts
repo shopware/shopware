@@ -1,3 +1,4 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 
 const { Criteria } = Shopware.Data;
@@ -455,7 +456,7 @@ export default class RuleConditionService {
      *     ]
      * }
      */
-    getRestrictedConditions(r: EntitySchema.rule) {
+    getRestrictedConditions(r: Entity<'rule'>) {
         if (!r) {
             return {};
         }
@@ -464,7 +465,8 @@ export default class RuleConditionService {
 
         const conditions: { [key: string]: Array<unknown> } = {};
         keys.forEach(key => {
-            const association = r[key as keyof EntitySchema.rule] as Array<unknown>;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const association = r[key as keyof Entity<'rule'>] as Array<unknown>;
             const currentEntry = this.awarenessConfiguration[key];
 
             if (association && association.length > 0 && currentEntry.notEquals) {

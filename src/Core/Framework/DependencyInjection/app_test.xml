@@ -38,6 +38,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
             <argument>dev</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
+            <argument type="service" id="custom_entity.repository"/>
         </service>
     </services>
 </container>

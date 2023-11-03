@@ -11,8 +11,10 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -364,6 +366,40 @@ class LineItemDimensionWidthRuleTest extends TestCase
         $amount = $ruleConstraints['amount'];
         static::assertEquals(new NotBlank(), $amount[0]);
         static::assertEquals(new Type('numeric'), $amount[1]);
+    }
+
+    public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
+    {
+        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+
+        $lineItemDimensionWidthRule = new LineItemDimensionWidthRule();
+
+        static::assertFalse($lineItemDimensionWidthRule->match($scope));
+    }
+
+    public function testGetConstraintsWithEmptyOperator(): void
+    {
+        $lineItemDimensionWidthRule = new LineItemDimensionWidthRule(Rule::OPERATOR_EMPTY);
+
+        $result = $lineItemDimensionWidthRule->getConstraints();
+
+        static::assertInstanceOf(NotBlank::class, $result['operator'][0]);
+        static::assertInstanceOf(Choice::class, $result['operator'][1]);
+        static::assertContains(Rule::OPERATOR_EMPTY, $result['operator'][1]->choices);
+    }
+
+    public function testGetConfig(): void
+    {
+        $lineItemDimensionWidthRule = new LineItemDimensionWidthRule();
+
+        $result = $lineItemDimensionWidthRule->getConfig();
+
+        $expectedOperators = RuleConfig::OPERATOR_SET_NUMBER;
+        $expectedOperators[] = Rule::OPERATOR_EMPTY;
+
+        static::assertSame($expectedOperators, $result->getData()['operatorSet']['operators']);
+        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields'][0]['config']['unit']);
+        static::assertSame('amount', $result->getData()['fields'][0]['name']);
     }
 
     private static function createLineItemWithWidth(?float $width): LineItem

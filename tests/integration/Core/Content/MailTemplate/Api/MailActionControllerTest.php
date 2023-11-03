@@ -38,7 +38,7 @@ use Symfony\Component\Serializer\Serializer;
  *
  * @covers \Shopware\Core\Content\MailTemplate\Api\MailActionController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class MailActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

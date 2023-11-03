@@ -95,6 +95,9 @@
                 },
                 "stock": {
                     "$ref": "#/definitions/stock"
+                },
+                "usage_data": {
+                  "$ref": "#/definitions/usage_data"
                 }
             },
             "title": "Shopware"
@@ -120,6 +123,25 @@
                 }
             },
             "title": "Enabled profiler, available since 6.4.11.0"
+        },
+        "usage_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "gateway": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "base_uri": {
+                            "type": "string"
+                        },
+                        "batch_size": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "title": "Usage data"
         },
         "twig": {
             "type": "object",
@@ -195,7 +217,8 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": "integer"
+                    "type": ["integer", "null"],
+                    "default": 100
                 },
                 "access_token_ttl": {
                     "type": "string"
@@ -290,6 +313,10 @@
             "properties": {
                 "context_lifetime": {
                     "type": "string"
+                },
+                "max_limit": {
+                    "type": ["integer", "null"],
+                    "default": 100
                 }
             },
             "title": "API store"
@@ -370,6 +397,24 @@
             "properties": {
                 "delay": {
                     "type": "integer"
+                },
+                "delay_options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "storage": {
+                            "type": "string",
+                            "default": "cache",
+                            "enum": [
+                                "cache",
+                                "redis"
+                            ]
+                        },
+                        "dsn": {
+                            "type": "string",
+                            "default": "redis://localhost"
+                        }
+                    }
                 },
                 "count": {
                     "type": "integer"
@@ -524,7 +569,10 @@
             "additionalProperties": false,
             "properties": {
                 "blue_green": {
-                    "type": "string"
+                    "type": "boolean"
+                },
+                "cluster_setup": {
+                    "type": "boolean"
                 }
             },
             "title": "Deployment"

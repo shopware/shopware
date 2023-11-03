@@ -37,24 +37,25 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $this->copyAssets($bundle);
+        $this->copyAssets($bundle, $force);
 
         if ($bundle instanceof Plugin) {
             foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                $this->copyAssets($bundle);
+                $this->copyAssets($bundle, $force);
             }
         }
     }
 
-    public function copyAssets(BundleInterface $bundle): void
+    public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
         $this->copyAssetsFromBundleOrApp(
             $bundle->getPath() . '/Resources/public',
-            $bundle->getName()
+            $bundle->getName(),
+            $force
         );
     }
 
@@ -66,7 +67,7 @@ class AssetService
         Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
     }
 
-    public function copyAssetsFromApp(string $appName, string $appPath): void
+    public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
         $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
 
@@ -76,7 +77,8 @@ class AssetService
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
-            $appName
+            $appName,
+            $force
         );
     }
 
@@ -109,7 +111,7 @@ class AssetService
         $this->writeManifest($manifest);
     }
 
-    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName): void
+    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName, bool $force): void
     {
         $bundleOrAppName = mb_strtolower($bundleOrAppName);
 
@@ -118,6 +120,10 @@ class AssetService
         }
 
         $manifest = $this->getManifest();
+
+        if ($force) {
+            unset($manifest[$bundleOrAppName]);
+        }
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 

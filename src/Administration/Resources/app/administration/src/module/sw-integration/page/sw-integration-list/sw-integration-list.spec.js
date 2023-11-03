@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swIntegrationList from 'src/module/sw-integration/page/sw-integration-list';

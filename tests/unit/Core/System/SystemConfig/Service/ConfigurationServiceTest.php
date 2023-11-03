@@ -19,6 +19,8 @@ use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigServi
 /**
  * @internal
  *
+ * @phpstan-import-type FeatureFlagConfig from Feature
+ *
  * @covers \Shopware\Core\System\SystemConfig\Service\ConfigurationService
  */
 #[Package('system-settings')]
@@ -35,7 +37,7 @@ class ConfigurationServiceTest extends TestCase
     private array $envVarsBackup;
 
     /**
-     * @var array<mixed>
+     * @var array<string, FeatureFlagConfig>
      */
     private array $featureConfigBackup;
 
@@ -279,7 +281,7 @@ class ConfigurationServiceTest extends TestCase
             new StaticSystemConfigService([])
         );
 
-        if (!empty($config)) {
+        if ($config !== []) {
             static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
         }
 

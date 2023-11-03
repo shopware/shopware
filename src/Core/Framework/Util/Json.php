@@ -14,4 +14,28 @@ final class Json
     {
         return (string) json_encode($value, $options);
     }
+
+    /**
+     * @throws UtilException when the JSON is invalid, not an array or not an object with sequential keys
+     *
+     * @return list<mixed>
+     */
+    public static function decodeToList(string $value): array
+    {
+        if ($value === '') {
+            return [];
+        }
+
+        try {
+            $result = json_decode($value, true, flags: \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw UtilException::invalidJson($e);
+        }
+
+        if (\is_array($result) && \array_is_list($result)) {
+            return $result;
+        }
+
+        throw UtilException::invalidJsonNotList();
+    }
 }

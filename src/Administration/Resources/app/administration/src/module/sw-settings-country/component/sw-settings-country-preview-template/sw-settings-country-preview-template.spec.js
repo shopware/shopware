@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-preview-template';
 
 /**
- * @package customer-order
+ * @package buyers-experience
  */
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-settings-country-preview-template'), {

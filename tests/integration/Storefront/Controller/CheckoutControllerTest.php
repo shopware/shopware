@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
@@ -37,6 +36,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestFailedPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -667,7 +667,7 @@ class CheckoutControllerTest extends TestCase
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        if ($request === null) {
+        if (!$request instanceof Request) {
             $request = $this->createRequest();
         }
 
@@ -860,7 +860,7 @@ class CheckoutControllerTest extends TestCase
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
         ]);
 
-        if ($context) {
+        if ($context instanceof SalesChannelContext) {
             $request->attributes->add([
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
             ]);
@@ -879,6 +879,7 @@ class CheckoutControllerTest extends TestCase
             [
                 'id' => $paymentId,
                 'name' => SyncTestFailedPaymentHandler::class,
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => SyncTestFailedPaymentHandler::class,
                 'salesChannels' => [

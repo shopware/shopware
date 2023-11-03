@@ -18,7 +18,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'delivery_note';
@@ -59,7 +59,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
             $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $context = $context->assign([
-                'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
             ]);
 
             // TODO: future implementation (only fetch required data and associations)

@@ -2,7 +2,7 @@ import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -95,7 +95,7 @@ export default {
                     this.documentTypes = response.map((documentType) => {
                         const option = {
                             value: documentType.id,
-                            name: documentType.name,
+                            name: documentType.translated.name,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
@@ -194,6 +194,10 @@ export default {
                 this.$tc('sw-import-export.activity.emptyState.titleExport') :
                 this.$tc('sw-import-export.activity.emptyState.titleImport');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -270,7 +274,7 @@ export default {
                 }
 
                 const config = {
-                    message: this.$t(this.stateText[log.activity][log.state], {
+                    message: this.$t((this.stateText?.[log.activity]?.[log.state] ?? ''), {
                         profile: log.profileName,
                     }),
                     autoClose: false,

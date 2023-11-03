@@ -5,14 +5,15 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\CollectingMessageBus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -29,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @covers \Shopware\Core\Content\Media\File\FileSaver
  */
+#[Package('buyers-experience')]
 class FileSaverTest extends TestCase
 {
     private MockObject&EntityRepository $mediaRepository;
@@ -41,7 +44,6 @@ class FileSaverTest extends TestCase
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
         $metadataLoader = $this->createMock(MetadataLoader::class);
@@ -53,12 +55,13 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $filesystemPublic,
             $filesystemPrivate,
-            $urlGenerator,
             $thumbnailService,
             $metadataLoader,
             $typeDetector,
             $this->messageBus,
             $eventDispatcher,
+            $this->createMock(SqlMediaLocationBuilder::class),
+            $this->createMock(AbstractMediaPathStrategy::class),
             ['png'],
             ['png']
         );
@@ -142,6 +145,7 @@ class FileSaverTest extends TestCase
         $currentMedia = new MediaEntity();
         $currentMedia->setId(Uuid::randomHex());
         $currentMedia->setPrivate($isPrivate);
+        $currentMedia->setPath('');
 
         $mediaSearchResult = $this->createMock(EntitySearchResult::class);
         $mediaSearchResult->method('get')->willReturn($currentMedia);

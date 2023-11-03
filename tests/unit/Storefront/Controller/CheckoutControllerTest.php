@@ -501,7 +501,8 @@ class CheckoutControllerTest extends TestCase
         $assertResponse = new Response();
         $assertResponse->headers->set('x-robots-tag', 'noindex');
 
-        static::assertEquals($assertResponse, $response);
+        static::assertEquals('noindex', $response->headers->get('x-robots-tag'));
+        static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->renderStorefrontParameters['page']);
     }
 
     public function testInfoEmptyCart(): void

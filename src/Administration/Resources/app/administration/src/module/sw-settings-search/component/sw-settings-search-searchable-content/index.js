@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
@@ -247,8 +247,7 @@ export default {
     },
 
     watch: {
-        searchConfigId(newValue) {
-            this.searchConfigId = newValue;
+        searchConfigId() {
             this.loadData();
         },
 

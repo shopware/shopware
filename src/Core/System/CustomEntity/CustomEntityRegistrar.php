@@ -36,7 +36,7 @@ class CustomEntityRegistrar
                 SELECT custom_entity.name, custom_entity.fields, custom_entity.flags
                 FROM custom_entity
                     LEFT JOIN app ON app.id = custom_entity.app_id
-                WHERE custom_entity.app_id IS NULL OR app.active = 1
+                WHERE (custom_entity.app_id IS NULL OR app.active = 1) AND custom_entity.deleted_at IS NULL;
             ');
         } catch (Exception) {
             // kernel booted without database connection, or booted for migration and custom entity table not created yet

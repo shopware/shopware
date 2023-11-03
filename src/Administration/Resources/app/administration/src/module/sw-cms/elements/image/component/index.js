@@ -6,10 +6,12 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -40,7 +42,7 @@ export default {
 
         horizontalAlign() {
             return {
-                'justify-content': this.element.config.horizontalAlign.value || null,
+                'justify-content': this.element.config.horizontalAlign?.value || null,
             };
         },
 
@@ -62,12 +64,16 @@ export default {
 
             if (elemConfig.source === 'default') {
                 // use only the filename
-                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+                const fileName = elemConfig.value?.slice(elemConfig.value.lastIndexOf('/') + 1) ?? '';
                 return this.assetFilter(`/administration/static/img/cms/${fileName}`);
             }
 
             if (elemData?.id) {
-                return this.element.data.media.url;
+                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
+                    return this.element.data.media.url;
+                }
+
+                return `${this.element.data.media.url}?${Shopware.Utils.createId()}`;
             }
 
             if (elemData?.url) {

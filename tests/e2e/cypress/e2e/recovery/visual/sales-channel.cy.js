@@ -28,7 +28,7 @@ describe('Sales Channel: Visual tests', () => {
         cy.contains(saleschannel).click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('#sw-field--salesChannel-name').should('be.visible');
+        cy.get('.sw-field--salesChannel-name').should('be.visible');
 
         // Ensure screenshot consistency
         const customerGroup = Cypress.env('locale') === 'en-GB' ? 'Standard customer group' : 'Standard-Kundengruppe';

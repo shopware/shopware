@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -404,6 +404,7 @@ SQL;
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => Uuid::randomHex(),
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],

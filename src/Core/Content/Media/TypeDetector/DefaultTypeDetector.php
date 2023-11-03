@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class DefaultTypeDetector implements TypeDetectorInterface
 {
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
@@ -19,12 +19,7 @@ class DefaultTypeDetector implements TypeDetectorInterface
             return $previouslyDetectedType;
         }
 
-        /** @var array<string>|false $mime */
         $mime = explode('/', $mediaFile->getMimeType());
-
-        if ($mime === false) {
-            return new BinaryType();
-        }
 
         return match ($mime[0]) {
             'image' => new ImageType(),

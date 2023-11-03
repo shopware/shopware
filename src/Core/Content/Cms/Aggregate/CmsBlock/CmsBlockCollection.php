@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CmsBlockEntity>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsBlockCollection extends EntityCollection
 {
     public function getSlots(): CmsSlotCollection

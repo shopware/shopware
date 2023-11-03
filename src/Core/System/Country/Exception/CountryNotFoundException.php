@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:remove-exception - will be removed, use CountryException::countryNotFound instead
  */
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryNotFoundException extends CountryException
 {
     public function __construct(string $id)

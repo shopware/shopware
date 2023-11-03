@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
 /**
@@ -13,6 +14,11 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
  */
 class ElasticsearchProductCustomFieldsMappingEventTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+    }
+
     public function testEvent(): void
     {
         $context = Context::createDefaultContext();

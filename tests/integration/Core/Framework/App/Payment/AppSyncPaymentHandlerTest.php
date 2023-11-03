@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
@@ -28,10 +27,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $response = new SyncPayResponse();
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $data = new RequestDataBag(['foo' => 'bar']);
+        $this->paymentService->handlePaymentByOrder($orderId, $data, $salesChannelContext);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -45,6 +45,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($content);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -63,7 +64,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['orderTransaction']);
         static::assertArrayHasKey('recurring', $content);
         static::assertNull($content['recurring']);
-        static::assertCount(4, $content);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        static::assertArrayHasKey('foo', $content['requestData']);
+        static::assertSame('bar', $content['requestData']['foo']);
+        static::assertCount(5, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
     }
 

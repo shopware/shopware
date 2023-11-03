@@ -72,10 +72,15 @@
                 <template #content="{ active }">
                     <template
                         v-for="tab in detailTabs"
+                        {% if VUE3 %}
+                        :key="`tab-${tab.name}`"
+                        {% endif %}
                     >
                         <div
                             v-if="active === tab.name"
+                            {% if VUE2 %}
                             :key="`tab-${tab.name}`"
+                            {% endif %}
                             class="sw-generic-custom-entity-detail__tab"
                         >
                             <sw-card

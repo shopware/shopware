@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Media;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -39,6 +40,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
+#[Package('buyers-experience')]
 class UnusedMediaPurgerTest extends TestCase
 {
     public function testGetNotUsedMediaOnlyAppliesValidAssociationsToCriteria(): void
@@ -53,6 +55,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -65,7 +68,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 function () {
                     return [];
@@ -96,6 +99,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -110,7 +114,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 function (Criteria $criteria, Context $context) use ($id3, $id4) {
                     $filters = $criteria->getFilters();
@@ -124,7 +128,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id3, $id4, $media3, $media4) {
                     static::assertSame([$id3, $id4], $criteria->getIds());
 
-                    return new EntityCollection([$media3, $media4]);
+                    return new MediaCollection([$media3, $media4]);
                 },
                 function () {
                     return [];
@@ -155,6 +159,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
@@ -167,7 +172,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4, $media1, $media2, $media3, $media4) {
                     static::assertSame([$id1, $id2, $id3, $id4], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2, $media3, $media4]);
+                    return new MediaCollection([$media1, $media2, $media3, $media4]);
                 },
             ],
             $mediaDefinition
@@ -195,6 +200,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -211,7 +217,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -239,6 +245,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -255,7 +262,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -290,6 +297,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -306,7 +314,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -334,6 +342,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -346,7 +355,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -371,6 +380,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -387,7 +397,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -415,6 +425,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -427,7 +438,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -454,6 +465,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -466,7 +478,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 
-                    return new EntityCollection([$media1, $media2]);
+                    return new MediaCollection([$media1, $media2]);
                 },
                 [],
             ],
@@ -490,6 +502,7 @@ class UnusedMediaPurgerTest extends TestCase
 
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -502,7 +515,7 @@ class UnusedMediaPurgerTest extends TestCase
                 function (Criteria $criteria, Context $context) use ($id2, $media2) {
                     static::assertSame([$id2], $criteria->getIds());
 
-                    return new EntityCollection([$media2]);
+                    return new MediaCollection([$media2]);
                 },
                 [],
             ],
@@ -529,6 +542,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -568,6 +582,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 [$id1, $id2],
@@ -608,6 +623,7 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -662,6 +678,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id3 = Uuid::randomHex();
         $id4 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
@@ -707,6 +724,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -753,6 +771,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -806,6 +825,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -852,6 +872,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -891,6 +912,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -937,6 +959,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -978,6 +1001,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -1017,6 +1041,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -1060,6 +1085,7 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 function (Criteria $criteria, Context $context) use ($id1, $id2) {
@@ -1100,8 +1126,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id2 = Uuid::randomHex();
 
         $media1 = $this->createMedia($id1);
-        $media2 = $this->createMedia($id2);
 
+        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository(
             [
                 [$id1, $id2],

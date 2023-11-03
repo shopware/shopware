@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class OpenSSLVerifier
 {
     private string $publicKeyPath;

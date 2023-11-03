@@ -2,7 +2,7 @@ import template from './sw-extension-rating-modal.html.twig';
 import './sw-extension-rating-modal.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

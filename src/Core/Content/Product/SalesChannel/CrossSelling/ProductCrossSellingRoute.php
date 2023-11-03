@@ -172,6 +172,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         /** @var ProductCollection $products */
         $products = $result->getEntities();
 
+        $ids = $criteria->getIds();
         $products->sortByIdArray($ids);
 
         $element->setProducts($products);

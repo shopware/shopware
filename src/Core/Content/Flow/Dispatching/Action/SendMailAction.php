@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
@@ -237,9 +237,12 @@ class SendMailAction extends FlowAction implements DelayableAction
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        return $this->mailTemplateRepository
+        /** @var ?MailTemplateEntity $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository
             ->search($criteria, $context)
             ->first();
+
+        return $mailTemplate;
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

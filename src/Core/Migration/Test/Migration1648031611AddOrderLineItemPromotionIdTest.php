@@ -8,11 +8,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,7 +20,10 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1648031611AddOrderLineItemPromotionId;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 
 /**
  * @internal
@@ -65,10 +67,12 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
 
         $this->buildPromotionLineItem($context, $promotionExists);
 
-        /** @var EntityRepository $orderLineItemRepository */
+        /** @var EntityRepository<OrderLineItemCollection> $orderLineItemRepository */
         $orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
 
+        /** @var OrderLineItemEntity|null $lineItem */
         $lineItem = $orderLineItemRepository->search(new Criteria([$this->ids->get('line-item')]), $context)->first();
+
         static::assertNotNull($lineItem);
         static::assertNull($lineItem->getPromotionId());
 
@@ -76,8 +80,10 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
         $migration = new Migration1648031611AddOrderLineItemPromotionId();
         $migration->update($this->connection);
 
+        /** @var OrderLineItemEntity|null $lineItem */
         $lineItem = $orderLineItemRepository->search(new Criteria([$this->ids->get('line-item')]), $context)->first();
         static::assertNotNull($lineItem);
+
         if ($promotionExists) {
             static::assertSame($this->ids->get('promotion'), $lineItem->getPromotionId());
         } else {

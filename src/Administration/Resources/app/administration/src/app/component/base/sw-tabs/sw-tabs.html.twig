@@ -74,10 +74,17 @@
         {% endblock %}
 
         <template v-if="!hasRoutes">
-            <template v-for="tabExtension in tabExtensions">
+            <template
+                v-for="tabExtension in tabExtensions"
+                {% if VUE3 %}
+                :key="tabExtension.componentSectionId"
+                {% endif %}
+            >
                 <sw-extension-component-section
                     v-if="tabExtension.componentSectionId === active"
+                    {% if VUE2 %}
                     :key="tabExtension.componentSectionId"
+                    {% endif %}
                     :position-identifier="tabExtension.componentSectionId"
                 />
             </template>

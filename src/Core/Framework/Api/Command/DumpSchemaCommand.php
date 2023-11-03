@@ -44,7 +44,8 @@ class DumpSchemaCommand extends Command
                 InputOption::VALUE_NONE,
                 'If set, the store api definition will be dumped. Only applies to the openapi3 format.'
             )
-            ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.');
+            ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.')
+            ->addOption('bundle-name', 'b', InputOption::VALUE_OPTIONAL, 'Only uses definitions from a specific bundle.', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -55,6 +56,7 @@ class DumpSchemaCommand extends Command
             $output = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
         }
         $formatType = $input->getOption('schema-format');
+        $bundleName = (empty($input->getOption('bundle-name'))) ? '' : $input->getOption('bundle-name');
 
         switch ($formatType) {
             case 'simple':
@@ -63,7 +65,7 @@ class DumpSchemaCommand extends Command
                 break;
             case 'openapi3':
                 $api = $input->getOption('store-api') ? DefinitionService::STORE_API : DefinitionService::API;
-                $definitionContents = $this->definitionService->generate('openapi-3', $api);
+                $definitionContents = $this->definitionService->generate('openapi-3', $api, DefinitionService::TYPE_JSON_API, $bundleName);
 
                 break;
             case 'entity-schema':

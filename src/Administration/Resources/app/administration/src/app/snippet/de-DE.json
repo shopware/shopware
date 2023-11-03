@@ -41,6 +41,7 @@
       "from": "Von",
       "to": "Bis",
       "bulkEdit": "Mehrfachänderung",
+      "back": "Zurück",
       "discard": "Verwerfen"
     },
     "notification": {
@@ -664,7 +665,7 @@
         },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
-        "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
+        "daysSinceLastOrderRule": "Zeit seit letzter Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
         "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
@@ -672,8 +673,8 @@
         "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
         "customerLoggedInRule": "Angemeldeter Kunde",
         "customerAgeRule": "Kundenalter",
-        "customerDaysSinceLastLogin": "Tage seit der letzten Anmeldung",
-        "customerDaysSinceFirstLogin": "Tage seit der ersten Anmeldung",
+        "customerDaysSinceLastLogin": "Zeit seit der letzten Anmeldung",
+        "customerDaysSinceFirstLogin": "Zeit seit der ersten Anmeldung",
         "customerAffiliateCodeRule": "Affiliate-Code",
         "customerCampaignCodeRule": "Kampagnen-Code",
         "cartAmountRule": "Gesamtsumme",
@@ -1572,12 +1573,6 @@
       "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
       "learnMore": "Mehr erfahren",
       "learnMoreUrl": "https://shopware.com/de/datenschutz/"
-    },
-    "sw-settings-usage-data-modal": {
-      "alertText": "Diese Einstellung gilt für alle Benutzer der Shopware Administration. Du kannst sie jederzeit unter {settings-path} ändern.",
-      "alertTextSettingsPath": "Einstellungen -> System -> Nutzungsdaten",
-      "decline": "Ablehnen",
-      "accept": "Annehmen"
     }
   }
 }

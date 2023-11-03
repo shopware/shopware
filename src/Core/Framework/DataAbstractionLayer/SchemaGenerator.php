@@ -59,6 +59,9 @@ EOL;
     `#name#` #type# #nullable# #default#
 EOL;
 
+    /**
+     * @return string
+     */
     public function generate(EntityDefinition $definition)
     {
         $table = $definition->getEntityName();
@@ -205,8 +208,10 @@ EOL;
     {
         $keys = [];
 
-        /** @var StorageAware $primaryKey */
         foreach ($definition->getPrimaryKeys() as $primaryKey) {
+            if (!$primaryKey instanceof StorageAware) {
+                continue;
+            }
             $keys[] = sprintf('`%s`', $primaryKey->getStorageName());
         }
 
@@ -219,23 +224,15 @@ EOL;
 
     private function generateForeignKeys(EntityDefinition $definition): string
     {
-        $fields = $definition->getFields()->filter(
-            function (Field $field) {
-                if (!$field instanceof ManyToOneAssociationField) {
-                    return false;
-                }
-
-                return true;
-            }
-        );
+        $fields = $definition->getFields()->filterInstance(ManyToOneAssociationField::class);
 
         $referenceVersionFields = $definition->getFields()->filterInstance(ReferenceVersionField::class);
 
         $indices = [];
         $constraints = [];
 
-        /** @var ManyToOneAssociationField $field */
         foreach ($fields as $field) {
+            \assert($field instanceof ManyToOneAssociationField);
             $reference = $field->getReferenceDefinition();
 
             $hasOneToMany = $definition->getFields()->filter(function (Field $field) use ($reference) {
@@ -260,8 +257,8 @@ EOL;
             if ($reference->isVersionAware()) {
                 $versionField = null;
 
-                /** @var ReferenceVersionField $referenceVersionField */
                 foreach ($referenceVersionFields as $referenceVersionField) {
+                    \assert($referenceVersionField instanceof ReferenceVersionField);
                     if ($referenceVersionField->getVersionReferenceDefinition() === $reference) {
                         $versionField = $referenceVersionField;
 
@@ -269,13 +266,15 @@ EOL;
                     }
                 }
 
-                if ($field instanceof ParentAssociationField) {
-                    $columns[] = '`version_id`';
-                } else {
-                    $columns[] = EntityDefinitionQueryHelper::escape($versionField->getStorageName());
-                }
+                if ($versionField) {
+                    if ($field instanceof ParentAssociationField) {
+                        $columns[] = '`version_id`';
+                    } else {
+                        $columns[] = EntityDefinitionQueryHelper::escape($versionField->getStorageName());
+                    }
 
-                $referenceColumns[] = '`version_id`';
+                    $referenceColumns[] = '`version_id`';
+                }
             }
 
             $update = 'CASCADE';
@@ -334,8 +333,8 @@ EOL;
         $template = '    CONSTRAINT `json.#entity#.#column#` CHECK (JSON_VALID(`#column#`))';
         $checks = [];
 
-        /** @var JsonField $field */
         foreach ($fields as $field) {
+            \assert($field instanceof JsonField);
             $parameters = [
                 '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),

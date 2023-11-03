@@ -3,7 +3,7 @@ import swOrderStateHistoryCard from 'src/module/sw-order/component/sw-order-stat
 import swOrderStateChangeModal from 'src/module/sw-order/component/sw-order-state-change-modal';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-state-history-card', swOrderStateHistoryCard);

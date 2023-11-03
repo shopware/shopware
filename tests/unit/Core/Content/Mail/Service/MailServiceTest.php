@@ -14,7 +14,6 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -83,7 +82,6 @@ class MailServiceTest extends TestCase
             $this->salesChannelRepository,
             $this->createMock(SystemConfigService::class),
             $this->eventDispatcher,
-            $this->createMock(UrlGeneratorInterface::class),
             $this->logger,
         );
     }

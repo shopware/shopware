@@ -21,8 +21,8 @@ class ActionsTest extends TestCase
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
         );
 
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
+        static::assertNotNull($actions);
 
         $action = Actions::fromXml($actions);
         static::assertCount(1, $action->getActions());

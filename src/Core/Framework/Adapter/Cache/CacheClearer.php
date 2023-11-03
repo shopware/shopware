@@ -29,6 +29,7 @@ class CacheClearer
         private readonly Filesystem $filesystem,
         private readonly string $cacheDir,
         private readonly string $environment,
+        private readonly bool $clusterMode,
         private readonly MessageBusInterface $messageBus
     ) {
     }
@@ -44,6 +45,13 @@ class CacheClearer
         }
 
         $this->cacheClearer->clear($this->cacheDir);
+
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
+            return;
+        }
+
         $this->filesystem->remove($this->cacheDir . '/twig');
         $this->cleanupUrlGeneratorCacheFiles();
 
@@ -52,6 +60,12 @@ class CacheClearer
 
     public function clearContainerCache(): void
     {
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
+            return;
+        }
+
         $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
         $containerCaches = [];
 
@@ -90,6 +104,11 @@ class CacheClearer
     {
         // Don't delete other folders while paratest is running
         if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
+            return;
+        }
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
             return;
         }
 

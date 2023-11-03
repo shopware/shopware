@@ -237,6 +237,10 @@ Component.register('sw-advanced-selection-rule', {
 
             return aggregations;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {

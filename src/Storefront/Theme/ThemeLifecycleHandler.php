@@ -189,7 +189,7 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel = [];
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
-                if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId && $data['saleschannelId'] !== null) {
+                if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
                     $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
                     $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
                 }

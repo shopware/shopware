@@ -15,6 +15,7 @@ async function createWrapper(privileges = []) {
     localVue.use(Vuex);
 
     const shippingMethod = {};
+    shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
@@ -31,6 +32,8 @@ async function createWrapper(privileges = []) {
                         return shippingMethod;
                     },
                     search: () => Promise.resolve([]),
+                    get: () => Promise.resolve(shippingMethod),
+                    save: () => Promise.resolve(),
                 }),
             },
             acl: {
@@ -42,6 +45,9 @@ async function createWrapper(privileges = []) {
             },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([]),
+            },
+            feature: {
+                isActive: () => true,
             },
         },
         stubs: {
@@ -163,5 +169,44 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
 
         expect(criteria.associations[0].association).toBe('conditions');
     });
-});
 
+    it('should load customFieldSet on loadEntityData', async () => {
+        const wrapper = await createWrapper();
+        const spyGetMethod = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+        const spyLoadCustomFieldSets = jest.spyOn(wrapper.vm, 'loadCustomFieldSets');
+
+        wrapper.vm.loadEntityData();
+
+        await flushPromises();
+        expect(spyGetMethod).toHaveBeenCalled();
+        expect(spyLoadCustomFieldSets).toHaveBeenCalled();
+    });
+
+    it('should save sucessfully', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        wrapper.vm.shippingMethod.prices = [];
+        wrapper.vm.$refs.mediaSidebarItem = { getList: () => {} };
+        wrapper.vm.onSave();
+
+        await flushPromises();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should create notification on save error', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm, 'createNotificationError');
+        const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
+        const error = new Error('error');
+
+        wrapper.vm.shippingMethodRepository.save = () => Promise.reject(error);
+        wrapper.vm.shippingMethod.prices = [];
+
+        await expect(wrapper.vm.onSave()).rejects.toBe(error);
+        expect(spy).toHaveBeenCalled();
+        expect(warningSpy).toHaveBeenCalled();
+        expect(wrapper.vm.isProcessLoading).toBe(false);
+    });
+});

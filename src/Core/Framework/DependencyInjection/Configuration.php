@@ -41,6 +41,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
                 ->append($this->createStockSection())
+                ->append($this->createUsageDataSection())
             ->end();
 
         return $treeBuilder;
@@ -158,6 +159,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('store')
                     ->children()
                     ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                    ->scalarNode('max_limit')->end()
                 ->end()
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
@@ -169,7 +171,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('public_key_path')->end()
                 ->end()
             ->end()
-            ->integerNode('max_limit')->end()
+            ->scalarNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -281,6 +283,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('blue_green')->end()
+                ->booleanNode('cluster_setup')->end()
             ->end();
 
         return $rootNode;
@@ -384,7 +387,18 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('delay')
                             ->defaultValue(0)
                         ->end()
+                        ->arrayNode('delay_options')
+                            ->children()
+                                ->scalarNode('storage')
+                                    ->defaultValue('cache')
+                                ->end()
+                                ->scalarNode('dsn')
+                                    ->defaultValue('redis://localhost')
+                                ->end()
+                            ->end()
+                        ->end()
                         ->integerNode('count')
+                            ->setDeprecated('shopware/platform', '6.6.0.0')
                             ->defaultValue(150)
                         ->end()
                         ->arrayNode('http_cache')
@@ -703,6 +717,24 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enable_stock_management')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createUsageDataSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('usage_data');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('gateway')
+                    ->children()
+                        ->scalarNode('base_uri')->end()
+                        ->scalarNode('batch_size')->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

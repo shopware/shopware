@@ -51,11 +51,13 @@ shopware:
             #         url: 'redis://localhost'
 
     api:
-        max_limit: 100
+        # @deprecated tag:v6.6.0 - The new default will be 100
+        max_limit: null
         api_browser:
             auth_required: true
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
+            max_limit: 100
         jwt_key:
             private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
             private_key_passphrase: 'shopware'
@@ -163,7 +165,7 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async"]
+        transports: ["async", "low_priority"]
 
     auto_update:
         enabled: true
@@ -178,6 +180,7 @@ shopware:
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
+        cluster_setup: false
 
     media:
         enable_url_upload_feature: true
@@ -237,7 +240,13 @@ shopware:
               attributes: ["role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
               custom_attributes:
                   - tags: ["a", "span"]
-                    attributes: [ "href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy" ]
+                    attributes: ["href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
+            - name: snippet
+              tags: ["a"]
+              attributes: ["data-url", "data-ajax-modal"]
+              custom_attributes:
+                  - tags: ["a"]
+                    attributes: ["data-url", "data-ajax-modal"]
 
         fields:
             - name: product_translation.description
@@ -245,7 +254,7 @@ shopware:
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy"]
             - name: snippet.value
-              sets: ["basic", "media", "bootstrap"]
+              sets: ["basic", "media", "bootstrap", "snippet"]
 
     logger:
         file_rotation_count: 14
@@ -261,6 +270,9 @@ shopware:
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
             PRODUCT_SORTING_NOT_FOUND: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
+            CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY: notice
+            CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
             CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
@@ -299,6 +311,18 @@ shopware:
             CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND: notice
             CHECKOUT__COUNTRY_NOT_FOUND: notice
             CHECKOUT__COUNTRY_STATE_NOT_FOUND: notice
+            CHECKOUT__ASYNC_PAYMENT_FINALIZE_INTERRUPTED: notice
+            CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED: notice
+            CHECKOUT__CAPTURE_PREPARED_PAYMENT_ERROR: notice
+            CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT: notice
+            CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED: notice
+            CHECKOUT__RECURRING_PROCESS_INTERRUPTED: notice
+            CHECKOUT__REFUND_PROCESS_INTERRUPTED: notice
+            CONTENT__AFTER_CATEGORY_NOT_FOUND: notice
+            CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
+            DOCUMENT__INVALID_DOCUMENT_ID: notice
+            DOCUMENT__INVALID_GENERATOR_TYPE: notice
+            DOCUMENT__ORDER_NOT_FOUND: notice
             CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
             CONTENT__MEDIA_INVALID_URL: notice
             CONTENT__MEDIA_ILLEGAL_URL: notice
@@ -322,6 +346,7 @@ shopware:
             CONTENT__MEDIA_MISSING_FILE: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND: notice
+            CONTENT__PRODUCT_EXPORT_EMPTY: notice
             FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
             FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__TEMPLATE_PARAMETER_IS_MISSING: notice
@@ -336,10 +361,13 @@ shopware:
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
             FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER: notice
             FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING: notice
             FRAMEWORK__KEY_PARAMETER_IS_MISSING: notice
             FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
             FRAMEWORK__INVALID_API_CRITERIA_IDS: notice
+            FRAMEWORK__INVALID_CRITERIA_IDS: notice
             FRAMEWORK__DEFINITION_NOT_FOUND: notice
             FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
@@ -355,6 +383,7 @@ shopware:
             PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
             SYSTEM__SCOPE_NOT_FOUND: notice
+            FRAMEWORK__EXTENSION_THEME_STILL_IN_USE: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
@@ -364,6 +393,8 @@ shopware:
             each_theme_config: true
         invalidation:
             delay: 0
+            delay_options:
+                storage: cache
             count: 150
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []
@@ -393,3 +424,8 @@ shopware:
 
     stock:
         enable_stock_management: true
+
+    usage_data:
+        gateway:
+            base_uri: 'https://data.shopware.io'
+            batch_size: 50

@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2EmptyStateHero from 'src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero';
 
@@ -10,9 +13,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
 
         return shallowMount(await Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
             localVue,
-            mocks: {
-                $route: { meta: { $module: { name: 'promotion-v2' } } },
-            },
             propsData: {
                 title: 'Oh no, nothing was found.',
                 description: 'I am some text, which is kinda small, but also somewhat longer than other texts!',

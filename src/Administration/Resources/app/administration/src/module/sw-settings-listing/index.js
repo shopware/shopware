@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

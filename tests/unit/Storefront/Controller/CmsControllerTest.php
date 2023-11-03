@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -37,6 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Storefront\Controller\CmsController
  */
+#[Package('buyers-experience')]
 class CmsControllerTest extends TestCase
 {
     private MockObject&CmsRoute $cmsRouteMock;

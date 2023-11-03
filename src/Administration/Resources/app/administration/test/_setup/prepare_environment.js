@@ -13,6 +13,7 @@ import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
+import resetFilters from '../_helper_/restartFilters';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -50,6 +51,9 @@ Shopware.Service().list().forEach(serviceKey => {
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
         return Vue.set(target, propertyName, value);
+    },
+    deleteReactive(target, propertyName) {
+        Vue.delete(target, propertyName);
     },
     root: {
         $tc: v => v,
@@ -121,6 +125,7 @@ global.allowedErrors = [
 ];
 
 global.flushPromises = flushPromises;
+global.resetFilters = resetFilters;
 
 let consoleHasErrorOrWarning = false;
 let errorArgs = null;

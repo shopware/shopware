@@ -7,7 +7,7 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-detail', swCustomerDetail);

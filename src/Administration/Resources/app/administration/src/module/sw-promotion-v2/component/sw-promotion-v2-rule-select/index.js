@@ -3,7 +3,7 @@ import './sw-promotion-v2-rule-select.scss';
 
 /**
  * @private
- * @package business-ops
+ * @package buyers-experience
  */
 export default {
     template,

@@ -8,7 +8,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ExportInvalidException extends ShopwareHttpException
 {
     /**
@@ -47,6 +47,9 @@ class ExportInvalidException extends ShopwareHttpException
         return 'CONTENT__PRODUCT_EXPORT_INVALID_CONTENT';
     }
 
+    /**
+     * @return ErrorMessage[]
+     */
     public function getErrorMessages(): array
     {
         return $this->errorMessages;

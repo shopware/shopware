@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Installer\Configuration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 
 /**
  * @internal

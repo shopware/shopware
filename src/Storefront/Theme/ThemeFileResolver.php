@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -42,12 +42,8 @@ class ThemeFileResolver
                     $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
 
                     // add source file at the beginning if no other theme is included first
-                    if (
-                        $addSourceFile
-                        && (
-                            $scriptFiles->count() === 0
-                            || !$this->isInclude($scriptFiles->first()->getFilepath())
-                        )
+                    if ($addSourceFile
+                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
                         && $configuration->getStorefrontEntryFilepath()
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
@@ -58,9 +54,9 @@ class ThemeFileResolver
                         }
                         $fileCollection->add($scriptFile);
                     }
-                    if (
-                        $addSourceFile
+                    if ($addSourceFile
                         && $scriptFiles->count() > 0
+                        && $scriptFiles->first()
                         && $this->isInclude($scriptFiles->first()->getFilepath())
                         && $configuration->getStorefrontEntryFilepath()
                     ) {
@@ -150,7 +146,7 @@ class ThemeFileResolver
             $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
             if (!$configuration) {
-                throw new InvalidThemeException($name);
+                throw ThemeException::couldNotFindThemeByName($name);
             }
             foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
                 $resolvedFiles->add($item);

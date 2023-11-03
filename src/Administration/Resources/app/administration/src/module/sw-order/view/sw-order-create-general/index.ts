@@ -10,7 +10,7 @@ import type {
 } from '../../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, State, Mixin, Utils } = Shopware;
@@ -116,6 +116,10 @@ export default Component.wrapComponentConfig({
             }
 
             return this.cart.price.totalPrice;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

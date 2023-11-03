@@ -23,7 +23,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ChangeCustomerStatusActionTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

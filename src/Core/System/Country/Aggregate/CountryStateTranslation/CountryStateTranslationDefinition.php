@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryStateTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'country_state_translation';

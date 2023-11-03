@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -24,7 +25,6 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -44,13 +44,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentGeneratorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -242,7 +243,7 @@ class DocumentGeneratorTest extends TestCase
      */
     public function testUpload(bool $preGenerateDoc, Request $uploadFileRequest, bool $static = true, ?\Exception $expectedException = null): void
     {
-        if ($expectedException !== null) {
+        if ($expectedException instanceof \Exception) {
             static::expectExceptionObject($expectedException);
         }
 
@@ -399,11 +400,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
-        /** @var UrlGenerator $urlGenerator */
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
         static::assertNotNull($document->getDocumentMediaFile());
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $filePath = $document->getDocumentMediaFile()->getPath();
 
         static::assertTrue($fileSystem->has($filePath));
         $fileSystem->delete($filePath);
@@ -485,7 +483,7 @@ class DocumentGeneratorTest extends TestCase
         $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
 
         static::assertNotNull($document->getDocumentMediaFile());
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $filePath = $document->getDocumentMediaFile()->getPath();
 
         $fileSystem->write($filePath, 'test123');
 
@@ -497,7 +495,7 @@ class DocumentGeneratorTest extends TestCase
     public function testConfigurationWithSalesChannelOverride(): void
     {
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
-        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
@@ -531,7 +529,7 @@ class DocumentGeneratorTest extends TestCase
         $orderId = $this->persistCart($cart);
 
         $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
-        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig = $base instanceof DocumentBaseConfigEntity ? $base->getConfig() : [];
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
         $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
@@ -857,7 +855,7 @@ class DocumentGeneratorTest extends TestCase
 
             static::assertNotNull($media);
 
-            $filePath = $urlGenerator->getRelativeMediaUrl($media);
+            $filePath = $media->getPath();
 
             static::assertTrue($fileSystem->has($filePath));
             $fileSystem->delete($filePath);

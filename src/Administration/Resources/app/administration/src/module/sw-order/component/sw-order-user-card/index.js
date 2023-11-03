@@ -2,7 +2,7 @@ import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -124,6 +124,10 @@ export default {
             };
 
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

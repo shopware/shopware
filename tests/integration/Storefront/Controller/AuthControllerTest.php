@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -39,6 +37,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -53,14 +52,16 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  */
@@ -605,11 +606,18 @@ class AuthControllerTest extends TestCase
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', []);
+        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testAccountGuestLoginPageWithoutRedirectFails(): void
+    {
+        $response = $this->request('GET', '/account/guest/login', []);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void

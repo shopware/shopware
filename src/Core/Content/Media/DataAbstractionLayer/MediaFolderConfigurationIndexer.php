@@ -18,11 +18,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaFolderConfigurationIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderConfigurationCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -75,8 +77,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        /** @var MediaFolderConfigurationCollection $configs */
-        $configs = $this->repository->search($criteria, $context);
+        $configs = $this->repository->search($criteria, $context)->getEntities();
 
         $update = new RetryableQuery(
             $this->connection,

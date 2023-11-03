@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportActionController extends AbstractController
 {
     /**

@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamIndexer extends EntityIndexer
 {
     /**
@@ -45,7 +45,7 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

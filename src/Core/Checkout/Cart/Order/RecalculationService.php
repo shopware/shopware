@@ -379,16 +379,17 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior($context->getPermissions(), true, true);
+        // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
+        return $context->live(function ($live) use ($cart): Cart {
+            $behavior = new CartBehavior($live->getPermissions(), true, true);
 
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
+            // all prices are now prepared for calculation - starts the cart calculation
+            $cart = $this->processor->process($cart, $live, $behavior);
 
-        // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
+            // validate cart against the context rules
+            $validated = $this->cartRuleLoader->loadByCart($live, $cart, $behavior);
 
-        $cart = $validated->getCart();
-
-        return $cart;
+            return $validated->getCart();
+        });
     }
 }

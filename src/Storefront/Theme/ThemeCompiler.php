@@ -13,15 +13,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
@@ -135,10 +134,8 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
             }
             $this->messageBus->dispatch(
-                new Envelope(
-                    new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
-                    $stamps
-                )
+                new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
+                $stamps
             );
         }
 
@@ -189,7 +186,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $name = mb_substr((string) $asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
-                    throw new InvalidThemeException($name);
+                    throw ThemeException::couldNotFindThemeByName($name);
                 }
 
                 $this->copyAssets($config, $configurationCollection, $outputPath);

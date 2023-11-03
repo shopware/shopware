@@ -246,6 +246,6 @@ class ScriptApiRouteTest extends TestCase
         $content = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $content);
         static::assertCount(1, $content['errors']);
-        static::assertEquals('FRAMEWORK__HOOK_METHOD_EXCEPTION', $content['errors'][0]['code']);
+        static::assertEquals('FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED', $content['errors'][0]['code']);
     }
 }

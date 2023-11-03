@@ -25,8 +25,8 @@ class CustomEventTest extends TestCase
             'aware' => ['customerAware'],
         ];
 
-        /** @var \DOMElement $events */
         $events = $doc->getElementsByTagName('flow-events')->item(0);
+        static::assertNotNull($events);
         foreach ($events->getElementsByTagName('flow-event') as $event) {
             $result = CustomEvent::fromXml($event);
             $result = $result->toArray('en-GB');

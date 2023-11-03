@@ -6,7 +6,7 @@ import 'src/app/component/form/select/base/sw-select-base';
 Shopware.Component.register('sw-settings-tax-rule-type-individual-states', swSettingsTaxRuleTypeIndividualStates);
 
 /**
- * @package customer-order
+ * @package checkout
  */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     let stubs;

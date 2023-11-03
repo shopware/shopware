@@ -220,4 +220,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(wrapper.vm.getCounts('productPrices', '1')).toBe(100);
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
 });

@@ -8,6 +8,8 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 /**
+ * @package buyers-experience
+ *
  * @private
  */
 export default {

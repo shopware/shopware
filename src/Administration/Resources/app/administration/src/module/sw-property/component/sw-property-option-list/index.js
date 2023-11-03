@@ -98,13 +98,13 @@ export default {
         },
 
         onDeleteOptions() {
-            if (this.selection) {
-                Object.values(this.selection).forEach((option) => {
-                    this.onOptionDelete(option);
-                });
-
-                this.refreshOptionList();
+            if (!this.selection) {
+                return;
             }
+
+            Promise.allSettled(Object.values(this.selection).map((option) => this.onOptionDelete(option))).then(() => {
+                this.refreshOptionList();
+            });
         },
 
         onAddOption() {

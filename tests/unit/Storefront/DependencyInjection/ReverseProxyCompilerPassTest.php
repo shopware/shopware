@@ -22,7 +22,7 @@ class ReverseProxyCompilerPassTest extends TestCase
 {
     public function testFastlyReplaces(): void
     {
-        $container = $this->getContainer();
+        $container = self::getContainer();
 
         $container->compile();
 
@@ -38,7 +38,7 @@ class ReverseProxyCompilerPassTest extends TestCase
 
     public function testFastlyReplacesAndPluginExtendsFastly(): void
     {
-        $container = $this->getContainer();
+        $container = self::getContainer();
 
         $container->register(PluginService::class)
             ->setPublic(true)
@@ -60,7 +60,7 @@ class ReverseProxyCompilerPassTest extends TestCase
 
     public function testFastlyDisabled(): void
     {
-        $container = $this->getContainer();
+        $container = self::getContainer();
         $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
 
         $container->compile();
@@ -77,7 +77,7 @@ class ReverseProxyCompilerPassTest extends TestCase
 
     public function testReverseProxyDisabled(): void
     {
-        $container = $this->getContainer();
+        $container = self::getContainer();
         $container->setParameter('storefront.reverse_proxy.enabled', false);
 
         $container->compile();
@@ -91,7 +91,7 @@ class ReverseProxyCompilerPassTest extends TestCase
 
     public function testReverseProxyUseXKeyVarnish(): void
     {
-        $container = $this->getContainer();
+        $container = self::getContainer();
         $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
         $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', true);
 

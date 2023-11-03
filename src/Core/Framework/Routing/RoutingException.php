@@ -17,6 +17,7 @@ class RoutingException extends HttpException
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
     public const LANGUAGE_NOT_FOUND = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
+    public const SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__ROUTING_SALES_CHANNEL_MAINTENANCE';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -55,8 +56,8 @@ class RoutingException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 
@@ -65,8 +66,8 @@ class RoutingException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_INTEGRATION_NOT_FOUND,
-            'App integration "{{ integrationId }}" not found.',
-            ['integrationId' => $integrationId],
+            self::$couldNotFindMessage,
+            ['entity' => 'app integration', 'field' => 'id', 'value' => $integrationId]
         );
     }
 }

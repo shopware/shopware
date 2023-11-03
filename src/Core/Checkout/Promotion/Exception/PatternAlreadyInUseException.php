@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use PromotionException::patternAlreadyInUse instead
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PatternAlreadyInUseException extends PromotionException
 {
     final public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';

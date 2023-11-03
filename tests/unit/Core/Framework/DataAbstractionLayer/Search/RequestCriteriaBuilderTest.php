@@ -364,6 +364,19 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }
 
+    public function testInvalidAssociationsCriteria(): void
+    {
+        $payload = [
+            'associations' => [
+                'prices' => 'invalid',
+            ],
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+
+        static::assertEmpty($criteria->getAssociations());
+    }
+
     /**
      * @dataProvider providerTotalCount
      */
@@ -426,5 +439,28 @@ class RequestCriteriaBuilderTest extends TestCase
             'next-pages',
             Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
         ];
+    }
+
+    public function testSimpleFilterAddsExceptionWithArrayInValue(): void
+    {
+        $payload = [
+            'filter' => [
+                'name' => ['test'],
+            ],
+        ];
+
+        $this->expectException(SearchRequestException::class);
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertEquals('The value for filter "name" must be scalar.', $error['detail']);
+            static::assertEquals(400, $error['status']);
+
+            throw $e;
+        }
     }
 }

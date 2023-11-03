@@ -73,7 +73,11 @@
                     :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
                     :disabled="isInherited || !allowEdit"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
                 {% endblock %}
 

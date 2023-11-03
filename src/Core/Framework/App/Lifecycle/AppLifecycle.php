@@ -29,12 +29,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -46,6 +47,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
@@ -60,6 +62,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class AppLifecycle extends AbstractAppLifecycle
 {
+    /**
+     * @param EntityRepository<CustomEntityCollection> $customEntityRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
@@ -91,7 +96,9 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
         private readonly FlowEventPersister $flowEventPersister,
-        private readonly string $env
+        private readonly string $env,
+        private readonly ShippingMethodPersister $shippingMethodPersister,
+        private readonly EntityRepository $customEntityRepository
     ) {
     }
 
@@ -250,6 +257,8 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 
+        $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
+
         $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
         $this->templatePersister->updateTemplates($manifest, $id, $context);
@@ -294,6 +303,8 @@ class AppLifecycle extends AbstractAppLifecycle
                 }
             }
 
+            $this->markCustomEntitiesAsDeleted($app->getId(), $keepUserData, $context);
+
             $this->appRepository->delete([['id' => $app->getId()]], $context);
 
             if ($softDelete) {
@@ -309,6 +320,33 @@ class AppLifecycle extends AbstractAppLifecycle
 
             $this->deleteAclRole($app->getName(), $context);
         });
+    }
+
+    private function markCustomEntitiesAsDeleted(string $appId, bool $keepUserData, Context $context): void
+    {
+        if (!$keepUserData) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $context)->getEntities();
+
+        $update = [];
+        foreach ($customEntities as $customEntity) {
+            $update[] = [
+                'id' => $customEntity->getId(),
+                'appId' => null,
+                'deletedAt' => new \DateTimeImmutable(),
+            ];
+        }
+
+        if (empty($update)) {
+            return;
+        }
+
+        $this->customEntityRepository->update($update, $context);
     }
 
     /**

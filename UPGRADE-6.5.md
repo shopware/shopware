@@ -1,3 +1,287 @@
+# 6.5.6.0
+## Cluster setup configuration
+
+There is a new configuration option `shopware.deployment.cluster_setup` which is set to `false` by default. If you are using a cluster setup, you need to set this option to `true` in your `config/packages/shopware.yaml` file.
+## Deprecation of CacheInvalidatorStorage
+
+We deprecated the default delayed cache invalidation storage, as it is not ideal for multi-server usage.
+Make sure you switch until 6.6 to the new RedisInvalidatorStorage.
+
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay_options:
+                storage: cache
+                dsn: 'redis://localhost'
+```
+
+# 6.5.5.0
+Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](../../adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
+
+It is disabled by default, but you can opt in to the new system by enabling the `STOCK_HANDLING` feature flag.
+
+When you opt in and Shopware is your main source of truth for stock values, you might want to migrate the available_stock field to the `stock` field so that the `stock` value takes into account open orders.
+
+You can use the following SQL:
+
+```sql
+UPDATE product SET stock = available_stock WHERE stock != available_stock
+```
+
+Bear in mind that this query might take a long time, so you could do it in a loop with a limit. See `\Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock` for inspiration.
+
+## If you have decorated `StockUpdater::update`
+
+If you have previously decorated `\Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater` you must refactor your code. Depending on what you want to accomplish you have two options:
+
+* You have the possibility to decorate the `\Shopware\Core\Content\Product\Stock\AbstractStockStorage::alter` method. This method is called by `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` as orders are created and transitioned through the various states. By decorating you can persist the stock deltas to a different storage. For example, an API.
+* You can disable `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` entirely with the `stock.enable_stock_management` configuration setting, and implement your own subscriber to listen to order events. You can use Shopware's stock storage `\Shopware\Core\Content\Product\Stock\AbstractStockStorage`, or implement your own entirely.
+
+## Decorating `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader::load()` && `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::load()`
+
+If you decorated `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::load()` you should instead decorate `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::loadCombinations()`. The method does the same, but the signature is slightly modified.
+
+If you extended `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader`, you should implement the new `loadCombinations` instead of `load` method.
+
+Before:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
+use Shopware\Core\Framework\Context;
+
+class AvailableCombinationLoaderDecorator extends AbstractAvailableCombinationLoader
+{
+    public function load(string $productId, Context $context, string $salesChannelId): AvailableCombinationResult
+    {
+    
+    }
+}
+```
+
+After:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class AvailableCombinationLoaderDecorator extends AbstractAvailableCombinationLoader
+{
+    public function loadCombinations(string $productId, SalesChannelContext $salesChannelContext): AvailableCombinationResult
+    {
+        $context = $salesChannelContext->getContext();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+    }
+}
+```
+
+Similarly, if you consume `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader` then you will need to adjust your code, to pass in `\Shopware\Core\System\SalesChannel\SalesChannelContext`.
+
+Before:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class SomeService
+{
+     public function __construct(private AbstractAvailableCombinationLoader $availableCombinationLoader)
+     {}
+     
+     public function __invoke(SalesChannelContext $salesChannelContext): void
+     {
+        $this->availableCombinationLoader->load('some-product-id', $salesChannelContext->getContext(), $salesChannelContext->getSalesChannelId());
+     }
+}
+```
+
+After:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class SomeService
+{
+     public function __construct(private AbstractAvailableCombinationLoader $availableCombinationLoader)
+     {}
+     
+     public function __invoke(SalesChannelContext $salesChannelContext): void
+     {
+        $this->availableCombinationLoader->loadCombinations('some-product-id', $salesChannelContext);
+     }
+}
+```
+
+## Loading stock information from a different source
+
+If Shopware is not the source of truth for your stock data, you can decorate `\Shopware\Core\Content\Product\Stock\AbstractStockStorage` and implement the `load` method. When products are loaded in Shopware the `load` method will be invoked with the loaded product ID's. You can return a collection of `\Shopware\Core\Content\Product\Stock\StockData` objects, each representing a products stock level and configuration. This data will be merged with the Shopware stock levels and configuration from the product. Any data specified will override the product's data.
+
+For example, you can use an API to fetch the stock data:
+
+```php
+//<plugin root>/src/Service/StockStorageDecorator.php
+<?php
+
+namespace Swag\Example\Service;
+
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
+use Shopware\Core\Content\Product\Stock\StockData;
+use Shopware\Core\Content\Product\Stock\StockDataCollection;
+use Shopware\Core\Content\Product\Stock\StockLoadRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class StockStorageDecorator extends AbstractStockStorage
+{
+    public function __construct(private AbstractStockStorage $decorated)
+    {
+    }
+
+    public function getDecorated(): AbstractStockStorage
+    {
+        return $this->decorated;
+    }
+
+    public function load(StockLoadRequest $stockRequest, SalesChannelContext $context): StockDataCollection
+    {
+        $productsIds = $stockRequest->productIds;
+
+        //use $productIds to make an API request to get stock data
+        //$result would come from the api response
+        $result = ['product-1' => 5, 'product-2' => 10];
+
+        return new StockDataCollection(
+            array_map(function (string $productId, int $stock) {
+                return new StockData($productId, $stock, true);
+            }, array_keys($result), $result)
+        );
+    }
+
+    public function alter(array $changes, Context $context): void
+    {
+        $this->decorated->alter($changes, $context);
+    }
+
+    public function index(array $productIds, Context $context): void
+    {
+        $this->decorated->index($productIds, $context);
+    }
+}
+```
+
+```xml
+<!--<plugin root>/src/Resources/config/services.xml-->
+<services>
+    <service id="Swag\Example\Service\StockStorageDecorator" decorates="Shopware\Core\Content\Product\Stock\StockStorage">
+        <argument type="service" id="Swag\Example\Service\StockStorageDecorator.inner" />
+    </service>
+
+</services>
+```
+
+## Reading and writing the current stock level
+
+The `product.stock` field is now a realtime representation of the product stock. When writing new extensions which need to query the stock of a product, use this field. Not the `product.availableStock` field.
+
+Before:
+
+```php
+/** \Shopware\Core\Content\Product\ProductEntity $product */
+$stock = $product->getAvailableStock();
+```
+
+After:
+
+```php
+/** \Shopware\Core\Content\Product\ProductEntity $product */
+$stock = $product->getStock();
+```
+
+## Writing the current stock level
+
+If you write to the `product.availableStock` field, you should instead write to the `product.stock` field. However, there are no plans to remove the `product.availableStock` field.
+
+Before:
+
+```php
+
+$this->productRepository->update(
+    [
+        [
+            'id' => $productId,
+            'availableStock' => $newStockValue
+        ]
+    ],
+    $context
+);
+```
+
+After:
+
+```php
+
+$this->productRepository->update(
+    [
+        [
+            'id' => $productId,
+            'stock' => $newStockValue
+        ]
+    ],
+    $context
+);
+```
+
+## Disabling Shopware's stock management system
+
+You can disable `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` entirely with the `stock.enable_stock_management` configuration setting.
+
+## Implementing your own stock storage
+
+Similar to the example above "Loading stock information from a different source" you can update a different database table or service, or implement custom inventory systems such as multi warehouse by decorating the `alter` method. 
+This method is triggered with an array of `StockAlteration`'s. Which contain the Product & Line Item ID's, the old quantity and the new quantity. 
+
+This method is triggered whenever an order is created or transitioned through the various states.
+
+## Listening to entity delete events
+
+The `BeforeDeleteEvent` has been renamed to `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent`. Please update your usages:
+
+Before:
+
+```php
+/**
+ * @return array<string, string>
+ */
+public static function getSubscribedEvents(): array
+{
+    return [
+        \Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent::class => 'onBeforeDelete',
+    ];
+}
+```
+
+After:
+
+```php
+/**
+ * @return array<string, string>
+ */
+public static function getSubscribedEvents(): array
+{
+    return [
+        \Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent::class => 'onBeforeDelete',
+    ];
+}
+```
+The upcoming release includes a crucial breaking change aimed at resolving a major issue in how repository data is handled for the Admin Extension SDK. This change will be introduced in the next minor version.
+
+The change only affects your app if you are utilizing properties within the context. With this modification, an empty context object will be returned within your Entity. You will receive a custom context object containing your specific context changes only when you also send a custom context object to the admin.
+
+The final context will be merged with the default context in the administration. This allows you to use the default context to access all the necessary data.
+
 # 6.5.4.0
 * Update your thumbnails by running command: `media:generate-thumbnails`
 ## Generic type template for EntityRepository
@@ -479,6 +763,10 @@ or prepare your env by replacing the var with the new one like
 elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
 ```
+
+## Sync api changes
+We removed the single record behavior in the sync api. This means, that all operations and records are now handled as a collection and validated and written within one transaction.
+The headers `HTTP_Fail-On-Error` and `single-operation` were removed. The `single-operation` header is now always true. 
 
 ## DBAL upgrade
 

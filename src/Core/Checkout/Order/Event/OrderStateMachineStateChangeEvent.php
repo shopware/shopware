@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware, FlowEventAware
 {
     private ?MailRecipientStruct $mailRecipientStruct = null;

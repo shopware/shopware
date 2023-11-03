@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlAssociationFieldResolver extends AbstractFieldResolver
 {
     public function join(FieldResolverContext $context): string

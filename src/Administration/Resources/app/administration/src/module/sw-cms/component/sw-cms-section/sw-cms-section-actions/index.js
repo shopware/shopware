@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 
@@ -17,6 +20,8 @@ export default {
             default: false,
         },
     },
+
+    inject: ['feature'],
 
     data() {
         return {
@@ -49,6 +54,11 @@ export default {
             }
 
             this.$store.dispatch('cmsPageState/setSection', this.section);
+
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.$emit('page-config-open', 'itemConfig');
+                return;
+            }
             this.$parent.$emit('page-config-open', 'itemConfig');
         },
     },

@@ -25,7 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -764,7 +764,7 @@ class SalesChannelContextTest extends TestCase
      */
     private function createSalesChannelContext(array $taxData = [], array $options = []): SalesChannelContext
     {
-        if ($taxData) {
+        if ($taxData !== []) {
             $this->getContainer()->get('tax.repository')->create($taxData, Context::createDefaultContext());
         }
 

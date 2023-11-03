@@ -5,11 +5,20 @@
 // eslint-disable-next-line import/no-named-default
 import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
+import initializeTabsVue3 from './tabs.init.vue3';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default function initializeTabs(): void {
+    if (window._features_?.vue3) {
+        initializeTabsVue3();
+    } else {
+        initializeTabsVue2();
+    }
+}
+
+function initializeTabsVue2(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
@@ -17,8 +26,7 @@ export default function initializeTabs(): void {
         const router = Shopware.Application.view?.router;
 
         // @ts-expect-error
-        // eslint-disable-next-line max-len
-        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+        const currentRoute = router.currentRoute;
 
         /* istanbul ignore next */
         if (
@@ -36,8 +44,7 @@ export default function initializeTabs(): void {
         const router = Shopware.Application.view!.router;
 
         // @ts-expect-error
-        // eslint-disable-next-line max-len
-        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+        const currentRoute = router.currentRoute;
 
         if (router && currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);

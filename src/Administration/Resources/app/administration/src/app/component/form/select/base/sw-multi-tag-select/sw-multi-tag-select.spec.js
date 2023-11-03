@@ -67,6 +67,14 @@ describe('components/sw-multi-tag-select', () => {
         expect(selectOptionsPopover.isVisible()).toBeTruthy();
     });
 
+    it('should focus input when the user click on .sw-select__selection', async () => {
+        const wrapper = await createMultiDataSelect();
+        const focusSpy = jest.spyOn(wrapper.vm.$refs.selectionList, 'focus');
+
+        wrapper.vm.setDropDown(true);
+        expect(focusSpy).toHaveBeenCalled();
+    });
+
     it('should show the select field\'s options popover', async () => {
         const messageAddData = 'global.sw-multi-tag-select.addData';
         const messageEnterValidData = 'global.sw-multi-tag-select.enterValidData';

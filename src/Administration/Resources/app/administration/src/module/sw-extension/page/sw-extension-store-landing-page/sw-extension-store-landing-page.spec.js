@@ -37,7 +37,7 @@ async function createWrapper() {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     /** @type Wrapper */

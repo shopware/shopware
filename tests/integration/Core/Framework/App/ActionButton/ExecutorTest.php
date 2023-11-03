@@ -2,10 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Opis\JsonSchema\Errors\ErrorFormatter;
-use Opis\JsonSchema\Resolvers\SchemaResolver;
+use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
@@ -62,10 +61,10 @@ class ExecutorTest extends TestCase
         $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, Context::createDefaultContext());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -78,7 +77,7 @@ class ExecutorTest extends TestCase
         $appSecret = $action->getAppSecret();
         static::assertNotNull($appSecret);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, $appSecret),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -132,16 +131,16 @@ class ExecutorTest extends TestCase
         $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, Context::createDefaultContext());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals($targetUrl, (string) $request->getUri());
+        static::assertSame($targetUrl, (string) $request->getUri());
 
         $appSecret = $action->getAppSecret();
         static::assertNotNull($appSecret);
 
         $body = $request->getBody()->getContents();
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, $appSecret),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -180,10 +179,10 @@ class ExecutorTest extends TestCase
         $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, $context);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
@@ -203,12 +202,12 @@ class ExecutorTest extends TestCase
         static::assertEquals($expectedData, $data['data']);
         static::assertNotEmpty($data['meta']['timestamp']);
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
-        static::assertEquals($context->getLanguageId(), $data['meta']['language']);
+        static::assertSame($context->getLanguageId(), $data['meta']['language']);
 
         $appSecret = $action->getAppSecret();
         static::assertNotNull($appSecret);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, $appSecret),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -239,10 +238,10 @@ class ExecutorTest extends TestCase
 
         $this->executor->execute($action, Context::createDefaultContext());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
@@ -255,7 +254,7 @@ class ExecutorTest extends TestCase
         $appSecret = $action->getAppSecret();
         static::assertNotNull($appSecret);
 
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $body, $appSecret),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -348,7 +347,7 @@ class ExecutorTest extends TestCase
     private function parseSchemaErrors(ValidationResult $result): string
     {
         $error = $result->error();
-        if (!$error) {
+        if (!$error instanceof ValidationError) {
             return '';
         }
 
@@ -359,8 +358,8 @@ class ExecutorTest extends TestCase
     {
         $requestData = json_decode($body, null, 512, \JSON_THROW_ON_ERROR);
         $validator = new Validator();
-        /** @var SchemaResolver $resolver */
         $resolver = $validator->resolver();
+        static::assertNotNull($resolver);
         $resolver->registerFile(
             'http://api.example.com/appActionEndpointSchema.json',
             $this->schemaLocation

@@ -11,7 +11,6 @@ import 'src/core/shopware';
 import 'src/app/main';
 
 /* eslint-disable max-len */
-// @ts-expect-error - we know this exists
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 if (window._features_?.vue3) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call

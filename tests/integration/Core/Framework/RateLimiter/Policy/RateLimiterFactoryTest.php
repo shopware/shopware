@@ -68,31 +68,24 @@ class RateLimiterFactoryTest extends TestCase
     public function testFactoryShouldUseSymfonyFactoryOverrideDefaultConfig(): void
     {
         $factory = new RateLimiterFactory(
-            array_merge(
-                [
-                    'enabled' => true,
-                    'id' => 'test_limiter',
-                    'policy' => 'time_backoff',
-                    'reset' => '1 hour',
-                    'limits' => [
-                        [
-                            'limit' => 3,
-                            'interval' => '10 seconds',
-                        ],
-                        [
-                            'limit' => 5,
-                            'interval' => '30 seconds',
-                        ],
+            [
+                'enabled' => true,
+                'id' => 'test_limiter',
+                'policy' => 'token_bucket',
+                'reset' => '1 hour',
+                'limits' => [
+                    [
+                        'limit' => 3,
+                        'interval' => '10 seconds',
+                    ],
+                    [
+                        'limit' => 5,
+                        'interval' => '30 seconds',
                     ],
                 ],
-                [
-                    'enabled' => true,
-                    'id' => 'test_limiter',
-                    'policy' => 'token_bucket',
-                    'limit' => 3,
-                    'rate' => ['interval' => '60 seconds'],
-                ],
-            ),
+                'limit' => 3,
+                'rate' => ['interval' => '60 seconds'],
+            ],
             $this->createMock(StorageInterface::class),
             $this->createMock(SystemConfigService::class),
             $this->createMock(LockFactory::class),

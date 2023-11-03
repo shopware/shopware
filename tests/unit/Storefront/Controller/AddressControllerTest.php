@@ -10,12 +10,12 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
@@ -31,7 +31,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @covers \Shopware\Storefront\Controller\AddressController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AddressControllerTest extends TestCase
 {
     private AddressControllerTestClass $controller;

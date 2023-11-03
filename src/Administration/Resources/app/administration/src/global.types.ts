@@ -7,6 +7,8 @@
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { Route } from 'vue-router';
 import type VueRouter from 'vue-router';
+// Import explicitly global types from admin-extension-sdk
+import '@shopware-ag/admin-extension-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
@@ -59,7 +61,7 @@ import type FilterFactory from './core/factory/filter.factory';
 import type StateStyleService from './app/service/state-style.service';
 import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
-import type MetricsApiService from './core/service/api/metrics.api.service';
+import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -79,6 +81,8 @@ import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
+import type PrivilegesService from './app/service/privileges.service';
+import type { UsageDataModuleState } from './app/state/usage-data.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -112,6 +116,7 @@ type CmsService = {
     getCmsBlockRegistry: $TSFixMeFunction,
     getEntityMappingTypes: $TSFixMeFunction,
     getPropertyByMappingPath: $TSFixMeFunction,
+    getCmsServiceState: $TSFixMeFunction,
 };
 
 // declare global types
@@ -133,7 +138,13 @@ declare global {
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
-    interface Window { Shopware: ShopwareClass; }
+    interface Window {
+        Shopware: ShopwareClass;
+        _features_: {
+            [featureName: string]: boolean
+        };
+        processingInactivityLogout?: boolean;
+    }
 
     const _features_: {
         [featureName: string]: boolean
@@ -147,7 +158,7 @@ declare global {
         loginService: LoginService,
         feature: FeatureService,
         menuService: $TSFixMe,
-        privileges: $TSFixMe,
+        privileges: PrivilegesService,
         customEntityDefinitionService: CustomEntityDefinitionService,
         cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
@@ -194,7 +205,7 @@ declare global {
         userActivityService: UserActivityService,
         filterFactory: FilterFactoryData,
         systemConfigApiService: SystemConfigApiService,
-        metricsService: MetricsApiService,
+        usageDataService: UsageDataApiService,
         configService: ConfigApiService,
         importExport: ImportExportService,
     }
@@ -287,6 +298,7 @@ declare global {
         extensionEntryRoutes: $TSFixMe,
         shopwareApps: ShopwareAppsState,
         sdkLocation: SdkLocationState,
+        usageData: UsageDataModuleState
     }
 
     /**
@@ -323,6 +335,11 @@ declare global {
     }
 
     const flushPromises: () => Promise<void>;
+
+    /**
+     * @private This is a private method and should not be used outside of the test suite
+     */
+    const wrapTestComponent: (componentName: string, config?: { sync?: boolean }) => Promise<VueComponent>;
 }
 
 /**

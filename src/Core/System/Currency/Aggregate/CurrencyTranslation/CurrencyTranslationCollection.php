@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CurrencyTranslationEntity>
  */
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyTranslationCollection extends EntityCollection
 {
     public function getCurrencyIds(): array

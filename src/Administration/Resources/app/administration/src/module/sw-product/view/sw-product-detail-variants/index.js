@@ -84,6 +84,10 @@ export default {
         currentProductStates() {
             return this.activeTab.split(',');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

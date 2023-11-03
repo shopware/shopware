@@ -61,7 +61,11 @@
                 :label-callback="getCustomFieldName"
                 entity="custom_field"
                 show-clearable-button
+                {% if VUE3 %}
+                @update:value="changeCustomField"
+                {% else %}
                 @change="changeCustomField"
+                {% endif %}
             />
             {% endblock %}
 
@@ -142,7 +146,7 @@
         {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
         <template #icon>
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
         </template>

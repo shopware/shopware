@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 const { Mixin, Data: { Criteria } } = Shopware;
 const { debug } = Shopware.Utils;

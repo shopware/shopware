@@ -21,15 +21,42 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
+        <service id="shopware.cache.invalidator.storage.cache" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\CacheInvalidatorStorage">
+            <argument type="service" id="cache.object"/>
+
+            <tag name="shopware.cache.invalidator.storage" storage="cache"/>
+        </service>
+
+        <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis">
+            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+            <argument>%shopware.cache.invalidation.delay_options.dsn%</argument>
+        </service>
+
+        <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage">
+            <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
+
+            <tag name="shopware.cache.invalidator.storage" storage="redis"/>
+        </service>
+
+        <service id="shopware.cache.invalidator.storage.locator" class="Shopware\Core\Framework\DependencyInjection\TaggedServiceLocator">
+            <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage">
+            <factory service="shopware.cache.invalidator.storage.locator" method="get"/>
+
+            <argument>%shopware.cache.invalidation.delay_options.storage%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
             <argument>%shopware.cache.invalidation.delay%</argument>
-            <argument>%shopware.cache.invalidation.count%</argument>
             <argument type="collection">
                 <argument type="service" id="cache.object"/>
                 <argument type="service" id="cache.http"/>
             </argument>
-            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
@@ -53,6 +80,7 @@
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
+            <argument>%shopware.deployment.cluster_setup%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 

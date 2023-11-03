@@ -42,6 +42,7 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
+        '!src/**/*.spec.vue3.js',
     ],
 
     coverageReporters: [

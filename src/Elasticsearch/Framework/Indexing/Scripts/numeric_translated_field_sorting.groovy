@@ -11,4 +11,8 @@ for (int i = 0; i < languages.length; i++) {
     }
 }
 
-return 0;
+if (params['order'] == 'asc') {
+    return Double.MAX_VALUE;
+}
+
+return Double.MIN_VALUE;

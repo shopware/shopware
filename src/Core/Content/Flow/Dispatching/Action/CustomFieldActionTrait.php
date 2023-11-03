@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 trait CustomFieldActionTrait
 {
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
+#[Package('buyers-experience')]
 class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -54,10 +56,10 @@ class UnusedMediaPurgerTest extends TestCase
         $withManufacturer = $this->getMediaWithManufacturer();
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $firstPath = $urlGenerator->getRelativeMediaUrl($txt);
-        $secondPath = $urlGenerator->getRelativeMediaUrl($png);
-        $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
-        $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $withProduct->getPath();
+        $fourthPath = $withManufacturer->getPath();
 
         $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));

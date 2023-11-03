@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,12 +36,13 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class InvoiceRendererTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -85,7 +85,7 @@ class InvoiceRendererTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (self::$callback) {
+        if (self::$callback instanceof \Closure) {
             $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
     }
@@ -109,7 +109,7 @@ class InvoiceRendererTest extends TestCase
                 $caughtEvent = $event;
             });
 
-        if ($beforeRenderHook) {
+        if ($beforeRenderHook instanceof \Closure) {
             $beforeRenderHook($operationInvoice, $this->getContainer());
         }
 
@@ -126,7 +126,7 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        if (!empty($processedTemplate->getSuccess())) {
+        if ($processedTemplate->getSuccess() !== []) {
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
             /** @var RenderedDocument $rendered */
@@ -173,8 +173,13 @@ class InvoiceRendererTest extends TestCase
                     $rendered->getHtml()
                 );
 
+                static::assertNotNull($locale = $order->getLanguage()->getLocale());
+                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
+                $formattedDate = $formatter->format(new \DateTime());
+
+                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Date %s', (new \DateTime())->format('j M Y')),
+                    sprintf('Date %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -228,8 +233,13 @@ class InvoiceRendererTest extends TestCase
                 );
                 static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
 
+                static::assertNotNull($locale = $order->getLanguage()->getLocale());
+                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
+                $formattedDate = $formatter->format(new \DateTime());
+
+                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Datum %s', (new \DateTime())->format('d.m.Y')),
+                    sprintf('Datum %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -318,6 +328,8 @@ class InvoiceRendererTest extends TestCase
 
                 $rendered = $rendered->getHtml();
 
+                static::assertNotNull($shippingAddress->getZipcode());
+
                 static::assertStringContainsString('Shipping address', $rendered);
                 static::assertStringContainsString($shippingAddress->getStreet(), $rendered);
                 static::assertStringContainsString($shippingAddress->getCity(), $rendered);
@@ -365,6 +377,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($orderAddress->getCountry()->getName());
                 static::assertNotNull($orderAddress->getSalutation()->getLetterName());
                 static::assertNotNull($orderAddress->getSalutation()->getDisplayName());
+                static::assertNotNull($orderAddress->getZipcode());
 
                 static::assertStringContainsString($orderAddress->getStreet(), $rendered);
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);

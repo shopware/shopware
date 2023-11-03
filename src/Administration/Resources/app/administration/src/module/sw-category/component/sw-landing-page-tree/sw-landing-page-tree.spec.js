@@ -17,7 +17,7 @@ async function createWrapper() {
     localVue.use(VueRouter);
 
     const routes = [{
-        name: 'sw.category.landingPage',
+        name: 'sw.category.landingPageDetail',
         path: 'category/landingPage/:id',
     }];
 

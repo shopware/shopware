@@ -6,9 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,6 +18,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeProfileRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -654,6 +653,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment'),
                 'name' => $this->ids->get('payment'),
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -665,6 +665,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment2'),
                 'name' => $this->ids->get('payment2'),
+                'technicalName' => 'payment_test2',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -709,6 +710,7 @@ class ChangeProfileRouteTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test_invoice',
                     'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,

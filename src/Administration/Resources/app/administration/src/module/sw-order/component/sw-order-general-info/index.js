@@ -2,7 +2,7 @@ import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -140,6 +140,14 @@ export default {
 
         delivery() {
             return this.order.deliveries[0];
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

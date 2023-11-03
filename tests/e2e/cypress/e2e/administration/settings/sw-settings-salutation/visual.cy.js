@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Salutation: Visual tesing', () => {
     beforeEach(() => {
@@ -10,7 +13,7 @@ describe('Salutation: Visual tesing', () => {
             });
     });
 
-    it('@visual: check appearance of salutation module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of salutation module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/salutation`,
             method: 'POST',

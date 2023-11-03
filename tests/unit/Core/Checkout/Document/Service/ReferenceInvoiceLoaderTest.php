@@ -6,17 +6,17 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class ReferenceInvoiceLoaderTest extends TestCase
 {
     private Connection&MockObject $connection;

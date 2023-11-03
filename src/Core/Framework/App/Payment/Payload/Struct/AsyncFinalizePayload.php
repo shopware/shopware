@@ -22,6 +22,9 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
+    /**
+     * @param mixed[] $queryParameters
+     */
     public function __construct(
         OrderTransactionEntity $orderTransaction,
         protected array $queryParameters,
@@ -45,6 +48,9 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
         return $this->orderTransaction;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getQueryParameters(): array
     {
         return $this->queryParameters;

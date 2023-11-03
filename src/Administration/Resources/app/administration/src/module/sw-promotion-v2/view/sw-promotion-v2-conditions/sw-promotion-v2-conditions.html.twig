@@ -30,6 +30,7 @@
             v-model="promotion.preventCombination"
             {% endif %}
             class="sw-promotion-v2-conditions__prevent-combination"
+            :disabled="!acl.can('promotion.editor')"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"
             :text="$tc('sw-promotion-v2.detail.conditions.preConditions.helpTextPreventCombination')"
         />

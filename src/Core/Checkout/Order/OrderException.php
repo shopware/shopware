@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderException extends HttpException
 {
     final public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_ASSOCIATION';
@@ -39,8 +39,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_DELIVERY_NOT_FOUND_CODE,
-            'Order delivery with id {{ id }} not found.',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'order delivery', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -59,8 +59,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE,
-            'Order transaction with id {{ id }} not found.',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -98,8 +98,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_NOT_FOUND_CODE,
-            'Order with id {{ orderId }} not found.',
-            ['orderId' => $orderId]
+            self::$couldNotFindMessage,
+            ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
         );
     }
 

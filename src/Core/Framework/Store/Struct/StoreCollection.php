@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<StoreStruct>
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 abstract class StoreCollection extends Collection
 {
     public function __construct(iterable $elements = [])

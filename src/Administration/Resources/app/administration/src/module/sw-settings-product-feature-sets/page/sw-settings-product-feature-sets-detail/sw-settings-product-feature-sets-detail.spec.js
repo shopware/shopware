@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 
 import swSettingProductFeatureSetsDetail from 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail';

@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: NewsletterRecipientTask::class)]
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**

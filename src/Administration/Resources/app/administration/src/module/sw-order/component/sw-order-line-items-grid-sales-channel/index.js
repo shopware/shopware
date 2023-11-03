@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils, State, Service } = Shopware;
@@ -147,6 +147,14 @@ export default {
                 align: 'right',
                 width: '80px',
             }];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

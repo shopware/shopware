@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
@@ -28,8 +28,11 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,26 +48,23 @@ class SalesChannelProxyControllerTest extends TestCase
     use PromotionTestFixtureBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PromotionCollection>
      */
-    protected $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     private Context $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalesChannelCollection>
      */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private SalesChannelContextPersister $contextPersister;
 
@@ -488,6 +488,7 @@ class SalesChannelProxyControllerTest extends TestCase
             [
                 'id' => $shippingMethodId,
                 'name' => 'Example shipping',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => ['name' => 'test', 'priority' => 1],
                 'deliveryTime' => ['name' => 'test', 'min' => 1, 'max' => 1, 'unit' => 'day'],
                 'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
@@ -571,7 +572,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -674,7 +674,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -803,8 +802,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $productId = $this->ids->get('p1');
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
-
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -1019,7 +1016,6 @@ class SalesChannelProxyControllerTest extends TestCase
             $salesChannelContext = $this->createDefaultSalesChannelContext();
             $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
             $productId = $this->ids->get('p1');
-            $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
             $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
             $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
             $payload = array_merge($payload, [
@@ -1489,6 +1485,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test',
                     'description' => 'Default payment method',
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
@@ -1529,6 +1526,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'id' => $shippingMethodId,
             'type' => 0,
             'name' => 'Test shipping method',
+            'technicalName' => 'shipping_test',
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [

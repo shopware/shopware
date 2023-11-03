@@ -59,9 +59,7 @@ base-uri 'self';
     <services>
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
-            <argument type="service" id="assets.packages"/>
-            <argument type="service" id="shopware.asset.asset_without_versioning"/>
-            <argument type="service" id="shopware.asset.asset.version_strategy"/>
+            <deprecated package="shopware/core" version="6.6.0.0">tag:v6.6.0 - The %service_id% service will be removed in v6.6.0.0</deprecated>
         </service>
 
         <!-- Database / Doctrine -->
@@ -112,6 +110,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_6"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core.V6_6</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_7"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_7</argument>
             <tag name="shopware.migration_source"/>
         </service>
 
@@ -215,6 +219,10 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Routing\RouteEventSubscriber">
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\MaintenanceModeResolver">
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -640,6 +648,11 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="messenger.bus.shopware" class="Shopware\Core\Framework\Adapter\Messenger\MessageBus" decorates="messenger.default_bus">
+            <argument type="service" id=".inner"/>
+            <argument type="collection"></argument>
         </service>
     </services>
 </container>

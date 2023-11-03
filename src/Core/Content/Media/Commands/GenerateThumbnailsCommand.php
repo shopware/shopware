@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -27,7 +28,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
     name: 'media:generate-thumbnails',
     description: 'Generates thumbnails for all media files',
 )]
-#[Package('content')]
+#[Package('buyers-experience')]
 class GenerateThumbnailsCommand extends Command
 {
     private ShopwareStyle $io;
@@ -42,6 +43,9 @@ class GenerateThumbnailsCommand extends Command
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
      */
     public function __construct(
         private readonly ThumbnailService $thumbnailService,
@@ -89,6 +93,7 @@ class GenerateThumbnailsCommand extends Command
 
         $this->initializeCommand($input, $context);
 
+        /** @var RepositoryIterator<MediaCollection> $mediaIterator */
         $mediaIterator = new RepositoryIterator($this->mediaRepository, $context, $this->createCriteria());
 
         if (!$this->isAsync) {
@@ -139,6 +144,8 @@ class GenerateThumbnailsCommand extends Command
     }
 
     /**
+     * @param RepositoryIterator<MediaCollection> $iterator
+     *
      * @return array<string, int|array<array<string>>>
      */
     private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
@@ -149,7 +156,6 @@ class GenerateThumbnailsCommand extends Command
         $errors = [];
 
         while (($result = $iterator->fetch()) !== null) {
-            /** @var MediaEntity $media */
             foreach ($result->getEntities() as $media) {
                 try {
                     if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
@@ -189,6 +195,9 @@ class GenerateThumbnailsCommand extends Command
         return $criteria;
     }
 
+    /**
+     * @param RepositoryIterator<MediaCollection> $mediaIterator
+     */
     private function generateSynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
         $totalMediaCount = $mediaIterator->getTotal();
@@ -221,6 +230,9 @@ class GenerateThumbnailsCommand extends Command
         }
     }
 
+    /**
+     * @param RepositoryIterator<MediaCollection> $mediaIterator
+     */
     private function generateAsynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
         $batchCount = 0;

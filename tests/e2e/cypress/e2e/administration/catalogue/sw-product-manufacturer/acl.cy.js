@@ -1,8 +1,10 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ManufacturerPageObject from '../../../../support/pages/module/sw-manufacturer.page-object';
 
-describe('Manufacturer: Test crud operations with ACL', () => {
+describe('Manufacturer: Test crud operations with ACL', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.createDefaultFixture('product-manufacturer').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

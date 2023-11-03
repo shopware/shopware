@@ -51,7 +51,7 @@ export default {
                 let concatenation = fields.join('.');
 
                 if (concatenation.match('\.$')) {
-                    concatenation = concatenation.substr(0, concatenation.length);
+                    concatenation = concatenation.substring(0, concatenation.length);
                 }
 
                 if (!concatenation) {

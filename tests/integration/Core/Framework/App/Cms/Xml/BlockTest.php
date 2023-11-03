@@ -18,8 +18,8 @@ class BlockTest extends TestCase
         static::assertCount(2, $cmsExtensions->getBlocks()->getBlocks());
 
         $firstBlock = $cmsExtensions->getBlocks()->getBlocks()[0];
-        static::assertEquals('first-block-name', $firstBlock->getName());
-        static::assertEquals('text-image', $firstBlock->getCategory());
+        static::assertSame('first-block-name', $firstBlock->getName());
+        static::assertSame('text-image', $firstBlock->getCategory());
         static::assertCount(3, $firstBlock->getSlots());
         static::assertCount(6, $firstBlock->getDefaultConfig()->toArray('en-GB'));
         static::assertEquals(

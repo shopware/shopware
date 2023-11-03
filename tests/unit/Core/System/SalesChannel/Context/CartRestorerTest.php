@@ -6,11 +6,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @covers \Shopware\Core\System\SalesChannel\Context\CartRestorer
  */
+#[Package('buyers-experience')]
 class CartRestorerTest extends TestCase
 {
     private MockObject&SalesChannelContextFactory $salesChannelContextFactory;

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -15,22 +16,31 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ExtensionNotFoundExceptionTest extends TestCase
 {
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetErrorCode(): void
     {
         static::assertSame(
             'FRAMEWORK__EXTENSION_NOT_FOUND',
-            (new ExtensionNotFoundException('Cannot find extension'))->getErrorCode()
+            ExtensionNotFoundException::extensionNotFoundFromId('123')->getErrorCode()
         );
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetStatusCode(): void
     {
         static::assertSame(
             Response::HTTP_NOT_FOUND,
-            (new ExtensionNotFoundException('Cannot find extension'))->getStatusCode()
+            ExtensionNotFoundException::fromTechnicalName('test-app')->getStatusCode()
         );
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetMessageFromTechnicalName(): void
     {
         static::assertSame(
@@ -39,6 +49,9 @@ class ExtensionNotFoundExceptionTest extends TestCase
         );
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
     public function testGetMessageFromId(): void
     {
         static::assertSame(

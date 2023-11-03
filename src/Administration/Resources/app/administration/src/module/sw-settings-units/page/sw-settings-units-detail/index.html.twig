@@ -34,6 +34,7 @@
                     {% else %}
                     v-model="unit.name"
                     {% endif %}
+                    name="sw-field--unit-name"
                     :label="$tc('sw-settings-units.detail.fieldLabels.name')"
                     :error="unitNameError"
                     required
@@ -45,6 +46,7 @@
                     {% else %}
                     v-model="unit.shortCode"
                     {% endif %}
+                    name="sw-field--unit-shortCode"
                     :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
                     :error="unitShortCodeError"
                     required

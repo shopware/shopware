@@ -129,6 +129,9 @@
             {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
             <sw-order-product-select
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                name="sw-field--item-label"
+                {% endif %}
                 :sales-channel-id="salesChannelId"
                 :tax-status="taxStatus"
                 :item="item"
@@ -223,6 +226,9 @@
                 {% else %}
                 v-model="item.priceDefinition.price"
                 {% endif %}
+                {% if VUE3 %}
+                name="sw-field--item-priceDefinition-price"
+                {% endif %}
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
@@ -237,7 +243,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <span v-else>{{ item.unitPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}</span>
+            <span v-else>{{ currencyFilter(item.unitPrice, order.currency.shortName, order.itemRounding.decimals) }}</span>
             {% endblock %}
 
         </template>
@@ -250,7 +256,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
             <span>
-                {{ item.totalPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}
+                {{ currencyFilter(item.totalPrice, order.currency.shortName, order.itemRounding.decimals) }}
             </span>
             {% endblock %}
 
@@ -269,6 +275,9 @@
                 v-model:value="item.quantity"
                 {% else %}
                 v-model="item.quantity"
+                {% endif %}
+                {% if VUE3 %}
+                name="sw-field--item-quantity"
                 {% endif %}
                 number-type="int"
                 :min="1"
@@ -306,6 +315,9 @@
                 v-model:value="item.priceDefinition.taxRules[0].taxRate"
                 {% else %}
                 v-model="item.priceDefinition.taxRules[0].taxRate"
+                {% endif %}
+                {% if VUE3 %}
+                name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
                 {% endif %}
                 size="small"
                 placeholder="0"

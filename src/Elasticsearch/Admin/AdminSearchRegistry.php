@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -110,6 +110,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
+                $ids = array_values($ids);
+
                 // we provide no queue when the data is sent by the admin
                 if ($indexingBehavior->getNoQueue()) {
                     $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
@@ -170,7 +172,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return $indexer;
         }
 
-        throw new ElasticsearchIndexingException([\sprintf('Indexer for name %s not found', $name)]);
+        throw ElasticsearchException::indexingError([\sprintf('Indexer for name %s not found', $name)]);
     }
 
     public function updateMappings(): void
@@ -237,7 +239,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         if (\is_array($result) && !empty($result['errors'])) {
             $errors = $this->parseErrors($result);
 
-            throw new ElasticsearchIndexingException($errors);
+            throw ElasticsearchException::indexingError($errors);
         }
     }
 

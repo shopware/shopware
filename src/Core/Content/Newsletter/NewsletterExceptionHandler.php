@@ -6,7 +6,7 @@ use Shopware\Core\Content\Newsletter\Exception\LanguageOfNewsletterDeleteExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

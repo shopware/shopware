@@ -85,7 +85,7 @@ class RangeAggregationTest extends TestCase
      * @dataProvider rangeAggregationDataProvider
      *
      * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     * @param array<string, int> $rangesExpectedResult
      */
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult): void
     {
@@ -118,8 +118,6 @@ class RangeAggregationTest extends TestCase
         static::assertInstanceOf(RangeResult::class, $aggregationCollection->get('test-range-aggregation'));
 
         $rangesResult = $aggregationCollection->get('test-range-aggregation')->getRanges();
-
-        static::assertCount(\count($rangesDefinition), $rangesResult);
 
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {

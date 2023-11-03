@@ -34,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @covers \Shopware\Administration\Controller\AdministrationController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AdministrationControllerTest extends TestCase
 {
     private AdministrationController $administrationController;

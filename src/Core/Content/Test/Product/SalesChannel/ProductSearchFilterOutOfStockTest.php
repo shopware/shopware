@@ -10,7 +10,6 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -83,10 +82,8 @@ class ProductSearchFilterOutOfStockTest extends TestCase
         static::assertTrue($listing->has($this->testData->getId('product2-green')));
         static::assertTrue($listing->has($this->testData->getId('product2-red')));
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
-        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
         $ids = array_keys($options->getOptionIdMap());
@@ -127,10 +124,8 @@ class ProductSearchFilterOutOfStockTest extends TestCase
         static::assertFalse($listing->has($this->testData->getId('product2-green')));
         static::assertFalse($listing->has($this->testData->getId('product2-red')));
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
-        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
         $ids = array_keys($options->getOptionIdMap());
@@ -251,14 +246,12 @@ class ProductSearchFilterOutOfStockTest extends TestCase
             }
         }
 
-        $repo = $this->getContainer()->get('product.repository');
-
-        $repo->create($data, Context::createDefaultContext());
+        $this->getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
     }
 
     private function insertOptions(): void
     {
-        $data = [
+        $this->getContainer()->get('property_group.repository')->create([
             [
                 'id' => $this->testData->createId('color'),
                 'name' => 'color',
@@ -268,10 +261,6 @@ class ProductSearchFilterOutOfStockTest extends TestCase
                     ['id' => $this->testData->createId('blue'), 'name' => 'blue'],
                 ],
             ],
-        ];
-
-        /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('property_group.repository');
-        $repo->create($data, Context::createDefaultContext());
+        ], Context::createDefaultContext());
     }
 }

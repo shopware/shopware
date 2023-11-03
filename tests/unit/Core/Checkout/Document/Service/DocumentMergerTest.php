@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @covers \Shopware\Core\Checkout\Document\Service\DocumentMerger
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentMergerTest extends TestCase
 {
     public function testMergeWithFpdiConfig(): void
@@ -43,6 +43,6 @@ class DocumentMergerTest extends TestCase
             $fpdi
         );
 
-        $documentMerger->merge([Uuid::randomHex()], $this->createMock(Context::class));
+        $documentMerger->merge([Uuid::randomHex()], Context::createDefaultContext());
     }
 }

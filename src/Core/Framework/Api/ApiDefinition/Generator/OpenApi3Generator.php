@@ -50,7 +50,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API, ?string $bundleName = null): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -93,7 +93,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
-        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
+
+        if (!empty($bundleName)) {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+            $data['paths'] = [];
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
 
         $loader = new OpenApiFileLoader($schemaPaths);
 

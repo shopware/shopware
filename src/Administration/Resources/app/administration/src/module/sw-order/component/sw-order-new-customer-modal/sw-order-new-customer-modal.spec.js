@@ -6,7 +6,7 @@ import 'src/app/component/base/sw-tabs-item';
 import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context } = Shopware;

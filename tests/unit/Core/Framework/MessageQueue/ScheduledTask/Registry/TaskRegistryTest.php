@@ -54,13 +54,12 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         $registeredTask->setScheduledTaskClass(CleanupCartTask::class);
 
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([
             new ScheduledTaskCollection([$registeredTask]),
         ]);
 
-        $registry = new TaskRegistry($tasks, $staticRepository, $parameterBag);
-
-        $registry->registerTasks();
+        (new TaskRegistry($tasks, $staticRepository, $parameterBag))->registerTasks();
 
         static::assertSame(
             [
@@ -314,5 +313,20 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects(static::never())->method('create');
 
         $registry->registerTasks();
+    }
+
+    public function testListAllTasks(): void
+    {
+        $taskEntity = new ScheduledTaskEntity();
+        $taskEntity->setId('cleanupTask');
+        $taskEntity->setName('foo');
+
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
+        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
+
+        $tasks = (new TaskRegistry([], $repository, new ParameterBag([])))->getAllTasks(Context::createDefaultContext());
+
+        static::assertCount(1, $tasks);
+        static::assertEquals($taskEntity, $tasks->first());
     }
 }

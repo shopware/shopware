@@ -48,6 +48,22 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="parameter_bag" />
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder">
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
+            <argument>%elasticsearch.language_analyzer_mapping%</argument>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
+        </service>
+
         <service id="OpenSearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
@@ -206,6 +222,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\EsProductDefinition"/>
+            <argument>%elasticsearch.product.exclude_source%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -213,10 +231,9 @@
         <service id="Shopware\Elasticsearch\Product\EsProductDefinition" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%elasticsearch.product.custom_fields_mapping%</argument>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
-            <argument>%elasticsearch.language_analyzer_mapping%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper" />
         </service>
 
         <service id="Shopware\Elasticsearch\Product\StopwordTokenFilter">
@@ -302,6 +319,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
+            <argument>%kernel.environment%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -333,12 +351,7 @@
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>
 
-        <service id="shopware.elasticsearch.logger" class="Psr\Log\LoggerInterface">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-            <argument type="string">elasticsearch</argument>
-            <argument>90</argument>
-            <argument>%elasticsearch.logger_level%</argument>
-        </service>
+        <service id="shopware.elasticsearch.logger" alias="monolog.logger.elasticsearch"/>
 
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
         <service id="_dummy_es_env_usage" class="iterable" lazy="true">
@@ -542,5 +555,6 @@
 
             <tag name="shopware.elastic.admin-searcher-index" key="product_stream"/>
         </service>
+
     </services>
 </container>

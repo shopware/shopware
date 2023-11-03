@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -232,7 +232,7 @@ class AvailableCombinationLoaderTest extends TestCase
     /**
      * @param array<mixed> $a
      */
-    private static function ashuffle(array &$a): void
+    private function ashuffle(array &$a): void
     {
         $keys = array_keys($a);
         shuffle($keys);
@@ -260,7 +260,7 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $optionIds = [];
 
-        self::ashuffle($groupIds);
+        $this->ashuffle($groupIds);
 
         $configuratorSettings = [];
         foreach ($groupIds as $groupName => $groupId) {

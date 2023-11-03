@@ -77,6 +77,10 @@ Component.register('sw-card', {
         },
     },
 
+    compatConfig: {
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+    },
+
     methods: {
         cardClasses() {
             const classes = {
@@ -87,7 +91,7 @@ Component.register('sw-card', {
                 'has--header': !!this.showHeader,
                 'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
                 'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
-                'has--toolbar': !!this.toolbar || !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
                 'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
 

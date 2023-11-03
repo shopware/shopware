@@ -9,7 +9,7 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
- * @package customer-order
+ * @package checkout
  * @memberOf module:core/service/customer-group-registration-listener
  * @method addCustomerGroupRegistrationListener
  * @param loginService

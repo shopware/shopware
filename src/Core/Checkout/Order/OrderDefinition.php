@@ -50,7 +50,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order';

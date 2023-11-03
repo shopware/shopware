@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     // eslint-disable-next-line max-len
@@ -79,6 +79,10 @@ export default {
         /* eslint-enable max-len */
         associationEntitiesConfig() {
             return Object.values(this.getRuleAssignmentConfiguration);
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

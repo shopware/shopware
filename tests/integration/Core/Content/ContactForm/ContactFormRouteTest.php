@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -21,10 +22,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  *
- * @package content
- *
  * @group store-api
  */
+#[Package('buyers-experience')]
 class ContactFormRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

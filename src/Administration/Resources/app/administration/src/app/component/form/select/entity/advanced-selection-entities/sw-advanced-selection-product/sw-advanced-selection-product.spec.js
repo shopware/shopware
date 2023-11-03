@@ -219,7 +219,6 @@ function getCurrencyData() {
 
 async function createWrapper() {
     const localVue = createLocalVue();
-    localVue.filter('currency', (currency) => currency);
 
     return {
         wrapper: shallowMount(await Shopware.Component.build('sw-advanced-selection-product'), {
@@ -402,5 +401,11 @@ describe('components/sw-advanced-selection-product', () => {
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);
+    });
+
+    it('should return filters from filter registry', () => {
+        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 });

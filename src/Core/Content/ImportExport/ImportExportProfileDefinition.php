@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportProfileDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'import_export_profile';

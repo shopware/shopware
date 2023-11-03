@@ -120,6 +120,7 @@
         <!-- API CONTROLLERS -->
         <service id="Shopware\Core\Checkout\Promotion\Api\PromotionActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

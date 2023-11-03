@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -33,6 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @covers \Shopware\Core\Content\Seo\SeoUrlGenerator
  */
+#[Package('buyers-experience')]
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class LanguageOfOrderDeleteException extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

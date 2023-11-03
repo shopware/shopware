@@ -91,7 +91,7 @@ class SnippetServiceTest extends TestCase
             ]);
         }
 
-        if (!empty($databaseSnippets)) {
+        if ($databaseSnippets !== null && $databaseSnippets !== []) {
             $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
         }
 

@@ -2,7 +2,7 @@ import template from './sw-extension-ratings-summary.html.twig';
 import './sw-extension-ratings-summary.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

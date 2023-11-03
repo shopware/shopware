@@ -29,12 +29,12 @@ use Symfony\Contracts\Service\ResetInterface;
 class SystemConfigService implements ResetInterface
 {
     /**
-     * @var array<string, bool>
+     * @var array<string, true>
      */
     private array $keys = ['all' => true];
 
     /**
-     * @var array<mixed>
+     * @var array<string, array<string, true>>
      */
     private array $traces = [];
 
@@ -317,12 +317,13 @@ class SystemConfigService implements ResetInterface
 
         $insertQueue->execute();
 
+        // Dispatch the hook before the events to invalid the cache
+        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
+
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {
             $this->eventDispatcher->dispatch($event);
         }
-
-        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void
@@ -401,7 +402,11 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @return mixed|null All kind of data could be cached
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
      */
     public function trace(string $key, \Closure $param)
     {
@@ -416,7 +421,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string>
      */
     public function getTrace(string $key): array
     {

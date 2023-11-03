@@ -45,7 +45,7 @@ class PreparedPaymentService
         try {
             $paymentHandler = $this->getPaymentHandlerFromSalesChannelContext($salesChannelContext);
             if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethod($salesChannelContext->getPaymentMethod()->getId());
+                throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
             }
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface)) {
@@ -56,7 +56,7 @@ class PreparedPaymentService
         } catch (PaymentException $e) {
             $customer = $salesChannelContext->getCustomer();
             $customerId = $customer !== null ? $customer->getId() : '';
-            $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
 
             throw $e;
         }
@@ -84,7 +84,7 @@ class PreparedPaymentService
             $preparedTransactionStruct = $this->paymentTransactionStructFactory->prepared($transaction, $order);
             $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
         } catch (PaymentProcessException $e) {
-            $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
 
             throw $e;
         }
@@ -108,12 +108,12 @@ class PreparedPaymentService
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethod->getId());
+            throw PaymentException::unknownPaymentMethodById($paymentMethod->getId());
         }
 
         return $paymentHandler;

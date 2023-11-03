@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Store\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Search\EqualsFilterStruct;
 use Shopware\Core\Framework\Store\Search\FilterStruct;
+use Shopware\Core\Framework\Store\Search\MultiFilterStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -40,14 +41,16 @@ class FilterStructClassTest extends TestCase
 
         static::assertEquals('multi', $filter->getType());
 
-        static::assertInstanceOf(FilterStruct::class, $filter);
+        static::assertInstanceOf(MultiFilterStruct::class, $filter);
         static::assertCount(2, $filter->getQueries());
 
         $ratings = $filter->getQueries()[0];
+        static::assertInstanceOf(EqualsFilterStruct::class, $ratings);
         static::assertEquals('ratings', $ratings->getField());
         static::assertEquals('2', $ratings->getValue());
 
         $category = $filter->getQueries()[1];
+        static::assertInstanceOf(EqualsFilterStruct::class, $category);
         static::assertEquals('category', $category->getField());
         static::assertEquals('5', $category->getValue());
     }

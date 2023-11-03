@@ -23,11 +23,12 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaException extends HttpException
 {
     public const MEDIA_INVALID_CONTENT_LENGTH = 'CONTENT__MEDIA_INVALID_CONTENT_LENGTH';
     public const MEDIA_INVALID_URL = 'CONTENT__MEDIA_INVALID_URL';
+    public const MEDIA_INVALID_URL_GENERATOR_PARAMETER = 'CONTENT__MEDIA_INVALID_URL_GENERATOR_PARAMETER';
     public const MEDIA_ILLEGAL_URL = 'CONTENT__MEDIA_ILLEGAL_URL';
     public const MEDIA_DISABLE_URL_UPLOAD_FEATURE = 'CONTENT__MEDIA_DISABLE_URL_UPLOAD_FEATURE';
     public const MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ = 'CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ';
@@ -205,8 +206,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_NOT_FOUND,
-            'Media for id {{ mediaId }} not found.',
-            ['mediaId' => $mediaId]
+            self::$couldNotFindMessage,
+            ['entity' => 'media', 'field' => 'id', 'value' => $mediaId]
         );
     }
 
@@ -260,8 +261,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_MISSING_FILE,
-            'Could not find file for media with id: "{{ mediaId }}"',
-            ['mediaId' => $mediaId]
+            self::$couldNotFindMessage,
+            ['entity' => 'file for media', 'field' => 'id', 'value' => $mediaId]
         );
     }
 
@@ -274,8 +275,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FOLDER_NOT_FOUND,
-            'Could not find media folder with id: "{{ folderId }}"',
-            ['folderId' => $folderId]
+            self::$couldNotFindMessage,
+            ['entity' => 'media folder', 'field' => 'id', 'value' => $folderId]
         );
     }
 
@@ -284,8 +285,8 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FOLDER_NAME_NOT_FOUND,
-            'Could not find a folder with the name: "{{ folderName }}"',
-            ['folderName' => $folderName]
+            self::$couldNotFindMessage,
+            ['entity' => 'a folder', 'field' => 'name', 'value' => $folderName]
         );
     }
 
@@ -465,6 +466,16 @@ class MediaException extends HttpException
             self::MEDIA_FILE_NOT_FOUND,
             'The file "{{ path }}" does not exist',
             ['path' => $path]
+        );
+    }
+
+    public static function invalidUrlGeneratorParameter(string|int $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_INVALID_URL,
+            'The url generator parameter "{{ key }}" is invalid.',
+            ['key' => $key]
         );
     }
 }

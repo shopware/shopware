@@ -28,6 +28,7 @@ module.exports = (config) => {
         {
             ignore: [
                 '**/*.spec.js',
+                '**/*.spec.vue3.js',
                 '**/*.js.snap',
                 '**/_fixtures/*.js',
                 '**/_sw-admin-menu-item/*.js',

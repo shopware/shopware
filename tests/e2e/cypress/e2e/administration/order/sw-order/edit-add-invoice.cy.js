@@ -23,7 +23,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: add document to order', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: add document to order', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
         const createInvoiceUrl = `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`;
 
@@ -202,7 +202,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@order: upload customer document file to document order', { tags: ['pa-customers-orders'] }, () => {
+    it('@order: upload customer document file to document order', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
         const createInvoiceUrl = `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`;
 

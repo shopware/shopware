@@ -5,14 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Pipe;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package system-settings
- *
  * @covers \Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe
  */
+#[Package('system-settings')]
 class KeyMappingPipeTest extends TestCase
 {
     public function testEmptyMapping(): void

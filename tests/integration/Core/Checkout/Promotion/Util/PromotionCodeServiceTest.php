@@ -6,18 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionCodeServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,7 +35,7 @@ class PromotionCodeServiceTest extends TestCase
         $code = $this->codesService->getFixedCode();
 
         static::assertEquals(8, \strlen($code));
-        static::assertMatchesRegularExpression('/([A-Z][0-9]){4}/', $code);
+        static::assertMatchesRegularExpression('/([A-Z]\d){4}/', $code);
     }
 
     /**
@@ -55,20 +55,20 @@ class PromotionCodeServiceTest extends TestCase
     {
         return [
             ['%s', '/([A-Z]){1}/'],
-            ['%d', '/([0-9]){1}/'],
+            ['%d', '/(\d){1}/'],
             ['%s%s%s', '/([A-Z]){3}/'],
-            ['%d%d%d', '/([0-9]){3}/'],
-            ['%s%d%s', '/([A-Z][0-9][A-Z])/'],
-            ['%d%s%d', '/([0-9][A-Z][0-9])/'],
-            ['PREFIX_%s%s%d%d', '/PREFIX_([A-Z]){2}([0-9]){2}/'],
-            ['%d%d%s%s_SUFFIX', '/([0-9]){2}([A-Z]){2}_SUFFIX/'],
+            ['%d%d%d', '/(\d){3}/'],
+            ['%s%d%s', '/([A-Z]\d[A-Z])/'],
+            ['%d%s%d', '/(\d[A-Z]\d)/'],
+            ['PREFIX_%s%s%d%d', '/PREFIX_([A-Z]){2}(\d){2}/'],
+            ['%d%d%s%s_SUFFIX', '/(\d){2}([A-Z]){2}_SUFFIX/'],
             ['PREFIX_%s%s_SUFFIX', '/PREFIX_([A-Z]){2}_SUFFIX/'],
-            ['PREFIX_%d%d_SUFFIX', '/PREFIX_([0-9]){2}_SUFFIX/'],
-            ['PREFIX_%s%d_SUFFIX', '/PREFIX_([A-Z][0-9])_SUFFIX/'],
-            ['PREFIX_%d%s_SUFFIX', '/PREFIX_([0-9][A-Z])_SUFFIX/'],
-            ['PREFIX_%d%s_SUFFIX', '/PREFIX_([0-9][A-Z])_SUFFIX/'],
-            ['PREFIX_%d%s_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX', '/PREFIX_([0-9][A-Z])_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX/'],
-            ['ILLEGAL_VAR_STOPS_THE_CHAIN_%d%s%q%d%s_SUFFIX', '/ILLEGAL_VAR_STOPS_THE_CHAIN_([0-9][A-Z])%q%d%s_SUFFIX/'],
+            ['PREFIX_%d%d_SUFFIX', '/PREFIX_(\d){2}_SUFFIX/'],
+            ['PREFIX_%s%d_SUFFIX', '/PREFIX_([A-Z]\d)_SUFFIX/'],
+            ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'],
+            ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'],
+            ['PREFIX_%d%s_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX', '/PREFIX_(\d[A-Z])_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX/'],
+            ['ILLEGAL_VAR_STOPS_THE_CHAIN_%d%s%q%d%s_SUFFIX', '/ILLEGAL_VAR_STOPS_THE_CHAIN_(\d[A-Z])%q%d%s_SUFFIX/'],
         ];
     }
 

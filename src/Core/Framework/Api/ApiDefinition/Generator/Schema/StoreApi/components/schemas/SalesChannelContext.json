@@ -183,6 +183,18 @@
                                     "defaultShippingAddressId": {
                                         "type": "string"
                                     },
+                                    "defaultBillingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    "defaultShippingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    "activeBillingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    "activeShippingAddress": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
                                     "customerNumber": {
                                         "type": "string"
                                     },

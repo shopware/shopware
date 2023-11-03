@@ -5,7 +5,6 @@
     class="sw-media-preview-v2"
     :class="mediaPreviewClasses"
 >
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_preview_v2_no_media %}
     <template v-if="!source">
@@ -43,7 +42,7 @@
             <img
                 v-else
                 class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <sw-icon
@@ -61,7 +60,7 @@
             <img
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -102,7 +101,7 @@
             {% block sw_media_preview_v2_file_type_audio %}
             <img
                 class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -153,7 +152,7 @@
             {% block sw_media_preview_v2_file_type_placeholder %}
             <img
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
-                :src="placeholderIconPath | asset"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             {% endblock %}

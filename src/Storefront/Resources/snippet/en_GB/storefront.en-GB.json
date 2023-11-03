@@ -667,6 +667,11 @@
           "true": "Yes",
           "false": "No"
         }
+      },
+      "quantitySelect": {
+        "label": "Quantity",
+        "increase": "Increase quantity",
+        "decrease": "Decrease quantity"
       }
     },
     "cms": {
@@ -674,6 +679,9 @@
         "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "privacyNoticeText": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "acceptButtonLabel": "Accept"
+      },
+      "imageGallery": {
+        "sliderDotLabel": "Show image %index% of %total%"
       },
       "defaultMedia": {
         "preview_camera_large": {
@@ -708,6 +716,13 @@
           "title": "Plant",
           "alt": "Succulent in a white pot in front of light blue background"
         }
+      }
+    }
+  },
+  "theme": {
+    "compilation": {
+      "async": {
+        "success": "Compilation for sales channel %salesChannelName% completed"
       }
     }
   }

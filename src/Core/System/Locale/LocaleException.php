@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class LocaleException extends HttpException
 {
     final public const LOCALE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__LOCALE_DOES_NOT_EXISTS';
@@ -36,8 +36,8 @@ class LocaleException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 }

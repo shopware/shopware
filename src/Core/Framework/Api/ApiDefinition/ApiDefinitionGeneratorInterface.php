@@ -27,7 +27,7 @@ interface ApiDefinitionGeneratorInterface
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType): array;
+    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array;
 
     /**
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions

@@ -2,7 +2,7 @@ import './sw-order-state-history-card-entry.scss';
 import template from './sw-order-state-history-card-entry.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -35,6 +35,13 @@ export default {
             default: false,
         },
     },
+
+    computed: {
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+    },
+
     methods: {
         userDisplayName(user) {
             let userString = '';

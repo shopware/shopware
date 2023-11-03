@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-inherit-wrapper';

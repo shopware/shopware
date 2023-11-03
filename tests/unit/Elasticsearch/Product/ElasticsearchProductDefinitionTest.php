@@ -12,9 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\EsProductDefinition;
+use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -50,16 +55,41 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
+        $languageLoader = new StaticLanguageLoader([
+            'lang_en' => [
+                'id' => 'lang_en',
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+            ],
+            'lang_de' => [
+                'id' => 'lang_de',
+                'parentId' => 'parentId',
+                'code' => 'de-DE',
+            ],
+        ]);
+
+        $parameterBag = new ParameterBag([
+            'elasticsearch.product.custom_fields_mapping' => [
+                'bool' => CustomFieldTypes::BOOL,
+                'int' => CustomFieldTypes::INT,
+            ],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
+            'en' => 'english',
+            'de' => 'german',
+        ]);
+        $fieldMapper = new ElasticsearchFieldMapper($utils);
+
         $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
-            [],
-            new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            [
-                'en' => 'english',
-                'de' => 'german',
-            ]
+            $fieldBuilder,
+            $fieldMapper
         );
 
         $definition = new ElasticsearchProductDefinition(
@@ -68,7 +98,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $expectedMapping = [
@@ -323,7 +355,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ];
 
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
-        static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
 
     public function testMappingCustomFields(): void
@@ -333,19 +364,41 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $newImplementation = new EsProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $connection,
-            [
+        $languageLoader = new StaticLanguageLoader([
+            'lang_en' => [
+                'id' => 'lang_en',
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+            ],
+            'lang_de' => [
+                'id' => 'lang_de',
+                'parentId' => 'parentId',
+                'code' => 'de-DE',
+            ],
+        ]);
+
+        $parameterBag = new ParameterBag([
+            'elasticsearch.product.custom_fields_mapping' => [
                 'test1' => 'text',
                 'test2' => 'unknown',
             ],
-            new EventDispatcher(),
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
+            'en' => 'english',
+            'de' => 'german',
+        ]);
+        $fieldMapper = new ElasticsearchFieldMapper($utils);
+
+        $newImplementation = new EsProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            [
-                'en' => 'english',
-                'de' => 'german',
-            ]
+            $fieldBuilder,
+            $fieldMapper
         );
 
         $definition = new ElasticsearchProductDefinition(
@@ -357,7 +410,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -398,7 +453,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
@@ -419,7 +476,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $searchQueryBuilder,
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         $criteria = new Criteria();
@@ -443,16 +502,36 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $connection = $this->getConnection($productId);
 
+        $languageLoader = new StaticLanguageLoader([
+            'lang_en' => [
+                'id' => 'lang_en',
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+            ],
+            'lang_de' => [
+                'id' => 'lang_de',
+                'parentId' => 'parentId',
+                'code' => 'de-DE',
+            ],
+        ]);
+
+        $parameterBag = new ParameterBag(['elasticsearch.product.custom_fields_mapping' => []]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
+            'en' => 'english',
+            'de' => 'german',
+        ]);
+        $fieldMapper = new ElasticsearchFieldMapper($utils);
+
         $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
-            [],
-            new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            [
-                'en' => 'english',
-                'de' => 'german',
-            ]
+            $fieldBuilder,
+            $fieldMapper
         );
 
         $definition = new ElasticsearchProductDefinition(
@@ -461,7 +540,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation
+            $newImplementation,
+            false,
+            'dev'
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());
@@ -544,7 +625,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class)
+            $this->createMock(EsProductDefinition::class),
+            false,
+            'dev'
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());

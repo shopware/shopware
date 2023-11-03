@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package checkout
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
@@ -23,7 +23,7 @@ describe('Promotion v2: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout'] }, () => {
+    it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout', 'VUE3'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -61,8 +61,8 @@ describe('Promotion v2: Visual tests', () => {
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');
-        cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
-        cy.get('input[name="sw-field--promotion-active"]').click();
+        cy.get('input[label="Name"]').typeAndCheck('Funicular prices');
+        cy.get('.sw-promotion-v2-detail-base__field-active input').click();
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@saveData')
@@ -98,7 +98,7 @@ describe('Promotion v2: Visual tests', () => {
             .clear()
             .type('54');
 
-        cy.get('#sw-field--discount-type').select('Fixed item price');
+        cy.get('.sw-promotion-discount-component__type-select select').select('Fixed item price');
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();

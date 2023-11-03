@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
@@ -10,7 +13,7 @@ describe('Language: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can create and read language', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can create and read language', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -60,7 +63,7 @@ describe('Language: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Japanese');
     });
 
-    it('@settings: can update and read language', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can update and read language', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -100,7 +103,7 @@ describe('Language: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Kyoto Japanese');
     });
 
-    it('@settings: can delete language', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete language', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

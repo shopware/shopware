@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookMethodException;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -86,11 +86,11 @@ class ScriptResponseFactoryFacade
     public function render(string $view, array $parameters = []): ScriptResponse
     {
         if ($this->scriptController === null) {
-            throw HookMethodException::storefrontBundleMissing(__METHOD__);
+            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
         }
 
         if ($this->salesChannelContext === null) {
-            throw HookMethodException::outsideOfSalesChannelContext(__METHOD__);
+            throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
         }
 
         $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);

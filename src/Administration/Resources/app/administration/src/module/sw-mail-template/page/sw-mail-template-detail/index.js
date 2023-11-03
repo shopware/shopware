@@ -7,6 +7,9 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -236,8 +239,11 @@ export default {
             return this.mailTemplateTypeRepository.get(this.mailTemplate.mailTemplateTypeId).then((item) => {
                 this.mailTemplateType = item;
 
-                this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
-                this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                // Not needed because the autocompletion method is passed as property to editor
+                if (!this.feature.isActive('VUE3')) {
+                    this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
+                    this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                }
             });
         },
 
@@ -445,8 +451,8 @@ export default {
                 this.loadInitialAvailableVariables();
                 this.outerCompleterFunction();
             } catch (e) {
-                let errormsg = '';
-                if (e.response.data.errors.length > 0) {
+                let errormsg = e.message ?? '';
+                if (e.response?.data?.errors?.length > 0) {
                     const errorDetailMsg = e.response.data.errors[0].detail;
                     errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }

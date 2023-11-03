@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { shallowMount } from '@vue/test-utils';
 import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
 
@@ -8,7 +11,7 @@ const ruleConditionDataProviderService = {
     isRuleRestricted: jest.fn(),
 };
 
-async function createWrapper(customProps = {}, customOptions = {}) {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-promotion-v2-rule-select'), {
         stubs: {
             'sw-entity-many-to-many-select': true,
@@ -18,20 +21,10 @@ async function createWrapper(customProps = {}, customOptions = {}) {
         provide: {
             ruleConditionDataProviderService: ruleConditionDataProviderService,
         },
-        propsData: {
-            ...customProps,
-        },
-        ...customOptions,
     });
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should call the rule condition service with activated feature flag', async () => {
         const wrapper = await createWrapper();
 

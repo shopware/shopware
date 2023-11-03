@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Rule\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
  * @package business-ops

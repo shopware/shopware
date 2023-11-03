@@ -284,7 +284,9 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
     {
         return new RecurringPayPayload(
             $transaction->getOrderTransaction(),
-            $transaction->getOrder()
+            $transaction->getOrder(),
+            [],
+            $transaction->getRecurring()
         );
     }
 }

@@ -15,6 +15,7 @@
             name="toolbar"
             :focus="onFocusSearch"
             :input="onSearchOptions"
+            :search-term="searchTerm"
         >
             <div class="sw-property-search__search-field-container">
                 <slot name="toolbar-search-field">
@@ -25,6 +26,7 @@
                         {% else %}
                         v-model="searchTerm"
                         {% endif %}
+                        name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
                         :disabled="disabled"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
@@ -251,7 +253,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_empty_image %}
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-property-search.noPropertiesFound')"
                 >
                 {% endblock %}

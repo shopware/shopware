@@ -1,6 +1,8 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2IndividualCodesBehavior from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
-import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
 Shopware.Component.register('sw-promotion-v2-individual-codes-behavior', swPromotionV2IndividualCodesBehavior);
@@ -33,18 +35,19 @@ async function createWrapper(additionalPromotionData = {}) {
                 template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
             },
             'sw-context-menu-item': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button': {
+                props: ['disabled'],
+                template: '<div class="sw-button" @click="$emit(\'click\', $event.target.value)"></div>',
+            },
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-number-field': {
                 template: '<div class="sw-number-field"><slot></slot></div>',
+                props: ['value'],
             },
             'sw-icon': true,
             'sw-loader': true,
         },
         provide: {
-            acl: {
-                can: () => true,
-            },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([{ id: 'promotionId1' }]),
@@ -106,21 +109,9 @@ async function createWrapper(additionalPromotionData = {}) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the individual codes generation modal in empty state', async () => {
+        const wrapper = await createWrapper();
+
         let codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
         const addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
         const addButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-action');
@@ -137,7 +128,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
     });
 
     it('should open the individual codes generation modal, when codes already exist', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             individualCodes: ['dummy'],
         });
 
@@ -152,7 +143,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
     });
 
     it('should open the add codes modal, when codes already exist', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             individualCodes: ['dummy'],
         });
 
@@ -168,10 +159,16 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         const codeAmountInput = wrapper.find('.sw-promotion-v2-individual-codes-behavior__code-amount');
         const addCodesModalButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm');
 
-        expect(codeAmountInput.attributes().value).toBe('10');
+        expect(codeAmountInput.props('value')).toBe(10);
         expect(addCodesModalButton.exists()).toBe(true);
         await addCodesModalButton.trigger('click');
 
         expect(wrapper.vm.addCodesModal).toBe(false);
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

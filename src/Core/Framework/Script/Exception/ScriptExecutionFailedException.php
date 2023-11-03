@@ -3,43 +3,44 @@
 namespace Shopware\Core\Framework\Script\Exception;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 #[Package('core')]
-class ScriptExecutionFailedException extends ShopwareHttpException
+class ScriptExecutionFailedException extends ScriptException
 {
-    private readonly ?\Throwable $rootException;
+    public const ERROR_CODE = 'FRAMEWORK_SCRIPT_EXECUTION_FAILED';
 
     public function __construct(
         string $hook,
         string $scriptName,
         \Throwable $previous
     ) {
-        $this->rootException = $previous->getPrevious();
-        parent::__construct(sprintf(
-            'Execution of script "%s" for Hook "%s" failed with message: %s',
-            $scriptName,
-            $hook,
-            $previous->getMessage()
-        ), [], $previous);
-    }
+        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        $errorCode = self::ERROR_CODE;
 
-    public function getStatusCode(): int
-    {
-        if ($this->rootException instanceof ShopwareHttpException) {
-            return $this->rootException->getStatusCode();
+        $rootException = $previous->getPrevious();
+        if ($rootException instanceof HttpExceptionInterface) {
+            $statusCode = $rootException->getStatusCode();
         }
 
-        return Response::HTTP_INTERNAL_SERVER_ERROR;
-    }
-
-    public function getErrorCode(): string
-    {
-        if ($this->rootException instanceof ShopwareHttpException) {
-            return $this->rootException->getErrorCode();
+        if ($rootException instanceof ShopwareHttpException) {
+            $errorCode = $rootException->getErrorCode();
         }
 
-        return 'FRAMEWORK_SCRIPT_EXECUTION_FAILED';
+        parent::__construct(
+            $statusCode,
+            $errorCode,
+            sprintf(
+                'Execution of script "%s" for Hook "%s" failed with message: %s',
+                $scriptName,
+                $hook,
+                $previous->getMessage()
+            ),
+            [],
+            $previous
+        );
     }
 }

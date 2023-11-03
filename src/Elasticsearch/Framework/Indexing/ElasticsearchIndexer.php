@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -56,6 +56,7 @@ class ElasticsearchIndexer
         private readonly MessageBusInterface $bus,
         private readonly MultilingualEsIndexer $newImplementation,
         private readonly ElasticsearchLanguageProvider $languageProvider,
+        private readonly string $environment,
     ) {
     }
 
@@ -84,8 +85,9 @@ class ElasticsearchIndexer
 
     /**
      * @param IndexerOffset|null $offset
+     * @param array<string> $entities
      */
-    public function iterate($offset): ?ElasticsearchIndexingMessage
+    public function iterate($offset, array $entities = []): ?ElasticsearchIndexingMessage
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
             return $this->newImplementation->iterate($offset);
@@ -96,7 +98,7 @@ class ElasticsearchIndexer
         }
 
         if ($offset === null) {
-            $offset = $this->init();
+            $offset = $this->init($entities);
         }
 
         if ($offset->getLanguageId() === null) {
@@ -113,6 +115,7 @@ class ElasticsearchIndexer
 
         // current language has next message?
         $message = $this->createIndexingMessage($offset, $context);
+
         if ($message) {
             return $message;
         }
@@ -127,7 +130,7 @@ class ElasticsearchIndexer
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
-        return $this->iterate($offset);
+        return $this->iterate($offset, $entities);
     }
 
     /**
@@ -189,7 +192,7 @@ class ElasticsearchIndexer
         $definition = $this->registry->get((string) $offset->getDefinition());
 
         if (!$definition) {
-            throw new \RuntimeException(sprintf('Definition %s not found', $offset->getDefinition()));
+            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -224,7 +227,10 @@ class ElasticsearchIndexer
         return $this->createIndexingMessage($offset, $context);
     }
 
-    private function init(): IndexerOffset
+    /**
+     * @param array<string> $entities
+     */
+    private function init(array $entities = []): IndexerOffset
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
@@ -238,11 +244,44 @@ class ElasticsearchIndexer
             $this->createLanguageIndex($language, $timestamp);
         }
 
+        $entitiesToHandle = $this->handleEntities($entities);
+
         return new IndexerOffset(
             array_values($languages->getIds()),
-            $this->registry->getDefinitionNames(),
+            $entitiesToHandle,
             $timestamp->getTimestamp()
         );
+    }
+
+    /**
+     * @param array<string> $entities
+     *
+     * @return iterable<string>
+     */
+    private function handleEntities(array $entities = []): iterable
+    {
+        if (empty($entities)) {
+            return $this->registry->getDefinitionNames();
+        }
+
+        $registeredEntities = \is_array($this->registry->getDefinitionNames())
+            ? $this->registry->getDefinitionNames()
+            : iterator_to_array($this->registry->getDefinitionNames());
+
+        $validEntities = array_intersect($entities, $registeredEntities);
+        $unregisteredEntities = array_diff($entities, $registeredEntities);
+
+        if (!empty($unregisteredEntities)) {
+            $unregisteredEntityList = implode(', ', $unregisteredEntities);
+
+            if ($this->environment === 'prod') {
+                $this->logger->error(sprintf('ElasticSearch indexing error. Entity definition(s) for %s not found.', $unregisteredEntityList));
+            } else {
+                throw ElasticsearchException::definitionNotFound($unregisteredEntityList);
+            }
+        }
+
+        return $validEntities;
     }
 
     /**
@@ -370,7 +409,7 @@ class ElasticsearchIndexer
         $context->addExtension('currencies', $this->currencyRepository->search(new Criteria(), Context::createDefaultContext()));
 
         if (!$definition) {
-            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
+            throw ElasticsearchException::unsupportedElasticsearchDefinition($entity);
         }
 
         $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
@@ -397,7 +436,7 @@ class ElasticsearchIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw new ElasticsearchIndexingException($errors);
+            throw ElasticsearchException::indexingError($errors);
         }
     }
 

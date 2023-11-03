@@ -52,11 +52,11 @@ if (featureFlags?.VUE3) {
     console.log();
 }
 
-// https://regex101.com/r/OGpZFt/1
-const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
-if (!versionRegex.test(process.versions.node)) {
+const nodeMajor = process.versions.node.split('.')[0];
+const supportedNodeVersions = ['18', '19', '20'];
+if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
-    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^18.0.0'));
+    console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
     console.log();
 }
 
@@ -213,7 +213,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'cheap-module-eval-source-map' : '#source-map',
+    devtool: isDev ? 'eval-source-map' : 'source-map',
 
     optimization: {
         moduleIds: 'hashed',
@@ -229,7 +229,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             },
                             cache: true,
                             parallel: true,
-                            sourceMap: false,
+                            sourceMap: true,
                         }),
                         new OptimizeCSSAssetsPlugin(),
                     ],

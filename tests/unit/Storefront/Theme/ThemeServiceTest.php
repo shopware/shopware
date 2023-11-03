@@ -5,18 +5,22 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
+use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -26,6 +30,8 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -34,33 +40,25 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class ThemeServiceTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connectionMock;
+    private Connection&MockObject $connectionMock;
 
-    /**
-     * @var StorefrontPluginRegistry&MockObject
-     */
-    private StorefrontPluginRegistry $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
-    private MockObject&EntityRepository $themeRepositoryMock;
+    private EntityRepository&MockObject $themeRepositoryMock;
 
-    private MockObject&EntityRepository $themeSalesChannelRepositoryMock;
+    private EntityRepository&MockObject $themeSalesChannelRepositoryMock;
 
-    /**
-     * @var ThemeCompiler&MockObject
-     */
-    private ThemeCompiler $themeCompilerMock;
+    private ThemeCompiler&MockObject $themeCompilerMock;
 
-    /**
-     * @var EventDispatcher&MockObject
-     */
-    private EventDispatcher $eventDispatcherMock;
+    private EventDispatcher&MockObject $eventDispatcherMock;
 
     private ThemeService $themeService;
 
     private Context $context;
+
+    private SystemConfigService&MockObject $systemConfigMock;
+
+    private MessageBus&MockObject $messageBusMock;
 
     protected function setUp(): void
     {
@@ -72,6 +70,8 @@ class ThemeServiceTest extends TestCase
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
         $this->context = Context::createDefaultContext();
+        $this->systemConfigMock = $this->createMock(SystemConfigService::class);
+        $this->messageBusMock = $this->createMock(MessageBus::class);
 
         $this->themeService = new ThemeService(
             $this->storefrontPluginRegistryMock,
@@ -80,7 +80,10 @@ class ThemeServiceTest extends TestCase
             $this->themeCompilerMock,
             $this->eventDispatcherMock,
             $databaseConfigLoaderMock,
-            $this->connectionMock
+            $this->connectionMock,
+            $this->systemConfigMock,
+            $this->messageBusMock,
+            $this->createMock(NotificationService::class)
         );
     }
 
@@ -153,6 +156,52 @@ class ThemeServiceTest extends TestCase
         $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
+    public function testCompileThemeAsyncSkipHeader(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->context->addState(ThemeService::STATE_NO_QUEUE);
+
+        $this->messageBusMock->expects(static::never())->method('dispatch');
+
+        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+
+        $this->systemConfigMock->method('get')->with(ThemeService::CONFIG_THEME_COMPILE_ASYNC)->willReturn(true);
+
+        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testCompileThemeAsyncSetting(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+
+        $context = $this->context;
+        $this->messageBusMock->expects(static::once())->method('dispatch')
+            ->willReturnCallback(function () use ($themeId, $context): Envelope {
+                return new Envelope(
+                    new CompileThemeMessage(
+                        TestDefaults::SALES_CHANNEL,
+                        $themeId,
+                        true,
+                        $context
+                    )
+                );
+            });
+
+        $this->systemConfigMock->method('get')->with(ThemeService::CONFIG_THEME_COMPILE_ASYNC)->willReturn(true);
+
+        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
     public function testCompileThemeGivenConf(): void
     {
         $themeId = Uuid::randomHex();
@@ -212,9 +261,7 @@ class ThemeServiceTest extends TestCase
                 $parameters[] = [$salesChannelId, $themeId];
             });
 
-        $mapping = $this->themeService->compileThemeById($themeId, $this->context);
-
-        static::assertIsArray($mapping);
+        $this->themeService->compileThemeById($themeId, $this->context);
 
         static::assertSame([
             [
@@ -252,8 +299,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -440,9 +491,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
-
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
@@ -470,8 +524,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        static::expectException(InvalidThemeException::class);
-        static::expectExceptionMessage('Unable to find the theme "' . $themeId . '"');
+        $this->expectException(ThemeException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
+        } else {
+            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        }
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);
     }

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     /**

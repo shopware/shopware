@@ -9,7 +9,7 @@ import './sw-order-customer-grid.scss';
 import type { Cart } from '../../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, State, Mixin, Context } = Shopware;
@@ -131,6 +131,10 @@ export default Component.wrapComponentConfig({
 
         cart(): Cart {
             return State.get('swOrder').cart;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

@@ -32,7 +32,7 @@
         {% block sw_order_send_document_modal_info_date %}
         <sw-description-list>
             <dt>{{ $tc('sw-order.documentSendModal.labelDate') }}</dt>
-            <dd>{{ document.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
+            <dd>{{ dateFilter(document.createdAt, { hour: '2-digit', minute: '2-digit' }) }}</dd>
         </sw-description-list>
         {% endblock %}
     </sw-container>

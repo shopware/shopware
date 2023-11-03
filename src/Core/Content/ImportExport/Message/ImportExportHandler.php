@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class ImportExportHandler
 {
     /**

@@ -4,7 +4,7 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context } = Shopware;

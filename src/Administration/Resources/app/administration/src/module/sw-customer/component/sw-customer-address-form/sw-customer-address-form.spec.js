@@ -11,7 +11,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);
@@ -139,7 +139,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             address: {},
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
+        await flushPromises();
+
+        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]')
             .attributes('required')).toBeTruthy();
     });
 

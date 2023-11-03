@@ -252,8 +252,8 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('.container.dumper.inline_class_loader', true);
-        $container->setParameter('.container.dumper.inline_factories', true);
+        $container->setParameter('.container.dumper.inline_class_loader', $this->environment !== 'test');
+        $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';
 
@@ -381,6 +381,8 @@ class Kernel extends HttpKernel
         $cacheDir = $this->getCacheDir();
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
+
+        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
 

@@ -174,6 +174,10 @@ class RequestCriteriaBuilder
 
         if (isset($payload['associations'])) {
             foreach ($payload['associations'] as $propertyName => $association) {
+                if (!\is_array($association)) {
+                    continue;
+                }
+
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
@@ -283,6 +287,12 @@ class RequestCriteriaBuilder
 
             if ($value === '') {
                 $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must not be blank.', $field)), '/filter/' . $field);
+
+                continue;
+            }
+
+            if (!\is_scalar($value)) {
+                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must be scalar.', $field)), '/filter/' . $field);
 
                 continue;
             }

@@ -56,6 +56,16 @@ class EntityDefinitionQueryHelper
         return !empty($exists);
     }
 
+    public static function columnIsNullable(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column AND `Null` = "YES"',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
     public static function tableExists(Connection $connection, string $table): bool
     {
         return !empty(
@@ -488,7 +498,7 @@ class EntityDefinitionQueryHelper
 
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
-        if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
+        if (!$field instanceof StorageAware) {
             throw new \RuntimeException(
                 sprintf(
                     'Missing translated storage aware property %s in %s',

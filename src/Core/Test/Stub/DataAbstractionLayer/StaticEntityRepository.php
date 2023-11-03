@@ -24,7 +24,9 @@ use Symfony\Component\Validator\Validation;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @phpstan-type ResultTypes = EntitySearchResult|AggregationResultCollection|mixed|TEntityCollection|IdSearchResult
+ * @extends EntityRepository<TEntityCollection>
+ *
+ * @phpstan-type ResultTypes EntitySearchResult<TEntityCollection>|AggregationResultCollection|mixed|TEntityCollection|IdSearchResult|array
  */
 class StaticEntityRepository extends EntityRepository
 {

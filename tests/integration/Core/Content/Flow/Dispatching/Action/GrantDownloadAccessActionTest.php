@@ -108,7 +108,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $flowListener = function (FlowSendMailActionEvent $event) use (&$flowEvent): void {
             $event = $this->onFlowSendMailActionEvent($event);
 
-            if ($event) {
+            if ($event instanceof FlowSendMailActionEvent) {
                 $flowEvent = $event;
             }
         };
@@ -118,7 +118,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
             $event = $this->onMailBeforeSentEvent($event);
 
-            if ($event) {
+            if ($event instanceof MailBeforeSentEvent) {
                 $mailEvent = $event;
             }
         };
@@ -147,7 +147,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $flowListener = function (FlowSendMailActionEvent $event) use (&$flowEvent): void {
             $event = $this->onFlowSendMailActionEvent($event);
 
-            if ($event) {
+            if ($event instanceof FlowSendMailActionEvent) {
                 $flowEvent = $event;
             }
         };
@@ -157,7 +157,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
             $event = $this->onMailBeforeSentEvent($event);
 
-            if ($event) {
+            if ($event instanceof MailBeforeSentEvent) {
                 $mailEvent = $event;
             }
         };
@@ -382,6 +382,7 @@ class GrantDownloadAccessActionTest extends TestCase
                             'id' => Uuid::randomHex(),
                             'fileName' => $fileName,
                             'fileExtension' => $fileExtension,
+                            'path' => 'media/' . $fileName . '.' . $fileExtension,
                             'private' => true,
                         ],
                     ];

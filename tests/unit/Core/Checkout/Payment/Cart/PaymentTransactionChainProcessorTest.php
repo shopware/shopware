@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -88,9 +88,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->expectException(InvalidOrderException::class);
         }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order'))
-        );
+        $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order')));
 
         $processor->process(
             $this->ids->get('test-order'),
@@ -156,9 +154,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The payment method %s could not be found.', $this->ids->get('payment'))
-        );
+        $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $this->ids->get('payment')));
 
         $processor->process(
             $this->ids->get('test-order'),

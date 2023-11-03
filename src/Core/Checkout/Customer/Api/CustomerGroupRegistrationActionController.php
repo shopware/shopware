@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupRegistrationActionController
 {
     /**

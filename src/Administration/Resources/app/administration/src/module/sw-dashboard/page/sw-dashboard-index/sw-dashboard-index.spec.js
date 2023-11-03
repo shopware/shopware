@@ -13,6 +13,7 @@ async function createWrapper(privileges = []) {
             'sw-external-link': true,
             'sw-icon': true,
             'sw-dashboard-statistics': true,
+            'sw-usage-data-consent-banner': true,
             'sw-help-text': true,
         },
         mocks: {
@@ -37,7 +38,7 @@ async function createWrapper(privileges = []) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;

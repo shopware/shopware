@@ -9,16 +9,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UserRecoveryControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -28,7 +29,7 @@ class UserRecoveryControllerTest extends TestCase
 
     public function testUpdateUserPassword(): void
     {
-        $this->createRecocery(self::VALID_EMAIL);
+        $this->createRecovery(self::VALID_EMAIL);
 
         $this->getBrowser()->request(
             'PATCH',
@@ -45,7 +46,7 @@ class UserRecoveryControllerTest extends TestCase
 
     public function testUpdateUserPasswordWithInvalidHash(): void
     {
-        $this->createRecocery(self::VALID_EMAIL);
+        $this->createRecovery(self::VALID_EMAIL);
 
         $this->getBrowser()->request(
             'PATCH',
@@ -120,7 +121,7 @@ class UserRecoveryControllerTest extends TestCase
         $logger->setHandlers($handlers);
     }
 
-    private function createRecocery(string $email): void
+    private function createRecovery(string $email): void
     {
         $this->getContainer()->get(UserRecoveryService::class)->generateUserRecovery(
             $email,
@@ -133,9 +134,11 @@ class UserRecoveryControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        return $this->getContainer()->get('user_recovery.repository')->search(
+        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->getContainer()->get('user_recovery.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first()->getHash();
+        )->first());
+
+        return $recovery->getHash();
     }
 }

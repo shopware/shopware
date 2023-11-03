@@ -14,12 +14,4 @@ class PriceField extends Field
     use RequiredTrait;
 
     protected string $type = 'price';
-
-    /**
-     * @internal
-     */
-    public static function fromXml(\DOMElement $element): Field
-    {
-        return new self(self::parse($element));
-    }
 }

@@ -9,7 +9,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 interface MessageAware extends FlowEventAware
 {
     public const MESSAGE = 'message';

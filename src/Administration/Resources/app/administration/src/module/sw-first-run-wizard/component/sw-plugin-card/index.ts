@@ -19,7 +19,7 @@ type RecommendedPlugin = {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -58,6 +58,10 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         pluginIsNotActive(): boolean {
             return !this.plugin.active;
+        },
+
+        truncateFilter() {
+            return Shopware.Filter.getByName('truncate');
         },
     },
 

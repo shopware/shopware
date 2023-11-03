@@ -10,7 +10,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-document-card', swOrderDocumentCard);
@@ -660,5 +660,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 query: { type: 'equals', field: 'config.documentNumber', value: '1000' },
             },
         ]);
+    });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

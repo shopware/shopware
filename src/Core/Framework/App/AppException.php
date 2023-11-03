@@ -27,6 +27,11 @@ class AppException extends HttpException
     public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
     public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
 
+    public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     */
     public static function cannotDeleteManaged(string $pluginName): self
     {
         return new self(
@@ -66,8 +71,8 @@ class AppException extends HttpException
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
-            'App with identifier "{{ identifier }}" not found',
-            ['identifier' => $identifier]
+            self::$couldNotFindMessage,
+            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
         );
     }
 
@@ -148,6 +153,16 @@ class AppException extends HttpException
             'The synchronous action (id: {{ actionId }}) process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $message, 'actionId' => $actionId],
             $e
+        );
+    }
+
+    public static function installationFailed(string $appName, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INSTALLATION_FAILED,
+            'App installation for "{{ appName }}" failed: {{ reason }}',
+            ['appName' => $appName, 'reason' => $reason],
         );
     }
 }

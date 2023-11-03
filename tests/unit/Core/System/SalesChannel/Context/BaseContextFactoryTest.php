@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -43,6 +44,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @covers \Shopware\Core\System\SalesChannel\Context\BaseContextFactory
  */
+#[Package('buyers-experience')]
 class BaseContextFactoryTest extends TestCase
 {
     /**
@@ -60,7 +62,7 @@ class BaseContextFactoryTest extends TestCase
         ?string $exceptionMessage = null
     ): void {
         if ($exceptionMessage !== null) {
-            static::expectExceptionMessage($exceptionMessage);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $currencyRepository = new StaticEntityRepository([new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
@@ -193,7 +195,7 @@ class BaseContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => 'The language "3ebb5fe2e29a4d70aa5854ce7ce3e20b" was not found.',
+            'exceptionMessage' => 'Could not find language with id "3ebb5fe2e29a4d70aa5854ce7ce3e20b"',
         ];
 
         yield 'sales channel not found' => [
@@ -228,7 +230,7 @@ class BaseContextFactoryTest extends TestCase
                     TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
             ],
-            'exceptionMessage' => 'Currency with id "3ebb5fe2e29a4d70aa5854ce7ce3e20b" not found!.',
+            'exceptionMessage' => 'Could not find currency with id "3ebb5fe2e29a4d70aa5854ce7ce3e20b"',
         ];
 
         yield 'country state not found' => [
@@ -252,7 +254,7 @@ class BaseContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => sprintf('Country state with id "%s" not found!.', $countryStateId),
+            'exceptionMessage' => sprintf('Could not find country state with id "%s"', $countryStateId),
         ];
 
         yield 'country not found' => [
@@ -276,7 +278,7 @@ class BaseContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => sprintf('Country with id "%s" not found!.', $countryId),
+            'exceptionMessage' => sprintf('Could not find country with id "%s"', $countryId),
         ];
 
         yield 'payment method not found' => [
@@ -303,7 +305,7 @@ class BaseContextFactoryTest extends TestCase
                     $countryId => $country,
                 ],
             ],
-            'exceptionMessage' => sprintf('The payment method %s could not be found.', $paymentMethodId),
+            'exceptionMessage' => sprintf('Could not find payment method with id "%s"', $paymentMethodId),
         ];
 
         yield 'create base context successfully' => [

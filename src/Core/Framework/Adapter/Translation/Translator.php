@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -87,9 +88,6 @@ class Translator extends AbstractTranslator
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return mixed|null All kind of data could be cached
-     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];
@@ -102,9 +100,6 @@ class Translator extends AbstractTranslator
         return $result;
     }
 
-    /**
-     * @return array<int, string>
-     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -250,29 +245,32 @@ class Translator extends AbstractTranslator
 
     public function getSnippetSetId(?string $locale = null): ?string
     {
-        if ($locale !== null) {
-            if (\array_key_exists($locale, $this->snippets)) {
-                return $this->snippets[$locale];
-            }
+        $snippetSetId = $this->snippetSetId;
+        $currentRequest = $this->requestStack->getMainRequest();
 
-            $snippetSetId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
-            if ($snippetSetId !== false) {
-                return $this->snippets[$locale] = $snippetSetId;
-            }
+        // when document is rendered from admin, SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID is not set thus we use snippetSetId from injectSetting method
+        if ($currentRequest !== null && $currentRequest->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID)) {
+            $snippetSetId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
         }
 
-        if ($this->snippetSetId !== null) {
-            return $this->snippetSetId;
+        if ($locale === null) {
+            return $this->snippetSetId = $snippetSetId;
+        }
+        // If locale parameter is using, prioritize it over snippet set of request
+        if (\array_key_exists($locale, $this->snippets)) {
+            return $this->snippets[$locale];
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return null;
+        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the domain's snippet set
+        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
+
+        if (!empty($snippetSetIds)) {
+            $snippetSetId = \in_array($snippetSetId, $snippetSetIds, true) ? $snippetSetId : $snippetSetIds[0];
         }
 
-        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+        $this->snippets[$locale] = $snippetSetId;
 
-        return $this->snippetSetId;
+        return $this->snippetSetId = $snippetSetId;
     }
 
     /**
@@ -310,7 +308,12 @@ class Translator extends AbstractTranslator
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
+        try {
+            $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
+        } catch (DriverException) {
+            // this allows us to use the translator even if there's no db connection yet
+            return $catalog;
+        }
 
         if (!$snippetSetId) {
             return $catalog;
@@ -361,7 +364,7 @@ class Translator extends AbstractTranslator
             return;
         }
 
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->requestStack->getMainRequest();
 
         if (!$request) {
             return;

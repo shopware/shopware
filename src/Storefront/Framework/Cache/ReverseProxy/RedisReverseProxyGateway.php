@@ -36,7 +36,8 @@ LUA;
 
     /**
      * @param string[] $hosts
-     * @param \Redis|\RedisCluster $redis
+     * param cannot be natively typed, as symfony might change the type in the future
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
@@ -56,7 +57,7 @@ LUA;
     public function tag(array $tags, string $url, Response $response): void
     {
         foreach ($tags as $tag) {
-            $this->redis->lPush($tag, $url);
+            $this->redis->lPush($tag, $url); // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
         }
     }
 

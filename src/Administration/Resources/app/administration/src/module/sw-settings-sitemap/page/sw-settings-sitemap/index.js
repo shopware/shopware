@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package services-settings
  */
 
 import template from './sw-settings-sitemap.html.twig';

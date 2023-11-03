@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 interface MiddlewareInterface
 {
     public function __invoke(ResponseInterface $response): ResponseInterface;

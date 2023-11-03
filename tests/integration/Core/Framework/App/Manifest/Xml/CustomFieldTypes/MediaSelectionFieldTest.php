@@ -3,9 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\MediaSelectionField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
@@ -17,35 +14,12 @@ class MediaSelectionFieldTest extends TestCase
     use CustomFieldTypeTestBehaviour;
     use IntegrationTestBehaviour;
 
-    public function testCreateFromXml(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/media-selection-field.xml');
-
-        static::assertNotNull($manifest->getCustomFields());
-        static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
-
-        /** @var CustomFieldSet $customFieldSet */
-        $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
-
-        static::assertCount(1, $customFieldSet->getFields());
-
-        $mediaSelectionField = $customFieldSet->getFields()[0];
-        static::assertInstanceOf(MediaSelectionField::class, $mediaSelectionField);
-        static::assertEquals('test_media_selection_field', $mediaSelectionField->getName());
-        static::assertEquals([
-            'en-GB' => 'Test media-selection field',
-        ], $mediaSelectionField->getLabel());
-        static::assertEquals([], $mediaSelectionField->getHelpText());
-        static::assertEquals(1, $mediaSelectionField->getPosition());
-        static::assertFalse($mediaSelectionField->getRequired());
-    }
-
     public function testToEntityArray(): void
     {
         $mediaSelectionField = $this->importCustomField(__DIR__ . '/_fixtures/media-selection-field.xml');
 
-        static::assertEquals('test_media_selection_field', $mediaSelectionField->getName());
-        static::assertEquals('text', $mediaSelectionField->getType());
+        static::assertSame('test_media_selection_field', $mediaSelectionField->getName());
+        static::assertSame('text', $mediaSelectionField->getType());
         static::assertTrue($mediaSelectionField->isActive());
         static::assertEquals([
             'label' => [

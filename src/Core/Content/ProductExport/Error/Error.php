@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
     use AssignArrayTrait;
@@ -18,13 +18,19 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     abstract public function getMessageKey(): string;
 
+    /**
+     * @return array<string, mixed>
+     */
     abstract public function getParameters(): array;
 
     /**
-     * @return ErrorMessage[]
+     * @return array<string, mixed>
      */
     abstract public function getErrorMessages(): array;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = get_object_vars($this);

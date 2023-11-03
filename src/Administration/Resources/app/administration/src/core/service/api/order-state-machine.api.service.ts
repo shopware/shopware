@@ -3,7 +3,7 @@ import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
 /**
- * @package customer-order
+ * @package checkout
  * Gateway for the API end point "order/state-machine"
  * @class
  * @extends ApiService

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class ContextSwitchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -341,6 +341,7 @@ class ContextSwitchRouteTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => Uuid::randomHex(),
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],

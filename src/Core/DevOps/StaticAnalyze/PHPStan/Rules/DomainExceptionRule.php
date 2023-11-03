@@ -9,10 +9,13 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -27,6 +30,9 @@ class DomainExceptionRule implements Rule
     private const VALID_EXCEPTION_CLASSES = [
         DecorationPatternException::class,
         ConstraintViolationException::class,
+        PermissionDeniedException::class,
+        LoaderError::class, // Twig
+        ServiceNotFoundException::class, // Symfony
     ];
 
     private const VALID_SUB_DOMAINS = [

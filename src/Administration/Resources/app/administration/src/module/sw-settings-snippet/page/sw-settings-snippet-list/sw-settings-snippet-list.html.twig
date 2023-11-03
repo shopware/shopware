@@ -17,6 +17,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_smart_bar_header %}
     <template #smart-bar-header>
+        {# Hack for fixing this problem: https://github.com/vuejs/core/issues/9308 #}
+        <div style="display: none;"></div>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_smart_bar_header_title %}
         <h2
@@ -119,13 +121,18 @@
                 {% block sw_settings_snippet_list_column_value %}
                 <template
                     v-for="set in snippetSets"
+                    {% if VUE3 %}
+                    :key="set.id"
+                    {% endif %}
                     #[`column-${set.id}`]="{ item, compact, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-text-field
+                            {% if VUE2 %}
                             :key="set.id"
+                            {% endif %}
                             {% if VUE3 %}
                             v-model:value="item[set.id].value"
                             {% else %}

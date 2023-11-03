@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionItemBuilder
 {
     /**

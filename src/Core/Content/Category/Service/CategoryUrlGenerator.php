@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {
     /**

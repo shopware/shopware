@@ -24,10 +24,11 @@
     <sw-empty-state
         title=""
         :subline="$tc('sw-property.detail.optionEmptyStateSubline')"
+        :absolute="false"
     >
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 alt=""
             >
         </template>

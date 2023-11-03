@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEnt
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -125,6 +126,11 @@ class ShippingMethodEntity extends Entity
      * @var string
      */
     protected $taxType;
+
+    /**
+     * @deprecated tag:v6.7.0 - will not be nullable
+     */
+    protected ?string $technicalName = null;
 
     /**
      * @var TaxEntity|null
@@ -335,6 +341,30 @@ class ShippingMethodEntity extends Entity
     public function setTaxType(string $taxType): void
     {
         $this->taxType = $taxType;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
+    {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        return $this->technicalName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
+    {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        $this->technicalName = $technicalName;
     }
 
     public function getTax(): ?TaxEntity

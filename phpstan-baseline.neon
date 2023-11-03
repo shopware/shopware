@@ -3023,11 +3023,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
 			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/CustomerSerializerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
-			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializerTest.php
 
 		-
@@ -6831,11 +6826,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/ChildCountIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\EntityForeignKeyResolverTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityForeignKeyResolverTest.php
-
-		-
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 8
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TranslatedVersionsTest.php
@@ -7669,36 +7659,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\DateRangeRuleTest\\:\\:matchDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Rule/DateRangeRuleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$searchResult\\-\\>first\\(\\)\\-\\>getShippingMethods\\(\\)\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Cannot call method getAvailabilityRule\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Cannot call method getShippingMethods\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 10
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\ShippingMethodRuleAccessibleTest\\:\\:createComplicatedTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\ShippingMethodRuleAccessibleTest\\:\\:createDeliveryTimeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ShippingMethodRuleAccessibleTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getValue\\(\\)\\.$#"

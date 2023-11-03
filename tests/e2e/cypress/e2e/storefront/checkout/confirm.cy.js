@@ -57,12 +57,12 @@ describe('Test payment and shipping methods selection', () => {
     });
 
     it('@base @confirm: should have working collapse on multiple methods', { tags: ['pa-checkout'] }, () => {
-        cy.createPaymentMethodFixture({ name: 'Test Method #1'})
+        cy.createPaymentMethodFixture({ name: 'Test Method #1', technicalName: 'payment_test_1' })
             .then(() => {
-                return cy.createPaymentMethodFixture({ name: 'Test Method #2'});
+                return cy.createPaymentMethodFixture({ name: 'Test Method #2', technicalName: 'payment_test_2'});
             })
             .then(() => {
-                return cy.createPaymentMethodFixture({ name: 'Test Method #3'});
+                return cy.createPaymentMethodFixture({ name: 'Test Method #3', technicalName: 'payment_test_3'});
             })
             .then(() => {
                 const page = new CheckoutPageObject();
@@ -399,15 +399,15 @@ describe('Test payment and shipping methods selection', () => {
                 initialShippingMethods[id] = SHIPPING_METHOD_EXPRESS;
                 initialShippingMethods[id] = SHIPPING_METHOD_EXPRESS;
 
-                cy.createShippingFixture({ name: 'Test Method #1', position: -1, salesChannels})
+                cy.createShippingFixture({ name: 'Test Method #1', technicalName: 'shipping_test_1', position: -1, salesChannels})
                     .then(() => {
-                        return cy.createShippingFixture({ name: 'Test Method #2', position: 3, salesChannels});
+                        return cy.createShippingFixture({ name: 'Test Method #2', technicalName: 'shipping_test_2', position: 3, salesChannels});
                     })
                     .then(() => {
-                        return cy.createShippingFixture({ name: 'Test Method #3', position: -2, salesChannels});
+                        return cy.createShippingFixture({ name: 'Test Method #3', technicalName: 'shipping_test_3', position: -2, salesChannels});
                     })
                     .then(() => {
-                        return cy.createShippingFixture({ name: 'Test Method #4', position: 4, salesChannels});
+                        return cy.createShippingFixture({ name: 'Test Method #4', technicalName: 'shipping_test_4', position: 4, salesChannels});
                     })
                     .then(() => {
                         const page = new CheckoutPageObject();

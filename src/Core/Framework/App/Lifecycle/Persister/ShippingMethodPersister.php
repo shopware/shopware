@@ -76,6 +76,7 @@ class ShippingMethodPersister
 
         foreach ($manifestShippingMethods as $manifestShippingMethod) {
             $payload = $manifestShippingMethod->toArray($defaultLocale);
+            $payload['technicalName'] = \sprintf('shipping_%s_%s', $manifest->getMetadata()->getName(), $manifestShippingMethod->getIdentifier());
 
             $existingAppShippingMethod = $existingAppShippingMethods->filterByProperty('identifier', $manifestShippingMethod->getIdentifier())->first();
 

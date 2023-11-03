@@ -35,6 +35,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
     private const DATA = [
         'name' => 'test',
+        'technicalName' => 'payment_test',
     ];
 
     private const ASSIGNED = [

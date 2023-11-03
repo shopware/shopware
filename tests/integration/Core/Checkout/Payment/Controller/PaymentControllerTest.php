@@ -183,6 +183,7 @@ class PaymentControllerTest extends TestCase
             'id' => $id,
             'handlerIdentifier' => $handlerIdentifier,
             'name' => 'Test Payment',
+            'technicalName' => 'payment_test',
             'description' => 'Test payment handler',
             'active' => true,
         ];

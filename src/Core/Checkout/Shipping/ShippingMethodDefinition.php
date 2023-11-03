@@ -78,7 +78,7 @@ class ShippingMethodDefinition extends EntityDefinition
             $availabilityRuleIdField->addFlags(new Required());
         }
 
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
@@ -105,5 +105,13 @@ class ShippingMethodDefinition extends EntityDefinition
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new ApiAware()),
             (new OneToOneAssociationField('appShippingMethod', 'id', 'shipping_method_id', AppShippingMethodDefinition::class, true))->addFlags(new CascadeDelete()),
         ]);
+
+        if (Feature::isActive('v6.7.0.0')) {
+            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()));
+        } else {
+            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()));
+        }
+
+        return $fields;
     }
 }

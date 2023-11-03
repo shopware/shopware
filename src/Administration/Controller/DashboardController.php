@@ -20,11 +20,12 @@ class DashboardController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_admin/dashboard/order-amount/{since}/{timezone}', name: 'api.admin.dashboard.order-amount', defaults: ['_routeScope' => ['administration']], methods: ['GET'])]
-    public function orderAmount(string $since, string $timezone, Request $request): JsonResponse
+    #[Route(path: '/api/_admin/dashboard/order-amount/{since}', name: 'api.admin.dashboard.order-amount', defaults: ['_routeScope' => ['administration']], methods: ['GET'])]
+    public function orderAmount(string $since, Request $request): JsonResponse
     {
-        $paid = $request->query->get('paid');
-        $paid = $paid !== null ? (bool) $paid : true;
+        $paid = $request->query->getBoolean('paid', true);
+
+        $timezone = $request->query->get('timezone', 'UTC');
 
         $amount = $this->orderAmountService->load($since, $paid, $timezone);
 

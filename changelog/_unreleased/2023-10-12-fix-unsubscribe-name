@@ -1,6 +1,6 @@
 ---
 title: Fix unsubscribe name
-issue: NEXT-00000
+issue: NEXT-31423
 author: Tommy Quissens
 author_email: tommy.quissens@meteor.be
 author_github: @quisse

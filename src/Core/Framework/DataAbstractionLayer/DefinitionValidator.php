@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -210,6 +211,7 @@ class DefinitionValidator
             $violations = array_merge_recursive($violations, $this->validateAssociations($definition));
 
             if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
+                $violations = array_merge_recursive($violations, $this->validateTranslatedColumnsAreNullable($definition));
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationGettersAreNullable($definition));
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationDefinitions($definition));
             }
@@ -435,6 +437,62 @@ class DefinitionValidator
         }
 
         return $violations;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validateTranslatedColumnsAreNullable(EntityTranslationDefinition $translationDefinition): array
+    {
+        $violations = [];
+
+        $columns = $this->connection->createSchemaManager()->listTableColumns($translationDefinition->getEntityName());
+
+        $translatedFields = $translationDefinition->getParentDefinition()
+            ->getFields()
+            ->filterInstance(TranslatedField::class);
+
+        /** @var Field $translatedField */
+        foreach ($translatedFields as $translatedField) {
+            $translationField = $translationDefinition->getField($translatedField->getPropertyName());
+
+            if ($translationField === null || !method_exists($translationField, 'getStorageName')) {
+                continue;
+            }
+
+            /** @var string $storageName */
+            $storageName = $translationField->getStorageName();
+
+            $column = $this->getColumnByName($storageName, $columns);
+
+            if ($column === null) {
+                continue;
+            }
+
+            if ($column->getNotnull() && empty($column->getDefault())) {
+                $violations[$translationDefinition->getClass()][] = sprintf(
+                    'Column `%s`.`%s` is not nullable',
+                    $translationDefinition->getEntityName(),
+                    $storageName
+                );
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * @param array<int, Column> $columns
+     */
+    private function getColumnByName(string $name, array $columns): ?Column
+    {
+        foreach ($columns as $column) {
+            if ($column->getName() === $name) {
+                return $column;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -52,7 +52,9 @@ class CorsListener implements EventSubscriberInterface
             PlatformRequest::HEADER_LANGUAGE_ID,
             PlatformRequest::HEADER_VERSION_ID,
             PlatformRequest::HEADER_INHERITANCE,
+            PlatformRequest::HEADER_FAIL_ON_ERROR,
             PlatformRequest::HEADER_INDEXING_BEHAVIOR,
+            PlatformRequest::HEADER_SINGLE_OPERATION,
             PlatformRequest::HEADER_INCLUDE_SEO_URLS,
         ];
 

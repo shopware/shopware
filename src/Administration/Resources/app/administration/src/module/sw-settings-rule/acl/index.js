@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package business-ops
  */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({

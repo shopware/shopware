@@ -2,16 +2,11 @@
  * @package admin
  */
 
-// Vue2 imports
 import Vue from 'vue';
 import Vuex from 'vuex';
-import type { Module, Store } from 'vuex';
+import type { Module } from 'vuex';
 import VuexModules from 'src/app/state/index';
 import type { FullState } from 'src/core/factory/state.factory';
-
-// Vue3 imports
-import type { Store as StoreV3 } from 'vuex_v3';
-import { createStore } from 'vuex_v3';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
@@ -22,35 +17,14 @@ export default function initState() {
     return true;
 }
 
-function initVuexState(state: FullState, app = Vue) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const isVue3 = !!window._features_?.vue3;
+function initVuexState(state: FullState) {
+    Vue.use(Vuex);
 
-    let store: StoreV3<VuexRootState> | Store<VuexRootState>;
+    const store = new Vuex.Store<VuexRootState>({
+        modules: {},
+        strict: false,
+    });
 
-    if (isVue3) {
-        store = createStore<VuexRootState>({
-            modules: {},
-            strict: false,
-        });
-
-        app.use(store as StoreV3<VuexRootState>);
-    } else {
-        Vue.use(Vuex);
-
-        store = new Vuex.Store<VuexRootState>({
-            modules: {},
-            strict: false,
-        });
-    }
-
-    registerProperties(state, store);
-
-    return state;
-}
-
-
-function registerProperties(state: FullState, store: Store<VuexRootState>) {
     // eslint-disable-next-line max-len
     /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
     state._registerPrivateProperty('_store', store);
@@ -65,6 +39,8 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     state._registerProperty('registerModule', (...args: Parameters<typeof store.registerModule>) => store.registerModule(...args));
     state._registerProperty('unregisterModule', (...args: Parameters<typeof store.unregisterModule>) => store.unregisterModule(...args));
     /* eslint-enable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
+
+    return state;
 }
 
 function initVuexModules(modules: { [moduleName: string]: Module<keyof VuexRootState, VuexRootState> }, state: FullState) {

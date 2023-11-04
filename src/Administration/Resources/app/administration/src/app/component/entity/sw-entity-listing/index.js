@@ -185,15 +185,10 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         applyResult(result) {
             this.records = result;
-            const { total, criteria } = result;
-            this.total = total;
-            this.page = criteria.page || 1;
-            this.limit = criteria.limit || this.criteriaLimit;
+            this.total = result.total;
+            this.page = result.criteria.page || 1;
+            this.limit = result.criteria.limit || this.criteriaLimit;
             this.loading = false;
-
-            if (criteria?.sortings?.[0]?.field) {
-                this.currentSortBy = criteria.sortings[0].field;
-            }
 
             this.$emit('update-records', result);
         },

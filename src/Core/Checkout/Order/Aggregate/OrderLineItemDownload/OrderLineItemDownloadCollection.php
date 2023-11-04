@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<OrderLineItemDownloadEntity>
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderLineItemDownloadCollection extends EntityCollection
 {
     public function filterByOrderLineItemId(string $id): self

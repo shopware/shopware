@@ -228,6 +228,7 @@ async function createWrapper() {
 
     const localVue = createLocalVue();
     localVue.use(VueRouter);
+    localVue.filter('currency', (currency) => currency);
 
     const router = new VueRouter({
         routes: [{
@@ -384,8 +385,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         const secondPriceCell = priceCells.at(1);
 
         // assert cells have correct values
-        expect(firstPriceCell.text()).toBe('€600.00');
-        expect(secondPriceCell.text()).toBe('€200.00');
+        expect(firstPriceCell.text()).toBe('600');
+        expect(secondPriceCell.text()).toBe('200');
 
         // sort grid after price ASC
         await currencyColumnHeader.trigger('click');
@@ -397,8 +398,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         const secondSortedPriceCell = sortedPriceCells.at(1);
 
         // assert that order of values has changed
-        expect(firstSortedPriceCell.text()).toBe('€200.00');
-        expect(secondSortedPriceCell.text()).toBe('€600.00');
+        expect(firstSortedPriceCell.text()).toBe('200');
+        expect(secondSortedPriceCell.text()).toBe('600');
 
         // verify that grid did not crash when sorting for prices
         const skeletonElement = wrapper.find('.sw-data-grid-skeleton');
@@ -420,14 +421,14 @@ describe('module/sw-product/page/sw-product-list', () => {
         const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const [firstEuroCell, secondEuroCell] = euroCells.wrappers;
 
-        expect(firstEuroCell.text()).toBe('€200.00');
-        expect(secondEuroCell.text()).toBe('€600.00');
+        expect(firstEuroCell.text()).toBe('200');
+        expect(secondEuroCell.text()).toBe('600');
 
         const poundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
         const [firstPoundCell, secondPoundCell] = poundCells.wrappers;
 
-        expect(firstPoundCell.text()).toBe('£22.00');
-        expect(secondPoundCell.text()).toBe('£400.00');
+        expect(firstPoundCell.text()).toBe('22');
+        expect(secondPoundCell.text()).toBe('400');
 
         const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
         const poundColumn = columnHeaders.at(7);
@@ -440,8 +441,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         let sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
         let [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
 
-        expect(firstSortedPoundCell.text()).toBe('£22.00');
-        expect(secondSortedPoundCell.text()).toBe('£400.00');
+        expect(firstSortedPoundCell.text()).toBe('22');
+        expect(secondSortedPoundCell.text()).toBe('400');
 
         await poundColumn.trigger('click');
 
@@ -451,8 +452,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
         [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
 
-        expect(firstSortedPoundCell.text()).toBe('£400.00');
-        expect(secondSortedPoundCell.text()).toBe('£22.00');
+        expect(firstSortedPoundCell.text()).toBe('400');
+        expect(secondSortedPoundCell.text()).toBe('22');
     });
 
     it('should sort products by name', async () => {
@@ -658,12 +659,5 @@ describe('module/sw-product/page/sw-product-list', () => {
         }));
 
         wrapper.vm.$router.push.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 });

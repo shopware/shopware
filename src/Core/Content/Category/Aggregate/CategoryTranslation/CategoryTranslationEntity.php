@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('inventory')]
+#[Package('content')]
 class CategoryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -29,7 +29,7 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
-     * @var array<string>|null
+     * @var array|null
      */
     protected $breadcrumb;
 
@@ -44,7 +44,7 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $language;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array|null
      */
     protected $slotConfig;
 
@@ -118,17 +118,11 @@ class CategoryTranslationEntity extends TranslationEntity
         $this->category = $category;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
-    /**
-     * @param array<string, mixed> $slotConfig
-     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -184,17 +178,11 @@ class CategoryTranslationEntity extends TranslationEntity
         $this->description = $description;
     }
 
-    /**
-     * @return string[]|null
-     */
     public function getBreadcrumb(): ?array
     {
         return $this->breadcrumb;
     }
 
-    /**
-     * @param array<string>|null $breadcrumb
-     */
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<OrderCustomerEntity>
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderCustomerCollection extends EntityCollection
 {
     /**

@@ -23,8 +23,6 @@ Component.register('sw-price-field', {
 
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     model: {
         prop: 'price',
         event: 'priceChange',
@@ -265,13 +263,6 @@ Component.register('sw-price-field', {
             }
             this.priceForCurrency.linked = !this.priceForCurrency.linked;
             this.$emit('price-lock-change', this.priceForCurrency.linked);
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:price', this.priceForCurrency);
-
-                return;
-            }
-
             this.$emit('change', this.priceForCurrency);
         },
 
@@ -303,13 +294,6 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-gross-change', value);
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:price', this.priceForCurrency);
-                    this.convertGrossToNet(value);
-
-                    return;
-                }
-
                 this.$emit('change', this.priceForCurrency);
 
                 this.convertGrossToNet(value);
@@ -320,13 +304,6 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:price', this.priceForCurrency);
-                    this.convertGrossToNet(value);
-
-                    return;
-                }
-
                 this.$emit('change', this.priceForCurrency);
 
                 this.convertNetToGross(value);

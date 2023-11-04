@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class AudioType extends MediaType
 {
     protected $name = 'AUDIO';

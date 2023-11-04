@@ -209,14 +209,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
                                 <template #inline-edit>
-                                    <sw-text-field
+                                    <sw-field
                                         ref="nameEditor"
-                                        {% if VUE3 %}
-                                        v-model:value="item.name"
-                                        {% else %}
                                         v-model="item.name"
-                                        {% endif %}
-                                        name="sw-field--item-name"
+                                        type="text"
                                         :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
                                     />
                                 </template>
@@ -236,10 +232,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                                 <div v-if="item.updatedAt">
-                                    {{ dateFilter(item.updatedAt) }}
+                                    {{ item.updatedAt | date }}
                                 </div>
                                 <div v-else>
-                                    {{ dateFilter(item.createdAt) }}
+                                    {{ item.createdAt | date }}
                                 </div>
                                 {% endblock %}
                             </sw-grid-column>
@@ -260,12 +256,9 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                                 <template #inline-edit>
-                                    <sw-select-field
-                                        {% if VUE3 %}
-                                        v-model:value="item.baseFile"
-                                        {% else %}
+                                    <sw-field
                                         v-model="item.baseFile"
-                                        {% endif %}
+                                        type="select"
                                     >
                                         <option
                                             v-for="file in baseFiles"
@@ -274,7 +267,7 @@
                                         >
                                             {{ file.name }}
                                         </option>
-                                    </sw-select-field>
+                                    </sw-field>
                                 </template>
                                 {% endblock %}
                             </sw-grid-column>

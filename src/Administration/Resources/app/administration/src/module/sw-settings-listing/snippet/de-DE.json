@@ -75,8 +75,7 @@
       },
       "notification": {
         "saveSuccess": "Sortier-Option \"{sortingOptionName}\" gespeichert.",
-        "saveError": "Die Sortier-Option \"{sortingOptionName}\" kann nicht gespeichert werden.",
-        "saveErrorAlreadyExists": "Die Sortier-Option \"{sortingOptionName}\" existiert bereits."
+        "saveError": "Die Sortier-Option \"{sortingOptionName}\" kann nicht gespeichert werden."
       },
       "criteria": {
         "title": "Sortier-Kriterien",

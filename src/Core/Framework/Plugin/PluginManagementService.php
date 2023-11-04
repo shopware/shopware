@@ -7,6 +7,9 @@ use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
+use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -34,8 +37,10 @@ class PluginManagementService
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
+        $archive = ZipUtils::openZip($file);
+
         if ($storeType) {
-            $this->pluginExtractor->extract($file, $delete, $storeType);
+            $this->pluginExtractor->extract($archive, $delete, $storeType);
             if ($storeType === self::PLUGIN) {
                 $this->cacheClearer->clearContainerCache();
             }
@@ -43,24 +48,28 @@ class PluginManagementService
             return $storeType;
         }
 
-        $type = $this->pluginZipDetector->detect($file);
+        if ($this->pluginZipDetector->isPlugin($archive)) {
+            $this->pluginExtractor->extract($archive, $delete, self::PLUGIN);
+            $this->cacheClearer->clearContainerCache();
 
-        match ($type) {
-            self::PLUGIN => $this->extractPlugin($file, $delete),
-            self::APP => $this->extractApp($file, $delete),
-        };
+            return self::PLUGIN;
+        }
 
-        return $type;
+        if ($this->pluginZipDetector->isApp($archive)) {
+            $this->pluginExtractor->extract($archive, $delete, self::APP);
+
+            return self::APP;
+        }
+
+        throw new NoPluginFoundInZipException($file);
     }
 
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
-        if (!\is_string($tempFileName)) {
-            throw PluginException::cannotCreateTemporaryDirectory(sys_get_temp_dir(), $file->getClientOriginalName());
-        }
+        /** @var string $tempRealPath */
         $tempRealPath = realpath($tempFileName);
-        \assert(\is_string($tempRealPath));
         $tempDirectory = \dirname($tempRealPath);
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
@@ -74,19 +83,17 @@ class PluginManagementService
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
-        if (!\is_string($tempFileName)) {
-            throw PluginException::cannotCreateTemporaryDirectory(sys_get_temp_dir(), 'store-plugin');
-        }
 
         try {
             $response = $this->client->request('GET', $location->getLocation(), ['sink' => $tempFileName]);
-        } catch (\Exception) {
-            throw PluginException::storeNotAvailable();
-        }
 
-        if ($response->getStatusCode() !== Response::HTTP_OK) {
-            throw PluginException::storeNotAvailable();
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                throw new \RuntimeException();
+            }
+        } catch (\Exception) {
+            throw new StoreNotAvailableException();
         }
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
@@ -106,16 +113,5 @@ class PluginManagementService
         $this->filesystem->remove($path);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
-    }
-
-    private function extractPlugin(string $fileName, bool $delete): void
-    {
-        $this->pluginExtractor->extract($fileName, $delete, self::PLUGIN);
-        $this->cacheClearer->clearContainerCache();
-    }
-
-    private function extractApp(string $fileName, bool $delete): void
-    {
-        $this->pluginExtractor->extract($fileName, $delete, self::APP);
     }
 }

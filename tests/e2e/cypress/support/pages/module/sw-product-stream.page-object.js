@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 /* global cy */
 import elements from '../sw-general.page-object';
 

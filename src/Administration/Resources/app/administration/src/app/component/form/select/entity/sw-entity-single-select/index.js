@@ -11,10 +11,7 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -115,7 +112,7 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
+                return this.$tc('global.sw-single-select.labelEntity');
             },
         },
         advancedSelectionComponent: {
@@ -239,11 +236,7 @@ Component.register('sw-entity-single-select', {
             this.isLoading = true;
             return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
                 if (!item) {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:value', null);
-                    } else {
-                        this.$emit('change', null);
-                    }
+                    this.$emit('change', null);
                 }
 
                 this.criteria.setIds([]);
@@ -475,11 +468,7 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', item.id, item);
-            } else {
-                this.$emit('change', item.id, item);
-            }
+            this.$emit('change', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);
             return null;
@@ -500,11 +489,7 @@ Component.register('sw-entity-single-select', {
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', null);
-            } else {
-                this.$emit('change', null);
-            }
+            this.$emit('change', null);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), null);
         },
@@ -559,11 +544,7 @@ Component.register('sw-entity-single-select', {
 
             this.repository.save(entity, this.context).then(() => {
                 this.lastSelection = entity;
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', entity.id, entity);
-                } else {
-                    this.$emit('change', entity.id, entity);
-                }
+                this.$emit('change', entity.id, entity);
 
                 this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                 this.createNotificationSuccess({

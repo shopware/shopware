@@ -13,10 +13,6 @@ Component.register('sw-condition-modal', {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-    ],
-
     props: {
         conditionDataProviderService: {
             type: Object,

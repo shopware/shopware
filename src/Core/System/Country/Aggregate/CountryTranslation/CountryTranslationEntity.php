@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

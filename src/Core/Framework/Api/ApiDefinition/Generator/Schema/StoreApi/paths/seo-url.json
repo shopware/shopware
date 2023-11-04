@@ -11,6 +11,7 @@
                 "summary": "Fetch SEO routes",
                 "description": "Perform a filtered search for seo urls.",
                 "operationId": "readSeoUrl",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -31,6 +32,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "allOf": [
                                         {
                                             "properties": {

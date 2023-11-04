@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import swMediaQuickinfoUsage from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<NewsletterRecipientEntity>
  */
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class NewsletterRecipientCollection extends EntityCollection
 {
     public function getApiAlias(): string

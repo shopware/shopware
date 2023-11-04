@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
-use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -16,7 +15,6 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
-use Symfony\Component\Intl\Locale;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
@@ -69,8 +67,7 @@ class Translator extends AbstractTranslator
         private readonly string $environment,
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly SnippetService $snippetService,
-        private readonly bool $fineGrainedCache
+        private readonly SnippetService $snippetService
     ) {
     }
 
@@ -88,6 +85,9 @@ class Translator extends AbstractTranslator
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return mixed|null All kind of data could be cached
+     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];
@@ -100,6 +100,9 @@ class Translator extends AbstractTranslator
         return $result;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -131,7 +134,7 @@ class Translator extends AbstractTranslator
             $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
+        return $this->getCustomizedCatalog($catalog, $fallbackLocale, $locale);
     }
 
     /**
@@ -143,24 +146,11 @@ class Translator extends AbstractTranslator
             $domain = 'messages';
         }
 
-        if ($this->fineGrainedCache) {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace][self::buildName($id)] = true;
-            }
-        } else {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace]['shopware.translator'] = true;
-            }
+        foreach (array_keys($this->keys) as $trace) {
+            $this->traces[$trace][self::buildName($id)] = true;
         }
 
-        $catalogue = $this->getCatalogue($locale);
-
-        // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
-        // We use the locale from the catalogue here as that may be the fallback locale,
-        // so we always format the translations in the actual locale of the catalogue
-        $formatLocale = Locale::getFallback($catalogue->getLocale()) ?? $catalogue->getLocale();
-
-        return $this->formatter->format($catalogue->get($id, $domain), $formatLocale, $parameters);
+        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
     }
 
     /**
@@ -200,21 +190,12 @@ class Translator extends AbstractTranslator
 
     public function reset(): void
     {
-        $this->resetInjection();
-
         $this->isCustomized = [];
-        $this->snippets = [];
-        $this->traces = [];
-        $this->keys = ['all' => true];
         $this->snippetSetId = null;
-        $this->salesChannelId = null;
-        $this->localeBeforeInject = null;
-        $this->locale = null;
         if ($this->translator instanceof SymfonyTranslator) {
             // Reset FallbackLocale in memory cache of symfony implementation
             // set fallback values from Framework/Resources/config/translation.yaml
             $this->translator->setFallbackLocales(['en_GB', 'en']);
-            $this->translator->setLocale('en-GB');
         }
     }
 
@@ -245,32 +226,29 @@ class Translator extends AbstractTranslator
 
     public function getSnippetSetId(?string $locale = null): ?string
     {
-        $snippetSetId = $this->snippetSetId;
-        $currentRequest = $this->requestStack->getMainRequest();
+        if ($locale !== null) {
+            if (\array_key_exists($locale, $this->snippets)) {
+                return $this->snippets[$locale];
+            }
 
-        // when document is rendered from admin, SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID is not set thus we use snippetSetId from injectSetting method
-        if ($currentRequest !== null && $currentRequest->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID)) {
-            $snippetSetId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+            $snippetSetId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
+            if ($snippetSetId !== false) {
+                return $this->snippets[$locale] = $snippetSetId;
+            }
         }
 
-        if ($locale === null) {
-            return $this->snippetSetId = $snippetSetId;
-        }
-        // If locale parameter is using, prioritize it over snippet set of request
-        if (\array_key_exists($locale, $this->snippets)) {
-            return $this->snippets[$locale];
+        if ($this->snippetSetId !== null) {
+            return $this->snippetSetId;
         }
 
-        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the domain's snippet set
-        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
-
-        if (!empty($snippetSetIds)) {
-            $snippetSetId = \in_array($snippetSetId, $snippetSetIds, true) ? $snippetSetId : $snippetSetIds[0];
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return null;
         }
 
-        $this->snippets[$locale] = $snippetSetId;
+        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
 
-        return $this->snippetSetId = $snippetSetId;
+        return $this->snippetSetId;
     }
 
     /**
@@ -306,14 +284,9 @@ class Translator extends AbstractTranslator
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
+    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
     {
-        try {
-            $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
-        } catch (DriverException) {
-            // this allows us to use the translator even if there's no db connection yet
-            return $catalog;
-        }
+        $snippetSetId = $this->getSnippetSetId($locale);
 
         if (!$snippetSetId) {
             return $catalog;
@@ -364,7 +337,7 @@ class Translator extends AbstractTranslator
             return;
         }
 
-        $request = $this->requestStack->getMainRequest();
+        $request = $this->requestStack->getCurrentRequest();
 
         if (!$request) {
             return;

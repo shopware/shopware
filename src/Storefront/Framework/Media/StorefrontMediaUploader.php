@@ -2,9 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Media;
 
+use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
+use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +31,10 @@ class StorefrontMediaUploader
 
     /**
      * @throws FileTypeNotAllowedException
-     * @throws MediaException
+     * @throws IllegalFileNameException
+     * @throws UploadException
+     * @throws DuplicatedMediaFileNameException
+     * @throws EmptyMediaFilenameException
      */
     public function upload(UploadedFile $file, string $folder, string $type, Context $context, bool $isPrivate = false): string
     {
@@ -35,23 +42,22 @@ class StorefrontMediaUploader
 
         $this->validator->validate($file, $type);
 
-        $mediaFile = new MediaFile(
-            $file->getPathname(),
-            $file->getMimeType() ?? '',
-            $file->getClientOriginalExtension(),
-            $file->getSize() ?: 0
-        );
+        $mediaFile = new MediaFile($file->getPathname(), $file->getMimeType(), $file->getClientOriginalExtension(), $file->getSize());
 
         $mediaId = $this->mediaService->createMediaInFolder($folder, $context, $isPrivate);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaFile, $mediaId): void {
-            $this->fileSaver->persistFileToMedia(
-                $mediaFile,
-                pathinfo(Uuid::randomHex(), \PATHINFO_FILENAME),
-                $mediaId,
-                $context
-            );
-        });
+        try {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaFile, $mediaId): void {
+                $this->fileSaver->persistFileToMedia(
+                    $mediaFile,
+                    pathinfo(Uuid::randomHex(), \PATHINFO_FILENAME),
+                    $mediaId,
+                    $context
+                );
+            });
+        } catch (MediaNotFoundException $e) {
+            throw new UploadException($e->getMessage());
+        }
 
         return $mediaId;
     }
@@ -59,11 +65,11 @@ class StorefrontMediaUploader
     private function checkValidFile(UploadedFile $file): void
     {
         if (!$file->isValid()) {
-            throw MediaException::invalidFile($file->getErrorMessage());
+            throw new UploadException($file->getErrorMessage());
         }
 
         if (preg_match('/.+\.ph(p([3457s]|-s)?|t|tml)/', $file->getFilename())) {
-            throw MediaException::illegalFileName($file->getFilename(), 'contains PHP related file extension');
+            throw new IllegalFileNameException($file->getFilename(), 'contains PHP related file extension');
         }
     }
 }

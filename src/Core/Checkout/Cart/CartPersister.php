@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
@@ -66,8 +65,6 @@ class CartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
-
-        $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
         return $cart;
     }

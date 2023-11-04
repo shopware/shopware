@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MediaThumbnailSizeEntity>
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaThumbnailSizeCollection extends EntityCollection
 {
     public function getApiAlias(): string

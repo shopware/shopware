@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class RegisterController extends StorefrontController
 {
     /**
@@ -255,6 +255,8 @@ class RegisterController extends StorefrontController
     private function getAdditionalRegisterValidationDefinitions(DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('storefront.confirmation');
+
+        $definition->add('salutationId', new NotBlank());
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([

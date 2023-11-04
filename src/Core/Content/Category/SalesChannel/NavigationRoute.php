@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('content')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
@@ -134,7 +134,7 @@ class NavigationRoute extends AbstractNavigationRoute
         ', ['activeId' => Uuid::fromHexToBytes($activeId), 'rootId' => Uuid::fromHexToBytes($rootId)]);
 
         if (!$result) {
-            throw CategoryException::categoryNotFound($activeId);
+            throw new CategoryNotFoundException($activeId);
         }
 
         return FetchModeHelper::groupUnique($result);
@@ -148,7 +148,7 @@ class NavigationRoute extends AbstractNavigationRoute
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
-            throw CategoryException::categoryNotFound($id);
+            throw new CategoryNotFoundException($id);
         }
 
         return $metaInfo[$id];
@@ -208,7 +208,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
         }
 
-        throw CategoryException::categoryNotFound($activeId);
+        throw new CategoryNotFoundException($activeId);
     }
 
     private function isChildCategory(string $activeId, ?string $path, string $rootId): bool

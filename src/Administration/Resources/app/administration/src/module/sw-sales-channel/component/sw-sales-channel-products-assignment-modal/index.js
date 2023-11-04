@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-sales-channel-products-assignment-modal.html.twig';

@@ -95,10 +95,6 @@ Component.register('sw-property-search', {
 
             return criteria;
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     created() {
@@ -197,10 +193,6 @@ Component.register('sw-property-search', {
         },
 
         selectOptions(grid) {
-            if (!grid) {
-                return;
-            }
-
             grid.selectAll(false);
 
             this.preventSelection = true;
@@ -219,10 +211,7 @@ Component.register('sw-property-search', {
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
-                }).then(() => {
-                    if (this.$refs.optionSearchGrid) {
-                        this.selectOptions(this.$refs.optionSearchGrid);
-                    }
+                    this.selectOptions(this.$refs.optionSearchGrid);
                 });
         },
 
@@ -231,7 +220,9 @@ Component.register('sw-property-search', {
             this.displayTree = true;
             this.groupPage = 1;
             this.optionPage = 1;
-            this.groupOptions = [];
+            if (this.collapsible) {
+                this.groupOptions = [];
+            }
             this.loadGroups();
         },
 

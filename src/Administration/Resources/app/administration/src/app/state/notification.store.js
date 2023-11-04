@@ -36,7 +36,10 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
 
         ...originalNotification,
         visited: notificationUpdate.metadata ?
-            (JSON.stringify(originalNotification.metadata) === JSON.stringify(notificationUpdate.metadata)) :
+            (
+                JSON.stringify(originalNotification.metadata) ===
+                    JSON.stringify(notificationUpdate.metadata)
+            ) :
             originalNotification.visited,
         ...notificationUpdate,
     };
@@ -131,26 +134,12 @@ export default {
     },
 
     getters: {
-        /**
-         * @deprecated tag:v6.6.0 - use `getNotificationsObject` instead
-         */
         getNotifications(state) {
             return Object.values(state.notifications).reverse();
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - use `getGrowlNotificationsObject` instead
-         */
         getGrowlNotifications(state) {
             return Object.values(state.growlNotifications);
-        },
-
-        getNotificationsObject(state) {
-            return state.notifications;
-        },
-
-        getGrowlNotificationsObject(state) {
-            return state.growlNotifications;
         },
     },
 

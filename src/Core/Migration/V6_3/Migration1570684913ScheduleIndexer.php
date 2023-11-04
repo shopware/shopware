@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1570684913ScheduleIndexer extends MigrationStep

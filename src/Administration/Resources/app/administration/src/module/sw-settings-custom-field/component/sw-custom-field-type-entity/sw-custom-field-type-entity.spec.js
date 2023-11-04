@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCustomFieldTypeEntity from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';

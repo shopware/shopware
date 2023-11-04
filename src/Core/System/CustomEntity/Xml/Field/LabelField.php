@@ -11,4 +11,12 @@ use Shopware\Core\Framework\Log\Package;
 class LabelField extends Field
 {
     protected string $type = 'label';
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

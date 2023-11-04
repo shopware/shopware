@@ -14,7 +14,20 @@ class Entities extends XmlElement
     /**
      * @var list<Entity>
      */
-    protected array $entities = [];
+    protected $entities = [];
+
+    /**
+     * @param list<Entity> $entities
+     */
+    public function __construct(array $entities)
+    {
+        $this->entities = $entities;
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseEntities($element));
+    }
 
     /**
      * @return list<Entity>
@@ -24,13 +37,16 @@ class Entities extends XmlElement
         return $this->entities;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return list<Entity>
+     */
+    private static function parseEntities(\DOMElement $element): array
     {
         $entities = [];
         foreach ($element->getElementsByTagName('entity') as $entity) {
             $entities[] = Entity::fromXml($entity);
         }
 
-        return ['entities' => $entities];
+        return $entities;
     }
 }

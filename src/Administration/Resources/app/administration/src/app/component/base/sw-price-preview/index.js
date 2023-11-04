@@ -19,10 +19,4 @@ const { Component } = Shopware;
  */
 Component.extend('sw-price-preview', 'sw-price-field', {
     template,
-
-    computed: {
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
-        },
-    },
 });

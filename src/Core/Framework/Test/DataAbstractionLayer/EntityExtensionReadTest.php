@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -34,12 +33,20 @@ class EntityExtensionReadTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     /**
-     * @var EntityRepository<ProductCollection>
+     * @var EntityRepository
      */
-    private EntityRepository $productRepository;
+    private $productRepository;
+
+    /**
+     * @var EntityRepository
+     */
+    private $salesChannelRepository;
 
     protected function setUp(): void
     {
@@ -58,6 +65,7 @@ class EntityExtensionReadTest extends TestCase
         );
 
         $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $this->connection->rollBack();
 
@@ -170,16 +178,18 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('manyToOne');
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($productId, $product->getId());
 
         static::assertTrue($product->hasExtension('manyToOne'));
+        /** @var ArrayEntity|null $extension */
         $extension = $product->getExtension('manyToOne');
 
         static::assertInstanceOf(ArrayEntity::class, $extension);
-        static::assertSame($extendableId, $extension->get('id'));
+        static::assertEquals($extendableId, $extension->get('id'));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('manyToOne.id', $extendableId));
@@ -210,8 +220,8 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$extendableId]);
         $criteria->addAssociation('products');
 
+        /** @var EntityRepository $manyToOneRepo */
         $manyToOneRepo = $this->getContainer()->get('many_to_one_product.repository');
-        static::assertInstanceOf(EntityRepository::class, $manyToOneRepo);
         $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ArrayEntity::class, $manyToOne);
@@ -244,12 +254,12 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('toOne.toOne');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
-        static::assertNotNull($product);
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         static::assertTrue($product->hasExtension('toOne'));
 
+        /** @var ArrayEntity $extension */
         $extension = $product->getExtension('toOne');
-        static::assertInstanceOf(ArrayEntity::class, $extension);
         static::assertInstanceOf(ProductEntity::class, $extension->get('toOne'));
     }
 
@@ -280,17 +290,17 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('oneToMany.language');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
-        static::assertNotNull($product);
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
 
         static::assertTrue($product->hasExtension('oneToMany'));
 
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
 
         $productExtension = $productExtensions->first();
-        static::assertNotNull($productExtension);
         static::assertInstanceOf(LanguageEntity::class, $productExtension->get('language'));
     }
 
@@ -337,24 +347,20 @@ class EntityExtensionReadTest extends TestCase
         $criteria->addAssociation('ManyToOneSelfReference');
         $criteria->addAssociation('ManyToOneSelfReferenceAutoload');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
-        static::assertNotNull($product);
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
 
         // Self Reference without autoload should be loaded
         static::assertTrue($product->hasExtension('ManyToOneSelfReference'));
         // Self Reference with autoload should NOT be loaded
         static::assertFalse($product->hasExtension('ManyToOneSelfReferenceAutoload'));
 
-        $productExtension = $product->getExtension('ManyToOneSelfReference');
-        static::assertInstanceOf(ProductEntity::class, $productExtension);
-        static::assertSame($linkedProductId, $productExtension->getVars()['id']);
+        static::assertEquals($linkedProductId, $product->getExtension('ManyToOneSelfReference')->getVars()['id']);
     }
 
     public function testVariantDoesNotInheritOneToOneAssociationFromParent(): void
     {
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2021-11-03 13:37:00');
-        static::assertInstanceOf(\DateTimeImmutable::class, $date);
-        $myDate = $date->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $myDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2021-11-03 13:37:00')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $context = Context::createDefaultContext();
 
@@ -381,26 +387,19 @@ class EntityExtensionReadTest extends TestCase
             ],
         ], $context);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
-        static::assertNotNull($product);
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
-        $variant = $context->enableInheritance(fn (Context $context): ?ProductEntity => $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->first());
-        static::assertNotNull($variant);
+        $variant = $context->enableInheritance(fn (Context $context) => $this->productRepository->search(new Criteria([$variantId]), $context)->first());
 
         static::assertTrue($product->hasExtension('oneToOneInherited'));
-        $productExtension = $product->getExtension('oneToOneInherited');
-        static::assertInstanceOf(ArrayEntity::class, $productExtension);
-        $actualProductDate = $productExtension->get('myDate');
-        static::assertInstanceOf(\DateTimeImmutable::class, $actualProductDate);
-        static::assertSame($myDate, $actualProductDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        /** @var ArrayEntity $extension */
+        $extension = $product->getExtension('oneToOneInherited');
+        static::assertEquals($myDate, $extension->get('myDate')->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         // This should be true
         static::assertTrue($variant->hasExtension('oneToOneInherited'));
-        $variantExtension = $variant->getExtension('oneToOneInherited');
-        static::assertInstanceOf(ArrayEntity::class, $variantExtension);
+        $extension = $variant->getExtension('oneToOneInherited');
         // This should equal the parent product's one-to-one-associated myDate
-        $actualVariantDate = $variantExtension->get('myDate');
-        static::assertInstanceOf(\DateTimeImmutable::class, $actualVariantDate);
-        static::assertSame($myDate, $actualVariantDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertEquals($myDate, $extension->get('myDate')->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 }

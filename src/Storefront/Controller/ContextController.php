@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -58,7 +59,7 @@ class ContextController extends StorefrontController
                 $context
             );
         } catch (ConstraintViolationException) {
-            throw RoutingException::languageNotFound($languageId);
+            throw new LanguageNotFoundException($languageId);
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
@@ -105,7 +106,7 @@ class ContextController extends StorefrontController
         $parsedUrl = parse_url($newTokenResponse->getRedirectUrl());
 
         if (!$parsedUrl) {
-            throw RoutingException::languageNotFound($languageId);
+            throw new LanguageNotFoundException($languageId);
         }
 
         $routerContext = $this->router->getContext();

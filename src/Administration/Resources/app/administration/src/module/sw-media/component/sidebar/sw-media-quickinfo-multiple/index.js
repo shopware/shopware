@@ -4,7 +4,7 @@ import './sw-media-quickinfo-multiple.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

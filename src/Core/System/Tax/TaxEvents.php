@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Tax;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class TaxEvents
 {
     /**

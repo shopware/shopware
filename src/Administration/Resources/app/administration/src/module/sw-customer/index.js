@@ -2,7 +2,7 @@ import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Module } = Shopware;

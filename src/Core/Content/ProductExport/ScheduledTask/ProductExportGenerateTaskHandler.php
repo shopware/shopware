@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[AsMessageHandler(handles: ProductExportGenerateTask::class)]
-#[Package('inventory')]
+#[Package('sales-channel')]
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**

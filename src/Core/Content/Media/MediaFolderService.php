@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaFolderService
 {
     /**
@@ -66,8 +67,6 @@ class MediaFolderService
         }
 
         $payload = [];
-
-        /** @var MediaFolderEntity $subFolder */
         foreach ($subFolders->getEntities() as $subFolder) {
             $payload[$subFolder->getId()] = [
                 'id' => $subFolder->getId(),
@@ -90,11 +89,6 @@ class MediaFolderService
         $this->mediaFolderRepo->update(array_values($payload), $context);
     }
 
-    /**
-     * @param array<string, array<string, string|bool|null>> $payload
-     *
-     * @return array<string, array<string, string|bool|null>>
-     */
     private function duplicateFolderConfig(
         MediaFolderCollection $subFolders,
         array $payload,
@@ -103,13 +97,12 @@ class MediaFolderService
         $subFolders = $subFolders->getElements();
         /** @var MediaFolderEntity $folder */
         $folder = array_shift($subFolders);
-
         $config = $folder->getConfiguration();
 
         $payload[$folder->getId()]['useParentConfiguration'] = false;
 
         foreach ($subFolders as $folder) {
-            $configurationId = $config ? $this->cloneConfiguration($config->getId(), $context) : null;
+            $configurationId = $this->cloneConfiguration($config->getId(), $context);
 
             $payload[$folder->getId()]['useParentConfiguration'] = false;
             $payload[$folder->getId()]['configurationId'] = $configurationId;
@@ -133,13 +126,12 @@ class MediaFolderService
         return $newId;
     }
 
-    private function fetchFolder(string $folderId, Context $context): MediaFolderEntity
+    private function fetchFolder(string $folderId, Context $context)
     {
-        /** @var MediaFolderEntity|null $folder */
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->get($folderId);
 
         if ($folder === null) {
-            throw MediaException::mediaFolderIdNotFound($folderId);
+            throw new MediaFolderNotFoundException($folderId);
         }
 
         return $folder;

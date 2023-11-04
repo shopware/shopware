@@ -28,18 +28,18 @@ class CountingEntityReader implements EntityReaderInterface
      */
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        self::$count[$definition->getEntityName()] ??= 0 + 1;
+        static::$count[$definition->getEntityName()] ??= 0 + 1;
 
         return $this->inner->read($definition, $criteria, $context);
     }
 
     public static function resetCount(): void
     {
-        self::$count = [];
+        static::$count = [];
     }
 
     public static function getReadOperationCount(string $entityName): int
     {
-        return self::$count[$entityName] ?? 0;
+        return static::$count[$entityName] ?? 0;
     }
 }

@@ -7,9 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -348,6 +346,7 @@ class WriterTest extends TestCase
         $product = $this->connection->fetchAssociative('SELECT * FROM product WHERE id=:id', [
             'id' => $this->idBytes,
         ]);
+        static::assertIsArray($product);
 
         static::assertIsArray($product);
         static::assertNotEmpty($product['id']);
@@ -491,13 +490,7 @@ class WriterTest extends TestCase
 
     public function testInsertIgnoresRuntimeFields(): void
     {
-        static::assertNotNull(
-            $this->getContainer()->get(MediaDefinition::class)
-                ->getFields()
-                ->get('url')
-                ?->getFlag(Runtime::class)
-        );
-
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -509,7 +502,6 @@ class WriterTest extends TestCase
                     'fileName' => 'testFile',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
-                    'path' => 'testFile.jpg',
                     'url' => 'www.example.com',
                 ],
             ],
@@ -520,14 +512,12 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-
-        static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
+        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')?->getFlag(Runtime::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -537,7 +527,6 @@ class WriterTest extends TestCase
                     'id' => $id,
                     'name' => 'Test media',
                     'fileName' => 'testFile',
-                    'path' => 'testFile.jpg',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
                 ],
@@ -557,9 +546,7 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-
-        static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
+        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void
@@ -697,7 +684,6 @@ class WriterTest extends TestCase
             ->get($manufacturerId);
 
         static::assertNotNull($manufacturer);
-        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertEquals($mediaId, $manufacturer->getMediaId());
     }
 
@@ -823,6 +809,14 @@ class WriterTest extends TestCase
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
             $context,
         );
+        static::assertNotNull($fetchedEntityOne);
+        $fetchedEntityTwo = $testEntityTwoRepository->search(
+            (new Criteria())
+                ->addFilter(new EqualsFilter('id', $testEntityTwoId))
+                ->addAssociation('testEntityOne'),
+            $context,
+        );
+        static::assertNotNull($fetchedEntityTwo);
 
         // Test deletion
         $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
@@ -923,6 +917,7 @@ class WriterTest extends TestCase
             'SELECT name, description FROM product_translation WHERE language_id = :language AND product_id = :id',
             ['language' => $ids->getBytes('language'), 'id' => $ids->getBytes('new-child')]
         );
+        static::assertIsArray($translations);
 
         static::assertIsArray($translations);
         static::assertNull($translations['name']);

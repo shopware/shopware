@@ -7,11 +7,12 @@
                 "tags": [
                     "Profile",
                     "Newsletter",
-                    "Endpoints supporting Criteria"
+                    "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch newsletter recipients",
                 "description": "Perform a filtered search for newsletter recipients.",
                 "operationId": "readNewsletterRecipient",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -32,7 +33,6 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
                                     "items": {
                                         "$ref": "#/components/schemas/AccountNewsletterRecipientResult"
                                     }
@@ -375,6 +375,7 @@
                 "summary": "Get information about current customer",
                 "description": "Returns information about the current customer.",
                 "operationId": "readCustomer",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -514,6 +515,7 @@
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
                 "operationId": "listAddress",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {

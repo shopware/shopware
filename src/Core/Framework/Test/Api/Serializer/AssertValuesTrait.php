@@ -6,10 +6,6 @@ use PHPUnit\Framework\TestCase;
 
 trait AssertValuesTrait
 {
-    /**
-     * @param array<int|string, mixed> $expected
-     * @param array<int|string, mixed> $actual
-     */
     protected function assertValues(array $expected, array $actual): void
     {
         foreach ($expected as $key => $value) {

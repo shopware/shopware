@@ -3,9 +3,10 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -15,7 +16,10 @@ class PluginExtractorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    protected ContainerInterface $container;
+    /**
+     * @var KernelPluginCollection
+     */
+    protected $container;
 
     /**
      * @var Filesystem
@@ -40,7 +44,7 @@ class PluginExtractorTest extends TestCase
 
     public function testExtractPlugin(): void
     {
-        $archive = __DIR__ . '/_fixture/SwagFashionTheme.zip';
+        $archive = ZipUtils::openZip(__DIR__ . '/_fixture/SwagFashionTheme.zip');
 
         $this->extractor->extract($archive, false, 'plugin');
 

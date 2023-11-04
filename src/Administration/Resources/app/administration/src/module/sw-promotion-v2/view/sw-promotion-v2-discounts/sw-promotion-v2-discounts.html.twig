@@ -106,18 +106,16 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_discounts_list_add_discount%}
-        <sw-card
-            position-identifier="sw-promotion-v2-discount-list-add-discount"
-            hero>
-            <sw-button
-                variant="ghost"
-                class="sw-promotion-v2-discounts__action-create"
-                :disabled="!acl.can('promotion.editor')"
-                @click="onShowDiscountModal"
-            >
-                {{ $tc('sw-promotion-v2.detail.discounts.addDiscountButton') }}
-            </sw-button>
-        </sw-card>
+            <sw-card hero>
+                <sw-button
+                    variant="ghost"
+                    class="sw-promotion-v2-discounts__action-create"
+                    :disabled="!acl.can('promotion.editor')"
+                    @click="onShowDiscountModal"
+                >
+                    {{ $tc('sw-promotion-v2.detail.discounts.addDiscountButton') }}
+                </sw-button>
+            </sw-card>
         {% endblock %}
 
     </template>
@@ -143,7 +141,7 @@
             {% block sw_promotion_v2_discounts_empty_state_icon %}
             <template #icon>
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/promotion-empty-state.svg')"
+                    :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset"
                     :alt="$tc('sw-promotion-v2.detail.discounts.emptyStateTitle')"
                 >
             </template>

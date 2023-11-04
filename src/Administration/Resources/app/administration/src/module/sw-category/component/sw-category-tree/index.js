@@ -405,6 +405,7 @@ export default {
                 return Promise.resolve();
             }
 
+            this.loadedParentIds.push(parentId);
             const criteria = Criteria.fromCriteria(this.criteria);
             criteria.addFilter(Criteria.equals('parentId', parentId));
             // in case the criteria has been altered to search specific ids e.g. by dragndrop position change
@@ -413,7 +414,10 @@ export default {
 
             return this.categoryRepository.search(criteria).then((children) => {
                 this.addCategories(children);
-                this.loadedParentIds.push(parentId);
+            }).catch(() => {
+                this.loadedParentIds = this.loadedParentIds.filter((id) => {
+                    return id !== parentId;
+                });
             });
         },
 

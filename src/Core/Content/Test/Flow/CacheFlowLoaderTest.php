@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class CacheFlowLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

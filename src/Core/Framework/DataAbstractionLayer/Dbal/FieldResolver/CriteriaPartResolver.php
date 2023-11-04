@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Log\Package;
 
@@ -36,11 +35,9 @@ class CriteriaPartResolver
     ) {
     }
 
-    /**
-     * @param array<CriteriaPartInterface> $parts
-     */
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
+        /** @var CriteriaPartInterface $part */
         foreach ($parts as $part) {
             if ($part instanceof JoinGroup) {
                 $this->resolveSubJoin($part, $definition, $query, $context);
@@ -123,9 +120,6 @@ class CriteriaPartResolver
         }
 
         foreach ($filter->getQueries() as $filter) {
-            if (!$filter instanceof SingleFieldFilter) {
-                continue;
-            }
             $filter->setResolved(self::escape($alias) . '.id IS NOT NULL');
         }
 
@@ -141,7 +135,7 @@ class CriteriaPartResolver
             $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
             $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
-            if ($definition->isVersionAware() && $reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
+            if ($definition->isVersionAware()) {
                 $query->addSelect(self::accessor($alias, $definition->getEntityName() . '_version_id'));
             }
 
@@ -283,10 +277,8 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
+        /** @var ReverseInherited $flag */
         $flag = $field->getFlag(ReverseInherited::class);
-        if ($flag === null) {
-            return self::escape($field->getReferenceField());
-        }
 
         return self::escape($flag->getReversedPropertyName());
     }

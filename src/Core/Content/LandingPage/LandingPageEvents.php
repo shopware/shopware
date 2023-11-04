@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\LandingPage;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class LandingPageEvents
 {
     /**

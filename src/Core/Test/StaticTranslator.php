@@ -6,8 +6,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\Translator\StaticTranslator instead
  */
 class StaticTranslator implements TranslatorInterface
 {

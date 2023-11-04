@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -69,7 +68,7 @@ class GuestWishlistPageletLoader
         $productIds = $request->get('productIds', []);
 
         if (!\is_array($productIds)) {
-            throw RoutingException::missingRequestParameter('productIds');
+            throw new \InvalidArgumentException('Argument $productIds is not an array');
         }
 
         $productIds = array_filter($productIds, static fn ($productId) => Uuid::isValid($productId));

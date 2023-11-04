@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - will be removed
  */
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoUrlAssociationField extends OneToManyAssociationField
 {
     public function __construct(

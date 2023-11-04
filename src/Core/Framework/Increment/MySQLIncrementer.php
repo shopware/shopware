@@ -104,9 +104,6 @@ class MySQLIncrementer extends AbstractIncrementer
             ];
         }
 
-        /** @var array<string, array{count: int, key: string, cluster: string, pool: string}> $result */
-        $result = $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
-
-        return $result;
+        return $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
     }
 }

@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountFixedPriceCalculator
 {
     public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator)
@@ -27,6 +27,7 @@ class DiscountFixedPriceCalculator
      */
     public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
     {
+        /** @var AbsolutePriceDefinition|null $priceDefinition */
         $priceDefinition = $discount->getPriceDefinition();
 
         if (!$priceDefinition instanceof AbsolutePriceDefinition) {

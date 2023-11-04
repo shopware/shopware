@@ -1,4 +1,5 @@
-import type { Route } from 'vue-router';
+import type Vue from 'vue';
+import type { Route, RawLocation } from 'vue-router';
 import type { Extension } from '../../service/extension-store-action.service';
 import template from './sw-extension-config.html.twig';
 import './sw-extension-config.scss';
@@ -11,16 +12,21 @@ type ComponentData = {
     fromLink: Route|null,
 }
 
+interface VmWithFromLink extends Vue {
+    fromLink: Route|null;
+}
+
+type BeforeRouteEnterGuard = (to?: RawLocation | false | ((vm: VmWithFromLink) => void) | void) => void;
+
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    beforeRouteEnter(to, from, next) {
+    beforeRouteEnter(to: Route, from: Route, next: BeforeRouteEnterGuard) {
         next((vm) => {
-            // @ts-expect-error
             vm.fromLink = from;
         });
     },
@@ -99,12 +105,16 @@ export default Shopware.Component.wrapComponentConfig({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 await this.$refs.systemConfig.saveAll();
 
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationSuccess({
                     message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
                 });
             } catch (err) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
-                    message: err as string,
+                    message: err,
                 });
             }
         },

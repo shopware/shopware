@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('content')]
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'category_translation';

@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * This route is used to change the email of a logged-in user
  * The required fields are: "password", "email" and "emailConfirmation"
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 abstract class AbstractChangeEmailRoute
 {
     abstract public function getDecorated(): AbstractChangeEmailRoute;

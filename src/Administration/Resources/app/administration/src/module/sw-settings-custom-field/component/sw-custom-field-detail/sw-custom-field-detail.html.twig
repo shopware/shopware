@@ -14,11 +14,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_type %}
         <sw-select-field
-            {% if VUE3 %}
-            v-model:value="currentCustomField.config.customFieldType"
-            {% else %}
             v-model="currentCustomField.config.customFieldType"
-            {% endif %}
             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
             :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
             class="sw-custom-field-detail__modal-type"
@@ -38,12 +34,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-text-field
-            {% if VUE3 %}
-            v-model:value="currentCustomField.name"
-            {% else %}
+        <sw-field
             v-model="currentCustomField.name"
-            {% endif %}
+            type="text"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -53,12 +46,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_position %}
-        <sw-number-field
-            {% if VUE3 %}
-            v-model:value="currentCustomField.config.customFieldPosition"
-            {% else %}
+        <sw-field
             v-model="currentCustomField.config.customFieldPosition"
-            {% endif %}
+            type="number"
             class="sw-custom-field-detail__modal-position"
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
@@ -69,12 +59,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_required %}
-        <sw-switch-field
-            {% if VUE3 %}
-            v-model:value="required"
-            {% else %}
+        <sw-field
             v-model="required"
-            {% endif %}
+            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
             class="sw-custom-field-detail__switch"
@@ -86,12 +73,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-switch-field
-            {% if VUE3 %}
-            v-model:value="currentCustomField.allowCustomerWrite"
-            {% else %}
+        <sw-field
             v-model="currentCustomField.allowCustomerWrite"
-            {% endif %}
+            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -100,14 +84,11 @@
         />
         {% endblock %}
 
-        <sw-switch-field
+        <sw-field
             v-if="isProductCustomField"
-            {% if VUE3 %}
-            v-model:value="currentCustomField.allowCartExpose"
-            {% else %}
             v-model="currentCustomField.allowCartExpose"
-            {% endif %}
             v-tooltip="getCartExposeTooltipConfig()"
+            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
             class="sw-custom-field-detail__allow-cart-expose"

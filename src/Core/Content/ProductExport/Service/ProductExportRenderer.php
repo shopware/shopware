@@ -6,8 +6,10 @@ use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
+use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
+use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
+use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -16,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportRenderer implements ProductExportRendererInterface
 {
     /**
@@ -55,7 +57,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
+            $renderHeaderException = new RenderHeaderException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderHeaderException);
 
             throw $renderHeaderException;
@@ -88,7 +90,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderFooterException = ProductExportException::renderFooterException($exception->getMessage());
+            $renderFooterException = new RenderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
 
             throw $renderFooterException;
@@ -105,7 +107,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
     ): string {
         $bodyTemplate = $productExport->getBodyTemplate();
         if (!\is_string($bodyTemplate)) {
-            throw ProductExportException::templateBodyNotSet();
+            throw new \RuntimeException('Product export body template is not set');
         }
 
         try {
@@ -117,7 +119,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
-            $renderProductException = ProductExportException::renderProductException($exception->getMessage());
+            $renderProductException = new RenderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);
 
             throw $renderProductException;
@@ -131,7 +133,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Level::Warning,
+            Level::Error,
             $exception
         );
 

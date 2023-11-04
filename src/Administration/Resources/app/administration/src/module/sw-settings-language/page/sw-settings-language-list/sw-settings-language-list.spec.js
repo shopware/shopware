@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsLanguageList from 'src/module/sw-settings-language/page/sw-settings-language-list';
@@ -73,7 +73,6 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
             },
-            'sw-switch-field': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
             'sw-icon': true,

@@ -28,9 +28,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AggregationParser
 {
-    /**
-     * @param array<string, mixed> $payload
-     */
     public function buildAggregations(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if (!\is_array($payload['aggregations'])) {
@@ -46,11 +43,6 @@ class AggregationParser
         }
     }
 
-    /**
-     * @param array<Aggregation> $aggregations
-     *
-     * @return array<array<string, mixed>>
-     */
     public function toArray(array $aggregations): array
     {
         $data = [];
@@ -62,9 +54,6 @@ class AggregationParser
         return $data;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function aggregationToArray(Aggregation $aggregation): array
     {
         if ($aggregation instanceof AvgAggregation) {
@@ -123,18 +112,12 @@ class AggregationParser
                 $filters[] = QueryStringParser::toArray($filter);
             }
 
-            $aggregationArray = [
+            return [
                 'name' => $aggregation->getName(),
                 'type' => 'filter',
                 'filter' => $filters,
+                'aggregation' => $this->aggregationToArray($aggregation->getAggregation()),
             ];
-
-            $nestedAggregation = $aggregation->getAggregation();
-            if ($nestedAggregation) {
-                $aggregationArray['aggregation'] = $this->aggregationToArray($nestedAggregation);
-            }
-
-            return $aggregationArray;
         }
         if ($aggregation instanceof DateHistogramAggregation) {
             $data = [
@@ -186,11 +169,14 @@ class AggregationParser
         throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', $aggregation::class));
     }
 
-    /**
-     * @param array<string, mixed> $aggregation
-     */
     private function parseAggregation(int $index, EntityDefinition $definition, array $aggregation, SearchRequestException $exceptions): ?Aggregation
     {
+        if (!\is_array($aggregation)) {
+            $exceptions->add(new InvalidAggregationQueryException('The field "%s" should be a list of aggregations.'), '/aggregations/' . $index);
+
+            return null;
+        }
+
         $name = \array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
 
         if (empty($name) || is_numeric($name)) {
@@ -199,9 +185,10 @@ class AggregationParser
             return null;
         }
 
+        /** @var string|null $type */
         $type = $aggregation['type'] ?? null;
 
-        if (!\is_string($type) || empty($type) || is_numeric($type)) {
+        if (empty($type) || is_numeric($type)) {
             $exceptions->add(new InvalidAggregationQueryException('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $index);
 
             return null;
@@ -213,7 +200,7 @@ class AggregationParser
             return null;
         }
 
-        $field = '';
+        $field = null;
         if ($type !== 'filter') {
             $field = self::buildFieldName($definition, $aggregation['field']);
         }
@@ -237,7 +224,7 @@ class AggregationParser
                     return null;
                 }
 
-                return new RangeAggregation($name, $field, $aggregation['ranges']);
+                return new RangeAggregation($name, (string) $field, $aggregation['ranges']);
             case 'entity':
                 if (!isset($aggregation['definition'])) {
                     $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain a "definition".'), '/aggregations/' . $index . '/' . $type . '/field');
@@ -269,9 +256,6 @@ class AggregationParser
                 }
 
                 $nested = $this->parseAggregation($index, $definition, $aggregation['aggregation'], $exceptions);
-                if ($nested === null) {
-                    return null;
-                }
 
                 return new FilterAggregation($name, $nested, $filters);
 
@@ -337,7 +321,7 @@ class AggregationParser
                 return new TermsAggregation($name, $field, $limit, $sorting, $nested);
 
             default:
-                $exceptions->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exist.', $type)), '/aggregations/' . $index);
+                $exceptions->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $index);
 
                 return null;
         }
@@ -347,7 +331,7 @@ class AggregationParser
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (!str_contains($fieldName, $prefix)) {
+        if (mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

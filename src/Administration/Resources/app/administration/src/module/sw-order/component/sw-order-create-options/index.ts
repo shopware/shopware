@@ -12,7 +12,7 @@ import type {
 } from '../../order.types';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Component, State } = Shopware;

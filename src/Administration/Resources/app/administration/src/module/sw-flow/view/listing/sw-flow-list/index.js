@@ -6,7 +6,7 @@ const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,
@@ -103,10 +103,6 @@ export default {
             }
 
             return this.$tc('global.default.edit');
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
 
         ...mapState('swFlowState', ['triggerEvents']),

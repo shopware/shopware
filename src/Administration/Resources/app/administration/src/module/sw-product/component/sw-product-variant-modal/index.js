@@ -288,10 +288,6 @@ export default {
             // Assign groups and children to order objects
             return [...groups, ...children];
         },
-
-        stockColorVariantFilter() {
-            return Shopware.Filter.getByName('stockColorVariant');
-        },
     },
 
     watch: {

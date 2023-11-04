@@ -3,11 +3,10 @@
 namespace Shopware\Core\Framework\App\ActionButton;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
-use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\ActionProcessException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -45,7 +44,7 @@ class Executor
         try {
             $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
-            throw AppException::actionButtonProcessException($action->getActionId(), $e->getMessage(), $e);
+            throw new ActionProcessException($action->getActionId(), $e->getMessage(), $e);
         }
 
         $payload = $action->asPayload();
@@ -70,7 +69,7 @@ class Executor
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('actionType', $content) || !\array_key_exists('payload', $content)) {
-            throw AppException::actionButtonProcessException($action->getActionId(), 'Invalid app response');
+            throw new ActionProcessException($action->getActionId(), 'Invalid app response');
         }
 
         $actionResponse = $this->actionButtonResponseFactory->createFromResponse(
@@ -83,9 +82,6 @@ class Executor
         return new JsonResponse($actionResponse);
     }
 
-    /**
-     * @param array<mixed> $payload
-     */
     private function executeHttpRequest(AppAction $action, Context $context, array $payload, string $appSecret): string
     {
         try {
@@ -118,13 +114,7 @@ class Executor
                 'response' => $e->getResponse()->getBody()->getContents(),
             ]);
 
-            throw AppException::actionButtonProcessException($action->getActionId(), 'ActionButton remote execution failed', $e);
-        } catch (ConnectException $e) {
-            $this->logger->notice(sprintf('ActionButton execution failed to target url "%s" due to connection problems.', $action->getTargetUrl()), [
-                'message' => $e->getMessage(),
-            ]);
-
-            throw AppException::actionButtonProcessException($action->getActionId(), 'ActionButton remote execution failed due to connection problems', $e);
+            throw new ActionProcessException($action->getActionId(), 'ActionButton remote execution failed', $e);
         }
     }
 
@@ -144,7 +134,7 @@ class Executor
 
             return $response->getContent() ?: '';
         } catch (\Exception $e) {
-            throw AppException::actionButtonProcessException($action->getActionId(), 'ActionButton local execution failed', $e);
+            throw new ActionProcessException($action->getActionId(), 'ActionButton local execution failed', $e);
         }
     }
 }

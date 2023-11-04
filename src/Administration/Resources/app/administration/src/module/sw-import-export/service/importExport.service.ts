@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import ApiService from 'src/core/service/api.service';
 import type { AxiosInstance } from 'axios';

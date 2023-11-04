@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class EnrichExportCriteriaEvent extends Event
 {
     public function __construct(

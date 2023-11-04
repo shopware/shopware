@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerResponse extends StoreApiResponse
 {
     /**

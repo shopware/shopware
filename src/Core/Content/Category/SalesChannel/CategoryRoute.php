@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('content')]
 class CategoryRoute extends AbstractCategoryRoute
 {
     final public const HOME = 'home';
@@ -55,7 +55,7 @@ class CategoryRoute extends AbstractCategoryRoute
                 || $category->getType() === CategoryDefinition::TYPE_LINK)
             && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
         ) {
-            throw CategoryException::categoryNotFound($navigationId);
+            throw new CategoryNotFoundException($navigationId);
         }
 
         $pageId = $category->getCmsPageId();
@@ -82,12 +82,10 @@ class CategoryRoute extends AbstractCategoryRoute
         );
 
         if (!$pages->has($pageId)) {
-            throw CategoryException::pageNotFound($pageId);
+            throw new PageNotFoundException($pageId);
         }
 
-        /** @var CmsPageEntity $page */
-        $page = $pages->get($pageId);
-        $category->setCmsPage($page);
+        $category->setCmsPage($pages->get($pageId));
         $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);
@@ -104,8 +102,8 @@ class CategoryRoute extends AbstractCategoryRoute
             ->search($criteria, $context)
             ->get($categoryId);
 
-        if (!$category instanceof CategoryEntity) {
-            throw CategoryException::categoryNotFound($categoryId);
+        if (!$category) {
+            throw new CategoryNotFoundException($categoryId);
         }
 
         return $category;

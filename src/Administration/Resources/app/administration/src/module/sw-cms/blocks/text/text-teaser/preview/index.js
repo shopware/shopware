@@ -3,7 +3,7 @@ import './sw-cms-preview-text-teaser.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

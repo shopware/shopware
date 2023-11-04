@@ -8,7 +8,6 @@ import initUserInformation from './user-information.init';
 import initLanguage from './language.init';
 import initWorker from './worker.init';
 import initCookies from './cookie.init';
-import initUsageData from './usage-data.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,5 +15,4 @@ export default {
     language: initLanguage,
     userInformation: initUserInformation,
     worker: initWorker,
-    usageData: initUsageData,
 };

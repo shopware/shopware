@@ -11,19 +11,18 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
+use Shopware\Core\Checkout\Payment\Exception\RefundException;
+use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\RecurringPayPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\RefundPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
-use Shopware\Core\Framework\App\Payment\Response\RecurringPayResponse;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\Context;
@@ -42,7 +41,7 @@ use Shopware\Core\System\StateMachine\Transition;
  * @internal only for use by the app-system
  */
 #[Package('core')]
-class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymentHandlerInterface, RecurringPaymentHandlerInterface
+class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
     public function __construct(
         protected OrderTransactionStateHandler $transactionStateHandler,
@@ -56,7 +55,7 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
     {
         $appPaymentMethod = $context->getPaymentMethod()->getAppPaymentMethod();
         if ($appPaymentMethod === null) {
-            throw PaymentException::validatePreparedPaymentInterrupted('Loaded data invalid');
+            throw new ValidatePreparedPaymentException('Loaded data invalid');
         }
 
         $validateUrl = $appPaymentMethod->getValidateUrl();
@@ -67,21 +66,21 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         $payload = $this->buildValidatePayload($cart, $requestDataBag, $context);
         $app = $appPaymentMethod->getApp();
         if ($app === null) {
-            throw PaymentException::validatePreparedPaymentInterrupted('App not defined');
+            throw new ValidatePreparedPaymentException('App not defined');
         }
 
         try {
             $response = $this->payloadService->request($validateUrl, $payload, $app, ValidateResponse::class, $context->getContext());
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::validatePreparedPaymentInterrupted(sprintf('App error: %s', $exception->getMessage()));
+            throw new ValidatePreparedPaymentException(sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof ValidateResponse) {
-            throw PaymentException::validatePreparedPaymentInterrupted('Invalid app response');
+            throw new ValidatePreparedPaymentException('Invalid app response');
         }
 
         if ($response->getMessage()) {
-            throw PaymentException::validatePreparedPaymentInterrupted($response->getMessage());
+            throw new ValidatePreparedPaymentException($response->getMessage());
         }
 
         return new ArrayStruct($response->getPreOrderPayment());
@@ -97,21 +96,21 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         $payload = $this->buildCapturePayload($transaction, $preOrderPaymentStruct);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
-            throw PaymentException::capturePreparedException($transaction->getOrderTransaction()->getId(), 'App not defined');
+            throw new CapturePreparedPaymentException($transaction->getOrderTransaction()->getId(), 'App not defined');
         }
 
         try {
             $response = $this->payloadService->request($captureUrl, $payload, $app, CaptureResponse::class, $context->getContext());
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::capturePreparedException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
+            throw new CapturePreparedPaymentException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof CaptureResponse) {
-            throw PaymentException::capturePreparedException($transaction->getOrderTransaction()->getId(), 'Invalid app response');
+            throw new CapturePreparedPaymentException($transaction->getOrderTransaction()->getId(), 'Invalid app response');
         }
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::capturePreparedException($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
+            throw new CapturePreparedPaymentException($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
         }
 
         if (empty($response->getStatus())) {
@@ -139,10 +138,6 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
 
         $refund = $this->refundRepository->search($criteria, $context)->first();
 
-        if (!($refund instanceof OrderTransactionCaptureRefundEntity)) {
-            throw PaymentException::unknownRefund($refundId);
-        }
-
         if (!$refund->getTransactionCapture()
             || !$refund->getTransactionCapture()->getTransaction()
             || !$refund->getTransactionCapture()->getTransaction()->getOrder()
@@ -161,7 +156,7 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         $app = $paymentMethod->getApp();
 
         if (!$app) {
-            throw PaymentException::refundInterrupted($refund->getId(), 'App not defined');
+            throw new RefundException($refund->getId(), 'App not defined');
         }
 
         $payload = $this->buildRefundPayload($refund, $refund->getTransactionCapture()->getTransaction()->getOrder());
@@ -169,15 +164,15 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         try {
             $response = $this->payloadService->request($refundUrl, $payload, $app, RefundResponse::class, $context);
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::refundInterrupted($refund->getId(), sprintf('App error: %s', $exception->getMessage()));
+            throw new RefundException($refund->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof RefundResponse) {
-            throw PaymentException::refundInterrupted($refund->getId(), 'Invalid app response');
+            throw new RefundException($refund->getId(), 'Invalid app response');
         }
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::refundInterrupted($refund->getId(), $response->getMessage() ?? 'Refund was reported as failed.');
+            throw new RefundException($refund->getId(), $response->getMessage() ?? 'Refund was reported as failed.');
         }
 
         if (empty($response->getStatus())) {
@@ -195,59 +190,16 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         );
     }
 
-    public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
-    {
-        $recurringUrl = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getRecurringUrl();
-
-        if (empty($recurringUrl)) {
-            return;
-        }
-
-        $payload = $this->buildRecurringPayload($transaction);
-        $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
-        if ($app === null) {
-            throw PaymentException::recurringInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
-        }
-
-        try {
-            $response = $this->payloadService->request($recurringUrl, $payload, $app, RecurringPayResponse::class, $context);
-        } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::recurringInterrupted($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
-        }
-
-        if (!$response instanceof RecurringPayResponse) {
-            throw PaymentException::recurringInterrupted($transaction->getOrderTransaction()->getId(), 'Invalid app response');
-        }
-
-        if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::recurringInterrupted($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
-        }
-
-        if (empty($response->getStatus())) {
-            return;
-        }
-
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                OrderTransactionDefinition::ENTITY_NAME,
-                $transaction->getOrderTransaction()->getId(),
-                $response->getStatus(),
-                'stateId'
-            ),
-            $context
-        );
-    }
-
     protected function getAppPaymentMethod(OrderTransactionEntity $orderTransaction): AppPaymentMethodEntity
     {
         $paymentMethod = $orderTransaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw PaymentException::asyncProcessInterrupted($orderTransaction->getId(), 'Loaded data invalid');
+            throw new AsyncPaymentProcessException($orderTransaction->getId(), 'Loaded data invalid');
         }
 
         $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
         if ($appPaymentMethod === null) {
-            throw PaymentException::asyncProcessInterrupted($orderTransaction->getId(), 'Loaded data invalid');
+            throw new AsyncPaymentProcessException($orderTransaction->getId(), 'Loaded data invalid');
         }
 
         return $appPaymentMethod;
@@ -266,7 +218,7 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         return new ValidatePayload(
             $cart,
             $requestDataBag->all(),
-            $context,
+            $context
         );
     }
 
@@ -275,18 +227,7 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
         return new CapturePayload(
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
-            $preOrderPaymentStruct,
-            $transaction->getRecurring()
-        );
-    }
-
-    protected function buildRecurringPayload(RecurringPaymentTransactionStruct $transaction): RecurringPayPayload
-    {
-        return new RecurringPayPayload(
-            $transaction->getOrderTransaction(),
-            $transaction->getOrder(),
-            [],
-            $transaction->getRecurring()
+            $preOrderPaymentStruct
         );
     }
 }

@@ -12,9 +12,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class CartTransformer
 {
-    /**
-     * @return array<string, mixed>
-     */
     public static function transform(Cart $cart, SalesChannelContext $context, string $stateId, bool $setOrderDate = true): array
     {
         $currency = $context->getCurrency();
@@ -32,7 +29,6 @@ class CartTransformer
             'customerComment' => $cart->getCustomerComment(),
             'affiliateCode' => $cart->getAffiliateCode(),
             'campaignCode' => $cart->getCampaignCode(),
-            'source' => $cart->getSource(),
         ];
 
         if ($setOrderDate) {

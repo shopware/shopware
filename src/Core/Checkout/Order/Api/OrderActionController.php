@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderActionController extends AbstractController
 {
     /**

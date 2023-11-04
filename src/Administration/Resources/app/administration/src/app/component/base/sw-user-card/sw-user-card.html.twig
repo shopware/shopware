@@ -45,7 +45,7 @@
                             v-if="user"
                             class="sw-user-card__metadata-user-name"
                         >
-                            {{ salutationFilter(user) }}
+                            {{ user | salutation }}
                         </div>
                         {% endblock %}
 

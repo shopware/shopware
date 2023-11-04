@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
 {
     /**

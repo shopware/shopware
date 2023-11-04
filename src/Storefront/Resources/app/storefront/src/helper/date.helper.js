@@ -19,6 +19,7 @@ export default class DateFormatHelper {
         }
 
         const dateObj = new Date(val);
+        // eslint-disable-next-line
         if (isNaN(dateObj)) {
             return '';
         }

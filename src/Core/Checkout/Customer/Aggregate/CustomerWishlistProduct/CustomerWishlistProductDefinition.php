@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerWishlistProductDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'customer_wishlist_product';

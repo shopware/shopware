@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsUnitsList from 'src/module/sw-settings-units/page/sw-settings-units-list';
 

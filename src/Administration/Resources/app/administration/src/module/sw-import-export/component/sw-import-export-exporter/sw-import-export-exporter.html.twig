@@ -18,23 +18,16 @@
         :value="selectedProfileId"
         required
         show-clearable-button
-        {% if VUE3 %}
-        @update:value="onProfileSelect"
-        {% else %}
         @change="onProfileSelect"
-        {% endif %}
     />
     {% endblock %}
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_exporter_profile_select_product_variants_switch %}
-        <sw-switch-field
-            {% if VUE3 %}
-            v-model:value="config.parameters.includeVariants"
-            {% else %}
+        <sw-field
             v-model="config.parameters.includeVariants"
-            {% endif %}
+            type="switch"
             class="sw-import-export-exporter__variants-switch-field"
             :label="$tc('sw-import-export.exporter.exportVariants')"
         />

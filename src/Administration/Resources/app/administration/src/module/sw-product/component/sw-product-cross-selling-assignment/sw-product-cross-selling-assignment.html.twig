@@ -13,11 +13,7 @@
             disable-auto-close
             :disabled="!allowEdit"
             show-clearable-button
-            {% if VUE3 %}
-            @update:value="onToggleProduct"
-            {% else %}
             @change="onToggleProduct"
-            {% endif %}
         >
 
             <template #result-item="{ item, index }">
@@ -25,7 +21,8 @@
                     name="result-item"
                     v-bind="{ item, index, isSelected }"
                 >
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                     >
@@ -37,7 +34,7 @@
                             </sw-product-variant-info>
                         </span>
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                 </slot>
             </template>
 
@@ -101,7 +98,7 @@
         >
             <template #icon>
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
                     alt=""
                 >
             </template>

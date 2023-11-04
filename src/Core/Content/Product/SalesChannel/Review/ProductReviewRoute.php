@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,10 +18,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<ProductReviewCollection> $productReviewRepository
      */
-    public function __construct(private readonly EntityRepository $productReviewRepository)
+    public function __construct(private readonly EntityRepository $repository)
     {
     }
 
@@ -50,7 +47,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
             ])
         );
 
-        $result = $this->productReviewRepository->search($criteria, $context->getContext());
+        $result = $this->repository->search($criteria, $context->getContext());
 
         return new ProductReviewRouteResponse($result);
     }

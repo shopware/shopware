@@ -1,8 +1,10 @@
 { pkgs, lib, config, ... }:
 
 let
-  pcov = config.languages.php.package.buildEnv {
-    extensions = { all, enabled }: with all; (builtins.filter (e: e.extensionName != "blackfire" && e.extensionName != "xdebug") enabled) ++ [config.languages.php.package.extensions.pcov];
+  inherit (lib.attrsets) attrValues genAttrs;
+  pcovExtensions = lib.filter(e: e != "blackfire") (config.languages.php.extensions ++ [ "pcov" ]);
+  pcov = pkgs.php81.buildEnv {
+    extensions = { all, enabled }: with all; enabled ++ attrValues (lib.getAttrs pcovExtensions config.languages.php.package.extensions);
     extraConfig = config.languages.php.ini;
   };
 in {
@@ -18,8 +20,6 @@ in {
       exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"
     '')
   ];
-
-  dotenv.disableHint = true;
 
   languages.javascript = {
     enable = lib.mkDefault true;
@@ -37,7 +37,7 @@ in {
       session.gc_probability = 0
       ${lib.optionalString config.services.redis.enable ''
       session.save_handler = redis
-      session.save_path = "tcp://127.0.0.1:${toString config.services.redis.port}/0"
+      session.save_path = "tcp://127.0.0.1:6379/0"
       ''}
       display_errors = On
       error_reporting = E_ALL
@@ -97,7 +97,6 @@ in {
     settings = {
       mysqld = {
         log_bin_trust_function_creators = 1;
-        sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
       };
     };
   };
@@ -105,9 +104,9 @@ in {
   services.redis.enable = lib.mkDefault true;
   services.adminer.enable = lib.mkDefault true;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
-  services.mailpit.enable = lib.mkDefault true;
+  services.mailhog.enable = lib.mkDefault true;
 
-  # services.opensearch.enable = true;
+  # services.elasticsearch.enable = true;
   # services.rabbitmq.enable = true;
   # services.rabbitmq.managementPlugin.enable = true;
 
@@ -118,10 +117,6 @@ in {
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
 
-  # Elasticsearch
-  env.OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
-  env.ADMIN_OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
-
   # General cypress
   env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
 
@@ -131,9 +126,6 @@ in {
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
-
-  # Disable session variables setting in kernel
-  env.SQL_SET_DEFAULT_SESSION_VARIABLES = lib.mkDefault "0";
 
   scripts.build-updater.exec = ''
       ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller

@@ -14,7 +14,7 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler;
  *     handlerInterface="MetadataLoaderInterface"
  * )
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class MetadataLoader
 {
     /**

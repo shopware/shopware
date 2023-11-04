@@ -11,10 +11,6 @@
         />
     </sw-card>
 
-    <sw-extension-component-section
-        position-identifier="sw-order-create-base-line-items__before"
-    />
-
     <sw-card
         class="sw-order-create-general__line-items"
         position-identifier="sw-order-create-line-items"
@@ -43,12 +39,13 @@
                     class="sw-order-create-summary"
                     columns="1fr 1fr"
                 >
+
                     <sw-description-list
                         class="sw-order-create-summary__data"
                         grid="1fr 1fr"
                     >
                         <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                        <dd>{{ currencyFilter(cart.price ? cart.price.positionPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</dd>
+                        <dd>{{ (cart.price ? cart.price.positionPrice : 0) | currency(currency.shortName, currency.totalRounding.decimals) }}</dd>
 
                         <template v-if="cartDelivery">
                             <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
@@ -64,60 +61,34 @@
                                     :value="cartDelivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                 >
-                                    {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
+                                    {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName, currency.totalRounding.decimals) }}
                                 </sw-order-saveable-field>
                             </dd>
                         </template>
 
-                        <template
-                            v-for="(delivery, index) in cartDeliveryDiscounts"
-                            {% if VUE3 %}
-                            :key="index"
-                            {% endif %}
-                        >
-                            <dt
-                                {% if VUE2 %}
-                                :key="`dt-delivery-${index}`"
-                                {% endif %}
-                            >
+                        <template v-for="(delivery, index) in cartDeliveryDiscounts">
+                            <dt :key="`dt-delivery-${index}`">
                                 {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                             </dt>
-                            <dd
-                                {% if VUE2 %}
-                                :key="`dd-delivery-${index}`"
-                                {% endif %}
-                            >
-                                {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
+                            <dd :key="`dd-delivery-${index}`">
+                                {{ delivery.shippingCosts.totalPrice | currency(currency.shortName, currency.totalRounding.decimals) }}
                             </dd>
                         </template>
 
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ (cart.price ? cart.price.netPrice : 0) | currency(currency.shortName, currency.totalRounding.decimals) }}</strong>
                             </dd>
                         </template>
 
                         <template v-if="taxStatus !== 'tax-free'">
-                            <template
-                                v-for="(calculatedTax, index) in filteredCalculatedTaxes"
-                                {% if VUE3 %}
-                                :key="index"
-                                {% endif %}
-                            >
-                                <dt
-                                    {% if VUE2 %}
-                                    :key="`dt-${index}`"
-                                    {% endif %}
-                                >
+                            <template v-for="(calculatedTax, index) in filteredCalculatedTaxes">
+                                <dt :key="`dt-${index}`">
                                     {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
-                                <dd
-                                    {% if VUE2 %}
-                                    :key="`dd-${index}`"
-                                    {% endif %}
-                                >
-                                    {{ currencyFilter(calculatedTax.tax, currency.shortName, currency.totalRounding.decimals) }}
+                                <dd :key="`dd-${index}`">
+                                    {{ calculatedTax.tax | currency(currency.shortName, currency.totalRounding.decimals) }}
                                 </dd>
                             </template>
                         </template>
@@ -125,13 +96,13 @@
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(orderTotal, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ orderTotal | currency(currency.shortName, currency.totalRounding.decimals) }}</strong>
                             </dd>
                             <template v-if="displayRounded">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong>
                                 </dt>
                                 <dd>
-                                    <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                    <strong>{{ cart.price ? cart.price.totalPrice : 0 | currency(currency.shortName, currency.totalRounding.decimals) }}</strong>
                                 </dd>
                             </template>
                         </template>
@@ -139,7 +110,7 @@
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ cart.price ? cart.price.totalPrice : 0 | currency(currency.shortName, currency.totalRounding.decimals) }}</strong>
                             </dd>
                         </template>
                     </sw-description-list>
@@ -147,8 +118,4 @@
             </sw-card-section>
         </template>
     </sw-card>
-
-    <sw-extension-component-section
-        position-identifier="sw-order-create-base-line-items__after"
-    />
 </div>

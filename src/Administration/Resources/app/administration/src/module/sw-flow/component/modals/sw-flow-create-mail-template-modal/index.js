@@ -8,7 +8,7 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,
@@ -65,8 +65,6 @@ export default {
         },
 
         ...mapPropertyErrors('mailTemplate', [
-            'contentHtml',
-            'contentPlain',
             'mailTemplateTypeId',
             'subject',
         ]),

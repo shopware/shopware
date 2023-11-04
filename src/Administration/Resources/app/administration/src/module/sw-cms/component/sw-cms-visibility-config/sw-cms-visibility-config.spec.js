@@ -3,7 +3,7 @@ import swCmsVisibilityConfig from 'src/module/sw-cms/component/sw-cms-visibility
 import 'src/app/component/base/sw-icon';
 
 /**
- * @package buyers-experience
+ * @package content
  */
 
 Shopware.Component.register('sw-cms-visibility-config', swCmsVisibilityConfig);

@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportLogDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'import_export_log';

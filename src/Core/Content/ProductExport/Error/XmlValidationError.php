@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Error;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class XmlValidationError extends Error
 {
     /**
@@ -13,7 +13,7 @@ class XmlValidationError extends Error
     protected $id;
 
     /**
-     * @var array<string, mixed>
+     * @var array
      */
     protected $errors;
 

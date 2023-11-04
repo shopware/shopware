@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';

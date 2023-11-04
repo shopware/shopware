@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class ExtensionStoreActionsController extends AbstractController
 {
     public function __construct(

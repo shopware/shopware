@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-/**
- * @decrecated tag:v6.6.0 - use PaymentException::unknownRefundHandler instead
- */
 class UnknownRefundHandlerException extends RefundProcessException
 {
     public function __construct(

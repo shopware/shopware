@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -23,8 +22,6 @@ class AppService
 
     /**
      * @param array<string> $installAppNames - Apps that should be installed
-     *
-     * @return list<array{manifest: Manifest, exception: \Exception}>
      */
     public function doRefreshApps(bool $activateInstalled, Context $context, array $installAppNames = []): array
     {

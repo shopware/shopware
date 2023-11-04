@@ -41,7 +41,7 @@ Component.register('sw-alert', {
             required: false,
             default: 'default',
             validValues: ['default', 'notification', 'system'],
-            validator(value: string) {
+            validator(value) {
                 return ['default', 'notification', 'system'].includes(value);
             },
         },

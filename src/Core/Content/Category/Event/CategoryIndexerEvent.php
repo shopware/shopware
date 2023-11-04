@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('content')]
 class CategoryIndexerEvent extends NestedEvent
 {
     /**

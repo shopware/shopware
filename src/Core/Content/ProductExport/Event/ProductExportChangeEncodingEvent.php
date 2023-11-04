@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportChangeEncodingEvent extends Event
 {
     final public const NAME = 'product_export.change_encoding';

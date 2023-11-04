@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -3,15 +3,15 @@
 namespace Shopware\Core\Content\Test\Newsletter\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexer;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexingMessage;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,7 +34,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($email);
+        $customerId = $this->createCustomer(null, $email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -50,10 +50,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // subscribe to default sales channel and assert that array contains only that id
         $newsletterRecipientA = $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
 
-        /** @var EntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(1, $customer->getNewsletterSalesChannelIds());
@@ -62,8 +60,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // subscribe to alternative sales channel and assert that array contains ids of both sales channels
         $newsletterRecipientB = $this->createNewsletterRecipient($context, $email, $alternativeSalesChannel['id'], NewsletterSubscribeRoute::STATUS_DIRECT);
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(2, $customer->getNewsletterSalesChannelIds());
@@ -73,8 +71,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // unsubscribe first newsletter
         $this->unsubscribeNewsletterRecipient($context, $newsletterRecipientA);
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(1, $customer->getNewsletterSalesChannelIds());
@@ -83,8 +81,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // unsubscribe second newsletter
         $this->unsubscribeNewsletterRecipient($context, $newsletterRecipientB);
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNull($customer->getNewsletterSalesChannelIds());
     }
@@ -94,12 +92,10 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
         $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($email);
+        $customerId = $this->createCustomer(null, $email);
 
-        /** @var EntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(1, $customer->getNewsletterSalesChannelIds());
@@ -110,7 +106,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($email);
+        $customerId = $this->createCustomer(null, $email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -123,10 +119,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $newsletterRecipientA = $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
         $newsletterRecipientB = $this->createNewsletterRecipient($context, $email, $alternativeSalesChannel['id'], NewsletterSubscribeRoute::STATUS_DIRECT);
 
-        /** @var EntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(2, $customer->getNewsletterSalesChannelIds());
@@ -136,8 +130,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // delete first newsletter recipient
         $this->deleteNewsletterRecipient($context, $newsletterRecipientA);
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNotNull($customer->getNewsletterSalesChannelIds());
         static::assertCount(1, $customer->getNewsletterSalesChannelIds());
@@ -146,8 +140,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         // delete second newsletter recipient
         $this->deleteNewsletterRecipient($context, $newsletterRecipientB);
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNull($customer->getNewsletterSalesChannelIds());
     }
@@ -160,22 +154,20 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
 
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($email);
+        $customerId = $this->createCustomer(null, $email);
 
         $newsletterRecipientIds = $newsletterRecipientClosure($context, $email, $this);
         $criteria = empty($newsletterRecipientIds) ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);
 
-        /** @var EntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
-        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
-        $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
-        $newsletterRecipients = $newsletterRecipientRepository->search($criteria, $context)->getEntities();
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
+        /** @var EntitySearchResult $newsletterRecipients */
+        $newsletterRecipients = $this->getContainer()->get('newsletter_recipient.repository')->search($criteria, $context);
 
-        static::assertCount($newsletterRecipients->count(), $newsletterRecipientIds);
+        static::assertCount($newsletterRecipients->getTotal(), $newsletterRecipientIds);
         static::assertSame($customer->getEmail(), $email);
 
+        /** @var NewsletterRecipientEntity $newsletterRecipient */
         foreach ($newsletterRecipients as $newsletterRecipient) {
             static::assertSame($newsletterRecipient->getEmail(), $email);
             static::assertSame($newsletterRecipient->getEmail(), $customer->getEmail());
@@ -186,13 +178,15 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             $context
         );
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
-        static::assertNotNull($customer);
-        $newsletterRecipients = $newsletterRecipientRepository->search($criteria, $context)->getEntities();
+        /** @var CustomerEntity $customer */
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
+        /** @var EntitySearchResult $newsletterRecipients */
+        $newsletterRecipients = $this->getContainer()->get('newsletter_recipient.repository')->search($criteria, $context);
 
-        static::assertCount($newsletterRecipients->count(), $newsletterRecipientIds);
+        static::assertCount($newsletterRecipients->getTotal(), $newsletterRecipientIds);
         static::assertSame($customer->getEmail(), 'ytn@shopware.com');
 
+        /** @var NewsletterRecipientEntity $newsletterRecipient */
         foreach ($newsletterRecipients as $newsletterRecipient) {
             static::assertSame($newsletterRecipient->getEmail(), 'ytn@shopware.com');
             static::assertSame($newsletterRecipient->getEmail(), $customer->getEmail());
@@ -210,7 +204,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ];
 
         yield 'Email Newsletter Recipient Registered' => [
-            function (Context $context, string $email, self $me): array {
+            function (Context $context, string $email, $me): array {
                 $newsletterRecipientId = $me->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
 
                 return [
@@ -221,7 +215,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ];
 
         yield 'Email Newsletter Recipient Registered Multiple' => [
-            function (Context $context, string $email, self $me): array {
+            function (Context $context, string $email, $me): array {
                 $salesChannel = $me->createSalesChannel();
 
                 $newsletterRecipientId = $me->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
@@ -289,9 +283,11 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ->delete([$newsletterRecipient], $context);
 
         $messageBus = $this->getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
-        foreach ($messageBus->getDispatchedMessages() as $message) {
+        /** @var TraceableMessageBus $messageBus */
+        $messages = $messageBus->getDispatchedMessages();
+
+        foreach ($messages as $message) {
             if (isset($message['message']) && $message['message'] instanceof NewsletterRecipientIndexingMessage) {
                 $this->getContainer()->get(NewsletterRecipientIndexer::class)->handle($message['message']);
             }

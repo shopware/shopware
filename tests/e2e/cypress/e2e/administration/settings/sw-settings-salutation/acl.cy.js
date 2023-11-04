@@ -1,7 +1,4 @@
-/// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
@@ -10,7 +7,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: can view a list of salutation if have viewer privilege', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: can view a list of salutation if have viewer privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -28,7 +25,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
     });
 
-    it('@settings: can create a new salutation if have creator privilege', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: can create a new salutation if have creator privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -94,7 +91,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Ms').should('be.visible');
     });
 
-    it('@settings: can edit a salutation if have editor privilege', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: can edit a salutation if have editor privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -142,15 +139,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.get(page.elements.smartBarBack).click();
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/**`,
-            method: 'post',
-        }).as('searchResultCall');
-
-        cy.get('input.sw-search-bar__input').type('Dear Boss').should('have.value', 'Dear Boss');
-
-        cy.wait('@searchResultCall')
-            .its('response.statusCode').should('equal', 200);
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Dear Boss');
         cy.get('.sw-version__title').click();
 
         // assert salutations list is exists and contains salutation which was edited before in list
@@ -158,7 +147,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
-    it('@settings: can delete a salutation if have a deleter privilege', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: can delete a salutation if have a deleter privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

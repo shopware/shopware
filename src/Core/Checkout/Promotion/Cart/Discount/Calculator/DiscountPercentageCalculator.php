@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountPercentageCalculator
 {
     public function __construct(

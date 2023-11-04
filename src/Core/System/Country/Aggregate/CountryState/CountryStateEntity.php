@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryEntity;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CountryStateEntity extends Entity
 {
     use EntityCustomFieldsTrait;

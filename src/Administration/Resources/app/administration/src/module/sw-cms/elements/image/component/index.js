@@ -6,12 +6,10 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -40,12 +38,6 @@ export default {
             };
         },
 
-        horizontalAlign() {
-            return {
-                'justify-content': this.element.config.horizontalAlign?.value || null,
-            };
-        },
-
         mediaUrl() {
             const fallBackImageFileName = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
             const staticFallBackImage = this.assetFilter(`administration/static/img/cms/${fallBackImageFileName}`);
@@ -64,16 +56,12 @@ export default {
 
             if (elemConfig.source === 'default') {
                 // use only the filename
-                const fileName = elemConfig.value?.slice(elemConfig.value.lastIndexOf('/') + 1) ?? '';
+                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
                 return this.assetFilter(`/administration/static/img/cms/${fileName}`);
             }
 
             if (elemData?.id) {
-                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                    return this.element.data.media.url;
-                }
-
-                return `${this.element.data.media.url}?${Shopware.Utils.createId()}`;
+                return this.element.data.media.url;
             }
 
             if (elemData?.url) {

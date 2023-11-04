@@ -12,6 +12,7 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
             'sw-hidden-iframes': true,
             'sw-modals-renderer': true,
             'sw-app-wrong-app-url-modal': true,
+            'sw-settings-usage-data-modal': true,
             'router-view': true,
         },
         mocks: {
@@ -134,5 +135,17 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
+    });
+
+    it('should not include the usage data modal if the user is not logged in', async () => {
+        wrapper = await createWrapper(false);
+
+        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(false);
+    });
+
+    it('should include the usage data modal if the user is logged in', async () => {
+        wrapper = await createWrapper(true);
+
+        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(true);
     });
 });

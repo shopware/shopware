@@ -2,8 +2,6 @@
  * @package admin
  */
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
-import { defineComponent } from 'vue';
-import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';
 import convertUnit from '../../module/sw-settings-rule/utils/unit-conversion.utils';
 
@@ -30,7 +28,7 @@ interface Config {
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Mixin.register('generic-condition', defineComponent({
+Mixin.register('generic-condition', {
     data(): {
         visibleValue: null|number,
         baseUnit: null|unknown,
@@ -45,7 +43,6 @@ export default Mixin.register('generic-condition', defineComponent({
 
     computed: {
         config(): Config {
-            // @ts-expect-error - condition is available in base component
             const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type) as Config|undefined;
 
             if (!config) {
@@ -55,7 +52,7 @@ export default Mixin.register('generic-condition', defineComponent({
             return config;
         },
 
-        inputKey(): string|null {
+        inputKey() {
             if (!this.config.fields.length) {
                 return null;
             }
@@ -63,16 +60,13 @@ export default Mixin.register('generic-condition', defineComponent({
             return this.config.fields[0].name;
         },
 
-        operators(): ReturnType<RuleConditionService['getOperatorOptionsByIdentifiers']>|null {
+        operators() {
             if (!this.config.operatorSet) {
                 return null;
             }
 
-            // @ts-expect-error - conditionDataProviderService is available in base component
             return this.conditionDataProviderService.getOperatorOptionsByIdentifiers(
-                // @ts-expect-error
                 this.config.operatorSet.operators,
-                // @ts-expect-error
                 this.config.operatorSet.isMatchAny,
             );
         },
@@ -92,22 +86,16 @@ export default Mixin.register('generic-condition', defineComponent({
 
                 Object.defineProperty(values, name, {
                     get: () => {
-                        // @ts-expect-error
                         this.ensureValueExist();
 
                         if (['multi-entity-id-select', 'multi-select'].includes(type)) {
-                            // @ts-expect-error
                             return this.condition.value[name] || [];
                         }
 
-                        // @ts-expect-error
                         return this.condition.value[name];
                     },
                     set: (value) => {
-                        // @ts-expect-error
                         this.ensureValueExist();
-
-                        // @ts-expect-error
                         this.condition.value = { ...this.condition.value, [name]: value };
                     },
                 });
@@ -124,7 +112,6 @@ export default Mixin.register('generic-condition', defineComponent({
                     return;
                 }
 
-                // @ts-expect-error
                 const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`) as unknown;
 
                 if (errorProperty) {
@@ -148,10 +135,9 @@ export default Mixin.register('generic-condition', defineComponent({
             ];
         },
 
-        conditionValueClasses(): { [key: string]: boolean } {
+        conditionValueClasses() {
             return {
                 'sw-condition__condition-value': !!this.config.operatorSet,
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 [`sw-condition__condition-type-${this.condition.type}`]: true,
             };
@@ -161,7 +147,6 @@ export default Mixin.register('generic-condition', defineComponent({
     methods: {
         getBind(field: Field) {
             const fieldClone = Shopware.Utils.object.cloneDeep(field);
-            // @ts-expect-error
             const snippetBasePath = ['global', 'sw-condition-generic', this.condition.type, fieldClone.name];
             const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
 
@@ -232,4 +217,4 @@ export default Mixin.register('generic-condition', defineComponent({
             this.baseUnit = event;
         },
     },
-}));
+});

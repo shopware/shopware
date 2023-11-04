@@ -7,7 +7,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -127,10 +127,6 @@ export default {
 
         isProductDetailPage() {
             return this.page.type === 'product_detail';
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

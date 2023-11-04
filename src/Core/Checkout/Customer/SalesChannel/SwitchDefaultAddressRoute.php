@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
 {
     use CustomerAddressValidationTrait;

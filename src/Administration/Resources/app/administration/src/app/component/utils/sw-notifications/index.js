@@ -14,8 +14,6 @@ const { Component } = Shopware;
 Component.register('sw-notifications', {
     template,
 
-    inject: ['feature'],
-
     props: {
         position: {
             type: String,
@@ -40,10 +38,6 @@ Component.register('sw-notifications', {
 
     computed: {
         notifications() {
-            if (this.feature.isActive('VUE3')) {
-                return Object.values(Shopware.State.getters['notification/getGrowlNotificationsObject']);
-            }
-
             return Shopware.State.getters['notification/getGrowlNotifications'];
         },
 

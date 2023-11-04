@@ -15,15 +15,18 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 #[Package('content')]
 final class Detail extends ConfigXmlElement
 {
-    protected Tabs $tabs;
+    private function __construct(
+        protected readonly Tabs $tabs
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(Tabs::fromXml($element));
+    }
 
     public function getTabs(): Tabs
     {
         return $this->tabs;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        return ['tabs' => Tabs::fromXml($element)];
     }
 }

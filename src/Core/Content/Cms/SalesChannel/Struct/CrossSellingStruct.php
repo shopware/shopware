@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementC
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class CrossSellingStruct extends Struct
 {
     /**

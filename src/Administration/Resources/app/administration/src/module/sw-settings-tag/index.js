@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 import './acl';
 
 const { Module } = Shopware;

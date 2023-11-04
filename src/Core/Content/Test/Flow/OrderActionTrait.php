@@ -25,7 +25,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 trait OrderActionTrait
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -38,18 +38,19 @@ trait OrderActionTrait
 
     private ?EntityRepository $customerRepository = null;
 
-    private function createCustomerAndLogin(): void
+    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
     {
-        $email = Uuid::randomHex() . '@example.com';
-        $this->prepareCustomer($email);
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
+        $this->prepareCustomer($password, $email);
 
-        $this->login($email, 'shopware');
+        $this->login($email, $password);
     }
 
     /**
      * @param array<string, mixed> $additionalData
      */
-    private function prepareCustomer(?string $email = null, array $additionalData = []): void
+    private function prepareCustomer(string $password, ?string $email = null, array $additionalData = []): void
     {
         static::assertNotNull($this->customerRepository);
 
@@ -71,7 +72,7 @@ trait OrderActionTrait
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -199,16 +200,6 @@ trait OrderActionTrait
                         'city' => 'Schöppingen',
                         'countryId' => $this->getValidCountryId(),
                     ],
-                    [
-                        'id' => $this->ids->create('shipping-address'),
-                        'countryId' => $this->getValidCountryId(),
-                        'salutationId' => $this->getValidSalutationId(),
-                        'firstName' => 'Max',
-                        'lastName' => 'Mustermann',
-                        'street' => 'Ebbinghoff 10',
-                        'zipcode' => '48624',
-                        'city' => 'Schöppingen',
-                    ],
                 ],
                 'lineItems' => [
                     [
@@ -224,7 +215,7 @@ trait OrderActionTrait
                 'deliveries' => [
                     [
                         'id' => $this->ids->create('delivery'),
-                        'shippingOrderAddressId' => $this->ids->get('shipping-address'),
+                        'shippingOrderAddressId' => $this->ids->create('shipping-address'),
                         'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
                         'stateId' => $this->getStateId('open', 'order_delivery.state'),
                         'trackingCodes' => [],

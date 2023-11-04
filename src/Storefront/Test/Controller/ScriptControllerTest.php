@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -251,7 +250,7 @@ class ScriptControllerTest extends TestCase
 
         if (!$isGuest) {
             $data['createCustomerAccount'] = true;
-            $data['password'] = TestDefaults::HASHED_PASSWORD;
+            $data['password'] = '12345678';
         }
 
         return $data;

@@ -2,57 +2,29 @@
 
 namespace Shopware\Core\Content\ProductExport\Exception;
 
-use Shopware\Core\Content\ProductExport\ProductExportException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @deprecated tag:v6.6.0 - will be removed, use ProductExportException::productExportNotFound instead
- */
-#[Package('inventory')]
-class EmptyExportException extends ProductExportException
+#[Package('sales-channel')]
+class EmptyExportException extends ShopwareHttpException
 {
     public function __construct(?string $id = null)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ProductExportException::productExportNotFound instead')
-        );
-
-        if ($id) {
-            parent::__construct(
-                Response::HTTP_NOT_FOUND,
-                self::PRODUCT_EXPORT_NOT_FOUND,
-                'No products for export with ID {{ id }} found',
-                ['id' => $id]
-            );
+        if (empty($id)) {
+            parent::__construct('No products for export found');
         } else {
-            parent::__construct(
-                Response::HTTP_NOT_FOUND,
-                self::PRODUCT_EXPORT_NOT_FOUND,
-                'No products for export found'
-            );
+            parent::__construct('No products for export with ID {{ id }} found', ['id' => $id]);
         }
     }
 
     public function getStatusCode(): int
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ProductExportException::productExportNotFound instead')
-        );
-
         return Response::HTTP_NOT_FOUND;
     }
 
     public function getErrorCode(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ProductExportException::productExportNotFound instead')
-        );
-
         return 'CONTENT__PRODUCT_EXPORT_EMPTY';
     }
 }

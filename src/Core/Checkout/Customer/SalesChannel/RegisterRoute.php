@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -37,6 +36,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -46,7 +46,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
-use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -57,7 +56,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class RegisterRoute extends AbstractRegisterRoute
 {
     /**
@@ -75,8 +74,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly SalesChannelRepository $countryRepository,
         protected Connection $connection,
         private readonly SalesChannelContextServiceInterface $contextService,
-        private readonly StoreApiCustomFieldMapper $customFieldMapper,
-        private readonly EntityRepository $salutationRepository,
+        private readonly StoreApiCustomFieldMapper $customFieldMapper
     ) {
     }
 
@@ -90,16 +88,8 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $isGuest = $data->getBoolean('guest');
 
-        if (!$data->has('billingAddress')) {
-            $data->set('billingAddress', new RequestDataBag());
-        }
-
         if ($data->has('accountType') && empty($data->get('accountType'))) {
             $data->remove('accountType');
-        }
-
-        if (!$data->get('salutationId')) {
-            $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
@@ -250,7 +240,7 @@ class RegisterRoute extends AbstractRegisterRoute
             : 'core.loginRegistration.doubleOptInRegistration';
 
         $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannelId());
+            ->get($configKey, $context->getSalesChannel()->getId());
 
         if (!$doubleOptInRequired) {
             return $customer;
@@ -288,13 +278,13 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $data->get('billingAddress'), $context));
+        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, true, $context));
 
         if ($data->has('shippingAddress')) {
             /** @var DataBag $shippingAddress */
             $shippingAddress = $data->get('shippingAddress');
             $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, true, $context));
         }
 
         $billingAddress = $addressData->all();
@@ -314,7 +304,7 @@ class RegisterRoute extends AbstractRegisterRoute
             ));
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
+        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannel()->getId())) {
             $definition->add('acceptedDataProtection', new NotBlank());
         }
 
@@ -427,16 +417,19 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, DataBag $address, SalesChannelContext $context): DataValidationDefinition
+    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationFactory->create($context);
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
+        if ($isBillingAddress
+            && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannel()->getId())) {
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
+        /** @var DataBag $billing */
+        $billing = $data->get('billingAddress');
+        $validation->set('zipcode', new CustomerZipCode(['countryId' => $billing->get('countryId')]));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -458,7 +451,7 @@ class RegisterRoute extends AbstractRegisterRoute
         ]));
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));
@@ -542,10 +535,11 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
+        /** @var CountryEntity|null $country */
         $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-        if (!$country instanceof CountryEntity) {
-            throw CustomerException::countryNotFound($countryId);
+        if (!$country) {
+            throw new CountryNotFoundException($countryId);
         }
 
         return $country->getVatIdRequired();
@@ -571,19 +565,5 @@ class RegisterRoute extends AbstractRegisterRoute
             [$emailHash, $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
-    }
-
-    private function getDefaultSalutationId(SalesChannelContext $context): ?string
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
-
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
     }
 }

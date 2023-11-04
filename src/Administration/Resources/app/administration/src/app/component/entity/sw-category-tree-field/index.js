@@ -105,7 +105,9 @@ Component.register('sw-category-tree-field', {
             handler() {
                 // check if categoriesCollection is loaded
                 if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
-                    this.getTreeItems().then(() => {
+                    Promise.all([
+                        this.getTreeItems(),
+                    ]).then(() => {
                         this.isComponentReady = true;
                     });
                 }
@@ -306,6 +308,13 @@ Component.register('sw-category-tree-field', {
             // make functions available
             this.setInputFocusClass = setFocusClass;
             this.removeInputFocusClass = removeFocusClass;
+
+            // set first item as focus
+            this.$nextTick(() => {
+                if (this.term.length <= 0) {
+                    this.selectedTreeItem = this.$refs.swTree.treeItems[0];
+                }
+            });
 
             this.setInputFocusClass();
         },

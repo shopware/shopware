@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1592978289ProductCustomFieldSets extends MigrationStep

@@ -78,7 +78,8 @@
             {% block sw_import_export_entity_path_select_base_results_list_before %}
             <template #before-item-list>
                 <slot name="before-item-list">
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         :selected="isSelected(notMappedItem)"
                         v-bind="{ item: notMappedItem, index: -1 }"
                         @item-select="setValue"
@@ -87,7 +88,7 @@
                         {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
                         {{ notMappedItem.label }}
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                     <hr class="sw-import-export-entity-path-select__listing-seperator">
                 </slot>
             </template>
@@ -100,7 +101,8 @@
                     name="result-item"
                     v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         @item-select="setValue"
@@ -127,7 +129,7 @@
                             />
                         </slot>
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                 </slot>
             </template>
             {% endblock %}

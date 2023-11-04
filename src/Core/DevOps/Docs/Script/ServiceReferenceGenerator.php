@@ -4,7 +4,6 @@ namespace Shopware\Core\DevOps\Docs\Script;
 
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
-use phpDocumentor\Reflection\DocBlock\Description;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\DocBlock\Tags\Example;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
@@ -13,7 +12,6 @@ use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
-use phpDocumentor\Reflection\DocBlockFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\Finder\Finder;
@@ -46,7 +44,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/';
 
-    private readonly DocBlockFactoryInterface $docFactory;
+    private readonly DocBlockFactory $docFactory;
 
     /**
      * @var array<string, string>
@@ -246,7 +244,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'marker' => '{#' . strtolower($reflection->getShortName()) . '}',
                 'deprecated' => $deprecated ? (string) $deprecated : null,
                 'summary' => $docBlock->getSummary(),
-                'description' => $this->unescapeDescription($docBlock->getDescription()),
+                'description' => $docBlock->getDescription()->render(),
                 'methods' => $this->getMethods($reflection, $scriptServices),
             ];
         }
@@ -299,7 +297,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $methods[] = [
                 'title' => $method->getName() . '()',
                 'summary' => $docBlock->getSummary(),
-                'description' => $this->unescapeDescription($docBlock->getDescription()),
+                'description' => $docBlock->getDescription()->render(),
                 'deprecated' => $deprecated ? (string) $deprecated : null,
                 'arguments' => $this->parseArguments($method, $docBlock, $scriptServices),
                 'return' => $this->parseReturn($method, $docBlock, $scriptServices),
@@ -449,18 +447,8 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         return [
             'type' => $typeName,
-            'description' => $tag->getDescription() ? $this->unescapeDescription($tag->getDescription()) : '',
+            'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
         ];
-    }
-
-    /**
-     * Newer versions of phpdocumentor/reflection-docblock perform an optimization and don't always call vsprintf
-     * and thus the escaped % chars during lexing are not unescaped.
-     * Can be removed when/if https://github.com/phpDocumentor/ReflectionDocBlock/pull/357 is merged
-     */
-    private function unescapeDescription(Description $description): string
-    {
-        return str_replace('%%', '%', $description->render());
     }
 
     /**

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used to get information about the current logged-in customer
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 abstract class AbstractCustomerRoute
 {
     abstract public function getDecorated(): AbstractCustomerRoute;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Increment\Controller;
 
-use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +26,7 @@ class IncrementApiController
         $key = $request->request->get('key');
 
         if (!$key || !\is_string($key)) {
-            throw IncrementException::keyParameterIsMissing();
+            throw new \InvalidArgumentException('Increment key must be null or a string');
         }
 
         $cluster = $this->getCluster($request);
@@ -45,7 +44,7 @@ class IncrementApiController
         $key = $request->request->get('key');
 
         if (!$key || !\is_string($key)) {
-            throw IncrementException::keyParameterIsMissing();
+            throw new \InvalidArgumentException('Increment key must be null or a string');
         }
 
         $cluster = $this->getCluster($request);
@@ -84,7 +83,7 @@ class IncrementApiController
         $key = $request->request->get('key');
 
         if ($key !== null && !\is_string($key)) {
-            throw IncrementException::keyParameterIsMissing();
+            throw new \InvalidArgumentException('Increment key must be null or a string');
         }
 
         $poolGateway->reset($cluster, $key);
@@ -100,6 +99,6 @@ class IncrementApiController
             return $cluster;
         }
 
-        throw IncrementException::clusterParameterIsMissing();
+        throw new \InvalidArgumentException('Argument cluster is missing or invalid');
     }
 }

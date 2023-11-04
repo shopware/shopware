@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 final class FrwState
 {
     private function __construct(

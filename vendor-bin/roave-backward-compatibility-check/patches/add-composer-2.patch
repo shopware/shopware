@@ -1,0 +1,38 @@
+--- /dev/null
++++ ../src/LocateDependencies/LocateDependenciesViaComposer.php
+@@ -35,22 +35,9 @@
+     {
+         Psl\invariant(Filesystem\is_file($installationPath . '/composer.json'), 'Could not locate composer.json within installation path.');
+ 
+-        $this->runInDirectory(function () use ($installationPath, $includeDevelopmentDependencies): void {
+-            $installer = ($this->makeComposerInstaller)($installationPath);
++        exec(\sprintf('composer install -d %s --no-dev --no-scripts --ignore-platform-reqs --no-interaction', escapeshellarg($installationPath)));
++        $this->fixMarc1706FastImageSizeDirectories($installationPath);
+ 
+-            // Some defaults needed for this specific implementation:
+-            $installer->setDevMode($includeDevelopmentDependencies);
+-            $installer->setDumpAutoloader(false);
+-            /**
+-             * @psalm-suppress DeprecatedMethod we will keep using the deprecated API until the next major release
+-             *                 of composer, as we otherwise need to re-design how an {@see Installer} is constructed.
+-             */
+-            $installer->setRunScripts(false);
+-            $installer->setPlatformRequirementFilter(new IgnoreAllPlatformRequirementFilter());
+-
+-            $installer->run();
+-        }, $installationPath);
+-
+         $astLocator = new ReplaceSourcePathOfLocatedSources($this->astLocator, $installationPath);
+ 
+         return new AggregateSourceLocator([
+@@ -69,5 +56,10 @@
+         } finally {
+             Env\set_current_dir($originalDirectory);
+         }
++    }
++
++    private function fixMarc1706FastImageSizeDirectories(string $installationPath)
++    {
++        mkdir($installationPath . '/vendor/marc1706/fast-image-size/tests');
+     }
+ }

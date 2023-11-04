@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ChainPipeTest extends TestCase
 {
     public function testChainPipe(): void

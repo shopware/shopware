@@ -10,15 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
     protected string $refundId;
-
-    protected string $refundVersionId;
 
     protected string $orderLineItemId;
 
@@ -112,15 +110,5 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
     public function setOrderTransactionCaptureRefund(?OrderTransactionCaptureRefundEntity $orderTransactionCaptureRefund): void
     {
         $this->orderTransactionCaptureRefund = $orderTransactionCaptureRefund;
-    }
-
-    public function getRefundVersionId(): string
-    {
-        return $this->refundVersionId;
-    }
-
-    public function setRefundVersionId(string $refundVersionId): void
-    {
-        $this->refundVersionId = $refundVersionId;
     }
 }

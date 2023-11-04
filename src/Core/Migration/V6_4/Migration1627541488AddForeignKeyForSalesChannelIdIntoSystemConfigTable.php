@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTable extends MigrationStep

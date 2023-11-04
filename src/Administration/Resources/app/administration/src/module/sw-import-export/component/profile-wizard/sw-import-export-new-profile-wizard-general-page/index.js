@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import string from 'src/core/service/utils/string.utils';
 import template from './sw-import-export-new-profile-wizard-general-page.html.twig';

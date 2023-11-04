@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1595480600RemoveGoogleShoppingSalesChannel extends MigrationStep

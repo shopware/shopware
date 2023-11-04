@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('business-ops')]
 class FilterTagIdsService
 {
     public function __construct(
@@ -115,9 +115,6 @@ class FilterTagIdsService
         );
     }
 
-    /**
-     * @param array<string> $assignments
-     */
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {
         /** @var ManyToManyAssociationField[] $manyToManyFields */

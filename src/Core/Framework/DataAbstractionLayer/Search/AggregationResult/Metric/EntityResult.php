@@ -9,14 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @template TEntityCollection of EntityCollection
  */
 #[Package('core')]
 class EntityResult extends AggregationResult
 {
     /**
-     * @param TEntityCollection $entities
+     * @param EntityCollection<Entity> $entities
      */
     public function __construct(string $name, protected EntityCollection $entities)
     {
@@ -24,7 +22,7 @@ class EntityResult extends AggregationResult
     }
 
     /**
-     * @return TEntityCollection
+     * @return EntityCollection<Entity>
      */
     public function getEntities(): EntityCollection
     {

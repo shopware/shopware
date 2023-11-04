@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class StorePluginStruct extends Struct
 {
     /**
@@ -91,11 +91,6 @@ class StorePluginStruct extends Struct
      */
     protected $isCategoryLead;
 
-    /**
-     * @var 'plugin'|'app'
-     */
-    protected string $type;
-
     public function getName(): string
     {
         return $this->name;
@@ -174,11 +169,6 @@ class StorePluginStruct extends Struct
     public function isCategoryLead(): bool
     {
         return $this->isCategoryLead;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
     }
 
     public function getApiAlias(): string

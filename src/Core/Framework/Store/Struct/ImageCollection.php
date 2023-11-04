@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class ImageCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

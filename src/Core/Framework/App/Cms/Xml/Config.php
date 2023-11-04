@@ -7,26 +7,20 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @phpstan-type ConfigArray array<string, array{source: string, value: string}>
  */
 #[Package('content')]
 class Config extends XmlElement
 {
-    /**
-     * @var ConfigArray
-     */
-    protected array $items = [];
+    private function __construct(protected array $items)
+    {
+    }
 
-    /**
-     * @return ConfigArray
-     */
     public function toArray(string $defaultLocale): array
     {
         return $this->items;
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
     {
         $config = [];
 
@@ -37,6 +31,6 @@ class Config extends XmlElement
             ];
         }
 
-        return ['items' => $config];
+        return new self($config);
     }
 }

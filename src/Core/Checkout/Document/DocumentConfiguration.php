@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[\AllowDynamicProperties]
-#[Package('checkout')]
+#[Package('customer-order')]
 class DocumentConfiguration extends Struct
 {
     /**

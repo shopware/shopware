@@ -1,7 +1,7 @@
-/// <reference types="Cypress" />
 /**
- * @package buyers-experience
+ * @package content
  */
+/// <reference types="Cypress" />
 
 import CategoryPageObject from '../../support/pages/module/sw-category.page-object';
 
@@ -14,7 +14,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         });
     });
 
-    it('@package: test seo url for the category ', { tags: ['pa-sales-channels', 'VUE3'] }, () => {
+    it('@package: test seo url for the category ', { tags: ['pa-sales-channels'] }, () => {
         const page = new CategoryPageObject();
 
         cy.intercept({

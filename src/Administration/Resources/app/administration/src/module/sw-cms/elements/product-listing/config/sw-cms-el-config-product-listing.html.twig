@@ -8,7 +8,6 @@
     >
         <template #default="{ active }">
             <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-content"
                 name="content"
                 :active-tab="active"
             >
@@ -16,7 +15,6 @@
             </sw-tabs-item>
 
             <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-sorting"
                 name="sorting"
                 :active-tab="active"
             >
@@ -24,7 +22,6 @@
             </sw-tabs-item>
 
             <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-filter"
                 name="filter"
                 :active-tab="active"
             >
@@ -40,11 +37,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_layout_select %}
                 <sw-select-field
-                    {% if VUE3 %}
-                    v-model:value="element.config.boxLayout.value"
-                    {% else %}
                     v-model="element.config.boxLayout.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -74,11 +67,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_show_sorting %}
                 <sw-switch-field
-                    {% if VUE3 %}
-                    v-model:value="element.config.showSorting.value"
-                    {% else %}
                     v-model="element.config.showSorting.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
                 />
                 {% endblock %}
@@ -86,11 +75,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
                 <sw-switch-field
-                    {% if VUE3 %}
-                    v-model:value="element.config.useCustomSorting.value"
-                    {% else %}
                     v-model="element.config.useCustomSorting.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
                     class="sw-cms-el-config-product-listing-custom-sortings"
@@ -101,14 +86,13 @@
                 {% block sw_cms_element_product_listing_config_default_sorting %}
                 <sw-entity-single-select
                     v-if="showSortingGrid"
-                    class="sw-cms-element-config-product-listing__sorting-default-select"
-                    entity="product_sorting"
-                    label-property="label"
-                    show-clearable-button
                     :value="defaultSorting.id"
+                    entity="product_sorting"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
                     :criteria="allProductSortingsCriteria"
+                    label-property="label"
+                    show-clearable-button
                     @option-select="onDefaultSortingChange"
                 />
                 {% endblock %}
@@ -130,7 +114,8 @@
                             name="result-item"
                             v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                         >
-                            <sw-select-result
+                            <li
+                                is="sw-select-result"
                                 v-tooltip="{
                                     showDelay: 300,
                                     message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
@@ -157,7 +142,7 @@
                                     </template>
                                 </slot>
                                 {% endblock %}
-                            </sw-select-result>
+                            </li>
                         </slot>
                     </template>
                 </sw-entity-multi-select>
@@ -190,11 +175,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
                     <sw-switch-field
-                        {% if VUE3 %}
-                        v-model:value="filterByManufacturer"
-                        {% else %}
                         v-model="filterByManufacturer"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
                     />
                     {% endblock %}
@@ -202,11 +183,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_rating %}
                     <sw-switch-field
-                        {% if VUE3 %}
-                        v-model:value="filterByRating"
-                        {% else %}
                         v-model="filterByRating"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
                     />
                     {% endblock %}
@@ -214,11 +191,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_price %}
                     <sw-switch-field
-                        {% if VUE3 %}
-                        v-model:value="filterByPrice"
-                        {% else %}
                         v-model="filterByPrice"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
                     />
                     {% endblock %}
@@ -226,11 +199,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
                     <sw-switch-field
-                        {% if VUE3 %}
-                        v-model:value="filterByFreeShipping"
-                        {% else %}
                         v-model="filterByFreeShipping"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
                     />
                     {% endblock %}
@@ -251,11 +220,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
                     <sw-switch-field
-                        {% if VUE3 %}
-                        v-model:value="filterByProperties"
-                        {% else %}
                         v-model="filterByProperties"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
                         :help-text="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
                     />
@@ -304,11 +269,7 @@
                                 <sw-switch-field
                                     :disabled="column.disabled"
                                     :value="item.active"
-                                    {% if VUE3 %}
-                                    @update:value="propertyStatusChanged(item.id)"
-                                    {% else %}
                                     @change="propertyStatusChanged(item.id)"
-                                    {% endif %}
                                 />
                             {% endblock %}
                             </template>
@@ -341,7 +302,7 @@
                     >
                         <template #icon>
                             <img
-                                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
                                 alt="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                             >
                         </template>

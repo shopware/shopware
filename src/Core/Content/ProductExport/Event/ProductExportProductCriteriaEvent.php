@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

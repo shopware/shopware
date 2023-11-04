@@ -162,10 +162,6 @@ Component.register('sw-search-bar-item', {
         currentUser() {
             return Shopware.State.get('session').currentUser;
         },
-
-        mediaNameFilter() {
-            return Shopware.Filter.getByName('mediaName');
-        },
     },
 
     created() {
@@ -190,25 +186,13 @@ Component.register('sw-search-bar-item', {
         },
 
         registerEvents() {
-            let parent = this.$parent;
-
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
-
-            parent.$on('active-item-index-select', this.checkActiveState);
-            parent.$on('keyup-enter', this.onEnter);
+            this.$parent.$on('active-item-index-select', this.checkActiveState);
+            this.$parent.$on('keyup-enter', this.onEnter);
         },
 
         removeEvents() {
-            let parent = this.$parent;
-
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
-
-            parent.$off('active-item-index-select', this.checkActiveState);
-            parent.$off('keyup-enter', this.onEnter);
+            this.$parent.$off('active-item-index-select', this.checkActiveState);
+            this.$parent.$off('keyup-enter', this.onEnter);
         },
 
         checkActiveState({ index, column }) {
@@ -232,18 +216,11 @@ Component.register('sw-search-bar-item', {
         },
 
         onMouseEnter(originalDomEvent) {
-            let parent = this.$parent;
-
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
-
-            parent.$emit('mouse-over', {
+            this.$parent.$emit('mouse-over', {
                 originalDomEvent,
                 index: this.index,
                 column: this.column,
             });
-
             this.isActive = true;
         },
 

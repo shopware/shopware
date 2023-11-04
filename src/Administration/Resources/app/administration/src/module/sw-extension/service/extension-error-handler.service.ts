@@ -86,7 +86,7 @@ function mapErrors(errors: StoreApiException[]) {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default {
@@ -94,7 +94,7 @@ export default {
 };
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export type {

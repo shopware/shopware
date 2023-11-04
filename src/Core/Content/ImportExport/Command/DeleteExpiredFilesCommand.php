@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'import-export:delete-expired',
     description: 'Deletes expired files',
 )]
-#[Package('services-settings')]
+#[Package('system-settings')]
 class DeleteExpiredFilesCommand extends Command
 {
     /**

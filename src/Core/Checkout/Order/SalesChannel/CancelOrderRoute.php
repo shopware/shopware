@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     /**
@@ -56,14 +57,14 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     private function verify(string $orderId, SalesChannelContext $context): void
     {
         if ($context->getCustomer() === null) {
-            throw OrderException::customerNotLoggedIn();
+            throw CartException::customerNotLoggedIn();
         }
 
         $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomer()->getId()));
 
         if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
-            throw OrderException::orderNotFound($orderId);
+            throw new EntityNotFoundException('order', $orderId);
         }
     }
 }

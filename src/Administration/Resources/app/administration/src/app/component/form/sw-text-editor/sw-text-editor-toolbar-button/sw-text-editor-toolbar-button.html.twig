@@ -8,14 +8,12 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_icon %}
     <template v-if="buttonConfig.icon">
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
             class="sw-text-editor-toolbar-button__icon"
             :class="classes"
-            role="button"
-            tabindex="0"
             @click="buttonHandler($event, buttonConfig)"
-            @keydown.enter="buttonHandler($event, buttonConfig)"
         >
             <sw-icon
                 :name="buttonConfig.icon"
@@ -37,8 +35,6 @@
         v-else-if="buttonConfig.name"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
         :class="classes"
-        role="button"
-        tabindex="0"
         @click="buttonHandler($event, buttonConfig)"
     >
         {{ buttonConfig.name }}
@@ -52,24 +48,15 @@
         v-else-if="buttonConfig.type === 'foreColor'"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
         :class="classes"
-        role="button"
-        tabindex="0"
         @click="buttonHandler($event, buttonConfig)"
     >
-        <sw-compact-colorpicker
-            {% if VUE3 %}
-            v-model:value="buttonConfig.value"
-            {% else %}
+        <sw-field
             v-model="buttonConfig.value"
-            {% endif %}
+            type="compactColorpicker"
             :disabled="disabled"
             compact
             :alpha="false"
-            {% if VUE3 %}
-            @update:value="handleButtonClick(buttonConfig)"
-            {% else %}
             @input="handleButtonClick(buttonConfig)"
-            {% endif %}
         />
     </div>
     {% endblock %}
@@ -82,7 +69,7 @@
         :class="getDropdownClasses(buttonConfig)"
     >
         <div class="sw-text-editor-toolbar-button__children-inner-container">
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-for="(child, childIndex) in buttonConfig.children"
                 :key="childIndex"

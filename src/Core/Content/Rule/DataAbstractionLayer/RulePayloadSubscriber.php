@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     /**

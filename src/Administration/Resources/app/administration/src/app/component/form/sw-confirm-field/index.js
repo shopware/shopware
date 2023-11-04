@@ -57,7 +57,6 @@ Component.register('sw-confirm-field', {
 
     data() {
         return {
-            hasSubmittedFromKey: false,
             isEditing: false,
             draft: this.value,
             event: null,
@@ -93,9 +92,8 @@ Component.register('sw-confirm-field', {
             this.isEditing = true;
         },
 
-        onBlurField(event) {
-            if (event?.relatedTarget?.classList.contains('sw-confirm-field__button') || this.hasSubmittedFromKey) {
-                this.hasSubmittedFromKey = false;
+        onBlurField({ relatedTarget }) {
+            if (!!relatedTarget && relatedTarget.classList.contains('sw-confirm-field__button')) {
                 return;
             }
             this.$emit('blur');
@@ -124,10 +122,10 @@ Component.register('sw-confirm-field', {
             }
         },
 
-        onSubmitFromKey() {
-            this.hasSubmittedFromKey = true;
+        onSubmitFromKey({ target }) {
             this.event = 'key';
             this.submitValue();
+            target.blur();
             this.isEditing = false;
         },
 

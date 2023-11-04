@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import { createLocalVue, mount } from '@vue/test-utils';
 import swNewsletterRecipientList from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
 
@@ -301,11 +298,5 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

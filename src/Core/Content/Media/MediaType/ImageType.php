@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class ImageType extends MediaType
 {
     final public const ANIMATED = 'animated';

@@ -1,6 +1,6 @@
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const ACTION = Object.freeze({
     ADD_TAG: 'action.add.tag',
@@ -26,7 +26,7 @@ export const ACTION = Object.freeze({
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const ACTION_TYPE = Object.freeze({
     ADD_TAG: 'action.add.entity.tag',
@@ -37,28 +37,28 @@ export const ACTION_TYPE = Object.freeze({
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const GENERAL_GROUP = 'general';
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const TAG_GROUP = 'tag';
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const CUSTOMER_GROUP = 'customer';
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const ORDER_GROUP = 'order';
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const ACTION_GROUP = Object.freeze({
     [ACTION.ADD_ORDER_TAG]: TAG_GROUP,
@@ -80,7 +80,7 @@ export const ACTION_GROUP = Object.freeze({
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export const GROUPS = [
     TAG_GROUP,
@@ -91,7 +91,7 @@ export const GROUPS = [
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     ACTION,

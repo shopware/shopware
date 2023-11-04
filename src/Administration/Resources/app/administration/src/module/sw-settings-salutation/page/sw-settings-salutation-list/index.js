@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-settings-salutation-list.html.twig';
 
 const { Mixin } = Shopware;

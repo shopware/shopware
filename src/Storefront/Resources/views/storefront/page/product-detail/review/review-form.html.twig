@@ -31,7 +31,7 @@
             {% endblock %}
 
             {% if reviews.customerReview %}
-                <input type="hidden" name="id" value="{{ reviews.customerReview.id }}">
+                <input type="hidden" value="{{ reviews.customerReview.id }}" name="id"/>
             {% endif %}
 
             {% block page_product_detail_review_form_details %}

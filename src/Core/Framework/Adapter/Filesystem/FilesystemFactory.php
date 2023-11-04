@@ -142,7 +142,8 @@ class FilesystemFactory
         $requestUrl = rtrim($basePath, '/') . '/';
 
         if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
-            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
+            /** @var string $requestUrl */
+            $requestUrl = EnvironmentHelper::getVariable('APP_URL');
         }
 
         return $requestUrl;

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTa
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -23,12 +22,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
@@ -72,19 +69,13 @@ class ShippingMethodDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        // @deprecated tag:v6.6.0 - required flag will be removed for field availability_rule_id as in 6.6.0.0
-        $availabilityRuleIdField = new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $availabilityRuleIdField->addFlags(new Required());
-        }
-
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-            $availabilityRuleIdField,
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->addFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new StringField('tax_type', 'taxType', 50))->addFlags(new ApiAware(), new Required()),
@@ -103,15 +94,6 @@ class ShippingMethodDefinition extends EntityDefinition
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, 'shipping_method_id', 'sales_channel_id'),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new ApiAware()),
-            (new OneToOneAssociationField('appShippingMethod', 'id', 'shipping_method_id', AppShippingMethodDefinition::class, true))->addFlags(new CascadeDelete()),
         ]);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()));
-        } else {
-            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()));
-        }
-
-        return $fields;
     }
 }

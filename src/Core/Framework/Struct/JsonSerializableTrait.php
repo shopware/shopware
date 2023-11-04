@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 trait JsonSerializableTrait
 {
     /**
-     * @return array<array-key, mixed>
+     * @return array<mixed>
      */
     public function jsonSerialize(): array
     {
@@ -19,7 +19,7 @@ trait JsonSerializableTrait
     }
 
     /**
-     * @param array<string, mixed> $array
+     * @param array<mixed> $array
      */
     protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
     {

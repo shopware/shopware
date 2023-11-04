@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1591361320ChargebackAndAuthorized extends MigrationStep

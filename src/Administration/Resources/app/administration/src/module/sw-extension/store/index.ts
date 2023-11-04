@@ -2,7 +2,7 @@ import type { ShopwareClass } from 'src/core/shopware';
 import extensionStore from './extensions.store';
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default function initState(Shopware: ShopwareClass): void {

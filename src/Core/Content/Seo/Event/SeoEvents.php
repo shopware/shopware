@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Seo\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoEvents
 {
     /**

@@ -8,12 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CountryStateEntity>
  */
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CountryStateCollection extends EntityCollection
 {
-    /**
-     * @return array<string>
-     */
     public function getCountryIds(): array
     {
         return $this->fmap(fn (CountryStateEntity $countryState) => $countryState->getCountryId());
@@ -26,18 +23,13 @@ class CountryStateCollection extends EntityCollection
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, static function (CountryStateEntity $a, CountryStateEntity $b) {
-            $aPosition = $a->getPosition();
-            $bPosition = $b->getPosition();
-
-            if ($aPosition !== $bPosition) {
-                return $aPosition <=> $bPosition;
+        uasort($this->elements, function (CountryStateEntity $a, CountryStateEntity $b) {
+            if ($a->getPosition() !== $b->getPosition()) {
+                return $a->getPosition() <=> $b->getPosition();
             }
 
-            $aName = (string) $a->getTranslation('name');
-            $bName = (string) $b->getTranslation('name');
-            if ($aName !== $bName) {
-                return strnatcasecmp($aName, $bName);
+            if ($a->getTranslation('name') !== $b->getTranslation('name')) {
+                return strnatcasecmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
             }
 
             return 0;

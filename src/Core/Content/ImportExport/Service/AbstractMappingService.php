@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 abstract class AbstractMappingService
 {
     abstract public function getDecorated(): AbstractMappingService;

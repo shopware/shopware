@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('business-ops')]
 class Migration1659256999CreateFlowTemplateTable extends MigrationStep

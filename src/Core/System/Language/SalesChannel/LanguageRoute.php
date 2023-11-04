@@ -5,20 +5,17 @@ namespace Shopware\Core\System\Language\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class LanguageRoute extends AbstractLanguageRoute
 {
     /**
      * @internal
-     *
-     * @param SalesChannelRepository<LanguageCollection> $repository
      */
     public function __construct(private readonly SalesChannelRepository $repository)
     {

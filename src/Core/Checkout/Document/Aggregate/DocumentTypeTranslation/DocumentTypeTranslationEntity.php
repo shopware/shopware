@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class DocumentTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
@@ -128,12 +128,6 @@ export default {
                 return this.value || '';
             },
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
-
                 this.$emit('change', newValue);
             },
         },

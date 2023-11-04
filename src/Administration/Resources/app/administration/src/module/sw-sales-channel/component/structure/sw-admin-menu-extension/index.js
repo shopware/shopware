@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-admin-menu-extension.html.twig';

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchExampleModal from 'src/module/sw-settings-search/component/sw-settings-search-example-modal';

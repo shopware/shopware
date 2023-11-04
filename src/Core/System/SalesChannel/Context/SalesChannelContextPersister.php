@@ -149,7 +149,9 @@ class SalesChannelContextPersister
             $payload['expired'] = false;
         }
 
-        $payload['token'] = $context['token'];
+        if ($customerId) {
+            $payload['token'] = $context['token'];
+        }
 
         return $payload;
     }

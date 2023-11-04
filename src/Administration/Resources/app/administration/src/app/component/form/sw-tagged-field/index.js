@@ -17,8 +17,6 @@ const { Component } = Shopware;
 Component.register('sw-tagged-field', {
     template,
 
-    inject: ['feature'],
-
     model: {
         prop: 'value',
         event: 'change',
@@ -35,7 +33,7 @@ Component.register('sw-tagged-field', {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-tagged-field.text-default-placeholder');
+                return this.$tc('global.sw-tagged-field.text-default-placeholder');
             },
         },
 
@@ -78,22 +76,10 @@ Component.register('sw-tagged-field', {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.value.slice(0, this.value.length - 1));
-
-                return;
-            }
-
             this.$emit('change', this.value.slice(0, this.value.length - 1));
         },
 
         dismissTag(index) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.value.filter((item, itemIndex) => itemIndex !== index));
-
-                return;
-            }
-
             this.$emit('change', this.value.filter((item, itemIndex) => itemIndex !== index));
         },
 
@@ -103,13 +89,6 @@ Component.register('sw-tagged-field', {
             }
 
             if (typeof this.newTagName !== 'string' || this.newTagName === '') {
-                return;
-            }
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', [...this.value, this.newTagName]);
-                this.newTagName = '';
-
                 return;
             }
 

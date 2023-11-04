@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderTagDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'order_tag';

@@ -10,7 +10,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
@@ -74,7 +74,7 @@ async function createWrapper() {
                             {
                                 id,
                                 fileSize: 10000,
-                                type: 'application/pdf',
+                                mimeType: 'application/pdf',
                             },
                         );
                     },
@@ -172,8 +172,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
             {
                 id: 'media1',
                 fileSize: 10000,
-                name: 'test.pdf',
-                type: 'application/pdf',
+                mimeType: 'application/pdf',
             },
         ]);
 

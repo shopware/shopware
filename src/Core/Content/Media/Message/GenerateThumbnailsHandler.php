@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('buyers-experience')]
+#[Package('content')]
 final class GenerateThumbnailsHandler
 {
     /**

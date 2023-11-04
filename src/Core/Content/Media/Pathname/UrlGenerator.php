@@ -4,17 +4,14 @@ namespace Shopware\Core\Content\Media\Pathname;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @deprecated tag:v6.6.0 - reason:remove-subscriber - Use AbstractMediaUrlGenerator instead
- */
-#[Package('buyers-experience')]
+#[Package('content')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**
@@ -27,15 +24,11 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws MediaException
+     * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getRelativeMediaUrl(MediaEntity $media): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
-        );
-
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -47,28 +40,20 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws MediaException
+     * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
-        );
-
-        return $this->filesystem->publicUrl($media->getPath());
+        return $this->filesystem->publicUrl($this->getRelativeMediaUrl($media));
     }
 
     /**
-     * @throws MediaException
+     * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getRelativeThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
-        );
-
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -80,15 +65,11 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws MediaException
+     * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
-        );
-
         return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
     }
 
@@ -96,25 +77,23 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     {
     }
 
-    /**
-     * @param array<string|null> $parts
-     */
     private function toPathString(array $parts): string
     {
         return implode('/', array_filter($parts));
     }
 
     /**
-     * @throws MediaException
+     * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     private function validateMedia(MediaEntity $media): void
     {
         if (empty($media->getId())) {
-            throw MediaException::emptyMediaId();
+            throw new EmptyMediaIdException();
         }
 
         if (empty($media->getFileName())) {
-            throw MediaException::emptyMediaFilename();
+            throw new EmptyMediaFilenameException();
         }
     }
 }

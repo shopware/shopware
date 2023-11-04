@@ -1,16 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_snippet_field %}
 <div class="sw-snippet-field">
-    <sw-text-field
-        v-if="textField"
-        v-bind="$attrs"
-        :value="textValue"
-        :type="fieldType"
-        disabled
-    />
-
-    <sw-textarea-field
-        v-else-if="textareaField"
+    <sw-field
         v-bind="$attrs"
         :value="textValue"
         :type="fieldType"

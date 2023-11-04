@@ -3,11 +3,10 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -40,7 +39,7 @@ class TwigAppVariable extends AppVariable
         $request = $this->appVariable->getRequest();
 
         if ($request === null) {
-            throw StorefrontFrameworkException::appRequestNotAvailable();
+            throw new \RuntimeException('The "app.request" variable is not available.');
         }
 
         $clonedRequest = clone $request;
@@ -88,7 +87,7 @@ class TwigAppVariable extends AppVariable
         return $this->appVariable->getUser();
     }
 
-    public function getSession(): ?SessionInterface
+    public function getSession(): ?Session
     {
         return $this->appVariable->getSession();
     }

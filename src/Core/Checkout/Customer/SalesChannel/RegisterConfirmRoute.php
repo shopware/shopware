@@ -3,10 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,7 +29,7 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
     /**
@@ -51,7 +53,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {
         if (!$dataBag->has('hash')) {
-            throw CustomerException::noHashProvided();
+            throw new NoHashProvidedException();
         }
 
         $criteria = new Criteria();
@@ -64,8 +66,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             ->search($criteria, $context->getContext())
             ->first();
 
-        if (!$customer instanceof CustomerEntity) {
-            throw CustomerException::customerNotFoundByHash($dataBag->get('hash'));
+        if ($customer === null) {
+            throw new CustomerNotFoundByHashException($dataBag->get('hash'));
         }
 
         $this->validator->validate(
@@ -78,7 +80,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())
             || $customer->getDoubleOptInConfirmDate() !== null) {
-            throw CustomerException::customerAlreadyConfirmed($customer->getId());
+            throw new CustomerAlreadyConfirmedException($customer->getId());
         }
 
         $customerUpdate = [

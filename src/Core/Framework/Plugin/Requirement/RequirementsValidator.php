@@ -93,12 +93,7 @@ class RequirementsValidator
      */
     private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool
     {
-        $composerName = $dependency->getComposerName();
-        if (!\is_string($composerName)) {
-            return false;
-        }
-
-        if (\array_key_exists($composerName, $this->getPluginDependencies($plugin)['require'])) {
+        if (\in_array($dependency->getComposerName(), array_keys($this->getPluginDependencies($plugin)['require']), true)) {
             return true;
         }
 

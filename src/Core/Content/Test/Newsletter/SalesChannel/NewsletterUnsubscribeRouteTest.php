@@ -19,7 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

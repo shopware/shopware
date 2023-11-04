@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

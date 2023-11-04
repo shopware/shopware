@@ -237,8 +237,4 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             },
         ]);
     });
-
-    it('should return filters from filter registry', () => {
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-    });
 });

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @implements \IteratorAggregate<string, array<string, Criteria>>
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class CriteriaCollection implements \IteratorAggregate
 {
     /**

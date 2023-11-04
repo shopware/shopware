@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-import-export-new-profile-wizard.html.twig';
 import './sw-import-export-new-profile-wizard.scss';

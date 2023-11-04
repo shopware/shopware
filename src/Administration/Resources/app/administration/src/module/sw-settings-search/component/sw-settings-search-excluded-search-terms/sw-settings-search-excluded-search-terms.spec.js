@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchExcludedSearchTerms from 'src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms';
@@ -74,7 +74,7 @@ async function createWrapper(privileges = [], resetError = false) {
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-icon': true,
-            'sw-select-field': true,
+            'sw-field': true,
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-data-grid-skeleton': true,

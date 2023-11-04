@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class FirstRunWizardClient
 {
     public function __construct(

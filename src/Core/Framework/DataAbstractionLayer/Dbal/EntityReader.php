@@ -612,7 +612,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $entity */
         foreach ($collection as $entity) {
             // extract mapping ids for the current entity
-            $mappingIds = $mapping[$entity->getUniqueIdentifier()] ?? [];
+            $mappingIds = $mapping[$entity->getUniqueIdentifier()];
 
             $structData = $data->getList($mappingIds);
 
@@ -1149,6 +1149,7 @@ class EntityReader implements EntityReaderInterface
 
         $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $relatedCollection, $fields, $partial);
 
+        /** @var Entity $entity */
         foreach ($collection as $entity) {
             if ($association->is(Extension::class)) {
                 $item = $entity->getExtension($association->getPropertyName());
@@ -1156,15 +1157,13 @@ class EntityReader implements EntityReaderInterface
                 $item = $entity->get($association->getPropertyName());
             }
 
-            if (!$item instanceof Entity) {
+            /** @var Entity|null $item */
+            if ($item === null) {
                 continue;
             }
 
             if ($association->is(Extension::class)) {
-                $extension = $relatedCollection->get($item->getUniqueIdentifier());
-                if ($extension !== null) {
-                    $entity->addExtension($association->getPropertyName(), $extension);
-                }
+                $entity->addExtension($association->getPropertyName(), $relatedCollection->get($item->getUniqueIdentifier()));
 
                 continue;
             }

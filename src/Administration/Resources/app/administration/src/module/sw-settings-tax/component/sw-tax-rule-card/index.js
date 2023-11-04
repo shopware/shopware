@@ -2,7 +2,7 @@ import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Context } = Shopware;
@@ -15,7 +15,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     props: {
@@ -101,19 +100,7 @@ export default {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
                 label: 'sw-settings-tax.taxRuleCard.labelTaxRate',
-            }, {
-                property: 'activeFrom',
-                dataIndex: 'activeFrom',
-                label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
             }];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -188,11 +175,6 @@ export default {
 
         getTypeCellComponent(taxRule) {
             const subComponentName = taxRule.type.technicalName.replace(/_/g, '-');
-
-            if (this.feature.isActive('VUE3')) {
-                return Shopware.Component.getComponentRegistry().get(`sw-settings-tax-rule-type-${subComponentName}-cell`);
-            }
-
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
         },
     },

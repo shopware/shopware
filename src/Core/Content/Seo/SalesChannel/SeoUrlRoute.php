@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -12,13 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoUrlRoute extends AbstractSeoUrlRoute
 {
     /**
      * @internal
-     *
-     * @param SalesChannelRepository<SeoUrlCollection> $salesChannelRepository
      */
     public function __construct(private readonly SalesChannelRepository $salesChannelRepository)
     {

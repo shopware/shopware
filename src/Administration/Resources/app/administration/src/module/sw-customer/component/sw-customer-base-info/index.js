@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Criteria } = Shopware.Data;
@@ -88,14 +88,6 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
         },
     },
 

@@ -1,7 +1,7 @@
 import template from './sw-order-detail-general.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Utils, Mixin } = Shopware;
@@ -87,10 +87,6 @@ export default {
 
         currency() {
             return this.order.currency;
-        },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
         },
     },
 

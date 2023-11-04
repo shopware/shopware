@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 {
     /**

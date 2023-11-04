@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
@@ -26,7 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @final
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class DocumentGenerator
 {
     /**
@@ -67,10 +66,6 @@ class DocumentGenerator
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
         if (!$document instanceof DocumentEntity) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw DocumentException::documentNotFound($documentId);
-            }
-
             throw new InvalidDocumentException($documentId);
         }
 
@@ -110,18 +105,10 @@ class DocumentGenerator
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
         if (!\array_key_exists($operation->getOrderId(), $rendered->getSuccess())) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw DocumentException::generationError();
-            }
-
             throw new InvalidOrderException($operation->getOrderId());
         }
 
         $document = $rendered->getSuccess()[$operation->getOrderId()];
-
-        if (!($document instanceof RenderedDocument)) {
-            throw DocumentException::generationError();
-        }
 
         $document->setContent($this->pdfRenderer->render($document));
 
@@ -155,11 +142,11 @@ class DocumentGenerator
             try {
                 $document = $success[$orderId] ?? null;
 
-                if (!($document instanceof RenderedDocument)) {
+                if ($document === null) {
                     continue;
                 }
 
-                $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $operation->getDocumentId());
+                $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $context, $operation->getDocumentId());
 
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
@@ -194,10 +181,6 @@ class DocumentGenerator
     {
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
-
-        if (!($document instanceof DocumentEntity)) {
-            throw DocumentException::documentNotFound($documentId);
-        }
 
         if ($document->getDocumentMediaFileId() !== null) {
             throw new DocumentGenerationException('Document already exists');
@@ -254,36 +237,25 @@ class DocumentGenerator
     private function checkDocumentNumberAlreadyExits(
         string $documentTypeName,
         string $documentNumber,
+        Context $context,
         ?string $documentId = null
     ): void {
-        $sql = '
-            SELECT COUNT(id)
-            FROM document
-            WHERE
-                document_type_id IN (
-                    SELECT id
-                    FROM document_type
-                    WHERE technical_name = :documentTypeName
-                )
-                AND document_number = :documentNumber
-                AND id ' . ($documentId !== null ? '!= :documentId' : 'IS NOT NULL') . '
-            LIMIT 1
-        ';
-
-        $params = [
-            'documentTypeName' => $documentTypeName,
-            'documentNumber' => $documentNumber,
-        ];
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('documentType.technicalName', $documentTypeName));
+        $criteria->addFilter(new EqualsFilter('config.documentNumber', $documentNumber));
 
         if ($documentId !== null) {
-            $params['documentId'] = Uuid::fromHexToBytes($documentId);
+            $criteria->addFilter(new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('id', $documentId)]
+            ));
         }
 
-        $statement = $this->connection->executeQuery($sql, $params);
+        $criteria->setLimit(1);
 
-        $result = (bool) $statement->fetchOne();
+        $result = $this->documentRepository->searchIds($criteria, $context);
 
-        if ($result) {
+        if ($result->getTotal() !== 0) {
             throw new DocumentNumberAlreadyExistsException($documentNumber);
         }
     }
@@ -355,7 +327,7 @@ class DocumentGenerator
             FROM document INNER JOIN document_type
                 ON document.document_type_id = document_type.id
             WHERE document_type.technical_name = :technicalName
-            AND document.document_number = :invoiceNumber
+            AND JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) = :invoiceNumber
             AND document.order_id = :orderId
         ', [
             'technicalName' => InvoiceRenderer::TYPE,

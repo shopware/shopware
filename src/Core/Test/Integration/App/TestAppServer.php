@@ -4,7 +4,6 @@ namespace Shopware\Core\Test\Integration\App;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -29,7 +28,7 @@ class TestAppServer
     /**
      * @param array<mixed> $options
      */
-    public function __invoke(RequestInterface $request, array $options): PromiseInterface
+    public function __invoke(RequestInterface $request, array $options): Promise
     {
         if ($this->inner->count() > 0) {
             return \call_user_func($this->inner, $request, $options);

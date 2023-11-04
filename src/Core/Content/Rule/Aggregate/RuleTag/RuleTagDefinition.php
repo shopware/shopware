@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RuleTagDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'rule_tag';

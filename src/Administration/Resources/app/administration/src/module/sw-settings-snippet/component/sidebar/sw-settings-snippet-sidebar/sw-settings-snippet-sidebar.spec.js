@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSnippetSidebar from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar';

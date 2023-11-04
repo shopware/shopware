@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import { shallowMount, createLocalVue } from '@vue/test-utils';

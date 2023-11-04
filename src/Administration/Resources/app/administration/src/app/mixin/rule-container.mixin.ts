@@ -3,12 +3,12 @@
  */
 
 /* @private */
-import { defineComponent } from 'vue';
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('ruleContainer', defineComponent({
+Shopware.Mixin.register('ruleContainer', {
     inject: [
         'conditionDataProviderService',
         'createCondition',
@@ -79,4 +79,4 @@ export default Shopware.Mixin.register('ruleContainer', defineComponent({
             }
         },
     },
-}));
+});

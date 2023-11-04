@@ -23,7 +23,6 @@ class ArrayFacadeTest extends TestCase
         $functions[] = false;
         $functions[] = 3.2;
 
-        static::assertCount(9, $functions);
         static::assertContains(1, $functions);
         static::assertContains(2, $functions);
         static::assertContains(3, $functions);

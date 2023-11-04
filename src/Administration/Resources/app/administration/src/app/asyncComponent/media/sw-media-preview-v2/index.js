@@ -21,7 +21,7 @@ const { fileReader } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     playableVideoFormats: [
         'video/mp4',
@@ -227,11 +227,7 @@ export default {
                 return this.trueSource.href;
             }
 
-            if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                return this.trueSource.url;
-            }
-
-            return `${this.trueSource.url}?${Shopware.Utils.createId()}`;
+            return this.trueSource.url;
         },
 
         isUrl() {
@@ -261,10 +257,6 @@ export default {
             return Filter.getByName('mediaName');
         },
 
-        assetFilter() {
-            return Filter.getByName('asset');
-        },
-
         sourceSet() {
             if (this.isFile || this.isUrl) {
                 return '';
@@ -276,15 +268,7 @@ export default {
 
             const sources = [];
             this.trueSource.thumbnails.forEach((thumbnail) => {
-                let url;
-
-                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                    url = thumbnail.url;
-                } else {
-                    url = `${thumbnail.url}?${Shopware.Utils.createId()}`;
-                }
-
-                const encoded = encodeURI(url);
+                const encoded = encodeURI(thumbnail.url);
                 sources.push(`${encoded} ${thumbnail.width}w`);
             });
 

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -24,9 +25,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 class MailAttachmentsBuilder
 {
-    /**
-     * @param EntityRepository<MediaCollection> $mediaRepository
-     */
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly EntityRepository $mediaRepository,
@@ -80,7 +78,9 @@ class MailAttachmentsBuilder
         $criteria = new Criteria($extensions->getMediaIds());
         $criteria->setTitle('send-mail::load-media');
 
-        $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
+        /** @var MediaCollection<MediaEntity> $entities */
+        $entities = $this->mediaRepository->search($criteria, $context);
+
         foreach ($entities as $media) {
             $attachments[] = $this->mediaService->getAttachment($media, $context);
         }

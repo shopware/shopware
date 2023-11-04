@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomerTask extends ScheduledTask
 {
     public static function getTaskName(): string

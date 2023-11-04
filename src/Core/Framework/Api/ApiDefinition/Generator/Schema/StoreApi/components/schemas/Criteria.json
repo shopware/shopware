@@ -130,13 +130,13 @@
                         }
                     },
                     "total-count-mode": {
-                        "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
-                        "type": "string",
-                        "default": "none",
+                        "description": "Whether the total for the total number of hits should be determined for the search query. 0 = disabled total count, 1 = calculate exact total amount (slow), 2 = calculate only for next page (fast)",
+                        "type": "integer",
+                        "default": 0,
                         "enum": [
-                            "none",
-                            "exact",
-                            "next-pages"
+                            0,
+                            1,
+                            2
                         ]
                     }
                 }

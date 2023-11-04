@@ -11,13 +11,10 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<ShippingMethodCollection>
+     * @var EntitySearchResult
      */
     protected $object;
 
-    /**
-     * @param EntitySearchResult<ShippingMethodCollection> $shippingMethods
-     */
     public function __construct(EntitySearchResult $shippingMethods)
     {
         parent::__construct($shippingMethods);
@@ -25,6 +22,9 @@ class ShippingMethodRouteResponse extends StoreApiResponse
 
     public function getShippingMethods(): ShippingMethodCollection
     {
-        return $this->object->getEntities();
+        /** @var ShippingMethodCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

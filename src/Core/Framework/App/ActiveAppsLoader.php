@@ -7,7 +7,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -25,8 +24,7 @@ class ActiveAppsLoader implements ResetInterface
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly AbstractAppLoader $appLoader,
-        private readonly string $projectDir
+        private readonly AbstractAppLoader $appLoader
     ) {
     }
 
@@ -72,7 +70,7 @@ class ActiveAppsLoader implements ResetInterface
 
             return array_map(fn (Manifest $manifest) => [
                 'name' => $manifest->getMetadata()->getName(),
-                'path' => Path::makeRelative($manifest->getPath(), $this->projectDir),
+                'path' => $manifest->getPath(),
                 'author' => $manifest->getMetadata()->getAuthor(),
             ], $this->appLoader->load());
         }

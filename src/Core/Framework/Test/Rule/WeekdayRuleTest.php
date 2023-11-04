@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\WeekdayRule;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class WeekdayRuleTest extends TestCase
 {
     public function testMatchForCurrentDay(): void

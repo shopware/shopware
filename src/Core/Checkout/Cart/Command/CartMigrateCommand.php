@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Cache\Traits\RedisClusterProxy;
+use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,14 +34,12 @@ class CartMigrateCommand extends Command
     /**
      * @internal
      *
-     * param cannot be natively typed, as symfony might change the type in the future
-     *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay|null $redis
+     * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      *
      * @phpstan-ignore-next-line ignore can be removed in 6.6.0 when all props are natively typed
      */
     public function __construct(
-        /** @deprecated tag:v6.6.0 - Property will become private */
+        /** @deprecated tag:v6.6.0 - Property will be natively typed and become private and readonly */
         protected $redis,
         /** @deprecated tag:v6.6.0 - Property will become private and readonly */
         protected Connection $connection,
@@ -106,7 +106,6 @@ class CartMigrateCommand extends Command
         $this->io = new ShopwareStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
-        \assert(\is_array($keys));
 
         if (empty($keys)) {
             $this->io->success('No carts found in Redis');
@@ -123,9 +122,7 @@ class CartMigrateCommand extends Command
         $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
 
         foreach ($keys as $index => $key) {
-            if (\method_exists($this->redis, '_prefix')) {
-                $key = \substr((string) $key, \strlen($this->redis->_prefix('')));
-            }
+            $key = \substr((string) $key, \strlen($this->redis->_prefix('')));
 
             $value = $this->redis->get($key);
             if (!\is_string($value)) {

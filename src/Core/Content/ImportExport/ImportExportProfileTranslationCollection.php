@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ImportExportProfileTranslationEntity>
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportProfileTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

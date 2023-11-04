@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-product-variant-info', {
     template,
 
-    inject: ['feature'],
-
     props: {
         variations: {
             type: Array,
@@ -73,10 +71,7 @@ Component.register('sw-product-variant-info', {
 
     computed: {
         productName() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$slots?.default?.()?.[0]?.children || '';
-            }
-            return this.$slots?.default?.[0]?.text || '';
+            return this.$slots.default[0].text;
         },
     },
 
@@ -96,14 +91,11 @@ Component.register('sw-product-variant-info', {
         },
 
         getFirstSlot() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$slots?.default?.()?.[0]?.children || '';
-            }
             return this.$slots?.default?.[0]?.text || '';
         },
 
         setHelpText() {
-            this.helpText = this.titleTerm || this.getFirstSlot();
+            this.helpText = this.titleTerm ? this.titleTerm : this.getFirstSlot();
 
             if (this.helpText && this.variations && this.variations.length > 0) {
                 this.tooltipWidth = 500;

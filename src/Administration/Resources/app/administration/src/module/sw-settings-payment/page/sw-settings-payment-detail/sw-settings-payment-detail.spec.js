@@ -49,9 +49,6 @@ async function createWrapper(privileges = []) {
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([]),
             },
-            feature: {
-                isActive: () => true,
-            },
         },
         stubs: {
             'sw-page': true,
@@ -61,9 +58,7 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-switch-field': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
+            'sw-field': true,
             'sw-language-info': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
@@ -73,7 +68,6 @@ async function createWrapper(privileges = []) {
             'sw-sidebar': true,
             'sw-sidebar-media-item': true,
             'sw-skeleton': true,
-            'sw-context-menu-item': true,
         },
     });
 }

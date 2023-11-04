@@ -4,7 +4,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Mixin, Defaults } = Shopware;
@@ -44,15 +44,15 @@ export default {
 
     computed: {
         hasActionSlot() {
-            return !!this.$slots.actions?.[0];
+            return !!this.$slots.actions;
         },
 
         hasAdditionalDataSlot() {
-            return !!this.$slots['data-additional']?.[0];
+            return !!this.$slots['data-additional'];
         },
 
         hasSummarySlot() {
-            return !!this.$slots.summary?.[0];
+            return !!this.$slots.summary;
         },
 
         moduleColor() {

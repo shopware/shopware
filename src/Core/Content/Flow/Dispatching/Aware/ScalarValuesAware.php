@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 interface ScalarValuesAware
 {
     public const STORE_VALUES = 'store_values';

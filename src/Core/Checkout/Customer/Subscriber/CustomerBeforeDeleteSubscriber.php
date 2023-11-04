@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
     /**
@@ -38,11 +38,11 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            EntityDeleteEvent::class => 'beforeDelete',
+            BeforeDeleteEvent::class => 'beforeDelete',
         ];
     }
 
-    public function beforeDelete(EntityDeleteEvent $event): void
+    public function beforeDelete(BeforeDeleteEvent $event): void
     {
         $context = $event->getContext();
 
@@ -60,10 +60,10 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         }
 
         /** @var CustomerCollection $customers */
-        $customers = $this->customerRepository->search(new Criteria($ids), $context)->getEntities();
+        $customers = $this->customerRepository->search(new Criteria($ids), $context);
 
         $event->addSuccess(function () use ($customers, $context, $salesChannelId): void {
-            foreach ($customers as $customer) {
+            foreach ($customers->getElements() as $customer) {
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
                         $salesChannelId ?? $customer->getSalesChannelId(),

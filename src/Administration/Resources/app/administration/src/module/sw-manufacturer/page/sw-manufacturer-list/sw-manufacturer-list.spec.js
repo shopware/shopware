@@ -27,7 +27,6 @@ async function createWrapper(privileges = []) {
             'sw-empty-state': true,
             'sw-button': true,
             'sw-loader': true,
-            'router-link': true,
         },
         provide: {
             acl: {

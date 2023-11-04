@@ -49,7 +49,7 @@ async function createWrapper() {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     /** @type Wrapper */

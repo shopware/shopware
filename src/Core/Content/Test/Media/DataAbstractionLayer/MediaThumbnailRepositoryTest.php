@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -68,33 +70,21 @@ class MediaThumbnailRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $media = $this->getContainer()->get('media.repository')
+        return $this->getContainer()->get('media.repository')
             ->search(new Criteria([$mediaId]), Context::createDefaultContext())
             ->get($mediaId);
-
-        static::assertInstanceOf(MediaEntity::class, $media);
-
-        return $media;
     }
 
     private function createThumbnailFile(MediaEntity $media, string $service): string
     {
-        $data = [
-            'mediaId' => $media->getId(),
-            'width' => 100,
-            'height' => 200,
-            'path' => 'foo/bar.png',
-        ];
+        $generator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $this->getContainer()->get('media_thumbnail.repository')
-            ->create([$data], Context::createDefaultContext());
+        $thumbnail = (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]);
 
-        $fs = $this->getFilesystem($service);
+        $thumbnailPath = $generator->getRelativeThumbnailUrl($media, $thumbnail);
 
-        $fs->write('foo/bar.png', 'foo');
+        $this->getFilesystem($service)->write($thumbnailPath, 'foo');
 
-        static::assertTrue($fs->has('foo/bar.png'));
-
-        return 'foo/bar.png';
+        return $thumbnailPath;
     }
 }

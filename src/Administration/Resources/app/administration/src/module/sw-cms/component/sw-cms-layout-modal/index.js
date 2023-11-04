@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -108,10 +108,6 @@ export default {
             }
 
             return { [this.selectedPageObject.id]: this.selectedPageObject };
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 

@@ -6,14 +6,12 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
-use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -23,10 +21,6 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
-/**
- * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
- * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
- */
 #[Package('core')]
 class AppEntity extends Entity
 {
@@ -81,22 +75,22 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     /**
-     * @var list<Module>
+     * @var mixed[]
      */
     protected array $modules;
 
     /**
-     * @var Module|null
+     * @var mixed[]|null
      */
     protected ?array $mainModule = null;
 
     /**
-     * @var list<Cookie>
+     * @var mixed[]
      */
     protected array $cookies;
 
     /**
-     * @var list<string>|null
+     * @var string[]|null
      */
     protected ?array $allowedHosts = null;
 
@@ -226,11 +220,6 @@ class AppEntity extends Entity
     protected $flowEvents;
 
     /**
-     * @var EntityCollection<AppShippingMethodEntity>|null
-     */
-    protected ?EntityCollection $appShippingMethods = null;
-
-    /**
      * @var int
      */
     protected $templateLoadPriority;
@@ -329,7 +318,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return list<Module>
+     * @return mixed[]
      */
     public function getModules(): array
     {
@@ -337,7 +326,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param list<Module> $modules
+     * @param mixed[] $modules
      */
     public function setModules(array $modules): void
     {
@@ -345,7 +334,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return Module|null
+     * @return mixed[]|null
      */
     public function getMainModule(): ?array
     {
@@ -353,7 +342,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param Module $mainModule
+     * @param mixed[] $mainModule
      */
     public function setMainModule(array $mainModule): void
     {
@@ -361,7 +350,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return list<Cookie>
+     * @return mixed[]
      */
     public function getCookies(): array
     {
@@ -369,7 +358,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param list<Cookie> $cookies
+     * @param mixed[] $cookies
      */
     public function setCookies(array $cookies): void
     {
@@ -377,7 +366,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return list<string>|null
+     * @return string[]|null
      */
     public function getAllowedHosts(): ?array
     {
@@ -385,7 +374,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param list<string>|null $allowedHosts
+     * @param string[]|null $allowedHosts
      */
     public function setAllowedHosts(?array $allowedHosts): void
     {
@@ -668,22 +657,6 @@ class AppEntity extends Entity
     public function setFlowEvents(AppFlowEventCollection $flowEvents): void
     {
         $this->flowEvents = $flowEvents;
-    }
-
-    /**
-     * @return EntityCollection<AppShippingMethodEntity>|null
-     */
-    public function getAppShippingMethods(): ?EntityCollection
-    {
-        return $this->appShippingMethods;
-    }
-
-    /**
-     * @param EntityCollection<AppShippingMethodEntity> $appShippingMethods
-     */
-    public function setAppShippingMethods(EntityCollection $appShippingMethods): void
-    {
-        $this->appShippingMethods = $appShippingMethods;
     }
 
     public function jsonSerialize(): array

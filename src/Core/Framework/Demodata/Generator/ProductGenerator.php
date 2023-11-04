@@ -10,17 +10,16 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -176,17 +175,15 @@ class ProductGenerator implements DemodataGeneratorInterface
      *
      * @return array<string, mixed>
      */
-    private function buildVariants(array $combinations, array $prices, TaxCollection $taxes): array
+    private function buildVariants(array $combinations, array $prices, EntitySearchResult $taxes): array
     {
         $configurator = [];
 
         $variants = [];
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
+            /** @var TaxEntity $tax */
             $tax = $taxes->get(array_rand($taxes->getIds()));
-            if (!$tax instanceof TaxEntity) {
-                continue;
-            }
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
@@ -257,12 +254,9 @@ class ProductGenerator implements DemodataGeneratorInterface
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
-    private function getTaxes(Context $context): TaxCollection
+    private function getTaxes(Context $context): EntitySearchResult
     {
-        /** @var EntityRepository<TaxCollection> $taxRepository */
-        $taxRepository = $this->registry->getRepository('tax');
-
-        return $taxRepository->search(new Criteria(), $context)->getEntities();
+        return $this->registry->getRepository('tax')->search(new Criteria(), $context);
     }
 
     /**
@@ -272,14 +266,14 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @return array<string, mixed>
      */
     private function createSimpleProduct(
-        TaxCollection $taxes,
+        EntitySearchResult $taxes,
         array $manufacturer,
         array $tags
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
+        /** @var TaxEntity $tax */
         $tax = $taxes->get(array_rand($taxes->getIds()));
-        \assert($tax instanceof TaxEntity);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
@@ -445,7 +439,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $productProperties = [];
         foreach ($properties as $options) {
-            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, min(\count($options), 3)));
+            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, 3));
         }
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));

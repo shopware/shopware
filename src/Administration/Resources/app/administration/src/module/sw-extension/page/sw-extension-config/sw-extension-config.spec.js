@@ -8,7 +8,7 @@ Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
 Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
     let wrapper;

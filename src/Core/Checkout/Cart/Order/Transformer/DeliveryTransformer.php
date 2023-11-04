@@ -14,12 +14,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryTransformer
 {
-    /**
-     * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
-     *
-     * @return array<int, array<string, mixed>>
-     */
     public static function transformCollection(
         DeliveryCollection $deliveries,
         array $lineItems,
@@ -35,12 +29,6 @@ class DeliveryTransformer
         return $output;
     }
 
-    /**
-     * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
-     *
-     * @return array<string, mixed>
-     */
     public static function transform(
         Delivery $delivery,
         array $lineItems,

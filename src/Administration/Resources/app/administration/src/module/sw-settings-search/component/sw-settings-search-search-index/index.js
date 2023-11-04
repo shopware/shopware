@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
@@ -30,7 +30,7 @@ export default {
             offset: 0,
             syncPolling: null,
             totalProduct: 0,
-            latestIndex: null,
+            latestProductIndexed: {},
         };
     },
 
@@ -51,14 +51,10 @@ export default {
 
         productSearchKeywordsCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
-            criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
+            criteria.addSorting(Criteria.sort('id', 'DESC', true));
             return criteria;
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         */
         latestBuild() {
             if (!this.latestProductIndexed) {
                 return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
@@ -92,11 +88,8 @@ export default {
         getLatestProductKeywordIndexed() {
             this.isLoading = true;
             this.productSearchKeywordRepository.search(this.productSearchKeywordsCriteria, Context.api)
-                .then((result) => {
-                    this.latestIndex = {
-                        firstDate: result.aggregations.firstDate.min,
-                        lastDate: result.aggregations.lastDate.max,
-                    };
+                .then((items) => {
+                    this.latestProductIndexed = items[0];
                 })
                 .catch((err) => {
                     this.createNotificationError({

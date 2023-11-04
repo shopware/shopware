@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeliveryTimeTranslationCollection extends EntityCollection
 {
     /**

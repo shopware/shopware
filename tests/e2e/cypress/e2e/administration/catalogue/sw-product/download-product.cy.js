@@ -1,10 +1,8 @@
 // / <reference types="Cypress" />
-/**
- * @package inventory
- */
+
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Product: Test download product', { tags: ['VUE3']}, () => {
+describe('Product: Test download product', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
             .then(() => {

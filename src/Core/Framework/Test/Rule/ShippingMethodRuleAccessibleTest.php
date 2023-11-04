@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,14 +15,11 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class ShippingMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository<RuleCollection>
-     */
     private EntityRepository $ruleRepository;
 
     /**
@@ -50,14 +45,12 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$this->ruleId]);
         $criteria->addAssociation('shippingMethods');
 
-        $searchResult = $this->ruleRepository->search($criteria, $defaultContext)->getEntities()->first();
+        $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
 
-        static::assertNotNull($searchResult);
-
-        static::assertSame($this->ruleId, $searchResult->getId());
+        static::assertSame($this->ruleId, $searchResult->first()->getId());
         static::assertSame(
             $this->rule[0]['shippingMethods'][0]['id'],
-            $searchResult->getShippingMethods()?->first()?->getId()
+            $searchResult->first()->getShippingMethods()->first()->getId()
         );
     }
 
@@ -73,7 +66,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
             'deliveryTime' => $this->createDeliveryTimeData(),
             'created_at' => new \DateTime(),
             'name' => 'additional ShippingMethod',
-            'technicalName' => 'shipping_additional',
         ];
 
         $this->ruleRepository->update([[
@@ -86,11 +78,9 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$this->ruleId]);
         $criteria->addAssociation('shippingMethods');
 
-        $searchResult = $this->ruleRepository->search($criteria, $defaultContext)->getEntities()->first();
+        $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
 
-        static::assertNotNull($searchResult);
-        static::assertIsIterable($searchResult->getShippingMethods());
-        static::assertCount(2, $searchResult->getShippingMethods());
+        static::assertCount(2, $searchResult->first()->getShippingMethods());
     }
 
     public function testIfRuleCanBeRemoved(): void
@@ -110,12 +100,9 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$this->rule[0]['shippingMethods'][0]['id']]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var EntityRepository<ShippingMethodCollection> $shippingRepo */
-        $shippingRepo = $this->getContainer()->get('shipping_method.repository');
-        $searchResult = $shippingRepo->search($criteria, $defaultContext)->getEntities()->first();
+        $searchResult = $this->getContainer()->get('shipping_method.repository')->search($criteria, $defaultContext);
 
-        static::assertNotNull($searchResult);
-        static::assertSame($this->ruleId, $searchResult->getAvailabilityRule()?->getId());
+        static::assertSame($this->ruleId, $searchResult->first()->getAvailabilityRule()->getId());
     }
 
     public function testRuleAssociationsStayLikeLinked(): void
@@ -131,29 +118,20 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $criteria2 = new Criteria(['id' => $rules[1]['id']]);
         $criteria2->addAssociation('shippingMethods');
 
-        $rule1 = $this->ruleRepository->search($criteria1, $defaultContext)->getEntities()->first();
-        $rule2 = $this->ruleRepository->search($criteria2, $defaultContext)->getEntities()->last();
+        $rule1 = $this->ruleRepository->search($criteria1, $defaultContext);
+        $rule2 = $this->ruleRepository->search($criteria2, $defaultContext);
 
-        static::assertNotNull($rule1);
-        static::assertNotNull($rule2);
+        static::assertNotSame($rule1->first(), $rule2->first());
+        static::assertNotSame($rule1->first()->getShippingMethods()->first(), $rule1->first()->getShippingMethods()->last());
 
-        $rule1ShippingMethods = $rule1->getShippingMethods();
-        $rule2ShippingMethods = $rule2->getShippingMethods();
+        static::assertCount(1, $rule1->first()->getShippingMethods()->filterByProperty('active', true));
+        static::assertCount(1, $rule1->first()->getShippingMethods()->filterByProperty('active', false));
 
-        static::assertNotNull($rule1ShippingMethods);
-        static::assertNotNull($rule2ShippingMethods);
+        static::assertCount(1, $rule2->first()->getShippingMethods()->filterByProperty('active', true));
+        static::assertCount(0, $rule2->first()->getShippingMethods()->filterByProperty('active', false));
 
-        static::assertNotSame($rule1, $rule2);
-        static::assertNotSame($rule1ShippingMethods->first(), $rule1ShippingMethods->last());
-
-        static::assertCount(1, $rule1ShippingMethods->filterByProperty('active', true));
-        static::assertCount(1, $rule1ShippingMethods->filterByProperty('active', false));
-
-        static::assertCount(1, $rule2ShippingMethods->filterByProperty('active', true));
-        static::assertCount(0, $rule2ShippingMethods->filterByProperty('active', false));
-
-        static::assertCount(2, $rule1ShippingMethods);
-        static::assertCount(1, $rule2ShippingMethods);
+        static::assertCount(2, $rule1->first()->getShippingMethods());
+        static::assertCount(1, $rule2->first()->getShippingMethods());
     }
 
     private function prepareSimpleTestData(): void
@@ -167,7 +145,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
             'deliveryTime' => $this->createDeliveryTimeData(),
             'created_at' => new \DateTime(),
             'name' => 'test',
-            'technicalName' => 'shipping_test',
         ];
 
         $this->rule = [
@@ -182,9 +159,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         ];
     }
 
-    /**
-     * @return array<array<string, mixed>>
-     */
     private function createComplicatedTestData(): array
     {
         $this->ruleId = Uuid::randomHex();
@@ -198,7 +172,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'active' => true,
                 'created_at' => new \DateTime(),
                 'name' => 'test',
-                'technicalName' => 'shipping_test',
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -208,7 +181,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'deliveryTime' => $this->createDeliveryTimeData(),
                 'created_at' => new \DateTime('-2 days'),
                 'name' => 'shippingFreeShipping',
-                'technicalName' => 'shipping_freeshipping',
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -218,7 +190,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'deliveryTime' => $this->createDeliveryTimeData(),
                 'created_at' => new \DateTime(),
                 'name' => 'unused shippingMethod',
-                'technicalName' => 'shipping_unused',
             ],
         ];
 
@@ -245,9 +216,6 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         return $rules;
     }
 
-    /**
-     * @return array{id: string, name: string, min: int, max: int, unit: string}
-     */
     private function createDeliveryTimeData(): array
     {
         return [

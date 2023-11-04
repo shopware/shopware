@@ -4,7 +4,7 @@ import './sw-first-run-wizard-welcome.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -51,10 +51,6 @@ export default {
 
         languageCriteria() {
             return this.getLanguageCriteria();
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

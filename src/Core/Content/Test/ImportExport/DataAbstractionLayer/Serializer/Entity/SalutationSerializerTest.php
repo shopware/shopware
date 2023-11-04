@@ -20,7 +20,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class SalutationSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

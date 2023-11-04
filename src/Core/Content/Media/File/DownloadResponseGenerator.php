@@ -6,13 +6,10 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
-use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -21,7 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class DownloadResponseGenerator
 {
     final public const X_SENDFILE_DOWNLOAD_STRATEGRY = 'x-sendfile';
@@ -33,9 +30,9 @@ class DownloadResponseGenerator
     public function __construct(
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly MediaService $mediaService,
-        private readonly string $localPrivateDownloadStrategy,
-        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
+        private readonly string $localPrivateDownloadStrategy
     ) {
     }
 
@@ -45,8 +42,7 @@ class DownloadResponseGenerator
         string $expiration = '+120 minutes'
     ): Response {
         $fileSystem = $this->getFileSystem($media);
-
-        $path = $media->getPath();
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
@@ -61,15 +57,12 @@ class DownloadResponseGenerator
     private function getDefaultResponse(MediaEntity $media, SalesChannelContext $context, FilesystemOperator $fileSystem): Response
     {
         if (!$media->isPrivate()) {
-            $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
-
-            return new RedirectResponse((string) array_shift($url));
+            return new RedirectResponse($this->urlGenerator->getAbsoluteMediaUrl($media));
         }
 
         switch ($this->localPrivateDownloadStrategy) {
             case self::X_SENDFILE_DOWNLOAD_STRATEGRY:
-                $location = $media->getPath();
-
+                $location = $this->urlGenerator->getRelativeMediaUrl($media);
                 $stream = $fileSystem->readStream($location);
                 $location = \is_resource($stream) ? stream_get_meta_data($stream)['uri'] : $location;
 
@@ -78,7 +71,7 @@ class DownloadResponseGenerator
 
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGRY:
-                $location = $media->getPath();
+                $location = $this->urlGenerator->getRelativeMediaUrl($media);
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
                 $response->headers->set('X-Accel-Redirect', $location);
@@ -97,20 +90,10 @@ class DownloadResponseGenerator
         $stream = $context->getContext()->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
-        );
-
-        if (!$stream instanceof StreamInterface) {
-            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
-        }
-
-        $stream = $stream->detach();
+        )->detach();
 
         if (!\is_resource($stream)) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                throw new FileNotFoundException($media->getFilename() . '.' . $media->getFileExtension());
-            }
-
-            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
+            throw new FileNotFoundException($media->getFilename() . '.' . $media->getFileExtension());
         }
 
         return new StreamedResponse(function () use ($stream): void {
@@ -127,7 +110,7 @@ class DownloadResponseGenerator
         }
 
         if (!$filesystem instanceof Filesystem) {
-            throw MediaException::fileIsNotInstanceOfFileSystem();
+            throw new \RuntimeException(sprintf('Filesystem is not an instance of %s', Filesystem::class));
         }
 
         return $filesystem;

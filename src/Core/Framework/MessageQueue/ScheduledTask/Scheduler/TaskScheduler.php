@@ -20,11 +20,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @final
- */
 #[Package('core')]
-class TaskScheduler
+final class TaskScheduler
 {
     /**
      * @internal
@@ -165,9 +162,8 @@ class TaskScheduler
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_OR, [
+            new NotFilter(NotFilter::CONNECTION_AND, [
                 new EqualsFilter('status', ScheduledTaskDefinition::STATUS_INACTIVE),
-                new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SKIPPED),
             ])
         )
         ->addAggregation(new MinAggregation('runInterval', 'runInterval'));

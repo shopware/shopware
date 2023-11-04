@@ -15,18 +15,20 @@ use Shopware\Core\Framework\Log\Package;
 class Actions extends XmlElement
 {
     /**
-     * @var Action[]
+     * @param Action[] $actions
      */
-    protected array $actions;
+    public function __construct(protected array $actions)
+    {
+    }
 
-    public static function fromXml(\DOMElement $element): static
+    public static function fromXml(\DOMElement $element): self
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Actions')
         );
 
-        return parent::fromXml($element);
+        return new self(self::parseFlowActions($element));
     }
 
     /**
@@ -42,7 +44,10 @@ class Actions extends XmlElement
         return $this->actions;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<int, Action>
+     */
+    private static function parseFlowActions(\DOMElement $element): array
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
@@ -54,6 +59,6 @@ class Actions extends XmlElement
             $actions[] = Action::fromXml($flowAction);
         }
 
-        return ['actions' => $actions];
+        return $actions;
     }
 }

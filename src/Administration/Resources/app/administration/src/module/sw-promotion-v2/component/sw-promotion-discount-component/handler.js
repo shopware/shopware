@@ -1,8 +1,6 @@
 import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 
 /**
- * @package buyers-experience
- *
  * @private
  */
 export default class PromotionDiscountHandler {

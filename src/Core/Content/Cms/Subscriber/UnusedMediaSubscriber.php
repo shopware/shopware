@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore This would be useless as a unit test. It is integration tested here: \Shopware\Tests\Integration\Core\Content\Cms\Subscriber\UnusedMediaSubscriberTest
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class UnusedMediaSubscriber implements EventSubscriberInterface
 {
     public function __construct(
@@ -45,7 +45,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     {
         $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.sliderItems.value[*].mediaId") as mediaId
-        FROM `$table`
+        FROM $table
         WHERE JSON_OVERLAPS(
             JSON_EXTRACT(slot_config, "$.*.sliderItems.value[*].mediaId"),
             JSON_ARRAY(%s)
@@ -64,7 +64,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     {
         $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.media.value") as mediaId
-        FROM `$table`
+        FROM $table
         WHERE JSON_OVERLAPS(
             JSON_EXTRACT(slot_config, "$.*.media.value"),
             JSON_ARRAY(%s)

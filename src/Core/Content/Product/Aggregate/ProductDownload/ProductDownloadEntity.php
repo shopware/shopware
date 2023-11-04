@@ -25,8 +25,6 @@ class ProductDownloadEntity extends Entity
 
     protected ?ProductEntity $product = null;
 
-    protected string $productVersionId;
-
     public function getProductId(): string
     {
         return $this->productId;
@@ -75,15 +73,5 @@ class ProductDownloadEntity extends Entity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
-    }
-
-    public function getProductVersionId(): string
-    {
-        return $this->productVersionId;
-    }
-
-    public function setProductVersionId(string $productVersionId): void
-    {
-        $this->productVersionId = $productVersionId;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';

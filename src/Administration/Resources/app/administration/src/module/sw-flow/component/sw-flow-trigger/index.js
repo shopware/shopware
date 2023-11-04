@@ -9,7 +9,7 @@ const { isEmpty } = utils.types;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

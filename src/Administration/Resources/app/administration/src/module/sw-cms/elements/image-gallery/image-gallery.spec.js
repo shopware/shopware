@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';

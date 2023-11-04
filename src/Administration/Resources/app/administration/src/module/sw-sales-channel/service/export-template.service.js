@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 const { Application } = Shopware;

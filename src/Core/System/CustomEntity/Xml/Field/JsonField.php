@@ -16,4 +16,12 @@ class JsonField extends Field
     use TranslatableTrait;
 
     protected string $type = 'json';
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

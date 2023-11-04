@@ -43,9 +43,10 @@ class ProductConfiguratorLoader
 
         $groups = $this->sortSettings($groups, $product);
 
-        $combinations = $this->combinationLoader->loadCombinations(
+        $combinations = $this->combinationLoader->load(
             $product->getParentId(),
-            $context,
+            $context->getContext(),
+            $context->getSalesChannelId()
         );
 
         $current = $this->buildCurrentOptions($product, $groups);

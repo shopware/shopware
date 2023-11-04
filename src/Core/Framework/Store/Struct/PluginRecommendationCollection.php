@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<StorePluginStruct>
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 final class PluginRecommendationCollection extends Collection
 {
     public function __construct(iterable $elements = [])

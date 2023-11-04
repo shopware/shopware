@@ -1,4 +1,4 @@
-import AdminWorker from 'src/core/worker/admin-worker.shared-worker';
+import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
@@ -65,9 +65,6 @@ function enableAdminWorker(
     context: ApiContext,
     config: ContextState['app']['config']['adminWorker'],
 ) {
-    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-    const transports = (window._features_?.vue3 ? JSON.parse(JSON.stringify(config))?.transports || [] : config?.transports || []) as string[];
-
     const getMessage = () => {
         return {
             context: {
@@ -76,48 +73,45 @@ function enableAdminWorker(
             },
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
-            // Quick fix to lose the reference to the config object, this was causing issues with the worker
-            transports,
+            transports: config?.transports || [],
         };
     };
 
     if (loginService.isLoggedIn()) {
-        getWorker().port.postMessage(getMessage());
+        getWorker().postMessage(getMessage());
     }
 
     loginService.addOnTokenChangedListener((auth) => {
-        getWorker().port.postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
+        getWorker().postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
     });
 
     loginService.addOnLogoutListener(() => {
-        getWorker().port.postMessage({ type: 'logout' });
+        getWorker().postMessage({ type: 'logout' });
     });
 
     const importExportService = Shopware.Service('importExport');
 
     importExportService.addOnProgressStartedListener(() => {
-        getWorker().port.postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
+        getWorker().postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
     });
 
     enabled = true;
 }
 
 // singleton instance of worker
-let worker: SharedWorker;
+let worker: Worker;
 
 /* istanbul ignore next */
-function getWorker() : SharedWorker {
+function getWorker() : Worker {
     if (worker) {
         return worker;
     }
 
     // The webpack worker plugin generates a valid worker file therefore we can use it here
     // @ts-expect-error
-    worker = new AdminWorker() as SharedWorker;
+    worker = new AdminWorker() as Worker;
 
-    worker.port.start();
-
-    worker.port.onmessage = () => {
+    worker.onmessage = () => {
         const tokenHandler = getRefreshTokenHelper();
 
         if (!tokenHandler.isRefreshing) {

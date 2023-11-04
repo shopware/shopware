@@ -20,17 +20,17 @@ interface ApiDefinitionGeneratorInterface
     public function supports(string $format, string $api): bool;
 
     /**
-     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
-     * @phpstan-param Api     $api
+     * @phpstan-param  Api $api
      * @phpstan-param ApiType $apiType
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array;
+    public function generate(array $definitions, string $api, string $apiType): array;
 
     /**
-     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return ApiSchema
      */

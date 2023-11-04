@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';

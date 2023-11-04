@@ -1,0 +1,21 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/metrics\/needs-approval": {
+            "delete": {
+                "tags": [
+                    "Metrics approval request"
+                ],
+                "summary": "Get information about the metrics approval request.",
+                "description": "Get whether the metrics approval request is necessary or not.",
+                "operationId": "getNeedsMetricsApprovalRequest",
+                "responses": {
+                    "200": {
+                        "description": "Returns true if it is needed, false if it is not."
+                    }
+                }
+            }
+        }
+    }
+}

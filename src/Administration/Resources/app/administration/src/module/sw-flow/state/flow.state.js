@@ -4,7 +4,7 @@ const { types } = Shopware.Utils;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     namespaced: true,

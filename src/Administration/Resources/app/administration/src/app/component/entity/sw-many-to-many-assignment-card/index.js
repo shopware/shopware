@@ -24,10 +24,7 @@ Component.register('sw-many-to-many-assignment-card', {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'entityCollection',
@@ -88,7 +85,7 @@ Component.register('sw-many-to-many-assignment-card', {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.entity-components.placeholderToManyAssociationCard');
+                return this.$tc('global.entity-components.placeholderToManyAssociationCard');
             },
         },
 
@@ -286,12 +283,6 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:entityCollection', newCollection);
-
-                    return;
-                }
-
                 this.$emit('change', newCollection);
                 return;
             }
@@ -309,12 +300,6 @@ Component.register('sw-many-to-many-assignment-card', {
 
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
-
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:entityCollection', newCollection);
-
-                    return Promise.resolve();
-                }
 
                 this.$emit('change', newCollection);
                 return Promise.resolve();

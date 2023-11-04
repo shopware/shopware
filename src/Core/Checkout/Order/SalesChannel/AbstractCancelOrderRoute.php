@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used to cancel a order
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 abstract class AbstractCancelOrderRoute
 {
     abstract public function getDecorated(): AbstractCancelOrderRoute;

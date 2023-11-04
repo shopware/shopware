@@ -3,7 +3,7 @@ import './sw-cms-block-image-text-gallery.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

@@ -32,11 +32,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
-            {% if VUE3 %}
-            @update:process-success="saveFinish"
-            {% else %}
             @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-users-permissions.users.user-detail.labelButtonSave') }}
@@ -73,12 +69,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_first_name %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="user.firstName"
-                            {% else %}
                             v-model="user.firstName"
-                            {% endif %}
-                            name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userFirstNameError"
@@ -90,12 +81,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_last_name %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="user.lastName"
-                            {% else %}
                             v-model="user.lastName"
-                            {% endif %}
-                            name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userLastNameError"
@@ -107,12 +93,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_email %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value.trim="user.email"
-                            {% else %}
                             v-model.trim="user.email"
-                            {% endif %}
-                            name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error-message="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
                             :error="userEmailError"
@@ -126,12 +107,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_username %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="user.username"
-                            {% else %}
                             v-model="user.username"
-                            {% endif %}
-                            name="sw-field--user-username"
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
                             :error="userUsernameError"
@@ -168,28 +144,18 @@
                         <sw-password-field
                             class="sw-settings-user-detail__grid-password"
                             :value="user.password"
-                            name="sw-field--user-password"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :copy-able="false"
                             :error="userPasswordError"
-                            {% if VUE3 %}
-                            @update:value="setPassword"
-                            {% else %}
                             @change="setPassword"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_language %}
                         <sw-select-field
-                            {% if VUE3 %}
-                            v-model:value="user.localeId"
-                            {% else %}
                             v-model="user.localeId"
-                            {% endif %}
-                            name="sw-field--user-localeId"
                             class="sw-settings-user-detail__grid-language"
                             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                             :disabled="!acl.can('users_and_permissions.editor')"
@@ -211,15 +177,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_timezone %}
                         <sw-single-select
-                            {% if VUE3 %}
-                            v-model:value="user.timeZone"
-                            {% else %}
                             v-model="user.timeZone"
-                            {% endif %}
-                            name="sw-field--user-timeZone"
                             class="sw-settings-user-detail__grid-timezone"
                             :options="timezoneOptions"
                             required
+                            name="sw-field--timezone"
                             :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
                             :is-loading="timezoneOptions.length <= 0"
                             :disabled="!acl.can('user.update_profile')"
@@ -229,12 +191,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                         <sw-switch-field
-                            {% if VUE3 %}
-                            v-model:value="user.admin"
-                            {% else %}
                             v-model="user.admin"
-                            {% endif %}
-                            name="sw-field--user-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
@@ -244,12 +201,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_job_title %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="user.title"
-                            {% else %}
                             v-model="user.title"
-                            {% endif %}
-                            name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
@@ -259,17 +211,12 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                         <sw-entity-multi-select
-                            {% if VUE3 %}
-                            v-model:entityCollection="user.aclRoles"
-                            {% else %}
                             v-model="user.aclRoles"
-                            {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
                                 disabled: !user.admin || !acl.can('users_and_permissions.editor')
                             }"
-                            name="sw-field--user-aclRoles"
                             class="sw-settings-user-detail__grid-aclRoles"
                             :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                             :disabled="user.admin || !acl.can('users_and_permissions.editor')"
@@ -421,12 +368,8 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-            <sw-text-field
-                {% if VUE3 %}
-                v-model:value="currentIntegration.accessKey"
-                {% else %}
+            <sw-field
                 v-model="currentIntegration.accessKey"
-                {% endif %}
                 :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                 :disabled="true"
                 :copy-able="true"
@@ -438,27 +381,10 @@
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-            <sw-text-field
+            <sw-field
                 v-if="showSecretAccessKey"
-                {% if VUE3 %}
-                v-model:value="currentIntegration.secretAccessKey"
-                {% else %}
                 v-model="currentIntegration.secretAccessKey"
-                {% endif %}
-                :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
-                :disabled="true"
-                :password-toggle-able="false"
-                :copy-able="showSecretAccessKey"
-                :copy-able-tooltip="true"
-            />
-
-            <sw-password-field
-                v-else
-                {% if VUE3 %}
-                v-model:value="currentIntegration.secretAccessKey"
-                {% else %}
-                v-model="currentIntegration.secretAccessKey"
-                {% endif %}
+                :type="secretAccessKeyFieldType"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsIndex from 'src/module/sw-settings/page/sw-settings-index';

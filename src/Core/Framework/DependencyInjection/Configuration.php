@@ -40,8 +40,6 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
-                ->append($this->createStockSection())
-                ->append($this->createUsageDataSection())
             ->end();
 
         return $treeBuilder;
@@ -159,7 +157,6 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('store')
                     ->children()
                     ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
-                    ->scalarNode('max_limit')->end()
                 ->end()
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
@@ -171,7 +168,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('public_key_path')->end()
                 ->end()
             ->end()
-            ->scalarNode('max_limit')->end()
+            ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -283,7 +280,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('blue_green')->end()
-                ->booleanNode('cluster_setup')->end()
             ->end();
 
         return $rootNode;
@@ -369,36 +365,12 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
-                ->arrayNode('tagging')
-                    ->children()
-                        ->booleanNode('each_snippet')
-                            ->defaultTrue()
-                        ->end()
-                        ->booleanNode('each_config')
-                            ->defaultTrue()
-                        ->end()
-                        ->booleanNode('each_theme_config')
-                            ->defaultTrue()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('invalidation')
                     ->children()
                         ->integerNode('delay')
                             ->defaultValue(0)
                         ->end()
-                        ->arrayNode('delay_options')
-                            ->children()
-                                ->scalarNode('storage')
-                                    ->defaultValue('cache')
-                                ->end()
-                                ->scalarNode('dsn')
-                                    ->defaultValue('redis://localhost')
-                                ->end()
-                            ->end()
-                        ->end()
                         ->integerNode('count')
-                            ->setDeprecated('shopware/platform', '6.6.0.0')
                             ->defaultValue(150)
                         ->end()
                         ->arrayNode('http_cache')
@@ -562,9 +534,6 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-                ->booleanNode('enabled')
-                    ->defaultTrue()
-                ->end()
                 ->variableNode('cache_dir')
                     ->defaultValue('%kernel.cache_dir%')
                 ->end()
@@ -704,37 +673,6 @@ class Configuration implements ConfigurationInterface
                 ->scalarPrototype()
                 ->end()
             ->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function createStockSection(): ArrayNodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('stock');
-
-        $rootNode = $treeBuilder->getRootNode();
-        $rootNode
-            ->children()
-                ->booleanNode('enable_stock_management')->defaultTrue()->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function createUsageDataSection(): ArrayNodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('usage_data');
-
-        $rootNode = $treeBuilder->getRootNode();
-        $rootNode
-            ->children()
-                ->arrayNode('gateway')
-                    ->children()
-                        ->scalarNode('base_uri')->end()
-                        ->scalarNode('batch_size')->end()
-                    ->end()
-                ->end()
             ->end();
 
         return $rootNode;

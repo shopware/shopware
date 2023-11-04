@@ -13,7 +13,7 @@ use Twig\Extension\EscaperExtension;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\ArrayLoader;
 
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoUrlTwigFactory
 {
     /**

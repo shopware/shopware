@@ -22,7 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SalesChannelValidator implements EventSubscriberInterface
 {
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';

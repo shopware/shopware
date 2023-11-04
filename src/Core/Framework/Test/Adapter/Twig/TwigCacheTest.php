@@ -7,12 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Twig\Cache\CacheInterface;
-use Twig\Environment;
 
 /**
  * @internal
@@ -34,9 +31,7 @@ class TwigCacheTest extends TestCase
 
         $templateFinder->find($templateName);
 
-        $cache = $twig->getCache(false);
-        static::assertInstanceOf(CacheInterface::class, $cache);
-        $firstCacheKey = $cache->generateKey($templateName, static::class);
+        $firstCacheKey = $twig->getCache(false)->generateKey($templateName, static::class);
 
         [$twig, $templateFinder] = $this->createFinder([
             new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
@@ -45,23 +40,17 @@ class TwigCacheTest extends TestCase
         ]);
 
         $templateFinder->find($templateName);
-        $cache = $twig->getCache(false);
-        static::assertInstanceOf(CacheInterface::class, $cache);
-        $secondCacheKey = $cache->generateKey($templateName, static::class);
+        $secondCacheKey = $twig->getCache(false)->generateKey($templateName, static::class);
 
         static::assertNotEquals($firstCacheKey, $secondCacheKey);
     }
 
-    /**
-     * @param BundleFixture[] $bundles
-     *
-     * @return array{0: Environment, 1: TemplateFinder}
-     */
     private function createFinder(array $bundles): array
     {
         $twig = $this->getContainer()->get('twig');
 
         $loader = $this->getContainer()->get('twig.loader.native_filesystem');
+        /** @var BundleFixture $bundle */
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
@@ -73,11 +62,6 @@ class TwigCacheTest extends TestCase
             ->method('getBundles')
             ->willReturn($bundles);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects(static::any())
-            ->method('getScopes')
-            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
-
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
@@ -87,8 +71,7 @@ class TwigCacheTest extends TestCase
                     $kernel,
                     $this->getContainer()->get(Connection::class)
                 ),
-            ]),
-            $scopeDetector,
+            ])
         );
 
         return [$twig, $templateFinder];

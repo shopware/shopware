@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package sales-channel
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';

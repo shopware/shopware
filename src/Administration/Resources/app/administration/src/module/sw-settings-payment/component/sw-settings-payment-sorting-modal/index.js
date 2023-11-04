@@ -42,10 +42,6 @@ export default {
         paymentMethodRepository() {
             return this.repositoryFactory.create('payment_method');
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     methods: {

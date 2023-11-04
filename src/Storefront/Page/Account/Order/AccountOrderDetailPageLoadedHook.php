@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountOrderDetailPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

@@ -30,10 +30,6 @@ class NamedOptionalGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
-            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
-            new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id'),
-        ]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()), new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id')]);
     }
 }

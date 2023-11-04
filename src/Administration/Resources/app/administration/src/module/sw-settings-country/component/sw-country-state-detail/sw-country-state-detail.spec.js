@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swCountryStateDetail from 'src/module/sw-settings-country/component/sw-country-state-detail';
@@ -29,8 +29,7 @@ async function createWrapper(privileges = []) {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
+            'sw-field': true,
             'sw-button': true,
             'sw-empty-state': true,
         },
@@ -75,13 +74,13 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
             '.sw-country-state-detail__save-button',
         );
         const countryStateNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelName"]',
+            'sw-field-stub[label="sw-country-state-detail.labelName"]',
         );
         const countryStateShortCodeField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelShortCode"]',
+            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]',
         );
         const countryStatePositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
+            'sw-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -98,13 +97,13 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
             '.sw-country-state-detail__save-button',
         );
         const countryStateNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelName"]',
+            'sw-field-stub[label="sw-country-state-detail.labelName"]',
         );
         const countryStateShortCodeField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelShortCode"]',
+            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]',
         );
         const countryStatePositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
+            'sw-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();

@@ -11,6 +11,7 @@
                 "summary": "Fetch a list of categories",
                 "description": "Perform a filtered search for categories.",
                 "operationId": "readCategoryList",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -31,6 +32,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "allOf": [
                                         {
                                             "properties": {

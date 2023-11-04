@@ -2,30 +2,21 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @deprecated tag:v6.6.0 - will be removed, use ElasticsearchException::unsupportedElasticsearchDefinition instead
- */
 #[Package('core')]
-class UnsupportedElasticsearchDefinitionException extends ElasticsearchException
+class UnsupportedElasticsearchDefinitionException extends ShopwareHttpException
 {
     final public const CODE = 'ELASTICSEARCH_UNSUPPORTED_DEFINITION';
 
     public function __construct(string $entity)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'ElasticsearchException::unsupportedElasticsearchDefinition')
-        );
+        parent::__construct(sprintf('Entity %s is not supported for elastic search', $entity));
+    }
 
-        parent::__construct(
-            Response::HTTP_BAD_REQUEST,
-            self::CODE,
-            sprintf('Entity %s is not supported for elastic search', $entity)
-        );
+    public function getErrorCode(): string
+    {
+        return self::CODE;
     }
 }

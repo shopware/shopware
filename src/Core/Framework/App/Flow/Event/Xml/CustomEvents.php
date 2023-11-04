@@ -12,25 +12,41 @@ use Shopware\Core\Framework\Log\Package;
 class CustomEvents extends XmlElement
 {
     /**
-     * @var list<CustomEvent>
+     * @var CustomEvent[]
      */
     protected array $customEvent;
 
     /**
-     * @return list<CustomEvent>
+     * @param array<int, CustomEvent> $data
+     */
+    private function __construct(array $data)
+    {
+        $this->customEvent = $data;
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseFlowEvents($element));
+    }
+
+    /**
+     * @return CustomEvent[]
      */
     public function getCustomEvents(): array
     {
         return $this->customEvent;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<int, CustomEvent>
+     */
+    private static function parseFlowEvents(\DOMElement $element): array
     {
         $events = [];
         foreach ($element->getElementsByTagName('flow-event') as $flowEvent) {
             $events[] = CustomEvent::fromXml($flowEvent);
         }
 
-        return ['customEvent' => $events];
+        return $events;
     }
 }

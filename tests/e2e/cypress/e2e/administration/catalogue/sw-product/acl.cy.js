@@ -1,11 +1,8 @@
 // / <reference types="Cypress" />
-/**
- * @package inventory
- */
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Product: Test ACL privileges', { tags: ['VUE3']}, () => {
+describe('Product: Test ACL privileges', () => {
     beforeEach(() => {
         cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

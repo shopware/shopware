@@ -1,16 +1,16 @@
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-preview-buy-box', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-config-buy-box', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-buy-box', () => import('./component'));
 
@@ -20,7 +20,7 @@ criteria.addAssociation('deliveryTime');
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'buy-box',

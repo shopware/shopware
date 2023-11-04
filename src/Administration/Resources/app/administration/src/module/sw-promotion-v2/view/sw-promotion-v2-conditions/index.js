@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-promotion-v2-conditions.html.twig';
 
 const { Criteria, EntityCollection } = Shopware.Data;

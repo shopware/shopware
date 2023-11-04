@@ -17,11 +17,26 @@ use Symfony\Component\Config\Util\XmlUtils;
 final class Tab extends ConfigXmlElement
 {
     /**
-     * @var list<Card>
+     * @param list<Card> $cards
      */
-    protected array $cards;
+    private function __construct(
+        protected readonly array $cards,
+        protected readonly string $name
+    ) {
+    }
 
-    protected string $name;
+    public static function fromXml(\DOMElement $element): self
+    {
+        $cards = [];
+        foreach ($element->getElementsByTagName('card') as $card) {
+            $cards[] = Card::fromXml($card);
+        }
+
+        return new self(
+            $cards,
+            XmlUtils::phpize($element->getAttribute('name'))
+        );
+    }
 
     public function getName(): string
     {
@@ -34,18 +49,5 @@ final class Tab extends ConfigXmlElement
     public function getCards(): array
     {
         return $this->cards;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        $cards = [];
-        foreach ($element->getElementsByTagName('card') as $card) {
-            $cards[] = Card::fromXml($card);
-        }
-
-        return [
-            'cards' => $cards,
-            'name' => XmlUtils::phpize($element->getAttribute('name')),
-        ];
     }
 }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\MediaType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 abstract class MediaType extends Struct
 {
     /**

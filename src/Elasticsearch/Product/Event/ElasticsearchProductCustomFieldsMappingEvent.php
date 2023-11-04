@@ -2,18 +2,13 @@
 
 namespace Shopware\Elasticsearch\Product\Event;
 
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 
-/**
- * @deprecated tag:v6.6.0 - Will be removed, use \Shopware\Elasticsearch\Product\Event\ElasticsearchCustomFieldsMappingEvent instead
- */
 #[Package('core')]
-class ElasticsearchProductCustomFieldsMappingEvent extends ElasticsearchCustomFieldsMappingEvent
+class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
 {
     /**
      * @param array<string, string> $mapping
@@ -22,16 +17,10 @@ class ElasticsearchProductCustomFieldsMappingEvent extends ElasticsearchCustomFi
         protected array $mapping,
         protected Context $context
     ) {
-        parent::__construct(ProductDefinition::ENTITY_NAME, $this->mapping, $this->context);
     }
 
     public function getContext(): Context
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchCustomFieldsMappingEvent::getContext instead')
-        );
-
         return $this->context;
     }
 
@@ -40,11 +29,6 @@ class ElasticsearchProductCustomFieldsMappingEvent extends ElasticsearchCustomFi
      */
     public function setMapping(string $field, string $type): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchCustomFieldsMappingEvent::setMapping instead')
-        );
-
         $this->mapping[$field] = $type;
     }
 
@@ -54,21 +38,11 @@ class ElasticsearchProductCustomFieldsMappingEvent extends ElasticsearchCustomFi
      */
     public function getMapping(string $field)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchCustomFieldsMappingEvent::getMapping instead')
-        );
-
         return $this->mapping[$field] ?? null;
     }
 
     public function removeMapping(string $field): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchCustomFieldsMappingEvent::removeMapping instead')
-        );
-
         if (isset($this->mapping[$field])) {
             unset($this->mapping[$field]);
         }
@@ -79,11 +53,6 @@ class ElasticsearchProductCustomFieldsMappingEvent extends ElasticsearchCustomFi
      */
     public function getMappings(): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use ElasticsearchCustomFieldsMappingEvent::getMappings instead')
-        );
-
         return $this->mapping;
     }
 }

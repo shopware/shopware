@@ -25,8 +25,6 @@ Component.register('sw-select-field', {
 
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -114,12 +112,6 @@ Component.register('sw-select-field', {
             this.currentValue = event.target.value;
             if (event.target.value === '') {
                 this.currentValue = null;
-            }
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
             }
 
             this.$emit('change', this.currentValue);

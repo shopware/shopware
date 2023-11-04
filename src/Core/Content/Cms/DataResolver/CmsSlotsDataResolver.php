@@ -9,7 +9,6 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -17,27 +16,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class CmsSlotsDataResolver
 {
     /**
-     * @var array<string, CmsElementResolverInterface>
+     * @var CmsElementResolverInterface[]
      */
     private ?array $resolvers = null;
 
-    /**
-     * @var array<string, SalesChannelRepository>
-     */
     private ?array $repositories = null;
 
     /**
      * @internal
      *
-     * @param iterable<CmsElementResolverInterface> $resolvers
-     * @param array<string, SalesChannelRepository> $repositories
+     * @param CmsElementResolverInterface[] $resolvers
      */
     public function __construct(
         iterable $resolvers,
@@ -109,7 +103,7 @@ class CmsSlotsDataResolver
      *
      * @throws InconsistentCriteriaIdsException
      *
-     * @return array<string, EntitySearchResult<EntityCollection>>
+     * @return EntitySearchResult[]
      */
     private function fetchByIdentifier(array $directReads, SalesChannelContext $context): array
     {
@@ -131,15 +125,11 @@ class CmsSlotsDataResolver
         return $entities;
     }
 
-    /**
-     * @param array<string, array<string, Criteria>>               $searches
-     *
-     * @return array<string, EntitySearchResult<EntityCollection>>
-     */
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
 
+        /** @var Criteria[] $criteriaObjects */
         foreach ($searches as $definitionClass => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
                 $definition = $this->definitionRegistry->get($definitionClass);
@@ -161,9 +151,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param array<string, CriteriaCollection> $criteriaCollections
-     *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @param CriteriaCollection[] $criteriaCollections
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -176,6 +164,7 @@ class CmsSlotsDataResolver
             $directReads[$definition] = [[]];
             $searches[$definition] = [];
 
+            /** @var Criteria $criteria */
             foreach ($criteriaObjects as $criteria) {
                 if ($this->canBeMerged($criteria)) {
                     $directReads[$definition][] = $criteria->getIds();
@@ -188,7 +177,6 @@ class CmsSlotsDataResolver
         }
 
         foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
             $directReads[$definition] = array_merge(...$idLists);
         }
 
@@ -245,16 +233,14 @@ class CmsSlotsDataResolver
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }
 
-    private function getSalesChannelApiRepository(EntityDefinition $definition): ?SalesChannelRepository
+    /**
+     * @return mixed|null
+     */
+    private function getSalesChannelApiRepository(EntityDefinition $definition)
     {
         return $this->repositories[$definition->getEntityName()] ?? null;
     }
 
-    /**
-     * @param array<string, CriteriaCollection> $criteriaCollections
-     *
-     * @return array<string, array<Criteria>>
-     */
     private function flattenCriteriaCollections(array $criteriaCollections): array
     {
         $flattened = [];
@@ -271,10 +257,8 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
-     * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, EntitySearchResult<TEntityCollection>> $searchResults
+     * @param CriteriaCollection[] $criteriaObjects
+     * @param EntitySearchResult[] $searchResults
      */
     private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {
@@ -301,10 +285,8 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
-     * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, EntitySearchResult<TEntityCollection>> $entities
+     * @param CriteriaCollection[] $criteriaObjects
+     * @param EntitySearchResult[] $entities
      */
     private function mapEntities(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $entities): void
     {

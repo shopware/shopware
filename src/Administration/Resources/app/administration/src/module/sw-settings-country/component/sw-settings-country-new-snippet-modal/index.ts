@@ -22,7 +22,7 @@ interface TreeItem {
 }
 
 /**
- * @package buyers-experience
+ * @package customer-order
  *
  * @private
  */

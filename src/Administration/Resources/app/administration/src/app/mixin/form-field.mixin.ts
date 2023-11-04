@@ -3,20 +3,11 @@
  */
 
 import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('sw-form-field', defineComponent({
-    inject: ['feature'],
-
-    data() {
-        return {
-            inheritanceAttrs: {},
-        };
-    },
-
+Shopware.Mixin.register('sw-form-field', {
     props: {
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,9 +18,6 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
         boundExpression() {
             // @ts-expect-error - we check if model exists on vnode
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -41,7 +29,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
             return null;
         },
 
-        formFieldName(): string|null {
+        formFieldName() {
             if (this.$attrs.name) {
                 return this.$attrs.name;
             }
@@ -53,9 +41,6 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
                 return this.name;
             }
 
-            /**
-             * @deprecated tag:v6.6.0 - If statement will be removed
-             */
             if (this.boundExpression) {
                 // @ts-expect-error - we check if the value exists in boundExpression
                 // eslint-disable-next-line max-len
@@ -130,32 +115,6 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         },
 
         setAttributesForProps(prop: string, propValue: boolean) {
-            if (this.feature.isActive('VUE3')) {
-                switch (prop) {
-                    case 'isInherited': {
-                        this.inheritanceAttrs = {
-                            ...this.inheritanceAttrs,
-                            [prop]: propValue,
-                        };
-                        break;
-                    }
-
-                    case 'isInheritField': {
-                        this.inheritanceAttrs = {
-                            ...this.inheritanceAttrs,
-                            isInheritanceField: propValue,
-                        };
-                        break;
-                    }
-
-                    default: {
-                        break;
-                    }
-                }
-
-                return;
-            }
-
             switch (prop) {
                 case 'isInherited': {
                     this.$set(this.$attrs, prop, propValue);
@@ -173,5 +132,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
             }
         },
     },
-}));
+});
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {};

@@ -10,14 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ErrorRoute
 {
-    /**
-     * @var array<string, mixed>
-     */
     private readonly array $params;
 
-    /**
-     * @param array<string, mixed>|null $params
-     */
     public function __construct(
         private readonly string $key,
         ?array $params = null
@@ -30,9 +24,6 @@ class ErrorRoute
         return $this->key;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getParams(): array
     {
         return $this->params;

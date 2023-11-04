@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 interface DiscountCalculatorInterface
 {
     /**

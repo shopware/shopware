@@ -14,13 +14,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -421,7 +420,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('user_%s', Uuid::randomHex()),
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => sprintf('shopwarepw%d', $i),
                 'firstName' => sprintf('Foo%d', $i),
                 'lastName' => sprintf('Bar%d', $i),
                 'email' => sprintf('%s@foo.bar', $uuid),

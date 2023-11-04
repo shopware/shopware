@@ -3,8 +3,6 @@ import template from './sw-promotion-detail-discounts.html.twig';
 import './sw-promotion-detail-discounts.scss';
 
 /**
- * @package buyers-experience
- *
  * @private
  */
 export default {

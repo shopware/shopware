@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import './sw-promotion-v2-cart-condition-form.scss';
 import template from './sw-promotion-v2-cart-condition-form.html.twig';
 

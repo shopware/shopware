@@ -15,14 +15,13 @@
         {% block sw_product_add_properties_modal_filled_state_search_field %}
         <sw-property-search
             ref="propertySearch"
-            class="sw-product-add-properties-modal__search"
             :options="newProperties"
             :overlay="false"
             :collapsible="false"
             @option-select="onSelectOption"
         >
             <template
-                #toolbar="{ focus, input, searchTerm }"
+                #toolbar="{focus, input}"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_field %}
@@ -37,7 +36,6 @@
                                     size="small"
                                     variant="form"
                                     class="sw-property-search__search-field sw-product-add-properties-modal__search-field"
-                                    :value="searchTerm"
                                     :placeholder="$tc('sw-property-search.placeholderSearch')"
                                     @focus="focus"
                                     @input="input"
@@ -68,7 +66,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_add_properties_modal_empty_state_image %}
             <img
-                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
                 :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
             >
             {% endblock %}

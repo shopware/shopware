@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -54,7 +54,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
         $email = 'thuy@gmail.com';
-        $this->prepareCustomer($email, ['customFields' => [$customFieldName => $existedData]]);
+        $password = '12345678';
+        $this->prepareCustomer($password, $email, ['customFields' => [$customFieldName => $existedData]]);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -82,7 +83,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, 'shopware');
+        $this->login($email, $password);
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */

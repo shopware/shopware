@@ -2,7 +2,7 @@ import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 
 /**
- * @package buyers-experience
+ * @package content
  */
 
 const { Mixin } = Shopware;

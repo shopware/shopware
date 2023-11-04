@@ -3,7 +3,7 @@ import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

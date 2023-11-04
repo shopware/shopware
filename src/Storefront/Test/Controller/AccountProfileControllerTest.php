@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountProfileControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -85,7 +85,7 @@ class AccountProfileControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'shopware',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -117,7 +117,7 @@ class AccountProfileControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => 'test12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

@@ -7,7 +7,8 @@ https://getbootstrap.com/docs/5.2/components/modal
 */
 
 .modal-content {
-    box-shadow: var(--#{$prefix}modal-box-shadow);
+    border: 0;
+    box-shadow: 0 43px 43px -6px rgba($black, 0.2);
 
     .modal-title {
         margin: 0;

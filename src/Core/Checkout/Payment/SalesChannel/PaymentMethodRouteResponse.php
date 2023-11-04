@@ -11,13 +11,10 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class PaymentMethodRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<PaymentMethodCollection>
+     * @var EntitySearchResult
      */
     protected $object;
 
-    /**
-     * @param EntitySearchResult<PaymentMethodCollection> $paymentMethods
-     */
     public function __construct(EntitySearchResult $paymentMethods)
     {
         parent::__construct($paymentMethods);
@@ -25,6 +22,9 @@ class PaymentMethodRouteResponse extends StoreApiResponse
 
     public function getPaymentMethods(): PaymentMethodCollection
     {
-        return $this->object->getEntities();
+        /** @var PaymentMethodCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

@@ -25,7 +25,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class ChangeCustomerGroupActionTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -60,7 +60,8 @@ class ChangeCustomerGroupActionTest extends TestCase
         $this->createDataTest();
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer($email);
+        $password = 'shopware';
+        $this->createCustomer($password, $email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -101,7 +102,7 @@ class ChangeCustomerGroupActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, 'shopware');
+        $this->login($email, $password);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Test group'));
@@ -135,7 +136,7 @@ class ChangeCustomerGroupActionTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(?string $email = null): void
+    private function createCustomer(string $password, ?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -155,7 +156,7 @@ class ChangeCustomerGroupActionTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

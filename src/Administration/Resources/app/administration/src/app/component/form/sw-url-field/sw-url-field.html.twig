@@ -1,30 +1,21 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
-<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_url_field %}
 <sw-contextual-field
     class="sw-field--url"
-    {% if VUE3 %}
-    v-bind="{
-        ...$attrs,
-        ...inheritanceAttrs
-    }"
-    {% else %}
     v-bind="$attrs"
-    {% endif %}
     :error="combinedError"
     :name="formFieldName"
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
 >
     <template #sw-contextual-field-prefix="{ disabled }">
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <span
             class="sw-field__url-input__prefix"
             :class="prefixClass"
-            role="button"
-            tabindex="0"
             @click="changeMode(disabled)"
-            @keydown.enter="changeMode(disabled)"
         >
             <sw-icon
                 v-if="sslActive"
@@ -47,7 +38,7 @@
             type="url"
             class="sw-url-input-field__input"
             :name="identification"
-            :value="unicodeUriFilter(currentValue)"
+            :value="currentValue|unicodeUri"
             :placeholder="placeholder"
             :disabled="disabled"
             @focus="setFocusClass"

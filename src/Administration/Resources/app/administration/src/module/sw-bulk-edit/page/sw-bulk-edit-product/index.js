@@ -1025,19 +1025,12 @@ export default {
             }
         },
 
-        onChangePrices(item, value = null) {
+        onChangePrices(item) {
             if (item === 'taxId') {
                 this.taxRate = this.productTaxRate();
-                return;
-            }
-
-            if (item === 'price') {
+            } else if (item === 'price') {
                 this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
                 this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
-            }
-
-            if (value && typeof value !== 'boolean') {
-                this.$set(this.product, `${item}`, [value]);
             }
         },
 

@@ -69,7 +69,8 @@
                 v-if="filter.displayPath"
                 #result-item="{ item, index }"
             >
-                <sw-select-result
+                <li
+                    is="sw-select-result"
                     v-bind="{ item, index }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -86,7 +87,7 @@
                         />
                     </span>
                     {% endblock %}
-                </sw-select-result>
+                </li>
             </template>
             {% endblock %}
         </sw-multi-select-filter>

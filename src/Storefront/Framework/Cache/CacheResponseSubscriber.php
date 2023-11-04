@@ -192,7 +192,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
-        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
         $response->setPrivate();
 
         if ($noStore) {
@@ -223,7 +222,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
-            $context->getTaxState(),
             $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ], \JSON_THROW_ON_ERROR));
     }

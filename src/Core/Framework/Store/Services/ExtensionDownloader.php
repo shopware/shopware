@@ -20,7 +20,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class ExtensionDownloader
 {
     private readonly string $relativePluginDir;

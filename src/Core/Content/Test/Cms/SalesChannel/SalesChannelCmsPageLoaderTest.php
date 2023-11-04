@@ -3,7 +3,8 @@
 namespace Shopware\Core\Content\Test\Cms\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
@@ -25,11 +26,14 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     use SalesChannelFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepository<CategoryCollection>
+     * @var EntityRepository
      */
-    private EntityRepository $categoryRepository;
+    private $categoryRepository;
 
-    private SalesChannelCmsPageLoaderInterface $salesChannelCmsPageLoader;
+    /**
+     * @var SalesChannelCmsPageLoaderInterface
+     */
+    private $salesChannelCmsPageLoader;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -39,9 +43,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
     private static string $categoryId;
 
-    /**
-     * @var array<string, mixed>
-     */
     private static array $category;
 
     public static function setUpBeforeClass(): void
@@ -126,40 +127,34 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         static::assertEquals(1, $pages->getTotal());
 
-        $page = $pages->getEntities()->first();
-        static::assertNotNull($page);
-        $sections = $page->getSections();
-        static::assertNotNull($sections);
-        $firstSection = $sections->first();
-        static::assertNotNull($firstSection);
-        $blocks = $firstSection->getBlocks();
-        static::assertNotNull($blocks);
-        $firstSlot = $blocks->getSlots()->get(self::$firstSlotId);
-        static::assertNotNull($firstSlot);
+        /** @var CmsPageEntity $page */
+        $page = $pages->first();
+
+        $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'initial')]);
 
         static::assertEquals(
             self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['config'],
-            $firstSlot->getConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$firstSlotId)->getConfig()
         );
 
         static::assertEquals(
-            new FieldConfigCollection([new FieldConfig('content', 'static', 'initial')]),
-            $firstSlot->getFieldConfig()
+            $fieldConfigCollection,
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$firstSlotId)->getFieldConfig()
         );
 
-        $secondSlot = $blocks->getSlots()->get(self::$secondSlotId);
-        static::assertNotNull($secondSlot);
-        static::assertNull($secondSlot->getConfig());
+        static::assertNull(
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$secondSlotId)->getConfig()
+        );
 
         // overwrite in category
         $customSlotConfig = [
-            (string) self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id'] => [
+            self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id'] => [
                 'content' => [
                     'source' => 'static',
                     'value' => 'overwrite',
                 ],
             ],
-            (string) self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id'] => [
+            self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id'] => [
                 'content' => [
                     'source' => 'static',
                     'value' => 'overwrite',
@@ -176,32 +171,24 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         static::assertGreaterThanOrEqual(1, $pages->getTotal());
 
-        $page = $pages->getEntities()->first();
-        static::assertNotNull($page);
-        $sections = $page->getSections();
-        static::assertNotNull($sections);
-        $firstSection = $sections->first();
-        static::assertNotNull($firstSection);
-        $blocks = $firstSection->getBlocks();
-        static::assertNotNull($blocks);
-        $firstSlot = $blocks->getSlots()->get(self::$firstSlotId);
-        static::assertNotNull($firstSlot);
+        /** @var CmsPageEntity $page */
+        $page = $pages->first();
+
+        $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrite')]);
 
         static::assertEquals(
             $customSlotConfig[self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id']],
-            $firstSlot->getConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$firstSlotId)->getConfig()
         );
 
         static::assertEquals(
-            new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrite')]),
-            $firstSlot->getFieldConfig()
+            $fieldConfigCollection,
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$firstSlotId)->getFieldConfig()
         );
 
-        $secondSlot = $blocks->getSlots()->get(self::$secondSlotId);
-        static::assertNotNull($secondSlot);
         static::assertEquals(
             $customSlotConfig[self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id']],
-            $secondSlot->getConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get(self::$secondSlotId)->getConfig()
         );
     }
 
@@ -233,7 +220,10 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $salesChannelContextDe
         );
 
-        static::assertNotEmpty($pages->getEntities()->first()?->getSections()?->getBlocks()->getSlots()->get(self::$firstSlotId)?->getConfig());
+        /** @var CmsPageEntity $page */
+        $page = $pages->getIterator()->current();
+
+        static::assertNotEmpty($page->getSections()->getBlocks()->getSlots()->get(self::$firstSlotId)->getConfig());
     }
 
     public function testInheritSlotConfigOverwriteByCategory(): void
@@ -261,8 +251,8 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $criteria = new Criteria([self::$categoryId]);
         $criteria->addAssociation('media');
 
-        $category = $this->categoryRepository->search($criteria, $salesChannelContextDe->getContext())->getEntities()->get(self::$categoryId);
-        static::assertNotNull($category);
+        /** @var CategoryEntity $category */
+        $category = $this->categoryRepository->search($criteria, $salesChannelContextDe->getContext())->get(self::$categoryId);
 
         $pages = $this->salesChannelCmsPageLoader->load(
             new Request(),
@@ -271,8 +261,9 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $category->getTranslation('slotConfig')
         );
 
-        $config = $pages->getEntities()->first()?->getSections()?->getBlocks()->getSlots()->get(self::$firstSlotId)?->getConfig();
-        static::assertIsArray($config);
-        static::assertEquals('overwrittenByCategory', $config['content']['value']);
+        /** @var CmsPageEntity $page */
+        $page = $pages->getIterator()->current();
+
+        static::assertEquals('overwrittenByCategory', $page->getSections()->getBlocks()->getSlots()->get(self::$firstSlotId)->getConfig()['content']['value']);
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('content')]
 class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 {
     /**
@@ -90,13 +89,13 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
                 return $salesChannelEntity->getNavigationCategoryId();
             case 'service-navigation':
                 if ($salesChannelEntity->getServiceCategoryId() === null) {
-                    throw CategoryException::serviceCategoryNotFoundForSalesChannel($name);
+                    throw new \RuntimeException(\sprintf('Service category, for sales channel %s, is not set', $name));
                 }
 
                 return $salesChannelEntity->getServiceCategoryId();
             case 'footer-navigation':
                 if ($salesChannelEntity->getFooterCategoryId() === null) {
-                    throw CategoryException::footerCategoryNotFoundForSalesChannel($name);
+                    throw new \RuntimeException(\sprintf('Footer category, for sales channel %s, is not set', $name));
                 }
 
                 return $salesChannelEntity->getFooterCategoryId();

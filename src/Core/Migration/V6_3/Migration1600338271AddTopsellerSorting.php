@@ -13,8 +13,6 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1600338271AddTopsellerSorting extends MigrationStep

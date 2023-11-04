@@ -9,7 +9,7 @@ import Criteria from 'src/core/data/criteria.data';
 
 Shopware.Component.register('sw-property-list', swPropertyList);
 
-async function createWrapper() {
+async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-property-list'), {
         mocks: {
             $route: {
@@ -33,6 +33,13 @@ async function createWrapper() {
                     },
                 }),
             },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                },
+            },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
@@ -53,14 +60,11 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
             },
-            'sw-button': {
-                template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                props: ['disabled'],
-            },
+            'sw-button': true,
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-entity-listing': {
-                props: ['items', 'allow-inline-edit'],
+                props: ['items'],
                 template: `
                     <div>
                         <template v-for="item in items">
@@ -70,104 +74,97 @@ async function createWrapper() {
             },
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-                props: ['disabled'],
-            },
-            'router-link': true,
+            'sw-context-menu-item': true,
         },
     });
 }
 
 describe('module/sw-property/page/sw-property-list', () => {
-    it('should not be able to create a new property', async () => {
-        global.activeAclRoles = [];
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
 
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should not be able to create a new property', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-property-list__button-create');
 
-        expect(createButton.props('disabled')).toBe(true);
+        expect(createButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to create a new property', async () => {
-        global.activeAclRoles = ['property.creator'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'property.creator',
+        ]);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-property-list__button-create');
 
-        expect(createButton.props('disabled')).toBe(false);
+        expect(createButton.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to inline edit', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-property-list-grid');
 
-        expect(entityListing.exists()).toBe(true);
-        expect(entityListing.props('allowInlineEdit')).toBe(false);
+        expect(entityListing.exists()).toBeTruthy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should be able to inline edit', async () => {
-        global.activeAclRoles = ['property.editor'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'property.editor',
+        ]);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-property-list-grid');
-        expect(entityListing.exists()).toBe(true);
-        expect(entityListing.props('allowInlineEdit')).toBe(true);
+        expect(entityListing.exists()).toBeTruthy();
+        expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
-        expect(deleteMenuItem.props('disabled')).toBe(true);
+        expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete', async () => {
-        global.activeAclRoles = ['property.deleter'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'property.deleter',
+        ]);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
-        expect(deleteMenuItem.props('disabled')).toBe(false);
+        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to edit', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-property-list__edit-action');
-        expect(editMenuItem.props('disabled')).toBe(true);
+        expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit', async () => {
-        global.activeAclRoles = ['property.editor'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'property.editor',
+        ]);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-property-list__edit-action');
-        expect(editMenuItem.props('disabled')).toBe(false);
+        expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should add query score to the criteria', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
@@ -191,8 +188,6 @@ describe('module/sw-property/page/sw-property-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -213,8 +208,6 @@ describe('module/sw-property/page/sw-property-list', () => {
     });
 
     it('should not build query score when search ranking field is null', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
@@ -239,8 +232,6 @@ describe('module/sw-property/page/sw-property-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
@@ -254,9 +245,9 @@ describe('module/sw-property/page/sw-property-list', () => {
         const emptyState = wrapper.find('sw-empty-state-stub');
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();

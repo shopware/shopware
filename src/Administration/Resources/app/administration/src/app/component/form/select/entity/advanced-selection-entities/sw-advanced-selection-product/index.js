@@ -205,18 +205,6 @@ Component.register('sw-advanced-selection-product', {
                 'tags',
             ];
         },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
-
-        stockColorVariantFilter() {
-            return Shopware.Filter.getByName('stockColorVariant');
-        },
     },
 
     created() {

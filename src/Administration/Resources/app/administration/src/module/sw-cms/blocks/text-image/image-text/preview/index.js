@@ -3,14 +3,8 @@ import './sw-cms-preview-image-text.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
-
-    computed: {
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-    },
 };

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class HreflangLoader implements HreflangLoaderInterface
 {
     /**

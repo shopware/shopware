@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-import-export-edit-profile-field-indicators.html.twig';

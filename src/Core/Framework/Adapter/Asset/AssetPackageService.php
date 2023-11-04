@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
@@ -12,28 +11,21 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 class AssetPackageService
 {
     /**
-     * @deprecated tag:v6.6.0 - Will be removed, will be now automatically registered
+     * @internal
      */
-    public function addAssetPackage(string $bundleName, string $bundlePath): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, 'addAssetPackage', 'Will be automatically registered'));
+    public function __construct(
+        private readonly Packages $packages,
+        private readonly Package $package,
+        private readonly VersionStrategyInterface $versionStrategy
+    ) {
     }
 
-    /**
-     * @param array<string, string> $bundleMap
-     */
-    public static function create(array $bundleMap, Package $package, VersionStrategyInterface $versionStrategy, mixed ...$args): Packages
+    public function addAssetPackage(string $bundleName, string $bundlePath): void
     {
-        $packages = new Packages(...$args);
-
-        foreach ($bundleMap as $bundleName => $bundlePath) {
-            $path = $package->getUrl('/bundles/' . mb_strtolower($bundleName));
-            $packages->addPackage(
-                '@' . $bundleName,
-                new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $versionStrategy))
-            );
-        }
-
-        return $packages;
+        $path = $this->package->getUrl('/bundles/' . mb_strtolower($bundleName));
+        $this->packages->addPackage(
+            '@' . $bundleName,
+            new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $this->versionStrategy))
+        );
     }
 }

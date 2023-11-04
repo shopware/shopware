@@ -1,7 +1,7 @@
 import template from './sw-settings-newsletter.html.twig';
 
 /**
- * @package buyers-experience
+ * @package customer-order
  */
 
 const { Mixin } = Shopware;

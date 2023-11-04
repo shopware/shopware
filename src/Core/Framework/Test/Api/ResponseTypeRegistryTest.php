@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -51,9 +51,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, '/api/category/' . $id, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($id, $content['data']['name']);
     }
 
@@ -66,9 +64,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -85,9 +81,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
         static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -114,9 +108,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getListResponse($context, $id, $self, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);
@@ -125,10 +117,7 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
-    /**
-     * @param array<string, mixed> $content
-     */
-    protected function assertDetailJsonApiStructure(array $content): void
+    protected function assertDetailJsonApiStructure($content): void
     {
         static::assertArrayHasKey('data', $content);
         static::assertArrayHasKey('links', $content);
@@ -150,7 +139,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $category = $this->getTestCategory($id);
 
-        $col = new CategoryCollection([$category]);
+        $col = new EntityCollection([$category]);
         $criteria = new Criteria();
         $searchResult = new EntitySearchResult('product', 1, $col, null, $criteria, $context);
 
@@ -161,7 +150,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createListingResponse($criteria, $searchResult, $definition, $request, $context);
     }
 
-    private function getTestCategory(string $id): CategoryEntity
+    private function getTestCategory($id): CategoryEntity
     {
         $category = new CategoryEntity();
         $category->setId($id);

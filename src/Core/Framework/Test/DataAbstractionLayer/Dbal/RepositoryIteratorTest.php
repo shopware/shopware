@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
 /**
  * @internal
@@ -26,19 +24,18 @@ class RepositoryIteratorTest extends TestCase
     public function testIteratedSearch(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository<SystemConfigCollection> $systemConfigRepository */
+        /** @var EntityRepository $systemConfigRepository */
         $systemConfigRepository = $this->getContainer()->get('system_config.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new ContainsFilter('configurationKey', 'core'));
         $criteria->setLimit(1);
 
-        /** @var RepositoryIterator<SystemConfigCollection> $iterator */
         $iterator = new RepositoryIterator($systemConfigRepository, $context, $criteria);
 
         $offset = 1;
         while (($result = $iterator->fetch()) !== null) {
-            static::assertNotEmpty($result->getEntities()->first()?->getId());
+            static::assertNotEmpty($result->first()->getId());
             static::assertEquals(
                 [new ContainsFilter('configurationKey', 'core')],
                 $criteria->getFilters()
@@ -52,7 +49,7 @@ class RepositoryIteratorTest extends TestCase
     public function testFetchIdsIsNotRunningInfinitely(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository<SystemConfigCollection> $systemConfigRepository */
+        /** @var EntityRepository $systemConfigRepository */
         $systemConfigRepository = $this->getContainer()->get('system_config.repository');
 
         $iterator = new RepositoryIterator($systemConfigRepository, $context, new Criteria());
@@ -67,7 +64,7 @@ class RepositoryIteratorTest extends TestCase
 
     public function testFetchIdAutoIncrement(): void
     {
-        /** @var EntityRepository<ProductCollection> $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();

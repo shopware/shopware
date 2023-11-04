@@ -136,7 +136,7 @@
                                                             {% for image in mediaItems %}
                                                                 {% block element_image_gallery_inner_item %}
                                                                     <div class="gallery-slider-item-container">
-                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}>
+                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and  (displayMode == "cover" or displayMode == "contain" ) %} style="min-height: {{ minHeight }}"{% endif %}>
                                                                             {% set attributes = {
                                                                                 'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
@@ -228,12 +228,9 @@
                                                 {% block element_image_gallery_slider_dots_buttons %}
                                                     {% for image in mediaItems %}
                                                         {% block element_image_gallery_slider_dots_button %}
-                                                            <button
-                                                                class="base-slider-dot"
-                                                                data-nav-dot="{{ loop.index }}"
-                                                                aria-label="{{ 'component.cms.imageGallery.sliderDotLabel'|trans({ '%index%': loop.index, '%total%': mediaItems|length })|striptags }}"
-                                                                tabindex="-1">
-                                                            </button>
+                                                            <button class="base-slider-dot"
+                                                                    data-nav-dot="{{ loop.index }}"
+                                                                    tabindex="-1"></button>
                                                         {% endblock %}
                                                     {% endfor %}
                                                 {% endblock %}

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';

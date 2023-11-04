@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -84,11 +84,7 @@ class CustomerSerializerTest extends TestCase
             ],
         ];
 
-        $deserialized = $this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer);
-
-        static::assertIsNotArray($deserialized);
-
-        $deserialized = \iterator_to_array($deserialized);
+        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer));
 
         static::assertSame($this->customerGroupId, $deserialized['groupId']);
         static::assertSame($this->customerGroupId, $deserialized['group']['id']);
@@ -137,7 +133,6 @@ class CustomerSerializerTest extends TestCase
             [
                 'id' => $this->paymentMethodId,
                 'name' => 'test payment method',
-                'technicalName' => 'payment_test',
             ],
         ], Context::createDefaultContext());
     }

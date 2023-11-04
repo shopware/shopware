@@ -1,6 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_search_bar_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
 <li
     class="sw-search-bar-item sw-search-bar-item--v2"
     :class="componentClasses"
@@ -161,7 +161,7 @@
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
                 :search-term="searchTerm"
-                :text="mediaNameFilter(item)"
+                :text="item | mediaName"
             />
         </span>
         {% endblock %}

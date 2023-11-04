@@ -10,13 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -299,7 +298,7 @@ class ImportExportLogApiTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('foobar%d', $i),
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => sprintf('shopwarepw%d', $i),
                 'firstName' => sprintf('Foo%d', $i),
                 'lastName' => sprintf('Bar%d', $i),
                 'email' => sprintf('fo%d@ob.ar', $i),

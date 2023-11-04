@@ -6,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -164,10 +164,6 @@ export default {
                 'is--disabled': this.showFilterGrid,
             };
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     watch: {
@@ -255,7 +251,7 @@ export default {
 
                 this.productSortingRepository.search(criteria)
                     .then(response => {
-                        this.defaultSorting = response.first() || {};
+                        this.defaultSorting = response.first();
                     });
             }
         },

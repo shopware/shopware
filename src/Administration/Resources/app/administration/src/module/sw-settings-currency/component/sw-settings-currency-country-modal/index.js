@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-settings-currency-country-modal.html.twig';
 
 const { Mixin } = Shopware;

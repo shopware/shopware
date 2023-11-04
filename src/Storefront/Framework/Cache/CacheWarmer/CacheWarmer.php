@@ -2,14 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('storefront')]
@@ -17,11 +16,9 @@ class CacheWarmer
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<SalesChannelDomainCollection> $salesChannelDomainRepository
      */
     public function __construct(
-        private readonly EntityRepository $salesChannelDomainRepository,
+        private readonly EntityRepository $domainRepository,
         private readonly MessageBusInterface $bus,
         private readonly CacheRouteWarmerRegistry $registry,
         private readonly CacheIdLoader $cacheIdLoader
@@ -33,10 +30,7 @@ class CacheWarmer
         $cacheId ??= $this->cacheIdLoader->load();
 
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
-        );
-        $domains = $this->salesChannelDomainRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $domains = $this->domainRepository->search($criteria, Context::createDefaultContext());
 
         $this->cacheIdLoader->write($cacheId);
 
@@ -44,8 +38,9 @@ class CacheWarmer
         $this->createMessages($cacheId, $domains);
     }
 
-    private function createMessages(string $cacheId, SalesChannelDomainCollection $domains): void
+    private function createMessages(string $cacheId, EntitySearchResult $domains): void
     {
+        /** @var SalesChannelDomainEntity $domain */
         foreach ($domains as $domain) {
             foreach ($this->registry->getWarmers() as $warmer) {
                 $message = $warmer->createMessage($domain, null);

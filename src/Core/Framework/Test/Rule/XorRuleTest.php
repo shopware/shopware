@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class XorRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

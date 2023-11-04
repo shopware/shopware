@@ -38,7 +38,7 @@ describe('SDK Tests: Location', ()=> {
             });
     });
 
-    it('@sdk: update the height of the location iFrame', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: update the height of the location iFrame', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
@@ -69,7 +69,7 @@ describe('SDK Tests: Location', ()=> {
             .should('have.attr', 'height', '456px');
     });
 
-    it('@sdk: start auto resizing of the iFrame height', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: start auto resizing of the iFrame height', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')

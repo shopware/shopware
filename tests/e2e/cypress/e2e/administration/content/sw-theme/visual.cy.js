@@ -1,9 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
+
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
-describe('Theme: Visual tests', { tags: ['VUE3']}, () => {
+describe('Theme: Visual tests', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(Cypress.env('admin'));

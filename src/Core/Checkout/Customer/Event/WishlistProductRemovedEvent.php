@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class WishlistProductRemovedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

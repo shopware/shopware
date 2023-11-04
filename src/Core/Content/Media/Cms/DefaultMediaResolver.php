@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     /**

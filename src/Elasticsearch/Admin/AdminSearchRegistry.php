@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
-use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -29,7 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
-     * @var array<string, AbstractAdminIndexer>
+     * @var array<string, mixed>
      */
     private readonly array $indexer;
 
@@ -110,8 +110,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
-                $ids = array_values($ids);
-
                 // we provide no queue when the data is sent by the admin
                 if ($indexingBehavior->getNoQueue()) {
                     $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
@@ -172,19 +170,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return $indexer;
         }
 
-        throw ElasticsearchException::indexingError([\sprintf('Indexer for name %s not found', $name)]);
-    }
-
-    public function updateMappings(): void
-    {
-        foreach ($this->indexer as $indexer) {
-            $mapping = $this->buildMapping($indexer);
-
-            $this->client->indices()->putMapping([
-                'index' => $this->adminEsHelper->getIndex($indexer->getName()),
-                'body' => $mapping,
-            ]);
-        }
+        throw new ElasticsearchIndexingException([\sprintf('Indexer for name %s not found', $name)]);
     }
 
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
@@ -239,7 +225,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         if (\is_array($result) && !empty($result['errors'])) {
             $errors = $this->parseErrors($result);
 
-            throw ElasticsearchException::indexingError($errors);
+            throw new ElasticsearchIndexingException($errors);
         }
     }
 
@@ -329,7 +315,17 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function create(AbstractAdminIndexer $indexer, string $index, string $alias): void
     {
-        $mapping = $this->buildMapping($indexer);
+        $mapping = $indexer->mapping([
+            'properties' => [
+                'id' => ['type' => 'keyword'],
+                'textBoosted' => ['type' => 'text'],
+                'text' => ['type' => 'text'],
+                'entityName' => ['type' => 'keyword'],
+                'parameters' => ['type' => 'keyword'],
+            ],
+        ]);
+
+        $mapping = array_merge_recursive($mapping, $this->mapping);
 
         $body = array_merge(
             $this->config,
@@ -412,23 +408,5 @@ class AdminSearchRegistry implements EventSubscriberInterface
             'index' => $index,
         ]);
         $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function buildMapping(AbstractAdminIndexer $indexer): array
-    {
-        $mapping = $indexer->mapping([
-            'properties' => [
-                'id' => ['type' => 'keyword'],
-                'textBoosted' => ['type' => 'text'],
-                'text' => ['type' => 'text'],
-                'entityName' => ['type' => 'keyword'],
-                'parameters' => ['type' => 'keyword'],
-            ],
-        ]);
-
-        return array_merge_recursive($mapping, $this->mapping);
     }
 }

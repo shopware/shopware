@@ -15,7 +15,7 @@
             v-if="showDescription"
             class="sw-plugin-card__short-description"
         >
-            {{ truncateFilter(plugin.shortDescription, 140) }}
+            {{ plugin.shortDescription | truncate(140) }}
         </div>
 
         <div

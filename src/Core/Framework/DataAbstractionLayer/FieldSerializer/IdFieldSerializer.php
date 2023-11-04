@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -46,15 +44,12 @@ class IdFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
         if ($value) {
             $this->validate([new UuidConstraint()], $data, $parameters->getPath());
-        } elseif ($field->is(PrimaryKey::class) || $field->is(Required::class)) {
+        } else {
             $value = Uuid::randomHex();
         }
 
-        if (!$value) {
-            return yield $field->getStorageName() => null;
-        }
-
         $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $data->getKey(), $value);
+
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 

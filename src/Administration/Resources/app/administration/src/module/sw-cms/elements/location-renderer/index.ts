@@ -4,7 +4,7 @@ import './preview';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export interface ElementDataProp {
     name: string,

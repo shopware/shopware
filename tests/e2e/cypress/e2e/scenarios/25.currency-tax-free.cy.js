@@ -1,7 +1,4 @@
 /// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
 
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import SettingsPageObject from '../../support/pages/module/sw-settings.page-object';

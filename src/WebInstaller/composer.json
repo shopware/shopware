@@ -4,7 +4,6 @@
     "type": "project",
     "require": {
         "php": ">=8.1",
-        "ext-dom": "*",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -34,11 +33,15 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Shopware\\WebInstaller\\": ""
+            "Shopware\\WebInstaller\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\WebInstaller\\Tests\\": "tests/"
         }
     },
     "config": {
-        "platform-check": true,
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "bamarni/composer-bin-plugin": true

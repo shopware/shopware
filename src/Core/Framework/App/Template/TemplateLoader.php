@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Template;
 
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
@@ -22,18 +21,14 @@ class TemplateLoader extends AbstractTemplateLoader
 
     private const ALLOWED_FILE_EXTENSIONS = '*.twig';
 
-    public function __construct(private readonly AbstractAppLoader $appLoader)
-    {
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getTemplatePathsForApp(Manifest $app): array
     {
-        $viewDirectory = $this->appLoader->locatePath($app->getPath(), self::TEMPLATE_DIR);
+        $viewDirectory = $app->getPath() . self::TEMPLATE_DIR;
 
-        if ($viewDirectory === null) {
+        if (!is_dir($viewDirectory)) {
             return [];
         }
 
@@ -52,9 +47,9 @@ class TemplateLoader extends AbstractTemplateLoader
      */
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        $content = $this->appLoader->loadFile($app->getPath(), self::TEMPLATE_DIR . '/' . $path);
+        $content = @file_get_contents($app->getPath() . self::TEMPLATE_DIR . '/' . $path);
 
-        if ($content === null) {
+        if ($content === false) {
             throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . self::TEMPLATE_DIR . '/' . $path));
         }
 

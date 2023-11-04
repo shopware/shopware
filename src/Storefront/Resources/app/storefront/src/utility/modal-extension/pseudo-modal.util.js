@@ -41,7 +41,6 @@ export default class PseudoModalUtil {
         const modal = this.getModal();
 
         this._modalInstance = bootstrap.Modal.getInstance(modal);
-        this._modalInstance.hide();
     }
 
     /**

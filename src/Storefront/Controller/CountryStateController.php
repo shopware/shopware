@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
@@ -17,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CountryStateController extends StorefrontController
 {
     /**
@@ -33,7 +32,7 @@ class CountryStateController extends StorefrontController
         $countryId = (string) $request->request->get('countryId');
 
         if (!$countryId) {
-            throw RoutingException::missingRequestParameter('countryId');
+            throw new \InvalidArgumentException('Parameter countryId is empty');
         }
 
         $countryStateDataPagelet = $this->countryStateDataPageletLoader->load($countryId, $request, $context);

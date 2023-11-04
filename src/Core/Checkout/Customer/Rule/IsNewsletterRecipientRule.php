@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class IsNewsletterRecipientRule extends Rule
 {
     final public const RULE_NAME = 'customerIsNewsletterRecipient';

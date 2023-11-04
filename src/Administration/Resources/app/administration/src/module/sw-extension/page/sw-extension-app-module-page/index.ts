@@ -5,7 +5,7 @@ import './sw-extension-app-module-page.scss';
 const { State, Context } = Shopware;
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

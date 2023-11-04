@@ -1,7 +1,7 @@
 import template from './sw-extension-store-recommendation.html.twig';
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default {

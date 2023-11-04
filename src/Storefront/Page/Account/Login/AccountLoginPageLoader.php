@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountLoginPageLoader
 {
     /**
@@ -31,8 +31,7 @@ class AccountLoginPageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCountryRoute $countryRoute,
-        private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter,
+        private readonly AbstractSalutationRoute $salutationRoute
     ) {
     }
 
@@ -69,7 +68,9 @@ class AccountLoginPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationsSorter->sort($salutations);
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+
+        return $salutations;
     }
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection

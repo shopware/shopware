@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
-use Shopware\Elasticsearch\DependencyInjection\ElasticsearchMigrationCompilerPass;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -36,8 +35,6 @@ class Elasticsearch extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
-        $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
 
         // Needs to run before the ProfilerPass
         $container->addCompilerPass(new ElasticsearchProfileCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 5000);
@@ -71,8 +68,9 @@ class Elasticsearch extends Bundle
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
 
         $env = $container->getParameter('kernel.environment');
-        \assert(\is_string($env));
-
+        if (!\is_string($env)) {
+            throw new \RuntimeException('Container parameter "kernel.environment" needs to be a string');
+        }
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 }

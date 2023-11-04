@@ -16,18 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system
- *
- * @phpstan-import-type Module from AppEntity
- *
- * @phpstan-type AppModule array{name: string, label: array<string, string|null>, modules: list<Module>, mainModule: array{source: string}|null}
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 #[Package('core')]
 class ModuleLoader
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly ShopIdProvider $shopIdProvider,
@@ -35,9 +28,6 @@ class ModuleLoader
     ) {
     }
 
-    /**
-     * @return list<AppModule>
-     */
     public function loadModules(Context $context): array
     {
         $criteria = new Criteria();
@@ -52,14 +42,12 @@ class ModuleLoader
         $criteria->addFilter($containsModulesFilter, $appActiveFilter)
             ->addAssociation('translations.language.locale');
 
+        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         return $this->formatPayload($apps, $context);
     }
 
-    /**
-     * @return list<AppModule>
-     */
     private function formatPayload(AppCollection $apps, Context $context): array
     {
         try {
@@ -74,7 +62,7 @@ class ModuleLoader
             $modules = $this->formatModules($app, $context);
             $mainModule = $this->formatMainModule($app, $context);
 
-            if (empty($modules) && $mainModule === null) {
+            if (empty($modules) && !$mainModule) {
                 continue;
             }
 
@@ -89,9 +77,6 @@ class ModuleLoader
         return $appModules;
     }
 
-    /**
-     * @return list<Module>
-     */
     private function formatModules(AppEntity $app, Context $context): array
     {
         $modules = [];
@@ -104,56 +89,43 @@ class ModuleLoader
         return $modules;
     }
 
-    /**
-     * @return array{source: string}|null
-     */
     private function formatMainModule(AppEntity $app, Context $context): ?array
     {
         if ($app->getMainModule() === null) {
             return null;
         }
 
-        $source = $app->getMainModule()['source'] ?? '';
-        $secret = $app->getAppSecret() ?? '';
+        /** @var string $source */
+        $source = $app->getMainModule()['source'];
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
 
         return [
             'source' => $this->sign($source, $secret, $context),
         ];
     }
 
-    /**
-     * @return array<string, string|null>
-     */
     private function mapTranslatedLabels(AppEntity $app): array
     {
         $labels = [];
-        $translations = $app->getTranslations();
-        if ($translations === null) {
-            return $labels;
-        }
 
-        foreach ($translations as $translation) {
-            $code = $translation->getLanguage()?->getLocale()?->getCode();
-            if ($code === null) {
-                continue;
-            }
-            $labels[$code] = $translation->getLabel();
+        foreach ($app->getTranslations() as $translation) {
+            $labels[$translation->getLanguage()->getLocale()->getCode()] = $translation->getLabel();
         }
 
         return $labels;
     }
 
-    /**
-     * @param Module     $module
-     */
     private function getModuleUrlWithQuery(AppEntity $app, array $module, Context $context): ?string
     {
+        /** @var string|null $registeredSource */
         $registeredSource = $module['source'] ?? null;
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
+
         if ($registeredSource === null) {
             return null;
         }
-
-        $secret = $app->getAppSecret() ?? '';
 
         return $this->sign($registeredSource, $secret, $context);
     }

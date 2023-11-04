@@ -3,7 +3,7 @@ import './sw-cms-product-box-preview.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -15,12 +15,6 @@ export default {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
-        },
-    },
-
-    computed: {
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 };

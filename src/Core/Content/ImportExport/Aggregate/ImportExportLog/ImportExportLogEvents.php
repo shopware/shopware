@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportLogEvents
 {
     /**

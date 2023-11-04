@@ -2,7 +2,7 @@ import template from './sw-settings-rule-assignment-listing.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

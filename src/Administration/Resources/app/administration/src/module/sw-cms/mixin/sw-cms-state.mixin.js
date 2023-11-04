@@ -2,7 +2,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Mixin.register('cms-state', {
     computed: {

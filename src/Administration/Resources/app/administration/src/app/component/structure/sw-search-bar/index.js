@@ -371,10 +371,6 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            if (this.searchTerm.trim().length > 155) {
-                return;
-            }
-
             this.showTypeSelectContainer = false;
             this.showResultsSearchTrends = false;
 

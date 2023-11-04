@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 import template from './sw-settings-listing-option-base.html.twig';
 import './sw-settings-listing-option-base.scss';
 

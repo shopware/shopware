@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 class Block extends XmlElement
 {
-    private const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
     ];
 
@@ -19,17 +19,26 @@ class Block extends XmlElement
 
     protected string $category;
 
-    /**
-     * @var array<string, string>
-     */
     protected array $label = [];
 
     /**
-     * @var list<Slot>
+     * @var Slot[]
      */
     protected array $slots = [];
 
     protected DefaultConfig $defaultConfig;
+
+    private function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseBlocks($element));
+    }
 
     public function toArray(string $defaultLocale): array
     {
@@ -47,31 +56,6 @@ class Block extends XmlElement
         return $data;
     }
 
-    /**
-     * @return array{
-     *     appId: string,
-     *     name: string,
-     *     label: array<string, string>,
-     *     block: array{
-     *          name: string,
-     *          category: string,
-     *          label: array<string, string>,
-     *          slots: array<string, array{
-     *              type: string,
-     *              default: array{
-     *                  config: array<string, array{
-     *                      source: string,
-     *                      value: string
-     *                  }>
-     *              }
-     *          }>,
-     *          defaultConfig: array<string, array{
-     *              source: string,
-     *              value: string
-     *          }>
-     *     }
-     * }
-     */
     public function toEntityArray(string $appId, string $defaultLocale): array
     {
         $slots = [];
@@ -109,17 +93,11 @@ class Block extends XmlElement
         return $this->category;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function getLabel(): array
     {
         return $this->label;
     }
 
-    /**
-     * @return list<Slot>
-     */
     public function getSlots(): array
     {
         return $this->slots;
@@ -130,7 +108,7 @@ class Block extends XmlElement
         return $this->defaultConfig;
     }
 
-    protected static function parse(\DOMElement $element): array
+    private static function parseBlocks(\DOMElement $element): array
     {
         $values = [];
 
@@ -145,11 +123,6 @@ class Block extends XmlElement
         return $values;
     }
 
-    /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
     private static function parseChild(\DOMElement $child, array $values): array
     {
         // translated

@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -23,7 +21,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
-use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -31,7 +28,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**
@@ -42,8 +39,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
-        private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
-        private readonly EntityRepository $salutationRepository,
+        private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper
     ) {
     }
 
@@ -77,10 +73,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         if ($vatIds) {
             $vatIds = \array_filter($vatIds->all());
             $data->set('vatIds', empty($vatIds) ? null : $vatIds);
-        }
-
-        if (!$data->get('salutationId')) {
-            $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
@@ -157,19 +149,5 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $birthdayMonth,
             $birthdayDay
         ));
-    }
-
-    private function getDefaultSalutationId(SalesChannelContext $context): ?string
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
-
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
     }
 }

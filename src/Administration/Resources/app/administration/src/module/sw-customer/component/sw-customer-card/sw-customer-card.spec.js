@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swCustomerCard from 'src/module/sw-customer/component/sw-customer-card';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-customer-card', swCustomerCard);

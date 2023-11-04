@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExporter implements ProductExporterInterface
 {
     /**
@@ -64,7 +64,7 @@ class ProductExporter implements ProductExporterInterface
         }
 
         /** @var ProductExportCollection $productExports */
-        $productExports = $this->productExportRepository->search($criteria, $context->getContext())->getEntities();
+        $productExports = $this->productExportRepository->search($criteria, $context->getContext());
 
         if ($productExports->count() === 0) {
             $exportNotFoundException = new ExportNotFoundException($productExportId);

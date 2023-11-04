@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, MailAware
 {
     final public const EVENT_NAME = 'checkout.customer.deleted';

@@ -3,8 +3,10 @@ import AccountPageObject from '../../../support/pages/account.page-object';
 /**
  * @package checkout
  */
-describe('Account: indicate non-shippable country on register page', () => {
+describe('Account: indicate non shippable country on register page', () => {
     beforeEach(() => {
+        cy.onlyOnFeature('FEATURE_NEXT_15707');
+
         return cy.searchViaAdminApi({
             endpoint: 'country',
             data: {
@@ -23,8 +25,7 @@ describe('Account: indicate non-shippable country on register page', () => {
             });
     });
 
-    // TODO: Will be fixed with NEXT-30886
-    it.skip('@registration: Register with non-shippable countries', { tags: ['pa-customers-orders'] }, () => {
+    it('@registration: Register with non shippable countries', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -75,8 +76,7 @@ describe('Account: indicate non-shippable country on register page', () => {
         });
     });
 
-    // TODO: Will be fixed with NEXT-30886
-    it.skip('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
+    it('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/country/country-state-data',

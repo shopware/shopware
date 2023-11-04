@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import { shallowMount } from '@vue/test-utils';
@@ -11,8 +11,7 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-analytics'), {
         stubs: {
             'sw-card': true,
-            'sw-switch-field': true,
-            'sw-text-field': true,
+            'sw-field': true,
             'sw-container': true,
         },
         provide: {

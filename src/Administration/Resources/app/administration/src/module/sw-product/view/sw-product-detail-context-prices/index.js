@@ -44,6 +44,7 @@ export default {
 
     computed: {
         ...mapState('swProductDetail', [
+            'repositoryFactory',
             'product',
             'parentProduct',
             'taxes',
@@ -184,10 +185,6 @@ export default {
             ];
 
             return [...priceColumns, ...this.currencyColumns];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

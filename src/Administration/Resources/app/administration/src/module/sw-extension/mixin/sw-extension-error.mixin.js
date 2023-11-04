@@ -1,10 +1,8 @@
-import { defineComponent } from 'vue';
-
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
-export default Shopware.Mixin.register('sw-extension-error', defineComponent({
+Shopware.Mixin.register('sw-extension-error', {
     mixins: [Shopware.Mixin.getByName('notification')],
 
     methods: {
@@ -16,4 +14,4 @@ export default Shopware.Mixin.register('sw-extension-error', defineComponent({
                 });
         },
     },
-}));
+});

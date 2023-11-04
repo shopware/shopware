@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import template from './sw-settings-search-searchable-content-customfields.html.twig';
 
@@ -97,10 +97,6 @@ export default {
             criteria.addAssociation('customFieldSet');
 
             return criteria;
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

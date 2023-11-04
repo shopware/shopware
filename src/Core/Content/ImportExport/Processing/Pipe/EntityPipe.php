@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class EntityPipe extends AbstractPipe
 {
     public function __construct(

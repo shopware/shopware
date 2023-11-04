@@ -1,7 +1,6 @@
 # requires /.gitlab/base.yml
 
 .e2e-base:
-  image: shopware/development:8.2-composer-2
   extends:
     - .long-running
   needs: [ Build, 'Jest (Administration)' ]
@@ -16,10 +15,12 @@
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
     CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
     SHOPWARE_HTTP_CACHE_ENABLED: 0
+    cypress_usePercy: 'false'
     SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     CYPRESS_storefrontName: "E2E install test"
   before_script:
     - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
+    - !reference [ .scripts, install-node, script ]
     - cp public/.htaccess.dist public/.htaccess
     - !reference [ .scripts, init, composer ]
     - touch install.lock
@@ -61,15 +62,14 @@ E2E:
         CYPRESS_grepTags: '-quarantined'
     parallel:
         matrix:
-            - BROWSER: 'chrome'
-              FEATURE_ALL: 'false'
-              TEST_DIRECTORY:
-                - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
-                - "cypress/e2e/administration/settings/sw-settings-*/*"
-                - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
-                - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
-                - "cypress/e2e/storefront/**/*"
-
+            -   TEST_DIRECTORY:
+                    - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
+                    - "cypress/e2e/administration/settings/sw-settings-*/*"
+                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
+                    - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
+                    - "cypress/e2e/storefront/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: 'false'
     script:
         - >
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
@@ -78,36 +78,36 @@ E2E:
         - export CYPRESS_INTERRUPT_ON_ERROR="true"
         - composer run e2e:cypress -- run
             --config retries=1
-            --browser "$BROWSER"
+            --browser $BROWSER
             --spec "$TEST_DIRECTORY"
             --headless
 
-E2E Vue3:
-  extends:
-    - .e2e-base
-  stage: E2E
+E2E quarantined:
+  extends: E2E
+  stage: quarantine
   rules:
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /E2E::VUE3/ && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "trigger")'
-  variables:
-    CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-    CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
-    CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
-    CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
-    CYPRESS_grepTags: 'VUE3'
-    TEST_DIRECTORY: 'cypress/e2e/administration/**/*'
-    BROWSER: 'chrome'
-    VUE3: 1
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
+    - if: !reference [ .rules, run-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, run ]
+    - if: !reference [ .rules, long-running-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, long-running ]
   script:
-    - composer run init:js
-    - echo "{\"VUE3\":true,\"vue3\":true}" > var/config_js_features.json
-    - npm run --prefix src/Administration/Resources/app/administration/ build
-    - bin/console assets:install
-    - export CYPRESS_VUE3="true"
     - composer run e2e:cypress -- run
-      --config retries=1
+      --config retries=0
+      --browser $BROWSER
       --spec "$TEST_DIRECTORY"
-      --browser "$BROWSER"
       --headless
+  parallel:
+    matrix:
+      - TEST_DIRECTORY:
+          - 'cypress/e2e/administration/**/*'
+          - 'cypress/e2e/storefront/**/*'
+        CYPRESS_grepTags: 'quarantined'
+        BROWSER: 'chrome'
+        ALLOW_FAILURE: 'true'
 
 Changed E2E:
     extends: E2E
@@ -193,7 +193,7 @@ E2E install NL scenarios:
     CYPRESS_dbName: root
     CYPRESS_locale: nl-NL
     FEATURE_ALL: 'false'
-    ALLOW_FAILURE: 'false'
+    ALLOW_FAILURE: 'true'
     CYPRESS_grepTags: '-quarantined'
   stage: E2E
   script:
@@ -227,20 +227,20 @@ E2E Changed install NL scenarios:
       --headless
 
 .e2e-update-base:
-  image: shopware/development:8.2-composer-2
   extends:
     - .long-running
   stage: E2E
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    -   name: mysql:8.0.33
+    -   name: mysql:8.0
         alias: database
   variables:
     APP_ENV: e2e
     APP_DEBUG: 0
     CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
     SHOPWARE_HTTP_CACHE_ENABLED: 1
+    cypress_usePercy: 'false'
     E2E_PROJECT: recovery
     CYPRESS_baseUrl: "http://localhost:8050"
     INSTALL_URL: "http://localhost:8050"

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class MappingService extends AbstractMappingService
 {
     /**

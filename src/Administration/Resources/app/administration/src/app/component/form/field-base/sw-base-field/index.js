@@ -15,8 +15,6 @@ Component.register('sw-base-field', {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     props: {
         name: {
             type: String,
@@ -110,18 +108,10 @@ Component.register('sw-base-field', {
             return this.isInvalid || !!this.error;
         },
 
-        hasHint() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$slots.hint?.()[0]?.children.length > 0;
-            }
-
-            return !!this.$slots.hint;
-        },
-
         swFieldClasses() {
             return {
                 'has--error': this.hasError,
-                'has--hint': this.hasHint,
+                'has--hint': this.$slots.hint,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
             };
@@ -134,15 +124,7 @@ Component.register('sw-base-field', {
         },
 
         showLabel() {
-            if (this.feature.isActive('VUE3')) {
-                return !!this.label || this.$slots.label?.()[0]?.children.length > 0;
-            }
-
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
-    },
-
-    mounted() {
-        this.$emit('base-field-mounted');
     },
 });

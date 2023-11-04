@@ -20,7 +20,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class LocaleDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'locale';

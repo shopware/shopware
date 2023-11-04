@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @package content
  */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({

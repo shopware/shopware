@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-promotion-v2-individual-codes-behavior.html.twig';
 import './sw-promotion-v2-individual-codes-behavior.scss';
 
@@ -15,7 +12,6 @@ export default {
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
-        'feature',
     ],
 
     mixins: [
@@ -39,9 +35,6 @@ export default {
             generateCodesModal: false,
             addCodesModal: false,
             newCodeAmount: 10,
-            /**
-             * @deprecated tag:v6.6.0 - Will be removed
-             */
             cardIdentifier: createId(),
             currentSelection: [],
         };
@@ -57,10 +50,6 @@ export default {
         },
 
         deleteConfirmText() {
-            if (!this.currentSelection) {
-                return '';
-            }
-
             return this.$tc(
                 'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
                 this.currentSelection.length,
@@ -80,9 +69,11 @@ export default {
                 label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
             }];
         },
+    },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+    watch: {
+        'promotion.individualCodes'() {
+            this.cardIdentifier = createId();
         },
     },
 
@@ -114,20 +105,8 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - The parameter selection will be mandatory
-         */
-        onSelectionChange(selection = []) {
-            if (this.feature.isActive('VUE3')) {
-                this.currentSelection = Object.values(selection);
-                return;
-            }
-
+        onSelectionChange() {
             this.currentSelection = Object.values(this.$refs.individualCodesGrid.selection);
-        },
-
-        onCodeSelectionChange(selection) {
-            this.currentSelection = Object.values(selection);
         },
 
         onShowCodeDeleteModal(id) {

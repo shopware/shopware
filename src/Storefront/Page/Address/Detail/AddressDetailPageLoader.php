@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Address\Detail;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -18,9 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +38,7 @@ class AddressDetailPageLoader
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractListAddressRoute $listAddressRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter,
+        private readonly AbstractListAddressRoute $listAddressRoute
     ) {
     }
 
@@ -81,7 +79,9 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationsSorter->sort($salutations);
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+
+        return $salutations;
     }
 
     /**
@@ -122,7 +122,7 @@ class AddressDetailPageLoader
         $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
-            throw CustomerException::addressNotFound($addressId);
+            throw new AddressNotFoundException($addressId);
         }
 
         return $address;

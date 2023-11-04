@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.6.0 - Will be removed as it is unused
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class CanNotDownloadPluginManagedByComposerException extends ShopwareHttpException
 {
     public function __construct(string $reason)

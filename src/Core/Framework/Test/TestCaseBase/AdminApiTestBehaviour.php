@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -129,6 +128,7 @@ trait AdminApiTestBehaviour
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
+        $password = Uuid::randomHex();
         $userId = Uuid::randomBytes();
 
         $connection = $browser->getContainer()->get(Connection::class);
@@ -138,7 +138,7 @@ trait AdminApiTestBehaviour
             'first_name' => $username,
             'last_name' => '',
             'username' => $username,
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -174,7 +174,7 @@ trait AdminApiTestBehaviour
             'grant_type' => 'password',
             'client_id' => 'administration',
             'username' => $username,
-            'password' => 'shopware',
+            'password' => $password,
         ];
 
         if (!empty($scopes)) {
@@ -212,6 +212,7 @@ trait AdminApiTestBehaviour
     public function authorizeBrowserWithIntegration(TestBrowser $browser, ?string $id = null): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
 
         if (!$id) {
             $id = Uuid::randomBytes();
@@ -225,7 +226,7 @@ trait AdminApiTestBehaviour
             $connection->insert('integration', [
                 'id' => $id,
                 'access_key' => $accessKey,
-                'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
                 'label' => 'test integration',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
@@ -233,7 +234,7 @@ trait AdminApiTestBehaviour
             // update the access keys in case the integration already existed
             $connection->update('integration', [
                 'access_key' => $accessKey,
-                'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
             ], [
                 'id' => $id,
             ]);
@@ -244,7 +245,7 @@ trait AdminApiTestBehaviour
         $authPayload = [
             'grant_type' => 'client_credentials',
             'client_id' => $accessKey,
-            'client_secret' => 'shopware',
+            'client_secret' => $secretAccessKey,
         ];
 
         $browser->request('POST', '/api/oauth/token', $authPayload);

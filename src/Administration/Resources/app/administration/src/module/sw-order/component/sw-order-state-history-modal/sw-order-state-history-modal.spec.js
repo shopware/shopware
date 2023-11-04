@@ -6,7 +6,7 @@ import 'src/app/component/grid/sw-pagination';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 function getCollection(entity, collection) {

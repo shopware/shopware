@@ -5,6 +5,7 @@
     class="sw-media-preview-v2"
     :class="mediaPreviewClasses"
 >
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_preview_v2_no_media %}
     <template v-if="!source">
@@ -26,7 +27,7 @@
         <template v-if="mimeTypeGroup === 'image'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_image %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <img
                 v-if="!imagePreviewFailed"
                 class="sw-media-preview-v2__item"
@@ -42,7 +43,7 @@
             <img
                 v-else
                 class="sw-media-preview-v2__item"
-                :src="assetFilter(placeholderIconPath)"
+                :src="placeholderIconPath | asset"
                 :alt="mimeType"
             >
             <sw-icon
@@ -60,7 +61,7 @@
             <img
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__item"
-                :src="assetFilter(placeholderIconPath)"
+                :src="placeholderIconPath | asset"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -101,7 +102,7 @@
             {% block sw_media_preview_v2_file_type_audio %}
             <img
                 class="sw-media-preview-v2__item"
-                :src="assetFilter(placeholderIconPath)"
+                :src="placeholderIconPath | asset"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -152,7 +153,7 @@
             {% block sw_media_preview_v2_file_type_placeholder %}
             <img
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
-                :src="assetFilter(placeholderIconPath)"
+                :src="placeholderIconPath | asset"
                 :alt="mimeType"
             >
             {% endblock %}

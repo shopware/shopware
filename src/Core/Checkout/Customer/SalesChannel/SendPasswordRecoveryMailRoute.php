@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,7 +38,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
     /**
@@ -78,8 +78,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $repoContext = $context->getContext();
 
-        $existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-        if ($existingRecovery instanceof CustomerRecoveryEntity) {
+        if ($existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first()) {
             $this->deleteRecoveryForCustomer($existingRecovery, $repoContext);
         }
 
@@ -91,7 +90,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-        \assert($customerRecovery instanceof CustomerRecoveryEntity);
 
         $hash = $customerRecovery->getHash();
 
@@ -125,17 +123,9 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
     }
 
-    /**
-     * @return string[]
-     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        $domains = $context->getSalesChannel()->getDomains();
-        if (!$domains) {
-            return [];
-        }
-
-        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $domains->getElements());
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $context->getSalesChannel()->getDomains()->getElements());
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
@@ -145,8 +135,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     }
 
     /**
-     * @param array<string|int, string> $data
-     *
      * @throws ConstraintViolationException
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
@@ -157,12 +145,13 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        /** @var ConstraintInterface[] $fieldValidations */
+        /** @var array $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
+        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
@@ -180,7 +169,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));
@@ -203,13 +192,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $result = $this->customerRepository->search($criteria, $context->getContext());
 
         if ($result->count() !== 1) {
-            throw CustomerException::customerNotFound($email);
+            throw new CustomerNotFoundException($email);
         }
 
-        $customer = $result->first();
-        \assert($customer instanceof CustomerEntity);
-
-        return $customer;
+        return $result->first();
     }
 
     private function deleteRecoveryForCustomer(CustomerRecoveryEntity $existingRecovery, Context $context): void

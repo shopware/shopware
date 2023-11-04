@@ -14,4 +14,12 @@ class ManyToOneField extends AssociationField
     use RequiredTrait;
 
     protected string $type = 'many-to-one';
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

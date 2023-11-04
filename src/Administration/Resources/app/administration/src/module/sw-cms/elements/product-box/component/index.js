@@ -5,7 +5,7 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -80,14 +80,6 @@ export default {
 
         assetFilter() {
             return Filter.getByName('asset');
-        },
-
-        truncateFilter() {
-            return Filter.getByName('truncate');
-        },
-
-        currencyFilter() {
-            return Filter.getByName('currency');
         },
     },
 

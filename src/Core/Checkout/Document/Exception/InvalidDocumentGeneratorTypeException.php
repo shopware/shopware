@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class InvalidDocumentGeneratorTypeException extends DocumentException
 {
     /**

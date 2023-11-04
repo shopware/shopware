@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 
@@ -60,10 +57,6 @@ export default {
                 showOnDisabledElements: true,
                 position: 'bottom',
             };
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 

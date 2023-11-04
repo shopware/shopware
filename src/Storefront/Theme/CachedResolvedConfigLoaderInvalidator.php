@@ -19,10 +19,8 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(
-        private readonly CacheInvalidator $cacheInvalidator,
-        private readonly bool $fineGrainedCache
-    ) {
+    public function __construct(private readonly CacheInvalidator $logger)
+    {
     }
 
     /**
@@ -40,34 +38,27 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     public function invalidate(ThemeConfigChangedEvent $event): void
     {
         $tags = [CachedResolvedConfigLoader::buildName($event->getThemeId())];
-
-        if (!$this->fineGrainedCache) {
-            $this->cacheInvalidator->invalidate(['shopware.theme']);
-
-            return;
-        }
-
         $keys = array_keys($event->getConfig());
 
         foreach ($keys as $key) {
             $tags[] = ThemeConfigValueAccessor::buildName($key);
         }
 
-        $this->cacheInvalidator->invalidate($tags);
+        $this->logger->invalidate($tags);
     }
 
     public function assigned(ThemeAssignedEvent $event): void
     {
-        $this->cacheInvalidator->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
-        $this->cacheInvalidator->invalidate([CachedDomainLoader::CACHE_KEY]);
+        $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
 
         $salesChannelId = $event->getSalesChannelId();
 
-        $this->cacheInvalidator->invalidate(['translation.catalog.' . $salesChannelId], true);
+        $this->logger->invalidate(['translation.catalog.' . $salesChannelId], true);
     }
 
     public function reset(ThemeConfigResetEvent $event): void
     {
-        $this->cacheInvalidator->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
     }
 }

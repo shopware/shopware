@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @phpstan-type ErrorData array{status: string, code: string, title: string, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
- */
 #[Package('core')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
@@ -58,14 +55,14 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     }
 
     /**
-     * @return ErrorData
+     * @return array{status: numeric-string, code: string, title: mixed, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
      */
     protected function getCommonErrorData(bool $withTrace = false): array
     {
         $error = [
             'status' => (string) $this->getStatusCode(),
             'code' => $this->getErrorCode(),
-            'title' => (string) (Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status'),
+            'title' => Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status',
             'detail' => $this->getMessage(),
             'meta' => [
                 'parameters' => $this->getParameters(),

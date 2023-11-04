@@ -3,7 +3,7 @@ import './sw-cms-el-sidebar-filter.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

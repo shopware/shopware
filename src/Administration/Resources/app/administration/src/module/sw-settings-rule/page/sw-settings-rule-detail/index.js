@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,
@@ -17,6 +17,7 @@ export default {
         'ruleConditionsConfigApiService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -68,7 +69,7 @@ export default {
         },
 
         ruleCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('tags');
 
             criteria.addAssociation('personaPromotions');
@@ -200,7 +201,7 @@ export default {
     methods: {
         loadConditionData() {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 500);
 
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
@@ -285,7 +286,7 @@ export default {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(1, 25), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }

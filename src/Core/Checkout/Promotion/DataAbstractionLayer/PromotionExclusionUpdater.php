@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionExclusionUpdater
 {
     /**

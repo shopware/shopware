@@ -7,7 +7,7 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-customer-detail', swCustomerDetail);
@@ -36,11 +36,6 @@ async function createWrapper(privileges = []) {
                                     name: 'Test',
                                 },
                             },
-                        }),
-
-                        searchIds: () => Promise.resolve({
-                            total: 1,
-                            data: ['1'],
                         }),
                     };
                 },
@@ -99,7 +94,6 @@ async function createWrapper(privileges = []) {
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-skeleton': true,
-            'sw-loader': true,
         },
     });
 }
@@ -214,11 +208,5 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         });
 
         wrapperWithPrivileges.vm.createNotificationError.mockRestore();
-    });
-
-    it('should get default salutation is value not specified', async () => {
-        await flushPromises();
-
-        expect(wrapper.vm.customer.salutationId).toBe('1');
     });
 });

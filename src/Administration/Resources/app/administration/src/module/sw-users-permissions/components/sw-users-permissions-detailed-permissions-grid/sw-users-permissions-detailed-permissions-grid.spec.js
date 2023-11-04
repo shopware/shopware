@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 // eslint-disable-next-line
 import fs from 'fs';

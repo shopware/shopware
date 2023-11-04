@@ -8,40 +8,12 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @internal only for use by the app-system
- *
- * @phpstan-consistent-constructor
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 #[Package('core')]
-abstract class XmlElement extends Struct
+class XmlElement extends Struct
 {
-    protected const REQUIRED_FIELDS = [];
     private const FALLBACK_LOCALE = 'en-GB';
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, static::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): static
-    {
-        return new static(static::parse($element));
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    public static function fromArray(array $data): static
-    {
-        return new static($data);
-    }
 
     /**
      * @return array<string, mixed>
@@ -56,34 +28,29 @@ abstract class XmlElement extends Struct
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    abstract protected static function parse(\DOMElement $element): array;
-
-    /**
-     * @param array<string, mixed> $values
+     * @param array<int|string, mixed> $values
      *
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
-        if (!\array_key_exists(static::kebabCaseToCamelCase($child->tagName), $values)) {
-            $values[static::kebabCaseToCamelCase($child->tagName)] = [];
+        if (!\array_key_exists(self::kebabCaseToCamelCase($child->tagName), $values)) {
+            $values[self::kebabCaseToCamelCase($child->tagName)] = [];
         }
 
-        $tagValues = $values[static::kebabCaseToCamelCase($child->tagName)];
+        // psalm would fail if it can't infer type from nested array
+        /** @var array<string, string> $tagValues */
+        $tagValues = $values[self::kebabCaseToCamelCase($child->tagName)];
         $tagValues[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue ?? '');
-        $values[static::kebabCaseToCamelCase($child->tagName)] = $tagValues;
+        $values[self::kebabCaseToCamelCase($child->tagName)] = $tagValues;
 
         return $values;
     }
 
     /**
-     * @template TReturn of XmlElement|string
+     * @param callable(\DOMElement): (XmlElement|string) $transformer
      *
-     * @param callable(\DOMElement): TReturn $transformer
-     *
-     * @return list<TReturn>
+     * @return array<mixed>
      */
     protected static function parseChildNodes(\DOMElement $child, callable $transformer): array
     {
@@ -126,8 +93,8 @@ abstract class XmlElement extends Struct
     }
 
     /**
-     * @param array<string, mixed> $data
-     * @param list<string> $requiredFields
+     * @param array<int|string, mixed> $data
+     * @param array<int|string, string> $requiredFields
      */
     protected function validateRequiredElements(array $data, array $requiredFields): void
     {

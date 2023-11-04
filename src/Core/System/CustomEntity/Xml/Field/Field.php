@@ -16,6 +16,13 @@ abstract class Field extends XmlElement
 
     protected bool $storeApiAware;
 
+    public function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -34,17 +41,19 @@ abstract class Field extends XmlElement
         return $this->storeApiAware;
     }
 
+    abstract public static function fromXml(\DOMElement $element): Field;
+
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
-            $name = self::kebabCaseToCamelCase($attribute->name);
+        if (is_iterable($element->attributes)) {
+            foreach ($element->attributes as $attribute) {
+                \assert($attribute instanceof \DOMAttr);
+                $name = self::kebabCaseToCamelCase($attribute->name);
 
-            $values[$name] = XmlUtils::phpize($attribute->value);
+                $values[$name] = XmlUtils::phpize($attribute->value);
+            }
         }
 
         foreach ($element->childNodes as $child) {

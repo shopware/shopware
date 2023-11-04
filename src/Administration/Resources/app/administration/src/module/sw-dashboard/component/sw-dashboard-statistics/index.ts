@@ -22,9 +22,9 @@ type BucketData = {
 }
 
 type HistoryOrderDataCount = {
-    apiAlias: 'order_sum_bucket_aggregation',
+    apiAlias: 'order_count_bucket_aggregation',
     buckets: Array<BucketData>,
-    name: 'order_sum_bucket',
+    name: 'order_count_bucket',
 }
 
 type HistoryOrderDataSum = {
@@ -48,7 +48,7 @@ interface ComponentData {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  *
  * @private
  */
@@ -251,14 +251,6 @@ export default Shopware.Component.wrapComponentConfig({
         isSessionLoaded() {
             return !Shopware.State.get('session')?.userPending;
         },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
     },
 
     watch: {
@@ -318,58 +310,69 @@ export default Shopware.Component.wrapComponentConfig({
         getHistoryOrderData() {
             return Promise.all([
                 this.fetchHistoryOrderDataCount().then((response) => {
-                    this.historyOrderDataCount = response;
+                    if (response.aggregations) {
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        this.historyOrderDataCount = response.aggregations.order_count_bucket;
+                    }
                 }),
                 this.fetchHistoryOrderDataSum().then((response) => {
-                    this.historyOrderDataSum = response;
+                    if (response.aggregations) {
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        this.historyOrderDataSum = response.aggregations.order_sum_bucket;
+                    }
                 }),
             ]);
         },
 
         fetchHistoryOrderDataCount() {
-            return this.fetchHistory(false, this.formatDateToISO(this.getDateAgo(this.ordersDateRange)));
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAggregation(
+                Criteria.histogram(
+                    'order_count_bucket',
+                    'orderDateTime',
+                    this.ordersDateRange.aggregate,
+                    null,
+                    Criteria.sum('totalAmount', 'amountTotal'),
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+                    Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
+                ),
+            );
+
+            criteria.addFilter(Criteria.range('orderDate', {
+                gte: this.formatDateToISO(this.getDateAgo(this.ordersDateRange)),
+            }));
+
+            return this.orderRepository.search(criteria);
         },
 
         fetchHistoryOrderDataSum() {
-            return this.fetchHistory(true, this.formatDateToISO(this.getDateAgo(this.turnoverDateRange)));
-        },
+            const criteria = new Criteria(1, 1);
 
-        fetchHistory(paid: boolean, since: string) {
-            const headers = this.orderRepository.buildHeaders();
+            criteria.addAggregation(
+                Criteria.histogram(
+                    'order_sum_bucket',
+                    'orderDateTime',
+                    this.turnoverDateRange.aggregate,
+                    null,
+                    Criteria.sum('totalAmount', 'amountTotal'),
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+                    Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
+                ),
+            );
 
-            const initContainer = Shopware.Application.getContainer('init');
-            const httpClient = initContainer.httpClient;
-            const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+            criteria.addAssociation('stateMachineState');
 
-            return httpClient
-                .get<undefined, {
-                    data: {
-                        statistic: Array<{
-                            date: string,
-                            count: number,
-                            amount: number
-                        }>
-                    }
-                }>(`/_admin/dashboard/order-amount/${since}?timezone=${timezone}&paid=${paid.toString()}`, { headers })
-                .then((response) => {
-                    const buckets = response.data.statistic.map((bucket) => {
-                        return {
-                            key: bucket.date,
-                            count: bucket.count,
-                            apiAlias: 'aggregation_bucket',
-                            totalAmount: {
-                                sum: bucket.amount,
-                                name: 'totalAmount',
-                            },
-                        };
-                    });
+            criteria.addFilter(Criteria.equals('transactions.stateMachineState.technicalName', 'paid'));
+            criteria.addFilter(Criteria.range('orderDate', {
+                gte: this.formatDateToISO(this.getDateAgo(this.turnoverDateRange)),
+            }));
 
-                    return {
-                        name: 'order_sum_bucket',
-                        buckets: buckets,
-                        apiAlias: 'order_sum_bucket_aggregation',
-                    } as const;
-                });
+            return this.orderRepository.search(criteria);
         },
 
         fetchTodayData() {
@@ -452,7 +455,13 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.ordersDateRange = ordersDateRange;
 
-            this.historyOrderDataCount = await this.fetchHistoryOrderDataCount();
+            const response = await this.fetchHistoryOrderDataCount();
+
+            if (response.aggregations) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                this.historyOrderDataCount = response.aggregations.order_count_bucket;
+            }
         },
 
         async onTurnoverRangeUpdate(range: string): Promise<void> {
@@ -463,7 +472,14 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.turnoverDateRange = turnoverDateRange;
-            this.historyOrderDataSum = await this.fetchHistoryOrderDataSum();
+
+            const response = await this.fetchHistoryOrderDataSum();
+
+            if (response.aggregations) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                this.historyOrderDataSum = response.aggregations.order_sum_bucket;
+            }
         },
 
         getCardSubtitle(range: HistoryDateRange): string {

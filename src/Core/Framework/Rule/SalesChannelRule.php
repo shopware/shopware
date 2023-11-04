@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class SalesChannelRule extends Rule
 {
     final public const RULE_NAME = 'salesChannel';

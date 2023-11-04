@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class FlowDispatcher implements EventDispatcherInterface
 {
     private ContainerInterface $container;

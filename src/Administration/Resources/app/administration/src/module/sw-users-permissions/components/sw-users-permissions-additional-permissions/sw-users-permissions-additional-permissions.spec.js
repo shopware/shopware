@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsAdditionalPermissions from 'src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions';
@@ -14,7 +14,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             sync: false,
             stubs: {
                 'sw-card': true,
-                'sw-switch-field': {
+                'sw-field': {
                     props: ['value'],
                     template: `
                         <input :value="value"

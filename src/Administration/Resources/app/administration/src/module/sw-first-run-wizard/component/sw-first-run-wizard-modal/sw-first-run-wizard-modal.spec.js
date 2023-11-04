@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardModal from 'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal';
@@ -9,7 +9,7 @@ import 'src/app/component/base/sw-container';
 Shopware.Component.register('sw-first-run-wizard-modal', swFirstRunWizardModal);
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     const CreateFirstRunWizardModal = async function CreateFirstRunWizardModal() {

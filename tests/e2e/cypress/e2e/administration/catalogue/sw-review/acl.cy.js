@@ -1,7 +1,8 @@
-// / <reference types="Cypress" />
 /**
- * @package inventory
+ * @package content
  */
+// / <reference types="Cypress" />
+
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
 describe('Review: Test ACL privileges', () => {

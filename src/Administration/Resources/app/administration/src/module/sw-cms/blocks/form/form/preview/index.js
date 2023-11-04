@@ -3,7 +3,7 @@ import './sw-cms-preview-form.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

@@ -3,7 +3,7 @@ import './sw-flow-sequence.scss';
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

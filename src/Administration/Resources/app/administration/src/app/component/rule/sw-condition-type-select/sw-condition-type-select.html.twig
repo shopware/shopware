@@ -13,18 +13,15 @@
     :disabled="disabled"
     required
     show-clearable-button
-    {% if VUE3 %}
-    @update:value="changeType"
-    {% else %}
     @change="changeType"
-    {% endif %}
     @item-selected="changeItem"
     @search-term-change="typeSearchTerm = $event"
 >
     <template
         #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
     >
-        <sw-select-result
+        <li
+            is="sw-select-result"
             v-tooltip="getTooltipConfig(item)"
             :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
             :class="'sw-select-option--' + item.value"
@@ -40,7 +37,7 @@
             <template v-else>
                 {{ getKey(item, labelProperty) }}
             </template>
-        </sw-select-result>
+        </li>
     </template>
 </sw-grouped-single-select>
 {% endblock %}

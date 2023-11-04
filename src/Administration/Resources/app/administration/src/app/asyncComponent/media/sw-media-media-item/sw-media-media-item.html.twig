@@ -20,7 +20,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_name_container %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
-        <sw-text-field
+        <sw-field
             v-if="isInlineEdit"
             v-autofocus
             class="sw-media-base-item__name-field"
@@ -36,13 +36,11 @@
             ref="itemName"
             class="sw-media-base-item__name"
             :title="`${item.fileName}.${item.fileExtension}`"
-            role="menuitem"
-            tabindex="0"
             @dblclick="startInlineEdit"
         >
 
             <template v-if="item.hasFile">
-                {{ mediaNameFilter(item) }}
+                {{ item | mediaName }}
             </template>
         </div>
     </template>
@@ -52,7 +50,7 @@
     {% block sw_media_media_item_metadata %}
     <template #metadata="{ item }">
         <div class="sw-media-media-item__metadata">
-            {{ dateFilter(item.uploadedAt) }}, {{ fileSizeFilter(item.fileSize, locale) }}
+            {{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}
         </div>
     </template>
     {% endblock %}

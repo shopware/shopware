@@ -55,13 +55,11 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_mapping_field_mapping_remove_action %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-else
                 class="sw-cms-mapping-field__action-remove"
-                role="button"
-                tabindex="0"
                 @click="onMappingRemove"
-                @keydown.enter="onMappingRemove"
             >
                 <sw-icon name="regular-times" />
                 <span class="sw-cms-mapping-field__action-label">
@@ -102,7 +100,7 @@
             <slot
                 v-if="demoValue !== null"
                 name="preview"
-                :demo-value="demoValue"
+                :demoValue="demoValue"
             ></slot>
 
             <sw-alert

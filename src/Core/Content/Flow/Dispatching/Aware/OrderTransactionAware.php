@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 interface OrderTransactionAware extends FlowEventAware
 {
     public const ORDER_TRANSACTION_ID = 'orderTransactionId';

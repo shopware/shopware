@@ -6,9 +6,6 @@ const { get, cloneDeep } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-/**
- * @package services-settings
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -491,9 +488,9 @@ export default {
             return this.loadEntityData();
         },
 
-        async saveFinish() {
+        saveFinish() {
             if (this.documentConfig.isNew()) {
-                await this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+                this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
             }
             this.loadEntityData();
         },

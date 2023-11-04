@@ -40,7 +40,7 @@
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
                 alt=""
             >
 
@@ -78,7 +78,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                        :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
                         alt=""
                     >
 
@@ -91,19 +91,12 @@
                 </sw-meteor-card>
 
                 <template v-else>
-                    <template
-                        v-for="entry in extensionListPaginated"
-                        {% if VUE3 %}
-                        :key="entry.name"
-                        {% endif %}
-                    >
+                    <template v-for="entry in extensionListPaginated">
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                            {% if VUE2 %}
                             :key="entry.name"
-                            {% endif %}
                             :extension="entry"
-                            @update-list="updateList"
+                            @updateList="updateList"
                         />
                     </template>
 

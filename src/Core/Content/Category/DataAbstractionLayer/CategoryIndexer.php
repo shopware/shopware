@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('inventory')]
+#[Package('content')]
 class CategoryIndexer extends EntityIndexer
 {
     final public const CHILD_COUNT_UPDATER = 'category.child-count';

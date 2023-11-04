@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-settings-cache-modal.twig';
 

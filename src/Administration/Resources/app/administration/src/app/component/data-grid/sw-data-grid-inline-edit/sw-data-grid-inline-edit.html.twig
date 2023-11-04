@@ -6,31 +6,23 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_string %}
-    <sw-text-field
+    <sw-field
         v-if="column.inlineEdit === 'string'"
         key="string"
-        {% if VUE3 %}
-        v-model:value="currentValue"
-        {% else %}
         v-model="currentValue"
-        {% endif %}
-        name="sw-field--currentValue"
         :size="inputFieldSize"
+        type="text"
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_number %}
-    <sw-number-field
+    <sw-field
         v-else-if="column.inlineEdit === 'number'"
         key="number"
-        {% if VUE3 %}
-        v-model:value="currentValue"
-        {% else %}
         v-model="currentValue"
-        {% endif %}
-        name="sw-field--currentValue"
         :size="inputFieldSize"
+        type="number"
     />
     {% endblock %}
 
@@ -39,12 +31,7 @@
     <sw-checkbox-field
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
-        {% if VUE3 %}
-        v-model:value="currentValue"
-        {% else %}
         v-model="currentValue"
-        {% endif %}
-        name="sw-field--currentValue"
     />
     {% endblock %}
 

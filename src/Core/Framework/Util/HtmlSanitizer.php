@@ -31,8 +31,7 @@ class HtmlSanitizer
         ?string $cacheDir = null,
         private readonly bool $cacheEnabled = true,
         private array $sets = [],
-        private readonly array $fieldSets = [],
-        private readonly bool $enabled = true
+        private readonly array $fieldSets = []
     ) {
         $this->cacheDir = (string) $cacheDir;
     }
@@ -42,10 +41,6 @@ class HtmlSanitizer
      */
     public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
     {
-        if (!$this->enabled) {
-            return $text;
-        }
-
         $options ??= [];
 
         $hash = md5(sprintf('%s%s', json_encode($options, \JSON_THROW_ON_ERROR), $field));

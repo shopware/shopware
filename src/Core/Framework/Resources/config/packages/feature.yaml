@@ -7,24 +7,3 @@ shopware:
       - name: v6.6.0.0
         default: false
         major: true
-      - name: v6.7.0.0
-        default: false
-        major: true
-      - name: VUE3
-        default: false
-        major: true
-      - name: media_path
-        default: false
-        major: true
-        description: "Enables new media path behavior, which calls new services to generate media urls"
-      - name: ES_MULTILINGUAL_INDEX
-        default: false
-        major: true
-        description: "Change Elasticsearch mapping data to support multi languages in one index"
-      - name: STOCK_HANDLING
-        default: false
-        major: false
-      - name: ASYNC_THEME_COMPILATION
-        default: false
-        major: true
-        description: "Asynchronous theme compilation via message queue - experimental stableVersion:v6.6.0 feature:ASYNC_THEME_COMPILATION"

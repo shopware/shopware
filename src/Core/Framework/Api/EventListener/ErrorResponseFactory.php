@@ -9,11 +9,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @phpstan-type DefaultExceptionData array{code: string, status: string, title: string, detail: string|null, meta?: array{trace: array<int|string, mixed>, file: string, line: int, previous?: mixed}}
- *
- * @phpstan-import-type ErrorData from ShopwareHttpException as ShopwareExceptionData
- */
 #[Package('core')]
 class ErrorResponseFactory
 {
@@ -31,9 +26,6 @@ class ErrorResponseFactory
         return $response;
     }
 
-    /**
-     * @return array<DefaultExceptionData|ShopwareExceptionData>
-     */
     public function getErrorsFromException(\Throwable $exception, bool $debug = false): array
     {
         if ($exception instanceof ShopwareHttpException) {
@@ -42,10 +34,7 @@ class ErrorResponseFactory
                 $errors[] = $error;
             }
 
-            /** @var array<ShopwareExceptionData> $errors */
-            $errors = $this->convert($errors);
-
-            return $errors;
+            return $this->convert($errors);
         }
 
         return [$this->convertExceptionToError($exception, $debug)];
@@ -64,17 +53,11 @@ class ErrorResponseFactory
         return 500;
     }
 
-    /**
-     * @return array<string, string>
-     */
     private function getHeadersFromException(\Throwable $exception): array
     {
         return $exception instanceof OAuthServerException ? $exception->getHttpHeaders() : [];
     }
 
-    /**
-     * @return DefaultExceptionData
-     */
     private function convertExceptionToError(\Throwable $exception, bool $debug = false): array
     {
         $statusCode = $this->getStatusCodeFromException($exception);
@@ -82,7 +65,7 @@ class ErrorResponseFactory
         $error = [
             'code' => (string) $exception->getCode(),
             'status' => (string) $statusCode,
-            'title' => (string) (Response::$statusTexts[$statusCode] ?? 'unknown status'),
+            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
             'detail' => $exception->getMessage(),
         ];
 
@@ -106,11 +89,6 @@ class ErrorResponseFactory
         return $error;
     }
 
-    /**
-     * @param array<string|int, mixed> $array
-     *
-     * @return array<string|int, mixed>
-     */
     private function convert(array $array): array
     {
         foreach ($array as $key => $value) {
@@ -126,7 +104,7 @@ class ErrorResponseFactory
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
                 } elseif (!mb_detect_encoding($value, $encodings, true)) {
-                    $array[$key] = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+                    $array[$key] = utf8_encode($value);
                 }
             }
             // @codeCoverageIgnoreEnd

@@ -42,7 +42,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
     {
         /** @var list<array{id: string, name: string, entity_name: string}> $customMediaFields */
         $customMediaFields = $this->connection->fetchAllAssociative(
-            <<<'SQL'
+            <<<SQL
             SELECT f.id, f.name, fsr.entity_name
             FROM custom_field f
             INNER JOIN custom_field_set fs ON (f.set_id = fs.id)
@@ -58,7 +58,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) IN (?)";
+                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) as media_id FROM {$table} WHERE JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) IN (?)";
             }
         }
 
@@ -84,16 +84,13 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
     {
         /** @var list<array{id: string, name: string, entity_name: string}> $results */
         $results = $this->connection->fetchAllAssociative(
-            sprintf(
-                <<<'SQL'
-                SELECT f.id, f.name, fsr.entity_name
-                FROM custom_field f
-                INNER JOIN custom_field_set fs ON (f.set_id = fs.id)
-                INNER JOIN custom_field_set_relation fsr ON (fs.id = fsr.set_id)
-                WHERE f.type = 'select' AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.entity')) = 'media' AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.componentName')) = '%s'
-                SQL,
-                $componentType
-            )
+            <<<SQL
+            SELECT f.id, f.name, fsr.entity_name
+            FROM custom_field f
+            INNER JOIN custom_field_set fs ON (f.set_id = fs.id)
+            INNER JOIN custom_field_set_relation fsr ON (fs.id = fsr.set_id)
+            WHERE f.type = 'select' AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.entity')) = 'media' AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.componentName')) = '{$componentType}'
+            SQL
         );
 
         return $results;
@@ -110,7 +107,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) IN (?)";
+                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) as media_id FROM {$table} WHERE JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) IN (?)";
             }
         }
 
@@ -140,18 +137,13 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = sprintf(
-                    <<<'SQL'
-                    SELECT JSON_EXTRACT(custom_fields, "$.%s") as mediaIds FROM `%s`
-                    WHERE JSON_OVERLAPS(
-                        JSON_EXTRACT(custom_fields, "$.%s"),
-                        JSON_ARRAY(?)
-                    );
-                    SQL,
-                    $field,
-                    $table,
-                    $field
+                $statements[] = <<<SQL
+                SELECT JSON_EXTRACT(custom_fields, "$.{$field}") as mediaIds FROM {$table}
+                WHERE JSON_OVERLAPS(
+                    JSON_EXTRACT(custom_fields, "$.{$field}"),
+                    JSON_ARRAY(?)
                 );
+                SQL;
             }
         }
 

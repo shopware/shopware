@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class LineItemWrapperRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemWrapper';

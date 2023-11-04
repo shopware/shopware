@@ -14,7 +14,7 @@ Component.register('sw-skeleton', {
             type: String,
             required: false,
             default: 'detail',
-            validator(value: string) {
+            validator(value) {
                 const variants = [
                     'gallery',
                     'detail',

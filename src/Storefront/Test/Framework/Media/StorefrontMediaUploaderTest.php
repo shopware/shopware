@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Test\Framework\Media;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileSaver;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -51,9 +51,9 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailFilenameContainsPhp(): void
     {
-        $this->expectException(MediaException::class);
+        $this->expectException(IllegalFileNameException::class);
         $this->expectExceptionMessage(
-            MediaException::illegalFileName('contains.php.pdf', 'contains PHP related file extension')->getMessage()
+            (new IllegalFileNameException('contains.php.pdf', 'contains PHP related file extension'))->getMessage()
         );
 
         $file = $this->getUploadFixture('contains.php.pdf');
@@ -107,7 +107,9 @@ class StorefrontMediaUploaderTest extends TestCase
 
     private function removeMedia(string $ids): void
     {
-        $ids = [$ids];
+        if (!\is_array($ids)) {
+            $ids = [$ids];
+        }
 
         $this->getContainer()->get('media.repository')->delete(
             array_map(static fn (string $id) => ['id' => $id], $ids),

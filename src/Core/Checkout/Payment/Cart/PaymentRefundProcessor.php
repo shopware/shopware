@@ -7,8 +7,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Exception\InvalidRefundTransitionException;
 use Shopware\Core\Checkout\Payment\Exception\RefundException;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,23 +44,23 @@ class PaymentRefundProcessor
             ->fetchAssociative();
 
         if (!$result || !\array_key_exists('technical_name', $result) || !\array_key_exists('payment_method_id', $result)) {
-            throw PaymentException::unknownRefund($refundId);
+            throw new UnknownRefundException($refundId);
         }
 
         if ($result['technical_name'] !== OrderTransactionCaptureRefundStates::STATE_OPEN) {
-            throw PaymentException::refundInvalidTransition($refundId, $result['technical_name']);
+            throw new InvalidRefundTransitionException($refundId, $result['technical_name']);
         }
 
         $paymentMethodId = Uuid::fromBytesToHex($result['payment_method_id']);
         $refundHandler = $this->paymentHandlerRegistry->getRefundPaymentHandler($paymentMethodId);
 
         if (!$refundHandler instanceof RefundPaymentHandlerInterface) {
-            throw PaymentException::unknownRefundHandler($refundId);
+            throw new UnknownRefundHandlerException($refundId);
         }
 
         try {
             $refundHandler->refund($refundId, $context);
-        } catch (RefundException|PaymentException $e) {
+        } catch (RefundException $e) {
             $this->stateHandler->fail($refundId, $context);
 
             throw $e;

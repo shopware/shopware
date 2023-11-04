@@ -10,8 +10,6 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1604669773UpdateMailTemplate extends MigrationStep

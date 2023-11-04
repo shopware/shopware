@@ -11,7 +11,7 @@ const { createId, types } = Shopware.Utils;
 Component.register('sw-admin-menu-item', {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: ['acl'],
 
     props: {
         entry: {
@@ -112,18 +112,8 @@ Component.register('sw-admin-menu-item', {
 
     methods: {
         hasAccessToRoute(path) {
-            let route = '';
-            let match = false;
-
-            if (Shopware.Service('feature').isActive('VUE3')) {
-                route = `/${path.replace(/\./g, '/')}`;
-                match = this.$router.resolve({
-                    path: route,
-                });
-            } else {
-                route = path.replace(/\./g, '/');
-                match = this.$router.match(route);
-            }
+            const route = path.replace(/\./g, '/');
+            const match = this.$router.match(route);
 
             if (!match.meta) {
                 return true;

@@ -3,7 +3,7 @@ import './sw-cms-block-preview-category-navigation.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

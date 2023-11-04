@@ -7,7 +7,7 @@ import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
 
 Shopware.Component.register('sw-property-detail', swPropertyDetail);
 
-async function createWrapper() {
+async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-property-detail'), {
         provide: {
             repositoryFactory: {
@@ -29,6 +29,13 @@ async function createWrapper() {
                     }),
                     search: () => Promise.resolve({}),
                 }),
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                },
             },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([]),
@@ -55,9 +62,15 @@ async function createWrapper() {
 }
 
 describe('module/sw-property/page/sw-property-detail', () => {
-    it('should not be able to save the property', async () => {
-        global.activeAclRoles = [];
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
+        expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
+    });
+
+    it('should not be able to save the property', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false,
@@ -67,12 +80,14 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should be able to save the property', async () => {
-        global.activeAclRoles = ['property.editor'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'property.editor',
+        ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -84,5 +99,7 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapper.destroy();
     });
 });

@@ -27,8 +27,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     props: {
         error: {
             type: Object,
@@ -83,21 +81,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
         combinedError() {
             return this.errorUrl || this.error;
         },
-
-        unicodeUriFilter() {
-            return Shopware.Filter.getByName('unicodeUri');
-        },
     },
 
     watch: {
         value() {
-            if (this.feature.isActive('VUE3')) {
-                this.$nextTick(() => {
-                    this.checkInput(this.value || '');
-                });
-            } else {
-                this.checkInput(this.value || '');
-            }
+            this.checkInput(this.value || '');
         },
     },
 
@@ -134,19 +122,14 @@ Component.extend('sw-url-field', 'sw-text-field', {
             } else {
                 this.currentValue = validated;
 
-                if (this.feature.isActive('VUE3')) {
-                    if (this.value !== this.url) {
-                        this.$emit('update:value', this.url);
-                    }
-                    return;
-                }
-
                 this.$emit('input', this.url);
             }
         },
 
         handleEmptyUrl() {
             this.currentValue = '';
+
+            this.$emit('input', '');
         },
 
         validateCurrentValue(value) {
@@ -173,7 +156,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 .toString()
                 .replace(URL_REGEX.PROTOCOL, '')
                 .replace(removeTrailingSlash, '')
-                .replace(url.host, this.unicodeUriFilter(url.host));
+                .replace(url.host, this.$options.filters.unicodeUri(url.host));
         },
 
         changeMode(disabled) {
@@ -182,11 +165,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.url);
-                return;
-            }
-
             this.$emit('input', this.url);
         },
 

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class CustomTriggerByNameNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $eventName)

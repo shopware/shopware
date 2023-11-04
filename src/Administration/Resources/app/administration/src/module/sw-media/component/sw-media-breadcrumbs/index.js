@@ -4,16 +4,13 @@ import './sw-media-breadcrumbs.scss';
 const { Context } = Shopware;
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'currentFolderId',
@@ -90,12 +87,6 @@ export default {
         },
 
         onBreadcrumbsItemClicked(id) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:currentFolderId', id);
-
-                return;
-            }
-
             this.$emit('media-folder-change', id);
         },
     },

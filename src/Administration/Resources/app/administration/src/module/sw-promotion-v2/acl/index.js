@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 const { Service } = Shopware;
 
 Service('privileges')

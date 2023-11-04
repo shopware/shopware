@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,16 +47,12 @@ class NotificationController extends AbstractController
             throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
-        if (empty($status)) {
-            throw RoutingException::missingRequestParameter('status');
-        }
-
-        if (empty($message)) {
-            throw RoutingException::missingRequestParameter('message');
+        if (empty($status) || empty($message)) {
+            throw new \InvalidArgumentException('status and message cannot be empty');
         }
 
         if (!\is_array($requiredPrivileges)) {
-            throw RoutingException::invalidRequestParameter('requiredPrivileges');
+            throw new \InvalidArgumentException('requiredPrivileges must be an array');
         }
 
         $integrationId = $source->getIntegrationId();

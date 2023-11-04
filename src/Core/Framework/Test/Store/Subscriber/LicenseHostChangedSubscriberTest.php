@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -58,7 +57,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
             [
                 'localeId' => $adminUser->getLocaleId(),
                 'username' => 'admin2',
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => 'v3rys3cr3t',
                 'firstName' => 'admin2',
                 'lastName' => 'admin2',
                 'email' => 'admin2@shopware.com',
@@ -67,7 +66,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
             [
                 'localeId' => $adminUser->getLocaleId(),
                 'username' => 'admin3',
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => 'v3rys3cr3t',
                 'firstName' => 'admin3',
                 'lastName' => 'admin3',
                 'email' => 'admin3@shopware.com',

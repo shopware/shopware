@@ -12,19 +12,29 @@ use Shopware\Core\Framework\Log\Package;
 class Config extends XmlElement
 {
     /**
-     * @var list<InputField>
+     * @param InputField[] $config
      */
-    protected array $config;
+    public function __construct(protected array $config)
+    {
+    }
 
     /**
-     * @return list<InputField>
+     * @return InputField[]
      */
     public function getConfig(): array
     {
         return $this->config;
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseInputField($element));
+    }
+
+    /**
+     * @return array<int, InputField>
+     */
+    private static function parseInputField(\DOMElement $element): array
     {
         $values = [];
 
@@ -32,6 +42,6 @@ class Config extends XmlElement
             $values[] = InputField::fromXml($parameter);
         }
 
-        return ['config' => $values];
+        return $values;
     }
 }

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  * @memberOf module:core/service/rule-assignment-configuration
  * @constructor
  * @method createRuleAssignmentConfigService

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 final class DeliveryNoteOrdersEvent extends DocumentOrderEvent
 {
 }

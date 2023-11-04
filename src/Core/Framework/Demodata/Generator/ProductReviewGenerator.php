@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -25,8 +24,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
     public function __construct(
         private readonly EntityWriterInterface $writer,
         private readonly ProductReviewDefinition $productReviewDefinition,
-        private readonly Connection $connection,
-        private readonly ProductReviewCountService $productReviewCountService
+        private readonly Connection $connection
     ) {
     }
 
@@ -49,46 +47,27 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
 
         $payload = [];
 
-        $writeContext = WriteContext::createFromContext($context->getContext());
-
-        $customerIdsWithReviews = [];
-
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $customerId = $context->getFaker()->randomElement($customerIds);
-            \assert(\is_string($customerId));
-            $customerIdsWithReviews[$customerId] = true;
-
             $payload[] = [
                 'id' => Uuid::randomHex(),
                 'productId' => $context->getFaker()->randomElement($productIds),
-                'customerId' => $customerId,
+                'customerId' => $context->getFaker()->randomElement($customerIds),
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'externalUser' => $context->getFaker()->name(),
-                'externalEmail' => $context->getFaker()->email(),
+                'externalUser' => $context->getFaker()->name,
+                'externalEmail' => $context->getFaker()->email,
                 'title' => $context->getFaker()->sentence(),
                 'content' => $context->getFaker()->text(),
                 'points' => $context->getFaker()->randomElement($points),
                 'status' => (bool) random_int(0, 1),
             ];
-
-            if (\count($payload) >= 100) {
-                $this->writer->upsert($this->productReviewDefinition, $payload, $writeContext);
-
-                $context->getConsole()->progressAdvance(\count($payload));
-
-                $payload = [];
-            }
         }
 
-        if (!empty($payload)) {
-            $this->writer->upsert($this->productReviewDefinition, $payload, $writeContext);
+        $writeContext = WriteContext::createFromContext($context->getContext());
 
-            $context->getConsole()->progressAdvance(\count($payload));
-        }
-
-        foreach ($customerIdsWithReviews as $customerId => $_) {
-            $this->productReviewCountService->updateReviewCountForCustomer(Uuid::fromHexToBytes($customerId));
+        foreach (array_chunk($payload, 100) as $chunk) {
+            $this->writer->upsert($this->productReviewDefinition, $chunk, $writeContext);
+            $context->getConsole()->progressAdvance(\count($chunk));
         }
 
         $context->getConsole()->progressFinish();

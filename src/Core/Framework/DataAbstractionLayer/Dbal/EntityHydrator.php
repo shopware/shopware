@@ -65,13 +65,11 @@ class EntityHydrator
     }
 
     /**
-     * @template TEntityCollection of EntityCollection<Entity>
-     *
-     * @param TEntityCollection $collection
+     * @param EntityCollection<Entity> $collection
      * @param array<mixed> $rows
      * @param array<string|array<string>> $partial
      *
-     * @return TEntityCollection
+     * @return EntityCollection<Entity>
      */
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context, array $partial = []): EntityCollection
     {
@@ -80,7 +78,6 @@ class EntityHydrator
         self::$partial = $partial;
 
         if (!empty(self::$partial)) {
-            /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
         }
 
@@ -419,11 +416,11 @@ class EntityHydrator
                  * We need to join the first two to get the inherited field value of the main translation
                  */
                 $values = [
-                    self::value($row, $chain[1], $propertyName),
                     self::value($row, $chain[0], $propertyName),
+                    self::value($row, $chain[1], $propertyName),
                 ];
 
-                $merged = $this->mergeJson($values);
+                $merged = $this->mergeJson(array_reverse($values, false));
                 $decoded = $customField->getSerializer()->decode($customField, $merged);
                 $entity->assign([$propertyName => $decoded]);
             }

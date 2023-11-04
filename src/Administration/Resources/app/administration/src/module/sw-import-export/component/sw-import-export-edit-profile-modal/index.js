@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';

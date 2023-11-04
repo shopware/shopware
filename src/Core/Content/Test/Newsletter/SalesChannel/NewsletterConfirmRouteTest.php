@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class NewsletterConfirmRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

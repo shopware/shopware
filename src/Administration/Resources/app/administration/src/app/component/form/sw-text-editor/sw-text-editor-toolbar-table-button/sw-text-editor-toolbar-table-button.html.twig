@@ -4,12 +4,9 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
-    <sw-switch-field
-        {% if VUE3 %}
-        v-model:value="addTableHead"
-        {% else %}
+    <sw-field
         v-model="addTableHead"
-        {% endif %}
+        type="switch"
         :label="$tc('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}
@@ -17,44 +14,30 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_grid_input %}
     <div class="sw-text-editor-toolbar-table-button__grid-input">
-        <sw-number-field
-            {% if VUE3 %}
-            v-model:value="selectedCols"
-            {% else %}
+        <sw-field
             v-model="selectedCols"
-            {% endif %}
+            type="number"
             number-type="int"
             :min="0"
             :max="colMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.cols')"
             @input-change="setSelectedCols"
-            {% if VUE3 %}
-            @update:value="setSelectedCols"
-            {% else %}
             @change="setSelectedCols"
-            {% endif %}
         />
         <sw-icon
             class="sw-text-editor-toolbar-table-button__grid-input-icon"
             name="regular-times"
             size="12"
         />
-        <sw-number-field
-            {% if VUE3 %}
-            v-model:value="selectedRows"
-            {% else %}
+        <sw-field
             v-model="selectedRows"
-            {% endif %}
+            type="number"
             number-type="int"
             :min="0"
             :max="rowMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.rows')"
             @input-change="setSelectedRows"
-            {% if VUE3 %}
-            @update:value="setSelectedRows"
-            {% else %}
             @change="setSelectedRows"
-            {% endif %}
         />
     </div>
     {% endblock %}
@@ -65,7 +48,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <table
         class="sw-text-editor-toolbar-table-button__table"
         @click="emitTable"
@@ -112,7 +95,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_table_button_table_body_col %}
-                <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
                 <td
                     v-for="colIndex in tableCols"
                     :key="colIndex"

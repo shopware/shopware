@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -213,6 +212,7 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser(false);
 
         $username = Uuid::randomHex();
+        $password = Uuid::randomHex();
 
         $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::randomBytes(),
@@ -220,7 +220,7 @@ class AuthControllerTest extends TestCase
             'last_name' => '',
             'email' => 'test@example.com',
             'username' => $username,
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
             'active' => 1,
             'admin' => 1,
@@ -236,7 +236,7 @@ class AuthControllerTest extends TestCase
             'grant_type' => 'password',
             'client_id' => 'administration',
             'username' => $username,
-            'password' => 'shopware',
+            'password' => $password,
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload);
@@ -472,12 +472,13 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser(false);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
         $this->getContainer()->get(Connection::class)->insert('integration', [
             'id' => Uuid::randomBytes(),
             'label' => 'test integration',
             'access_key' => $accessKey,
-            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'secret_access_key' => password_hash($secretKey, \PASSWORD_BCRYPT),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -487,7 +488,7 @@ class AuthControllerTest extends TestCase
         $authPayload = [
             'grant_type' => 'client_credentials',
             'client_id' => $accessKey,
-            'client_secret' => 'shopware',
+            'client_secret' => $secretKey,
         ];
 
         $client->request('POST', '/api/oauth/token', $authPayload);
@@ -636,7 +637,7 @@ class AuthControllerTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $path = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
+        $path = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
         $this->loadAppsFromDir($path, false);
 
         $browser = $this->createClient();

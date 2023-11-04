@@ -77,7 +77,8 @@
                     name="result-item"
                     v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                 >
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         :selected="isSelected(item)"
                         :class="'sw-select-option--' + item.value"
                         v-bind="{ item, index }"
@@ -99,7 +100,7 @@
                             </template>
                         </slot>
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                 </slot>
             </template>
             {% endblock %}

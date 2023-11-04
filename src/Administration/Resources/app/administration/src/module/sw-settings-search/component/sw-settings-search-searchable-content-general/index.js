@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import template from './sw-settings-search-searchable-content-general.html.twig';
 
@@ -51,12 +51,6 @@ export default {
             type: Boolean,
             required: false,
             default: false,
-        },
-    },
-
-    computed: {
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

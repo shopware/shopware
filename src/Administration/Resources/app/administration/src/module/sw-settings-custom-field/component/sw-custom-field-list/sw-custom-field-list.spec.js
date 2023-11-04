@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swCustomFieldList from 'src/module/sw-settings-custom-field/component/sw-custom-field-list';

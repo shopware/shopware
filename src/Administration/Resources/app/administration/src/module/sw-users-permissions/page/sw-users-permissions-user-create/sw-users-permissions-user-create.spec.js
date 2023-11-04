@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsUserDefault from 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
@@ -100,10 +100,6 @@ async function createWrapper(privileges = []) {
             'sw-entity-multi-select': true,
             'sw-single-select': true,
             'sw-skeleton': true,
-            'sw-empty-state': true,
-            'sw-data-grid': true,
-            'sw-button': true,
-            'sw-context-menu-item': true,
         },
     });
 }

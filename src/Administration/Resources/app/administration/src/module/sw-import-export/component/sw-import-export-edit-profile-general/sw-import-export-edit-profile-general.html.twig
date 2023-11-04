@@ -16,12 +16,9 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_name %}
-        <sw-text-field
-            {% if VUE3 %}
-            v-model:value="profile.label"
-            {% else %}
+        <sw-field
             v-model="profile.label"
-            {% endif %}
+            type="text"
             :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
             required
             :disabled="profile.systemDefault"
@@ -44,11 +41,7 @@
             {% block sw_import_export_edit_profile_general_container_object_type_select %}
             <sw-single-select
                 ref="objectTypeSelect"
-                {% if VUE3 %}
-                v-model:value="profile.sourceEntity"
-                {% else %}
                 v-model="profile.sourceEntity"
-                {% endif %}
                 class="sw-import-export-edit-profile-general__object-type-select"
                 :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
                 required
@@ -62,7 +55,8 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_import_export_edit_profile_general_container_object_type_select_result %}
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         v-tooltip="{
                             showDelay: 300,
                             message: $tc('sw-import-export.profile.objectTypeDisabledText'),
@@ -89,7 +83,7 @@
                             {{ getKey(item, labelProperty) }}
                         </template>
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                     {% endblock %}
                 </template>
             </sw-single-select>
@@ -100,11 +94,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_type %}
         <sw-single-select
-            {% if VUE3 %}
-            v-model:value="profile.type"
-            {% else %}
             v-model="profile.type"
-            {% endif %}
             class="sw-import-export-edit-profile-general__type-select"
             :label="$tc('sw-import-export.profile.typeFieldLabel')"
             required
@@ -118,7 +108,8 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_general_container_type_result %}
-                <sw-select-result
+                <li
+                    is="sw-select-result"
                     v-tooltip="{
                         showDelay: 300,
                         message: $tc('sw-import-export.profile.profileTypeDisabledText'),
@@ -145,7 +136,7 @@
                         {{ getKey(item, labelProperty) }}
                     </template>
                     {% endblock %}
-                </sw-select-result>
+                </li>
                 {% endblock %}
             </template>
         </sw-single-select>

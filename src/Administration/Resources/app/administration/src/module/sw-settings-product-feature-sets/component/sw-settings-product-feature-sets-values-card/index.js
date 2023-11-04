@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 // eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-values-card.html.twig';
@@ -92,10 +89,6 @@ export default {
             }
 
             return this.translationService;
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

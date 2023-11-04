@@ -6,7 +6,7 @@ const { Context, Utils } = Shopware;
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -157,7 +157,7 @@ export default {
             });
 
             this.$emit('media-modal-selection-change', selectedMedia);
-            this.onEmitModalClosed();
+            this.$emit('modal-close');
         },
 
         /*

@@ -2,13 +2,11 @@ import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default {
     template,
-
-    inject: ['feature'],
 
     model: {
         prop: 'rating',
@@ -104,12 +102,6 @@ export default {
 
             // subtract because rtl direction is used
             this.ratingValue = this.maxRating - rating;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:rating', this.ratingValue);
-
-                return;
-            }
-
             this.$emit('rating-changed', this.ratingValue);
         },
 

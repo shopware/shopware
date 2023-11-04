@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\TestCaseHelper;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -31,6 +30,7 @@ class TestUser
     public static function createNewTestUser(Connection $connection, array $permissions = []): TestUser
     {
         $username = Uuid::randomHex();
+        $password = Uuid::randomHex();
         $email = Uuid::randomHex();
 
         $userId = Uuid::randomBytes();
@@ -50,7 +50,7 @@ class TestUser
             'last_name' => '',
             'email' => "{$email}@example.com",
             'username' => $username,
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => self::getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'admin' => 0,
@@ -70,7 +70,7 @@ class TestUser
             );
         }
 
-        return new TestUser('shopware', $username, Uuid::fromBytesToHex($userId));
+        return new TestUser($password, $username, Uuid::fromBytesToHex($userId));
     }
 
     public function authorizeBrowser(KernelBrowser $browser): void

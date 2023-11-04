@@ -3,7 +3,7 @@ import './sw-cms-block-text-two-column.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

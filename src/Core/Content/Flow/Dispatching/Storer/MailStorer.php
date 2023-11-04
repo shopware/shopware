@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class MailStorer extends FlowStorer
 {
     /**

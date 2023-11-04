@@ -16,11 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_transaction_capture_refund_position';
@@ -54,9 +53,7 @@ class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new VersionField())->addFlags(new ApiAware()),
             (new FkField('refund_id', 'refundId', OrderTransactionCaptureRefundDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new ReferenceVersionField(OrderTransactionCaptureRefundDefinition::class, 'refund_version_id'))->addFlags(new ApiAware(), new Required()),
             (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
 

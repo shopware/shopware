@@ -4,6 +4,7 @@ import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.ut
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
+import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 /**
  * @package storefront
@@ -72,8 +73,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _openMenu(event) {
+        const isFullwidth = ViewportDetection.isXS();
         OffcanvasMenuPlugin._stopEvent(event);
-        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
+        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position, undefined, undefined, isFullwidth);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');

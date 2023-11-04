@@ -9,8 +9,6 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1607581275AddProductSearchConfiguration extends MigrationStep

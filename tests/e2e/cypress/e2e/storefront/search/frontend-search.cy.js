@@ -1,7 +1,3 @@
-/// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
 let product = {};
 
 describe('Searches for products', () => {

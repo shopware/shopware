@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -13,7 +12,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
@@ -26,8 +24,7 @@ class CustomEntityLifecycleService
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityEnrichmentService $customEntityEnrichmentService,
         private readonly CustomEntityXmlSchemaValidator $customEntityXmlSchemaValidator,
-        private readonly string $projectDir,
-        private readonly AbstractAppLoader $appLoader
+        private readonly string $projectDir
     ) {
     }
 
@@ -46,14 +43,12 @@ class CustomEntityLifecycleService
 
     public function updateApp(string $appId, string $appPath): ?CustomEntityXmlSchema
     {
-        $resourcePath = $this->appLoader->locatePath($appPath, 'Resources');
-
-        if ($resourcePath === null) {
-            return null;
-        }
-
         return $this->update(
-            $resourcePath,
+            sprintf(
+                '%s/%s/Resources/',
+                $this->projectDir,
+                $appPath,
+            ),
             AppEntity::class,
             $appId
         );
@@ -79,7 +74,7 @@ class CustomEntityLifecycleService
 
     private function getXmlSchema(string $pathToCustomEntityFile): ?CustomEntityXmlSchema
     {
-        $filePath = Path::join($pathToCustomEntityFile, CustomEntityXmlSchema::FILENAME);
+        $filePath = $pathToCustomEntityFile . CustomEntityXmlSchema::FILENAME;
         if (!file_exists($filePath)) {
             return null;
         }
@@ -92,7 +87,7 @@ class CustomEntityLifecycleService
 
     private function getAdminUiXmlSchema(string $pathToCustomEntityFile): ?AdminUiXmlSchema
     {
-        $configPath = Path::join($pathToCustomEntityFile, 'config', AdminUiXmlSchema::FILENAME);
+        $configPath = $pathToCustomEntityFile . 'config/' . AdminUiXmlSchema::FILENAME;
 
         if (!file_exists($configPath)) {
             return null;

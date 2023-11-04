@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swOrderAddressModal from 'src/module/sw-order/component/sw-order-address-modal';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-address-modal', swOrderAddressModal);
@@ -15,7 +15,6 @@ async function createWrapper() {
         stubs: {
             'sw-modal': true,
             'sw-tabs': true,
-            'sw-tabs-item': true,
         },
         provide: {
             repositoryFactory: {
@@ -83,11 +82,5 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         expect(wrapper.vm.getCustomerInfo).not.toHaveBeenCalled();
 
         wrapper.vm.getCustomerInfo.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm.salutationFilter).toEqual(expect.any(Function));
     });
 });

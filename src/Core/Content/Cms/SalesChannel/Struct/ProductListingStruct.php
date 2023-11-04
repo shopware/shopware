@@ -2,30 +2,23 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class ProductListingStruct extends Struct
 {
     /**
-     * @var EntitySearchResult<ProductCollection>|null
+     * @var EntitySearchResult|null
      */
     protected $listing;
 
-    /**
-     * @return EntitySearchResult<ProductCollection>|null
-     */
     public function getListing(): ?EntitySearchResult
     {
         return $this->listing;
     }
 
-    /**
-     * @param EntitySearchResult<ProductCollection> $listing
-     */
     public function setListing(EntitySearchResult $listing): void
     {
         $this->listing = $listing;

@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import DeviceDetection from 'src/helper/device-detection.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 export default class OffCanvasAccountMenu extends Plugin {
@@ -37,7 +38,8 @@ export default class OffCanvasAccountMenu extends Plugin {
      * @private
      */
     _registerEventListeners() {
-        this.el.addEventListener('click', this._onClickAccountMenuTrigger.bind(this, this.el));
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        this.el.addEventListener(event, this._onClickAccountMenuTrigger.bind(this, this.el));
 
         document.addEventListener('Viewport/hasChanged', this._onViewportHasChanged.bind(this));
     }
@@ -57,7 +59,8 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         this._dropdown.classList.add(this.options.hiddenClass);
 
-        OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
+        const isFullwidth = ViewportDetection.isXS();
+        OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY(), isFullwidth);
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
 
         this.$emitter.publish('onClickAccountMenuTrigger');
@@ -70,8 +73,8 @@ export default class OffCanvasAccountMenu extends Plugin {
      */
     _onViewportHasChanged() {
         if (
-            this._isInAllowedViewports() === false
-            && OffCanvas.exists()
+            this._isInAllowedViewports() === false 
+            && OffCanvas.exists() 
             && OffCanvas.getOffCanvas()[0].classList.contains(this.options.additionalClass)
         ) {
             OffCanvas.close();

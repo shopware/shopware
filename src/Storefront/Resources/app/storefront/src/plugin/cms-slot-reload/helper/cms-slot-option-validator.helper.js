@@ -1,7 +1,6 @@
 import Iterator from 'src/helper/iterator.helper';
 
 /**
- * @deprecated tag:v6.6.0 - Helper "CmsSlotOptionValidatorHelper" will be removed without replacement. Helper is not used anymore.
  * @package content
  */
 export default class CmsSlotOptionValidatorHelper {

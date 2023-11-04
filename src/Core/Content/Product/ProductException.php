@@ -30,8 +30,8 @@ class ProductException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::SORTING_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'sorting', 'field' => 'key', 'value' => $key]
+            'Sorting with key "{{ key }}" not found.',
+            ['key' => $key]
         );
     }
 
@@ -59,8 +59,8 @@ class ProductException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CATEGORY_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'category', 'field' => 'id', 'value' => $categoryId]
+            'Category "{{ categoryId }}" not found.',
+            ['categoryId' => $categoryId]
         );
     }
 }

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep

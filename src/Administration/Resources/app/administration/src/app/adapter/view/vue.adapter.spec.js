@@ -168,8 +168,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component1'))();
-
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -218,7 +217,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component2'))();
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -254,7 +253,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component3'))();
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -298,7 +297,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component4'))();
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -340,7 +339,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
-        let wrapper = shallowMount(await buildComp);
+        let wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -350,7 +349,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Component.override('test-component-foobar-with-mixin', {});
 
         const buildOverrideComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
-        wrapper = shallowMount(await buildOverrideComp);
+        wrapper = shallowMount(await buildOverrideComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -411,7 +410,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('sw-test-component-extended'))();
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -451,7 +450,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         const buildComp = (await vueAdapter.createComponent('base-component'))();
-        const wrapper = shallowMount(await buildComp);
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.foo).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();

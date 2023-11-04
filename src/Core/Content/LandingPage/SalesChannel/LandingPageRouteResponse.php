@@ -6,7 +6,7 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class LandingPageRouteResponse extends StoreApiResponse
 {
     /**

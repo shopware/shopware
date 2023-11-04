@@ -12,19 +12,29 @@ use Shopware\Core\Framework\Log\Package;
 class Headers extends XmlElement
 {
     /**
-     * @var list<Parameter>
+     * @param Parameter[] $parameters
      */
-    protected array $parameters;
+    public function __construct(protected array $parameters)
+    {
+    }
 
     /**
-     * @return list<Parameter>
+     * @return Parameter[]
      */
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parseParameter($element));
+    }
+
+    /**
+     * @return array<int, Parameter>
+     */
+    private static function parseParameter(\DOMElement $element): array
     {
         $values = [];
 
@@ -32,6 +42,6 @@ class Headers extends XmlElement
             $values[] = Parameter::fromXml($parameters);
         }
 
-        return ['parameters' => $values];
+        return $values;
     }
 }

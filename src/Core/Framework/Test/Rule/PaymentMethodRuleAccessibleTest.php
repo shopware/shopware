@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,21 +14,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class PaymentMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository<RuleCollection>
+     * @var EntityRepository
      */
-    private EntityRepository $ruleRepository;
+    private $ruleRepository;
 
     protected function setUp(): void
     {
@@ -44,13 +43,13 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$rule[0]['id']]);
         $criteria->addAssociation('paymentMethods');
 
-        $searchedRule = $this->ruleRepository->search($criteria, $defaultContext)->getEntities()->first();
-        static::assertNotNull($searchedRule);
+        /** @var RuleEntity $searchedRule */
+        $searchedRule = $this->ruleRepository->search($criteria, $defaultContext)->first();
 
-        static::assertSame($rule[0]['id'] ?? null, $searchedRule->getId());
+        static::assertSame($rule[0]['id'], $searchedRule->getId());
         static::assertSame(
-            $rule[0]['paymentMethods'][0]['id'] ?? null,
-            $searchedRule->getPaymentMethods()?->first()?->getId()
+            $rule[0]['paymentMethods'][0]['id'],
+            $searchedRule->getPaymentMethods()->first()->getId()
         );
     }
 
@@ -66,7 +65,6 @@ class PaymentMethodRuleAccessibleTest extends TestCase
             'handlerIdentifier' => AsyncTestPaymentHandler::class,
             'created_at' => new \DateTime(),
             'name' => 'additional PaymentMethod',
-            'technicalName' => 'payment_additional',
         ];
 
         $this->ruleRepository->update([[
@@ -79,10 +77,10 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$rule[0]['id']]);
         $criteria->addAssociation('paymentMethods');
 
-        $searchedRule = $this->ruleRepository->search($criteria, $defaultContext)->getEntities()->first();
-        static::assertNotNull($searchedRule);
+        /** @var RuleEntity $searchedRule */
+        $searchedRule = $this->ruleRepository->search($criteria, $defaultContext)->first();
 
-        static::assertCount(2, $searchedRule->getPaymentMethods() ?? new PaymentMethodCollection());
+        static::assertCount(2, $searchedRule->getPaymentMethods());
     }
 
     public function testIfRuleWithAssocCanNotBeRemoved(): void
@@ -116,15 +114,13 @@ class PaymentMethodRuleAccessibleTest extends TestCase
 
         $this->ruleRepository->create($rule, $defaultContext);
 
-        $criteria = new Criteria([$rule[0]['paymentMethods'][0]['id'] ?? '']);
+        $criteria = new Criteria([$rule[0]['paymentMethods'][0]['id']]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepo */
-        $paymentMethodRepo = $this->getContainer()->get('payment_method.repository');
-        $paymentMethod = $paymentMethodRepo->search($criteria, $defaultContext)->getEntities()->first();
-        static::assertNotNull($paymentMethod);
+        /** @var PaymentMethodEntity $paymentMethod */
+        $paymentMethod = $this->getContainer()->get('payment_method.repository')->search($criteria, $defaultContext)->first();
 
-        static::assertSame($rule[0]['id'] ?? null, $paymentMethod->getAvailabilityRule()?->getId());
+        static::assertSame($rule[0]['id'], $paymentMethod->getAvailabilityRule()->getId());
     }
 
     public function testRuleAssociationsStayLikeLinked(): void
@@ -146,27 +142,19 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         /** @var RuleEntity $rule2 */
         $rule2 = $this->ruleRepository->search($criteria2, $defaultContext)->first();
 
-        $paymentMethods1 = $rule1->getPaymentMethods();
-        static::assertNotNull($paymentMethods1);
-        $paymentMethods2 = $rule2->getPaymentMethods();
-        static::assertNotNull($paymentMethods2);
-
         static::assertNotSame($rule1, $rule2);
-        static::assertNotSame($paymentMethods1->first(), $paymentMethods1->last());
+        static::assertNotSame($rule1->getPaymentMethods()->first(), $rule1->getPaymentMethods()->last());
 
-        static::assertCount(1, $paymentMethods1->filterByProperty('active', true));
-        static::assertCount(1, $paymentMethods1->filterByProperty('active', false));
+        static::assertCount(1, $rule1->getPaymentMethods()->filterByProperty('active', true));
+        static::assertCount(1, $rule1->getPaymentMethods()->filterByProperty('active', false));
 
-        static::assertCount(1, $paymentMethods2->filterByProperty('active', true));
-        static::assertCount(0, $paymentMethods2->filterByProperty('active', false));
+        static::assertCount(1, $rule2->getPaymentMethods()->filterByProperty('active', true));
+        static::assertCount(0, $rule2->getPaymentMethods()->filterByProperty('active', false));
 
-        static::assertCount(2, $paymentMethods1);
-        static::assertCount(1, $paymentMethods2);
+        static::assertCount(2, $rule1->getPaymentMethods());
+        static::assertCount(1, $rule2->getPaymentMethods());
     }
 
-    /**
-     * @return mixed[]
-     */
     private function createSimpleRule(): array
     {
         return [
@@ -180,16 +168,12 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'handlerIdentifier' => SyncTestPaymentHandler::class,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
-                        'technicalName' => 'payment_test',
                     ],
                 ],
             ],
         ];
     }
 
-    /**
-     * @return array<array{id: string, name: string, priority: int}>
-     */
     private function createSimpleRuleWithoutAssoc(): array
     {
         return [
@@ -201,9 +185,6 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         ];
     }
 
-    /**
-     * @return mixed[]
-     */
     private function createComplexRules(string $ruleId): array
     {
         return [
@@ -218,7 +199,6 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => true,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
-                        'technicalName' => 'payment_test',
                     ],
                     [
                         'id' => Uuid::randomHex(),
@@ -226,7 +206,6 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => false,
                         'created_at' => new \DateTime(),
                         'name' => 'unused paymentMethod',
-                        'technicalName' => 'payment_unused',
                     ],
                 ],
             ],
@@ -241,7 +220,6 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'active' => true,
                         'created_at' => new \DateTime('-2 days'),
                         'name' => 'paymentFreePayment',
-                        'technicalName' => 'payment_freepayment',
                     ],
                 ],
             ],

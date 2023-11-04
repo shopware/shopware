@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -37,6 +38,13 @@ abstract class Bundle extends SymfonyBundle
         $this->registerEvents($container);
     }
 
+    public function boot(): void
+    {
+        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName(), $this->getPath());
+
+        parent::boot();
+    }
+
     public function getMigrationNamespace(): string
     {
         return $this->getNamespace() . '\Migration';
@@ -60,9 +68,10 @@ abstract class Bundle extends SymfonyBundle
 
     public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
+        $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
-        if (file_exists($confDir)) {
+        if ($fileSystem->exists($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');

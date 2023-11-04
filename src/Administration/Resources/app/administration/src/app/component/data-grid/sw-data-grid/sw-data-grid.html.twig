@@ -32,13 +32,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_bulk_selected_actions %}
             <span class="sw-data-grid__bulk-selected bulk-link">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
                     v-if="hasInvisibleSelection"
                     class="link link-warning bulk-deselect-all"
-                    role="button"
-                    tabindex="0"
                     @click="resetSelection"
-                    @keydown.enter="resetSelection"
                 >
                     {{ $tc('global.sw-data-grid.labelDeSelectAll') }}
                 </a>
@@ -96,11 +94,7 @@
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :value="allSelectedChecked"
-                                {% if VUE3 %}
-                                @update:value="selectAll"
-                                {% else %}
                                 @change="selectAll"
-                                {% endif %}
                             />
                             {% endblock %}
                         </div>
@@ -133,25 +127,17 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_icon %}
                                 <sw-icon
-                                    v-if="column.iconLabel && column.iconTooltip"
-                                    v-tooltip="column.iconTooltip"
+                                    v-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
-                                </sw-icon>
-
-                                <sw-icon
-                                    v-else-if="column.iconLabel"
-                                    :name="column.iconLabel"
-                                >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
                                 </sw-icon>
                                 {% endblock %}
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
                                 </template>
                                 {% endblock %}
                             </slot>
@@ -215,7 +201,6 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_header_columns_resize %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                         <span
                             v-if="column.allowResize"
                             class="sw-data-grid__cell-resize"
@@ -322,11 +307,7 @@
                                 <sw-checkbox-field
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
-                                    {% if VUE3 %}
-                                    @update:value="selectItem($event, item)"
-                                    {% else %}
                                     @change="selectItem($event, item)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>
@@ -343,7 +324,6 @@
                         :key="`${item.id}-${columnIndex}`"
                         class="sw-data-grid__cell"
                         :class="getCellClasses(column)"
-                        role="gridcell"
                         @dblclick="onDbClickCell(item)"
                     >
 
@@ -497,7 +477,7 @@
                                 <slot
                                     name="actions"
                                     :item="item"
-                                    :item-index="itemIndex"
+                                    :itemIndex="itemIndex"
                                 >
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_slot_actions %}{% endblock %}

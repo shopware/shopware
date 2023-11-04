@@ -1,7 +1,7 @@
 import template from './sw-order-leave-page-modal.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class DifferentAddressesRule extends Rule
 {
     final public const RULE_NAME = 'customerDifferentAddresses';

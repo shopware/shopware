@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-#[Package('checkout')]
-class ZipCodeRangeRuleTypeFilter extends AbstractTaxRuleTypeFilter
+#[Package('customer-order')]
+class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
     final public const TECHNICAL_NAME = 'zip_code_range';
 
@@ -27,10 +27,6 @@ class ZipCodeRangeRuleTypeFilter extends AbstractTaxRuleTypeFilter
 
         if ($fromZipCode === null || $toZipCode === null || $zipCode < $fromZipCode || $zipCode > $toZipCode) {
             return false;
-        }
-
-        if ($taxRuleEntity->getActiveFrom() !== null) {
-            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

@@ -41,7 +41,6 @@
       "from": "Von",
       "to": "Bis",
       "bulkEdit": "Mehrfachänderung",
-      "back": "Zurück",
       "discard": "Verwerfen"
     },
     "notification": {
@@ -665,7 +664,7 @@
         },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
-        "daysSinceLastOrderRule": "Zeit seit letzter Bestellung",
+        "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
         "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
@@ -673,8 +672,8 @@
         "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
         "customerLoggedInRule": "Angemeldeter Kunde",
         "customerAgeRule": "Kundenalter",
-        "customerDaysSinceLastLogin": "Zeit seit der letzten Anmeldung",
-        "customerDaysSinceFirstLogin": "Zeit seit der ersten Anmeldung",
+        "customerDaysSinceLastLogin": "Tage seit der letzten Anmeldung",
+        "customerDaysSinceFirstLogin": "Tage seit der ersten Anmeldung",
         "customerAffiliateCodeRule": "Affiliate-Code",
         "customerCampaignCodeRule": "Kampagnen-Code",
         "cartAmountRule": "Gesamtsumme",
@@ -700,7 +699,6 @@
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
         "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
-        "orderDocumentTypeRule": "Bestellung mit Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -1030,8 +1028,7 @@
       "flow": "Flow Builder",
       "module": "Modul",
       "frequently_used": "Häufig verwendete",
-      "recently_searched": "Kürzlich gesucht",
-      "flow_sequence": "Flow"
+      "recently_searched": "Kürzlich gesucht"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -1572,7 +1569,13 @@
       "headline": "Gemeinsam Shopware verbessern",
       "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
       "learnMore": "Mehr erfahren",
-      "learnMoreUrl": "https://shopware.com/de/datenschutz/"
+      "learnMoreUrl": "https://shopware.com"
+    },
+    "sw-settings-usage-data-modal": {
+      "alertText": "Diese Einstellung gilt für alle Benutzer der Shopware Administration. Du kannst sie jederzeit unter {settings-path} ändern.",
+      "alertTextSettingsPath": "Einstellungen -> System -> Nutzungsdaten",
+      "decline": "Ablehnen",
+      "accept": "Annehmen"
     }
   }
 }

@@ -2,19 +2,25 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
-class BadCredentialsException extends CustomerException
+#[Package('customer-order')]
+class BadCredentialsException extends ShopwareHttpException
 {
     public function __construct()
     {
-        parent::__construct(
-            Response::HTTP_UNAUTHORIZED,
-            self::CUSTOMER_AUTH_BAD_CREDENTIALS,
-            'Invalid username and/or password.'
-        );
+        parent::__construct('Invalid username and/or password.');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_UNAUTHORIZED;
     }
 }
